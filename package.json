@@ -4,11 +4,11 @@
   "description": "A modern, responsive Body Mass Index calculator built with Next.js, TypeScript, and Tailwind CSS",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
-    "build": "next build",
-    "start": "next start",
+    "dev": "NEXT_TELEMETRY_DISABLED=1 next dev --turbo",
+    "build": "NEXT_TELEMETRY_DISABLED=1 next build",
+    "start": "NEXT_TELEMETRY_DISABLED=1 next start",
     "lint": "next lint",
-    "export": "next build && next export"
+    "export": "NEXT_TELEMETRY_DISABLED=1 next build"
   },
   "dependencies": {
     "next": "^15.0.0",
@@ -19,12 +19,12 @@
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
-    "autoprefixer": "^10.0.0",
-    "eslint": "^8.0.0",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^9.0.0",
     "eslint-config-next": "^15.0.0",
-    "postcss": "^8.0.0",
-    "tailwindcss": "^3.0.0",
-    "typescript": "^5.0.0"
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.3.0"
   },
   "keywords": [
     "bmi",
