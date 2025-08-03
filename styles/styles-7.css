@@ -1,0 +1,158 @@
+/* In 2025, I changed the style of the website to be more elegant but lightweight for any device */
+/* Author: rezky_nightly 2025 */
+
+:root {
+  /* Font Settings */
+  font-family: 'Inter', sans-serif;
+  font-feature-settings: 'liga' 1, 'calt' 1; /* Fix Chrome */
+
+  /* Background Colors */
+  --main-bg-color: #070a1c; /* Deep Space Blue */
+  --secondary-bg-color: #040717; /* Dark Galactic Black */
+  --accent-bg-color: #1b1f3a; /* Distant Nebula Blue */
+
+  /* Plasma & Glow Colors */
+  --plasma-blue: #4285f4; /* Electric Plasma Blue */
+  --plasma-purple: #9b59b6; /* Cosmic Purple */
+  --star-glow: #f4e542; /* Soft Yellow Star Glow */
+  --nebula-glow: #7f7fd5; /* Ethereal Nebula Glow */
+
+  /* Text Colors */
+  --text-color: #e0e0e0; /* Soft White */
+  --subtext-color: #c5c8e6; /* Light Bluish White */
+
+  /* Borders & Shadows */
+  --border-color: rgba(66, 133, 244, 0.5); /* Subtle Plasma Blue */
+  --shadow-color: rgba(7, 10, 28, 0.7); /* Deep Space Shadow */
+
+  /* Button Gradient */
+  --button-gradient: linear-gradient(135deg, var(--plasma-blue), var(--plasma-purple));
+
+  /* Container */
+  --container-bg: rgba(15, 20, 40, 0.85);
+  --container-border: rgba(255, 255, 255, 0.15);
+    --icon-1: rgba(128, 128, 128); /* Neutral icon color */
+}
+
+/* Variable Font Support */
+@supports (font-variation-settings: normal) {
+    :root {
+        font-family: InterVariable, sans-serif;
+    }
+}
+
+body {
+    background-color: rgb(7, 25, 68);
+    margin: 0;
+    padding: 0;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+html, body {
+    scroll-behavior: smooth;
+    height: auto;
+    overflow: auto;
+    margin: 0;
+    padding: 0
+}
+
+.main-container {
+    width: 90%;
+    max-width: 800px;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 30px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.main-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+    font-size: 2.4rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 20px;
+}
+
+.profile-info {
+    margin-bottom: 30px;
+}
+
+.profile-info i {
+    color: rgb(10, 139, 10);
+    margin-bottom: 20px;
+}
+
+.profile-info p {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 10px 0;
+}
+
+.profile-info strong {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.container-2 {
+    margin-top: 20px;
+}
+
+.container-2 h2 {
+    font-size: 1.8rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 20px;
+}
+
+#history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+#history-table th, #history-table td {
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: left;
+}
+
+#history-table th {
+    background: rgba(0, 0, 0, 0.6);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+#history-table td {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+footer {
+    margin-top: 30px;
+    background: rgba(0, 0, 0, 0.55);
+    padding: 10px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+    color: #fff;
+    border-radius: 0.5rem;
+}
+
+footer p {
+    font-size: 0.9rem;
+    margin: 5px;
+    color: grey;
+}
+
+footer i {
+    margin-right: 5px;
+}
