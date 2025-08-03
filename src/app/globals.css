@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Space Theme Variables */
+:root {
+  /* Font Settings */
+  font-family: 'Inter', sans-serif;
+  font-feature-settings: 'liga' 1, 'calt' 1;
+
+  /* Background Colors */
+  --main-bg-color: #070a1c; /* Deep Space Blue */
+  --secondary-bg-color: #040717; /* Dark Galactic Black */
+  --accent-bg-color: #1b1f3a; /* Distant Nebula Blue */
+
+  /* Plasma & Glow Colors */
+  --plasma-blue: #4285f4; /* Electric Plasma Blue */
+  --plasma-purple: #9b59b6; /* Cosmic Purple */
+  --star-glow: #f4e542; /* Soft Yellow Star Glow */
+  --nebula-glow: #7f7fd5; /* Ethereal Nebula Glow */
+
+  /* Text Colors */
+  --text-color: #e0e0e0; /* Soft White */
+  --subtext-color: #c5c8e6; /* Light Bluish White */
+
+  /* Borders & Shadows */
+  --border-color: rgba(66, 133, 244, 0.5); /* Subtle Plasma Blue */
+  --shadow-color: rgba(7, 10, 28, 0.7); /* Deep Space Shadow */
+
+  /* Button Gradient */
+  --button-gradient: linear-gradient(135deg, var(--plasma-blue), var(--plasma-purple));
+
+  /* Container */
+  --container-bg: rgba(15, 20, 40, 0.85);
+  --container-border: rgba(255, 255, 255, 0.15);
+  --icon-1: rgba(128, 128, 128); /* Neutral icon color */
+}
+
+/* Variable Font Support */
+@supports (font-variation-settings: normal) {
+  :root {
+    font-family: InterVariable, sans-serif;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: inherit;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  scroll-behavior: smooth;
+  height: auto;
+  overflow: auto;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-size: 14px;
+  color: var(--text-color);
+  background: radial-gradient(circle at 40% 80%, var(--main-bg-color) 10%, var(--accent-bg-color) 40%, var(--secondary-bg-color) 100%);
+  padding: min(5vw, 20px);
+  font-size: clamp(14px, 2vw, 18px);
+}
+
+/* Custom animations */
+@keyframes fadeInUp {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Component base styles */
+.space-container {
+  background: transparent;
+  border-radius: 1rem;
+  border-top: 1px solid var(--container-border);
+  border-left: 1px solid var(--container-border);
+  border-right: 1px solid var(--container-border);
+  padding: 30px;
+  margin: 20px auto;
+  max-width: 1000px;
+  text-align: center;
+}
+
+.space-button {
+  background: var(--button-gradient);
+  color: var(--text-color);
+  padding: 12px 30px;
+  border-radius: 1rem;
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.space-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(66, 133, 244, 0.3);
+}
+
+/* Icon colors */
+.fa-champagne-glasses { color: purple; }
+.fa-copyright { color: rgba(0, 128, 0, 0.8); }
+.fa-heart-circle-check { color: rgba(255, 0, 0, 0.8); }
+.fa-envelope { color: rgba(255, 255, 0, 0.8); }
+.fa-github { color: rgba(255, 255, 255, 0.8); }
+.fa-people-group { color: rgba(255, 255, 255, 0.8); }
+.fa-box-open { color: rgba(210, 105, 30, 0.8); }
+.fa-leaf.green-icon { color: #4ade80; }
