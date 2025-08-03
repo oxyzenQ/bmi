@@ -4,12 +4,13 @@
 A responsive BMI (Body Mass Index) calculator web application built with HTML, CSS, and JavaScript. Features a modern space-themed design with plasma colors and smooth animations.
 
 ## Architecture
-- **Frontend**: Pure HTML5, CSS3, JavaScript (ES6+)
-- **Styling**: Custom CSS with Inter font family, CSS variables for theming
-- **Assets**: Images and icons stored in `/assets` directory
-- **Pages**: Multi-page structure with separate HTML files in `/html` directory
-- **Scripts**: Modular JavaScript files in `/script` directory
-- **Styles**: Component-based CSS files in `/styles` directory
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript for type safety
+- **Styling**: Tailwind CSS with custom space theme variables
+- **Assets**: Images optimized with Next.js Image component in `/public/assets`
+- **Pages**: React components with file-based routing in `/src/app`
+- **Components**: Modular React components with hooks and state management
+- **Configuration**: PostCSS with Tailwind CSS and Autoprefixer
 
 ## Key Features
 - BMI calculation with category classification (Underweight, Healthy, Overweight, Obesity)
@@ -37,20 +38,25 @@ A responsive BMI (Body Mass Index) calculator web application built with HTML, C
 - Uses CDN resources for fonts and icons (Font Awesome, Inter font)
 
 ## Development Setup
-- Runs on Python's built-in HTTP server (port 5000)
-- No build process required - static files served directly
-- Cross-browser compatible modern web technologies
+- Runs on Next.js development server (port 5000)
+- Hot reload and fast refresh for rapid development
+- TypeScript compilation and Tailwind CSS processing
+- ESLint for code quality and consistency
 
 ## User Preferences
 - Author: Rezky Nightly
-- Design preference: Modern, space-themed aesthetic
-- Technology stack: Vanilla web technologies (no frameworks)
-- Responsive design approach: Mobile-first
+- Design preference: Modern, space-themed aesthetic preserved
+- Technology stack: Next.js with TypeScript and Tailwind CSS
+- Responsive design approach: Mobile-first (maintained)
+- Deployment preference: Vercel-optimized with zero configuration
 
 ## Recent Changes
-- **2025-08-03**: Migrated from Replit Agent to standard Replit environment
-- **2025-08-03**: Set up HTTP server workflow for static file serving
-- **2025-08-03**: Created project documentation structure
+- **2025-08-03**: Successfully migrated from static HTML to Next.js framework
+- **2025-08-03**: Converted all pages to React components with TypeScript
+- **2025-08-03**: Integrated Tailwind CSS with custom space theme variables
+- **2025-08-03**: Set up Next.js development server with hot reload
+- **2025-08-03**: Preserved all original design and BMI calculation functionality
+- **2025-08-03**: Added local development setup with package-local.json
 
 ## Deployment Notes
 - Static web application suitable for any HTTP server

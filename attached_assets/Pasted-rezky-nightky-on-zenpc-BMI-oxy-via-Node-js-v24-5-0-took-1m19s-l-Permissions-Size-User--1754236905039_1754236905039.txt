@@ -1,0 +1,96 @@
+rezky_nightky   on zenpc …/BMI-oxy [✓] via  Node.js v24.5.0 took 1m19s 
+❯ l
+Permissions Size User          Date Modified Name
+drwxr-xr-x     - rezky_nightky  3 Aug 23:57   .git
+drwxr-xr-x     - rezky_nightky  3 Aug 23:57   .next
+drwxr-xr-x     - rezky_nightky 24 Jun 13:25   assets
+drwxr-xr-x     - rezky_nightky  3 Aug 20:41   html
+drwxr-xr-x     - rezky_nightky  3 Aug 23:57   public
+drwxr-xr-x     - rezky_nightky  3 Aug 23:32   script
+drwxr-xr-x     - rezky_nightky  3 Aug 23:57  󰣞 src
+drwxr-xr-x     - rezky_nightky 24 Jun 13:25   styles
+.rw-r--r--   726 rezky_nightky 24 Jun 13:25  󰊢 .gitignore
+.rw-r--r--   703 rezky_nightky  3 Aug 23:57   .replit
+.rw-r--r--  2.0k rezky_nightky 24 Jun 13:25   index.html
+.rw-r--r--   211 rezky_nightky  3 Aug 23:57   next-env.d.ts
+.rw-r--r--   209 rezky_nightky  3 Aug 23:57   next.config.js
+.rw-r--r--    92 rezky_nightky  3 Aug 23:57   postcss.config.js
+.rw-r--r--  2.3k rezky_nightky  3 Aug 23:57   replit.md
+.rw-r--r--   959 rezky_nightky  3 Aug 23:57   tailwind.config.ts
+
+rezky_nightky   on zenpc …/BMI-oxy [✓] via  Node.js v24.5.0 took 0s 
+❯ npm install
+npm error code ENOENT
+npm error syscall open
+npm error path /tmp/apel/BMI-oxy/package.json
+npm error errno -2
+npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/tmp/apel/BMI-oxy/package.json'
+npm error enoent This is related to npm not being able to find a file.
+npm error enoent
+npm error A complete log of this run can be found in: /home/rezky_nightky/.npm/_logs/2025-08-03T15_58_21_897Z-debug-0.log
+
+rezky_nightky   on zenpc …/BMI-oxy [✓] via  Node.js v24.5.0 took 0s 
+✗ npm init -y
+Wrote to /tmp/apel/BMI-oxy/package.json:
+
+{
+  "name": "bmi-oxy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "next.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oxchin/DEVV3.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/oxchin/DEVV3/issues"
+  },
+  "homepage": "https://github.com/oxchin/DEVV3#readme"
+}
+
+
+
+
+rezky_nightky   on zenpc …/BMI-oxy [✓] is 󰏗 v1.0.0 via  Node.js v24.5.0 took 0s 
+❯ npm install
+
+up to date, audited 1 package in 135ms
+
+found 0 vulnerabilities
+
+rezky_nightky   on zenpc …/BMI-oxy [✓] is 󰏗 v1.0.0 via  Node.js v24.5.0 took 0s 
+❯ npm run build
+npm error Missing script: "build"
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run
+npm error A complete log of this run can be found in: /home/rezky_nightky/.npm/_logs/2025-08-03T15_59_59_667Z-debug-0.log
+
+rezky_nightky   on zenpc …/BMI-oxy [✓] is 󰏗 v1.0.0 via  Node.js v24.5.0 took 0s 
+✗ l
+Permissions Size User          Date Modified Name
+drwxr-xr-x     - rezky_nightky  3 Aug 23:57   .git
+drwxr-xr-x     - rezky_nightky  3 Aug 23:57   .next
+drwxr-xr-x     - rezky_nightky 24 Jun 13:25   assets
+drwxr-xr-x     - rezky_nightky  3 Aug 20:41   html
+drwxr-xr-x     - rezky_nightky  3 Aug 23:57   public
+drwxr-xr-x     - rezky_nightky  3 Aug 23:32   script
+drwxr-xr-x     - rezky_nightky  3 Aug 23:57  󰣞 src
+drwxr-xr-x     - rezky_nightky 24 Jun 13:25   styles
+.rw-r--r--   726 rezky_nightky 24 Jun 13:25  󰊢 .gitignore
+.rw-r--r--   703 rezky_nightky  3 Aug 23:57   .replit
+.rw-r--r--  2.0k rezky_nightky 24 Jun 13:25   index.html
+.rw-r--r--   211 rezky_nightky  3 Aug 23:57   next-env.d.ts
+.rw-r--r--   209 rezky_nightky  3 Aug 23:57   next.config.js
+.rw-r--r--   201 rezky_nightky  3 Aug 23:59   package-lock.json
+.rw-r--r--   469 rezky_nightky  3 Aug 23:59   package.json
+.rw-r--r--    92 rezky_nightky  3 Aug 23:57   postcss.config.js
+.rw-r--r--  2.3k rezky_nightky  3 Aug 23:57   replit.md
+.rw-r--r--   959 rezky_nightky  3 Aug 23:57   tailwind.config.ts
