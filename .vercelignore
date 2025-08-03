@@ -2,7 +2,6 @@
 node_modules/
 
 # Development files
-.next/
 .env.local
 .env.development.local
 .env.test.local
@@ -24,4 +23,7 @@ Thumbs.db
 # Custom
 *.key
 debug
-*.oxy 
+*.oxy
+
+# Keep .next directory for Vercel deployment
+# .next/ 
