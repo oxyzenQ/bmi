@@ -28,9 +28,7 @@ pids
 
 # Coverage directory used by tools like istanbul
 coverage/
-
-# nyc test coverage
-.nyc_output
+.nyc_output/
 
 # Dependency directories
 jspm_packages/
@@ -47,9 +45,6 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-
 # IDE
 .vscode/
 .idea/
@@ -59,6 +54,14 @@ jspm_packages/
 # OS
 .DS_Store
 Thumbs.db
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Temporary files
+*.tmp
+*.temp
 
 # Custom
 *.key

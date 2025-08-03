@@ -1,6 +1,10 @@
 # Dependencies
 node_modules/
 
+# Next.js build output
+.next/
+out/
+
 # Development files
 .env.local
 .env.development.local
@@ -25,5 +29,18 @@ Thumbs.db
 debug
 *.oxy
 
-# Keep .next directory for Vercel deployment
-# .next/ 
+# Build artifacts
+dist/
+build/
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp 
