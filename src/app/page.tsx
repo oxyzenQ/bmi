@@ -41,12 +41,12 @@ export default function HomePage() {
           className="mb-6"
         />
         
-        <h1 className="text-4xl font-bold text-space-text mb-4 text-center">
+        <h1 className="text-4xl font-bold text-white mb-4 text-center">
           Welcome to Our App
         </h1>
         
         <div className="mb-8">
-          <p className="text-xl text-space-subtext flex items-center gap-2">
+          <p className="text-xl text-gray-300 flex items-center gap-2">
             BMI Calculator Mature 
             <i className="fa-solid fa-leaf text-green-400"></i>
           </p>
@@ -62,13 +62,13 @@ export default function HomePage() {
         </div>
         
         <div className="mt-8">
-          <Link href="/about" className="text-space-text hover:text-plasma-blue transition-colors flex items-center gap-2">
+          <Link href="/about" className="text-white hover:text-blue-400 transition-colors flex items-center gap-2">
             <i className="fa-solid fa-receipt"></i>
             About
           </Link>
         </div>
         
-        <footer className="mt-12 text-center text-sm text-space-subtext border-t border-container-border pt-6">
+        <footer className="mt-12 text-center text-sm text-gray-400 border-t border-gray-600 pt-6">
           <p>
             <i className="fa-regular fa-copyright text-green-400 mr-1"></i>
             2024-2025 LOGIGO. All rights reserved. Designed by Rezky Nightly.

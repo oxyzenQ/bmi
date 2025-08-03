@@ -7,33 +7,6 @@
   /* Font Settings */
   font-family: 'Inter', sans-serif;
   font-feature-settings: 'liga' 1, 'calt' 1;
-
-  /* Background Colors */
-  --main-bg-color: #070a1c; /* Deep Space Blue */
-  --secondary-bg-color: #040717; /* Dark Galactic Black */
-  --accent-bg-color: #1b1f3a; /* Distant Nebula Blue */
-
-  /* Plasma & Glow Colors */
-  --plasma-blue: #4285f4; /* Electric Plasma Blue */
-  --plasma-purple: #9b59b6; /* Cosmic Purple */
-  --star-glow: #f4e542; /* Soft Yellow Star Glow */
-  --nebula-glow: #7f7fd5; /* Ethereal Nebula Glow */
-
-  /* Text Colors */
-  --text-color: #e0e0e0; /* Soft White */
-  --subtext-color: #c5c8e6; /* Light Bluish White */
-
-  /* Borders & Shadows */
-  --border-color: rgba(66, 133, 244, 0.5); /* Subtle Plasma Blue */
-  --shadow-color: rgba(7, 10, 28, 0.7); /* Deep Space Shadow */
-
-  /* Button Gradient */
-  --button-gradient: linear-gradient(135deg, var(--plasma-blue), var(--plasma-purple));
-
-  /* Container */
-  --container-bg: rgba(15, 20, 40, 0.85);
-  --container-border: rgba(255, 255, 255, 0.15);
-  --icon-1: rgba(128, 128, 128); /* Neutral icon color */
 }
 
 /* Variable Font Support */
@@ -64,8 +37,8 @@ html, body {
 
 body {
   font-size: 14px;
-  color: var(--text-color);
-  background: radial-gradient(circle at 40% 80%, var(--main-bg-color) 10%, var(--accent-bg-color) 40%, var(--secondary-bg-color) 100%);
+  color: #e0e0e0;
+  background: radial-gradient(circle at 40% 80%, #070a1c 10%, #1b1f3a 40%, #040717 100%);
   padding: min(5vw, 20px);
   font-size: clamp(14px, 2vw, 18px);
 }
@@ -97,9 +70,9 @@ body {
 .space-container {
   background: transparent;
   border-radius: 1rem;
-  border-top: 1px solid var(--container-border);
-  border-left: 1px solid var(--container-border);
-  border-right: 1px solid var(--container-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
   padding: 30px;
   margin: 20px auto;
   max-width: 1000px;
@@ -107,8 +80,8 @@ body {
 }
 
 .space-button {
-  background: var(--button-gradient);
-  color: var(--text-color);
+  background: linear-gradient(135deg, #4285f4, #9b59b6);
+  color: #e0e0e0;
   padding: 12px 30px;
   border-radius: 1rem;
   border: none;

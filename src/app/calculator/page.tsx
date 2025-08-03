@@ -93,7 +93,7 @@ export default function CalculatorPage() {
     <div className="min-h-screen py-8">
       <div className="space-container max-w-2xl">
         <div className="flex items-center justify-between mb-8">
-          <Link href="/" className="text-space-text hover:text-plasma-blue transition-colors">
+          <Link href="/" className="text-white hover:text-blue-400 transition-colors">
             <i className="fa-solid fa-arrow-left mr-2"></i>
             Back to Home
           </Link>
@@ -105,17 +105,17 @@ export default function CalculatorPage() {
           />
         </div>
 
-        <h1 className="text-3xl font-bold text-space-text mb-2 text-center">
+        <h1 className="text-3xl font-bold text-white mb-2 text-center">
           BMI Calculator
         </h1>
-        <p className="text-space-subtext text-center mb-8">
+        <p className="text-gray-300 text-center mb-8">
           Calculate your Body Mass Index and learn about your health status
         </p>
 
         <form onSubmit={calculateBMI} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="age" className="block text-space-text font-medium mb-2">
+              <label htmlFor="age" className="block text-white font-medium mb-2">
                 Age (years)
               </label>
               <input
@@ -124,7 +124,7 @@ export default function CalculatorPage() {
                 name="age"
                 value={formData.age}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 bg-space-dark border border-container-border rounded-lg text-space-text focus:outline-none focus:border-plasma-blue transition-colors"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-400 transition-colors"
                 placeholder="Enter your age"
                 min="1"
                 max="120"
@@ -132,30 +132,30 @@ export default function CalculatorPage() {
             </div>
 
             <div>
-              <label className="block text-space-text font-medium mb-2">
+              <label className="block text-white font-medium mb-2">
                 Gender
               </label>
               <div className="flex gap-4">
-                <label className="flex items-center text-space-text cursor-pointer">
+                <label className="flex items-center text-white cursor-pointer">
                   <input
                     type="radio"
                     name="gender"
                     value="male"
                     checked={formData.gender === 'male'}
                     onChange={handleInputChange}
-                    className="mr-2 accent-plasma-blue"
+                    className="mr-2 accent-blue-400"
                   />
                   <i className="fa-solid fa-person mr-1"></i>
                   Male
                 </label>
-                <label className="flex items-center text-space-text cursor-pointer">
+                <label className="flex items-center text-white cursor-pointer">
                   <input
                     type="radio"
                     name="gender"
                     value="female"
                     checked={formData.gender === 'female'}
                     onChange={handleInputChange}
-                    className="mr-2 accent-plasma-blue"
+                    className="mr-2 accent-blue-400"
                   />
                   <i className="fa-solid fa-person-dress mr-1"></i>
                   Female
@@ -164,7 +164,7 @@ export default function CalculatorPage() {
             </div>
 
             <div>
-              <label htmlFor="height" className="block text-space-text font-medium mb-2">
+              <label htmlFor="height" className="block text-white font-medium mb-2">
                 Height (cm)
               </label>
               <input
@@ -173,7 +173,7 @@ export default function CalculatorPage() {
                 name="height"
                 value={formData.height}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 bg-space-dark border border-container-border rounded-lg text-space-text focus:outline-none focus:border-plasma-blue transition-colors"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-400 transition-colors"
                 placeholder="Enter your height"
                 min="50"
                 max="300"
@@ -181,7 +181,7 @@ export default function CalculatorPage() {
             </div>
 
             <div>
-              <label htmlFor="weight" className="block text-space-text font-medium mb-2">
+              <label htmlFor="weight" className="block text-white font-medium mb-2">
                 Weight (kg)
               </label>
               <input
@@ -190,7 +190,7 @@ export default function CalculatorPage() {
                 name="weight"
                 value={formData.weight}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 bg-space-dark border border-container-border rounded-lg text-space-text focus:outline-none focus:border-plasma-blue transition-colors"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-400 transition-colors"
                 placeholder="Enter your weight"
                 min="10"
                 max="500"
@@ -219,15 +219,15 @@ export default function CalculatorPage() {
         </form>
 
         {bmiResult && (
-          <div className="mt-8 p-6 bg-space-dark rounded-lg border border-container-border text-center">
-            <h3 className="text-xl font-semibold text-space-text mb-4">Your BMI Result</h3>
+          <div className="mt-8 p-6 bg-gray-800 rounded-lg border border-gray-600 text-center">
+            <h3 className="text-xl font-semibold text-white mb-4">Your BMI Result</h3>
             <div className="text-4xl font-bold mb-2">
               <span className={bmiResult.categoryClass}>{bmiResult.value}</span>
             </div>
             <div className={`text-lg font-medium ${bmiResult.categoryClass}`}>
               {bmiResult.category}
             </div>
-            <div className="mt-4 text-sm text-space-subtext">
+            <div className="mt-4 text-sm text-gray-400">
               <p>BMI Categories:</p>
               <div className="mt-2 text-left max-w-md mx-auto">
                 <p className="text-blue-400">• Underweight: Below 18.5</p>
@@ -240,7 +240,7 @@ export default function CalculatorPage() {
         )}
 
         <div className="mt-8 text-center">
-          <Link href="/about" className="text-plasma-blue hover:text-nebula-glow transition-colors">
+          <Link href="/about" className="text-blue-400 hover:text-purple-400 transition-colors">
             Learn more about BMI <i className="fa-solid fa-arrow-right ml-1"></i>
           </Link>
         </div>

@@ -149,21 +149,6 @@
 :root {
   font-family: 'Inter', sans-serif;
   font-feature-settings: 'liga' 1, 'calt' 1;
-  --main-bg-color: #070a1c;
-  --secondary-bg-color: #040717;
-  --accent-bg-color: #1b1f3a;
-  --plasma-blue: #4285f4;
-  --plasma-purple: #9b59b6;
-  --star-glow: #f4e542;
-  --nebula-glow: #7f7fd5;
-  --text-color: #e0e0e0;
-  --subtext-color: #c5c8e6;
-  --border-color: rgba(66, 133, 244, 0.5);
-  --shadow-color: rgba(7, 10, 28, 0.7);
-  --button-gradient: linear-gradient(135deg, var(--plasma-blue), var(--plasma-purple));
-  --container-bg: rgba(15, 20, 40, 0.85);
-  --container-border: rgba(255, 255, 255, 0.15);
-  --icon-1: rgba(128, 128, 128);
 }
 @supports (font-variation-settings: normal) {
   :root {
@@ -189,8 +174,8 @@ html, body {
 }
 body {
   font-size: 14px;
-  color: var(--text-color);
-  background: radial-gradient(circle at 40% 80%, var(--main-bg-color) 10%, var(--accent-bg-color) 40%, var(--secondary-bg-color) 100%);
+  color: #e0e0e0;
+  background: radial-gradient(circle at 40% 80%, #070a1c 10%, #1b1f3a 40%, #040717 100%);
   padding: min(5vw, 20px);
   font-size: clamp(14px, 2vw, 18px);
 }
@@ -217,17 +202,17 @@ body {
 .space-container {
   background: transparent;
   border-radius: 1rem;
-  border-top: 1px solid var(--container-border);
-  border-left: 1px solid var(--container-border);
-  border-right: 1px solid var(--container-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
   padding: 30px;
   margin: 20px auto;
   max-width: 1000px;
   text-align: center;
 }
 .space-button {
-  background: var(--button-gradient);
-  color: var(--text-color);
+  background: linear-gradient(135deg, #4285f4, #9b59b6);
+  color: #e0e0e0;
   padding: 12px 30px;
   border-radius: 1rem;
   border: none;

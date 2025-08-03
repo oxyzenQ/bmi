@@ -1,4 +1,4 @@
-// File: /home/runner/workspace/src/app/page.tsx
+// File: /tmp/apel/BMI-oxy/src/app/page.tsx
 import * as entry from '../../../src/app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
