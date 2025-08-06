@@ -4,10 +4,9 @@
   "description": "A modern, responsive Body Mass Index calculator built with Next.js, TypeScript, and Tailwind CSS",
   "private": true,
   "scripts": {
-    "dev": "NEXT_TELEMETRY_DISABLED=1 next dev --turbo",
-    "build": "NEXT_TELEMETRY_DISABLED=1 next build",
-    "start": "NEXT_TELEMETRY_DISABLED=1 next start",
-    "lint": "next lint"
+    "dev": "NEXT_TELEMETRY_DISABLED=1 next dev --turbopack",
+    "build": "NEXT_TELEMETRY_DISABLED=1 next build --turbopack",
+    "start": "NEXT_TELEMETRY_DISABLED=1 next start"
   },
   "dependencies": {
     "next": "^15.0.0",
