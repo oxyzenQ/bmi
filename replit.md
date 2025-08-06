@@ -4,7 +4,7 @@
 A responsive BMI (Body Mass Index) calculator web application built with HTML, CSS, and JavaScript. Features a modern space-themed design with plasma colors and smooth animations.
 
 ## Architecture
-- **Framework**: Next.js 15 with App Router
+- **Framework**: Next.js 15 or Latest version with App Router
 - **Language**: TypeScript for type safety
 - **Styling**: Tailwind CSS with custom space theme variables
 - **Assets**: Images optimized with Next.js Image component in `/public/assets`
