@@ -94,6 +94,12 @@ else
     exit 1
 fi
 
+# Check if build directory exists
+if [ ! -d ".svelte-kit/output" ]; then
+    print_error "Build directory not found"
+    exit 1
+fi
+
 # Show build info
 echo ""
 echo "📊 Build Information:"

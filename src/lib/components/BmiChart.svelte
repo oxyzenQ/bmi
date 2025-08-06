@@ -35,7 +35,7 @@
   <div class="chart-wrapper">
     <svg width={chartWidth} height={chartHeight} class="bmi-chart">
       <!-- Background ranges -->
-      {#each bmiRanges as range, index}
+      {#each bmiRanges as range (range.label)}
         <rect
           x={getBmiPosition(range.min)}
           y="20"
@@ -81,7 +81,7 @@
       </text>
       
       <!-- Scale markers -->
-      {#each [0, 10, 20, 30, 40, 50] as marker, index}
+      {#each [0, 10, 20, 30, 40, 50] as marker (marker)}
         <line
           x1={getBmiPosition(marker)}
           y1="70"
