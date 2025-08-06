@@ -14,7 +14,7 @@ A modern, responsive Body Mass Index calculator built with Next.js, TypeScript, 
 ## 🛠️ Local Development Setup
 
 ### Prerequisites
-- Node.js 18 or higher
+- Node.js 18, Latest or higher
 - npm or yarn package manager
 
 ### Installation
