@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import Icon from '@iconify/svelte';
 
   onMount(() => {
     // Randomize background position on load and scroll
@@ -36,7 +37,7 @@
 <div class="min-h-screen flex flex-col items-center justify-center">
   <div class="space-container flex flex-col items-center max-w-lg w-full">
     <img 
-      src="/assets/logobmii.png" 
+      src="/assets/logobmii.webp" 
       alt="BMI Logo" 
       width="120" 
       height="120"
@@ -52,14 +53,14 @@
     <div class="mb-8">
       <p class="text-xl text-gray-300 flex items-center gap-2">
         BMI Calculator Mature 
-        <i class="fa-solid fa-leaf text-green-400"></i>
+        <Icon icon="fa6-solid:leaf" class="text-green-400" />
       </p>
     </div>
     
     <div class="space-y-4 w-full">
       <div class="flex justify-center">
         <a href="/calculator" class="space-button text-lg">
-          <i class="fa-solid fa-right-long"></i>
+          <Icon icon="fa6-solid:arrow-right-long" />
           Try Our Calculator
         </a>
       </div>
@@ -67,16 +68,16 @@
     
     <div class="mt-8">
       <a href="/about" class="text-white hover:text-blue-400 transition-colors flex items-center gap-2">
-        <i class="fa-solid fa-receipt"></i>
+        <Icon icon="fa6-solid:receipt" />
         About
       </a>
     </div>
     
     <footer class="mt-12 text-center text-sm text-gray-400 border-t border-gray-600 pt-6">
       <p>
-        <i class="fa-regular fa-copyright text-green-400 mr-1"></i>
+        <Icon icon="fa6-regular:copyright" class="text-green-400 mr-1" />
         2024-2025 LOGIGO. All rights reserved. Designed by Rezky Nightly.
-        <i class="fa-solid fa-champagne-glasses text-purple-400 ml-1"></i>
+        <Icon icon="fa6-solid:champagne-glasses" class="text-purple-400 ml-1" />
       </p>
     </footer>
   </div>
@@ -175,14 +176,6 @@
     color: #9ca3af;
   }
   
-  .text-green-400 {
-    color: #4ade80;
-  }
-  
-  .text-purple-400 {
-    color: #c084fc;
-  }
-  
   .text-center {
     text-align: center;
   }
@@ -235,8 +228,4 @@
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(66, 133, 244, 0.3);
   }
-  
-  .fa-champagne-glasses { color: purple; }
-  .fa-copyright { color: rgba(0, 128, 0, 0.8); }
-  .fa-leaf { color: #4ade80; }
 </style>

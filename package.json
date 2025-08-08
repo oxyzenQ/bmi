@@ -59,5 +59,9 @@
 	],
 	"author": "Rezky Nightly",
 	"license": "MIT",
-	"description": "A modern, responsive Body Mass Index calculator built with SvelteKit, TypeScript, and Tailwind CSS"
+	"description": "A modern, responsive Body Mass Index calculator built with SvelteKit, TypeScript, and Tailwind CSS",
+	"dependencies": {
+		"@fontsource/inter": "^5.2.6",
+		"@iconify/svelte": "^5.0.1"
+	}
 }

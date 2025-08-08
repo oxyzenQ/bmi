@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import Icon from '@iconify/svelte';
 
   onMount(() => {
     // Randomize background position effect
@@ -37,11 +38,11 @@
   <div class="space-container max-w-4xl">
     <div class="flex items-center justify-between mb-8">
       <a href="/" class="text-white hover:text-blue-400 transition-colors">
-        <i class="fa-solid fa-arrow-left mr-2"></i>
+        <Icon icon="fa6-solid:arrow-left" class="mr-2" />
         Back to Home
       </a>
       <img 
-        src="/assets/logobmii.png" 
+        src="/assets/logobmii.webp" 
         alt="BMI Logo" 
         width="60" 
         height="60"
@@ -63,7 +64,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
       <div class="space-container">
         <div class="text-center">
-          <i class="fa-solid fa-calculator text-4xl text-blue-400 mb-4"></i>
+          <Icon icon="fa6-solid:calculator" class="text-4xl text-blue-400 mb-4" />
           <h3 class="text-xl font-semibold text-white mb-2">
             Accurate Calculations
           </h3>
@@ -75,7 +76,7 @@
 
       <div class="space-container">
         <div class="text-center">
-          <i class="fa-solid fa-mobile-alt text-4xl text-purple-400 mb-4"></i>
+          <Icon icon="fa6-solid:mobile-screen-button" class="text-4xl text-purple-400 mb-4" />
           <h3 class="text-xl font-semibold text-white mb-2">
             Mobile Responsive
           </h3>
@@ -87,7 +88,7 @@
 
       <div class="space-container">
         <div class="text-center">
-          <i class="fa-solid fa-palette text-4xl text-yellow-400 mb-4"></i>
+          <Icon icon="fa6-solid:palette" class="text-4xl text-yellow-400 mb-4" />
           <h3 class="text-xl font-semibold text-white mb-2">
             Space Theme
           </h3>
@@ -99,7 +100,7 @@
 
       <div class="space-container">
         <div class="text-center">
-          <i class="fa-solid fa-shield-alt text-4xl text-green-400 mb-4"></i>
+          <Icon icon="fa6-solid:shield" class="text-4xl text-green-400 mb-4" />
           <h3 class="text-xl font-semibold text-white mb-2">
             Privacy First
           </h3>
@@ -111,7 +112,7 @@
 
       <div class="space-container">
         <div class="text-center">
-          <i class="fa-solid fa-bolt text-4xl text-purple-400 mb-4"></i>
+          <Icon icon="fa6-solid:bolt" class="text-4xl text-purple-400 mb-4" />
           <h3 class="text-xl font-semibold text-white mb-2">
             Fast & Lightweight
           </h3>
@@ -123,7 +124,7 @@
 
       <div class="space-container">
         <div class="text-center">
-          <i class="fa-solid fa-heart text-4xl text-red-400 mb-4"></i>
+          <Icon icon="fa6-solid:heart" class="text-4xl text-red-400 mb-4" />
           <h3 class="text-xl font-semibold text-white mb-2">
             Health Focused
           </h3>
@@ -140,7 +141,7 @@
       </h2>
       <div class="max-w-3xl mx-auto">
         <img 
-          src="/assets/bmi-chart.gif" 
+          src="/assets/bmi-chart.webp" 
           alt="BMI Chart" 
           width="600" 
           height="400"
@@ -175,16 +176,16 @@
 
     <div class="text-center">
       <a href="/calculator" class="space-button text-lg">
-        <i class="fa-solid fa-calculator mr-2"></i>
+        <Icon icon="fa6-solid:calculator" class="mr-2" />
         Try the Calculator
       </a>
     </div>
 
     <footer class="mt-16 text-center text-sm text-gray-400 border-t border-gray-600 pt-8">
       <p>
-        <i class="fa-regular fa-copyright text-green-400 mr-1"></i>
+        <Icon icon="fa6-regular:copyright" class="text-green-400 mr-1" />
         2024-2025 LOGIGO. All rights reserved. Designed by Rezky Nightly.
-        <i class="fa-solid fa-champagne-glasses text-purple-400 ml-1"></i>
+        <Icon icon="fa6-solid:champagne-glasses" class="text-purple-400 ml-1" />
       </p>
       <p class="mt-2">
         Built with SvelteKit, TypeScript, and Tailwind CSS

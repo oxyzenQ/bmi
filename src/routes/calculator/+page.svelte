@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import BmiChart from '$lib/components/BmiChart.svelte';
   import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+  import Icon from '@iconify/svelte';
 
   let formData = {
     age: '',
@@ -105,11 +106,11 @@
   <div class="space-container max-w-2xl">
     <div class="flex items-center justify-between mb-8">
       <a href="/" class="text-white hover:text-blue-400 transition-colors">
-        <i class="fa-solid fa-arrow-left mr-2"></i>
+        <Icon icon="fa6-solid:arrow-left" class="mr-2" />
         Back to Home
       </a>
       <img 
-        src="/assets/logobmii.png" 
+        src="/assets/logobmii.webp" 
         alt="BMI Logo" 
         width="60" 
         height="60"
@@ -157,7 +158,7 @@
                   bind:group={formData.gender}
                   class="mr-2 accent-blue-400"
                 />
-                <i class="fa-solid fa-person mr-1"></i>
+                <Icon icon="fa6-solid:person" class="mr-1" />
                 Male
               </label>
               <label class="flex items-center text-white cursor-pointer">
@@ -168,7 +169,7 @@
                   bind:group={formData.gender}
                   class="mr-2 accent-blue-400"
                 />
-                <i class="fa-solid fa-person-dress mr-1"></i>
+                <Icon icon="fa6-solid:person-dress" class="mr-1" />
                 Female
               </label>
             </div>
@@ -219,7 +220,7 @@
             <LoadingSpinner size="small" color="#ffffff" />
             Calculating...
           {:else}
-            <i class="fa-solid fa-calculator"></i>
+            <Icon icon="fa6-solid:calculator" />
             Calculate BMI
           {/if}
         </button>
@@ -228,7 +229,7 @@
           on:click={resetForm}
           class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
         >
-          <i class="fa-solid fa-refresh"></i>
+          <Icon icon="fa6-solid:rotate-right" />
           Reset
         </button>
       </div>
@@ -267,7 +268,7 @@
 
     <div class="mt-8 text-center">
       <a href="/about" class="text-blue-400 hover:text-purple-400 transition-colors">
-        Learn more about BMI <i class="fa-solid fa-arrow-right ml-1"></i>
+        Learn more about BMI <Icon icon="fa6-solid:arrow-right" class="ml-1" />
       </a>
     </div>
   </div>

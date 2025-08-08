@@ -1,21 +1,20 @@
 <script lang="ts">
   import { theme, toggleTheme } from '$lib/stores/theme.js';
+  import Icon from '@iconify/svelte';
 </script>
 
-<button
-  on:click={toggleTheme}
-  class="theme-toggle"
-  aria-label="Toggle theme"
-  title="Toggle dark/light mode"
->
+<button on:click={toggleTheme} class="theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
   <div class="toggle-container">
     <!-- Sun icon for light mode -->
-    <i class="fa-solid fa-sun sun-icon" class:hidden={$theme === 'light'}></i>
+    <span class="sun-icon" class:hidden={$theme === 'light'}>
+      <Icon icon="fa6-solid:sun" />
+    </span>
     
     <!-- Moon icon for dark mode -->
-    <i class="fa-solid fa-moon moon-icon" class:hidden={$theme === 'dark'}></i>
-    
-    <!-- Toggle switch -->
+    <span class="moon-icon" class:hidden={$theme === 'dark'}>
+      <Icon icon="fa6-solid:moon" />
+    </span>
+
     <div class="toggle-switch" class:light={$theme === 'light'}></div>
   </div>
 </button>
@@ -56,6 +55,9 @@
     color: #fbbf24;
     transition: all 0.3s ease;
     z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
   }
 
   .moon-icon {
