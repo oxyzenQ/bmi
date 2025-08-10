@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import Hero from '$lib/ui/Hero.svelte';
   import BmiForm from '$lib/components/BmiForm.svelte';
   import BmiResults from '$lib/components/BmiResults.svelte';
@@ -58,35 +57,6 @@
   function handleCloseModal() {
     isModalOpen = false;
   }
-
-  onMount(() => {
-    // Smooth background scrolling without jitter
-    let ticking = false;
-    let lastScrollY = window.scrollY;
-
-    function updateBackgroundPosition() {
-      const scrolled = window.scrollY;
-      const rate = scrolled * -0.5;
-      document.body.style.backgroundPosition = `center ${rate}px`;
-      ticking = false;
-    }
-
-    function requestTick() {
-      if (!ticking) {
-        requestAnimationFrame(updateBackgroundPosition);
-        ticking = true;
-      }
-    }
-
-    function handleScroll() {
-      lastScrollY = window.scrollY;
-      requestTick();
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    return () => window.removeEventListener('scroll', handleScroll);
-  });
 </script>
 
 <svelte:head>
@@ -221,90 +191,26 @@
 />
 
 <style>
-  .bmi-section {
-    margin: 3rem 0;
-  }
-
-  .bmi-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2.5rem;
-    margin-bottom: 3rem;
-  }
-
-  .articles-section {
-    margin: 4rem 0;
-  }
-
-  .section-header {
-    text-align: center;
-    margin-bottom: 3rem;
-  }
-
-  .section-title {
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: #ffffff;
-    margin-bottom: 1rem;
-    background: linear-gradient(135deg, #60a5fa, #a78bfa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .section-subtitle {
-    color: #9ca3af;
-    font-size: 1.125rem;
-    line-height: 1.6;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  .articles-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 2rem;
-  }
+  .bmi-section { margin: 3rem 0; }
+  .bmi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-bottom: 3rem; }
+  .articles-section { margin: 4rem 0; }
+  .section-header { text-align: center; margin-bottom: 3rem; }
+  .section-title { font-size: 2.5rem; font-weight: 600; color: #ffffff; margin-bottom: 1rem; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .section-subtitle { color: #9ca3af; font-size: 1.125rem; line-height: 1.6; max-width: 600px; margin: 0 auto; }
+  .articles-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
 
   @media (max-width: 768px) {
-    .bmi-grid {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-    }
-
-    .articles-grid {
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-    }
-
-    .section-title {
-      font-size: 2rem;
-    }
-
-    .section-subtitle {
-      font-size: 1rem;
-    }
-
-    .bmi-section {
-      margin: 2rem 0;
-    }
-
-    .articles-section {
-      margin: 3rem 0;
-    }
+    .bmi-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .articles-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    .section-title { font-size: 2rem; }
+    .section-subtitle { font-size: 1rem; }
+    .bmi-section { margin: 2rem 0; }
+    .articles-section { margin: 3rem 0; }
   }
 
   @media (max-width: 480px) {
-    .section-title {
-      font-size: 1.75rem;
-    }
-
-    .bmi-grid {
-      gap: 1.5rem;
-    }
-
-    .articles-grid {
-      gap: 1rem;
-    }
+    .section-title { font-size: 1.75rem; }
+    .bmi-grid { gap: 1.5rem; }
+    .articles-grid { gap: 1rem; }
   }
 </style>

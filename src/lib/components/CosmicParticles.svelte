@@ -6,62 +6,59 @@
 
   onMount(() => {
     createParticles();
+    refreshParticles();
   });
 
   function createParticles() {
     if (!particlesContainer) return;
 
-    // Clear existing particles
     particlesContainer.innerHTML = '';
     particles = [];
 
-    // Create 20-30 particles
-    const particleCount = Math.floor(Math.random() * 10) + 20;
-    
+    // Create 20–25 lightweight particles
+    const particleCount = 20 + Math.floor(Math.random() * 6);
+
     for (let i = 0; i < particleCount; i++) {
       const particle = document.createElement('div');
       particle.className = 'particle';
-      
-      // Random positioning and timing
-      const left = Math.random() * 100;
-      const size = Math.random() * 3 + 1;
-      const delay = Math.random() * 20;
-      const duration = Math.random() * 10 + 15;
-      
+
+      const left = Math.random() * 100; // percentage
+      const size = 2 + Math.random() * 6; // 2px - 8px
+      const delay = Math.random() * 6; // 0s - 6s
+      const duration = 14 + Math.random() * 12; // 14s - 26s
+      const opacity = 0.25 + Math.random() * 0.6; // depth cue
+      const scale = 0.8 + Math.random() * 0.9; // 0.8x - 1.7x
+      const drift = (Math.random() - 0.5) * 40; // -20px to 20px horizontal drift
+
       particle.style.cssText = `
         left: ${left}%;
         width: ${size}px;
         height: ${size}px;
         animation-delay: ${delay}s;
         animation-duration: ${duration}s;
-        opacity: ${Math.random() * 0.6 + 0.2};
+        opacity: ${opacity};
+        --drift: ${drift}px;
+        transform: translateZ(0) scale(${scale});
       `;
-      
+
       particlesContainer.appendChild(particle);
       particles.push(particle);
     }
   }
 
-  // Recreate particles periodically for variety
   function refreshParticles() {
     setTimeout(() => {
       createParticles();
       refreshParticles();
-    }, 30000); // Refresh every 30 seconds
+    }, 30000);
   }
-
-  onMount(() => {
-    refreshParticles();
-  });
 </script>
 
 <div 
   bind:this={particlesContainer}
   class="cosmic-particles"
   aria-hidden="true"
->
-  <!-- Particles will be dynamically created here -->
-</div>
+></div>
 
 <style>
   .cosmic-particles {
@@ -71,39 +68,42 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 0;
+    z-index: 1; /* above background, below content */
     overflow: hidden;
+    contain: layout paint;
   }
 
-  .particle {
+  :global(.particle) {
     position: absolute;
-    background: rgba(255, 255, 255, 0.6);
+    bottom: -6vh;
+    left: 0;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.25);
     border-radius: 50%;
-    animation: float 20s infinite linear;
-    filter: blur(0.5px);
+    will-change: transform;
+    animation-name: rise;
+    animation-iteration-count: infinite;
+    animation-timing-function: cubic-bezier(0.33, 0, 0.2, 1); /* gentle ease */
+    filter: blur(0.6px);
   }
 
-  @keyframes float {
+  @keyframes rise {
     0% {
       transform: translateY(100vh) translateX(0);
       opacity: 0;
     }
-    10% {
-      opacity: 1;
+    10% { opacity: 1; }
+    50% {
+      transform: translateY(50vh) translateX(var(--drift));
     }
-    90% {
-      opacity: 1;
-    }
+    90% { opacity: 1; }
     100% {
-      transform: translateY(-100px) translateX(100px);
+      transform: translateY(-10vh) translateX(calc(var(--drift) * 1.5));
       opacity: 0;
     }
   }
 
-  /* Reduce motion for users who prefer it */
   @media (prefers-reduced-motion: reduce) {
-    .particle {
-      animation: none;
-    }
+    :global(.particle) { animation: none; }
   }
 </style>

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import BmiChart from '$lib/components/BmiChart.svelte';
   import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
   import Icon from '@iconify/svelte';
@@ -19,34 +18,6 @@
 
   let isLoading = false;
 
-  onMount(() => {
-    // Randomize background position effect
-    const randomizeBackgroundPosition = () => {
-      const xPos = Math.floor(Math.random() * 101);
-      const yPos = Math.floor(Math.random() * 101);
-      document.body.style.backgroundPosition = `${xPos}% ${yPos}%`;
-    };
-
-    randomizeBackgroundPosition();
-    
-    let isScrolling = false;
-    const handleScroll = () => {
-      if (!isScrolling) {
-        isScrolling = true;
-        requestAnimationFrame(() => {
-          randomizeBackgroundPosition();
-          isScrolling = false;
-        });
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    
-    return () => window.removeEventListener('scroll', handleScroll);
-  });
-
-  // Function removed as it's not used - form binding handles input changes
-
   async function calculateBMI(e: Event) {
     e.preventDefault();
     
@@ -59,7 +30,6 @@
 
     isLoading = true;
     
-    // Simulate calculation delay for better UX
     await new Promise(resolve => setTimeout(resolve, 800));
 
     const heightInMeters = parseFloat(height) / 100;
@@ -287,12 +257,5 @@
     box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 12px rgba(96,165,250,0.2);
     backdrop-filter: blur(6px);
   }
-  .logo-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: inherit;
-    display: block;
-    object-fit: cover;
-    background: rgba(255,255,255,0.05);
-  }
+  .logo-avatar img { width: 100%; height: 100%; border-radius: inherit; display: block; object-fit: cover; background: rgba(255,255,255,0.05); }
 </style>
