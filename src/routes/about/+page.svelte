@@ -1,32 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import Icon from '@iconify/svelte';
-
-  onMount(() => {
-    // Randomize background position effect
-    const randomizeBackgroundPosition = () => {
-      const xPos = Math.floor(Math.random() * 101);
-      const yPos = Math.floor(Math.random() * 101);
-      document.body.style.backgroundPosition = `${xPos}% ${yPos}%`;
-    };
-
-    randomizeBackgroundPosition();
-    
-    let isScrolling = false;
-    const handleScroll = () => {
-      if (!isScrolling) {
-        isScrolling = true;
-        requestAnimationFrame(() => {
-          randomizeBackgroundPosition();
-          isScrolling = false;
-        });
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    
-    return () => window.removeEventListener('scroll', handleScroll);
-  });
 </script>
 
 <svelte:head>
