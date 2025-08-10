@@ -6,6 +6,7 @@
 
   onMount(() => {
     createParticles();
+    refreshParticles();
   });
 
   function createParticles() {
@@ -14,19 +15,20 @@
     particlesContainer.innerHTML = '';
     particles = [];
 
-    // Create 12-20 lightweight particles
-    const particleCount = 12 + Math.floor(Math.random() * 9);
+    // Create 20–25 lightweight particles
+    const particleCount = 20 + Math.floor(Math.random() * 6);
 
     for (let i = 0; i < particleCount; i++) {
       const particle = document.createElement('div');
       particle.className = 'particle';
 
       const left = Math.random() * 100; // percentage
-      const size = Math.random() * 2 + 1; // 1px - 3px
-      const delay = Math.random() * 8; // 0s - 8s
-      const duration = 12 + Math.random() * 10; // 12s - 22s
-      const opacity = 0.2 + Math.random() * 0.6; // depth cue
-      const scale = 0.8 + Math.random() * 0.8; // 0.8x - 1.6x
+      const size = 2 + Math.random() * 6; // 2px - 8px
+      const delay = Math.random() * 6; // 0s - 6s
+      const duration = 14 + Math.random() * 12; // 14s - 26s
+      const opacity = 0.25 + Math.random() * 0.6; // depth cue
+      const scale = 0.8 + Math.random() * 0.9; // 0.8x - 1.7x
+      const drift = (Math.random() - 0.5) * 40; // -20px to 20px horizontal drift
 
       particle.style.cssText = `
         left: ${left}%;
@@ -35,6 +37,7 @@
         animation-delay: ${delay}s;
         animation-duration: ${duration}s;
         opacity: ${opacity};
+        --drift: ${drift}px;
         transform: translateZ(0) scale(${scale});
       `;
 
@@ -49,18 +52,13 @@
       refreshParticles();
     }, 30000);
   }
-
-  onMount(() => {
-    refreshParticles();
-  });
 </script>
 
 <div 
   bind:this={particlesContainer}
   class="cosmic-particles"
   aria-hidden="true"
->
-</div>
+></div>
 
 <style>
   .cosmic-particles {
@@ -70,44 +68,42 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 0;
+    z-index: 1; /* above background, below content */
     overflow: hidden;
     contain: layout paint;
   }
 
   :global(.particle) {
     position: absolute;
-    bottom: -5vh;
+    bottom: -6vh;
     left: 0;
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.25);
     border-radius: 50%;
     will-change: transform;
     animation-name: rise;
     animation-iteration-count: infinite;
-    animation-timing-function: linear;
-    filter: blur(0.4px);
+    animation-timing-function: cubic-bezier(0.33, 0, 0.2, 1); /* gentle ease */
+    filter: blur(0.6px);
   }
 
   @keyframes rise {
     0% {
-      transform: translateY(100vh);
+      transform: translateY(100vh) translateX(0);
       opacity: 0;
     }
-    10% {
-      opacity: 1;
+    10% { opacity: 1; }
+    50% {
+      transform: translateY(50vh) translateX(var(--drift));
     }
-    90% {
-      opacity: 1;
-    }
+    90% { opacity: 1; }
     100% {
-      transform: translateY(-10vh);
+      transform: translateY(-10vh) translateX(calc(var(--drift) * 1.5));
       opacity: 0;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    :global(.particle) {
-      animation: none;
-    }
+    :global(.particle) { animation: none; }
   }
 </style>

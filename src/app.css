@@ -6,9 +6,9 @@
 
 /* Global styles and variables */
 :root {
-  /* Themeable background stop variables */
-  --bg-1: #070a1c; /* default night */
-  --bg-2: #0b1436;
+  /* Overlay colors for background image tint */
+  --bg-overlay-1: rgba(7, 10, 28, 0.8);
+  --bg-overlay-2: rgba(11, 20, 54, 0.6);
 
   --text-primary: #e5e7eb;
   --text-secondary: #9ca3af;
@@ -22,8 +22,9 @@
 
 @media (prefers-color-scheme: light) {
   :root {
-    --bg-1: #e9f0ff; /* day */
-    --bg-2: #f6fbff;
+    /* Softer overlay for light theme while keeping image intact */
+    --bg-overlay-1: rgba(233, 240, 255, 0.6);
+    --bg-overlay-2: rgba(246, 251, 255, 0.5);
     --text-primary: #0f172a;
     --text-secondary: #334155;
   }
@@ -33,7 +34,9 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+  background:
+    linear-gradient(135deg, var(--bg-overlay-1), var(--bg-overlay-2)),
+    url('/images/HDRV3Stellar.png') fixed center/cover;
   color: var(--text-primary);
   font-family: 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   min-height: 100vh;
