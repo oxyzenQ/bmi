@@ -144,6 +144,49 @@
         icon="fa6-solid:utensils"
         on:openModal={handleOpenModal}
       />
+
+      <!-- New Cards -->
+      <ArticleCard
+        title="Sleep & Recovery"
+        description="Understand how quality sleep and recovery improve metabolism, performance, and overall health."
+        icon="fa6-solid:bed"
+        on:openModal={handleOpenModal}
+      />
+
+      <ArticleCard
+        title="Hydration Essentials"
+        description="Why water matters: daily hydration goals, smart timing, and how fluids affect BMI and energy."
+        icon="fa6-solid:water"
+        on:openModal={handleOpenModal}
+      />
+
+      <ArticleCard
+        title="Mental Wellness"
+        description="Stress, mindfulness, and habit-building: science-backed tactics for a healthier relationship with food."
+        icon="fa6-solid:brain"
+        on:openModal={handleOpenModal}
+      />
+
+      <ArticleCard
+        title="Preventive Care"
+        description="Screenings, labs, and checkups: what to track yearly to stay ahead of health risks."
+        icon="fa6-solid:stethoscope"
+        on:openModal={handleOpenModal}
+      />
+
+      <ArticleCard
+        title="Sunlight & Circadian Health"
+        description="Light exposure, vitamin D, and circadian rhythm—optimize your day for better sleep and weight."
+        icon="fa6-solid:sun"
+        on:openModal={handleOpenModal}
+      />
+
+      <ArticleCard
+        title="Breath & Cardio Health"
+        description="Breathing mechanics, VO2, and lung health basics to support sustainable fitness progress."
+        icon="fa6-solid:lungs"
+        on:openModal={handleOpenModal}
+      />
     </div>
   </section>
 </div>
