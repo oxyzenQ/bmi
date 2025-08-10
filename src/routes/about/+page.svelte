@@ -41,14 +41,16 @@
         <Icon icon="fa6-solid:arrow-left" class="mr-2" />
         Back to Home
       </a>
-      <img 
-        src="/assets/logobmii.webp" 
-        alt="BMI Logo" 
-        width="60" 
-        height="60"
-        loading="lazy"
-        decoding="async"
-      />
+      <div class="logo-avatar" aria-hidden="true">
+        <img 
+          src="/assets/logobmii.webp" 
+          alt="BMI Logo" 
+          width="60" 
+          height="60"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
     </div>
 
     <header class="text-center mb-12">
@@ -193,3 +195,24 @@
     </footer>
   </div>
 </div>
+
+<style>
+  .logo-avatar {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 9999px;
+    padding: 2px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.06));
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 12px rgba(96,165,250,0.2);
+    backdrop-filter: blur(6px);
+  }
+  .logo-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    display: block;
+    object-fit: cover;
+    background: rgba(255,255,255,0.05);
+  }
+</style>

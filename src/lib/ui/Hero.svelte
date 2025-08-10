@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { User, Star, Sparkles } from 'lucide-svelte';
+  import { Star, Sparkles } from 'lucide-svelte';
 
   let heroContent: HTMLDivElement;
 
@@ -29,8 +29,8 @@
   </div>
   
   <div bind:this={heroContent} class="hero-content liquid-glass">
-    <div class="hero-icon">
-      <User class="w-16 h-16 text-cosmic-blue" />
+    <div class="hero-avatar" aria-hidden="true">
+      <img src="/assets/logobmii.webp" alt="BMI Logo" width="96" height="96" loading="lazy" decoding="async" />
       <div class="icon-glow"></div>
     </div>
     
@@ -162,10 +162,28 @@
     z-index: -1;
   }
 
-  .hero-icon {
+  .hero-avatar {
     position: relative;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 1.5rem;
+    width: 96px;
+    height: 96px;
+    border-radius: 9999px;
+    padding: 2px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.06));
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(96, 165, 250, 0.15);
+    backdrop-filter: blur(8px);
+  }
+
+  .hero-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    display: block;
+    object-fit: cover;
+    background: rgba(255,255,255,0.05);
   }
 
   .icon-glow {
@@ -173,12 +191,13 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 80px;
-    height: 80px;
-    background: radial-gradient(circle, rgba(96, 165, 250, 0.3), transparent);
+    width: 110px;
+    height: 110px;
+    background: radial-gradient(circle, rgba(96, 165, 250, 0.25), transparent);
     border-radius: 50%;
-    filter: blur(20px);
+    filter: blur(18px);
     animation: iconGlow 3s ease-in-out infinite alternate;
+    z-index: -1;
   }
 
   @keyframes iconGlow {
@@ -187,8 +206,8 @@
       transform: translate(-50%, -50%) scale(1);
     }
     100% {
-      opacity: 0.8;
-      transform: translate(-50%, -50%) scale(1.1);
+      opacity: 0.85;
+      transform: translate(-50%, -50%) scale(1.08);
     }
   }
 
