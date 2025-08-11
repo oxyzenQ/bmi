@@ -23,13 +23,25 @@
   // Chart dimensions (responsive)
   let chartWidth = 640;
   let chartHeight = 400;
-  const margin = { top: 40, right: 40, bottom: 60, left: 60 };
+  const margin = { top: 0, right: 36, bottom: 0, left: 54 };
   $: innerWidth = chartWidth - margin.left - margin.right;
   $: innerHeight = chartHeight - margin.top - margin.bottom;
 
-  // Generate sample data points for trend visualization
+  // Direct reactive chart data generation
   $: chartData = generateChartData(bmiValue, age, height, weight);
   $: hasData = Boolean(bmiValue && age && height && weight && chartData.length);
+  
+  // Debug logging
+  $: {
+    console.log('Chart Data Update:', { bmiValue, age, height, weight, chartDataLength: chartData.length });
+  }
+
+  // Always show chart with fallback domain [0,1] when no data
+  $: yDataMin = chartData.length ? Math.min(...chartData.map(d => d.bmi)) : 0;
+  $: yDataMax = chartData.length ? Math.max(...chartData.map(d => d.bmi)) : 1;
+  // Use exact data range, fallback to [0,1] for visibility
+  $: yMin = chartData.length ? (yDataMin === yDataMax ? Math.max(0, yDataMin - 0.5) : yDataMin) : 0;
+  $: yMax = chartData.length ? (yDataMin === yDataMax ? yDataMin + 0.5 : yDataMax) : 1;
 
   function generateChartData(bmi: number | null, userAge: number | null, userHeight: number | null, userWeight: number | null) {
     // If missing inputs, return a default series with BMI=0 across a safe weight range
@@ -72,18 +84,75 @@
   }
 
   function getYPosition(bmi: number) {
-    // When we don't have data, allow 0 baseline so the default series sits at bottom
-    const minBmi = hasData ? 15 : 0;
-    const maxBmi = 45;
+    const minBmi = yMin;
+    const maxBmi = yMax;
     const clamped = Math.max(minBmi, Math.min(maxBmi, bmi));
+    if (maxBmi === minBmi) return innerHeight; // avoid divide by zero
     return innerHeight - ((clamped - minBmi) / (maxBmi - minBmi)) * innerHeight;
+  }
+
+  // Tooltip state (lightweight, throttled)
+  let showTooltip = false;
+  let tooltipX = 0;
+  let tooltipY = 0;
+  let tooltipText = '';
+  let rafId: number | null = null;
+
+  function getSuggestion(label: string) {
+    switch (label) {
+      case 'Underweight': return 'Increase calorie-dense foods and consult a dietitian.';
+      case 'Normal': return 'Maintain balanced diet and regular activity.';
+      case 'Overweight': return 'Prioritize calorie control and consistent movement.';
+      case 'Obese I':
+      case 'Obese II':
+      case 'Obese III': return 'Seek medical guidance and gradual lifestyle changes.';
+      default: return 'Follow healthy routines and monitor progress.';
+    }
+  }
+
+  function getComparisonText(bmi: number) {
+    const targetMin = 18.5;
+    const targetMax = 24.9;
+    if (bmi < targetMin) return `Below target by ${(targetMin - bmi).toFixed(1)}`;
+    if (bmi > targetMax) return `Above target by ${(bmi - targetMax).toFixed(1)}`;
+    const mid = ((targetMin + targetMax) / 2).toFixed(1);
+    return `Within target (mid ~${mid})`;
+  }
+
+  function handleMove(e: MouseEvent) {
+    if (!chartData.length) return;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(() => {
+      const svg = e.currentTarget as SVGSVGElement;
+      const rect = svg.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      // Find nearest point by X
+      let nearest = chartData[0];
+      let nearestDist = Infinity;
+      for (const p of chartData) {
+        const px = margin.left + getXPosition(p.weight);
+        const dist = Math.abs(px - x);
+        if (dist < nearestDist) { nearestDist = dist; nearest = p; }
+      }
+      const cat = getBmiCategory(nearest.bmi);
+      const cmp = getComparisonText(nearest.bmi);
+      tooltipText = `BMI ${nearest.bmi} • ${cat.label}\n${cmp}\n${getSuggestion(cat.label)}`;
+      tooltipX = Math.min(rect.width - 220, Math.max(10, x + 12));
+      tooltipY = Math.max(10, y + 12);
+      showTooltip = true;
+    });
+  }
+
+  function handleLeave() {
+    showTooltip = false;
   }
 
   function updateSize() {
     if (!wrapperEl) return;
     const w = wrapperEl.clientWidth;
-    // Maintain a comfortable aspect ratio while filling available space
-    const h = Math.max(320, Math.min(640, Math.round(w * 0.6)));
+    // Denser vertical presentation: slightly lower aspect with tighter clamps
+    const h = Math.max(260, Math.min(520, Math.round(w * 0.5)));
     chartWidth = Math.max(360, w);
     chartHeight = h;
   }
@@ -113,14 +182,44 @@
     </div>
 
     <div class="chart-wrapper" bind:this={wrapperEl}>
+      <!-- Always show chart, remove visibility blocking -->
       <svg 
-        class="dynamic-chart"
-        viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-        preserveAspectRatio="xMidYMid meet"
-        width="100%"
-        height="100%"
-      >
+          class="dynamic-chart"
+          viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+          preserveAspectRatio="xMidYMid meet"
+          width="100%"
+          height="100%"
+          role="img"
+          aria-label="BMI trend chart"
+          on:mousemove={handleMove}
+          on:mouseleave={handleLeave}
+        >
         <defs>
+          <!-- Gentle gradients for BMI zones -->
+          <linearGradient id="zoneUnder" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#60a5fa" stop-opacity="0.08"/>
+          </linearGradient>
+          <linearGradient id="zoneNormal" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#10b981" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#10b981" stop-opacity="0.08"/>
+          </linearGradient>
+          <linearGradient id="zoneOver" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.08"/>
+          </linearGradient>
+          <linearGradient id="zoneOb1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ef4444" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#ef4444" stop-opacity="0.08"/>
+          </linearGradient>
+          <linearGradient id="zoneOb2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#dc2626" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#dc2626" stop-opacity="0.08"/>
+          </linearGradient>
+          <linearGradient id="zoneOb3" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#991b1b" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#991b1b" stop-opacity="0.08"/>
+          </linearGradient>
           <linearGradient id="chartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:0.15" />
             <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:0.1" />
@@ -148,13 +247,18 @@
         </defs>
 
         <!-- Background BMI zones -->
-        {#each bmiCategories as category (category.label)}
+        {#each bmiCategories as category, idx (category.label)}
           <rect
             x={margin.left}
             y={margin.top + getYPosition(category.max)}
             width={innerWidth}
             height={getYPosition(category.min) - getYPosition(category.max)}
-            fill={category.bgColor}
+            fill={idx === 0 ? 'url(#zoneUnder)'
+              : idx === 1 ? 'url(#zoneNormal)'
+              : idx === 2 ? 'url(#zoneOver)'
+              : idx === 3 ? 'url(#zoneOb1)'
+              : idx === 4 ? 'url(#zoneOb2)'
+              : 'url(#zoneOb3)'}
             opacity="0.6"
           />
           <text
@@ -270,7 +374,22 @@
         <div class="absolute left-2 top-1/2 transform -translate-y-1/2 -rotate-90 text-sm text-slate-300 font-medium">
           BMI
         </div>
-      </svg>
+        </svg>
+        
+        <!-- Loading indicator when no data -->
+        {#if !hasData}
+          <div class="absolute inset-0 flex items-center justify-center bg-slate-900/50 rounded-lg">
+            <div class="text-center text-slate-400 animate-pulse">
+              <div class="text-sm">Waiting for BMI calculation...</div>
+            </div>
+          </div>
+        {/if}
+
+      {#if showTooltip}
+        <div class="chart-tooltip" style={`left:${tooltipX}px; top:${tooltipY}px`}>
+          <pre>{tooltipText}</pre>
+        </div>
+      {/if}
     </div>
 
     <div class="chart-insights">
@@ -308,180 +427,4 @@
     </div>
   </div>
 
-<style>
-  .chart-container {
-    background: radial-gradient(1200px 600px at 20% 0%, rgba(37, 99, 235, 0.18), transparent 50%),
-                radial-gradient(1000px 700px at 80% 100%, rgba(99, 102, 241, 0.18), transparent 52%),
-                linear-gradient(180deg, #030712 0%, #0a0f1e 50%, #0b1220 100%);
-    border: 1px solid #334155;
-    border-radius: 1.5rem;
-    padding: 2rem;
-    margin-top: 2rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-    animation: slideUp var(--dur-slow) var(--easing-smooth);
-    will-change: transform, opacity;
-    transform: translateZ(0);
-    contain: layout style paint;
-  }
-
-  .chart-header {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-
-  .chart-title {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #ffffff;
-    margin-bottom: 0.5rem;
-    background: linear-gradient(135deg, #60a5fa, #a78bfa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .chart-subtitle {
-    color: #9ca3af;
-    font-size: 0.95rem;
-  }
-
-  .chart-wrapper {
-    position: relative;
-    width: 100%;
-    height: clamp(320px, 56vw, 600px);
-    margin: 2rem 0;
-    will-change: width, height;
-    contain: layout style paint;
-  }
-
-  .dynamic-chart {
-    background: radial-gradient(800px 400px at 30% 0%, rgba(37,99,235,0.12), transparent 55%),
-                radial-gradient(700px 500px at 90% 90%, rgba(168,85,247,0.12), transparent 60%),
-                #020617;
-    border-radius: 1rem;
-    padding: 1rem;
-    will-change: transform;
-    transform: translateZ(0);
-    contain: layout style;
-  }
-
-  /* Ensure minimum readable size and numeric mono for all SVG text */
-  :global(.dynamic-chart text) {
-    font-size: 14px;
-  }
-
-
-
-  .current-point {
-    animation: pulse 2s infinite;
-  }
-
-  .data-point {
-    transition: all 0.3s ease;
-  }
-
-  .data-point:hover {
-    r: 5;
-    opacity: 0.8;
-  }
-
-  .chart-insights {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-    margin-top: 2rem;
-  }
-
-  .insight-card {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem;
-    background: #0f172a;
-    border: 1px solid #334155;
-    border-radius: 0.75rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform, background-color;
-    transform: translateZ(0);
-  }
-
-  .insight-card:hover {
-    background: #1e293b;
-    transform: translateY(-2px) translateZ(0);
-    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);
-  }
-
-  .insight-title {
-    font-size: 0.8rem;
-    color: #9ca3af;
-    font-weight: 500;
-  }
-
-  .insight-value {
-    font-size: 0.95rem;
-    color: #ffffff;
-    font-weight: 600;
-  }
-
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  @keyframes drawLine {
-    from {
-      stroke-dasharray: 1000;
-      stroke-dashoffset: 1000;
-    }
-    to {
-      stroke-dasharray: 1000;
-      stroke-dashoffset: 0;
-    }
-  }
-
-  @keyframes pulse {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.8;
-      transform: scale(1.2);
-    }
-  }
-
-  @media (max-width: 768px) {
-    .chart-container {
-      padding: 1.5rem;
-    }
-
-    .chart-title {
-      font-size: 1.25rem;
-    }
-
-    .chart-insights {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .chart-container,
-    .current-point {
-      animation: none;
-    }
-    
-    .insight-card:hover {
-      transform: none;
-    }
-  }
-</style>
+ 

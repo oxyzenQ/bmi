@@ -5,12 +5,12 @@ import BmiForm from '../BmiForm.svelte';
 describe('BmiForm', () => {
     it('renders form with all required elements', () => {
         const mockOnCalculate = vi.fn();
-        const mockOnReset = vi.fn();
+        const mockOnClear = vi.fn();
 
         render(BmiForm, {
             props: {
                 onCalculate: mockOnCalculate,
-                onReset: mockOnReset
+                onClear: mockOnClear
             }
         });
 
@@ -30,12 +30,12 @@ describe('BmiForm', () => {
 
     it('accepts input values for all fields', async () => {
         const mockOnCalculate = vi.fn();
-        const mockOnReset = vi.fn();
+        const mockOnClear = vi.fn();
 
         render(BmiForm, {
             props: {
                 onCalculate: mockOnCalculate,
-                onReset: mockOnReset
+                onClear: mockOnClear
             }
         });
 
@@ -55,12 +55,12 @@ describe('BmiForm', () => {
 
     it('calls onCalculate when form is submitted with valid data', async () => {
         const mockOnCalculate = vi.fn();
-        const mockOnReset = vi.fn();
+        const mockOnClear = vi.fn();
 
         render(BmiForm, {
             props: {
                 onCalculate: mockOnCalculate,
-                onReset: mockOnReset
+                onClear: mockOnClear
             }
         });
 
@@ -83,31 +83,31 @@ describe('BmiForm', () => {
         expect(mockOnCalculate).toHaveBeenCalledWith(25, 170, 70.5);
     });
 
-    it('calls onReset when reset button is clicked', async () => {
+    it('calls onClear when reset button is clicked', async () => {
         const mockOnCalculate = vi.fn();
-        const mockOnReset = vi.fn();
+        const mockOnClear = vi.fn();
 
         render(BmiForm, {
             props: {
                 onCalculate: mockOnCalculate,
-                onReset: mockOnReset
+                onClear: mockOnClear
             }
         });
 
         const resetButton = screen.getByRole('button', { name: /reset form/i });
         await fireEvent.click(resetButton);
 
-        expect(mockOnReset).toHaveBeenCalled();
+        expect(mockOnClear).toHaveBeenCalled();
     });
 
     it('disables calculate button when inputs are empty', () => {
         const mockOnCalculate = vi.fn();
-        const mockOnReset = vi.fn();
+        const mockOnClear = vi.fn();
 
         render(BmiForm, {
             props: {
                 onCalculate: mockOnCalculate,
-                onReset: mockOnReset
+                onClear: mockOnClear
             }
         });
 
@@ -117,12 +117,12 @@ describe('BmiForm', () => {
 
     it('enables calculate button when all inputs have values', async () => {
         const mockOnCalculate = vi.fn();
-        const mockOnReset = vi.fn();
+        const mockOnClear = vi.fn();
 
         render(BmiForm, {
             props: {
                 onCalculate: mockOnCalculate,
-                onReset: mockOnReset
+                onClear: mockOnClear
             }
         });
 
@@ -145,12 +145,12 @@ describe('BmiForm', () => {
 
     it('shows loading state during calculation', async () => {
         const mockOnCalculate = vi.fn();
-        const mockOnReset = vi.fn();
+        const mockOnClear = vi.fn();
 
         render(BmiForm, {
             props: {
                 onCalculate: mockOnCalculate,
-                onReset: mockOnReset
+                onClear: mockOnClear
             }
         });
 
@@ -174,12 +174,12 @@ describe('BmiForm', () => {
 
     it('validates input ranges correctly', async () => {
         const mockOnCalculate = vi.fn();
-        const mockOnReset = vi.fn();
+        const mockOnClear = vi.fn();
 
         render(BmiForm, {
             props: {
                 onCalculate: mockOnCalculate,
-                onReset: mockOnReset
+                onClear: mockOnClear
             }
         });
 

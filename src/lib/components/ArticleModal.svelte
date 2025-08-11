@@ -5,6 +5,9 @@
   export let isOpen = false;
   export let title = '';
   export let content = '';
+  
+  let scrollProgress = 0;
+  let modalBodyEl: HTMLElement;
 
   const dispatch = createEventDispatcher();
 
@@ -22,6 +25,13 @@
     if (event.target === event.currentTarget) {
       closeModal();
     }
+  }
+
+  function updateScrollProgress() {
+    if (!modalBodyEl) return;
+    const scrollTop = modalBodyEl.scrollTop;
+    const scrollHeight = modalBodyEl.scrollHeight - modalBodyEl.clientHeight;
+    scrollProgress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
   }
 
   onMount(() => {
@@ -338,203 +348,14 @@
         </div>
       </div>
       
-      <div class="modal-body">
-        {@html content}
+      <!-- Reading progress indicator -->
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {scrollProgress}%"></div>
+      </div>
+      
+      <div class="modal-body" bind:this={modalBodyEl} on:scroll={updateScrollProgress}>
+        {@html articleData.content}
       </div>
     </div>
   </div>
 {/if}
-
-<style>
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: opacity;
-    transform: translateZ(0);
-    contain: layout style paint;
-  }
-
-  .modal-content {
-    background: rgba(15, 23, 42, 0.92);
-    backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(148, 163, 184, 0.2);
-    border-radius: 1.5rem;
-    padding: 2rem;
-    width: clamp(320px, 50vw, 900px);
-    max-height: 80vh;
-    overflow-y: auto;
-    position: relative;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform, opacity;
-    backface-visibility: hidden;
-    transform: translateZ(0);
-    contain: layout style paint;
-  }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  .modal-title {
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: #ffffff;
-    margin: 0;
-    background: linear-gradient(135deg, #60a5fa, #a78bfa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1.3;
-  }
-
-  .modal-close {
-    background: none;
-    border: none;
-    color: #9ca3af;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-close:hover {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  .article-meta {
-    display: flex;
-    gap: 2rem;
-    margin-bottom: 2rem;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.04);
-    border-radius: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    width: 100%;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
-
-  .meta-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 0.4rem;
-    color: #9ca3af;
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
-
-  .modal-body {
-    color: #d1d5db;
-    line-height: 1.7;
-    font-size: 1rem;
-  }
-
-  :global(.modal-body h3) {
-    color: #ffffff;
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 2rem 0 1rem 0;
-    background: linear-gradient(135deg, #60a5fa, #a78bfa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  :global(.modal-body h3:first-child) {
-    margin-top: 0;
-  }
-
-  :global(.modal-body p) {
-    margin-bottom: 1.5rem;
-    text-align: justify;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  @media (max-width: 768px) {
-    .modal-content {
-      padding: 2rem;
-      border-radius: 1.5rem;
-      margin: 1rem;
-      width: 95vw;
-    }
-
-    .modal-title {
-      font-size: 1.5rem;
-    }
-
-    .article-meta { flex-direction: column; gap: 1rem; }
-
-    .meta-item {
-      font-size: 0.8rem;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .modal-content {
-      padding: 1.5rem;
-      border-radius: 1.25rem;
-    }
-
-    .modal-title {
-      font-size: 1.25rem;
-    }
-
-    .modal-body {
-      font-size: 0.9rem;
-    }
-
-    :global(.modal-body h3) {
-      font-size: 1.125rem;
-    }
-  }
-
-  /* Reduce motion for users who prefer it */
-  @media (prefers-reduced-motion: reduce) {
-    .modal-overlay,
-    .modal-content {
-      animation: none;
-    }
-  }
-</style>

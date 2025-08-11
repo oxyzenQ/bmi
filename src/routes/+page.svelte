@@ -2,63 +2,109 @@
   import Hero from '$lib/ui/Hero.svelte';
   import BmiForm from '$lib/components/BmiForm.svelte';
   import BmiResults from '$lib/components/BmiResults.svelte';
-  import BmiDynamicChart from '$lib/components/BmiDynamicChart.svelte';
+  import BmiRadialGauge from '$lib/components/BmiRadialGauge.svelte';
   import ArticleCard from '$lib/components/ArticleCard.svelte';
-  import ArticleModal from '$lib/components/ArticleModal.svelte';
   import ReferenceTable from '$lib/components/ReferenceTable.svelte';
   import { onMount } from 'svelte';
   
   let bmiValue: number | null = null;
-  let articlesVisible = true; // Always show articles by default
+  let articlesVisible = true;
   let articlesContainer: HTMLElement | null = null;
   let category: string | null = null;
   
-  let age: number | null = null;
-  let height: number | null = null;
-  let weight: number | null = null;
+  // Form inputs default empty strings for validation UX
+  let age: string = '';
+  let height: string = '';
+  let weight: string = '';
   let isModalOpen = false;
   let modalTitle = '';
   let modalContent = '';
+  // Charts are always visible - no show/hide logic needed
+  
+  // BMI history for tracking calculations
+  let bmiHistory: Array<{bmi: number, timestamp: Date}> = [];
 
-  function calculateBMI(ageInput: number, heightInput: number, weightInput: number) {
-    const heightInMeters = heightInput / 100;
-    const bmi = weightInput / (heightInMeters * heightInMeters);
+  // Lazy modal component
+  let ModalComp: typeof import('$lib/components/ArticleModal.svelte').default | null = null;
+  
+  function computeBMIFromInputs(h: string, w: string, a: string) {
+    const parsedHeight = parseFloat(h);
+    const parsedWeight = parseFloat(w);
+    const parsedAge = parseInt(a);
     
-    let categoryResult = '';
+    if (!isNaN(parsedHeight) && !isNaN(parsedWeight) && parsedHeight > 0 && parsedWeight > 0) {
+      const heightInM = parsedHeight / 100;
+      const bmi = parsedWeight / (heightInM * heightInM);
+      bmiValue = parseFloat(bmi.toFixed(2));
 
-    if (bmi < 18.5) {
-      categoryResult = 'Underweight';
-    } else if (bmi >= 18.5 && bmi < 24.9) {
-      categoryResult = 'Normal Weight';
-    } else if (bmi >= 25 && bmi < 29.9) {
-      categoryResult = 'Overweight';
+      // Determine category with improved accuracy
+      if (bmi < 18.5) {
+        category = 'Underweight';
+      } else if (bmi >= 18.5 && bmi < 25.0) {
+        category = 'Normal Weight';
+      } else if (bmi >= 25.0 && bmi < 30.0) {
+        category = 'Overweight';
+      } else {
+        category = 'Obese';
+      }
+      
+      // Add to history
+      bmiHistory = [...bmiHistory, { bmi: bmiValue, timestamp: new Date() }];
     } else {
-      categoryResult = 'Obese';
+      bmiValue = null;
+      category = null;
     }
-
-    bmiValue = parseFloat(bmi.toFixed(1));
-    category = categoryResult;
-    age = ageInput;
-    height = heightInput;
-    weight = weightInput;
   }
 
-  function resetResults() {
-    bmiValue = null;
+  // Manual calculation only - remove auto calculation
+  function handleCalculate() {
+    computeBMIFromInputs(height, weight, age);
+  }
+
+  function clearAllData() {
+    age = '';
+    height = '';
+    weight = '';
+    bmiValue = null; // Gauge will show empty/neutral state
     category = null;
-    age = null;
-    height = null;
-    weight = null;
+    bmiHistory = []; // Clear history
   }
 
   function handleOpenModal(event: CustomEvent) {
-    modalTitle = event.detail.title;
-    modalContent = event.detail.description;
+    console.log('Modal event received:', event.detail); // Debug
+    modalTitle = event.detail.title || 'Article';
+    modalContent = event.detail.description || 'Content loading...';
+    // Lazy-load modal on first open
+    if (!ModalComp) {
+      import('$lib/components/ArticleModal.svelte').then((m) => {
+        ModalComp = m.default;
+        isModalOpen = true;
+      });
+      return;
+    }
     isModalOpen = true;
+    
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+    
+    // Force modal to show with timeout
+    setTimeout(() => {
+      const modal = document.querySelector('.modal-overlay');
+      if (modal) {
+        (modal as HTMLElement).style.display = 'flex';
+        (modal as HTMLElement).style.zIndex = '99999';
+      }
+    }, 10);
   }
 
   function handleCloseModal() {
     isModalOpen = false;
+    // Restore body scroll when modal is closed
+    document.body.style.overflow = 'auto';
+    // Unmount modal component for performance
+    setTimeout(() => {
+      if (!isModalOpen) ModalComp = null;
+    }, 300); // Wait for close animation
   }
 
   onMount(() => {
@@ -87,30 +133,38 @@
 </svelte:head>
 
 <div class="main-container">
-  <Hero />
+  <div>
+    <Hero />
+  </div>
 
   <!-- BMI Calculator Section -->
   <section class="bmi-section">
     <div class="bmi-grid">
-      <BmiForm 
-        onCalculate={calculateBMI}
-        onReset={resetResults}
-      />
-      <BmiResults 
-        {bmiValue}
-        {category}
-        {age}
-      />
+      <div class="bmi-card form-card">
+        <BmiForm 
+          bind:age
+          bind:height
+          bind:weight
+          onClear={clearAllData}
+          onCalculate={handleCalculate}
+        />
+      </div>
+      <div class="bmi-card">
+        <BmiResults 
+          {bmiValue}
+          {category}
+          age={age === '' ? null : parseInt(age)}
+        />
+      </div>
     </div>
     
-    <!-- Dynamic BMI Chart - Always Visible -->
-    <BmiDynamicChart 
-      bmiValue={bmiValue || 0}
-      category={category || 'Normal Weight'}
-      age={age || 25}
-      height={height || 170}
-      weight={weight || 70}
-    />
+    <!-- BMI Gauge - Always visible -->
+    <div class="charts-section">
+      <BmiRadialGauge 
+        bmi={bmiValue || 0}
+        category={category}
+      />
+    </div>
   </section>
 
   <!-- Reference Table -->
@@ -243,194 +297,13 @@
   </a>
 </div>
 
-{#if isModalOpen}
-  <ArticleModal
+{#if isModalOpen && ModalComp}
+  <svelte:component
+    this={ModalComp}
     title={modalTitle}
     content={modalContent}
     isOpen={isModalOpen}
     on:close={handleCloseModal}
   />
 {/if}
-
-<style>
-  :global(html) {
-    scroll-behavior: smooth;
-  }
-  
-  :global(body) {
-    overflow-x: hidden;
-  }
-  
-  .article-grid {
-    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .article-grid :global(.article-card) {
-    will-change: transform, opacity;
-    backface-visibility: hidden;
-    transform: translateZ(0);
-    contain: layout style paint;
-  }
-  
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px) translateZ(0);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) translateZ(0);
-    }
-  }
-  
-  @media (prefers-reduced-motion: reduce) {
-    :global(html) {
-      scroll-behavior: auto;
-    }
-    
-    .article-grid,
-    .article-grid :global(.article-card) {
-      animation: none;
-    }
-  }
-  
-  /* Performance optimizations */
-  :global(*) {
-    box-sizing: border-box;
-  }
-  
-  :global(img) {
-    will-change: auto;
-  }
-
-  /* Footer glass + glossy shine */
-  .footer-disclaimer {
-    position: relative;
-    margin: 2rem auto 1rem;
-    max-width: 1000px;
-    padding: 1rem 1.25rem;
-    color: #cbd5e1;
-    text-align: center;
-    background: rgba(15, 23, 42, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 1rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    overflow: hidden;
-  }
-
-  .footer-disclaimer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -30%;
-    width: 30%;
-    height: 100%;
-    background: linear-gradient(100deg, transparent, rgba(255,255,255,0.14), transparent);
-    filter: blur(8px);
-    transform: skewX(-12deg);
-    opacity: 0.0;
-    animation: footerGloss 6s ease-in-out infinite;
-    pointer-events: none;
-  }
-
-  @keyframes footerGloss {
-    0% { left: -30%; opacity: 0; }
-    8% { opacity: 0.45; }
-    16% { left: 110%; opacity: 0; }
-    100% { left: 110%; opacity: 0; }
-  }
-  
-  /* Smooth scrolling for webkit browsers */
-  :global(::-webkit-scrollbar) {
-    width: 8px;
-  }
-  
-  :global(::-webkit-scrollbar-track) {
-    background: rgba(15, 23, 42, 0.5);
-  }
-  
-  :global(::-webkit-scrollbar-thumb) {
-    background: rgba(96, 165, 250, 0.3);
-    border-radius: 4px;
-  }
-  
-  :global(::-webkit-scrollbar-thumb:hover) {
-    background: rgba(96, 165, 250, 0.5);
-  }
-  
-  /* GitHub Footer Styling */
-  .github-footer {
-    position: relative;
-    margin: 2rem auto;
-    max-width: 400px;
-    text-align: center;
-    overflow: hidden;
-  }
-
-  .github-link {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem 2rem;
-    color: #e5e7eb;
-    text-decoration: none;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 2rem;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(12px) saturate(150%);
-    -webkit-backdrop-filter: blur(12px) saturate(150%);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
-  }
-
-  .github-link::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.2), transparent);
-    animation: githubShine 4s ease-in-out infinite;
-    pointer-events: none;
-  }
-
-  .github-link:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 35px rgba(96, 165, 250, 0.2);
-    border-color: rgba(96, 165, 250, 0.3);
-  }
-
-  .github-icon {
-    width: 1.25rem;
-    height: 1.25rem;
-    transition: transform 0.3s ease;
-  }
-
-  .github-link:hover .github-icon {
-    transform: rotate(5deg) scale(1.1);
-  }
-
-  @keyframes githubShine {
-    0% { left: -100%; }
-    20% { left: 100%; }
-    100% { left: 100%; }
-  }
-
-  /* Legacy styles */
-  .bmi-section { margin: 3rem 0; }
-  .bmi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-bottom: 3rem; }
-
-  @media (max-width: 768px) {
-    .bmi-grid { grid-template-columns: 1fr; gap: 2rem; }
-    .bmi-section { margin: 2rem 0; }
-  }
-
-  @media (max-width: 480px) {
-    .bmi-grid { gap: 1.5rem; }
-  }
-</style>
+<!-- styles moved to app.css -->
