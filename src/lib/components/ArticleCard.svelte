@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ArrowRight, Heart, Activity, Utensils, Brain, Apple, Moon, Droplet, BedDouble, Stethoscope, Sun, Wind } from 'lucide-svelte';
+  import { ArrowRight, Heart, Activity, Utensils, Brain, Apple, Moon, Droplet, BedDouble, Stethoscope, Sun, Wind, Dna, FlaskConical, Leaf } from 'lucide-svelte';
   import { createEventDispatcher } from 'svelte';
 
   export let title: string;
@@ -32,6 +32,12 @@
         return Sun;
       case 'fa6-solid:lungs':
         return Wind;
+      case 'fa6-solid:dna':
+        return Dna;
+      case 'fa6-solid:flask':
+        return FlaskConical;
+      case 'fa6-solid:leaf':
+        return Leaf;
       default:
         return Heart;
     }

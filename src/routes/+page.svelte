@@ -9,7 +9,7 @@
   import { onMount } from 'svelte';
   
   let bmiValue: number | null = null;
-  let articlesVisible = false;
+  let articlesVisible = true; // Always show articles by default
   let articlesContainer: HTMLElement | null = null;
   let category: string | null = null;
   
@@ -65,24 +65,8 @@
     // Smooth scrolling optimization
     document.documentElement.style.scrollBehavior = 'smooth';
     
-    // Lazy load articles section when it comes into view
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !articlesVisible) {
-            articlesVisible = true;
-            observer.disconnect();
-          }
-        });
-      },
-      { rootMargin: '100px' }
-    );
-    
-    if (articlesContainer) {
-      observer.observe(articlesContainer);
-    }
-    
-    // Performance optimization: Use passive event listeners
+    // Articles are now always visible by default, no lazy loading needed
+    // Keep performance optimization for smooth scrolling
     const handleScroll = () => {
       requestAnimationFrame(() => {
         // Smooth scroll handling if needed
@@ -92,7 +76,6 @@
     window.addEventListener('scroll', handleScroll, { passive: true });
     
     return () => {
-      observer.disconnect();
       window.removeEventListener('scroll', handleScroll);
     };
   });
