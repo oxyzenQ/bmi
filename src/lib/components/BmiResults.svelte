@@ -123,6 +123,7 @@
     min-height: 450px;
     display: flex;
     flex-direction: column;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .bmi-results-card::before {
@@ -197,11 +198,35 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .bmi-display {
     text-align: center;
     margin-bottom: 2.5rem;
+    animation: scaleIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 
   .bmi-value {
@@ -229,7 +254,7 @@
     gap: 0.75rem;
   }
 
-  .category-icon {
+  :global(.category-icon) {
     width: 1.5rem;
     height: 1.5rem;
   }
@@ -247,6 +272,26 @@
     padding: 1.75rem;
     margin-bottom: 1.75rem;
     border: 1px solid rgba(255, 255, 255, 0.05);
+    animation: slideInLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
+    transition: all 0.3s ease;
+  }
+
+  .health-advice:hover {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 
   .advice-title {
@@ -270,6 +315,26 @@
     border-radius: 1rem;
     padding: 1.75rem;
     margin-bottom: 1.75rem;
+    animation: slideInRight 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.6s both;
+    transition: all 0.3s ease;
+  }
+
+  .age-advisory:hover {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.1);
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 
   .advisory-title {
@@ -293,6 +358,15 @@
     border-radius: 1rem;
     padding: 1.75rem;
     border: 1px solid rgba(255, 255, 255, 0.05);
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.8s both;
+    transition: all 0.3s ease;
+  }
+
+  .bmi-explanation:hover {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
   }
 
   .explanation-title {
@@ -392,12 +466,23 @@
   /* Reduce motion for users who prefer it */
   @media (prefers-reduced-motion: reduce) {
     .icon-glow,
-    .empty-glow {
+    .empty-glow,
+    .results-content,
+    .bmi-display,
+    .health-advice,
+    .age-advisory,
+    .bmi-explanation {
       animation: none;
     }
 
     .bmi-value {
       animation: none;
+    }
+
+    .health-advice:hover,
+    .age-advisory:hover,
+    .bmi-explanation:hover {
+      transform: none;
     }
   }
 </style>

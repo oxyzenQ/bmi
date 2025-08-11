@@ -86,25 +86,66 @@
     font-family: inherit;
     position: relative;
     overflow: hidden;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    will-change: transform, background-color, box-shadow;
+    contain: layout style paint;
   }
 
   .article-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, 
-      rgba(96, 165, 250, 0.05), 
-      rgba(168, 85, 247, 0.05)
-    );
+    inset: 0;
+    /* Layer 1: subtle static diagonal tint; Layer 2: narrow glossy sweep bar */
+    background:
+      linear-gradient(135deg, rgba(96,165,250,0.06), rgba(168,85,247,0.04)),
+      linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.15) 8%, rgba(255,255,255,0.35) 12%, rgba(255,255,255,0.15) 16%, transparent 24%);
+    background-repeat: no-repeat, no-repeat;
+    background-size: 100% 100%, 18% 140%;
+    background-position: 0 0, -30% -20%;
     border-radius: inherit;
-    z-index: -1;
+    pointer-events: none;
+    z-index: 0;
+    animation: cardGloss 7s ease-in-out infinite;
+  }
+
+  @keyframes cardGloss {
+    0% { background-position: 0 0, -30% -20%; }
+    8% { background-position: 0 0, 110% 120%; }
+    100% { background-position: 0 0, 110% 120%; }
+  }
+
+  /* Subtle sparkle/glint once per second */
+  .article-card::after {
+    content: '';
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.2) 60%, rgba(255,255,255,0) 70%);
+    filter: blur(0.5px);
+    opacity: 0;
+    transform: translateZ(0);
+    animation: sparkle 1s infinite ease-out;
+    will-change: transform, opacity;
+    pointer-events: none;
+  }
+
+  @keyframes sparkle {
+    0% { opacity: 0; transform: translate(0, 0) scale(0.8); }
+    6% { opacity: 0.75; transform: translate(4px, -6px) scale(1); }
+    12% { opacity: 0; transform: translate(10px, -12px) scale(1.15); }
+    100% { opacity: 0; transform: translate(10px, -12px) scale(1.15); }
   }
 
   .article-card:hover {
     transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
   }
 
   .article-card:focus {
@@ -189,6 +230,7 @@
     .article-card {
       padding: 1.5rem;
       border-radius: 1.25rem;
+      backdrop-filter: blur(14px) saturate(135%);
     }
 
     .card-title {
@@ -223,6 +265,11 @@
   @media (prefers-reduced-motion: reduce) {
     .icon-glow {
       animation: none;
+    }
+
+    .article-card::after {
+      animation: none;
+      opacity: 0;
     }
 
     .article-card:hover {

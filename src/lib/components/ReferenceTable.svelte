@@ -76,7 +76,7 @@
         </tr>
       </thead>
       <tbody>
-        {#each bmiCategories as category}
+        {#each bmiCategories as category (category.category)}
           <tr class="table-row">
             <td class="table-cell category-cell">
               <div class="category-info">
@@ -85,7 +85,7 @@
                   <div class="category-name">{category.category}</div>
                 </div>
                 <div class="subcategories">
-                  {#each category.subcategories as sub}
+                  {#each category.subcategories as sub (sub.range)}
                     <div class="subcategory">
                       <span class="sub-range">{sub.range}</span>
                       <span class="sub-desc">{sub.description}</span>
@@ -259,7 +259,7 @@
     gap: 0.75rem;
   }
 
-  .category-icon {
+  :global(.category-icon) {
     width: 1.25rem;
     height: 1.25rem;
   }

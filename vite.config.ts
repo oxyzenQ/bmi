@@ -4,9 +4,19 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
+	resolve: {
+		conditions: ['browser']
+	},
 	test: {
 		environment: 'jsdom',
 		setupFiles: ['./src/test-setup.ts'],
-		globals: true
+		globals: true,
+		deps: {
+			optimizer: {
+				web: {
+					include: ['svelte', '@testing-library/svelte']
+				}
+			}
+		}
 	}
 });

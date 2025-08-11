@@ -16,7 +16,7 @@ describe('BmiForm', () => {
 
         // Check for form elements
         expect(screen.getByText('Calculate Your BMI')).toBeInTheDocument();
-        expect(screen.getByText('Enter your measurements below.')).toBeInTheDocument();
+        expect(screen.getByText('Enter your measurements below to discover your cosmic balance.')).toBeInTheDocument();
 
         // Check for input fields
         expect(screen.getByLabelText('Age (years)')).toBeInTheDocument();
@@ -77,8 +77,8 @@ describe('BmiForm', () => {
         // Submit form
         await fireEvent.click(calculateButton);
 
-        // Wait for the calculation delay
-        await new Promise(resolve => setTimeout(resolve, 600));
+        // Wait for the calculation delay (800ms + buffer)
+        await new Promise(resolve => setTimeout(resolve, 900));
 
         expect(mockOnCalculate).toHaveBeenCalledWith(25, 170, 70.5);
     });

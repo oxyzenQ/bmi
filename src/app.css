@@ -1,5 +1,6 @@
-/* Import Inter Variable font */
+/* Import local variable fonts */
 @import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
 
 /* Tailwind base and utilities */
 @import 'tailwindcss';
@@ -18,6 +19,12 @@
   --apple-glass: rgba(255, 255, 255, 0.08);
   --apple-border: rgba(255, 255, 255, 0.12);
   --apple-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+  /* Global animation/transition tuning */
+  --easing-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 280ms;
+  --dur-normal: 500ms;
+  --dur-slow: 800ms;
 }
 
 @media (prefers-color-scheme: light) {
@@ -47,7 +54,7 @@ body {
   text-rendering: optimizeLegibility;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   font-variation-settings: 'wght' 400;
-  transition: background 400ms ease;
+  transition: background var(--dur-normal) var(--easing-smooth);
 }
 
 /* Remove heavy beam overlays to reduce paint cost */
@@ -61,7 +68,7 @@ body {
   border: 1px solid var(--apple-border);
   border-radius: 1.5rem;
   box-shadow: var(--apple-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 20px rgba(96, 165, 250, 0.1);
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--dur-normal) var(--easing-smooth), box-shadow var(--dur-normal) var(--easing-smooth);
 }
 
 .glass-panel:hover {
@@ -78,7 +85,7 @@ body {
   border: 1px solid var(--apple-border);
   border-radius: 2rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 20px rgba(96, 165, 250, 0.1);
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.5s ease;
+  transition: transform var(--dur-slow) var(--easing-smooth), box-shadow var(--dur-slow) var(--easing-smooth), border-color var(--dur-slow) var(--easing-smooth);
 }
 
 .liquid-glass:hover {
@@ -91,7 +98,7 @@ body {
 .space-button {
   will-change: transform;
   transform: translateZ(0);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--dur-fast) var(--easing-smooth);
 }
 
 .space-button:hover {
@@ -118,20 +125,41 @@ body {
   text-align: center;
   color: var(--text-secondary);
   font-size: 0.875rem;
-  padding: 2.5rem 1rem;
-  margin-top: 4rem;
+  /* Fluid padding: min 1rem, grows with vw, caps at 2.5rem */
+  padding: clamp(1rem, 4vw, 2.5rem);
+  /* Center horizontally and let width control layout */
+  margin-inline: auto;
+  /* Fluid top margin */
+  margin-block-start: clamp(2rem, 6vw, 4rem);
+
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(20px);
-  border-radius: 2rem 2rem 0 0;
-  font-weight: 400;
+  border-radius: 2rem;
+  /* Optional: constrain width so it doesn’t span edge-to-edge */
+  max-width: 900px; /* tweak as desired to align with your design */
+}
+
+/* Tighten on very small screens if needed */
+@media (max-width: 480px) {
+  .footer-disclaimer {
+    border-radius: 1rem; /* less rounding to avoid edge gaps */
+  }
 }
 
 /* GitHub footer */
-.github-footer { text-align: center; padding: 1.5rem; margin-top: 1rem; }
+.github-footer { 
+  text-align: center; 
+  padding: 1.5rem; 
+  margin-top: 1rem; 
+  position: relative; 
+  overflow: hidden;
+  will-change: auto;
+  contain: layout style;
+}
 .github-link {
   display: inline-flex; align-items: center; gap: 0.75rem; color: var(--text-secondary);
-  text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all var(--dur-fast) var(--easing-smooth);
   padding: 0.75rem 1.5rem; border-radius: 1rem; background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(20px);
 }
@@ -141,17 +169,48 @@ body {
 }
 .github-icon { width: 20px; height: 20px; fill: currentColor; }
 
+/* Elegant glossy sweep for footer container */
+.github-footer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, rgba(96,165,250,0.06), rgba(168,85,247,0.04)),
+    linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.12) 8%, rgba(255,255,255,0.26) 12%, rgba(255,255,255,0.12) 16%, transparent 24%);
+  background-repeat: no-repeat, no-repeat;
+  background-size: 100% 100%, 16% 140%;
+  background-position: 0 0, -30% -20%;
+  pointer-events: none;
+  animation: footerGloss 9s var(--easing-smooth) infinite;
+  border-radius: 1rem;
+}
+
+@keyframes footerGloss {
+  0% { background-position: 0 0, -30% -20%; opacity: 0; }
+  6% { background-position: 0 0, 110% 120%; opacity: 1; }
+  30% { opacity: 0; }
+  100% { background-position: 0 0, 110% 120%; opacity: 0; }
+}
+
+/* Numeric font consistency - optimized for performance */
+.numeric, .num, .monospace-numeric,
+:where(input[type="number"], .dynamic-chart text, .stat-number, .bmi-value) {
+  font-family: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Monaco, 'Courier New', monospace;
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  font-display: swap;
+}
+
 /* Modal styles */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(12px);
   z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem;
-  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeIn var(--dur-normal) var(--easing-smooth);
 }
 .modal-content {
   background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(32px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 2rem; max-width: 800px; max-height: 90vh;
   overflow-y: auto; position: relative; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(96, 165, 250, 0.2);
-  animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1); padding: 2.5rem;
+  animation: slideUp var(--dur-slow) var(--easing-smooth); padding: 2.5rem;
 }
 
 /* Completely hide scrollbars globally while allowing scroll */
@@ -180,7 +239,14 @@ html { scroll-behavior: smooth; }
 
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
   html, body { transition: none; }
+  .hero-content::after, .github-footer::before { animation: none !important; }
 }
 
 /* Enhanced responsive design */

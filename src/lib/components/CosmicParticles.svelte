@@ -9,26 +9,29 @@
     refreshParticles();
   });
 
+  function createParticle() {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    return particle;
+  }
+
   function createParticles() {
     if (!particlesContainer) return;
 
     particlesContainer.innerHTML = '';
     particles = [];
 
-    // Create 20–25 lightweight particles
+    // Create particles
     const particleCount = 20 + Math.floor(Math.random() * 6);
-
     for (let i = 0; i < particleCount; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'particle';
-
-      const left = Math.random() * 100; // percentage
-      const size = 2 + Math.random() * 6; // 2px - 8px
-      const delay = Math.random() * 6; // 0s - 6s
-      const duration = 14 + Math.random() * 12; // 14s - 26s
+      const particle = createParticle();
       const opacity = 0.25 + Math.random() * 0.6; // depth cue
       const scale = 0.8 + Math.random() * 0.9; // 0.8x - 1.7x
       const drift = (Math.random() - 0.5) * 40; // -20px to 20px horizontal drift
+      const left = Math.random() * 100; // 0% to 100%
+      const size = 2 + Math.floor(Math.random() * 4); // 2px to 6px
+      const delay = Math.random() * 2; // 0s to 2s
+      const duration = 10 + Math.random() * 10; // 10s to 20s
 
       particle.style.cssText = `
         left: ${left}%;

@@ -16,11 +16,12 @@
     
     if (ageNum && heightNum && weightNum && ageNum > 0 && heightNum > 0 && weightNum > 0) {
       isCalculating = true;
-      // Simulate calculation delay
+      // Smooth transition handled via class binding
+      // Simulate calculation with realistic delay
       setTimeout(() => {
         onCalculate(ageNum, heightNum, weightNum);
         isCalculating = false;
-      }, 500);
+      }, 800);
     }
   }
 
@@ -38,7 +39,7 @@
   }
 </script>
 
-<div class="bmi-form-card liquid-glass">
+<div class="bmi-form-card liquid-glass" class:calculating={isCalculating}>
   <div class="card-header">
     <div class="icon-container">
       <Calculator class="w-12 h-12 text-cosmic-blue" />
@@ -138,6 +139,22 @@
     border-radius: 1.5rem;
     position: relative;
     overflow: hidden;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    will-change: transform, background-color, box-shadow;
+    contain: layout style paint;
+  }
+
+  /* svelte-ignore css-unused-selector */
+  .bmi-form-card.calculating {
+    transform: scale(1.02) translateZ(0);
+    box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3), 0 0 0 1px rgba(59, 130, 246, 0.2);
+    will-change: transform, box-shadow;
+    backface-visibility: hidden;
   }
 
   .bmi-form-card::before {
@@ -173,10 +190,35 @@
     transform: translate(-50%, -50%);
     width: 60px;
     height: 60px;
-    background: radial-gradient(circle, rgba(96, 165, 250, 0.2), transparent);
+    background: radial-gradient(closest-side, rgba(59, 130, 246, 0.15), transparent 70%);
+    transform: translate(-50%, -50%);
+    filter: blur(25px);
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+
+  .bmi-form-card::after {
+    content: '';
+    position: absolute;
+    top: 12%;
+    left: 14%;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
-    filter: blur(15px);
-    animation: iconGlow 3s ease-in-out infinite alternate;
+    background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.2) 60%, rgba(255,255,255,0) 70%);
+    filter: blur(0.6px);
+    opacity: 0;
+    transform: translateZ(0);
+    animation: sparkle 1s infinite ease-out;
+    will-change: transform, opacity;
+    pointer-events: none;
+  }
+
+  @keyframes sparkle {
+    0% { opacity: 0; transform: translate(0, 0) scale(0.8); }
+    6% { opacity: 0.75; transform: translate(5px, -6px) scale(1); }
+    12% { opacity: 0; transform: translate(12px, -12px) scale(1.15); }
+    100% { opacity: 0; transform: translate(12px, -12px) scale(1.15); }
   }
 
   @keyframes iconGlow {
@@ -368,6 +410,11 @@
       animation: none;
     }
 
+    .bmi-form-card::after {
+      animation: none;
+      opacity: 0;
+    }
+
     .btn-primary::before {
       display: none;
     }
@@ -375,6 +422,10 @@
     .btn-primary:hover:not(:disabled),
     .btn-secondary:hover {
       transform: none;
+    }
+    /* svelte-ignore css-unused-selector */
+    .bmi-form-card.calculating {
+      transform: scale(0.98);
     }
   }
 </style>
