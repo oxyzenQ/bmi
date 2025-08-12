@@ -6,6 +6,8 @@
   import ArticleCard from '$lib/components/ArticleCard.svelte';
   import ReferenceTable from '$lib/components/ReferenceTable.svelte';
   import { onMount } from 'svelte';
+  // lucide icons for ArticleCard
+  import { Heart, Activity, Utensils, BedDouble, Droplet, Brain, Stethoscope, Sun, Wind, Dna, FlaskConical, Leaf } from 'lucide-svelte';
   
   let bmiValue: number | null = null;
   let articlesVisible = true;
@@ -130,6 +132,7 @@
 <svelte:head>
   <title>BMI Calculator - Calculate Your Body Mass Index</title>
   <meta name="description" content="Calculate your BMI with our modern, accessible calculator. Get instant results, health recommendations, and learn about BMI categories." />
+  <link rel="preload" as="image" href="/images/HDRV3Stellar.png" fetchpriority="high" />
 </svelte:head>
 
 <div class="main-container">
@@ -171,33 +174,32 @@
   <ReferenceTable />
 
   <!-- Health Articles Section -->
-  <section class="py-16 px-4" bind:this={articlesContainer}>
-    <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold text-white mb-4">Health & Wellness Articles</h2>
-        <p class="text-slate-300 text-lg">Expert insights and evidence-based guidance for optimal health</p>
+  <section class="article-section" bind:this={articlesContainer}>
+    <div class="main-container">
+      <div class="section-header">
+        <h2 class="title">Health & Wellness Articles</h2>
+        <p class="subtitle">Expert insights and evidence-based guidance for optimal health</p>
       </div>
-      
       {#if articlesVisible}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 article-grid">
+        <div class="article-grid">
           <ArticleCard
             title="Healthy Living Tips"
             description="Discover evidence-based strategies for maintaining a healthy weight and improving overall wellness."
-            icon="fa6-solid:heart-pulse"
+            icon={Heart}
             on:openModal={handleOpenModal}
           />
           
           <ArticleCard
             title="Exercise Guidelines"
             description="Learn about effective workout routines tailored to different BMI categories and fitness levels."
-            icon="fa6-solid:person-running"
+            icon={Activity}
             on:openModal={handleOpenModal}
           />
           
           <ArticleCard
             title="Nutrition Advice"
             description="Explore balanced nutrition plans and dietary recommendations for optimal health outcomes."
-            icon="fa6-solid:utensils"
+            icon={Utensils}
             on:openModal={handleOpenModal}
           />
 
@@ -205,70 +207,70 @@
           <ArticleCard
             title="Sleep & Recovery"
             description="Understand how quality sleep and recovery improve metabolism, performance, and overall health."
-            icon="fa6-solid:bed"
+            icon={BedDouble}
             on:openModal={handleOpenModal}
           />
 
           <ArticleCard
             title="Hydration Essentials"
             description="Why water matters: daily hydration goals, smart timing, and how fluids affect BMI and energy."
-            icon="fa6-solid:water"
+            icon={Droplet}
             on:openModal={handleOpenModal}
           />
 
           <ArticleCard
             title="Mental Wellness"
             description="Stress, mindfulness, and habit-building: science-backed tactics for a healthier relationship with food."
-            icon="fa6-solid:brain"
+            icon={Brain}
             on:openModal={handleOpenModal}
           />
 
           <ArticleCard
             title="Preventive Care"
             description="Screenings, labs, and checkups: what to track yearly to stay ahead of health risks."
-            icon="fa6-solid:stethoscope"
+            icon={Stethoscope}
             on:openModal={handleOpenModal}
           />
 
           <ArticleCard
             title="Sunlight & Circadian Health"
             description="Light exposure, vitamin D, and circadian rhythm—optimize your day for better sleep and weight."
-            icon="fa6-solid:sun"
+            icon={Sun}
             on:openModal={handleOpenModal}
           />
 
           <ArticleCard
             title="Breath & Cardio Health"
             description="Breathing mechanics, VO2, and lung health basics to support sustainable fitness progress."
-            icon="fa6-solid:lungs"
+            icon={Wind}
             on:openModal={handleOpenModal}
           />
 
           <ArticleCard
             title="Metabolic Optimization"
             description="Advanced strategies for optimizing metabolic health through targeted nutrition, timing, and lifestyle interventions."
-            icon="fa6-solid:dna"
+            icon={Dna}
             on:openModal={handleOpenModal}
           />
 
           <ArticleCard
             title="Hormonal Balance"
             description="Understanding key hormones that affect weight, metabolism, and overall health for optimal body composition."
-            icon="fa6-solid:flask"
+            icon={FlaskConical}
             on:openModal={handleOpenModal}
           />
 
           <ArticleCard
             title="Recovery & Longevity"
             description="Evidence-based recovery protocols and longevity practices to enhance healthspan and optimize aging."
-            icon="fa6-solid:leaf"
+            icon={Leaf}
             on:openModal={handleOpenModal}
           />
         </div>
       {:else}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[400px] items-center justify-center">
-          <div class="col-span-full text-center text-slate-400">
-            <div class="animate-pulse">Loading articles...</div>
+        <div class="article-grid" style="min-height: 240px;">
+          <div class="bmi-card" style="text-align:center; color: #a3b2c7; display:flex; align-items:center; justify-content:center;">
+            Loading articles...
           </div>
         </div>
       {/if}

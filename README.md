@@ -1,6 +1,6 @@
 # 🚀 BMI Calculator SvelteKit
 
-A modern, responsive Body Mass Index calculator built with **SvelteKit**, **TypeScript**, and **Tailwind CSS**. Features a beautiful space-themed design with dark/light mode, interactive charts, and exceptional performance.
+A modern, responsive Body Mass Index calculator built with **SvelteKit** and **TypeScript**. Features a beautiful space-themed design with dark/light mode, interactive charts, and exceptional performance.
 
 ## ✨ Features
 
@@ -25,9 +25,9 @@ A modern, responsive Body Mass Index calculator built with **SvelteKit**, **Type
 
 - **Framework**: SvelteKit 2.x with Svelte 5
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS v4
-- **Icons**: Font Awesome 6.4
-- **Fonts**: Inter (Google Fonts)
+- **Styling**: Modern CSS (no Tailwind)
+- **Icons**: lucide-svelte
+- **Fonts**: Inter via @fontsource (@fontsource-variable/inter)
 - **Deployment**: Vercel
 
 ## 🚀 Quick Start
@@ -148,7 +148,6 @@ npm run build
 ## 📊 Performance Optimizations
 
 - ✅ Server-side rendering (SSR)
-- ✅ Tailwind CSS v4 optimization
 - ✅ Custom SVG charts (no heavy libraries)
 - ✅ Lazy loading for images
 - ✅ Preload critical resources

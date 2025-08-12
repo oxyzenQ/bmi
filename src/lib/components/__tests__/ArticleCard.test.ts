@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import ArticleCard from '../ArticleCard.svelte';
 import ArticleCardTestWrapper from './mocks/ArticleCardTestWrapper.svelte';
+import { Heart } from 'lucide-svelte';
 
 describe('ArticleCard', () => {
     it('renders article card with title and description', () => {
@@ -9,7 +10,7 @@ describe('ArticleCard', () => {
             props: {
                 title: 'Test Article',
                 description: 'Test description',
-                icon: 'fa6-solid:heart'
+                icon: Heart
             }
         });
 
@@ -25,7 +26,7 @@ describe('ArticleCard', () => {
             props: {
                 title: 'Test Article',
                 description: 'Test description',
-                icon: 'fa6-solid:heart',
+                icon: Heart,
                 onCardOpen: handler
             }
         });
@@ -46,7 +47,7 @@ describe('ArticleCard', () => {
             props: {
                 title: 'Test Article',
                 description: 'Test description',
-                icon: 'fa6-solid:heart',
+                icon: Heart,
                 onCardOpen: handler
             }
         });
@@ -64,7 +65,7 @@ describe('ArticleCard', () => {
             props: {
                 title: 'Test Article',
                 description: 'Test description',
-                icon: 'fa6-solid:heart',
+                icon: Heart,
                 onCardOpen: handler
             }
         });
@@ -80,7 +81,7 @@ describe('ArticleCard', () => {
             props: {
                 title: 'Test Article',
                 description: 'Test description',
-                icon: 'fa6-solid:heart'
+                icon: Heart
             }
         });
 
@@ -104,7 +105,7 @@ describe('ArticleCard', () => {
             props: {
                 title: 'Test Article',
                 description: 'Test description',
-                icon: 'fa6-solid:heart'
+                icon: Heart
             }
         });
 
@@ -120,7 +121,7 @@ describe('ArticleCard', () => {
             props: {
                 title: 'Test Article',
                 description: 'Test description',
-                icon: 'fa6-solid:heart',
+                icon: Heart,
                 onCardOpen: handler
             }
         });
@@ -137,7 +138,7 @@ describe('ArticleCard', () => {
             props: {
                 title: 'Unknown Article',
                 description: 'Test description',
-                icon: 'fa6-solid:heart'
+                icon: Heart
             }
         });
 

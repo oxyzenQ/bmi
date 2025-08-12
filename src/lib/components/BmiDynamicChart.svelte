@@ -170,12 +170,12 @@
 
   // Chart always visible by design
  </script>
-  <div class="chart-container rounded-xl p-6 shadow-2xl border border-slate-800">
+  <div class="chart-container">
     <div class="chart-header">
       <div class="chart-title">
-        <TrendingUp class="w-6 h-6 text-cosmic-blue" />
-        <h3>BMI Analysis & Trends</h3>
-      </div>
+      <TrendingUp class="w-6 h-6 text-cosmic-blue" />
+      <h3>BMI Analysis & Trends</h3>
+    </div>
       <div class="chart-subtitle">
         Interactive visualization of your BMI and health metrics
       </div>
@@ -368,12 +368,8 @@
         {/each}
 
         <!-- Axis labels -->
-        <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 text-sm text-slate-300 font-medium">
-          Weight (kg)
-        </div>
-        <div class="absolute left-2 top-1/2 transform -translate-y-1/2 -rotate-90 text-sm text-slate-300 font-medium">
-          BMI
-        </div>
+        <div class="axis-label axis-x">Weight (kg)</div>
+        <div class="axis-label axis-y">BMI</div>
         </svg>
         
         <!-- Loading indicator when no data -->
@@ -394,7 +390,7 @@
 
     <div class="chart-insights">
       <div class="insight-card">
-        <Activity class="w-5 h-5 text-green-400" />
+        <Activity class="w-6 h-6 text-green-400" />
         <div>
           <div class="insight-title">Current Status</div>
           <div class="insight-value">{category}</div>
@@ -402,7 +398,7 @@
       </div>
       
       <div class="insight-card">
-        <Target class="w-5 h-5 text-blue-400" />
+        <Target class="w-6 h-6 text-blue-400" />
         <div>
           <div class="insight-title">Target Range</div>
           <div class="insight-value">18.5 - 24.9</div>
@@ -410,7 +406,7 @@
       </div>
       
       <div class="insight-card">
-        <TrendingUp class="w-5 h-5 text-purple-400" />
+        <TrendingUp class="w-6 h-6 text-purple-400" />
         <div>
           <div class="insight-title">Health Score</div>
           <div class="insight-value">

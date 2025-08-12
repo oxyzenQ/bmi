@@ -214,7 +214,7 @@
   <!-- Current stats -->
   <div class="chart-stats">
     <div class="stat-card">
-      <Activity class="w-5 h-5 text-green-400" />
+        <Activity class="w-6 h-6" />
       <div>
         <div class="stat-label">Current BMI</div>
         <div class="stat-value">{currentBMI.toFixed(1)}</div>
@@ -222,7 +222,7 @@
     </div>
     
     <div class="stat-card">
-      <Target class="w-5 h-5 text-blue-400" />
+        <Target class="w-6 h-6" />
       <div>
         <div class="stat-label">Category</div>
         <div class="stat-value" style="color: {currentCategory.color}">{currentCategory.label}</div>
@@ -230,7 +230,7 @@
     </div>
     
     <div class="stat-card">
-      <TrendingUp class="w-5 h-5 text-purple-400" />
+        <TrendingUp class="w-6 h-6" />
       <div>
         <div class="stat-label">Target Range</div>
         <div class="stat-value">18.5 - 24.9</div>

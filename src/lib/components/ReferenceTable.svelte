@@ -55,70 +55,61 @@
   ];
 </script>
 
-<div class="reference-table-card liquid-glass">
-  <div class="table-header">
+<div class="bmi-card reference-table">
+  <div class="ref-card">
     <div class="header-icon">
-      <Table class="w-12 h-12 text-cosmic-blue" />
+      <Table class="w-8 h-8" />
       <div class="icon-glow"></div>
     </div>
-    <h2 class="table-title">BMI Reference Chart</h2>
-    <p class="table-subtitle">Understanding BMI categories and ranges for your cosmic health journey.</p>
-  </div>
-
-  <div class="table-container">
-    <table class="bmi-table">
-      <thead>
-        <tr>
-          <th scope="col" class="table-header-cell">Category</th>
-          <th scope="col" class="table-header-cell">BMI Range</th>
-          <th scope="col" class="table-header-cell">Health Status</th>
-          <th scope="col" class="table-header-cell">Recommended Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each bmiCategories as category (category.category)}
-          <tr class="table-row">
-            <td class="table-cell category-cell">
-              <div class="category-info">
-                <div class="category-header">
-                  <svelte:component this={category.icon} class="category-icon" style="color: {category.statusColor}" />
-                  <div class="category-name">{category.category}</div>
-                </div>
-                <div class="subcategories">
-                  {#each category.subcategories as sub (sub.range)}
-                    <div class="subcategory">
-                      <span class="sub-range">{sub.range}</span>
-                      <span class="sub-desc">{sub.description}</span>
-                    </div>
-                  {/each}
-                </div>
-              </div>
-            </td>
-            <td class="table-cell range-cell">
-              <span class="range-value">{category.range}</span>
-            </td>
-            <td class="table-cell status-cell">
-              <span class="status-indicator" style="color: {category.statusColor}">
-                {category.status}
-              </span>
-            </td>
-            <td class="table-cell action-cell">
-              <span class="action-text">{category.recommendation}</span>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
-
-  <div class="table-footer">
-    <div class="footer-content">
-      <Info class="w-5 h-5 text-cosmic-blue" />
-      <p class="footer-note">
-        <strong>Note:</strong> BMI is a screening tool and should not be used as a sole diagnostic method. 
-        Individual factors like muscle mass, bone density, and overall health should be considered. 
-        Always consult healthcare professionals for personalized guidance.
-      </p>
+    <div>
+      <div class="title">BMI Reference Chart</div>
+      <div class="subtitle">Understanding BMI categories and ranges for your cosmic health journey.</div>
     </div>
+  </div>
+
+  <div class="ref-header">
+    <div>Category</div>
+    <div>BMI Range</div>
+    <div>Health Status</div>
+    <div>Recommended Action</div>
+  </div>
+
+  <div class="ref-body">
+    {#each bmiCategories as category (category.category)}
+      <div class="ref-row">
+        <div class="ref-col" data-label="Category">
+          <div class="icon-col">
+            <svelte:component this={category.icon} style={`color: ${category.statusColor}`} />
+            <strong>{category.category}</strong>
+          </div>
+          <div class="muted" style="margin-top: 0.35rem;">
+            {#each category.subcategories as sub (sub.range)}
+              <div>
+                <span class="muted">{sub.range}</span>
+                <span> — {sub.description}</span>
+              </div>
+            {/each}
+          </div>
+        </div>
+        <div class="ref-col" data-label="BMI Range">
+          <strong>{category.range}</strong>
+        </div>
+        <div class="ref-col" data-label="Health Status">
+          <span class="status-text" style={`color: ${category.statusColor}`}>{category.status}</span>
+        </div>
+        <div class="ref-col" data-label="Recommended Action">
+          <span>{category.recommendation}</span>
+        </div>
+      </div>
+    {/each}
+  </div>
+
+  <div class="ref-card" style="border-top: 1px solid rgba(255,255,255,0.08);">
+    <Info class="w-5 h-5" />
+    <p class="subtitle" style="margin: 0;">
+      <strong>Note:</strong> BMI is a screening tool and should not be used as a sole diagnostic method. 
+      Individual factors like muscle mass, bone density, and overall health should be considered. 
+      Always consult healthcare professionals for personalized guidance.
+    </p>
   </div>
 </div>

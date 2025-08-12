@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
-  import { X, Calendar, Clock, User } from 'lucide-svelte';
+  import { X, User, Calendar, Clock } from 'lucide-svelte';
 
   export let isOpen = false;
   export let title = '';

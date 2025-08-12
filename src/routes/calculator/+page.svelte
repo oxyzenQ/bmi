@@ -1,7 +1,6 @@
 <script lang="ts">
   import BmiChart from '$lib/components/BmiChart.svelte';
   import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
-  import Icon from '@iconify/svelte';
 
   let formData = {
     age: '',
@@ -40,16 +39,16 @@
 
     if (bmi < 18.5) {
       category = 'Underweight';
-      categoryClass = 'text-blue-400';
+      categoryClass = 'status-blue';
     } else if (bmi >= 18.5 && bmi < 24.9) {
       category = 'Healthy weight';
-      categoryClass = 'text-green-400';
+      categoryClass = 'status-green';
     } else if (bmi >= 25 && bmi < 29.9) {
       category = 'Overweight';
-      categoryClass = 'text-yellow-400';
+      categoryClass = 'status-yellow';
     } else {
       category = 'Obesity';
-      categoryClass = 'text-red-400';
+      categoryClass = 'status-red';
     }
 
     bmiResult = {
@@ -72,11 +71,11 @@
   <meta name="description" content="Calculate your Body Mass Index and learn about your health status" />
 </svelte:head>
 
-<div class="min-h-screen py-8">
-  <div class="space-container max-w-2xl">
-    <div class="flex items-center justify-between mb-8">
-      <a href="/" class="text-white hover:text-blue-400 transition-colors">
-        <Icon icon="fa6-solid:arrow-left" class="mr-2" />
+<div class="main-container" style="padding-top: 2rem; padding-bottom: 2rem;">
+  <div class="glass-panel" style="max-width: 860px; margin: 0 auto;">
+    <div class="panel-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 1rem;">
+      <a href="/" class="btn btn-outline btn-sm" aria-label="Back to Home">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right:6px"><path d="M15 18l-6-6 6-6" stroke="#dbeafe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Back to Home
       </a>
       <div class="page-logo-avatar" aria-hidden="true">
@@ -91,17 +90,17 @@
       </div>
     </div>
 
-    <h1 class="text-3xl font-bold text-white mb-2 text-center">
+    <h1 class="section-title" style="text-align:center; margin-bottom: 0.5rem;">
       BMI Calculator
     </h1>
-    <p class="text-gray-300 text-center mb-8">
+    <p class="section-subtitle" style="text-align:center; margin-bottom: 1.5rem;">
       Calculate your Body Mass Index and learn about your health status
     </p>
 
-    <form on:submit={calculateBMI} class="space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <form on:submit={calculateBMI}>
+      <div class="form-grid" style="display:grid; grid-template-columns: 1fr; gap: 1rem;">
         <div>
-          <label for="age" class="block text-white font-medium mb-2">
+          <label for="age" class="input-label">
             Age (years)
           </label>
           <input
@@ -109,7 +108,7 @@
             id="age"
             name="age"
             bind:value={formData.age}
-            class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-400 transition-colors"
+            class="form-input"
             placeholder="Enter your age"
             min="1"
             max="120"
@@ -118,30 +117,28 @@
 
         <div>
           <fieldset>
-            <legend class="block text-white font-medium mb-2">
+            <legend class="input-label">
               Gender
             </legend>
-            <div class="flex gap-4">
-              <label class="flex items-center text-white cursor-pointer">
+            <div style="display:flex; gap:1rem;">
+              <label style="display:flex; align-items:center; cursor:pointer; gap:0.35rem;">
                 <input
                   type="radio"
                   name="gender"
                   value="male"
                   bind:group={formData.gender}
-                  class="mr-2 accent-blue-400"
                 />
-                <Icon icon="fa6-solid:person" class="mr-1" />
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12a4 4 0 100-8 4 4 0 000 8z" fill="#93c5fd"/><path d="M6 20v-1a6 6 0 1112 0v1" stroke="#93c5fd" stroke-width="2" stroke-linecap="round"/></svg>
                 Male
               </label>
-              <label class="flex items-center text-white cursor-pointer">
+              <label style="display:flex; align-items:center; cursor:pointer; gap:0.35rem;">
                 <input
                   type="radio"
                   name="gender"
                   value="female"
                   bind:group={formData.gender}
-                  class="mr-2 accent-blue-400"
                 />
-                <Icon icon="fa6-solid:person-dress" class="mr-1" />
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 100-6 3 3 0 000 6z" fill="#f9a8d4"/><path d="M7 21l2-7 3-2 3 2 2 7" stroke="#f9a8d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 Female
               </label>
             </div>
@@ -149,7 +146,7 @@
         </div>
 
         <div>
-          <label for="height" class="block text-white font-medium mb-2">
+          <label for="height" class="input-label">
             Height (cm)
           </label>
           <input
@@ -157,7 +154,7 @@
             id="height"
             name="height"
             bind:value={formData.height}
-            class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-400 transition-colors"
+            class="form-input"
             placeholder="Enter your height"
             min="50"
             max="300"
@@ -165,7 +162,7 @@
         </div>
 
         <div>
-          <label for="weight" class="block text-white font-medium mb-2">
+          <label for="weight" class="input-label">
             Weight (kg)
           </label>
           <input
@@ -173,7 +170,7 @@
             id="weight"
             name="weight"
             bind:value={formData.weight}
-            class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-400 transition-colors"
+            class="form-input"
             placeholder="Enter your weight"
             min="10"
             max="500"
@@ -182,43 +179,43 @@
         </div>
       </div>
 
-      <div class="flex gap-4 justify-center">
+      <div style="display:flex; gap:0.75rem; justify-content:center; margin-top: 1rem;">
         <button
           type="submit"
-          class="space-button text-lg"
+          class="btn btn-primary btn-lg"
           disabled={isLoading}
         >
           {#if isLoading}
             <LoadingSpinner size="small" color="#ffffff" />
             Calculating...
           {:else}
-            <Icon icon="fa6-solid:calculator" />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right:6px"><rect x="5" y="3" width="14" height="18" rx="2" stroke="#e2e8f0" stroke-width="2"/><path d="M8 7h8M8 11h2m3 0h2M8 15h2m3 0h2M8 19h8" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/></svg>
             Calculate BMI
           {/if}
         </button>
         <button
           type="button"
           on:click={resetForm}
-          class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
+          class="btn btn-outline btn-lg"
         >
-          <Icon icon="fa6-solid:rotate-right" />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right:6px"><path d="M21 12a9 9 0 10-3.5 7.1" stroke="#dbeafe" stroke-width="2" stroke-linecap="round"/><path d="M21 12v6h-6" stroke="#dbeafe" stroke-width="2" stroke-linecap="round"/></svg>
           Reset
         </button>
       </div>
     </form>
 
     {#if bmiResult}
-      <div class="mt-8 p-6 bg-gray-800 rounded-lg border border-gray-600 text-center">
-        <h3 class="text-xl font-semibold text-white mb-4">Your BMI Result</h3>
-        <div class="text-4xl font-bold mb-2">
+      <div class="glass-card" style="margin-top:1.25rem; text-align:center;">
+        <h3 class="section-title" style="text-align:center; margin-bottom: 0.75rem;">Your BMI Result</h3>
+        <div class="title" style="font-size:2rem; font-weight:800; margin-bottom:0.5rem;">
           <span class={bmiResult.categoryClass}>{bmiResult.value}</span>
         </div>
-        <div class={`text-lg font-medium ${bmiResult.categoryClass}`}>
+        <div class={`subtitle ${bmiResult.categoryClass}`}>
           {bmiResult.category}
         </div>
         
         <!-- BMI Chart -->
-        <div class="mt-6">
+        <div style="margin-top: 1rem;">
           <BmiChart 
             bmiValue={bmiResult.value}
             category={bmiResult.category}
@@ -226,21 +223,22 @@
           />
         </div>
         
-        <div class="mt-4 text-sm text-gray-400">
+        <div class="subtitle" style="margin-top: 0.75rem;">
           <p>BMI Categories:</p>
-          <div class="mt-2 text-left max-w-md mx-auto">
-            <p class="text-blue-400">• Underweight: Below 18.5</p>
-            <p class="text-green-400">• Healthy weight: 18.5 - 24.9</p>
-            <p class="text-yellow-400">• Overweight: 25.0 - 29.9</p>
-            <p class="text-red-400">• Obesity: 30.0 and above</p>
+          <div style="margin-top:0.5rem; text-align:left; max-width: 520px; margin-inline:auto;">
+            <p class="status-blue">• Underweight: Below 18.5</p>
+            <p class="status-green">• Healthy weight: 18.5 - 24.9</p>
+            <p class="status-yellow">• Overweight: 25.0 - 29.9</p>
+            <p class="status-red">• Obesity: 30.0 and above</p>
           </div>
         </div>
       </div>
     {/if}
 
-    <div class="mt-8 text-center">
-      <a href="/about" class="text-blue-400 hover:text-purple-400 transition-colors">
-        Learn more about BMI <Icon icon="fa6-solid:arrow-right" class="ml-1" />
+    <div style="margin-top:1.25rem; text-align:center;">
+      <a href="/about" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right:6px"><path d="M5 12h14M13 5l7 7-7 7" stroke="#083344" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Learn more about BMI
       </a>
     </div>
   </div>

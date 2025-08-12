@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Icon from '@iconify/svelte';
+  import { ArrowLeft, Calculator, Smartphone, ShieldCheck, Zap, Heart, Star, CheckCircle2, Rocket } from 'lucide-svelte';
 </script>
 
 <svelte:head>
@@ -7,11 +7,11 @@
   <meta name="description" content="Learn about BMI Calculator Mature - A modern, responsive Body Mass Index calculator with space-themed design" />
 </svelte:head>
 
-<div class="min-h-screen py-8">
-  <div class="space-container max-w-4xl">
-    <div class="flex items-center justify-between mb-8">
-      <a href="/" class="text-white hover:text-blue-400 transition-colors">
-        <Icon icon="fa6-solid:arrow-left" class="mr-2" />
+<div class="main-container" style="padding-top: 2rem; padding-bottom: 2rem;">
+  <div class="glass-panel" style="max-width: 1024px; margin: 0 auto;">
+    <div class="panel-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 1rem;">
+      <a href="/" class="btn btn-outline btn-sm" aria-label="Back to Home">
+        <ArrowLeft width="18" height="18" style="margin-right:6px" color="#dbeafe" />
         Back to Home
       </a>
       <div class="page-logo-avatar" aria-hidden="true">
@@ -26,108 +26,120 @@
       </div>
     </div>
 
-    <header class="text-center mb-12">
-      <h1 class="text-4xl font-bold text-white mb-4">
+    <header style="text-align:center; margin-bottom: 1.5rem;">
+      <h1 class="section-title" style="margin-bottom: 0.5rem;">
         About BMI Calculator Mature
       </h1>
-      <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+      <p class="section-subtitle" style="max-width: 720px; margin-inline:auto;">
         A modern, responsive Body Mass Index calculator with space-themed design, 
         built to help you monitor your health journey.
       </p>
     </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-      <div class="space-container">
-        <div class="text-center">
-          <Icon icon="fa6-solid:calculator" class="text-4xl text-blue-400 mb-4" />
-          <h3 class="text-xl font-semibold text-white mb-2">
+    <div class="feature-grid" style="margin-bottom: 1.5rem;">
+      <div class="glass-card">
+        <div style="text-align:center;">
+          <div style="margin-bottom:0.75rem;">
+            <Calculator width="40" height="40" color="#60a5fa" />
+          </div>
+          <h3 class="section-title" style="font-size: 1.25rem; margin-bottom: 0.35rem;">
             Accurate Calculations
           </h3>
-          <p class="text-gray-300">
+          <p class="section-subtitle">
             Get precise BMI calculations using the standard formula with instant results and category classification.
           </p>
         </div>
       </div>
 
-      <div class="space-container">
-        <div class="text-center">
-          <Icon icon="fa6-solid:mobile-screen-button" class="text-4xl text-purple-400 mb-4" />
-          <h3 class="text-xl font-semibold text-white mb-2">
+      <div class="glass-card">
+        <div style="text-align:center;">
+          <div style="margin-bottom:0.75rem;">
+            <Smartphone width="40" height="40" color="#a78bfa" />
+          </div>
+          <h3 class="section-title" style="font-size: 1.25rem; margin-bottom: 0.35rem;">
             Mobile Responsive
           </h3>
-          <p class="text-gray-300">
+          <p class="section-subtitle">
             Fully responsive design that works perfectly on all devices, from smartphones to desktops.
           </p>
         </div>
       </div>
 
-      <div class="space-container">
-        <div class="text-center">
-          <Icon icon="fa6-solid:palette" class="text-4xl text-yellow-400 mb-4" />
-          <h3 class="text-xl font-semibold text-white mb-2">
+      <div class="glass-card">
+        <div style="text-align:center;">
+          <div style="margin-bottom:0.75rem;">
+            <Star width="40" height="40" color="#facc15" />
+          </div>
+          <h3 class="section-title" style="font-size: 1.25rem; margin-bottom: 0.35rem;">
             Space Theme
           </h3>
-          <p class="text-gray-300">
+          <p class="section-subtitle">
             Beautiful space-themed interface with plasma colors and smooth animations for an engaging experience.
           </p>
         </div>
       </div>
 
-      <div class="space-container">
-        <div class="text-center">
-          <Icon icon="fa6-solid:shield" class="text-4xl text-green-400 mb-4" />
-          <h3 class="text-xl font-semibold text-white mb-2">
+      <div class="glass-card">
+        <div style="text-align:center;">
+          <div style="margin-bottom:0.75rem;">
+            <ShieldCheck width="40" height="40" color="#22c55e" />
+          </div>
+          <h3 class="section-title" style="font-size: 1.25rem; margin-bottom: 0.35rem;">
             Privacy First
           </h3>
-          <p class="text-gray-300">
+          <p class="section-subtitle">
             All calculations are performed locally in your browser. No data is stored or transmitted to external servers.
           </p>
         </div>
       </div>
 
-      <div class="space-container">
-        <div class="text-center">
-          <Icon icon="fa6-solid:bolt" class="text-4xl text-purple-400 mb-4" />
-          <h3 class="text-xl font-semibold text-white mb-2">
+      <div class="glass-card">
+        <div style="text-align:center;">
+          <div style="margin-bottom:0.75rem;">
+            <Zap width="40" height="40" color="#a855f7" />
+          </div>
+          <h3 class="section-title" style="font-size: 1.25rem; margin-bottom: 0.35rem;">
             Fast & Lightweight
           </h3>
-          <p class="text-gray-300">
+          <p class="section-subtitle">
             Optimized for performance with minimal loading times and smooth interactions across all devices.
           </p>
         </div>
       </div>
 
-      <div class="space-container">
-        <div class="text-center">
-          <Icon icon="fa6-solid:heart" class="text-4xl text-red-400 mb-4" />
-          <h3 class="text-xl font-semibold text-white mb-2">
+      <div class="glass-card">
+        <div style="text-align:center;">
+          <div style="margin-bottom:0.75rem;">
+            <Heart width="40" height="40" color="#ef4444" />
+          </div>
+          <h3 class="section-title" style="font-size: 1.25rem; margin-bottom: 0.35rem;">
             Health Focused
           </h3>
-          <p class="text-gray-300">
+          <p class="section-subtitle">
             Provides clear BMI categories and health guidance to help you understand your results better.
           </p>
         </div>
       </div>
     </div>
 
-    <div class="space-container mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6 text-center">
+    <div class="glass-card" style="margin-bottom: 1.5rem;">
+      <h2 class="section-title" style="text-align:center; margin-bottom: 0.75rem;">
         Understanding BMI
       </h2>
-      <div class="max-w-3xl mx-auto">
+      <div style="max-width: 800px; margin-inline:auto;">
         <img 
           src="/assets/bmi-chart.webp" 
           alt="BMI Chart" 
           width="600" 
           height="400"
-          class="w-full rounded-lg mb-6"
+          style="width: 100%; height: auto; border-radius: 12px; margin-bottom: 0.75rem;"
           loading="lazy"
           decoding="async"
         />
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-300">
+        <div class="section-subtitle feature-grid feature-grid--two">
           <div>
-            <h4 class="text-lg font-semibold text-white mb-2">What is BMI?</h4>
-            <p class="mb-4">
+            <h4 class="section-title" style="font-size: 1.125rem; margin-bottom: 0.35rem;">What is BMI?</h4>
+            <p style="margin-bottom: 0.5rem;">
               Body Mass Index (BMI) is a simple calculation using a person's height and weight. 
               The BMI formula divides an adult's weight in kilograms by their height in meters squared.
             </p>
@@ -137,33 +149,33 @@
             </p>
           </div>
           <div>
-            <h4 class="text-lg font-semibold text-white mb-2">BMI Categories</h4>
-            <div class="space-y-2">
-              <p><span class="text-blue-400 font-medium">Underweight:</span> Below 18.5</p>
-              <p><span class="text-green-400 font-medium">Healthy weight:</span> 18.5 - 24.9</p>
-              <p><span class="text-yellow-400 font-medium">Overweight:</span> 25.0 - 29.9</p>
-              <p><span class="text-red-400 font-medium">Obesity:</span> 30.0 and above</p>
+            <h4 class="section-title" style="font-size: 1.125rem; margin-bottom: 0.35rem;">BMI Categories</h4>
+            <div style="display:grid; gap: 0.35rem;">
+              <p><span class="status-blue" style="font-weight:600;">Underweight:</span> Below 18.5</p>
+              <p><span class="status-green" style="font-weight:600;">Healthy weight:</span> 18.5 - 24.9</p>
+              <p><span class="status-yellow" style="font-weight:600;">Overweight:</span> 25.0 - 29.9</p>
+              <p><span class="status-red" style="font-weight:600;">Obesity:</span> 30.0 and above</p>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="text-center">
-      <a href="/calculator" class="space-button text-lg">
-        <Icon icon="fa6-solid:calculator" class="mr-2" />
+    <div style="text-align:center;">
+      <a href="/calculator" class="btn btn-primary btn-lg">
+        <Calculator width="18" height="18" style="margin-right:6px" color="#e2e8f0" />
         Try the Calculator
       </a>
     </div>
 
-    <footer class="mt-16 text-center text-sm text-gray-400 border-t border-gray-600 pt-8">
+    <footer style="margin-top: 2rem; text-align:center; font-size: 0.95rem; color: #a3b2c7; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 1rem;">
       <p>
-        <Icon icon="fa6-regular:copyright" class="text-green-400 mr-1" />
+        <CheckCircle2 width="16" height="16" style="margin-right:6px; vertical-align:middle;" color="#22c55e" />
         2024-2025 LOGIGO. All rights reserved. Designed by Rezky Nightly.
-        <Icon icon="fa6-solid:champagne-glasses" class="text-purple-400 ml-1" />
+        <Rocket width="16" height="16" style="margin-left:6px; vertical-align:middle;" color="#a78bfa" />
       </p>
-      <p class="mt-2">
-        Built with SvelteKit, TypeScript, and Tailwind CSS
+      <p style="margin-top: 0.5rem;">
+        Built with SvelteKit, TypeScript, and modern CSS
       </p>
     </footer>
   </div>

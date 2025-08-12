@@ -15,6 +15,8 @@
   let appliedBmi = 0;
   let appliedColor = 'rgba(148, 163, 184, 0.3)';
   let appliedCategory: string | null = null;
+  let prevAppliedBmi = 0;
+  let isFilling = false;
 
   const categoryColors: Record<string, string> = {
     'Underweight': '#4A90E2',
@@ -46,15 +48,26 @@
   const circumference = 2 * Math.PI * radius;
   const maxBMI = 40;
 
-  // When a valid new calculation arrives, commit it to applied* (persist)
+  // Sync visual state with inputs; also hard-reset when cleared
   $: if (bmi > 0 && category) {
     const nextColor = categoryColors[category] ?? '#00C853';
-    // Only update if changed — this prevents redundant updates & flicker
     if (bmi !== appliedBmi || nextColor !== appliedColor || category !== appliedCategory) {
+      prevAppliedBmi = appliedBmi;
       appliedBmi = bmi;
       appliedColor = nextColor;
       appliedCategory = category;
+      // If we are coming from empty state, trigger a slower elegant fill
+      if (prevAppliedBmi <= 0 && appliedBmi > 0) {
+        isFilling = true;
+        setTimeout(() => (isFilling = false), 1400);
+      }
     }
+  } else {
+    // Clear visual state when inputs are cleared
+    prevAppliedBmi = appliedBmi;
+    appliedBmi = 0;
+    appliedColor = 'rgba(148, 163, 184, 0.3)';
+    appliedCategory = null;
   }
 
   // Stroke driven by appliedBmi (persistent)
@@ -144,7 +157,7 @@
         stroke-dashoffset={strokeDashoffset}
         transform={`rotate(-90 ${gaugeSize / 2} ${gaugeSize / 2})`}
         filter="url(#glow)"
-        class="gauge-progress"
+        class="gauge-progress {appliedBmi > 0 ? 'pulsing' : ''} {isFilling ? 'filling' : ''}"
       />
       <!-- center text -->
       <g class="gauge-center">

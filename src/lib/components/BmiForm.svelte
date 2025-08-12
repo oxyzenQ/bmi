@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Calculator, User, Ruler, Weight, Trash2, Zap } from 'lucide-svelte';
+  import { Calculator, User, Ruler, Scale, Zap, Trash2 } from 'lucide-svelte';
   import { createEventDispatcher } from 'svelte';
 
   // Inputs as strings for empty default UX
@@ -10,6 +10,27 @@
   export let onCalculate: () => void;
 
   const dispatch = createEventDispatcher();
+
+  // Sanitizers: age as integer, height/weight as decimals (one dot)
+  function sanitizeInteger(value: string): string {
+    // keep digits only
+    return value.replace(/\D+/g, '').slice(0, 3); // cap length reasonably
+  }
+
+  function sanitizeDecimal(value: string): string {
+    // remove invalid chars, allow one dot
+    let v = value.replace(/[^0-9.]/g, '');
+    const firstDot = v.indexOf('.');
+    if (firstDot !== -1) {
+      // remove additional dots
+      v = v.slice(0, firstDot + 1) + v.slice(firstDot + 1).replace(/\./g, '');
+    }
+    // trim leading zeros sensibly (but keep "0." cases)
+    if (v.startsWith('00')) {
+      v = v.replace(/^0+/, '0');
+    }
+    return v.slice(0, 6); // cap length
+  }
 
   // Enhanced validation with better accuracy and ordering
   let ageInputEl: HTMLInputElement;
@@ -74,7 +95,7 @@
   <div class="bmi-form">
     <div class="input-group">
       <label for="age" class="input-label">
-        <User class="w-4 h-4" />
+        <User class="w-6 h-6" />
         Age (years)
       </label>
       <input
@@ -88,6 +109,7 @@
         placeholder="e.g., 25"
         aria-label="Age in years"
         aria-invalid={age !== '' && !ageValid}
+        on:input={(e) => { const t = e.currentTarget as HTMLInputElement; age = sanitizeInteger(t.value); }}
       />
       {#if age !== '' && !ageValid}
         <div class="input-error" role="alert">Please enter a valid age between 1 and 120.</div>
@@ -96,7 +118,7 @@
 
     <div class="input-group">
       <label for="height" class="input-label">
-        <Ruler class="w-4 h-4" />
+        <Ruler class="w-6 h-6" />
         Height (cm)
       </label>
       <input
@@ -112,6 +134,7 @@
         disabled={!ageValid}
         aria-disabled={!ageValid}
         on:focus={() => { if (!ageValid) ageInputEl?.focus(); }}
+        on:input={(e) => { const t = e.currentTarget as HTMLInputElement; height = sanitizeDecimal(t.value); }}
       />
       {#if height !== '' && !heightValid}
         <div class="input-error" role="alert">Height must be between 1-300 cm.</div>
@@ -120,7 +143,7 @@
 
     <div class="input-group">
       <label for="weight" class="input-label">
-        <Weight class="w-4 h-4" />
+        <Scale class="w-6 h-6" />
         Weight (kg)
       </label>
       <input
@@ -136,6 +159,7 @@
         disabled={!heightValid}
         aria-disabled={!heightValid}
         on:focus={() => { if (!heightValid) heightInputEl?.focus(); }}
+        on:input={(e) => { const t = e.currentTarget as HTMLInputElement; weight = sanitizeDecimal(t.value); }}
       />
       {#if weight !== '' && !weightValid}
         <div class="input-error" role="alert">Weight must be between 1-1000 kg.</div>
@@ -152,7 +176,7 @@
         aria-disabled={!canCalculate}
         disabled={!canCalculate}
       >
-        <Zap class="w-5 h-5" />
+        <Zap class="w-6 h-6" />
         Calc BMI
       </button>
       
@@ -163,7 +187,7 @@
         class="btn btn-danger"
         aria-label="Clear all data"
       >
-        <Trash2 class="w-5 h-5" />
+        <Trash2 class="w-6 h-6" />
         Clear All Data
       </button>
     </div>

@@ -15,8 +15,8 @@ describe('BmiForm', () => {
         });
 
         // Check for form elements
-        expect(screen.getByText('Calculate Your BMI')).toBeInTheDocument();
-        expect(screen.getByText('Enter your measurements below to discover your cosmic balance.')).toBeInTheDocument();
+        expect(screen.getByText('BMI Calculator')).toBeInTheDocument();
+        expect(screen.getByText('Fill in order: Age → Height → Weight. Click Calculate BMI to see results.')).toBeInTheDocument();
 
         // Check for input fields
         expect(screen.getByLabelText('Age (years)')).toBeInTheDocument();
@@ -25,7 +25,7 @@ describe('BmiForm', () => {
 
         // Check for buttons
         expect(screen.getByRole('button', { name: /calculate bmi/i })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /reset form/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /clear all data/i })).toBeInTheDocument();
     });
 
     it('accepts input values for all fields', async () => {
@@ -77,10 +77,8 @@ describe('BmiForm', () => {
         // Submit form
         await fireEvent.click(calculateButton);
 
-        // Wait for the calculation delay (800ms + buffer)
-        await new Promise(resolve => setTimeout(resolve, 900));
-
-        expect(mockOnCalculate).toHaveBeenCalledWith(25, 170, 70.5);
+        // Current implementation calls onCalculate() without args immediately
+        expect(mockOnCalculate).toHaveBeenCalledTimes(1);
     });
 
     it('calls onClear when reset button is clicked', async () => {
@@ -94,7 +92,7 @@ describe('BmiForm', () => {
             }
         });
 
-        const resetButton = screen.getByRole('button', { name: /reset form/i });
+        const resetButton = screen.getByRole('button', { name: /clear all data/i });
         await fireEvent.click(resetButton);
 
         expect(mockOnClear).toHaveBeenCalled();
@@ -143,36 +141,9 @@ describe('BmiForm', () => {
         expect(calculateButton).not.toBeDisabled();
     });
 
-    it('shows loading state during calculation', async () => {
-        const mockOnCalculate = vi.fn();
-        const mockOnClear = vi.fn();
+    // Loading state is no longer part of the component; removed test
 
-        render(BmiForm, {
-            props: {
-                onCalculate: mockOnCalculate,
-                onClear: mockOnClear
-            }
-        });
-
-        const ageInput = screen.getByLabelText('Age (years)');
-        const heightInput = screen.getByLabelText('Height (cm)');
-        const weightInput = screen.getByLabelText('Weight (kg)');
-        const calculateButton = screen.getByRole('button', { name: /calculate bmi/i });
-
-        // Fill in form
-        await fireEvent.input(ageInput, { target: { value: '25' } });
-        await fireEvent.input(heightInput, { target: { value: '170' } });
-        await fireEvent.input(weightInput, { target: { value: '70.5' } });
-
-        // Submit form
-        await fireEvent.click(calculateButton);
-
-        // Should show loading state
-        expect(screen.getByText('Calculating...')).toBeInTheDocument();
-        expect(calculateButton).toBeDisabled();
-    });
-
-    it('validates input ranges correctly', async () => {
+    it('validates input ranges correctly (shows error messages)', async () => {
         const mockOnCalculate = vi.fn();
         const mockOnClear = vi.fn();
 
@@ -187,12 +158,13 @@ describe('BmiForm', () => {
         const heightInput = screen.getByLabelText('Height (cm)') as HTMLInputElement;
         const weightInput = screen.getByLabelText('Weight (kg)') as HTMLInputElement;
 
-        // Check min/max attributes
-        expect(ageInput.min).toBe('1');
-        expect(ageInput.max).toBe('120');
-        expect(heightInput.min).toBe('50');
-        expect(heightInput.max).toBe('300');
-        expect(weightInput.min).toBe('10');
-        expect(weightInput.max).toBe('500');
+        // Enter invalid values to trigger validation messages
+        await fireEvent.input(ageInput, { target: { value: '0' } });
+        await fireEvent.input(heightInput, { target: { value: '400' } });
+        await fireEvent.input(weightInput, { target: { value: '0' } });
+
+        expect(screen.getByText('Please enter a valid age between 1 and 120.')).toBeInTheDocument();
+        expect(screen.getByText('Height must be between 1-300 cm.')).toBeInTheDocument();
+        expect(screen.getByText('Weight must be between 1-1000 kg.')).toBeInTheDocument();
     });
 });

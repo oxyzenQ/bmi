@@ -1,9 +1,132 @@
-/* Import local variable fonts */
-@import '@fontsource-variable/inter';
-@import '@fontsource-variable/jetbrains-mono';
+/* Web fonts via npm (@fontsource). Ensure packages are installed: 
+   - @fontsource-variable/inter
+   - @fontsource-variable/jetbrains-mono
+*/
+@import '@fontsource-variable/inter/index.css';
+@import '@fontsource-variable/jetbrains-mono/index.css';
 
-/* Tailwind base and utilities */
-@import 'tailwindcss';
+/* ==============================
+   Unified Button System (iOS/pro aesthetic)
+   ============================== */
+button, .btn, a.button {
+  --btn-radius: 14px;
+  --btn-pad-y: 0.7rem;
+  --btn-pad-x: 1rem;
+  --btn-bg: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  --btn-border: rgba(255,255,255,0.18);
+  --btn-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: var(--btn-pad-y) var(--btn-pad-x);
+  border-radius: var(--btn-radius);
+  border: 1px solid var(--btn-border);
+  background: var(--btn-bg);
+  color: #f8fafc;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  text-decoration: none;
+  box-shadow: var(--btn-shadow);
+  transition: transform var(--dur-fast) var(--easing-smooth), box-shadow var(--dur-fast) var(--easing-smooth), background var(--dur-fast) var(--easing-smooth), filter var(--dur-fast) var(--easing-smooth);
+  will-change: transform;
+  contain: layout style paint;
+}
+button:hover, .btn:hover, a.button:hover { transform: translateY(-1px) scale(1.01); filter: brightness(1.04); }
+button:active, .btn:active, a.button:active { transform: translateY(0) scale(0.98); filter: brightness(0.98); }
+button:focus-visible, .btn:focus-visible, a.button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.45), 0 10px 30px rgba(0,0,0,0.35);
+}
+
+/* Variants */
+.btn-primary { --btn-bg: linear-gradient(135deg, #2563eb, #7c3aed); }
+.btn-secondary { --btn-bg: linear-gradient(135deg, #06b6d4, #22d3ee); }
+.btn-success { --btn-bg: linear-gradient(135deg, #22c55e, #16a34a); }
+.btn-warning { --btn-bg: linear-gradient(135deg, #f59e0b, #ef4444); }
+.btn-danger  { --btn-bg: linear-gradient(135deg, #ef4444, #b91c1c); }
+.btn-outline { background: linear-gradient(#0b1224, #0b1224) padding-box, linear-gradient(135deg, #3b82f6, #8b5cf6) border-box; color: #dbeafe; }
+.btn-ghost   { background: rgba(255,255,255,0.06); backdrop-filter: blur(10px); color: #e2e8f0; }
+
+/* Size modifiers */
+.btn-sm { --btn-pad-y: 0.5rem; --btn-pad-x: 0.8rem; border-radius: 12px; font-size: 0.9rem; }
+.btn-lg { --btn-pad-y: 0.9rem; --btn-pad-x: 1.2rem; border-radius: 16px; font-size: 1.05rem; }
+
+/* Medium-large lucide icons globally */
+.lucide {
+  width: 28px;
+  height: 28px;
+  stroke-width: 1.75;
+}
+
+/* Vivid animated gradient specifically for Calculate BMI button in the form */
+.bmi-form .btn.btn-primary {
+  --btn-bg: linear-gradient(135deg, #22d3ee, #6366f1, #a855f7);
+  background-size: 200% 200%;
+  animation: calcBtnGradientShift 6s var(--easing-smooth) infinite;
+  box-shadow: 0 14px 36px color-mix(in oklab, #6366f1 35%, transparent), 0 0 0 1px rgba(255,255,255,0.12) inset;
+}
+
+.bmi-form .btn.btn-primary:hover {
+  filter: brightness(1.07);
+  box-shadow: 0 18px 44px color-mix(in oklab, #7c3aed 40%, transparent), 0 0 0 1px rgba(255,255,255,0.16) inset;
+}
+
+@keyframes calcBtnGradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button, .btn, a.button { transition: none; }
+}
+
+/* ==============================
+   Modern Glass Containers
+   ============================== */
+.glass-card, .glass-panel, .chart-container, .bmi-card {
+  --glass-bg: rgba(13, 22, 43, 0.55);
+  --glass-border: rgba(255,255,255,0.12);
+  --glass-shadow: 0 12px 40px rgba(0,0,0,0.45);
+  /* Soften the top gradient to avoid a bright edge */
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.035) 6%,
+    rgba(255,255,255,0.024) 35%,
+    rgba(255,255,255,0.018) 100%
+  ) padding-box, var(--glass-bg);
+  /* Remove physical border (we add a ring later for .glass-panel) */
+  border: 1px solid transparent;
+  border-radius: 18px;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+}
+.glass-card { padding: clamp(1rem, 2.2vw, 1.25rem); }
+.glass-panel { padding: clamp(1rem, 2.5vw, 1.5rem); }
+
+.chart-container { padding: clamp(1rem, 2.5vw, 1.5rem); }
+.chart-header .chart-title { font-weight: 800; letter-spacing: 0.2px; }
+
+/* ==============================
+   Monospace usage
+   ============================== */
+code, pre, kbd, samp { font-family: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; }
+pre { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 0.85rem 1rem; overflow: auto; }
+
+/* ==============================
+   Section titles and global status utilities
+   ============================== */
+.section-title { font-size: clamp(1.5rem, 3.2vw, 2rem); font-weight: 800; color: #ffffff; letter-spacing: 0.2px; }
+.section-subtitle { font-size: clamp(1rem, 2vw, 1.125rem); color: #cbd5e1; }
+
+/* Global status colors */
+.status-green { color: #00C853; }
+.status-yellow { color: #FFD600; }
+.status-red { color: #D50000; }
+.status-blue { color: #4A90E2; }
 
 /* Global styles and variables */
 :root {
@@ -61,28 +184,7 @@
   }
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  /* Seamless, soft blue space background with subtle depth and no seams */
-  background:
-    /* Deep base */
-    radial-gradient(1200px 800px at 20% 10%, color-mix(in oklab, var(--atmosphere-deep) 30%, transparent) 0%, transparent 60%),
-    radial-gradient(1000px 700px at 80% 0%, color-mix(in oklab, var(--atmosphere-mid) 25%, transparent) 0%, transparent 60%),
-    radial-gradient(900px 600px at 70% 80%, color-mix(in oklab, var(--atmosphere-light) 22%, transparent) 0%, transparent 60%),
-    radial-gradient(1100px 700px at 10% 85%, color-mix(in oklab, var(--atmosphere-horizon) 18%, transparent) 0%, transparent 65%),
-    /* Aurora glow wash */
-    radial-gradient(1600px 1000px at 50% 40%, color-mix(in oklab, var(--aurora-glow) 12%, transparent) 0%, transparent 70%),
-    linear-gradient(135deg, var(--bg-overlay-1), var(--bg-overlay-2));
-  color: var(--text-primary);
-  font-family: 'Inter Variable', system-ui, -apple-system, sans-serif;
-  scroll-behavior: smooth;
-  height: 100%;
-  min-height: 100vh;
-  position: relative;
-  overflow-x: hidden;
-}
+ 
 
 /* EMERGENCY FIX - Ensure all containers are visible */
 .main-container,
@@ -127,16 +229,21 @@ body {
   background: var(--apple-glass);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid var(--apple-border);
+  /* Remove physical border and simulate with a ring to avoid top hairline */
+  border: 1px solid transparent;
   border-radius: 1.5rem;
-  box-shadow: var(--apple-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 20px rgba(96, 165, 250, 0.1);
+  /* Remove 1px ring to avoid top seam */
+  box-shadow: var(--apple-shadow), 0 0 20px rgba(96, 165, 250, 0.1);
+  /* Prevent any background bleed on rounded corners */
+  background-clip: padding-box;
+  overflow: hidden;
   transition: transform var(--dur-normal) var(--easing-smooth), box-shadow var(--dur-normal) var(--easing-smooth);
 }
 
 .glass-panel:hover {
   transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 30px rgba(96, 165, 250, 0.15);
-  border-color: rgba(96, 165, 250, 0.2);
+  /* Keep hover glow, maintain outer ring instead of border */
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(96, 165, 250, 0.15);
 }
 
 /* Enhanced liquid glass effect */
@@ -148,6 +255,28 @@ body {
   border-radius: 2rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 20px rgba(96, 165, 250, 0.1);
   transition: transform var(--dur-slow) var(--easing-smooth), box-shadow var(--dur-slow) var(--easing-smooth), border-color var(--dur-slow) var(--easing-smooth);
+}
+
+/* ==============================
+   Feature Grid utilities
+   ============================== */
+.feature-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 640px) {
+  .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .feature-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+/* Two-column modifier for content sections that should max at 2 cols */
+.feature-grid--two {
+  grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+  .feature-grid--two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .liquid-glass:hover {
@@ -613,14 +742,16 @@ html { scroll-behavior: smooth; }
    ============================== */
 .gauge-container {
   position: relative; padding: 26px 28px 28px; border-radius: 22px;
-  background:
+  background: rgba(0, 0, 0, 0.292);
+  /*background:
     linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025)) padding-box,
-    radial-gradient(160% 120% at 0% 0%, rgba(59,130,246,0.32), rgba(139,92,246,0.18), rgba(59,130,246,0.0)) border-box;
+    radial-gradient(160% 120% at 0% 0%, rgba(59,130,246,0.32), rgba(139,92,246,0.18), rgba(59,130,246,0.0)) border-box;*/
   border: 1px solid transparent; backdrop-filter: blur(14px) saturate(140%);
   -webkit-backdrop-filter: blur(14px) saturate(140%);
   box-shadow: 0 10px 30px rgba(2,8,23,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
   isolation: isolate; width: min(96vw, 1100px); margin-inline: auto;
 }
+/* next tomorrow
 .gauge-container::after {
   content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none;
   background: radial-gradient(60% 50% at 50% 0%, rgba(59,130,246,0.16), rgba(139,92,246,0.10) 35%, rgba(0,0,0,0) 65%);
@@ -630,13 +761,30 @@ html { scroll-behavior: smooth; }
   content: ""; position: absolute; left: 18px; right: 18px; top: 10px; height: 1px; border-radius: 999px;
   background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.25), rgba(255,255,255,0)); opacity: 0.5; pointer-events: none;
 }
+*/
 .gauge-header { display: grid; place-items: center; margin-bottom: 16px; }
 .gauge-title { display: inline-flex; align-items: center; gap: 10px; color: #c7d2fe; font-weight: 700; letter-spacing: 0.2px; }
 .gauge-title h3 { margin: 0; font-size: 1.08rem; }
 .gauge-title .icon { width: 22px; height: 22px; color: var(--accent-blue); filter: drop-shadow(0 0 6px color-mix(in oklab, var(--accent-blue) 35%, transparent)); }
 .gauge-subtitle { color: #94a3b8; font-size: 0.85rem; margin-top: 4px; }
 .gauge-wrapper { display: grid; grid-template-columns: 1fr; place-items: center; gap: 12px; }
-.gauge-progress { transition: stroke-dashoffset 600ms var(--easing-smooth), stroke 300ms ease; }
+.gauge-progress { transition: stroke-dashoffset 1200ms cubic-bezier(.16,1,.3,1), stroke 500ms ease; }
+.gauge-progress.filling {
+  transition: stroke-dashoffset 1800ms cubic-bezier(.16,1,.3,1) 120ms, stroke 600ms ease;
+}
+.gauge-progress.pulsing {
+  animation: gaugePulse 1s ease-in-out infinite;
+}
+
+@keyframes gaugePulse {
+  0% { stroke-width: 20; filter: drop-shadow(0 0 4px rgba(59,130,246,0.25)); }
+  50% { stroke-width: 23; filter: drop-shadow(0 0 10px rgba(59,130,246,0.4)); }
+  100% { stroke-width: 20; filter: drop-shadow(0 0 4px rgba(59,130,246,0.25)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gauge-progress.pulsing { animation: none; }
+}
 .radial-gauge { width: min(70vw, 340px); height: auto; contain: layout paint style; will-change: transform; backface-visibility: hidden; }
 .gauge-reflection { width: min(52vw, 280px); height: 10px; margin-top: -6px; border-radius: 50% / 60%; background: radial-gradient(60% 100% at 50% 0%, rgba(59,130,246,0.35), rgba(59,130,246,0.0) 70%); filter: blur(6px); opacity: 0.6; }
 .gauge-center .bmi-value { font: 700 36px/1.1 Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; text-shadow: 0 0 20px rgba(59,130,246,0.15); }
@@ -918,3 +1066,285 @@ html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) {
   .modal-overlay, .modal-content { animation: none; }
 }
+
+/* ==============================
+   Component: BMI Section layout/cards (unified)
+   ============================== */
+.bmi-section {
+  padding: clamp(2rem, 5vw, 4rem) 0;
+}
+.bmi-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+@media (min-width: 900px) {
+  .bmi-grid { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+}
+.bmi-card {
+  border-radius: 1.5rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  padding: clamp(1.25rem, 3vw, 2rem);
+  transition: transform var(--dur-normal) var(--easing-smooth), box-shadow var(--dur-normal) var(--easing-smooth);
+}
+.bmi-card:hover { transform: translateY(-3px); box-shadow: 0 18px 48px rgba(0,0,0,0.5); }
+.form-card { overflow: hidden; }
+
+/* ==============================
+   Component: Chart container and tooltip
+   ============================== */
+.charts-section { margin-top: clamp(1.5rem, 4vw, 3rem); }
+.chart-container {
+  position: relative;
+  border-radius: 1.25rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.45);
+  padding: clamp(1rem, 3vw, 1.5rem);
+  overflow: hidden;
+}
+.chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.chart-title { display: inline-flex; align-items: center; gap: 0.5rem; color: #e5e7eb; font-weight: 700; letter-spacing: 0.2px; }
+.chart-title h3 { margin: 0; font-size: 1.1rem; }
+.chart-subtitle { color: #9ca3af; font-size: 0.9rem; }
+.chart-wrapper { position: relative; width: 100%; height: auto; contain: layout style paint; }
+.dynamic-chart { display: block; width: 100%; height: auto; }
+
+/* Axis labels for charts */
+.axis-label { position: absolute; color: #cbd5e1; font: 600 0.85rem/1.1 'Inter Variable', system-ui, -apple-system, sans-serif; pointer-events: none; }
+.axis-label.axis-x { bottom: 8px; left: 50%; transform: translateX(-50%); }
+.axis-label.axis-y { top: 50%; left: 8px; transform: translateY(-50%) rotate(-90deg); transform-origin: left top; }
+
+.chart-tooltip {
+  position: absolute;
+  min-width: 220px;
+  max-width: min(280px, 80vw);
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #e5e7eb;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.45), 0 0 20px rgba(96,165,250,0.18);
+  pointer-events: none;
+  transform: translateZ(0);
+  white-space: pre-wrap;
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+}
+.chart-tooltip pre { margin: 0; font: 600 0.85rem/1.35 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, monospace; }
+
+.chart-insights { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 0.75rem; margin-top: 1rem; }
+.insight-card {
+  display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 0.75rem;
+  padding: 0.75rem 1rem; border-radius: 0.75rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: transform var(--dur-fast) var(--easing-smooth), box-shadow var(--dur-fast) var(--easing-smooth);
+}
+.insight-card:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(0,0,0,0.35); }
+.insight-title { color: #cbd5e1; font: 600 0.85rem/1.1 Inter, system-ui, -apple-system, sans-serif; }
+.insight-value { color: #e5e7eb; font: 700 1rem/1.1 Inter, system-ui, -apple-system, sans-serif; }
+@media (max-width: 768px) { .chart-insights { grid-template-columns: 1fr; } }
+
+/* ==============================
+   Component: CosmicParticles (performance-optimized)
+   ============================== */
+.cosmic-particles {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+  contain: layout style paint;
+  will-change: transform;
+}
+.cosmic-particles .particle {
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(148,163,184,0.9), rgba(148,163,184,0.35) 60%, rgba(148,163,184,0) 70%);
+  filter: blur(0.2px);
+  animation-name: particleRise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+@keyframes particleRise {
+  0% { transform: translate(-50%, 0) translateX(0); opacity: 0; }
+  6% { opacity: 0.7; }
+  50% { opacity: 0.85; }
+  100% { transform: translate(calc(-50% + var(--drift, 0px)), -120vh); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart-tooltip, .insight-card, .bmi-card { transition: none !important; }
+  .cosmic-particles .particle { animation: none !important; opacity: 0; }
+}
+
+/* ==============================
+   Global: Background image layer and layout utilities
+   ============================== */
+html, body { min-height: 100%; }
+
+body {
+  margin: 0;
+  padding: 0;
+  background:
+    linear-gradient(135deg, var(--bg-overlay-1), var(--bg-overlay-2)),
+    url('/images/HDRV3Stellar.png') fixed center/cover;
+  color: var(--text-primary);
+  font-family: 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  font-variation-settings: 'wght' 400;
+  transition: background 400ms ease;
+}
+
+/* HDR stellar background image from static/images/HDRV3Stellar.png */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  background-image: url('/images/HDRV3Stellar.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.28;
+  transform: translateZ(0);
+  will-change: opacity;
+}
+/* Subtle gradient overlay for depth */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: radial-gradient(1200px 800px at 15% 20%, rgba(59,130,246,0.20), transparent 60%),
+              radial-gradient(1000px 700px at 85% 30%, rgba(139,92,246,0.18), transparent 60%),
+              linear-gradient(180deg, rgba(2,6,23,0.65), rgba(2,6,23,0.15) 40%, rgba(2,6,23,0.65));
+  pointer-events: none;
+}
+@media (max-width: 768px) {
+  body::before { opacity: 0.22; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after { animation: none; }
+}
+
+/* Layout container utilities */
+.main-container { 
+  width: 100%; 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  padding: 0 clamp(1rem, 4vw, 2rem);
+  background-color: transparent;
+}
+.section-title { font-size: clamp(1.25rem, 2.2vw, 1.5rem); font-weight: 700; letter-spacing: 0.2px; color: #f1f5f9; }
+.section-subtitle { color: #cbd5e1; font-size: clamp(0.95rem, 1.6vw, 1.05rem); }
+
+/* ==============================
+   Component: Reference Table (grid-based)
+   ============================== */
+.reference-table {
+  border-radius: 1.25rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  overflow: hidden;
+}
+.reference-table .ref-header {
+  display: grid;
+  grid-template-columns: 1.2fr 0.9fr 1.1fr 1.3fr;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  color: #e5e7eb;
+  font-weight: 700;
+}
+.reference-table .ref-body { display: grid; }
+.reference-table .ref-row {
+  display: grid;
+  grid-template-columns: 1.2fr 0.9fr 1.1fr 1.3fr;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.875rem 1.25rem;
+  color: #cbd5e1;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  transition: background-color var(--dur-fast, 180ms) var(--easing-smooth, cubic-bezier(.2,.8,.2,1));
+}
+.reference-table .ref-row:last-child { border-bottom: none; }
+.reference-table .ref-row:hover { background: rgba(255,255,255,0.04); }
+.reference-table .ref-col strong { color: #f8fafc; font-weight: 700; }
+.reference-table .muted { color: #9ca3af; }
+.reference-table .status-green { color: #00C853; }
+.reference-table .status-yellow { color: #FFD600; }
+.reference-table .status-red { color: #D50000; }
+.reference-table .status-blue { color: #4A90E2; }
+.reference-table .icon-col { display: inline-flex; align-items: center; gap: 0.5rem; color: #93c5fd; filter: drop-shadow(0 0 8px rgba(96,165,250,0.35)); }
+
+/* Small screens: stack and add labels if needed */
+@media (max-width: 800px) {
+  .reference-table .ref-header { display: none; }
+  .reference-table .ref-row {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+    padding: 1rem 1.1rem;
+  }
+  .reference-table .ref-col { display: grid; grid-template-columns: 7.5rem 1fr; gap: 0.5rem; }
+  .reference-table .ref-col::before { content: attr(data-label); color: #9ca3af; font-weight: 600; }
+}
+
+/* Card header for Reference section */
+.ref-card {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.ref-card .title { font-size: 1.05rem; font-weight: 700; color: #e2e8f0; }
+.ref-card .subtitle { font-size: 0.95rem; color: #a3b2c7; }
+
+/* ==============================
+   Section: Articles (responsive grid)
+   ============================== */
+.article-section { padding: clamp(2rem, 6vw, 4rem) 0; }
+.article-section .section-header { text-align: center; margin-bottom: clamp(1rem, 4vw, 2rem); }
+.article-section .section-header .title { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; color: #ffffff; margin-bottom: 0.5rem; }
+.article-section .section-header .subtitle { font-size: clamp(1rem, 2vw, 1.125rem); color: #cbd5e1; }
+.article-grid { border-radius: 1.25rem; display: grid; grid-template-columns: 1fr; gap: clamp(0.875rem, 2.5vw, 1.5rem); }
+@media (min-width: 768px) { .article-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (min-width: 1024px) { .article-grid { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+
+/* ==============================
+   Footer elements
+   ============================== */
+.footer-disclaimer { margin: 2rem auto; text-align: center; color: #a3b2c7; font-size: 0.95rem; }
+.github-footer { display: flex; justify-content: center; margin: 1.5rem 0 3rem; }
+.github-link { display: inline-flex; align-items: center; gap: 0.5rem; color: #cbd5e1; text-decoration: none; padding: 0.5rem 0.75rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); transition: transform 180ms var(--easing-smooth), box-shadow 180ms var(--easing-smooth), background 180ms var(--easing-smooth); }
+.github-link:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,0,0,0.35); background: rgba(255,255,255,0.06); }
+.github-icon { width: 18px; height: 18px; }
+
+/* ==============================
+   ArticleCard visual cleanup
+   Remove subtle blue glow and corner sparkles
+   ============================== */
+.article-card .icon-glow { display: none !important; }
+.article-card::before,
+.article-card::after { content: none !important; animation: none !important; }

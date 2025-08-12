@@ -1,47 +1,15 @@
 <script lang="ts">
-  import { ArrowRight, Heart, Activity, Utensils, Brain, Apple, Moon, Droplet, BedDouble, Stethoscope, Sun, Wind, Dna, FlaskConical, Leaf } from 'lucide-svelte';
   import { createEventDispatcher } from 'svelte';
+  import { ArrowRight } from 'lucide-svelte';
 
   export let title: string;
   export let description: string;
-  export let icon: string;
+  // Pass a Svelte component (e.g., a lucide-svelte icon component)
+  // Using any here to avoid generic type incompatibilities across component constructors
+  // and keep API flexible.
+  export let icon: any = null;
 
   const dispatch = createEventDispatcher();
-
-  function getIconComponent(iconName: string) {
-    switch (iconName) {
-      case 'fa6-solid:heart-pulse':
-        return Heart;
-      case 'fa6-solid:person-running':
-        return Activity;
-      case 'fa6-solid:utensils':
-        return Utensils;
-      case 'fa6-solid:brain':
-        return Brain;
-      case 'fa6-solid:apple-whole':
-        return Apple;
-      case 'fa6-solid:moon':
-        return Moon;
-      case 'fa6-solid:water':
-        return Droplet;
-      case 'fa6-solid:bed':
-        return BedDouble;
-      case 'fa6-solid:stethoscope':
-        return Stethoscope;
-      case 'fa6-solid:sun':
-        return Sun;
-      case 'fa6-solid:lungs':
-        return Wind;
-      case 'fa6-solid:dna':
-        return Dna;
-      case 'fa6-solid:flask':
-        return FlaskConical;
-      case 'fa6-solid:leaf':
-        return Leaf;
-      default:
-        return Heart;
-    }
-  }
 
   function handleClick() {
     dispatch('openModal', { title, description });
@@ -63,7 +31,9 @@
   aria-label="Read full article: {title}"
 >
   <div class="card-icon">
-    <svelte:component this={getIconComponent(icon)} class="w-8 h-8" />
+    {#if icon}
+      <svelte:component this={icon} class="w-8 h-8" />
+    {/if}
     <div class="icon-glow"></div>
   </div>
   
@@ -75,7 +45,7 @@
   
   <div class="card-link">
     <span>Read Full Article</span>
-    <ArrowRight class="w-4 h-4" />
+    <ArrowRight class="w-5 h-5" />
   </div>
 </button>
 
