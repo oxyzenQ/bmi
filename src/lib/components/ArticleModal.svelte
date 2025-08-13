@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
-  import { X, User, Calendar, Clock } from 'lucide-svelte';
+  import { X, User, Calendar } from 'lucide-svelte';
 
   export let isOpen = false;
   export let title = '';
@@ -341,10 +341,6 @@
         <div class="meta-item">
           <Calendar class="w-4 h-4" />
           <span>{articleData.date}</span>
-        </div>
-        <div class="meta-item">
-          <Clock class="w-4 h-4" />
-          <span>{articleData.readTime}</span>
         </div>
       </div>
       

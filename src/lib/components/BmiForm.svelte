@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Calculator, User, Ruler, Scale, Zap, Trash2 } from 'lucide-svelte';
+  import { CircleDivide, Calculator, User, Ruler, Scale, Zap, Trash2 } from 'lucide-svelte';
   import { createEventDispatcher } from 'svelte';
 
   // Inputs as strings for empty default UX
@@ -71,7 +71,7 @@
 <div class="form-inner">
   <div class="card-header">
     <div class="icon-container">
-      <Calculator class="w-12 h-12 text-cosmic-blue" />
+      <CircleDivide class="CircleDivide text-cosmic-blue" />
       <div class="icon-glow"></div>
     </div>
     <h2 class="card-title">BMI Calculator</h2>

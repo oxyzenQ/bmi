@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BarChart3, TrendingUp, Info, AlertCircle, CheckCircle, Activity } from 'lucide-svelte';
+  import { BarChart3,  CircleSlash2, TrendingUp, Info, AlertCircle, CheckCircle, Activity } from 'lucide-svelte';
 
   export let bmiValue: number | null = null;
   export let category: string | null = null;
@@ -16,16 +16,6 @@
         'obese': 'cat-obese'
       }[category.toLowerCase()] || '')
     : '';
-
-  function getCategoryColor(category: string): string {
-    switch (category.toLowerCase()) {
-      case 'underweight': return '#60a5fa';
-      case 'normal weight': return '#10b981';
-      case 'overweight': return '#f59e0b';
-      case 'obese': return '#ef4444';
-      default: return '#6b7280';
-    }
-  }
 
   function getCategoryIcon(category: string) {
     switch (category.toLowerCase()) {
@@ -63,10 +53,10 @@
   }
 </script>
 
-<div class="bmi-results-card liquid-glass {catClass}">
+<div class="{catClass}">
   <div class="card-header">
     <div class="icon-container">
-      <BarChart3 class="w-12 h-12 text-cosmic-blue" />
+      <CircleSlash2 class="CircleSlash2 text-cosmic-blue" />
       <div class="icon-glow"></div>
     </div>
     <h2 class="card-title">Your Results</h2>

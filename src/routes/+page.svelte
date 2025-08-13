@@ -8,6 +8,8 @@
   import { onMount } from 'svelte';
   // lucide icons for ArticleCard
   import { Heart, Activity, Utensils, BedDouble, Droplet, Brain, Stethoscope, Sun, Wind, Dna, FlaskConical, Leaf } from 'lucide-svelte';
+  // icons for About BMI section
+  import { Scale, Users } from 'lucide-svelte';
   
   let bmiValue: number | null = null;
   let articlesVisible = true;
@@ -29,10 +31,9 @@
   // Lazy modal component
   let ModalComp: typeof import('$lib/components/ArticleModal.svelte').default | null = null;
   
-  function computeBMIFromInputs(h: string, w: string, a: string) {
+  function computeBMIFromInputs(h: string, w: string, _a: string) {
     const parsedHeight = parseFloat(h);
     const parsedWeight = parseFloat(w);
-    const parsedAge = parseInt(a);
     
     if (!isNaN(parsedHeight) && !isNaN(parsedWeight) && parsedHeight > 0 && parsedWeight > 0) {
       const heightInM = parsedHeight / 100;
@@ -132,7 +133,7 @@
 <svelte:head>
   <title>BMI Calculator - Calculate Your Body Mass Index</title>
   <meta name="description" content="Calculate your BMI with our modern, accessible calculator. Get instant results, health recommendations, and learn about BMI categories." />
-  <link rel="preload" as="image" href="/images/HDRV3Stellar.png" fetchpriority="high" />
+  <link rel="preload" as="image" href="/images/HDRstellar-v1.webp" fetchpriority="high" />
 </svelte:head>
 
 <div class="main-container">
@@ -143,7 +144,7 @@
   <!-- BMI Calculator Section -->
   <section class="bmi-section">
     <div class="bmi-grid">
-      <div class="bmi-card form-card">
+      <div class="form-card">
         <BmiForm 
           bind:age
           bind:height
@@ -274,6 +275,53 @@
           </div>
         </div>
       {/if}
+    </div>
+  </section>
+
+  <!-- About BMI Section -->
+  <section id="about" class="about-bmi-section">
+    <div class="main-container">
+      <div class="section-header">
+        <h2 class="title">About BMI</h2>
+        <p class="subtitle">Understanding Body Mass Index and our application</p>
+      </div>
+      
+      <div class="about-bmi-grid">
+        <!-- What is BMI Card -->
+        <div class="about-card">
+          <div class="about-card-header">
+            <Scale class="about-icon" size={32} />
+            <h3>What is BMI?</h3>
+          </div>
+          <div class="about-card-content">
+            <p>
+              Body Mass Index (BMI) is a tool used to estimate a person's body fat based on their weight and height. 
+              Introduced by Adolphe Quetelet in the 19th century, BMI helps categorize individuals into weight ranges 
+              such as underweight, normal weight, overweight, and obese.
+            </p>
+          </div>
+        </div>
+
+        <!-- About Our App Card -->
+        <div class="about-card">
+          <div class="about-card-header">
+            <Users class="about-icon" size={32} />
+            <h3>About Our BMI App</h3>
+          </div>
+          <div class="about-card-content">
+            <p>
+              Our BMI app features a modern and clean design, developed by <strong>Team LOGIGO</strong>. 
+              The team includes Rezky (Project Lead), Fiqih (Menu Design), Agus (Competitor Research), 
+              Virlan (Login Functionality), Andre (Graph and BMI Calculation Functions), and Ferdian (Website Testing). 
+              Thank you for your support!
+            </p>
+            <div class="app-info">
+              <p><strong>Version:</strong> 1.1.2025 Stable</p>
+              <p><strong>Status:</strong> Free & Open Source</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </div>

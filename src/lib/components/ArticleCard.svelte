@@ -1,13 +1,11 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, type ComponentType } from 'svelte';
   import { ArrowRight } from 'lucide-svelte';
 
   export let title: string;
   export let description: string;
   // Pass a Svelte component (e.g., a lucide-svelte icon component)
-  // Using any here to avoid generic type incompatibilities across component constructors
-  // and keep API flexible.
-  export let icon: any = null;
+  export let icon: ComponentType | null = null;
 
   const dispatch = createEventDispatcher();
 

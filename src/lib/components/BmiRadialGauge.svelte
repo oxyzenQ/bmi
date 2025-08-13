@@ -48,20 +48,24 @@
   const circumference = 2 * Math.PI * radius;
   const maxBMI = 40;
 
-  // Sync visual state with inputs; also hard-reset when cleared
-  $: if (bmi > 0 && category) {
-    const nextColor = categoryColors[category] ?? '#00C853';
-    if (bmi !== appliedBmi || nextColor !== appliedColor || category !== appliedCategory) {
+  // Sync visual state with inputs via a helper to avoid reactive self-dependency
+  function applyInputs(nextBmi: number, nextCategory: string) {
+    const nextColor = categoryColors[nextCategory] ?? '#00C853';
+    if (nextBmi !== appliedBmi || nextColor !== appliedColor || nextCategory !== appliedCategory) {
       prevAppliedBmi = appliedBmi;
-      appliedBmi = bmi;
+      appliedBmi = nextBmi;
       appliedColor = nextColor;
-      appliedCategory = category;
-      // If we are coming from empty state, trigger a slower elegant fill
+      appliedCategory = nextCategory;
       if (prevAppliedBmi <= 0 && appliedBmi > 0) {
         isFilling = true;
         setTimeout(() => (isFilling = false), 1400);
       }
     }
+  }
+
+  // Reactive entry point that only reads external props
+  $: if (bmi > 0 && category) {
+    applyInputs(bmi, category);
   } else {
     // Clear visual state when inputs are cleared
     prevAppliedBmi = appliedBmi;
@@ -72,7 +76,7 @@
 
   // Stroke driven by appliedBmi (persistent)
   $: appliedPercentage = Math.max(0, Math.min(appliedBmi / maxBMI, 1));
-  $: strokeDasharray = circumference;
+  const strokeDasharray = circumference;
   $: strokeDashoffset = circumference - (appliedPercentage * circumference);
 
   // Center display driven by appliedBmi/appliedCategory
@@ -83,7 +87,7 @@
   function lighten(hex: string, amount = 0.35) {
     const m = hex.match(/^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
     if (!m) return hex;
-    const [_, r, g, b] = m;
+    const [, r, g, b] = m;
     const ri = parseInt(r, 16), gi = parseInt(g, 16), bi = parseInt(b, 16);
     const lr = Math.round(ri + (255 - ri) * amount);
     const lg = Math.round(gi + (255 - gi) * amount);

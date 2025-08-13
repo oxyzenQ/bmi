@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Star, Sparkles } from 'lucide-svelte';
+  import { Star, BookCheck, SquareSigma, Sparkles, Telescope } from 'lucide-svelte';
 
   let heroContent: HTMLDivElement;
   let bubbleContainer: HTMLDivElement;
@@ -122,24 +122,24 @@
     
     <h1 class="hero-title">
       <span class="title-gradient">BMI Calculator</span>
-      <Sparkles class="sparkle-icon" />
+      <Telescope class="sparkle-icon" />
     </h1>
     
     <p class="hero-subtitle">
-      Explore the cosmos of your body — discover your balance under the stars or morning sun.
+      Explore the cosmos of your body — discover your balance under the stars.
     </p>
     
     <div class="hero-features">
       <div class="feature">
-        <Star class="w-5 h-5 plasma-star star-1" />
+        <SquareSigma class="w-5 h-5 plasma-star star-1" />
         <span>Accurate Calculations</span>
       </div>
       <div class="feature">
-        <Star class="w-5 h-5 plasma-star star-2" />
+        <BookCheck class="w-5 h-5 plasma-star star-2" />
         <span>Health Insights</span>
       </div>
       <div class="feature">
-        <Star class="w-5 h-5 plasma-star star-3" />
+        <Sparkles class="w-5 h-5 plasma-star star-3" />
         <span>Modern Design</span>
       </div>
     </div>
