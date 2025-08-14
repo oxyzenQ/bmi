@@ -56,7 +56,7 @@
 <div class="{catClass}">
   <div class="card-header">
     <div class="icon-container">
-      <CircleSlash2 class="CircleSlash2 text-cosmic-blue" />
+      <CircleSlash2 class="CircleSlash2" />
       <div class="icon-glow"></div>
     </div>
     <h2 class="card-title">Your Results</h2>
@@ -79,7 +79,7 @@
 
       <div class="health-advice">
         <h3 class="advice-title">
-          <Info class="w-5 h-5" />
+          <Info class="Info" />
           Health Advice
         </h3>
         <p class="advice-text">{getHealthAdvice(category!)}</p>
@@ -88,7 +88,7 @@
       {#if age}
         <div class="age-advisory">
           <h4 class="advisory-title">
-            <AlertCircle class="w-4 h-4" />
+            <AlertCircle class="AlertCircle" />
             Age-Specific Note
           </h4>
           <p class="advisory-text">{getAgeAdvisory(age)}</p>
@@ -105,7 +105,7 @@
     {:else}
       <div class="empty-state">
         <div class="empty-icon">
-          <BarChart3 class="w-16 h-16 text-gray-400 opacity-50" />
+          <BarChart3 class="BarChart3" />
           <div class="empty-glow"></div>
         </div>
         <p class="empty-text">Enter your measurements to see your cosmic BMI results</p>

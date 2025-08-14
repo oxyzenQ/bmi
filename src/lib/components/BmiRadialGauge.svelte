@@ -103,7 +103,7 @@
 <div class="gauge-container">
   <div class="gauge-header">
     <div class="gauge-title">
-      <Gauge class="icon" />
+      <Gauge class="Gauge" />
       <h3>BMI Gauge</h3>
     </div>
     <div class="gauge-subtitle">Real-time BMI visualization</div>

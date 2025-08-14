@@ -329,17 +329,17 @@
       <div class="modal-header">
         <h2 id="modal-title" class="modal-title">{articleData.title}</h2>
         <button class="modal-close" on:click={closeModal} aria-label="Close modal">
-          <X class="w-6 h-6" />
+          <X class="X" />
         </button>
       </div>
       
       <div class="article-meta">
         <div class="meta-item">
-          <User class="w-4 h-4" />
+          <User class="User" />
           <span>{articleData.author}</span>
         </div>
         <div class="meta-item">
-          <Calendar class="w-4 h-4" />
+          <Calendar class="Calendar" />
           <span>{articleData.date}</span>
         </div>
       </div>

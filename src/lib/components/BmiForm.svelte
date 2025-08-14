@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CircleDivide, Calculator, User, Ruler, Scale, Zap, Trash2 } from 'lucide-svelte';
+  import { Orbit, User, Ruler, Weight, Zap, Trash2 } from 'lucide-svelte';
   import { createEventDispatcher } from 'svelte';
 
   // Inputs as strings for empty default UX
@@ -71,7 +71,7 @@
 <div class="form-inner">
   <div class="card-header">
     <div class="icon-container">
-      <CircleDivide class="CircleDivide text-cosmic-blue" />
+      <Orbit class="Orbit" />
       <div class="icon-glow"></div>
     </div>
     <h2 class="card-title">BMI Calculator</h2>
@@ -95,7 +95,7 @@
   <div class="bmi-form">
     <div class="input-group">
       <label for="age" class="input-label">
-        <User class="w-6 h-6" />
+        <User class="User" />
         Age (years)
       </label>
       <input
@@ -118,7 +118,7 @@
 
     <div class="input-group">
       <label for="height" class="input-label">
-        <Ruler class="w-6 h-6" />
+        <Ruler class="Ruler" />
         Height (cm)
       </label>
       <input
@@ -143,7 +143,7 @@
 
     <div class="input-group">
       <label for="weight" class="input-label">
-        <Scale class="w-6 h-6" />
+        <Weight class="Weight" />
         Weight (kg)
       </label>
       <input
@@ -176,7 +176,7 @@
         aria-disabled={!canCalculate}
         disabled={!canCalculate}
       >
-        <Zap class="w-6 h-6" />
+        <Zap class="Zap" />
         Calc BMI
       </button>
       
@@ -187,7 +187,7 @@
         class="btn btn-danger"
         aria-label="Clear all data"
       >
-        <Trash2 class="w-6 h-6" />
+        <Trash2 class="Trash2" />
         Clear All Data
       </button>
     </div>

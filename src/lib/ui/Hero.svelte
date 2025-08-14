@@ -1,10 +1,18 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Star, BookCheck, SquareSigma, Sparkles, Telescope } from 'lucide-svelte';
+  import { BookCheck, SquareSigma, Sparkles, Telescope, CircleChevronDown } from 'lucide-svelte';
 
   let heroContent: HTMLDivElement;
   let bubbleContainer: HTMLDivElement;
+  let heroSectionEl: HTMLElement;
   let deviceBubbleCount = 30;
+
+  function scrollToNextSection() {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const next = heroSectionEl?.nextElementSibling as HTMLElement | null;
+    const targetY = next ? Math.max(0, next.offsetTop - 8) : window.innerHeight;
+    window.scrollTo({ top: targetY, behavior: reducedMotion ? 'auto' : 'smooth' });
+  }
 
   onMount(() => {
     // Device-adaptive bubble count based on performance capabilities
@@ -71,7 +79,7 @@
   });
 </script>
 
-<header class="hero-section">
+<header class="hero-section" bind:this={heroSectionEl}>
   <div class="hero-background">
     <div class="cosmic-orbs">
       <div class="orb orb-1"></div>
@@ -122,7 +130,7 @@
     
     <h1 class="hero-title">
       <span class="title-gradient">BMI Calculator</span>
-      <Telescope class="sparkle-icon" />
+      <Telescope class="Telescope sparkle-icon" />
     </h1>
     
     <p class="hero-subtitle">
@@ -131,15 +139,15 @@
     
     <div class="hero-features">
       <div class="feature">
-        <SquareSigma class="w-5 h-5 plasma-star star-1" />
+        <SquareSigma class="SquareSigma" />
         <span>Accurate Calculations</span>
       </div>
       <div class="feature">
-        <BookCheck class="w-5 h-5 plasma-star star-2" />
+        <BookCheck class="BookCheck" />
         <span>Health Insights</span>
       </div>
       <div class="feature">
-        <Sparkles class="w-5 h-5 plasma-star star-3" />
+        <Sparkles class="Sparkles" />
         <span>Modern Design</span>
       </div>
     </div>
@@ -148,4 +156,19 @@
       © 2025 Rezky Nightky. All rights reserved.
     </p>
   </div>
+
+  <!-- End of hero content -->
 </header>
+
+<!-- Scroll-down button standalone container (transparent) -->
+<section class="hero-scroll-container" aria-hidden="true">
+  <button
+    type="button"
+    class="hero-scroll-btn"
+    aria-label="Scroll to next section"
+    title="Scroll down"
+    on:click={scrollToNextSection}
+  >
+    <CircleChevronDown class="hero-scroll-icon" />
+  </button>
+</section>

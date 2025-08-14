@@ -9,7 +9,7 @@
   // lucide icons for ArticleCard
   import { Heart, Activity, Utensils, BedDouble, Droplet, Brain, Stethoscope, Sun, Wind, Dna, FlaskConical, Leaf } from 'lucide-svelte';
   // icons for About BMI section
-  import { Scale, Users } from 'lucide-svelte';
+  import { Coffee, Lightbulb, Users, GitCompare, PackageCheck, Brush, AlertTriangle } from 'lucide-svelte';
   
   let bmiValue: number | null = null;
   let articlesVisible = true;
@@ -187,6 +187,7 @@
             title="Healthy Living Tips"
             description="Discover evidence-based strategies for maintaining a healthy weight and improving overall wellness."
             icon={Heart}
+            iconClass="Heart"
             on:openModal={handleOpenModal}
           />
           
@@ -194,6 +195,7 @@
             title="Exercise Guidelines"
             description="Learn about effective workout routines tailored to different BMI categories and fitness levels."
             icon={Activity}
+            iconClass="Activity2"
             on:openModal={handleOpenModal}
           />
           
@@ -201,6 +203,7 @@
             title="Nutrition Advice"
             description="Explore balanced nutrition plans and dietary recommendations for optimal health outcomes."
             icon={Utensils}
+            iconClass="Utensils"
             on:openModal={handleOpenModal}
           />
 
@@ -209,6 +212,7 @@
             title="Sleep & Recovery"
             description="Understand how quality sleep and recovery improve metabolism, performance, and overall health."
             icon={BedDouble}
+            iconClass="BedDouble"
             on:openModal={handleOpenModal}
           />
 
@@ -216,6 +220,7 @@
             title="Hydration Essentials"
             description="Why water matters: daily hydration goals, smart timing, and how fluids affect BMI and energy."
             icon={Droplet}
+            iconClass="Droplet"
             on:openModal={handleOpenModal}
           />
 
@@ -223,6 +228,7 @@
             title="Mental Wellness"
             description="Stress, mindfulness, and habit-building: science-backed tactics for a healthier relationship with food."
             icon={Brain}
+            iconClass="Brain"
             on:openModal={handleOpenModal}
           />
 
@@ -230,6 +236,7 @@
             title="Preventive Care"
             description="Screenings, labs, and checkups: what to track yearly to stay ahead of health risks."
             icon={Stethoscope}
+            iconClass="Stethoscope"
             on:openModal={handleOpenModal}
           />
 
@@ -237,6 +244,7 @@
             title="Sunlight & Circadian Health"
             description="Light exposure, vitamin D, and circadian rhythm—optimize your day for better sleep and weight."
             icon={Sun}
+            iconClass="Sun"
             on:openModal={handleOpenModal}
           />
 
@@ -244,6 +252,7 @@
             title="Breath & Cardio Health"
             description="Breathing mechanics, VO2, and lung health basics to support sustainable fitness progress."
             icon={Wind}
+            iconClass="Wind"
             on:openModal={handleOpenModal}
           />
 
@@ -251,6 +260,7 @@
             title="Metabolic Optimization"
             description="Advanced strategies for optimizing metabolic health through targeted nutrition, timing, and lifestyle interventions."
             icon={Dna}
+            iconClass="Dna"
             on:openModal={handleOpenModal}
           />
 
@@ -258,6 +268,7 @@
             title="Hormonal Balance"
             description="Understanding key hormones that affect weight, metabolism, and overall health for optimal body composition."
             icon={FlaskConical}
+            iconClass="FlaskConical"
             on:openModal={handleOpenModal}
           />
 
@@ -265,6 +276,7 @@
             title="Recovery & Longevity"
             description="Evidence-based recovery protocols and longevity practices to enhance healthspan and optimize aging."
             icon={Leaf}
+            iconClass="Leaf"
             on:openModal={handleOpenModal}
           />
         </div>
@@ -290,14 +302,21 @@
         <!-- What is BMI Card -->
         <div class="about-card">
           <div class="about-card-header">
-            <Scale class="about-icon" size={32} />
+            <Lightbulb class="Lightbulb" />
             <h3>What is BMI?</h3>
           </div>
           <div class="about-card-content">
             <p>
-              Body Mass Index (BMI) is a tool used to estimate a person's body fat based on their weight and height. 
-              Introduced by Adolphe Quetelet in the 19th century, BMI helps categorize individuals into weight ranges 
-              such as underweight, normal weight, overweight, and obese.
+              Body Mass Index (BMI) is a simple weight‑for‑height index: weight (kg) divided by height (m) squared.
+              It’s a quick population‑level screening tool to gauge potential health risk.
+            </p>
+            <p>
+              Adult ranges: <em>Underweight</em> (&lt; 18.5), <em>Normal</em> (18.5–24.9), <em>Overweight</em> (25.0–29.9),
+              <em>Obese</em> (≥ 30).
+            </p>
+            <p>
+              Limitations: BMI doesn’t distinguish fat vs muscle or fat distribution. Use it alongside waist circumference,
+              body‑fat %, lifestyle factors, and clinical assessment.
             </p>
           </div>
         </div>
@@ -305,7 +324,7 @@
         <!-- About Our App Card -->
         <div class="about-card">
           <div class="about-card-header">
-            <Users class="about-icon" size={32} />
+            <Users class="Users" />
             <h3>About Our BMI App</h3>
           </div>
           <div class="about-card-content">
@@ -316,8 +335,18 @@
               Thank you for your support!
             </p>
             <div class="app-info">
-              <p><strong>Version:</strong> 1.1.2025 Stable</p>
-              <p><strong>Status:</strong> Free & Open Source</p>
+              <p class="info-row">
+                <PackageCheck class="PackageCheck" />
+                <strong>Version:</strong>&nbsp;AX-1 Dev
+              </p>
+              <p class="info-row">
+                <GitCompare class="GitCompare" />
+                <strong>Type:</strong>&nbsp;Free & Open Source
+              </p>
+              <p class="info-row">
+                <Brush class="Brush" />
+                <strong>Status:</strong>&nbsp;Maintenance
+              </p>
             </div>
           </div>
         </div>
@@ -327,6 +356,9 @@
 </div>
 
 <footer class="footer-disclaimer">
+  <div class="disclaimer-icon">
+    <AlertTriangle class="AlertTriangle" />
+  </div>
   <p>
     BMI is a screening tool and should not be used as a sole diagnostic method. 
     Please consult healthcare professionals for comprehensive health assessment.
@@ -340,9 +372,7 @@
     rel="noopener noreferrer"
     class="github-link"
   >
-    <svg class="github-icon" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-    </svg>
+    <Coffee class="Coffee" />
     <span>by rezky_nightky</span>
   </a>
 </div>

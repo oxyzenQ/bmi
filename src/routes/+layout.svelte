@@ -1,5 +1,5 @@
 <script lang="ts">
-  import '../app.css';
+  import '../app-clean-by-claude.css';
   import CosmicParticles from '$lib/components/CosmicParticles.svelte';
 </script>
 

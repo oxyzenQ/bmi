@@ -6,6 +6,7 @@
   export let description: string;
   // Pass a Svelte component (e.g., a lucide-svelte icon component)
   export let icon: ComponentType | null = null;
+  export let iconClass: string = '';
 
   const dispatch = createEventDispatcher();
 
@@ -28,11 +29,10 @@
   on:keydown={handleKeydown}
   aria-label="Read full article: {title}"
 >
-  <div class="card-icon">
+  <div class="icon-slot">
     {#if icon}
-      <svelte:component this={icon} class="w-8 h-8" />
+      <svelte:component this={icon} class={iconClass} />
     {/if}
-    <div class="icon-glow"></div>
   </div>
   
   <h3 class="card-title">{title}</h3>
@@ -43,7 +43,7 @@
   
   <div class="card-link">
     <span>Read Full Article</span>
-    <ArrowRight class="w-5 h-5" />
+    <ArrowRight class="ArrowRight" />
   </div>
 </button>
 
