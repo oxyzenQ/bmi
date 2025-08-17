@@ -47,7 +47,15 @@
      --bg-by-rezky: linear-gradient(45deg, #041b30, #022b7e);
      --bg-last-by-rezky: linear-gradient(45deg, #132433, #2d94e2);
      --border-by-rezky: 2px solid rgba(96, 165, 250, 0.2);
-     --bg-cosmic: linear-gradient(135deg, #60a5fa, #a78bfa, #6366f1);
+     --bg-cosmic: linear-gradient(
+       135deg,
+       #0d1b3d,   /* deep space navy */
+       #60a5fa,   /* cosmic blue */
+       #a78bfa,   /* violet nebula */
+       #6366f1,   /* indigo */
+       #e0f2ff    /* starlight highlight */
+     );
+
    
      /* Animation/transition tuning */
      --easing-smooth: cubic-bezier(0.22, 1, 0.36, 1);
@@ -1136,6 +1144,15 @@
      -webkit-background-clip: text; 
      -webkit-text-fill-color: transparent; 
      background-clip: text;
+   }
+   
+   /* Elegant gradient text utility using theme vars */
+   .text-gradient-elegant {
+     background: var(--bg-cosmic);
+     -webkit-background-clip: text;
+     background-clip: text;
+     -webkit-text-fill-color: transparent;
+     color: transparent;
    }
    
    .card-subtitle { 

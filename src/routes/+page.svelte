@@ -341,7 +341,7 @@
               </p>
               <p class="info-row">
                 <GitCompare class="GitCompare" />
-                <strong>Type:</strong>&nbsp;Free & Open Source
+                <strong>Type:</strong>&nbsp;<span class="text-gradient-elegant">Open Source Project</span>
               </p>
               <p class="info-row">
                 <Brush class="Brush" />
