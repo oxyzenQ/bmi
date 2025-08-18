@@ -9,7 +9,7 @@
   // lucide icons for ArticleCard
   import { Heart, Activity, Utensils, BedDouble, Droplet, Brain, Stethoscope, Sun, Wind, Dna, FlaskConical, Leaf } from 'lucide-svelte';
   // icons for About BMI section
-  import { Coffee, Lightbulb, Users, GitCompare, PackageCheck, Brush, AlertTriangle } from 'lucide-svelte';
+  import { Coffee, Lightbulb, Users, GitCompare, PackageCheck, Brush, AlertTriangle, Scale } from 'lucide-svelte';
   
   let bmiValue: number | null = null;
   let articlesVisible = true;
@@ -341,11 +341,15 @@
               </p>
               <p class="info-row">
                 <GitCompare class="GitCompare" />
-                <strong>Type:</strong>&nbsp;<span class="text-gradient-elegant">Open Source Project</span>
+                <strong>Type Apps:</strong>&nbsp;<span class="text-gradient-elegant">Open Source Project</span>
               </p>
               <p class="info-row">
                 <Brush class="Brush" />
                 <strong>Status:</strong>&nbsp;Maintenance
+              </p>
+              <p class="info-row">
+                <Scale class="Scale" />
+                <strong>License:</strong>&nbsp;MIT
               </p>
             </div>
           </div>
