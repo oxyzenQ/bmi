@@ -293,7 +293,7 @@
   <!-- About BMI Section -->
   <section id="about" class="about-bmi-section">
     <div class="main-container">
-      <div class="section-header">
+      <div class="section-header-v2">
         <h2 class="title">About BMI</h2>
         <p class="subtitle">Understanding Body Mass Index and our application</p>
       </div>
@@ -377,7 +377,7 @@
     class="github-link"
   >
     <Coffee class="Coffee" />
-    <span>by rezky_nightky</span>
+    <span>© 2025 Rezky Nightky. All rights reserved.</span>
   </a>
 </div>
 

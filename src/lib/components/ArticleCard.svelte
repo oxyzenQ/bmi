@@ -24,7 +24,7 @@
 
 <button 
   type="button" 
-  class="article-card liquid-glass" 
+  class="article-card" 
   on:click={handleClick} 
   on:keydown={handleKeydown}
   aria-label="Read full article: {title}"
@@ -46,4 +46,3 @@
     <ArrowRight class="ArrowRight" />
   </div>
 </button>
-

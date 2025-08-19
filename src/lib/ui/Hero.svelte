@@ -122,10 +122,9 @@
     </div>
   </div>
   
-  <div bind:this={heroContent} class="hero-content liquid-glass">
+  <div bind:this={heroContent} class="hero-content">
     <div class="hero-avatar" aria-hidden="true">
-      <img src="/assets/logobmii.webp" alt="BMI Logo" width="96" height="96" loading="lazy" decoding="async" />
-      <div class="icon-glow"></div>
+      <img src="/assets/logobmii.webp" alt="BMI Logo" loading="lazy" decoding="async" />
     </div>
     
     <h1 class="hero-title">
@@ -152,9 +151,11 @@
       </div>
     </div>
     
-    <p class="hero-copyright">
-      © 2025 Rezky Nightky. All rights reserved.
-    </p>
+    <div class="hero-bottom">
+      <p class="hero-bottom-text">
+        Stellar Edition v1
+      </p>
+    </div>
   </div>
 
   <!-- End of hero content -->

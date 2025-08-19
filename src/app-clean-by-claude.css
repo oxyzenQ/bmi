@@ -281,13 +281,14 @@
    }
    
    /* Enhanced liquid glass effect */
-   .liquid-glass {
-     background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+   /* All container box background enhancement on here */
+   .liquid-glass, .hero-content, .article-card, .bmi-card, .footer-disclaimer, .about-card, .gauge-container,.reference-table, .form-card, .github-link, .modal-content, .section-header, .section-header-v2{
+     background: rgba(0, 0, 0, 0.555);
      backdrop-filter: blur(28px) saturate(200%);
      -webkit-backdrop-filter: blur(28px) saturate(200%);
      border: var(--border-by-rezky);
      border-radius: 2rem;
-     box-shadow: 
+     box-shadow:
        0 8px 32px rgba(0, 0, 0, 0.4), 
        inset 0 1px 0 rgba(255, 255, 255, 0.08), 
        0 0 20px rgba(96, 165, 250, 0.1);
@@ -478,21 +479,13 @@
       ============================== */
    .hero-section { 
      text-align: center; 
-     padding: 4rem 2rem 2rem; 
-     margin-bottom: 2rem; 
+     padding: 6rem 2rem 1rem; 
+     margin: 1rem; 
      position: relative; 
-     min-height: 60vh; 
+     min-height: 50vh; 
      display: flex; 
      align-items: center; 
      justify-content: center; 
-   }
-
-   .hero-section span{
-    background: var(--bg-cosmic);
-    -webkit-text-fill-color: transparent;
-    -webkit-background-clip: text;
-    -webkit-text-stroke: 1px var(--bg-by-rezky);
-    background-clip: text;
    }
    
    .hero-background { 
@@ -561,30 +554,8 @@
      content: ''; 
      position: absolute; 
      inset: 0; 
-     background: var(--bg-by-rezky);
      border-radius: inherit; 
      z-index: -1; 
-   }
-   
-   .hero-content::after { 
-     content: ''; 
-     position: absolute; 
-     inset: 0; 
-     background: none;
-     background-repeat: no-repeat, no-repeat; 
-     background-size: 100% 100%, 18% 140%; 
-     background-position: 0 0, -30% -20%; 
-     border-radius: inherit; 
-     pointer-events: none; 
-     animation: heroGloss 8s ease-in-out infinite; 
-     will-change: background-position; 
-     contain: layout style; 
-   }
-   
-   @keyframes heroGloss { 
-     0% { background-position: 0 0, -30% -20%; } 
-     10% { background-position: 0 0, 110% 120%; } 
-     100% { background-position: 0 0, 110% 120%; } 
    }
    
    .hero-avatar { 
@@ -593,15 +564,12 @@
      align-items: center; 
      justify-content: center; 
      margin-bottom: 1.5rem; 
-     width: 96px; 
-     height: 96px; 
+     width: 126px; 
+     height: 126px; 
      border-radius: 9999px; 
      padding: 2px; 
-     background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06)); 
-     border: 1px solid var(--apple-border); 
-     box-shadow: 
-       0 8px 32px rgba(0, 0, 0, 0.45), 
-       inset 0 1px 0 rgba(255, 255, 255, 0.08); 
+     background: none;
+     border: var(--border-by-rezky); 
      backdrop-filter: blur(10px) saturate(160%); 
    }
    
@@ -611,26 +579,7 @@
      border-radius: inherit; 
      display: block; 
      object-fit: cover; 
-     background: rgba(255,255,255,0.05); 
-   }
-   
-   .hero-avatar .icon-glow { 
-     position: absolute; 
-     top: 50%; 
-     left: 50%; 
-     transform: translate(-50%, -50%); 
-     width: 110px; 
-     height: 110px; 
-     background: radial-gradient(circle, rgba(96, 165, 250, 0.22), transparent); 
-     border-radius: 50%; 
-     filter: blur(18px); 
-     animation: iconGlow 3s ease-in-out infinite alternate; 
-     z-index: -1; 
-   }
-   
-   @keyframes iconGlow { 
-     0% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); } 
-     100% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.08); } 
+     background: none; 
    }
    
    .hero-title { 
@@ -645,6 +594,29 @@
      gap: 1rem; 
    }
    
+   .hero-bottom{
+    background: transparent;
+    border-top-left-radius: 2rem;
+    border-top-right-radius: 2rem;
+    border-top: var(--border-by-rezky);
+    padding: 0.5rem;
+    height: 50px;
+    margin-bottom: -50px;
+    max-width: 1200px;
+    margin-left: -30px;
+    margin-right: -30px;
+   }
+
+   .hero-bottom-text{
+    font-size: 1rem;
+    font-weight: 500;
+    background: var(--bg-cosmic);
+    text-align: center;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+   }
+
    .title-gradient { 
      background: var(--bg-cosmic); 
      -webkit-background-clip: text; 
@@ -661,7 +633,7 @@
      contain: layout style paint; 
    }
    .Telescope{
-    color: rgb(7, 156, 248) !important;
+    color: var(--cosmic-blue) !important;
     width: 56px !important;
     height: 56px !important;
   }
@@ -700,13 +672,13 @@
      display: flex; 
      align-items: center; 
      gap: 0.5rem; 
-     color: #e5e7eb; 
+     color: white; 
      font-size: 0.875rem; 
      font-weight: 500; 
      padding: 0.5rem 1rem; 
-     background: rgba(255, 255, 255, 0.05); 
+     background: transparent; 
      border-radius: 2rem; 
-     border: 1px solid rgba(255, 255, 255, 0.1); 
+     border: var(--border-by-rezky); 
      transition: all 0.3s ease; 
    }
    
@@ -714,6 +686,14 @@
      background: rgba(255, 255, 255, 0.1); 
      transform: translateY(-2px); 
      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); 
+   }
+
+   .feature span{
+    background: var(--bg-cosmic);
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    -webkit-text-stroke: 1px var(--bg-by-rezky);
+    background-clip: text;
    }
 
    /* button scroll for hero */
@@ -782,7 +762,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: clamp(1rem, 3.5vh, 2rem) 0;
+    margin: 4rem 0 15rem 0;
     background: none;
     pointer-events: none; /* container doesn't catch clicks */
   }
@@ -914,11 +894,7 @@
     max-height: none;  /* bebas kalau diisi banyak field */
     
     border-radius: 1.5rem;
-    background: rgba(15, 23, 42, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
-    backdrop-filter: blur(16px) saturate(160%);
-    -webkit-backdrop-filter: blur(16px) saturate(160%);
+  
     padding: clamp(1.25rem, 4vw, 2rem);
     transition: transform var(--dur-normal) var(--easing-smooth), 
                 box-shadow var(--dur-normal) var(--easing-smooth);
@@ -935,11 +911,6 @@
   display: flex;
   flex-direction: column;
   border-radius: 1.5rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
   padding: clamp(1.25rem, 4vw, 2rem);
   transition: transform var(--dur-normal) var(--easing-smooth),
               box-shadow var(--dur-normal) var(--easing-smooth);
@@ -1393,13 +1364,6 @@
      position: relative; 
      padding: 26px 28px 28px; 
      border-radius: 22px;
-     background: rgba(0, 0, 0, 0.292);
-     border: 1px solid transparent; 
-     backdrop-filter: blur(14px) saturate(140%);
-     -webkit-backdrop-filter: blur(14px) saturate(140%);
-     box-shadow: 
-       0 10px 30px rgba(2,8,23,0.35), 
-       inset 0 1px 0 rgba(255,255,255,0.06);
      isolation: isolate; 
      width: min(96vw, 1100px); 
      margin-inline: auto;
@@ -1407,39 +1371,72 @@
      margin-bottom: clamp(80px, 20vh, 200px);
    }
    
-   .gauge-header { 
-     display: grid; 
-     place-items: center; 
-     padding: 1rem;
-   }
-   
-   .gauge-title { 
-     display: inline-flex; 
-     align-items: center; 
-     gap: 10px; 
-     color: white; 
-     font-weight: 700; 
-     letter-spacing: 0.2px; 
-   }
-   
-   .gauge-title h3 { 
-     margin: 0; 
-     font-size: 1.08rem; 
-     padding: 1.25rem;
-   }
-   
-   .gauge-title .icon { 
-     width: 22px; 
-     height: 22px; 
-     color: var(--accent-blue); 
-     filter: drop-shadow(0 0 6px color-mix(in oklab, var(--accent-blue) 35%, transparent)); 
-   }
-   
-   .gauge-subtitle { 
-     color: #94a3b8; 
-     font-size: 0.85rem; 
-     margin-top: 4px; 
-   }
+/* Main gauge header container */
+.gauge-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  margin-bottom: clamp(1rem, 4vw, 2rem);
+}
+
+/* Title container with icon and text */
+.gauge-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+/* Title text styling */
+.gauge-title h3 {
+  margin: 0;
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-align: center;
+  background: var(--bg-cosmic);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Icon styling */
+.gauge-title .Gauge {
+  width: 3rem;
+  height: 3rem;
+  color: var(--accent-blue);
+  filter: drop-shadow(0 0 8px color-mix(in oklab, var(--accent-blue) 40%, transparent));
+  flex-shrink: 0;
+}
+
+/* Subtitle with elegant ligatures */
+.gauge-subtitle {
+  color: #94a3b8;
+  text-align: center;
+  font-size: clamp(1.1rem, 2vw, 1.3rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  font-feature-settings: "liga" 1, "dlig" 1, "calt" 1;
+  font-variant-ligatures: common-ligatures discretionary-ligatures;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .gauge-title h3 {
+    font-size: 3rem;
+  }
+  
+  .gauge-title .Gauge {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
    
    .gauge-wrapper { 
      display: grid; 
@@ -1565,11 +1562,6 @@
       ============================== */
    .reference-table {
      border-radius: 1.25rem;
-     background: rgba(15, 23, 42, 0.5);
-     border: 1px solid rgba(255,255,255,0.08);
-     box-shadow: 0 12px 32px rgba(0,0,0,0.45);
-     backdrop-filter: blur(14px) saturate(160%);
-     -webkit-backdrop-filter: blur(14px) saturate(160%);
      overflow: hidden;
    }
    
@@ -1625,50 +1617,71 @@
      color: #93c5fd; 
      filter: drop-shadow(0 0 8px rgba(96,165,250,0.35)); 
    }
-   
+
    .ref-card {
-     padding: 1rem;
+     padding: 4rem;
      display: grid;
      place-items: center;
+     margin-bottom: clamp(1rem, 4vw, 2rem);
    }
    
    .ref-card .title { 
-     font-size: 1.05rem; 
-     font-weight: 700; 
-     color: #e2e8f0; 
-     text-align: center;
+     padding: 1rem;
+     margin-left: -4rem;
      width: 100%;
-     padding: 1.25rem;
+     font-size: 2.5rem;
+     text-align: center;
+     background: var(--bg-cosmic);
+     background-clip: text;
+     -webkit-background-clip: text;
+     -webkit-text-fill-color: transparent;
    }
    
    .ref-card .subtitle { 
-     font-size: 0.95rem;
-     color: #a3b2c7; 
-     text-align: center;
+     color: white;
      width: 100%;
      padding: 1rem;
+     text-align: center;
+     font-size: clamp(1.25rem, 2vw, 1.5rem);
    }
    
    /* ==============================
       ARTICLE SECTION
       ============================== */
+
+    .main-container .section-header {
+        color: white;
+        padding: 4rem;
+        text-align: center;
+        margin-bottom: clamp(1rem, 4vw, 2rem);
+      }
+
+    .article-section .section-header .title {
+        font-size: 2.5rem;
+        text-align: center;
+        background: var(--bg-cosmic);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+   
+    .article-section .section-header .subtitle {
+        text-align: center;
+        font-size: clamp(1.25rem, 2vw, 1.5rem);
+      }
+
    .article-section { 
      padding: clamp(2rem, 6vw, 4rem) 0;
    }
-   
-   .article-section .section-header { 
-     text-align: center; 
-     margin-bottom: clamp(1rem, 4vw, 2rem); 
-   }
-   
-   .article-section .section-header .title { 
+  
+   .article-section .title { 
      font-size: clamp(1.5rem, 3vw, 2rem); 
      font-weight: 800; 
      color: #ffffff; 
      margin-bottom: 0.5rem; 
    }
    
-   .article-section .section-header .subtitle { 
+   .article-section .subtitle { 
      font-size: clamp(1rem, 2vw, 1.125rem); 
      color: white; 
    }
@@ -1687,7 +1700,6 @@
    
    .article-card { 
      padding: 2rem; 
-     border-radius: 1.5rem; 
      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
      height: 100%; 
      display: flex; 
@@ -1697,32 +1709,21 @@
      font-family: inherit; 
      position: relative; 
      overflow: hidden; 
-     background: rgba(15, 23, 42, 0.55); 
-     border: 1px solid rgba(255, 255, 255, 0.08); 
-     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
-     backdrop-filter: blur(16px) saturate(140%); 
-     -webkit-backdrop-filter: blur(16px) saturate(140%); 
      will-change: transform, background-color, box-shadow; 
      contain: layout style paint; 
    }
    
    .article-card:hover { 
      transform: translateY(-6px) scale(1.02); 
-     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45); 
+     border-radius: 2rem;
+     border: var(--border-by-rezky);
    }
    
    .article-card:focus { 
-     outline: 2px solid #60a5fa; 
-     outline-offset: 2px; 
+     border-radius: 2rem; 
+     border: var(--border-by-rezky)
    }
    
-   .card-icon { 
-     position: relative; 
-     display: inline-block; 
-     margin-bottom: 1.5rem; 
-     color: #60a5fa; 
-   }
-
    .card-title, .about-card h3,.modal-title {
     font-size: 1.75rem; 
     font-weight: 600; 
@@ -1756,16 +1757,30 @@
      margin-top: auto; 
    }
    
-   .article-card:hover .card-link { 
-     color: white; 
-     background: var(--bg-last-by-rezky);
-     transform: translateX(4px); 
-   }
-   
    /* ==============================
       ABOUT BMI SECTION
       ============================== */
-   .about-bmi-section {
+    .main-container .section-header-v2 {
+      color: white;
+      padding: 4rem;
+      text-align: center;
+      margin-bottom: clamp(1rem, 4vw, 2rem);
+    }
+
+    .about-bmi-section .title {
+    font-size: 2.5rem;
+     text-align: center;
+     background: var(--bg-cosmic);
+     background-clip: text;
+     -webkit-background-clip: text;
+     -webkit-text-fill-color: transparent;
+   }
+
+   .about-bmi-section .subtitle {
+     text-align: center;
+     font-size: clamp(1.25rem, 2vw, 1.5rem);
+   }
+    .about-bmi-section {
      padding: 4rem 0;
      background: none;
      position: relative;
@@ -1778,16 +1793,6 @@
      background: none;
      pointer-events: none;
    }
-   
-   .about-bmi-section .title {
-     text-align: center;
-     color: white;
-   }
-   .about-bmi-section .subtitle {
-     text-align: center;
-     color: white;
-     font-size: clamp(1rem, 2vw, 1.125rem);
-   }
 
    .about-bmi-grid {
      display: grid;
@@ -1797,13 +1802,8 @@
    }
    
    .about-card {
-     background: rgba(15, 23, 42, 0.55);
-     border: 1px solid rgba(255, 255, 255, 0.08);
      border-radius: 1.5rem;
      padding: 2rem;
-     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-     backdrop-filter: blur(16px) saturate(140%);
-     -webkit-backdrop-filter: blur(16px) saturate(140%);
      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
      position: relative;
      overflow: hidden;
@@ -1821,7 +1821,6 @@
      content: '';
      position: absolute;
      inset: 0;
-     background: linear-gradient(135deg, rgba(96,165,250,0.04), rgba(168,85,247,0.02));
      border-radius: inherit;
      pointer-events: none;
      z-index: 0;
@@ -2019,9 +2018,6 @@
    }
    
    .modal-content {
-     background: rgba(255, 255, 255, 0.08); 
-     backdrop-filter: blur(32px) saturate(200%);
-     border: 1px solid rgba(255, 255, 255, 0.12); 
      border-radius: 2rem; 
      max-width: 800px; 
      max-height: 90vh;
@@ -2074,7 +2070,7 @@
      font-size: 1.25rem; 
      font-weight: 600; 
      margin: 2rem 0 1rem 0; 
-     background: var(--bg-cosmic); 
+     background: var(--accent-blue); 
      -webkit-background-clip: text; 
      -webkit-text-fill-color: transparent; 
      background-clip: text; 
@@ -2310,29 +2306,36 @@
    /* ==============================
       FOOTER COMPONENTS
       ============================== */
-   .footer-disclaimer {
-     text-align: center;
-     color: var(--text-secondary);
-     font-size: 0.875rem;
-     padding: clamp(1rem, 4vw, 2.5rem);
-     margin-inline: auto;
-     margin-block-start: clamp(2rem, 6vw, 4rem);
-     border-top: 1px solid rgba(255, 255, 255, 0.08);
-     background: rgba(255, 255, 255, 0.02);
-     backdrop-filter: blur(20px);
-     border-radius: 2rem;
-     max-width: 900px;
-   }
-   
-   .github-footer { 
-     text-align: center; 
-     padding: 1.5rem; 
-     margin-top: 1rem; 
-     position: relative; 
-     overflow: hidden;
-     will-change: auto;
-     contain: layout style;
-   }
+      .footer-disclaimer {
+        text-align: center;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        padding: clamp(2rem, 4vw, 4rem);
+        margin: clamp(2rem, 4vw, 4rem) auto; /* Tambah 'auto' untuk horizontal centering */
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 2rem;
+        max-width: 1000px;
+      }
+      
+      .github-footer {
+        text-align: center;
+        padding: 1.5rem;
+        margin: 1rem auto 0; /* Tambah 'auto' dan konsisten dengan footer atas */
+        max-width: 1000px; /* Tambah max-width yang sama */
+        position: relative;
+        overflow: hidden;
+        will-change: auto;
+        contain: layout style;
+      }
+
+      .github-footer span {
+        font-weight: 500;
+        background: var(--bg-cosmic); 
+        -webkit-background-clip: text; 
+        -webkit-text-fill-color: transparent; 
+        background-clip: text; 
+      }
+      
    /* next tomorrow
    .github-footer::before {
      content: '';
@@ -2379,9 +2382,6 @@
      transition: all var(--dur-fast) var(--easing-smooth);
      padding: 0.75rem 1.5rem; 
      border-radius: 1rem; 
-     background: rgba(255, 255, 255, 0.04);
-     border: 1px solid rgba(255, 255, 255, 0.08); 
-     backdrop-filter: blur(20px);
    }
    
    .github-link:hover {
@@ -2452,33 +2452,6 @@
      width: 74px !important;
      height: 74px !important;
    }
-   /* Gauge header layout: icon on top, text below */
-   .gauge-container .gauge-header {
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-     gap: 0.35rem;
-     margin-bottom: 0.5rem;
-   }
-   .gauge-container .gauge-title {
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-     gap: 0.25rem;
-   }
-   .gauge-container .gauge-title h3 {
-     margin: 0;
-     line-height: 1.05;
-     font-size: 1rem;
-     letter-spacing: 0.2px;
-     text-align: center;
-   }
-   .gauge-container .gauge-subtitle {
-     text-align: center;
-     font-size: 0.9rem;
-     opacity: 0.85;
-     margin: 0;
-   }
 
    /* footer icons */
    .AlertTriangle{
@@ -2487,7 +2460,7 @@
     height: 48px !important;
    }
    .Coffee {
-    color: #6F4E37 !important; /* rich coffee brown */
+    color: gray !important; /* rich coffee */
     width: 24px !important;
     height: 24px !important;
   }
@@ -2501,7 +2474,7 @@
 
   /* about icons */
   .Lightbulb, .Users{
-    color: white !important;
+    color: var(--cosmic-blue) !important;
     width: 48px !important;
     height: 48px !important;
   }
@@ -2513,14 +2486,14 @@
     height: 24px !important;
   }
   .Heart, .Utensils, .BedDouble, .Droplet, .Brain, .Stethoscope, .Sun, .Wind, .Dna, .Leaf, .FlaskConical, .Activity2{
-    color: white !important;
+    color: var(--cosmic-blue) !important;
     width: 36px !important;
     height: 36px !important;
   }
 
   /* Hero icons */
   .SquareSigma, .BookCheck, .Sparkles{
-    color: white !important;
+    color: var(--cosmic-blue) !important;
     width: 24px !important;
     height: 24px !important;
   }
@@ -2560,12 +2533,12 @@
 
    /* Bmi result icons */
    .Info{
-    color: orange !important;
+    color: yellow !important;
     width: 24px !important;
     height: 24px !important;
    }
    .AlertCircle{
-    color: orange !important;
+    color: yellow !important;
     width: 24px !important;
     height: 24px !important;
    }
@@ -2573,7 +2546,7 @@
    /* BMI reference icon */
    .Info2{
     padding: 2.5rem;
-    color: orange !important;
+    color: #ffff00 !important;
     width: 48px !important;
     height: 48px !important;
    }
@@ -2588,7 +2561,7 @@
     height: 24px !important;
    }
    .TrendingUp{
-    color: orange !important;
+    color: yellow !important;
     width: 24px !important;
     height: 24px !important;
    }
@@ -2698,8 +2671,6 @@
      }
      .article-card { 
        padding: 1.5rem; 
-       border-radius: 1.25rem; 
-       backdrop-filter: blur(14px) saturate(135%); 
      }
      .card-title { 
        font-size: 1.125rem; 

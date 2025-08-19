@@ -33,7 +33,7 @@
       category: 'Overweight',
       range: '25.0 - 29.9',
       status: 'Increased health risks',
-      statusColor: '#f59e0b',
+      statusColor: '#ffff00',
       icon: TrendingUp,
       iconClass: 'TrendingUp',
       subcategories: [
