@@ -1,5 +1,4 @@
 # BMI Calculator - Next.js
-[![Netlify Status](https://api.netlify.com/api/v1/badges/a7a07f26-2cc0-4eb9-a804-3fc501b9b4e3/deploy-status?branch=main)](https://app.netlify.com/projects/preeminent-torte-dbb4a3/deploys)
 
 A modern, responsive Body Mass Index calculator built with Next.js, TypeScript, and Tailwind CSS. Features a beautiful space-themed design with plasma colors and smooth animations.
 
