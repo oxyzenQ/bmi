@@ -103,7 +103,7 @@ The application can also be deployed to any static hosting service using `npm ru
 
 ## 👨‍💻 Author
 
-**Rezky Nightly**
+**Rezky Nightky**
 - Modern web developer focused on performance and user experience
 - Specialist in Next.js, TypeScript, and responsive design
 
