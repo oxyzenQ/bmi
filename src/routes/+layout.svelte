@@ -27,6 +27,7 @@
 
 <svelte:head>
   <link rel="icon" href="/favicon.webp" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 </svelte:head>
 
 <SplashScreen 

@@ -212,11 +212,9 @@
    
    /* Container utilities */
    .main-container {
-    width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
-    /* Responsive horizontal padding for consistent gutters */
-    padding: 0 auto;
+    margin-inline: auto;   /* center */
+    padding-inline: clamp(1rem, 2vw, 2rem); /* gutter fleksibel */
     position: relative;
     z-index: 2;
   }
@@ -1365,7 +1363,7 @@
      padding: 26px 28px 28px; 
      border-radius: 22px;
      isolation: isolate; 
-     width: min(96vw, 1100px); 
+     width: min(96vw, 1100px);
      margin-inline: auto;
      margin-top: clamp(80px, 20vh, 200px);
      margin-bottom: clamp(80px, 20vh, 200px);
@@ -2653,9 +2651,6 @@
      .orb { 
        display: none; 
      }
-     .main-container { 
-       padding: 0 0.75rem; 
-     }
      .glass-panel, .liquid-glass { 
        border-radius: 1.25rem; 
      }
@@ -2757,9 +2752,6 @@
      }
      .hero-content { 
        padding: 1.5rem 1rem; 
-     }
-     .main-container { 
-       padding: 0 0.5rem; 
      }
      .glass-panel, .liquid-glass { 
        border-radius: 1rem; 
@@ -3198,4 +3190,155 @@
       .cursor {
         opacity: 1;
       }
+    }
+    
+    /* ==============================
+       RESPONSIVE FOUNDATION (GLOBAL)
+       ============================== */
+    /* Prevent horizontal scrollbars on narrow screens */
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    /* Mobile-first base font size: min 14px, scales up to 16px */
+    body { font-size: clamp(0.875rem, 0.85rem + 0.3vw, 1rem); }
+
+    /* Fluid media globally */
+    img, svg, canvas, video { max-width: 100%; height: auto; display: block; }
+
+    /* Fluid container utility for central alignment */
+    .main-container,
+    .container,
+    .section-container {
+      max-width: min(96vw, 1200px);
+      margin-inline: auto;
+      padding-inline: clamp(0.75rem, 2vw, 1.25rem);
+    }
+
+    /* Typographic scale using clamp for readability */
+    h1, .h1 { font-size: clamp(1.75rem, 4vw, 2.75rem); line-height: 1.125; }
+    h2, .h2 { font-size: clamp(1.5rem, 3.25vw, 2.25rem); line-height: 1.15; }
+    h3, .h3 { font-size: clamp(1.25rem, 2.5vw, 1.75rem); line-height: 1.2; }
+    h4, .h4 { font-size: clamp(1.125rem, 2vw, 1.5rem); line-height: 1.25; }
+    p, .text-base { font-size: clamp(0.95rem, 1.25vw, 1.05rem); }
+
+    /* Responsive grid helpers */
+    .grid-responsive {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: clamp(0.75rem, 2vw, 1.25rem);
+      align-items: stretch;
+    }
+
+    /* Ensure forms/results can wrap on mobile */
+    .flex-responsive {
+      display: flex;
+      flex-wrap: wrap;
+      gap: clamp(0.5rem, 1.5vw, 1rem);
+      align-items: stretch;
+    }
+
+    /* Common card/container style to stretch equally in grids */
+    .card,
+    .panel,
+    .result-box {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Results layout alignment: keep columns aligned and auto-height */
+    .results-grid,
+    .results-layout {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: clamp(0.75rem, 2vw, 1.25rem);
+      align-items: stretch;
+    }
+
+    /* Inputs remain centered as container heights change */
+    .form-center,
+    .centered-inline {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(0.5rem, 1.5vw, 1rem);
+    }
+
+    /* Media queries: tablet */
+    @media (max-width: 768px) {
+      .main-container,
+      .container,
+      .section-container {
+        max-width: 660px;
+        margin-inline: auto;
+        padding-inline: clamp(0.75rem, 2vw, 1.25rem);
+      }
+
+      .grid-responsive,
+      .results-grid,
+      .results-layout {
+        gap: clamp(0.75rem, 2vw, 1.25rem);
+      }
+
+      /* Ensure no overflow from wide elements */
+      img, svg, canvas, video { max-width: 100%; height: auto; }
+
+      .hero-bottom{
+        margin-bottom: -20px;
+      }
+      .gauge-container{
+        width: min(96vw, 400px);
+      }
+    }
+
+    /* Media queries: mobile (incl. 1080x2340 logical CSS px density-aware) */
+    @media (max-width: 480px) {
+      .main-container,
+      .container,
+      .section-container {
+        max-width: 400px;
+        margin-inline: auto;
+        padding-inline: clamp(0.75rem, 4vw, 0.9rem);
+      }
+
+      /* Slightly reduce headings for smaller screens */
+      h1, .h1 { font-size: clamp(1.5rem, 6vw, 2.25rem); }
+      h2, .h2 { font-size: clamp(1.35rem, 5vw, 1.9rem); }
+      h3, .h3 { font-size: clamp(1.15rem, 4vw, 1.5rem); }
+
+      /* Prevent layout shift when BMI result expands */
+      .results-grid,
+      .results-layout {
+        grid-template-columns: 1fr; /* stack */
+      }
+      .hero-bottom{
+        margin-bottom: -20px;
+      }
+      .gauge-container{
+        width: min(96vw, 320px);
+      }
+    }
+
+    @media (min-width: 768px) {
+      .gauge-container{
+        width: min(96vw, 670px);
+      }
+    }
+
+    @media (min-width: 1100px) {
+      .gauge-container{
+        width: min(96vw, 960px);
+      }
+    }
+
+    /* Performance: prefer rem spacing and leverage CSS vars already defined */
+    :root {
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
     }
