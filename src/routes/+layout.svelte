@@ -1,5 +1,5 @@
 <script lang="ts">
-  import '../app-clean-by-claude.css';
+  import '../global-styles.css';
   import CosmicParticles from '$lib/components/CosmicParticles.svelte';
   import SplashScreen from '$lib/components/SplashScreen.svelte';
   import { onMount } from 'svelte';
