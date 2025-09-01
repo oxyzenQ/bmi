@@ -3342,3 +3342,77 @@
       --space-6: 1.5rem;
       --space-8: 2rem;
     }
+
+    /* ==============================
+       Global smooth/momentum scrolling and GPU helpers
+       ============================== */
+    html,
+    body {
+      scroll-behavior: smooth;
+      /* Momentum scrolling on iOS */
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Utility: mark any scrollable area */
+    .scrollable {
+      overflow: auto;
+      -webkit-overflow-scrolling: touch; /* momentum */
+      will-change: transform;
+      transform: translateZ(0);
+    }
+
+    /* Utility: opt-in GPU acceleration for animated elements */
+    .gpu-accelerate {
+      will-change: transform, opacity;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      contain: layout style paint;
+    }
+
+    /* Parallax helper without background-attachment: fixed (Safari issue) */
+    .parallax-safe {
+      background-attachment: scroll !important;
+      will-change: transform;
+      transform: translateZ(0);
+    }
+
+    /* Reduce heavy effects on mobile to avoid GPU bottlenecks */
+    @media (max-width: 768px) {
+      /* Typical glass cards and panels across the app */
+      .glass-panel,
+      .glass-card,
+      .bmi-card,
+      .form-card,
+      .reference-table .table-container,
+      .article-card,
+      .modal-content {
+        /* Lower blur and saturation for cheaper composites */
+        backdrop-filter: blur(8px) saturate(120%) !important;
+        -webkit-backdrop-filter: blur(8px) saturate(120%) !important;
+        /* Softer, smaller shadow to reduce overdraw */
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28) !important;
+      }
+
+      /* Tighten large card/container shadows generically */
+      .glass,
+      .liquid-glass,
+      .glass-wrapper {
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28) !important;
+      }
+    }
+
+    /* Make modal/body scroll areas momentum-smooth on mobile */
+    .modal-content,
+    .modal-body {
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Prefer transform/opacity for animations and respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
