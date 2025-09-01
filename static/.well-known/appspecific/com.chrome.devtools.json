@@ -1,0 +1,5 @@
+{
+  "projectName": "BMI Calculator SvelteKit",
+  "framework": "sveltekit",
+  "workspaceRoot": "/"
+}
