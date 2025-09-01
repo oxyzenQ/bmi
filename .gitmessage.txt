@@ -1,6 +1,0 @@
-small optimize-v6 fix scrolling
-
-Acked-by: rezky_nightky <130107241+oxyzenQ@users.noreply.github.com>
-Reviewed-by: rezky_nightky <130107241+oxyzenQ@users.noreply.github.com>
-Co-authored-by: clara <227024143+maxie-7star@users.noreply.github.com>
-Co-authored-by: rezky_nightky <130107241+oxyzenQ@users.noreply.github.com>
