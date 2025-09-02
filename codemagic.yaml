@@ -28,7 +28,8 @@ workflows:
         script: npm ci
 
       - name: Install Capacitor CLI
-        script: npm ci -g @capacitor/core @capacitor/cli @capacitor/android
+        script: npm install -g @capacitor/cli
+      
       - name: Build web
         script: npm run build
 
