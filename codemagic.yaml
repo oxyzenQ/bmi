@@ -27,9 +27,8 @@ workflows:
       - name: Install Node dependencies
         script: npm ci
 
-       - name: Install Capacitor CLI
+      - name: Install Capacitor CLI
         script: npm ci -g @capacitor/core @capacitor/cli @capacitor/android
-
       - name: Build web
         script: npm run build
 
