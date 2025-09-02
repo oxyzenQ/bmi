@@ -178,6 +178,9 @@
   <section class="article-section" bind:this={articlesContainer}>
     <div class="main-container">
       <div class="section-header">
+        <div class="main-icon-header-article">
+          <Coffee class="Coffee" />
+        </div>
         <h2 class="title">Health & Wellness Articles</h2>
         <p class="subtitle">Expert insights and evidence-based guidance for optimal health</p>
       </div>
@@ -337,19 +340,19 @@
             <div class="app-info">
               <p class="info-row">
                 <PackageCheck class="PackageCheck" />
-                <strong>Version:</strong>&nbsp;AX-1 Dev
+                <strong>Version:</strong>AX-1 Dev
               </p>
               <p class="info-row">
                 <GitCompare class="GitCompare" />
-                <strong>Type Apps:</strong>&nbsp;<span class="text-gradient-elegant">Open Source Project</span>
+                <strong>Type Apps:</strong><span class="text-gradient-elegant">Open Source Project</span>
               </p>
               <p class="info-row">
                 <Brush class="Brush" />
-                <strong>Status:</strong>&nbsp;Maintenance
+                <strong>Status:</strong>Maintenance
               </p>
               <p class="info-row">
                 <Scale class="Scale" />
-                <strong>License:</strong>&nbsp;MIT
+                <strong>License:</strong>MIT
               </p>
             </div>
           </div>
@@ -371,13 +374,17 @@
 
 <div class="github-footer">
   <a 
-    href="https://github.com/oxyzenq/devv3" 
+    href="https://github.com/oxyzenq/web-oxy" 
     target="_blank" 
     rel="noopener noreferrer"
     class="github-link"
   >
-    <Coffee class="Coffee" />
-    <span>© 2025 Rezky Nightky. All rights reserved.</span>
+    <span>
+      &copy; <span id="current-year"></span> Rezky Nightky. All rights reserved.
+    </span>
+    <script>
+      document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
   </a>
 </div>
 

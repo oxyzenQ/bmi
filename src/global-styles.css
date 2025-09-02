@@ -1625,7 +1625,6 @@
    
    .ref-card .title { 
      padding: 1rem;
-     margin-left: -4rem;
      width: 100%;
      font-size: 2.5rem;
      text-align: center;
@@ -2458,19 +2457,45 @@
     height: 48px !important;
    }
    .Coffee {
-    color: gray !important; /* rich coffee */
-    width: 24px !important;
-    height: 24px !important;
-  }
-  
-  /* tools icons */
-  .PackageCheck, .Brush, .GitCompare, .Scale{
-    color: green !important;
-    width: 24px !important;
-    height: 24px !important;
+    color: var(--cosmic-blue) !important;
+    width: 64px !important;
+    height: 64px !important;
+    filter: drop-shadow(0 0 8px var(--cosmic-blue));
+    transition: filter 200ms ease, transform 200ms ease;
+   }
+
+  /* Center wrapper for the Coffee icon in the article header */
+  .main-icon-header-article {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 0.75rem;
   }
 
-  /* about icons */
+  /* Ensure the Coffee icon is centered inside its wrapper */
+  .main-icon-header-article .Coffee {
+    margin: 0 auto;
+  }
+
+  /* Responsive adjustments for the Coffee icon */
+  @media (max-width: 640px) {
+    .main-icon-header-article .Coffee,
+    .Coffee {
+      width: 52px !important;
+      height: 52px !important;
+      filter: drop-shadow(0 0 6px var(--cosmic-blue));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .main-icon-header-article .Coffee,
+    .Coffee {
+      width: 72px !important;
+      height: 72px !important;
+    }
+  }
+
+ /* about icons */
   .Lightbulb, .Users{
     color: var(--cosmic-blue) !important;
     width: 48px !important;
@@ -2594,8 +2619,8 @@
        grid-template-columns: repeat(4, minmax(0, 1fr)); 
      }
      .ref-card .title {
-       padding-left: 34%;
-       text-align: left;
+       padding: 1rem;
+       text-align: center;
      }
    }
    

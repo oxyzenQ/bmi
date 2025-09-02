@@ -153,7 +153,7 @@
     
     <div class="hero-bottom">
       <p class="hero-bottom-text">
-        Stellar Edition v1
+        Stellar Edition v2 dev
       </p>
     </div>
   </div>
