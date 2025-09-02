@@ -20,6 +20,7 @@ A modern, responsive Body Mass Index calculator built with **SvelteKit** and **T
 - **Largest Contentful Paint**: < 2.5s
 - **Cumulative Layout Shift**: < 0.1
 
+
 ## 🛠️ Tech Stack
 
 - **Framework**: SvelteKit, Svelte latest
