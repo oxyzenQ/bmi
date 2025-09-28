@@ -1,88 +1,87 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import ArticleCard from '../ArticleCard.svelte';
+import ArticleCardTestWrapper from './mocks/ArticleCardTestWrapper.svelte';
+import { Heart } from 'lucide-svelte';
 
 describe('ArticleCard', () => {
     it('renders article card with title and description', () => {
-        const mockOnOpenModal = vi.fn();
-
         render(ArticleCard, {
             props: {
                 title: 'Test Article',
                 description: 'Test description',
-                icon: 'fa6-solid:heart',
-                onOpenModal: mockOnOpenModal
+                icon: Heart
             }
         });
 
         expect(screen.getByText('Test Article')).toBeInTheDocument();
         expect(screen.getByText('Test description')).toBeInTheDocument();
-        expect(screen.getByText('Read Full Article →')).toBeInTheDocument();
+        expect(screen.getByText('Read Full Article')).toBeInTheDocument();
     });
 
-    it('calls onOpenModal when clicked', async () => {
-        const mockOnOpenModal = vi.fn();
+    it('dispatches openModal when clicked', async () => {
+        const handler = vi.fn();
 
-        render(ArticleCard, {
+        render(ArticleCardTestWrapper, {
             props: {
                 title: 'Test Article',
                 description: 'Test description',
-                icon: 'fa6-solid:heart',
-                onOpenModal: mockOnOpenModal
+                icon: Heart,
+                onCardOpen: handler
             }
         });
 
         const button = screen.getByRole('button');
         await fireEvent.click(button);
 
-        expect(mockOnOpenModal).toHaveBeenCalledWith('Test Article', expect.any(String));
+        expect(handler).toHaveBeenCalled();
+        const evt = handler.mock.calls[0][0] as CustomEvent<{ title: string; description: string }>;
+        expect(evt.detail.title).toBe('Test Article');
+        expect(typeof evt.detail.description).toBe('string');
     });
 
-    it('calls onOpenModal when Enter key is pressed', async () => {
-        const mockOnOpenModal = vi.fn();
+    it('dispatches openModal when Enter key is pressed', async () => {
+        const handler = vi.fn();
 
-        render(ArticleCard, {
+        render(ArticleCardTestWrapper, {
             props: {
                 title: 'Test Article',
                 description: 'Test description',
-                icon: 'fa6-solid:heart',
-                onOpenModal: mockOnOpenModal
+                icon: Heart,
+                onCardOpen: handler
             }
         });
 
         const button = screen.getByRole('button');
         await fireEvent.keyDown(button, { key: 'Enter' });
 
-        expect(mockOnOpenModal).toHaveBeenCalledWith('Test Article', expect.any(String));
+        expect(handler).toHaveBeenCalled();
     });
 
-    it('calls onOpenModal when Space key is pressed', async () => {
-        const mockOnOpenModal = vi.fn();
+    it('dispatches openModal when Space key is pressed', async () => {
+        const handler = vi.fn();
 
-        render(ArticleCard, {
+        render(ArticleCardTestWrapper, {
             props: {
                 title: 'Test Article',
                 description: 'Test description',
-                icon: 'fa6-solid:heart',
-                onOpenModal: mockOnOpenModal
+                icon: Heart,
+                onCardOpen: handler
             }
         });
 
         const button = screen.getByRole('button');
         await fireEvent.keyDown(button, { key: ' ' });
 
-        expect(mockOnOpenModal).toHaveBeenCalledWith('Test Article', expect.any(String));
+        expect(handler).toHaveBeenCalled();
     });
 
     it('prevents default behavior on Enter and Space keys', async () => {
-        const mockOnOpenModal = vi.fn();
-
         render(ArticleCard, {
             props: {
                 title: 'Test Article',
                 description: 'Test description',
-                icon: 'fa6-solid:heart',
-                onOpenModal: mockOnOpenModal
+                icon: Heart
             }
         });
 
@@ -102,14 +101,11 @@ describe('ArticleCard', () => {
     });
 
     it('has proper accessibility attributes', () => {
-        const mockOnOpenModal = vi.fn();
-
         render(ArticleCard, {
             props: {
                 title: 'Test Article',
                 description: 'Test description',
-                icon: 'fa6-solid:heart',
-                onOpenModal: mockOnOpenModal
+                icon: Heart
             }
         });
 
@@ -118,15 +114,15 @@ describe('ArticleCard', () => {
         expect(button).toHaveAttribute('aria-label', 'Read full article: Test Article');
     });
 
-    it('does not call onOpenModal for other keys', async () => {
-        const mockOnOpenModal = vi.fn();
+    it('does not dispatch openModal for other keys', async () => {
+        const handler = vi.fn();
 
-        render(ArticleCard, {
+        render(ArticleCardTestWrapper, {
             props: {
                 title: 'Test Article',
                 description: 'Test description',
-                icon: 'fa6-solid:heart',
-                onOpenModal: mockOnOpenModal
+                icon: Heart,
+                onCardOpen: handler
             }
         });
 
@@ -134,18 +130,15 @@ describe('ArticleCard', () => {
         await fireEvent.keyDown(button, { key: 'Tab' });
         await fireEvent.keyDown(button, { key: 'ArrowDown' });
 
-        expect(mockOnOpenModal).not.toHaveBeenCalled();
+        expect(handler).not.toHaveBeenCalled();
     });
 
     it('handles empty content gracefully', () => {
-        const mockOnOpenModal = vi.fn();
-
         render(ArticleCard, {
             props: {
                 title: 'Unknown Article',
                 description: 'Test description',
-                icon: 'fa6-solid:heart',
-                onOpenModal: mockOnOpenModal
+                icon: Heart
             }
         });
 

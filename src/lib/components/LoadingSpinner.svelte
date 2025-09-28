@@ -1,50 +1,25 @@
 <script lang="ts">
+  // Size variants correspond to global classes: .comp-spinner.small|medium|large
   export let size: 'small' | 'medium' | 'large' = 'medium';
-  export let color: string = 'currentColor';
+  /**
+   * Back-compat color prop: accepts semantic names or legacy hex values.
+   * Mapped to global classes: .comp-spinner.color-*
+   */
+  export let color: string = 'white';
+
+  function toColorVariant(c: string): 'white' | 'blue' | 'green' | 'yellow' | 'red' {
+    const v = (c || '').toLowerCase().trim();
+    if (v === 'white' || v === '#fff' || v === '#ffffff') return 'white';
+    if (v === 'blue' || v === '#60a5fa') return 'blue';
+    if (v === 'green' || v === '#10b981') return 'green';
+    if (v === 'yellow' || v === '#f59e0b') return 'yellow';
+    if (v === 'red' || v === '#ef4444') return 'red';
+    return 'white';
+  }
+
+  $: colorClass = `color-${toColorVariant(color)}`;
 </script>
 
-<div class="loading-spinner {size}" style="--spinner-color: {color}">
+<div class={`comp-spinner ${size} ${colorClass}`} {...$$restProps}>
   <div class="spinner"></div>
 </div>
-
-<style>
-  .loading-spinner {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .spinner {
-    border: 2px solid transparent;
-    border-top: 2px solid var(--spinner-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  .small .spinner {
-    width: 16px;
-    height: 16px;
-  }
-
-  .medium .spinner {
-    width: 24px;
-    height: 24px;
-  }
-
-  .large .spinner {
-    width: 32px;
-    height: 32px;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
-  /* Respect reduced motion preference */
-  @media (prefers-reduced-motion: reduce) {
-    .spinner {
-      animation: none;
-    }
-  }
-</style>

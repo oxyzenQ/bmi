@@ -1,380 +1,198 @@
 <script lang="ts">
-  import { Calculator, User, Ruler, Weight, Send, RotateCcw, Loader2 } from 'lucide-svelte';
+  import { Orbit, User, Ruler, Weight, Zap, Trash2 } from 'lucide-svelte';
+  import { createEventDispatcher } from 'svelte';
 
-  export let onCalculate: (age: number, height: number, weight: number) => void;
-  export let onReset: () => void;
+  // Inputs as strings for empty default UX
+  export let age: string = '';
+  export let height: string = '';
+  export let weight: string = '';
+  export let onClear: () => void;
+  export let onCalculate: () => void;
 
-  let age = '';
-  let height = '';
-  let weight = '';
-  let isCalculating = false;
+  const dispatch = createEventDispatcher();
 
+  // Sanitizers: age as integer, height/weight as decimals (one dot)
+  function sanitizeInteger(value: string): string {
+    // keep digits only
+    return value.replace(/\D+/g, '').slice(0, 3); // cap length reasonably
+  }
+
+  function sanitizeDecimal(value: string): string {
+    // remove invalid chars, allow one dot
+    let v = value.replace(/[^0-9.]/g, '');
+    const firstDot = v.indexOf('.');
+    if (firstDot !== -1) {
+      // remove additional dots
+      v = v.slice(0, firstDot + 1) + v.slice(firstDot + 1).replace(/\./g, '');
+    }
+    // trim leading zeros sensibly (but keep "0." cases)
+    if (v.startsWith('00')) {
+      v = v.replace(/^0+/, '0');
+    }
+    return v.slice(0, 6); // cap length
+  }
+
+  // Enhanced validation with better accuracy and ordering
+  let ageInputEl: HTMLInputElement;
+  let heightInputEl: HTMLInputElement;
+  let weightInputEl: HTMLInputElement;
+
+  $: parsedAge = age !== '' ? parseInt(age) : null;
+  $: parsedHeight = height !== '' ? parseFloat(height) : null;
+  $: parsedWeight = weight !== '' ? parseFloat(weight) : null;
+  // Require realistic ranges
+  $: ageValid = parsedAge !== null && !isNaN(parsedAge) && parsedAge > 0 && parsedAge <= 120;
+  $: heightValid = parsedHeight !== null && !isNaN(parsedHeight) && parsedHeight > 0 && parsedHeight <= 300;
+  $: weightValid = parsedWeight !== null && !isNaN(parsedWeight) && parsedWeight > 0 && parsedWeight <= 1000;
+  // Calculation only allowed when all three are valid
+  $: canCalculate = ageValid && heightValid && weightValid;
+
+  // Only trigger calculate when button is pressed and inputs are valid
   function handleCalculate() {
-    const ageNum = parseFloat(age);
-    const heightNum = parseFloat(height);
-    const weightNum = parseFloat(weight);
-    
-    if (ageNum && heightNum && weightNum && ageNum > 0 && heightNum > 0 && weightNum > 0) {
-      isCalculating = true;
-      // Simulate calculation delay
-      setTimeout(() => {
-        onCalculate(ageNum, heightNum, weightNum);
-        isCalculating = false;
-      }, 500);
+    if (canCalculate && parsedHeight && parsedWeight) {
+      // Clean and validate values before calculation
+      const cleanHeight = Math.round(parsedHeight * 100) / 100; // Round to 2 decimals
+      const cleanWeight = Math.round(parsedWeight * 100) / 100; // Round to 2 decimals
+      
+      // Optional: dispatch event if parent listens; keep for extensibility
+      dispatch('calculate', { age: parsedAge, height: cleanHeight, weight: cleanWeight });
+      onCalculate();
     }
   }
 
-  function handleReset() {
+  function handleClear() {
     age = '';
     height = '';
     weight = '';
-    onReset();
-  }
-
-  function handleKeydown(event: KeyboardEvent) {
-    if (event.key === 'Enter') {
-      handleCalculate();
-    }
+    onClear();
   }
 </script>
 
-<div class="bmi-form-card liquid-glass">
+<div class="form-inner">
   <div class="card-header">
     <div class="icon-container">
-      <Calculator class="w-12 h-12 text-cosmic-blue" />
+      <Orbit class="Orbit" />
       <div class="icon-glow"></div>
     </div>
-    <h2 class="card-title">Calculate Your BMI</h2>
-    <p class="card-subtitle">Enter your measurements below to discover your cosmic balance.</p>
+    <h2 class="card-title">BMI Calculator</h2>
+    <p class="card-subtitle">Fill in order: Age → Height → Weight. Click Calculate BMI to see results.</p>
+
+    <!-- status pill: indicates readiness -->
+    <div class="status-row">
+      <span
+        class="pill-indicator"
+        tabindex="0"
+        role="button"
+        aria-label={canCalculate ? 'Inputs valid. Ready to calculate.' : 'Incomplete inputs. Enter age, height and weight.'}
+        data-color={canCalculate ? 'green' : 'gray'}
+      >
+        <span class="dot" aria-hidden="true"></span>
+        {canCalculate ? 'Ready' : 'Enter all fields'}
+      </span>
+    </div>
   </div>
 
-  <form on:submit|preventDefault={handleCalculate} class="bmi-form">
+  <div class="bmi-form">
     <div class="input-group">
       <label for="age" class="input-label">
-        <User class="w-4 h-4" />
+        <User class="User" />
         Age (years)
       </label>
       <input
-        type="number"
+        type="text"
         id="age"
+        bind:this={ageInputEl}
         bind:value={age}
-        on:keydown={handleKeydown}
         class="form-input"
+        inputmode="numeric"
+        pattern="[0-9]*"
         placeholder="e.g., 25"
-        min="1"
-        max="120"
-        required
+        aria-label="Age in years"
+        aria-invalid={age !== '' && !ageValid}
+        on:input={(e) => { const t = e.currentTarget as HTMLInputElement; age = sanitizeInteger(t.value); }}
       />
+      {#if age !== '' && !ageValid}
+        <div class="input-error" role="alert">Please enter a valid age between 1 and 120.</div>
+      {/if}
     </div>
 
     <div class="input-group">
       <label for="height" class="input-label">
-        <Ruler class="w-4 h-4" />
+        <Ruler class="Ruler" />
         Height (cm)
       </label>
       <input
-        type="number"
+        type="text"
         id="height"
+        bind:this={heightInputEl}
         bind:value={height}
-        on:keydown={handleKeydown}
         class="form-input"
-        placeholder="e.g., 170"
-        min="50"
-        max="300"
-        step="0.1"
-        required
+        inputmode="decimal"
+        placeholder={ageValid ? 'e.g., 170' : 'Enter age first'}
+        aria-label="Height in centimeters"
+        aria-invalid={height !== '' && !heightValid}
+        disabled={!ageValid}
+        aria-disabled={!ageValid}
+        on:focus={() => { if (!ageValid) ageInputEl?.focus(); }}
+        on:input={(e) => { const t = e.currentTarget as HTMLInputElement; height = sanitizeDecimal(t.value); }}
       />
+      {#if height !== '' && !heightValid}
+        <div class="input-error" role="alert">Height must be between 1-300 cm.</div>
+      {/if}
     </div>
 
     <div class="input-group">
       <label for="weight" class="input-label">
-        <Weight class="w-4 h-4" />
+        <Weight class="Weight" />
         Weight (kg)
       </label>
       <input
-        type="number"
+        type="text"
         id="weight"
+        bind:this={weightInputEl}
         bind:value={weight}
-        on:keydown={handleKeydown}
         class="form-input"
-        placeholder="e.g., 70.5"
-        min="10"
-        max="500"
-        step="0.1"
-        required
+        inputmode="decimal"
+        placeholder={heightValid ? 'e.g., 70.5' : 'Enter height first'}
+        aria-label="Weight in kilograms"
+        aria-invalid={weight !== '' && !weightValid}
+        disabled={!heightValid}
+        aria-disabled={!heightValid}
+        on:focus={() => { if (!heightValid) heightInputEl?.focus(); }}
+        on:input={(e) => { const t = e.currentTarget as HTMLInputElement; weight = sanitizeDecimal(t.value); }}
       />
+      {#if weight !== '' && !weightValid}
+        <div class="input-error" role="alert">Weight must be between 1-1000 kg.</div>
+      {/if}
     </div>
 
     <div class="button-group">
       <button
-        type="submit"
-        class="btn-primary space-button"
-        disabled={isCalculating || !age || !height || !weight}
+        type="button"
+        on:click={handleCalculate}
+        on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCalculate()}
+        class="btn btn-primary"
+        aria-label="Calculate BMI"
+        aria-disabled={!canCalculate}
+        disabled={!canCalculate}
       >
-        {#if isCalculating}
-          <Loader2 class="w-5 h-5 animate-spin" />
-          Calculating...
-        {:else}
-          <Send class="w-5 h-5" />
-          Calculate BMI
-        {/if}
+        <Zap class="Zap" />
+        Calc BMI
       </button>
       
       <button
         type="button"
-        on:click={handleReset}
-        class="btn-secondary space-button"
+        on:click={handleClear}
+        on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClear()}
+        class="btn btn-danger"
+        aria-label="Clear all data"
       >
-        <RotateCcw class="w-5 h-5" />
-        Reset Form
+        <Trash2 class="Trash2" />
+        Clear All Data
       </button>
     </div>
-  </form>
+  </div>
 </div>
 
-<style>
-  .bmi-form-card {
-    padding: 2.5rem;
-    border-radius: 1.5rem;
-    position: relative;
-    overflow: hidden;
-  }
+ 
 
-  .bmi-form-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, 
-      rgba(96, 165, 250, 0.05), 
-      rgba(168, 85, 247, 0.05)
-    );
-    border-radius: inherit;
-    z-index: -1;
-  }
-
-  .card-header {
-    text-align: center;
-    margin-bottom: 2.5rem;
-  }
-
-  .icon-container {
-    position: relative;
-    display: inline-block;
-    margin-bottom: 1rem;
-  }
-
-  .icon-glow {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 60px;
-    height: 60px;
-    background: radial-gradient(circle, rgba(96, 165, 250, 0.2), transparent);
-    border-radius: 50%;
-    filter: blur(15px);
-    animation: iconGlow 3s ease-in-out infinite alternate;
-  }
-
-  @keyframes iconGlow {
-    0% {
-      opacity: 0.3;
-      transform: translate(-50%, -50%) scale(1);
-    }
-    100% {
-      opacity: 0.6;
-      transform: translate(-50%, -50%) scale(1.1);
-    }
-  }
-
-  .card-title {
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: #ffffff;
-    margin-bottom: 0.75rem;
-    background: linear-gradient(135deg, #60a5fa, #a78bfa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .card-subtitle {
-    color: #9ca3af;
-    font-size: 0.95rem;
-    line-height: 1.5;
-  }
-
-  .bmi-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.75rem;
-  }
-
-  .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .input-label {
-    font-weight: 500;
-    color: #e5e7eb;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .form-input {
-    padding: 1rem 1.25rem;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 0.75rem;
-    color: #ffffff;
-    font-size: 1rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(10px);
-  }
-
-  .form-input:focus {
-    outline: none;
-    border-color: #60a5fa;
-    box-shadow: 
-      0 0 0 3px rgba(96, 165, 250, 0.1),
-      0 0 20px rgba(96, 165, 250, 0.1);
-    background: rgba(15, 23, 42, 0.8);
-  }
-
-  .form-input::placeholder {
-    color: #6b7280;
-  }
-
-  .form-input:hover:not(:focus) {
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(15, 23, 42, 0.7);
-  }
-
-  .button-group {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
-  }
-
-  .btn-primary,
-  .btn-secondary {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem 1.75rem;
-    border: none;
-    border-radius: 0.75rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    flex: 1;
-    justify-content: center;
-    font-size: 0.95rem;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    color: white;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-  }
-
-  .btn-primary::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-  }
-
-  .btn-primary:hover:not(:disabled)::before {
-    left: 100%;
-  }
-
-  .btn-primary:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
-  }
-
-  .btn-primary:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .btn-secondary {
-    background: rgba(75, 85, 99, 0.6);
-    color: #e5e7eb;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-  }
-
-  .btn-secondary:hover {
-    background: rgba(75, 85, 99, 0.8);
-    transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
-
-  @media (max-width: 768px) {
-    .bmi-form-card {
-      padding: 2rem 1.5rem;
-      border-radius: 1.25rem;
-    }
-
-    .card-title {
-      font-size: 1.5rem;
-    }
-
-    .button-group {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .btn-primary,
-    .btn-secondary {
-      padding: 0.875rem 1.5rem;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .bmi-form-card {
-      padding: 1.5rem 1rem;
-    }
-
-    .card-title {
-      font-size: 1.25rem;
-    }
-
-    .form-input {
-      padding: 0.875rem 1rem;
-    }
-  }
-
-  /* Reduce motion for users who prefer it */
-  @media (prefers-reduced-motion: reduce) {
-    .icon-glow {
-      animation: none;
-    }
-
-    .btn-primary::before {
-      display: none;
-    }
-
-    .btn-primary:hover:not(:disabled),
-    .btn-secondary:hover {
-      transform: none;
-    }
-  }
-</style>

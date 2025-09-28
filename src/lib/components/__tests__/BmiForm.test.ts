@@ -5,18 +5,18 @@ import BmiForm from '../BmiForm.svelte';
 describe('BmiForm', () => {
     it('renders form with all required elements', () => {
         const mockOnCalculate = vi.fn();
-        const mockOnReset = vi.fn();
+        const mockOnClear = vi.fn();
 
         render(BmiForm, {
             props: {
                 onCalculate: mockOnCalculate,
-                onReset: mockOnReset
+                onClear: mockOnClear
             }
         });
 
         // Check for form elements
-        expect(screen.getByText('Calculate Your BMI')).toBeInTheDocument();
-        expect(screen.getByText('Enter your measurements below.')).toBeInTheDocument();
+        expect(screen.getByText('BMI Calculator')).toBeInTheDocument();
+        expect(screen.getByText('Fill in order: Age → Height → Weight. Click Calculate BMI to see results.')).toBeInTheDocument();
 
         // Check for input fields
         expect(screen.getByLabelText('Age (years)')).toBeInTheDocument();
@@ -25,17 +25,17 @@ describe('BmiForm', () => {
 
         // Check for buttons
         expect(screen.getByRole('button', { name: /calculate bmi/i })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /reset form/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /clear all data/i })).toBeInTheDocument();
     });
 
     it('accepts input values for all fields', async () => {
         const mockOnCalculate = vi.fn();
-        const mockOnReset = vi.fn();
+        const mockOnClear = vi.fn();
 
         render(BmiForm, {
             props: {
                 onCalculate: mockOnCalculate,
-                onReset: mockOnReset
+                onClear: mockOnClear
             }
         });
 
@@ -55,12 +55,12 @@ describe('BmiForm', () => {
 
     it('calls onCalculate when form is submitted with valid data', async () => {
         const mockOnCalculate = vi.fn();
-        const mockOnReset = vi.fn();
+        const mockOnClear = vi.fn();
 
         render(BmiForm, {
             props: {
                 onCalculate: mockOnCalculate,
-                onReset: mockOnReset
+                onClear: mockOnClear
             }
         });
 
@@ -77,37 +77,35 @@ describe('BmiForm', () => {
         // Submit form
         await fireEvent.click(calculateButton);
 
-        // Wait for the calculation delay
-        await new Promise(resolve => setTimeout(resolve, 600));
-
-        expect(mockOnCalculate).toHaveBeenCalledWith(25, 170, 70.5);
+        // Current implementation calls onCalculate() without args immediately
+        expect(mockOnCalculate).toHaveBeenCalledTimes(1);
     });
 
-    it('calls onReset when reset button is clicked', async () => {
+    it('calls onClear when reset button is clicked', async () => {
         const mockOnCalculate = vi.fn();
-        const mockOnReset = vi.fn();
+        const mockOnClear = vi.fn();
 
         render(BmiForm, {
             props: {
                 onCalculate: mockOnCalculate,
-                onReset: mockOnReset
+                onClear: mockOnClear
             }
         });
 
-        const resetButton = screen.getByRole('button', { name: /reset form/i });
+        const resetButton = screen.getByRole('button', { name: /clear all data/i });
         await fireEvent.click(resetButton);
 
-        expect(mockOnReset).toHaveBeenCalled();
+        expect(mockOnClear).toHaveBeenCalled();
     });
 
     it('disables calculate button when inputs are empty', () => {
         const mockOnCalculate = vi.fn();
-        const mockOnReset = vi.fn();
+        const mockOnClear = vi.fn();
 
         render(BmiForm, {
             props: {
                 onCalculate: mockOnCalculate,
-                onReset: mockOnReset
+                onClear: mockOnClear
             }
         });
 
@@ -117,12 +115,12 @@ describe('BmiForm', () => {
 
     it('enables calculate button when all inputs have values', async () => {
         const mockOnCalculate = vi.fn();
-        const mockOnReset = vi.fn();
+        const mockOnClear = vi.fn();
 
         render(BmiForm, {
             props: {
                 onCalculate: mockOnCalculate,
-                onReset: mockOnReset
+                onClear: mockOnClear
             }
         });
 
@@ -143,43 +141,16 @@ describe('BmiForm', () => {
         expect(calculateButton).not.toBeDisabled();
     });
 
-    it('shows loading state during calculation', async () => {
+    // Loading state is no longer part of the component; removed test
+
+    it('validates input ranges correctly (shows error messages)', async () => {
         const mockOnCalculate = vi.fn();
-        const mockOnReset = vi.fn();
+        const mockOnClear = vi.fn();
 
         render(BmiForm, {
             props: {
                 onCalculate: mockOnCalculate,
-                onReset: mockOnReset
-            }
-        });
-
-        const ageInput = screen.getByLabelText('Age (years)');
-        const heightInput = screen.getByLabelText('Height (cm)');
-        const weightInput = screen.getByLabelText('Weight (kg)');
-        const calculateButton = screen.getByRole('button', { name: /calculate bmi/i });
-
-        // Fill in form
-        await fireEvent.input(ageInput, { target: { value: '25' } });
-        await fireEvent.input(heightInput, { target: { value: '170' } });
-        await fireEvent.input(weightInput, { target: { value: '70.5' } });
-
-        // Submit form
-        await fireEvent.click(calculateButton);
-
-        // Should show loading state
-        expect(screen.getByText('Calculating...')).toBeInTheDocument();
-        expect(calculateButton).toBeDisabled();
-    });
-
-    it('validates input ranges correctly', async () => {
-        const mockOnCalculate = vi.fn();
-        const mockOnReset = vi.fn();
-
-        render(BmiForm, {
-            props: {
-                onCalculate: mockOnCalculate,
-                onReset: mockOnReset
+                onClear: mockOnClear
             }
         });
 
@@ -187,12 +158,13 @@ describe('BmiForm', () => {
         const heightInput = screen.getByLabelText('Height (cm)') as HTMLInputElement;
         const weightInput = screen.getByLabelText('Weight (kg)') as HTMLInputElement;
 
-        // Check min/max attributes
-        expect(ageInput.min).toBe('1');
-        expect(ageInput.max).toBe('120');
-        expect(heightInput.min).toBe('50');
-        expect(heightInput.max).toBe('300');
-        expect(weightInput.min).toBe('10');
-        expect(weightInput.max).toBe('500');
+        // Enter invalid values to trigger validation messages
+        await fireEvent.input(ageInput, { target: { value: '0' } });
+        await fireEvent.input(heightInput, { target: { value: '400' } });
+        await fireEvent.input(weightInput, { target: { value: '0' } });
+
+        expect(screen.getByText('Please enter a valid age between 1 and 120.')).toBeInTheDocument();
+        expect(screen.getByText('Height must be between 1-300 cm.')).toBeInTheDocument();
+        expect(screen.getByText('Weight must be between 1-1000 kg.')).toBeInTheDocument();
     });
 });

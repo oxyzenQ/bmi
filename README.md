@@ -1,16 +1,15 @@
 # 🚀 BMI Calculator SvelteKit
 
-A modern, responsive Body Mass Index calculator built with **SvelteKit**, **TypeScript**, and **Tailwind CSS**. Features a beautiful space-themed design with dark/light mode, interactive charts, and exceptional performance.
+A modern, responsive Body Mass Index calculator built with **SvelteKit** and **TypeScript**. Features a beautiful space-themed design with, interactive charts, and exceptional performance.
 
 ## ✨ Features
 
 - 🎨 **Space Theme Design** - Beautiful plasma colors and smooth animations
-- 🌙 **Dark/Light Mode** - Toggle between themes with localStorage persistence (PR)
 - 📊 **Interactive BMI Chart** - Custom SVG visualization with health tips
 - 📱 **Mobile Optimized** - Responsive design with touch-friendly interactions
 - ⚡ **Lightning Fast** - 98/100 Mobile, 99/100 Desktop Lighthouse scores
 - 🔒 **Privacy First** - All calculations performed locally
-- ♿ **Accessible** - WCAG compliant with keyboard navigation
+- ♿ **Accessible** - Simple navigation one single page
 - 🚀 **Production Ready** - Optimized for deployment on Vercel
 
 ## 🏆 Performance
@@ -21,13 +20,14 @@ A modern, responsive Body Mass Index calculator built with **SvelteKit**, **Type
 - **Largest Contentful Paint**: < 2.5s
 - **Cumulative Layout Shift**: < 0.1
 
+
 ## 🛠️ Tech Stack
 
-- **Framework**: SvelteKit 2.x with Svelte 5
+- **Framework**: SvelteKit, Svelte latest
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS v4
-- **Icons**: Font Awesome 6.4
-- **Fonts**: Inter (Google Fonts)
+- **Styling**: Modern CSS (no Tailwind)
+- **Icons**: lucide-svelte
+- **Fonts**: Inter & Jetbrainsmono via @fontsource (@fontsource-variable/x)
 - **Deployment**: Vercel
 
 ## 🚀 Quick Start
@@ -106,10 +106,9 @@ npm run test
 ## 🎯 Usage
 
 1. **Home Page** - Welcome screen with navigation
-2. **Calculator** - Enter age, gender, height, and weight
-3. **Results** - View BMI calculation with interactive chart
-4. **Theme Toggle** - Switch between dark and light modes
-5. **About** - Learn more about BMI and health
+2. **Calculator** - Enter age, height, and weight
+3. **Results** - View BMI calculation with interactive gauge chart
+4. **About** - Learn more about BMI and health
 
 ## 🚀 Deployment
 
@@ -148,8 +147,7 @@ npm run build
 ## 📊 Performance Optimizations
 
 - ✅ Server-side rendering (SSR)
-- ✅ Tailwind CSS v4 optimization
-- ✅ Custom SVG charts (no heavy libraries)
+- ✅ Custom gauge charts (no heavy libraries)
 - ✅ Lazy loading for images
 - ✅ Preload critical resources
 - ✅ Optimized bundle splitting
@@ -169,7 +167,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 👨‍💻 Author
 
-**Rezky Nightly**
+**Rezky Nightky**
 
 ---
 
