@@ -5,7 +5,7 @@ A modern, responsive Body Mass Index calculator built with **SvelteKit** and **T
 ## ✨ Features
 
 - 🎨 **Space Theme Design** - Beautiful plasma colors and smooth animations
-- 📊 **Interactive BMI Chart** - Custom Gauge visualization with health tips
+- 📊 **Interactive BMI Chart** - Custom SVG visualization with health tips
 - 📱 **Mobile Optimized** - Responsive design with touch-friendly interactions
 - ⚡ **Lightning Fast** - 98/100 Mobile, 99/100 Desktop Lighthouse scores
 - 🔒 **Privacy First** - All calculations performed locally
