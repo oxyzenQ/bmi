@@ -32,13 +32,13 @@ cargo build --release      # Build binary
 ### Android Build
 ```bash
 bun run build              # Build web (same)
-tauri android build        # Build APK
+bun tauri android build    # Build APK
 # Result: app-release.apk (~15-20 MB)
 ```
 
 ---
 
-## 📋 Requirements for Android
+## Requirements for Android
 
 You need to install Android development tools:
 
