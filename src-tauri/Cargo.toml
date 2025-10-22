@@ -1,0 +1,46 @@
+[package]
+name = "a-simple-bmi-calc"
+version = "1.0.0"
+description = "A simple BMI calc - modern, responsive Body Mass Index calculator"
+authors = ["Rezky Nightky"]
+edition = "2021"
+
+[lib]
+name = "a_simple_bmi_calc_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["protocol-asset", "devtools"] }
+tauri-plugin-shell = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
+tauri-plugin-updater = "2"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = "fat"
+opt-level = "z"  # Optimize for size (smaller than "s")
+strip = true
+incremental = false
+
+# ARM64-specific optimizations for Android/macOS/Linux
+[profile.release.package."*"]
+opt-level = "z"
+codegen-units = 1
+
+# Development profile with faster compile times
+[profile.dev]
+opt-level = 0
+incremental = true
+
+# Profile for release builds with debug info (useful for profiling)
+[profile.release-with-debug]
+inherits = "release"
+strip = false
+debug = true

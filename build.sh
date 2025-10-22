@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# BMI Calculator SvelteKit - One-Click Production Build Script
+# A Simple BMI Calc - One-Click Production Build Script
 # Author: Rezky Nightly
+# Package Manager: Bun
 
-echo "🏗️  BMI Calculator SvelteKit - Production Build"
-echo "================================================"
+echo "🏭️  A Simple BMI Calc - Production Build"
+echo "========================================="
 
 # Colors for output
 RED='\033[0;31m'
@@ -30,29 +31,21 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Check if Node.js is installed
-if ! command -v node &> /dev/null; then
-    print_error "Node.js is not installed. Please install Node.js 18+ first."
+# Check if Bun is installed
+if ! command -v bun &> /dev/null; then
+    print_error "Bun is not installed. Please install Bun first: curl -fsSL https://bun.sh/install | bash"
     exit 1
 fi
 
-print_success "Node.js $(node -v) detected"
-
-# Check if npm is available
-if ! command -v npm &> /dev/null; then
-    print_error "npm is not installed. Please install npm first."
-    exit 1
-fi
-
-print_success "npm $(npm -v) detected"
+print_success "Bun $(bun -v) detected"
 
 # Clean previous builds
 print_status "Cleaning previous builds..."
-npm run clean 2>/dev/null || true
+bun run clean 2>/dev/null || true
 
 # Install dependencies
 print_status "Installing dependencies..."
-if npm install; then
+if bun install; then
     print_success "Dependencies installed successfully"
 else
     print_error "Failed to install dependencies"
@@ -61,7 +54,7 @@ fi
 
 # Run type checking
 print_status "Running type checking..."
-if npm run type-check; then
+if bun run type-check; then
     print_success "Type checking passed"
 else
     print_error "Type checking failed"
@@ -70,7 +63,7 @@ fi
 
 # Run linting
 print_status "Running linting..."
-if npm run lint; then
+if bun run lint; then
     print_success "Linting passed"
 else
     print_error "Linting failed"
@@ -79,7 +72,7 @@ fi
 
 # Run tests
 print_status "Running tests..."
-if npm run test:run; then
+if bun run test:run; then
     print_success "Tests passed"
 else
     print_warning "Tests failed - continuing anyway"
@@ -87,7 +80,7 @@ fi
 
 # Build for production
 print_status "Building for production..."
-if npm run build; then
+if bun run build; then
     print_success "Production build completed successfully"
 else
     print_error "Production build failed"
@@ -120,4 +113,4 @@ echo "Press Ctrl+C to stop the server"
 echo ""
 
 # Start the production server
-npm run preview
+bun run preview

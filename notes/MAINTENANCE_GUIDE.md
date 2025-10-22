@@ -1,16 +1,18 @@
-# BMI Calculator - Maintenance Guide
+# A Simple BMI Calc - Maintenance Guide
 
 ## Project Overview
-This is a modern BMI (Body Mass Index) calculator web application built with SvelteKit, TypeScript, and Tailwind CSS. The application features a space-themed design with premium glassmorphism effects, interactive charts, and comprehensive health articles.
+A simple BMI calc - modern BMI (Body Mass Index) calculator web application built with SvelteKit and TypeScript. The application features a space-themed design with premium glassmorphism effects, interactive charts, and comprehensive health articles.
 
 ## Tech Stack
 - **Framework**: SvelteKit 2.x with Svelte 5
 - **Language**: TypeScript for type safety
-- **Styling**: Tailwind CSS v4 + Custom CSS
+- **Package Manager**: Bun (fast, all-in-one toolkit)
+- **Desktop/Mobile**: Tauri 2.0 (Rust-based, cross-platform)
+- **Styling**: Modern CSS (no Tailwind)
 - **Fonts**: Inter Variable (text) + JetBrains Mono Variable (numbers)
 - **Icons**: Lucide Svelte
 - **Testing**: Vitest + Testing Library
-- **Deployment**: Vercel adapter
+- **Deployment**: Vercel (web), Tauri builds (desktop/Android)
 
 ## Project Structure
 
@@ -163,13 +165,13 @@ const articles = [
 ### 1. Build Errors
 ```bash
 # Check TypeScript errors
-npm run check
+bun run check
 
 # Build production bundle
-npm run build
+bun run build
 
 # Preview production build
-npm run preview
+bun run preview
 ```
 
 ### 2. Performance Issues
@@ -189,13 +191,13 @@ npm run preview
 ### Running Tests
 ```bash
 # Run all tests
-npm test
+bun test
 
 # Run tests in watch mode
-npm run test:watch
+bun test --watch
 
 # Run tests with coverage
-npm run test:coverage
+bun test --coverage
 ```
 
 ### Test Structure
@@ -208,7 +210,7 @@ npm run test:coverage
 ### Vercel Deployment
 ```bash
 # Build for production
-npm run build
+bun run build
 
 # Deploy to Vercel (automatic via Git)
 git push origin main
@@ -226,7 +228,7 @@ No environment variables required - all calculations are client-side.
 4. **Browser Compatibility**: Test on major browsers
 
 ### Code Quality
-1. **Linting**: Run `npm run lint` before commits
+1. **Linting**: Run `bun run lint` before commits
 2. **Formatting**: Use Prettier for consistent code style
 3. **Type Safety**: Maintain strict TypeScript configuration
 4. **Testing**: Keep test coverage above 80%

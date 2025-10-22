@@ -1,0 +1,52 @@
+# Cargo configuration for optimized ARM64 builds
+# Optimizes for Android (ARM64), macOS (Apple Silicon), and Linux (ARM64)
+
+# Target-specific configurations
+[target.aarch64-unknown-linux-gnu]
+linker = "aarch64-linux-gnu-gcc"
+rustflags = ["-C", "target-cpu=generic", "-C", "target-feature=+neon"]
+
+[target.aarch64-apple-darwin]
+rustflags = ["-C", "target-cpu=apple-m1", "-C", "link-arg=-fuse-ld=lld"]
+
+[target.aarch64-linux-android]
+linker = "aarch64-linux-android-clang"
+rustflags = [
+    "-C", "target-cpu=generic",
+    "-C", "target-feature=+neon,+fp-armv8",
+    "-C", "opt-level=z"
+]
+
+# x86_64 optimizations (for comparison and CI builds)
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["-C", "target-cpu=x86-64-v2"]
+
+[target.x86_64-apple-darwin]
+rustflags = ["-C", "target-cpu=haswell"]
+
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-cpu=x86-64-v2"]
+
+# Global build settings
+[build]
+jobs = 4  # Parallel compilation jobs
+incremental = true
+
+[term]
+verbose = false
+color = "auto"
+
+# Profile aliases for easier building
+[alias]
+build-release = "build --release"
+build-arm64-android = "build --release --target aarch64-linux-android"
+build-arm64-macos = "build --release --target aarch64-apple-darwin"
+build-arm64-linux = "build --release --target aarch64-unknown-linux-gnu"
+
+# Network settings for faster dependency downloads
+[net]
+git-fetch-with-cli = true
+
+# Registry settings
+[registries.crates-io]
+protocol = "sparse"

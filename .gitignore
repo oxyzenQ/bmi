@@ -130,15 +130,19 @@ dist
 .svelte-kit/
 build/
 
+# Tauri build outputs
+src-tauri/target/
+src-tauri/gen/
+src-tauri/WixTools/
+
 # Vercel
 .vercel/
 
-# Android build outputs
-android/app/build/
-android/build/
-android/.gradle/
-android/local.properties
-android/app/release/
+# Android build outputs (Tauri-generated)
+src-tauri/gen/android/app/build/
+src-tauri/gen/android/build/
+src-tauri/gen/android/.gradle/
+src-tauri/gen/android/local.properties
 
 # iOS build outputs
 ios/build/
@@ -164,3 +168,8 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# AppImage build artifacts
+*.AppImage
+squashfs-root/
+build.log

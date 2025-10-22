@@ -1,4 +1,4 @@
 {
   "framework": "sveltekit",
-  "buildCommand": "NEXT_TELEMETRY_DISABLED=1 npm run build"
+  "buildCommand": "bun run build"
 } 
