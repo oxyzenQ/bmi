@@ -29,7 +29,7 @@
 		"@eslint/compat": "^1.4.0",
 		"@eslint/js": "^9.38.0",
 		"@fontsource-variable/jetbrains-mono": "^5.2.8",
-		"@sveltejs/adapter-vercel": "^5.10.3",
+		"@sveltejs/adapter-vercel": "^6.0.0",
 		"@sveltejs/kit": "^2.47.2",
 		"@sveltejs/vite-plugin-svelte": "^6.2.1",
 		"@testing-library/jest-dom": "^6.9.1",
@@ -47,7 +47,7 @@
 		"typescript": "^5.9.3",
 		"typescript-eslint": "^8.46.2",
 		"vite": "^7.1.11",
-		"vitest": "^3.2.4"
+		"vitest": "^4.0.1"
 	},
 	"keywords": [
 		"bmi",
