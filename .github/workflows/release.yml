@@ -30,8 +30,45 @@ jobs:
       - name: Install dependencies
         run: bun install
       
-      - name: Build project
+      - name: Install adapter-static
+        run: bun add -D @sveltejs/adapter-static
+      
+      - name: Backup original config and create static build config
+        run: |
+          # Backup original config
+          mv svelte.config.js svelte.config.js.bak
+          
+          # Create static build config
+          cat > svelte.config.js << 'EOF'
+          import adapter from '@sveltejs/adapter-static';
+          import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+
+          const config = {
+            preprocess: vitePreprocess(),
+            kit: { 
+              adapter: adapter({
+                pages: 'build',
+                assets: 'build',
+                fallback: 'index.html',
+                precompress: false,
+                strict: false
+              })
+            }
+          };
+
+          export default config;
+          EOF
+          
+          # Enable prerendering for static build
+          echo "export const prerender = true;" > src/routes/+layout.js
+      
+      - name: Build project with static adapter
         run: bun run build
+      
+      - name: Restore original config
+        run: |
+          mv svelte.config.js.bak svelte.config.js
+          rm -f src/routes/+layout.js
       
       - name: Generate changelog
         id: changelog
