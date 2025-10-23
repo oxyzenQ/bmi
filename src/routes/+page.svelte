@@ -10,12 +10,12 @@
   import { Heart, Activity, Utensils, BedDouble, Droplet, Brain, Stethoscope, Sun, Wind, Dna, FlaskConical, Leaf } from 'lucide-svelte';
   // icons for About BMI section
   import { Coffee, Lightbulb, Users, GitCompare, PackageCheck, Brush, AlertTriangle, Scale } from 'lucide-svelte';
-  
+
   let bmiValue: number | null = null;
   let articlesVisible = true;
   let articlesContainer: HTMLElement | null = null;
   let category: string | null = null;
-  
+
   // Form inputs default empty strings for validation UX
   let age: string = '';
   let height: string = '';
@@ -24,17 +24,17 @@
   let modalTitle = '';
   let modalContent = '';
   // Charts are always visible - no show/hide logic needed
-  
+
   // BMI history for tracking calculations
   let bmiHistory: Array<{bmi: number, timestamp: Date}> = [];
 
   // Lazy modal component
   let ModalComp: typeof import('$lib/components/ArticleModal.svelte').default | null = null;
-  
+
   function computeBMIFromInputs(h: string, w: string, _a: string) {
     const parsedHeight = parseFloat(h);
     const parsedWeight = parseFloat(w);
-    
+
     if (!isNaN(parsedHeight) && !isNaN(parsedWeight) && parsedHeight > 0 && parsedWeight > 0) {
       const heightInM = parsedHeight / 100;
       const bmi = parsedWeight / (heightInM * heightInM);
@@ -50,7 +50,7 @@
       } else {
         category = 'Obese';
       }
-      
+
       // Add to history
       bmiHistory = [...bmiHistory, { bmi: bmiValue, timestamp: new Date() }];
     } else {
@@ -86,10 +86,10 @@
       return;
     }
     isModalOpen = true;
-    
+
     // Prevent body scroll when modal is open
     document.body.style.overflow = 'hidden';
-    
+
     // Force modal to show with timeout
     setTimeout(() => {
       const modal = document.querySelector('.modal-overlay');
@@ -113,7 +113,7 @@
   onMount(() => {
     // Smooth scrolling optimization
     document.documentElement.style.scrollBehavior = 'smooth';
-    
+
     // Articles are now always visible by default, no lazy loading needed
     // Keep performance optimization for smooth scrolling
     const handleScroll = () => {
@@ -121,9 +121,9 @@
         // Smooth scroll handling if needed
       });
     };
-    
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-    
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
@@ -145,7 +145,7 @@
   <section class="bmi-section">
     <div class="bmi-grid">
       <div class="form-card">
-        <BmiForm 
+        <BmiForm
           bind:age
           bind:height
           bind:weight
@@ -154,17 +154,17 @@
         />
       </div>
       <div class="bmi-card">
-        <BmiResults 
+        <BmiResults
           {bmiValue}
           {category}
           age={age === '' ? null : parseInt(age)}
         />
       </div>
     </div>
-    
+
     <!-- BMI Gauge - Always visible -->
     <div class="charts-section">
-      <BmiRadialGauge 
+      <BmiRadialGauge
         bmi={bmiValue || 0}
         category={category}
       />
@@ -193,7 +193,7 @@
             iconClass="Heart"
             on:openModal={handleOpenModal}
           />
-          
+
           <ArticleCard
             title="Exercise Guidelines"
             description="Learn about effective workout routines tailored to different BMI categories and fitness levels."
@@ -201,7 +201,7 @@
             iconClass="Activity2"
             on:openModal={handleOpenModal}
           />
-          
+
           <ArticleCard
             title="Nutrition Advice"
             description="Explore balanced nutrition plans and dietary recommendations for optimal health outcomes."
@@ -300,7 +300,7 @@
         <h2 class="title">About BMI</h2>
         <p class="subtitle">Understanding Body Mass Index and our application</p>
       </div>
-      
+
       <div class="about-bmi-grid">
         <!-- What is BMI Card -->
         <div class="about-card">
@@ -332,15 +332,15 @@
           </div>
           <div class="about-card-content">
             <p>
-              Our BMI app features a modern and clean design, developed by <strong>Team LOGIGO</strong>. 
-              The team includes Rezky (Project Lead), Fiqih (Menu Design), Agus (Competitor Research), 
-              Virlan (Login Functionality), Andre (Graph and BMI Calculation Functions), and Ferdian (Website Testing). 
+              Our BMI app features a modern and clean design, developed by <strong>Team LOGIGO</strong>.
+              The team includes Rezky (Project Lead), Fiqih (Menu Design), Agus (Competitor Research),
+              Virlan (Login Functionality), Andre (Graph and BMI Calculation Functions), and Ferdian (Website Testing).
               Thank you for your support!
             </p>
             <div class="app-info">
               <p class="info-row">
                 <PackageCheck class="PackageCheck" />
-                <strong>Version:</strong>AX-1 Dev
+                <strong>Version:</strong>Stellar-3.0
               </p>
               <p class="info-row">
                 <GitCompare class="GitCompare" />
@@ -352,7 +352,7 @@
               </p>
               <p class="info-row">
                 <Scale class="Scale" />
-                <strong>License:</strong>MIT
+                <strong>License:</strong>GPL v3
               </p>
             </div>
           </div>
@@ -367,15 +367,15 @@
     <AlertTriangle class="AlertTriangle" />
   </div>
   <p>
-    BMI is a screening tool and should not be used as a sole diagnostic method. 
+    BMI is a screening tool and should not be used as a sole diagnostic method.
     Please consult healthcare professionals for comprehensive health assessment.
   </p>
 </footer>
 
 <div class="github-footer">
-  <a 
-    href="https://github.com/oxyzenq/web-oxy" 
-    target="_blank" 
+  <a
+    href="https://github.com/oxyzenq/web-oxy"
+    target="_blank"
     rel="noopener noreferrer"
     class="github-link"
   >

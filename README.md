@@ -173,7 +173,7 @@ bun run build
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+GPL v3 License - see [LICENSE.md](LICENSE.md) file for details.
 
 ## 👨‍💻 Author
 

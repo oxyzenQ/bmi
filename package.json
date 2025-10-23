@@ -62,7 +62,7 @@
 		"android"
 	],
 	"author": "Rezky Nightly",
-	"license": "MIT",
+	"license": "GPL-3.0",
 	"description": "A simple BMI calc - Modern, responsive Body Mass Index calculator built with SvelteKit and TypeScript",
 	"dependencies": {
 		"@fontsource-variable/inter": "^5.2.8",

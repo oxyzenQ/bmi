@@ -20,7 +20,7 @@
       const memory = (navigator as unknown as { deviceMemory?: number }).deviceMemory || 4;
       const cores = navigator.hardwareConcurrency || 4;
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      
+
       if (reducedMotion) return 0;
       if (memory <= 2 || cores <= 2) return 15;
       if (memory <= 4 || cores <= 4) return 25;
@@ -34,12 +34,12 @@
       // Set visible by default first
       heroContent.style.opacity = '1';
       heroContent.style.transform = 'translateY(0)';
-      
+
       // Then apply entrance animation
       heroContent.style.opacity = '0';
       heroContent.style.transform = 'translateY(20px)';
       heroContent.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-      
+
       // Immediate fallback to ensure visibility
       requestAnimationFrame(() => {
         heroContent.style.opacity = '1';
@@ -86,7 +86,7 @@
       <div class="orb orb-2"></div>
       <div class="orb orb-3"></div>
     </div>
-    
+
     <!-- Enhanced Bubble Effects -->
     <div class="bubble-container" bind:this={bubbleContainer}>
       <div class="bubble bubble-1"></div>
@@ -121,21 +121,21 @@
       <div class="bubble bubble-30"></div>
     </div>
   </div>
-  
+
   <div bind:this={heroContent} class="hero-content">
     <div class="hero-avatar" aria-hidden="true">
       <img src="/assets/logobmii.webp" alt="BMI Logo" loading="lazy" decoding="async" />
     </div>
-    
+
     <h1 class="hero-title">
       <span class="title-gradient">BMI Calculator</span>
       <Telescope class="Telescope sparkle-icon" />
     </h1>
-    
+
     <p class="hero-subtitle">
       Explore the cosmos of your body — discover your balance under the stars.
     </p>
-    
+
     <div class="hero-features">
       <div class="feature">
         <SquareSigma class="SquareSigma" />
@@ -150,10 +150,10 @@
         <span>Modern Design</span>
       </div>
     </div>
-    
+
     <div class="hero-bottom">
       <p class="hero-bottom-text">
-        Stellar Edition v2 dev
+        Stellar Edition 3.0
       </p>
     </div>
   </div>
