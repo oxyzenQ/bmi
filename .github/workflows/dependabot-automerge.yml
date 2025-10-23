@@ -33,13 +33,6 @@ jobs:
       - name: Build check
         run: bun run build
       
-      - name: Auto-approve PR
-        if: success()
-        run: gh pr review --approve "$PR_URL"
-        env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      
       - name: Enable auto-merge
         if: success()
         run: gh pr merge --auto --squash "$PR_URL"
@@ -50,7 +43,7 @@ jobs:
       - name: Comment on success
         if: success()
         run: |
-          gh pr comment "$PR_URL" --body "✅ Auto-merge enabled! This PR will merge automatically once all checks pass."
+          gh pr comment "$PR_URL" --body "✅ Dependabot PR validated! Auto-merge enabled - will merge once all checks pass."
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
