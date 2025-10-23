@@ -5,9 +5,9 @@
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   
-  let showSplash = true;
-  let showMainContent = false;
-  const splashDuration = 10000; // 10s relaxed experience
+  let showSplash = false; // Disabled by default
+  let showMainContent = true; // Show content immediately
+  const splashDuration = 10000; // 10s relaxed experience (if enabled)
   
   onMount(() => {
     // Register service worker for caching
