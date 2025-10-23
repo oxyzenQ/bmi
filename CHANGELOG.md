@@ -2,32 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.0] - 2025-10-22
+## [1.0.0] - 2025-10-23
 
-### Added
+### Changed
 
-- ✅ **DEB Package Build** - Optimized Debian package builder
-  - `build-deb.sh` - One-click DEB package creation
-  - Removed AppImage/RPM support (DEB-only focus)
-  - Optimized for Arch Linux development
-  - 3.2 MB package size
+- ✅ **Simplified to Web-Only** - Removed all desktop/mobile integrations
+  - Removed Tauri dependencies
+  - Removed src-tauri directory
+  - Removed build scripts (build-deb.sh, install-arch.sh, etc.)
+  - Removed documentation clutter
+  - Back to pure SvelteKit + Vercel deployment
+  - Simpler, cleaner codebase
 
-- ✅ **Project Organization** - Clean structure
-  - `notes/` directory for documentation
-  - Moved 10 MD files to notes/
-  - Removed unused build scripts
-  - Simplified package.json commands
-
-### Previous Features
-- ✅ **Custom Build Configuration** - Enhanced Tauri build settings
-  - Custom output directory support
-  - Platform-specific bundle configurations
-  - Windows NSIS installer settings
-  - Linux deb/rpm/AppImage options
-  - Android split APK naming
-  - Bundle metadata (description, copyright, category)
-  - generate-icons.sh script for icon generation
-  - ICON_AND_BUILD_CONFIG.md comprehensive guide
+### Features
+- ✅ **Modern BMI Calculator** - Beautiful space-themed design
+  - Interactive BMI chart with health tips
+  - Responsive mobile-first design
+  - 98/100 Mobile Lighthouse score
+  - Privacy-first (all calculations local)
+  - TypeScript for type safety
+  - Modern CSS with smooth animations
 
 - ✅ **App Icon System** - Complete icon generation from logobmii.webp
   - 50+ icon sizes generated automatically

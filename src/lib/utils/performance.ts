@@ -1,0 +1,184 @@
+/**
+ * Performance monitoring utilities
+ */
+
+export interface PerformanceMetrics {
+	fcp?: number; // First Contentful Paint
+	lcp?: number; // Largest Contentful Paint
+	fid?: number; // First Input Delay
+	cls?: number; // Cumulative Layout Shift
+	ttfb?: number; // Time to First Byte
+}
+
+/**
+ * Report Core Web Vitals for monitoring
+ */
+export function reportWebVitals(onReport: (metric: { name: string; value: number }) => void) {
+	if (typeof window === 'undefined') return;
+
+	// FCP - First Contentful Paint
+	const fcpObserver = new PerformanceObserver((list) => {
+		const entries = list.getEntries();
+		const fcpEntry = entries.find(entry => entry.name === 'first-contentful-paint');
+		if (fcpEntry) {
+			onReport({ name: 'FCP', value: fcpEntry.startTime });
+		}
+	});
+	
+	try {
+		fcpObserver.observe({ entryTypes: ['paint'] });
+	} catch (e) {
+		// Paint timing not supported
+	}
+
+	// LCP - Largest Contentful Paint
+	const lcpObserver = new PerformanceObserver((list) => {
+		const entries = list.getEntries();
+		const lastEntry = entries[entries.length - 1];
+		if (lastEntry) {
+			onReport({ name: 'LCP', value: lastEntry.startTime });
+		}
+	});
+
+	try {
+		lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
+	} catch (e) {
+		// LCP not supported
+	}
+
+	// FID - First Input Delay
+	const fidObserver = new PerformanceObserver((list) => {
+		const entries = list.getEntries();
+		const firstInput = entries[0];
+		if (firstInput && 'processingStart' in firstInput) {
+			const fid = (firstInput as any).processingStart - firstInput.startTime;
+			onReport({ name: 'FID', value: fid });
+		}
+	});
+
+	try {
+		fidObserver.observe({ entryTypes: ['first-input'] });
+	} catch (e) {
+		// FID not supported
+	}
+
+	// CLS - Cumulative Layout Shift
+	let clsValue = 0;
+	const clsObserver = new PerformanceObserver((list) => {
+		for (const entry of list.getEntries()) {
+			if (!(entry as any).hadRecentInput) {
+				clsValue += (entry as any).value;
+				onReport({ name: 'CLS', value: clsValue });
+			}
+		}
+	});
+
+	try {
+		clsObserver.observe({ entryTypes: ['layout-shift'] });
+	} catch (e) {
+		// CLS not supported
+	}
+}
+
+/**
+ * Lazy load component with loading state
+ */
+export async function lazyLoad<T>(
+	importer: () => Promise<{ default: T }>,
+	onLoading?: () => void,
+	onLoaded?: () => void
+): Promise<T> {
+	onLoading?.();
+	try {
+		const module = await importer();
+		onLoaded?.();
+		return module.default;
+	} catch (error) {
+		console.error('Failed to lazy load component:', error);
+		throw error;
+	}
+}
+
+/**
+ * Debounce function for performance
+ */
+export function debounce<T extends (...args: any[]) => any>(
+	func: T,
+	wait: number
+): (...args: Parameters<T>) => void {
+	let timeout: ReturnType<typeof setTimeout> | null = null;
+	
+	return function executedFunction(...args: Parameters<T>) {
+		const later = () => {
+			timeout = null;
+			func(...args);
+		};
+		
+		if (timeout) clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+	};
+}
+
+/**
+ * Throttle function for performance
+ */
+export function throttle<T extends (...args: any[]) => any>(
+	func: T,
+	limit: number
+): (...args: Parameters<T>) => void {
+	let inThrottle: boolean;
+	
+	return function executedFunction(...args: Parameters<T>) {
+		if (!inThrottle) {
+			func(...args);
+			inThrottle = true;
+			setTimeout(() => (inThrottle = false), limit);
+		}
+	};
+}
+
+/**
+ * Check if device prefers reduced motion
+ */
+export function prefersReducedMotion(): boolean {
+	if (typeof window === 'undefined') return false;
+	return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/**
+ * Get device performance tier (high, medium, low)
+ */
+export function getPerformanceTier(): 'high' | 'medium' | 'low' {
+	if (typeof window === 'undefined') return 'medium';
+
+	// Check for hardware concurrency (CPU cores)
+	const cores = navigator.hardwareConcurrency || 2;
+	
+	// Check for device memory (if available)
+	const memory = (navigator as any).deviceMemory || 4; // Default to 4GB
+
+	// Check for connection type
+	const connection = (navigator as any).connection;
+	const effectiveType = connection?.effectiveType || '4g';
+
+	// Determine tier
+	if (cores >= 8 && memory >= 8 && (effectiveType === '4g' || !connection)) {
+		return 'high';
+	} else if (cores >= 4 && memory >= 4) {
+		return 'medium';
+	} else {
+		return 'low';
+	}
+}
+
+/**
+ * Preload image for better perceived performance
+ */
+export function preloadImage(src: string): Promise<void> {
+	return new Promise((resolve, reject) => {
+		const img = new Image();
+		img.onload = () => resolve();
+		img.onerror = reject;
+		img.src = src;
+	});
+}

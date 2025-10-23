@@ -25,11 +25,10 @@ A simple BMI calc - modern, responsive Body Mass Index calculator built with **S
 
 - **Framework**: SvelteKit, Svelte latest
 - **Language**: TypeScript
-- **Desktop/Mobile**: Tauri 2.0 (Rust-based)
 - **Styling**: Modern CSS (no Tailwind)
 - **Icons**: lucide-svelte
 - **Fonts**: Inter & Jetbrainsmono via @fontsource (@fontsource-variable/x)
-- **Deployment**: Vercel (web), Tauri (desktop/Android)
+- **Deployment**: Vercel
 
 ## 🚀 Quick Start
 
@@ -126,73 +125,6 @@ bun run build
 # Upload build/ directory to your hosting provider
 ```
 
-## 📱 Desktop & Mobile (Tauri)
-
-### Prerequisites for Tauri
-
-**Linux:**
-```bash
-sudo apt update
-sudo apt install libwebkit2gtk-4.1-dev \
-  build-essential \
-  curl \
-  wget \
-  file \
-  libxdo-dev \
-  libssl-dev \
-  libayatana-appindicator3-dev \
-  librsvg2-dev
-```
-
-**macOS:**
-```bash
-xcode-select --install
-```
-
-**Windows:**
-- Install [Microsoft Visual Studio C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-- Install [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/)
-
-### Tauri Development
-
-```bash
-# Run desktop app in development mode
-bun tauri:dev
-
-# Build desktop app for current platform
-bun tauri:build
-
-# Generate app icons from source image
-bun tauri:icon path/to/icon.png
-```
-
-### Android Development with Tauri
-
-**Prerequisites:**
-1. Install [Android Studio](https://developer.android.com/studio)
-2. Install Android SDK and NDK
-3. Set up environment variables
-
-```bash
-# Initialize Android project (first time only)
-bun tauri android init
-
-# Run on Android device/emulator
-bun tauri:dev:android
-
-# Build Android APK/AAB
-bun tauri:build:android
-```
-
-### Build Targets
-
-Desktop builds are available for:
-- **Windows** (`.exe`, `.msi`)
-- **macOS** (`.app`, `.dmg`)
-- **Linux** (`.deb`, `.AppImage`)
-
-Mobile builds:
-- **Android** (`.apk`, `.aab`)
 
 ## 🔧 Development
 
@@ -207,13 +139,6 @@ Mobile builds:
 - `bun test` - Run tests
 - `bun run clean` - Clean build directories
 
-**Tauri (Desktop):**
-- `bun tauri:dev` - Run desktop app in dev mode
-- `bun tauri:build` - Build desktop app
-- `./src-tauri/target/release/a-simple-bmi-calc` - Run built binary
-- `./install-arch.sh` - Install on Arch Linux (to ~/.local/bin)
-- `./build-deb.sh` - Build DEB package (for Debian/Ubuntu users)
-- `bun tauri:icon:generate` - Generate icons from logobmii.webp
 
 ### Code Quality
 
@@ -232,15 +157,11 @@ Mobile builds:
 - ✅ Optimized bundle splitting
 - ✅ Mobile-first responsive design
 
-### Build Optimizations (ARM64)
-- ✅ **50-60% smaller** binaries with LTO and size optimization
-- ✅ **ARM64-specific** compiler flags (NEON, M1 optimization)
-- ✅ **Split APKs** per ABI for Android (smaller downloads)
-- ✅ **Stripped debug symbols** in release builds
+### Build Optimizations
 - ✅ **ES2020 target** for modern JavaScript
 - ✅ **esbuild minification** for faster builds
-
-**📖 See [BUILD_OPTIMIZATION.md](BUILD_OPTIMIZATION.md) for detailed optimization guide**
+- ✅ **Tree shaking** for minimal bundle size
+- ✅ **Code splitting** for optimal loading
 
 ## 🤝 Contributing
 

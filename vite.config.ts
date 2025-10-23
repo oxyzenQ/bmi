@@ -8,17 +8,18 @@ export default defineConfig({
 	},
 	build: {
 		// Production optimizations
-		target: 'es2020', // Modern browsers + Tauri WebView
+		target: 'es2022', // Latest modern browsers for smaller output
 		minify: 'esbuild', // Fast minification
-		cssMinify: true,
+		cssMinify: 'lightningcss', // Faster CSS minification
 		sourcemap: false, // Disable sourcemaps for smaller builds
+		cssCodeSplit: true, // Split CSS for better caching
 		rollupOptions: {
 			output: {
 				// Optimize chunk splitting
 				manualChunks: {
-					// Vendor chunks for better caching
-					'svelte-core': ['svelte', 'svelte/internal'],
-					'lucide': ['lucide-svelte']
+						// Vendor chunks for better caching
+					'svelte-vendor': ['svelte'],
+					'icons': ['lucide-svelte']
 				},
 				// Smaller output file names
 				compact: true,
@@ -32,14 +33,17 @@ export default defineConfig({
 		chunkSizeWarningLimit: 600,
 		// Report compressed size
 		reportCompressedSize: true,
-		// Asset inlining threshold (bytes)
-		assetsInlineLimit: 4096
+		// Asset inlining threshold (bytes) - inline small assets
+		assetsInlineLimit: 8192, // 8KB threshold for better performance
 	},
 	optimizeDeps: {
-		// Pre-bundle dependencies
+		// Pre-bundle dependencies for faster dev server
 		include: ['svelte', 'lucide-svelte'],
-		// Force optimize
-		force: false
+		exclude: [], // Exclude nothing
+		// Esbuild options
+		esbuildOptions: {
+			target: 'es2022'
+		}
 	},
 	server: {
 		// Development server optimizations

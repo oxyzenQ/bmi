@@ -1,7 +1,0 @@
-# Tauri build outputs
-/target
-/gen
-WixTools
-
-# Cargo lock for libraries
-# Cargo.lock

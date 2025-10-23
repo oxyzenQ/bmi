@@ -3,12 +3,20 @@
   import CosmicParticles from '$lib/components/CosmicParticles.svelte';
   import SplashScreen from '$lib/components/SplashScreen.svelte';
   import { onMount } from 'svelte';
+  import { browser } from '$app/environment';
   
   let showSplash = true;
   let showMainContent = false;
   const splashDuration = 10000; // 10s relaxed experience
   
   onMount(() => {
+    // Register service worker for caching
+    if (browser && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js').catch((err) => {
+        console.log('Service worker registration failed:', err);
+      });
+    }
+
     // Reveal main content slightly before auto-hide, aligned with exit phase (~91.7% of duration)
     const exitPhaseRatio = 5.5 / 6; // from original 6s design
     const revealDelay = Math.round(splashDuration * exitPhaseRatio);
@@ -25,10 +33,6 @@
   }
 </script>
 
-<svelte:head>
-  <link rel="icon" href="/favicon.webp" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-</svelte:head>
 
 <SplashScreen 
   bind:show={showSplash} 

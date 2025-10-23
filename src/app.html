@@ -5,6 +5,10 @@
 		<link rel="icon" href="%sveltekit.assets%/assets/logobmii.webp" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		
+		<!-- Performance: DNS prefetch and preconnect -->
+		<link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		
 		<!-- SEO and accessibility -->
 		<meta name="description" content="A simple BMI calc - modern, responsive Body Mass Index calculator with space-themed design. Calculate your BMI and learn about your health status." />
 		<meta name="keywords" content="BMI calculator, body mass index, health, fitness, weight calculator" />
@@ -26,7 +30,7 @@
 		<meta name="theme-color" content="#070a1c" />
 		<meta name="msapplication-TileColor" content="#070a1c" />
 		
-		<!-- Security headers: only set via HTTP headers in production -->
+		<!-- Security headers -->
 		<meta http-equiv="X-Content-Type-Options" content="nosniff" />
 		<meta http-equiv="X-XSS-Protection" content="1; mode=block" />
 		
