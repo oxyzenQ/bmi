@@ -6,11 +6,10 @@
 
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg?style=plastic)](LICENSE.md)
 [![Version](https://img.shields.io/badge/version-1.0-brightgreen.svg?style=plastic)](https://github.com/oxchin/DEVV3/releases)
-[![Security](https://img.shields.io/badge/security-A+-success.svg?style=plastic&logo=security)](https://github.com/oxchin/DEVV3)
+[![CodeQL](https://github.com/oxchin/DEVV3/workflows/CodeQL%20Security%20Scan/badge.svg?style=plastic)](https://github.com/oxchin/DEVV3/security/code-scanning)
 [![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?style=plastic&logo=svelte&logoColor=white)](https://kit.svelte.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=plastic&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Bun](https://img.shields.io/badge/Bun-000000?style=plastic&logo=bun&logoColor=white)](https://bun.sh)
-[![Performance](https://img.shields.io/badge/Lighthouse-98%2B-brightgreen.svg?style=plastic&logo=lighthouse)](https://github.com/oxchin/DEVV3)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=plastic)](CONTRIBUTING.md)
 
 [Demo](https://devv-3.vercel.app) • [Download](https://github.com/oxchin/DEVV3/releases) • [Report Bug](https://github.com/oxchin/DEVV3/issues)
