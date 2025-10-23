@@ -161,7 +161,6 @@ describe('ArticleModal', () => {
             }
         });
 
-        const dialog = screen.getByRole('dialog');
         const closeButton = screen.getByRole('button', { name: /close modal/i });
 
         // Focus the close button first
