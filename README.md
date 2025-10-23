@@ -1,184 +1,125 @@
-# 🚀 A Simple BMI Calc
+<div align="center">
 
-A simple BMI calc - modern, responsive Body Mass Index calculator built with **SvelteKit** and **TypeScript**. Features a beautiful space-themed design with interactive charts and exceptional performance.
+# 🚀 BMI Calculator Stellar Edition
 
-## ✨ Features
+**Modern, Fast, Privacy-First Body Mass Index Calculator**
 
-- 🎨 **Space Theme Design** - Beautiful plasma colors and smooth animations
-- 📊 **Interactive BMI Chart** - Custom SVG visualization with health tips
-- 📱 **Mobile Optimized** - Responsive design with touch-friendly interactions
-- ⚡ **Lightning Fast** - 98/100 Mobile, 99/100 Desktop Lighthouse scores
-- 🔒 **Privacy First** - All calculations performed locally
-- ♿ **Accessible** - Simple navigation one single page
-- 🚀 **Production Ready** - Optimized for deployment on Vercel
+[![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg?style=flat-square)](LICENSE.md)
+[![Version](https://img.shields.io/badge/version-1.0-brightgreen.svg?style=flat-square)](https://github.com/oxchin/DEVV3/releases)
+[![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?style=flat-square&logo=svelte&logoColor=white)](https://kit.svelte.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Bun](https://img.shields.io/badge/Bun-000000?style=flat-square&logo=bun&logoColor=white)](https://bun.sh)
+[![Performance](https://img.shields.io/badge/Lighthouse-98%2B-brightgreen.svg?style=flat-square&logo=lighthouse)](https://github.com/oxchin/DEVV3)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
 
-## 🏆 Performance
+[Demo](https://your-demo-url.vercel.app) • [Download](https://github.com/oxchin/DEVV3/releases) • [Report Bug](https://github.com/oxchin/DEVV3/issues)
 
-- **Mobile**: 98/100 Lighthouse Performance
-- **Desktop**: 99/100 Lighthouse Performance
-- **First Contentful Paint**: < 1.5s
-- **Largest Contentful Paint**: < 2.5s
-- **Cumulative Layout Shift**: < 0.1
-
-
-## 🛠️ Tech Stack
-
-- **Framework**: SvelteKit, Svelte latest
-- **Language**: TypeScript
-- **Styling**: Modern CSS (no Tailwind)
-- **Icons**: lucide-svelte
-- **Fonts**: Inter & Jetbrainsmono via @fontsource (@fontsource-variable/x)
-- **Deployment**: Vercel
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Bun 1.0+ (Package manager & runtime)
-- Install Bun: `curl -fsSL https://bun.sh/install | bash`
-
-### One-Click Development
-
-```bash
-# Start development server with all checks
-./dev.sh
-```
-
-### One-Click Production Build
-
-```bash
-# Build and serve production version
-./build.sh
-```
-
-### Manual Commands
-
-```bash
-# Install dependencies
-bun install
-
-# Development
-bun run dev
-
-# Build for production
-bun run build
-
-# Preview production build
-bun run preview
-
-# Type checking
-bun run type-check
-
-# Linting
-bun run lint
-
-# Format code
-bun run format
-
-# Run tests
-bun test
-```
-
-## 📁 Project Structure
-
-```
-├── src/
-│   ├── lib/
-│   │   ├── components/     # Reusable components
-│   │   │   ├── BmiChart.svelte
-│   │   │   ├── ThemeToggle.svelte
-│   │   │   └── LoadingSpinner.svelte
-│   │   └── stores/         # Svelte stores
-│   │       └── theme.ts
-│   ├── routes/             # SvelteKit pages
-│   │   ├── +page.svelte    # Home page
-│   │   ├── calculator/     # BMI calculator
-│   │   └── about/          # About page
-│   ├── app.css             # Global styles
-│   └── app.html            # HTML template
-├── static/                 # Public assets
-│   └── assets/             # Images and icons
-├── dev.sh                  # One-click development
-├── build.sh                # One-click production
-└── package.json
-```
-
-## 🎯 Usage
-
-1. **Home Page** - Welcome screen with navigation
-2. **Calculator** - Enter age, height, and weight
-3. **Results** - View BMI calculation with interactive gauge chart
-4. **About** - Learn more about BMI and health
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-
-1. Push to GitHub
-2. Connect repository to Vercel
-3. Deploy automatically
-
-### Manual Deployment
-
-```bash
-bun run build
-# Upload build/ directory to your hosting provider
-```
-
-
-## 🔧 Development
-
-### Available Scripts
-
-**Web Development:**
-- `bun run dev` - Start development server
-- `bun run build` - Build for production
-- `bun run preview` - Preview production build
-- `bun run check` - Type checking and linting
-- `bun run format` - Format code with Prettier
-- `bun test` - Run tests
-- `bun run clean` - Clean build directories
-
-
-### Code Quality
-
-- **TypeScript** for type safety
-- **ESLint** for code linting
-- **Prettier** for code formatting
-- **Svelte Check** for Svelte-specific validation
-
-## 📊 Performance Optimizations
-
-### Web Performance
-- ✅ Server-side rendering (SSR)
-- ✅ Custom gauge charts (no heavy libraries)
-- ✅ Lazy loading for images
-- ✅ Preload critical resources
-- ✅ Optimized bundle splitting
-- ✅ Mobile-first responsive design
-
-### Build Optimizations
-- ✅ **ES2020 target** for modern JavaScript
-- ✅ **esbuild minification** for faster builds
-- ✅ **Tree shaking** for minimal bundle size
-- ✅ **Code splitting** for optimal loading
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
-
-## 📄 License
-
-GPL v3 License - see [LICENSE.md](LICENSE.md) file for details.
-
-## 👨‍💻 Author
-
-**Rezky Nightky**
+</div>
 
 ---
 
-⭐ **Star this repository if you found it helpful!**
+## ✨ Highlights
+
+🎨 **Space-Themed UI** • 📊 **Interactive Charts** • ⚡ **98+ Lighthouse Score** • 🔒 **Privacy-First** • 📱 **Mobile-Ready**
+
+## 🛠️ Stack
+
+**SvelteKit** • **TypeScript** • **Bun** • **Vite** • **Lucide Icons**
+
+## 🚀 Quick Start
+
+```bash
+# Clone repository
+git clone https://github.com/oxchin/DEVV3.git
+cd DEVV3
+
+# Install dependencies
+bun install
+
+# Development server
+bun run dev
+
+# Production build
+bun run build && bun run preview
+```
+
+## 📦 Scripts
+
+| Command | Action |
+|---------|--------|
+| `bun run dev` | Start dev server |
+| `bun run build` | Build for production |
+| `bun run preview` | Preview build |
+| `bun run format` | Format code |
+| `bun run lint` | Lint code |
+| `bun test` | Run tests |
+
+## 🚢 Deployment
+
+<details>
+<summary><b>Vercel (Recommended)</b></summary>
+
+1. Push to GitHub
+2. Import on [Vercel](https://vercel.com)
+3. Deploy automatically ✨
+</details>
+
+<details>
+<summary><b>Release Package</b></summary>
+
+Download from [Releases](https://github.com/oxchin/DEVV3/releases) and extract:
+
+```bash
+unzip bmi-stellar-edition-1.0.zip -d bmi-calculator
+cd bmi-calculator
+bun install
+bun run preview
+```
+</details>
+
+## 🏗️ Architecture
+
+```
+src/
+├── lib/
+│   ├── components/      # UI components
+│   └── stores/          # State management
+├── routes/              # Pages
+│   ├── +page.svelte     # Home
+│   ├── calculator/      # Calculator
+│   └── about/           # About
+└── app.css              # Global styles
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please check our [Contributing Guidelines](.github/CONTRIBUTING.md).
+
+```bash
+# Fork, clone, and create a branch
+git checkout -b feature/amazing-feature
+
+# Make changes and test
+bun test && bun run lint
+
+# Commit and push
+git commit -m "Add amazing feature"
+git push origin feature/amazing-feature
+```
+
+## 📄 License
+
+Licensed under **GPL-3.0** - see [LICENSE.md](LICENSE.md) for details.
+
+---
+
+<div align="center">
+
+**Built by Team LOGIGO** • **Powered by SvelteKit**
+
+[![GitHub Stars](https://img.shields.io/github/stars/oxchin/DEVV3?style=social)](https://github.com/oxchin/DEVV3)
+[![GitHub Forks](https://img.shields.io/github/forks/oxchin/DEVV3?style=social)](https://github.com/oxchin/DEVV3/fork)
+
+[⬆ Back to Top](#-bmi-calculator-stellar-edition)
+
+</div>
