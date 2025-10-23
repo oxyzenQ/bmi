@@ -5,14 +5,14 @@
 **Modern, Fast, Privacy-First Body Mass Index Calculator**
 
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg?style=plastic)](LICENSE.md)
-[![Version](https://img.shields.io/badge/version-1.0-brightgreen.svg?style=plastic)](https://github.com/oxchin/DEVV3/releases)
-[![CodeQL](https://github.com/oxchin/DEVV3/workflows/CodeQL%20Security%20Scan/badge.svg?style=plastic)](https://github.com/oxchin/DEVV3/security/code-scanning)
+[![Version](https://img.shields.io/badge/version-1.0-brightgreen.svg?style=plastic)](https://github.com/oxyzenq/bmi/releases)
+[![CodeQL](https://github.com/oxyzenq/bmi/workflows/CodeQL%20Security%20Scan/badge.svg?style=plastic)](https://github.com/oxyzenq/bmi/security/code-scanning)
 [![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?style=plastic&logo=svelte&logoColor=white)](https://kit.svelte.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=plastic&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Bun](https://img.shields.io/badge/Bun-000000?style=plastic&logo=bun&logoColor=white)](https://bun.sh)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=plastic)](CONTRIBUTING.md)
 
-[Demo](https://devv-3.vercel.app) • [Download](https://github.com/oxchin/DEVV3/releases) • [Report Bug](https://github.com/oxchin/DEVV3/issues)
+[Demo](https://devv-3.vercel.app) • [Download](https://github.com/oxyzenq/bmi/releases) • [Report Bug](https://github.com/oxyzenq/bmi/issues)
 
 </div>
 
@@ -30,8 +30,8 @@
 
 ```bash
 # Clone repository
-git clone https://github.com/oxchin/DEVV3.git
-cd DEVV3
+git clone https://github.com/oxyzenq/bmi.git
+cd bmi
 
 # Install dependencies
 bun install
@@ -67,7 +67,7 @@ bun run build && bun run preview
 <details>
 <summary><b>Release Package</b></summary>
 
-Download from [Releases](https://github.com/oxchin/DEVV3/releases) and extract:
+Download from [Releases](https://github.com/oxyzenq/bmi/releases) and extract:
 
 ```bash
 unzip bmi-stellar-edition-1.0.zip -d bmi-calculator
@@ -117,8 +117,8 @@ Licensed under **GPL-3.0** - see [LICENSE.md](LICENSE.md) for details.
 
 **Built by Team LOGIGO** • **Powered by SvelteKit**
 
-[![GitHub Stars](https://img.shields.io/github/stars/oxchin/DEVV3?style=social)](https://github.com/oxchin/DEVV3)
-[![GitHub Forks](https://img.shields.io/github/forks/oxchin/DEVV3?style=social)](https://github.com/oxchin/DEVV3/fork)
+[![GitHub Stars](https://img.shields.io/github/stars/oxyzenq/bmi?style=social)](https://github.com/oxyzenq/bmi)
+[![GitHub Forks](https://img.shields.io/github/forks/oxyzenq/bmi?style=social)](https://github.com/oxyzenq/bmi/fork)
 
 [⬆ Back to Top](#-bmi-calculator-stellar-edition)
 

@@ -33,7 +33,7 @@ CodeQL runs automatically on:
 
 ### Option 1: GitHub Security Tab
 ```
-https://github.com/oxchin/DEVV3/security/code-scanning
+https://github.com/oxyzenq/bmi/security/code-scanning
 ```
 
 **Shows:**
@@ -44,7 +44,7 @@ https://github.com/oxchin/DEVV3/security/code-scanning
 
 ### Option 2: Actions Tab
 ```
-https://github.com/oxchin/DEVV3/actions/workflows/codeql.yml
+https://github.com/oxyzenq/bmi/actions/workflows/codeql.yml
 ```
 
 **Shows:**
@@ -336,7 +336,7 @@ Expected findings: 0-1 issues
 ### 1. Check First Scan
 ```
 # Go to:
-https://github.com/oxchin/DEVV3/actions
+https://github.com/oxyzenq/bmi/actions
 
 # Look for: "CodeQL Security Scan"
 # Status: Should be running or completed
@@ -345,7 +345,7 @@ https://github.com/oxchin/DEVV3/actions
 ### 2. View Results
 ```
 # Go to:
-https://github.com/oxchin/DEVV3/security/code-scanning
+https://github.com/oxyzenq/bmi/security/code-scanning
 
 # Should show: "No alerts found" or list of issues
 ```
@@ -374,7 +374,7 @@ Ongoing: Automatic monitoring
 Want to show security status in README?
 
 ```markdown
-[![CodeQL](https://github.com/oxchin/DEVV3/workflows/CodeQL/badge.svg)](https://github.com/oxchin/DEVV3/actions?query=workflow%3ACodeQL)
+[![CodeQL](https://github.com/oxyzenq/bmi/workflows/CodeQL/badge.svg)](https://github.com/oxyzenq/bmi/actions?query=workflow%3ACodeQL)
 ```
 
 ---

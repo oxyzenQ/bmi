@@ -5,7 +5,7 @@ Thank you for your interest in contributing! 🎉
 ## Getting Started
 
 1. **Fork** the repository
-2. **Clone** your fork: `git clone https://github.com/YOUR_USERNAME/DEVV3.git`
+2. **Clone** your fork: `git clone https://github.com/YOUR_USERNAME/bmi.git`
 3. **Install** dependencies: `bun install`
 4. **Create** a branch: `git checkout -b feature/your-feature`
 
@@ -55,7 +55,7 @@ Use clear, descriptive commit messages:
 
 ## Questions?
 
-Open an [issue](https://github.com/oxchin/DEVV3/issues) for questions or discussions.
+Open an [issue](https://github.com/oxyzenq/bmi/issues) for questions or discussions.
 
 ---
 
