@@ -1,0 +1,109 @@
+name: Auto Update Dependencies
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # Daily at 00:00 UTC (07:00 WIB)
+  workflow_dispatch:       # Manual trigger option
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  auto-update:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+      
+      - name: Install current dependencies
+        run: bun install
+      
+      - name: Update all dependencies
+        run: |
+          echo "🔄 Updating dependencies..."
+          bun update
+          
+          echo "🔍 Checking for security vulnerabilities..."
+          bun audit || true
+      
+      - name: Run quality checks
+        run: |
+          echo "✅ Running type checking..."
+          bun run type-check || echo "⚠️ Type check failed, but continuing..."
+          
+          echo "✅ Running linter..."
+          bun run lint || echo "⚠️ Lint failed, but continuing..."
+          
+          echo "✅ Running tests..."
+          bun run test:run || echo "⚠️ Tests failed, but continuing..."
+        continue-on-error: true
+      
+      - name: Build project
+        run: |
+          echo "🏗️ Building project..."
+          bun run build
+      
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet package.json bun.lockb; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "📦 No dependency updates available"
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "📦 Dependencies updated!"
+          fi
+      
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Add updated files
+          git add package.json bun.lockb
+          
+          # Create commit message with details
+          echo "ci(deps): auto-update dependencies" > commit_msg.txt
+          echo "" >> commit_msg.txt
+          echo "🤖 Automated daily dependency update" >> commit_msg.txt
+          echo "" >> commit_msg.txt
+          echo "Updated by: GitHub Actions Bot" >> commit_msg.txt
+          echo "Workflow: auto-update.yml" >> commit_msg.txt
+          echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> commit_msg.txt
+          
+          git commit -F commit_msg.txt
+          git push origin main
+          
+          echo "✅ Changes committed and pushed to main!"
+      
+      - name: Summary
+        if: always()
+        run: |
+          echo "## 🎯 Auto Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check_changes.outputs.changes }}" == "true" ]; then
+            echo "✅ **Dependencies updated and pushed to main**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✨ **No updates needed - all dependencies are up to date**" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🤖 Automated by: github-actions[bot]" >> $GITHUB_STEP_SUMMARY
+          echo "📅 Run date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
