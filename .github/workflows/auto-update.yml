@@ -28,7 +28,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
           restore-keys: |
             ${{ runner.os }}-bun-
       
@@ -63,12 +63,14 @@ jobs:
       - name: Check for changes
         id: check_changes
         run: |
-          if git diff --quiet package.json bun.lockb; then
+          git add -A
+          if git diff --staged --quiet; then
             echo "changes=false" >> $GITHUB_OUTPUT
             echo "📦 No dependency updates available"
           else
             echo "changes=true" >> $GITHUB_OUTPUT
             echo "📦 Dependencies updated!"
+            git diff --staged --stat
           fi
       
       - name: Commit and push changes
@@ -76,9 +78,6 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
-          # Add updated files
-          git add package.json bun.lockb
           
           # Create commit message with details
           echo "ci(deps): auto-update dependencies" > commit_msg.txt
