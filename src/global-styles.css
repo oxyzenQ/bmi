@@ -1529,7 +1529,6 @@ button[aria-disabled="true"] {
   margin: 0;
   font-size: 4rem;
   font-weight: 700;
-  line-height: 1.05;
   letter-spacing: -0.02em;
   text-align: center;
   background: var(--bg-cosmic);
@@ -1766,14 +1765,14 @@ button[aria-disabled="true"] {
 }
 
 .ref-card {
-  padding: 4rem;
   display: grid;
   place-items: center;
-  margin-bottom: clamp(1rem, 4vw, 2rem);
+  margin-bottom: clamp(1.5rem, 4vw, 2rem);
 }
 
 .ref-card .title {
   padding: 1rem;
+  margin-bottom: 0.5rem;
   width: 100%;
   font-size: 2.5rem;
   text-align: center;
@@ -1784,9 +1783,9 @@ button[aria-disabled="true"] {
 }
 
 .ref-card .subtitle {
+  padding: 1rem;
   color: white;
   width: 100%;
-  padding: 1rem;
   text-align: center;
   font-size: clamp(1.25rem, 2vw, 1.5rem);
 }
@@ -1874,7 +1873,7 @@ button[aria-disabled="true"] {
 .about-card h3,
 .modal-title {
   font-size: 1.75rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 0.75rem;
   background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
   -webkit-background-clip: text;

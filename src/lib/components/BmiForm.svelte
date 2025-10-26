@@ -53,7 +53,7 @@
       // Clean and validate values before calculation
       const cleanHeight = Math.round(parsedHeight * 100) / 100; // Round to 2 decimals
       const cleanWeight = Math.round(parsedWeight * 100) / 100; // Round to 2 decimals
-      
+
       // Optional: dispatch event if parent listens; keep for extensibility
       dispatch('calculate', { age: parsedAge, height: cleanHeight, weight: cleanWeight });
       onCalculate();
@@ -75,7 +75,7 @@
       <div class="icon-glow"></div>
     </div>
     <h2 class="card-title">BMI Calculator</h2>
-    <p class="card-subtitle">Fill in order: Age → Height → Weight. Click Calculate BMI to see results.</p>
+    <!-- <p class="card-subtitle">Fill in order: Age → Height → Weight. Click Calculate BMI to see results.</p> -->
 
     <!-- status pill: indicates readiness -->
     <div class="status-row">
@@ -179,7 +179,7 @@
         <Zap class="Zap" />
         Calc BMI
       </button>
-      
+
       <button
         type="button"
         on:click={handleClear}
@@ -193,6 +193,3 @@
     </div>
   </div>
 </div>
-
- 
-
