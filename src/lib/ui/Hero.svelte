@@ -78,7 +78,7 @@
 </header>
 
 <!-- Scroll-down button standalone container (transparent) -->
-<section class="hero-scroll-container" aria-hidden="true">
+<section class="hero-scroll-container">
   <button
     type="button"
     class="hero-scroll-btn"
@@ -86,6 +86,6 @@
     title="Scroll down"
     on:click={scrollToNextSection}
   >
-    <CircleChevronDown class="hero-scroll-icon" />
+    <CircleChevronDown class="hero-scroll-icon" aria-hidden="true" />
   </button>
 </section>

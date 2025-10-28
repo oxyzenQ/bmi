@@ -287,9 +287,6 @@ pre {
       rgba(255, 255, 255, 0.018) 100%) padding-box, rgba(13, 22, 43, 0.55);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 18px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(8px) saturate(110%); /* Reduced from 14px/120% for performance */
-  -webkit-backdrop-filter: blur(8px) saturate(110%);
 }
 
 .glass-card {
@@ -322,8 +319,6 @@ pre {
 .section-header,
 .section-header-v2 {
   background: rgba(0, 0, 0, 0.555);
-  backdrop-filter: blur(12px) saturate(150%); /* Reduced from 28px/200% for performance */
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
   border: var(--border-by-rezky);
   border-radius: 2rem;
   box-shadow:
@@ -1095,6 +1090,17 @@ button[aria-disabled="true"] {
   background: rgba(15, 23, 42, 0.7);
 }
 
+/* Fix browser autofill white background */
+.form-input:-webkit-autofill,
+.form-input:-webkit-autofill:hover,
+.form-input:-webkit-autofill:focus,
+.form-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(15, 23, 42, 0.9) inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 .status-row {
   display: flex;
   justify-content: center;
@@ -1771,8 +1777,8 @@ button[aria-disabled="true"] {
 }
 
 .ref-card .title {
-  padding: 1rem;
-  margin-bottom: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   width: 100%;
   font-size: 2.5rem;
   text-align: center;
@@ -1783,7 +1789,6 @@ button[aria-disabled="true"] {
 }
 
 .ref-card .subtitle {
-  padding: 1rem;
   color: white;
   width: 100%;
   text-align: center;
@@ -3921,31 +3926,7 @@ body.is-scrolling .article-card {
   will-change: auto;
 }
 
-/* Reduce heavy effects on mobile to avoid GPU bottlenecks */
-@media (max-width: 768px) {
-
-  /* Typical glass cards and panels across the app */
-  .glass-panel,
-  .glass-card,
-  .bmi-card,
-  .form-card,
-  .reference-table .table-container,
-  .article-card,
-  .modal-content {
-    /* Lower blur and saturation for cheaper composites */
-    backdrop-filter: blur(8px) saturate(120%) !important;
-    -webkit-backdrop-filter: blur(8px) saturate(120%) !important;
-    /* Softer, smaller shadow to reduce overdraw */
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28) !important;
-  }
-
-  /* Tighten large card/container shadows generically */
-  .glass,
-  .liquid-glass,
-  .glass-wrapper {
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28) !important;
-  }
-}
+/* Tighten large card/container shadows generically */
 
 /* Make modal/body scroll areas momentum-smooth on mobile */
 .modal-content,

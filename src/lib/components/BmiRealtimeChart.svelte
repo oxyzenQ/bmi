@@ -185,7 +185,7 @@
             class="bmi-value-label"
             fill="#ffffff"
           >
-            {currentBMI.toFixed(1)}
+            {currentBMI.toFixed(2)}
           </text>
         {/each}
       {:else}
@@ -217,7 +217,7 @@
         <Activity class="w-6 h-6" />
       <div>
         <div class="stat-label">Current BMI</div>
-        <div class="stat-value">{currentBMI.toFixed(1)}</div>
+        <div class="stat-value">{currentBMI.toFixed(2)}</div>
       </div>
     </div>
     

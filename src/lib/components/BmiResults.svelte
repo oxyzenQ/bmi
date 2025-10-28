@@ -67,7 +67,7 @@
     {#if hasResults}
       <div class="bmi-display">
         <div class="bmi-value">
-          {bmiValue!.toFixed(1)}
+          {bmiValue!.toFixed(2)}
         </div>
         <div class="bmi-category-container">
           <svelte:component this={getCategoryIcon(category!)} class="category-icon" />
@@ -98,7 +98,7 @@
       <div class="bmi-explanation">
         <h4 class="explanation-title">What this means:</h4>
         <p class="explanation-text">
-          Your BMI of <strong>{bmiValue!.toFixed(1)}</strong> falls in the <strong>{category}</strong> category. 
+          Your BMI of <strong>{bmiValue!.toFixed(2)}</strong> falls in the <strong>{category}</strong> category. 
           BMI is a screening tool that helps assess weight-related health risks.
         </p>
       </div>
