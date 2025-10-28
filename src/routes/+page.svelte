@@ -113,20 +113,6 @@
   onMount(() => {
     // Smooth scrolling optimization
     document.documentElement.style.scrollBehavior = 'smooth';
-
-    // Articles are now always visible by default, no lazy loading needed
-    // Keep performance optimization for smooth scrolling
-    const handleScroll = () => {
-      requestAnimationFrame(() => {
-        // Smooth scroll handling if needed
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
   });
 </script>
 

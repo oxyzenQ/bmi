@@ -3,9 +3,7 @@
   import { BookCheck, SquareSigma, Sparkles, Telescope, CircleChevronDown } from 'lucide-svelte';
 
   let heroContent: HTMLDivElement;
-  let bubbleContainer: HTMLDivElement;
   let heroSectionEl: HTMLElement;
-  let deviceBubbleCount = 30;
 
   function scrollToNextSection() {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -15,20 +13,6 @@
   }
 
   onMount(() => {
-    // Device-adaptive bubble count based on performance capabilities
-    const getDeviceBubbleCount = () => {
-      const memory = (navigator as unknown as { deviceMemory?: number }).deviceMemory || 4;
-      const cores = navigator.hardwareConcurrency || 4;
-      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      if (reducedMotion) return 0;
-      if (memory <= 2 || cores <= 2) return 15;
-      if (memory <= 4 || cores <= 4) return 25;
-      return 35;
-    };
-
-    deviceBubbleCount = getDeviceBubbleCount();
-
     // Hero content animation - ensure immediate visibility with safe fallback
     if (heroContent) {
       // Set visible by default first
@@ -46,80 +30,12 @@
         heroContent.style.transform = 'translateY(0)';
       });
     }
-
-    // Dynamic bubble management for performance
-    if (bubbleContainer && deviceBubbleCount > 0) {
-      const bubbles = bubbleContainer.querySelectorAll('.bubble');
-      bubbles.forEach((bubble, index) => {
-        if (index >= deviceBubbleCount) {
-          (bubble as HTMLElement).style.display = 'none';
-        }
-      });
-    }
-
-    // Pause animations when page is not visible
-    const handleVisibilityChange = () => {
-      const bubbles = document.querySelectorAll('.bubble');
-      if (document.hidden) {
-        bubbles.forEach(bubble => {
-          (bubble as HTMLElement).style.animationPlayState = 'paused';
-        });
-      } else {
-        bubbles.forEach(bubble => {
-          (bubble as HTMLElement).style.animationPlayState = 'running';
-        });
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
   });
 </script>
 
 <header class="hero-section" bind:this={heroSectionEl}>
   <div class="hero-background">
-    <div class="cosmic-orbs">
-      <div class="orb orb-1"></div>
-      <div class="orb orb-2"></div>
-      <div class="orb orb-3"></div>
-    </div>
-
-    <!-- Enhanced Bubble Effects -->
-    <div class="bubble-container" bind:this={bubbleContainer}>
-      <div class="bubble bubble-1"></div>
-      <div class="bubble bubble-2"></div>
-      <div class="bubble bubble-3"></div>
-      <div class="bubble bubble-4"></div>
-      <div class="bubble bubble-5"></div>
-      <div class="bubble bubble-6"></div>
-      <div class="bubble bubble-7"></div>
-      <div class="bubble bubble-8"></div>
-      <div class="bubble bubble-9"></div>
-      <div class="bubble bubble-10"></div>
-      <div class="bubble bubble-11"></div>
-      <div class="bubble bubble-12"></div>
-      <div class="bubble bubble-13"></div>
-      <div class="bubble bubble-14"></div>
-      <div class="bubble bubble-15"></div>
-      <div class="bubble bubble-16"></div>
-      <div class="bubble bubble-17"></div>
-      <div class="bubble bubble-18"></div>
-      <div class="bubble bubble-19"></div>
-      <div class="bubble bubble-20"></div>
-      <div class="bubble bubble-21"></div>
-      <div class="bubble bubble-22"></div>
-      <div class="bubble bubble-23"></div>
-      <div class="bubble bubble-24"></div>
-      <div class="bubble bubble-25"></div>
-      <div class="bubble bubble-26"></div>
-      <div class="bubble bubble-27"></div>
-      <div class="bubble bubble-28"></div>
-      <div class="bubble bubble-29"></div>
-      <div class="bubble bubble-30"></div>
-    </div>
+    <!-- Bubbles and orbs removed for cleaner performance -->
   </div>
 
   <div bind:this={heroContent} class="hero-content">

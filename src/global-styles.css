@@ -1,3 +1,4 @@
+/* Author: Rezky Nightky */
 /* ==============================
    FONTS & IMPORTS
    ============================== */
@@ -132,7 +133,6 @@ body {
   margin: 0;
   padding: 0;
   background:
-    linear-gradient(135deg, rgba(10, 14, 26, 0.92), rgba(10, 14, 26, 0.88)),
     url('/images/HDRstellar-v1.webp') fixed center/cover;
   color: var(--text-primary);
   font-family: 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -288,8 +288,8 @@ pre {
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 18px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(14px) saturate(120%);
-  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  backdrop-filter: blur(8px) saturate(110%); /* Reduced from 14px/120% for performance */
+  -webkit-backdrop-filter: blur(8px) saturate(110%);
 }
 
 .glass-card {
@@ -322,8 +322,8 @@ pre {
 .section-header,
 .section-header-v2 {
   background: rgba(0, 0, 0, 0.555);
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  backdrop-filter: blur(12px) saturate(150%); /* Reduced from 28px/200% for performance */
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
   border: var(--border-by-rezky);
   border-radius: 2rem;
   box-shadow:
@@ -370,8 +370,8 @@ a.button {
     background var(--dur-fast) var(--easing-smooth),
     border-color var(--dur-fast) var(--easing-smooth);
   box-shadow: var(--btn-shadow);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(8px) saturate(140%); /* Reduced for performance */
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
   border-radius: var(--btn-radius);
 }
 
@@ -413,8 +413,8 @@ button[aria-disabled="true"] {
   border-bottom: var(--border-by-rezky);
   border-left: var(--border-by-rezky);
   border-right: var(--border-by-rezky);
-  backdrop-filter: blur(18px) saturate(180%);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(10px) saturate(150%); /* Reduced for performance */
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
   transition: all 0.25s ease;
 }
 
@@ -558,8 +558,8 @@ button[aria-disabled="true"] {
 .orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(40px);
-  opacity: 0.25;
+  filter: blur(20px); /* Reduced from 40px for better performance */
+  opacity: 0.2; /* Reduced from 0.25 for lighter GPU load */
   animation: orbFloat 20s ease-in-out infinite;
 }
 
@@ -3900,6 +3900,25 @@ body {
   background-attachment: scroll !important;
   will-change: transform;
   transform: translateZ(0);
+}
+
+/* ==============================
+   SCROLL PERFORMANCE OPTIMIZATION
+   Pause animations during scroll
+   ============================== */
+body.is-scrolling .particle,
+body.is-scrolling .sparkle-icon,
+body.is-scrolling .plasma-star,
+body.is-scrolling .hero-scroll-icon {
+  animation-play-state: paused !important;
+}
+
+/* Reduce compositing layers during scroll */
+body.is-scrolling .glass-card,
+body.is-scrolling .glass-panel,
+body.is-scrolling .bmi-card,
+body.is-scrolling .article-card {
+  will-change: auto;
 }
 
 /* Reduce heavy effects on mobile to avoid GPU bottlenecks */

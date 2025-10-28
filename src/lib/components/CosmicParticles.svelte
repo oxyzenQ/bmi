@@ -21,8 +21,8 @@
     particlesContainer.innerHTML = '';
     particles = [];
 
-    // Create particles
-    const particleCount = 20 + Math.floor(Math.random() * 6);
+    // Create particles (optimized for performance)
+    const particleCount = 8 + Math.floor(Math.random() * 5);
     for (let i = 0; i < particleCount; i++) {
       const particle = createParticle();
       const opacity = 0.25 + Math.random() * 0.6; // depth cue
@@ -53,7 +53,7 @@
     setTimeout(() => {
       createParticles();
       refreshParticles();
-    }, 30000);
+    }, 120000); // Reduced from 30s to 120s for better performance
   }
 </script>
 

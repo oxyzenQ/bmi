@@ -1,4 +1,4 @@
-name: Auto Update Dependencies
+name: 🔄 Auto Update Dependencies
 
 on:
   schedule:
@@ -79,19 +79,40 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          # Create commit message with details
-          echo "ci(deps): auto-update dependencies" > commit_msg.txt
+          # Array of creative commit messages
+          MESSAGES=(
+            "✨ chore(deps): sprinkle fresh dependency updates like cosmic stardust"
+            "🚀 chore(deps): boost dependencies to warp speed - all systems go!"
+            "🎨 chore(deps): polish dependencies to stellar perfection"
+            "⚡ chore(deps): supercharge packages with lightning-fast updates"
+            "🌟 chore(deps): elevate dependencies to new heights of excellence"
+            "🔮 chore(deps): enchant codebase with mystical dependency magic"
+            "🎯 chore(deps): hit bullseye with precision dependency updates"
+            "🌊 chore(deps): ride the wave of cutting-edge package versions"
+            "🎪 chore(deps): roll out the red carpet for fresh dependencies"
+            "🏆 chore(deps): crown packages with championship-worthy updates"
+            "🎭 chore(deps): orchestrate a symphony of updated dependencies"
+            "🚁 chore(deps): airlift dependencies to cloud nine"
+            "🎨 chore(deps): paint the town with vibrant new package colors"
+            "🔥 chore(deps): ignite performance with blazing dependency updates"
+            "💎 chore(deps): polish dependencies until they shine like diamonds"
+          )
+          
+          # Select random message
+          RANDOM_MSG=${MESSAGES[$RANDOM % ${#MESSAGES[@]}]}
+          
+          # Create creative commit message
+          echo "$RANDOM_MSG" > commit_msg.txt
           echo "" >> commit_msg.txt
-          echo "🤖 Automated daily dependency update" >> commit_msg.txt
-          echo "" >> commit_msg.txt
-          echo "Updated by: GitHub Actions Bot" >> commit_msg.txt
-          echo "Workflow: auto-update.yml" >> commit_msg.txt
-          echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> commit_msg.txt
+          echo "🤖 Automated by the tireless GitHub Actions Bot" >> commit_msg.txt
+          echo "📦 Updated $(git diff --staged --name-only | wc -l) file(s)" >> commit_msg.txt
+          echo "⏰ $(date -u '+%A, %B %d, %Y at %H:%M:%S UTC')" >> commit_msg.txt
+          echo "🎯 Workflow: auto-update.yml" >> commit_msg.txt
           
           git commit -F commit_msg.txt
           git push origin main
           
-          echo "✅ Changes committed and pushed to main!"
+          echo "✅ Changes committed with style and pushed to main!"
       
       - name: Summary
         if: always()
