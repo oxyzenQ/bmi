@@ -14,19 +14,30 @@ export default defineConfig({
 		cssCodeSplit: true,
 		rollupOptions: {
 			output: {
-				manualChunks: {
-					'svelte-vendor': ['svelte'],
-					'icons': ['lucide-svelte']
+				manualChunks: (id) => {
+					// Separate svelte core for better caching
+					if (id.includes('node_modules/svelte/')) {
+						return 'svelte-vendor';
+					}
+					// Bundle other node_modules together
+					if (id.includes('node_modules')) {
+						return 'vendor';
+					}
 				},
 				compact: true
+			},
+			treeshake: {
+				preset: 'recommended',
+				moduleSideEffects: 'no-external'
 			}
 		},
-		chunkSizeWarningLimit: 600,
+		chunkSizeWarningLimit: 500,
 		reportCompressedSize: true,
-		assetsInlineLimit: 8192
+		assetsInlineLimit: 4096
 	},
 	optimizeDeps: {
-		include: ['svelte', 'lucide-svelte'],
+		include: ['svelte'],
+		exclude: ['lucide-svelte'],
 		esbuildOptions: {
 			target: 'es2022'
 		}

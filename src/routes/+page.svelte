@@ -3,33 +3,20 @@
   import BmiForm from '$lib/components/BmiForm.svelte';
   import BmiResults from '$lib/components/BmiResults.svelte';
   import BmiRadialGauge from '$lib/components/BmiRadialGauge.svelte';
-  import ArticleCard from '$lib/components/ArticleCard.svelte';
   import ReferenceTable from '$lib/components/ReferenceTable.svelte';
   import { onMount } from 'svelte';
-  // lucide icons for ArticleCard
-  import { Heart, Activity, Utensils, BedDouble, Droplet, Brain, Stethoscope, Sun, Wind, Dna, FlaskConical, Leaf } from 'lucide-svelte';
   // icons for About BMI section
-  import { Coffee, Lightbulb, Users, GitCompare, PackageCheck, Brush, AlertTriangle, Scale } from 'lucide-svelte';
+  import { Lightbulb, Users, GitCompare, PackageCheck, Brush, AlertTriangle, Scale } from 'lucide-svelte';
 
   let bmiValue: number | null = null;
-  let articlesVisible = true;
-  let articlesContainer: HTMLElement | null = null;
   let category: string | null = null;
 
   // Form inputs default empty strings for validation UX
   let age: string = '';
   let height: string = '';
   let weight: string = '';
-  let isModalOpen = false;
-  let modalTitle = '';
-  let modalContent = '';
-  // Charts are always visible - no show/hide logic needed
-
   // BMI history for tracking calculations
   let bmiHistory: Array<{bmi: number, timestamp: Date}> = [];
-
-  // Lazy modal component
-  let ModalComp: typeof import('$lib/components/ArticleModal.svelte').default | null = null;
 
   function computeBMIFromInputs(h: string, w: string, _a: string) {
     const parsedHeight = parseFloat(h);
@@ -71,43 +58,6 @@
     bmiValue = null; // Gauge will show empty/neutral state
     category = null;
     bmiHistory = []; // Clear history
-  }
-
-  function handleOpenModal(event: CustomEvent) {
-    console.log('Modal event received:', event.detail); // Debug
-    modalTitle = event.detail.title || 'Article';
-    modalContent = event.detail.description || 'Content loading...';
-    // Lazy-load modal on first open
-    if (!ModalComp) {
-      import('$lib/components/ArticleModal.svelte').then((m) => {
-        ModalComp = m.default;
-        isModalOpen = true;
-      });
-      return;
-    }
-    isModalOpen = true;
-
-    // Prevent body scroll when modal is open
-    document.body.style.overflow = 'hidden';
-
-    // Force modal to show with timeout
-    setTimeout(() => {
-      const modal = document.querySelector('.modal-overlay');
-      if (modal) {
-        (modal as HTMLElement).style.display = 'flex';
-        (modal as HTMLElement).style.zIndex = '99999';
-      }
-    }, 10);
-  }
-
-  function handleCloseModal() {
-    isModalOpen = false;
-    // Restore body scroll when modal is closed
-    document.body.style.overflow = 'auto';
-    // Unmount modal component for performance
-    setTimeout(() => {
-      if (!isModalOpen) ModalComp = null;
-    }, 300); // Wait for close animation
   }
 
   onMount(() => {
@@ -159,125 +109,6 @@
 
   <!-- Reference Table -->
   <ReferenceTable />
-
-  <!-- Health Articles Section -->
-  <section class="article-section" bind:this={articlesContainer}>
-    <div class="main-container">
-      <div class="section-header">
-        <div class="main-icon-header-article">
-          <Coffee class="Coffee" />
-        </div>
-        <h2 class="title">Health & Wellness Articles</h2>
-        <p class="subtitle">Expert insights and evidence-based guidance for optimal health</p>
-      </div>
-      {#if articlesVisible}
-        <div class="article-grid">
-          <ArticleCard
-            title="Healthy Living Tips"
-            description="Discover evidence-based strategies for maintaining a healthy weight and improving overall wellness."
-            icon={Heart}
-            iconClass="Heart"
-            on:openModal={handleOpenModal}
-          />
-
-          <ArticleCard
-            title="Exercise Guidelines"
-            description="Learn about effective workout routines tailored to different BMI categories and fitness levels."
-            icon={Activity}
-            iconClass="Activity2"
-            on:openModal={handleOpenModal}
-          />
-
-          <ArticleCard
-            title="Nutrition Advice"
-            description="Explore balanced nutrition plans and dietary recommendations for optimal health outcomes."
-            icon={Utensils}
-            iconClass="Utensils"
-            on:openModal={handleOpenModal}
-          />
-
-          <!-- New Cards -->
-          <ArticleCard
-            title="Sleep & Recovery"
-            description="Understand how quality sleep and recovery improve metabolism, performance, and overall health."
-            icon={BedDouble}
-            iconClass="BedDouble"
-            on:openModal={handleOpenModal}
-          />
-
-          <ArticleCard
-            title="Hydration Essentials"
-            description="Why water matters: daily hydration goals, smart timing, and how fluids affect BMI and energy."
-            icon={Droplet}
-            iconClass="Droplet"
-            on:openModal={handleOpenModal}
-          />
-
-          <ArticleCard
-            title="Mental Wellness"
-            description="Stress, mindfulness, and habit-building: science-backed tactics for a healthier relationship with food."
-            icon={Brain}
-            iconClass="Brain"
-            on:openModal={handleOpenModal}
-          />
-
-          <ArticleCard
-            title="Preventive Care"
-            description="Screenings, labs, and checkups: what to track yearly to stay ahead of health risks."
-            icon={Stethoscope}
-            iconClass="Stethoscope"
-            on:openModal={handleOpenModal}
-          />
-
-          <ArticleCard
-            title="Sunlight & Circadian Health"
-            description="Light exposure, vitamin D, and circadian rhythm—optimize your day for better sleep and weight."
-            icon={Sun}
-            iconClass="Sun"
-            on:openModal={handleOpenModal}
-          />
-
-          <ArticleCard
-            title="Breath & Cardio Health"
-            description="Breathing mechanics, VO2, and lung health basics to support sustainable fitness progress."
-            icon={Wind}
-            iconClass="Wind"
-            on:openModal={handleOpenModal}
-          />
-
-          <ArticleCard
-            title="Metabolic Optimization"
-            description="Advanced strategies for optimizing metabolic health through targeted nutrition, timing, and lifestyle interventions."
-            icon={Dna}
-            iconClass="Dna"
-            on:openModal={handleOpenModal}
-          />
-
-          <ArticleCard
-            title="Hormonal Balance"
-            description="Understanding key hormones that affect weight, metabolism, and overall health for optimal body composition."
-            icon={FlaskConical}
-            iconClass="FlaskConical"
-            on:openModal={handleOpenModal}
-          />
-
-          <ArticleCard
-            title="Recovery & Longevity"
-            description="Evidence-based recovery protocols and longevity practices to enhance healthspan and optimize aging."
-            icon={Leaf}
-            iconClass="Leaf"
-            on:openModal={handleOpenModal}
-          />
-        </div>
-      {:else}
-        <div class="article-grid" style="min-height: 240px;">
-          <div class="bmi-card" style="text-align:center; color: #a3b2c7; display:flex; align-items:center; justify-content:center;">
-            Loading articles...
-          </div>
-        </div>
-      {/if}
-    </div>
-  </section>
 
   <!-- About BMI Section -->
   <section id="about" class="about-bmi-section">
@@ -374,13 +205,4 @@
   </a>
 </div>
 
-{#if isModalOpen && ModalComp}
-  <svelte:component
-    this={ModalComp}
-    title={modalTitle}
-    content={modalContent}
-    isOpen={isModalOpen}
-    on:close={handleCloseModal}
-  />
-{/if}
 <!-- styles moved to app.css -->
