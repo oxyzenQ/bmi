@@ -26,11 +26,11 @@
 		"analyze": "vite build --mode analyze"
 	},
 	"devDependencies": {
-		"@eslint/compat": "^1.4.0",
+		"@eslint/compat": "^1.4.1",
 		"@eslint/js": "^9.38.0",
 		"@fontsource-variable/jetbrains-mono": "^5.2.8",
 		"@sveltejs/adapter-vercel": "^5.10.3",
-		"@sveltejs/kit": "^2.48.2",
+		"@sveltejs/kit": "^2.48.3",
 		"@sveltejs/vite-plugin-svelte": "^6.2.1",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/svelte": "^5.2.8",
