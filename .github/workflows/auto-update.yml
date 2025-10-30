@@ -2,7 +2,7 @@ name: 🔄 Auto Update Dependencies
 
 on:
   schedule:
-    - cron: '0 0 * * *'   # Daily at 00:00 UTC (07:00 WIB)
+    - cron: '0 0 * * *'   # Daily at 00:00 UTC (08:00 SGT)
   workflow_dispatch:       # Manual trigger option
 
 permissions:
