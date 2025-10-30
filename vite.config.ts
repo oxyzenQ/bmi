@@ -26,10 +26,7 @@ export default defineConfig({
 				},
 				compact: true
 			},
-			treeshake: {
-				preset: 'recommended',
-				moduleSideEffects: 'no-external'
-			}
+			treeshake: 'recommended'
 		},
 		chunkSizeWarningLimit: 500,
 		reportCompressedSize: true,

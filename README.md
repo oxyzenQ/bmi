@@ -6,7 +6,7 @@
 
 [![Release](https://img.shields.io/github/v/release/oxyzenq/bmi?style=plastic&logo=rocket&color=8B5CF6)](https://github.com/oxyzenq/bmi/releases)
 [![Live Demo](https://img.shields.io/badge/demo-live-10B981?style=plastic&logo=vercel)](https://bmi-logigo.vercel.app)
-[![License](https://img.shields.io/github/license/oxyzenq/bmi?style=plastic&color=EC4899)](LICENSE.md)
+[![License](https://img.shields.io/badge/license-GPL--3.0-EC4899?style=plastic&logo=gnu)](LICENSE.md)
 [![Stars](https://img.shields.io/github/stars/oxyzenq/bmi?style=plastic&color=FBBF24)](https://github.com/oxyzenq/bmi/stargazers)
 
 [![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?style=plastic&logo=svelte&logoColor=white)](https://kit.svelte.dev)
