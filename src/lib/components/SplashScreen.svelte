@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { onMount, createEventDispatcher } from 'svelte';
+  import { onMount, onDestroy, createEventDispatcher } from 'svelte';
   import { fade, fly, scale } from 'svelte/transition';
   import { quintOut, backOut } from 'svelte/easing';
   import { Rocket } from 'lucide-svelte';
-  
+
   export let show = true;
   export let duration = 10000;
-  
+
   let splashPhase = 'loading'; // 'loading' -> 'content' -> 'exit'
   let showTitle = false;
   let showSubtitle = false;
@@ -18,18 +18,40 @@
   let currentTitleText = "";
   let currentSubtitleText = "";
   const dispatch = createEventDispatcher();
-  
+
+  let mounted = false;
+  let started = false;
+  let cancelled = false;
+  const timers: Array<ReturnType<typeof setTimeout>> = [];
+
+  function clearTimers() {
+    for (const t of timers) clearTimeout(t);
+    timers.length = 0;
+  }
+
+  function schedule(fn: () => void, delay: number) {
+    const id = setTimeout(() => {
+      if (cancelled) return;
+      fn();
+    }, delay);
+    timers.push(id);
+    return id;
+  }
+
   // Typewriter effect for title
   async function typewriterEffect(text: string, callback: (char: string) => void, speed = 80) {
     for (let i = 0; i <= text.length; i++) {
+      if (cancelled) return;
       callback(text.slice(0, i));
       await new Promise(resolve => setTimeout(resolve, speed));
     }
   }
-  
-  onMount(() => {
-    // 10-second relaxed timeline scaled proportionally from the original 6s design
-    // Ratios from original: title@~16.7%, subtitle@~41.7%, skip@~33.3%, hide loader@75%, exit@91.7%, hide@100%
+
+  function start() {
+    if (started || cancelled || !mounted) return;
+    started = true;
+    cancelled = false;
+
     const r = {
       titleStart: 1 / 6,
       subtitleStart: 2.5 / 6,
@@ -45,56 +67,75 @@
     const exitDelay = Math.round(duration * r.exitStart);
     const rocketDelay = titleDelay + Math.min(600, Math.round(duration * 0.05));
 
-    const scale = duration / 6000; // slow typewriter proportionally with longer duration
-    const titleSpeed = Math.max(40, Math.round(80 * scale));
-    const subtitleSpeed = Math.max(30, Math.round(60 * scale));
+    const speedScale = duration / 6000;
+    const titleSpeed = Math.max(40, Math.round(80 * speedScale));
+    const subtitleSpeed = Math.max(30, Math.round(60 * speedScale));
 
-    // Background fade-in handled by transition
-
-    // Title typewriter
-    setTimeout(async () => {
+    schedule(async () => {
       showTitle = true;
       await typewriterEffect(titleText, (text) => {
         currentTitleText = text;
       }, titleSpeed);
     }, titleDelay);
 
-    // Show rocket icon shortly after title starts
-    setTimeout(() => {
+    schedule(() => {
       showRocket = true;
     }, rocketDelay);
 
-    // Subtitle typewriter
-    setTimeout(async () => {
+    schedule(async () => {
       showSubtitle = true;
       await typewriterEffect(subtitleText, (text) => {
         currentSubtitleText = text;
       }, subtitleSpeed);
     }, subtitleDelay);
 
-    // Show skip button
-    setTimeout(() => {
+    schedule(() => {
       showSkipButton = true;
     }, skipDelay);
 
-    // Hide loader
-    setTimeout(() => {
+    schedule(() => {
       showLoader = false;
     }, loaderHideDelay);
 
-    // Begin exit phase slightly before auto-hide
-    setTimeout(() => {
+    schedule(() => {
       splashPhase = 'exit';
     }, exitDelay);
 
-    // Auto-hide and notify completion
-    setTimeout(() => {
+    schedule(() => {
       show = false;
       dispatch('complete');
     }, duration);
+  }
+
+  onMount(() => {
+    mounted = true;
+    if (show) start();
   });
-  
+
+  $: if (mounted && !show && started) {
+    cancelled = true;
+    clearTimers();
+    started = false;
+  }
+
+  $: if (mounted && show && cancelled) {
+    cancelled = false;
+  }
+
+  $: if (mounted && show && !started) {
+    start();
+  }
+
+  onDestroy(() => {
+    cancelled = true;
+    mounted = false;
+    clearTimers();
+  });
+
   function skipSplash() {
+    cancelled = true;
+    clearTimers();
+    started = false;
     splashPhase = 'exit';
     show = false;
     dispatch('complete');
@@ -102,14 +143,14 @@
 </script>
 
 {#if show}
-  <div 
+  <div
     class="splash-screen"
     class:exit-phase={splashPhase === 'exit'}
     transition:fade={{ duration: 800, easing: quintOut }}
   >
     <!-- Skip button -->
     {#if showSkipButton}
-      <button 
+      <button
         class="skip-button"
         on:click={skipSplash}
         transition:fade={{ duration: 400, delay: 200 }}
@@ -117,14 +158,14 @@
         Skip
       </button>
     {/if}
-    
+
     <div class="splash-content">
       <!-- Subtle plasma glow effect -->
       <div class="plasma-glow"></div>
-      
+
       <!-- Main title with typewriter effect -->
       {#if showTitle}
-        <h1 
+        <h1
           class="splash-title"
           transition:fly={{ y: 30, duration: 1000, easing: backOut }}
         >
@@ -137,17 +178,17 @@
           <Rocket size={36} />
         </div>
       {/if}
-      
+
       <!-- Subtitle with slide-up effect -->
       {#if showSubtitle}
-        <p 
+        <p
           class="splash-subtitle"
           transition:fly={{ y: 20, duration: 800, easing: quintOut, delay: 100 }}
         >
           {currentSubtitleText}<span class="cursor" class:blink={currentSubtitleText.length < subtitleText.length}>|</span>
         </p>
       {/if}
-      
+
       <!-- Enhanced loading indicator -->
       {#if showLoader}
         <div class="loading-indicator" transition:scale={{ duration: 600, easing: backOut }}>
@@ -160,12 +201,12 @@
         </div>
       {/if}
     </div>
-    
+
     <!-- Subtle floating particles -->
     <div class="plasma-particles">
       {#each Array(8) as _, i (i)}
-        <div 
-          class="particle" 
+        <div
+          class="particle"
           style="--delay: {i * 0.5}s; --duration: {4 + (i % 2)}s;"
         ></div>
       {/each}

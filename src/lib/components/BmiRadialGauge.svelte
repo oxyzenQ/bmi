@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Gauge } from 'lucide-svelte';
+  import { onDestroy } from 'svelte';
 
   export let bmi: number = 0;
   export let category: string | null = null;
@@ -17,6 +18,7 @@
   let appliedCategory: string | null = null;
   let prevAppliedBmi = 0;
   let isFilling = false;
+  let fillTimer: ReturnType<typeof setTimeout> | null = null;
 
   const categoryColors: Record<string, string> = {
     'Underweight': '#4A90E2',
@@ -58,10 +60,15 @@
       appliedCategory = nextCategory;
       if (prevAppliedBmi <= 0 && appliedBmi > 0) {
         isFilling = true;
-        setTimeout(() => (isFilling = false), 1400);
+        if (fillTimer) clearTimeout(fillTimer);
+        fillTimer = setTimeout(() => (isFilling = false), 1400);
       }
     }
   }
+
+  onDestroy(() => {
+    if (fillTimer) clearTimeout(fillTimer);
+  });
 
   // Reactive entry point that only reads external props
   $: if (bmi > 0 && category) {

@@ -38,10 +38,18 @@ env:
   FORCE_UPDATE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_update || 'false' }}
   UPDATE_WORKFLOWS: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.update_workflows || 'true' }}
   ALLOW_MAJOR_UPDATES: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.allow_major_updates || 'false' }}
+  WORKFLOWS_UPDATED: 'false'
+  WORKFLOWS_HAS_MAJOR_UPDATES: 'false'
+  WORKFLOWS_UPDATES_COUNT: '0'
+  WORKFLOWS_SKIPPED_MAJORS_COUNT: '0'
+  WORKFLOWS_ERRORS_COUNT: '0'
+  WORKFLOWS_UPDATES_FILE: ''
+  WORKFLOWS_SKIPPED_MAJORS_FILE: ''
 
 jobs:
   auto-update:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
@@ -60,20 +68,29 @@ jobs:
           import json
           import os
           import re
+          import tempfile
+          import time
+          import urllib.error
           import urllib.request
           from pathlib import Path
+          from typing import Optional
 
           token = os.environ.get("GH_TOKEN", "")
           allow_major = os.environ.get("ALLOW_MAJOR_UPDATES", "false").lower() == "true"
           github_env = os.environ["GITHUB_ENV"]
+          runner_temp = os.environ.get("RUNNER_TEMP") or "/tmp"
 
-          def append_env_line(line: str) -> None:
-            with open(github_env, "a", encoding="utf-8") as f:
-              f.write(f"{line}\n")
+          max_unique_repos = 50
+          max_requests = 100
+          request_timeout_seconds = 15
+          request_delay_seconds = 0.2
 
-          def append_env_multiline(key: str, value: str) -> None:
+          updates_log_path = os.path.join(runner_temp, "workflows-actions-updates.log")
+          skipped_log_path = os.path.join(runner_temp, "workflows-actions-skipped-majors.log")
+
+          def append_env_kv(key: str, value: str) -> None:
             with open(github_env, "a", encoding="utf-8") as f:
-              f.write(f"{key}<<EOF\n{value}\nEOF\n")
+              f.write(f"{key}={value}\n")
 
           def parse_semver(tag: str):
             if not tag.startswith("v"):
@@ -86,84 +103,127 @@ jobs:
               parts.append(0)
             return tuple(parts[:3])
 
-          def get_latest_tag(repo: str) -> str | None:
+          latest_cache: dict[str, Optional[str]] = {}
+          requests_made = 0
+          errors_count = 0
+
+          def get_latest_tag(repo: str) -> Optional[str]:
+            nonlocal requests_made, errors_count
+            if repo in latest_cache:
+              return latest_cache[repo]
+            if len(latest_cache) >= max_unique_repos:
+              latest_cache[repo] = None
+              return None
+            if requests_made >= max_requests:
+              latest_cache[repo] = None
+              return None
+
+            time.sleep(request_delay_seconds)
+            requests_made += 1
+
             url = f"https://api.github.com/repos/{repo}/releases/latest"
             req = urllib.request.Request(url)
             req.add_header("Accept", "application/vnd.github+json")
             req.add_header("X-GitHub-Api-Version", "2022-11-28")
             if token:
               req.add_header("Authorization", f"Bearer {token}")
+
             try:
-              with urllib.request.urlopen(req, timeout=30) as resp:
+              with urllib.request.urlopen(req, timeout=request_timeout_seconds) as resp:
                 payload = json.loads(resp.read().decode("utf-8"))
               tag = payload.get("tag_name")
-              if isinstance(tag, str) and tag:
-                return tag
+              latest_cache[repo] = tag if isinstance(tag, str) and tag else None
+              return latest_cache[repo]
+            except urllib.error.HTTPError:
+              errors_count += 1
+              latest_cache[repo] = None
               return None
             except Exception:
+              errors_count += 1
+              latest_cache[repo] = None
               return None
 
-          files = sorted(Path(".github/workflows").glob("*.yml"))
           uses_re = re.compile(
-            r"^(?P<prefix>\s*uses:\s*)(?P<repo>[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)@(?P<ref>[^\s#]+)(?P<suffix>\s*(?:#.*)?)$"
+            r"^(?P<prefix>\s*uses:\s*)(?P<repo>[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)@(?P<ref>[^\s#]+)(?P<suffix>\s*(?:#.*)?)\s*$"
+          )
+          expr_start = "$" + "{{"
+
+          touched = False
+          updates_count = 0
+          skipped_majors_count = 0
+
+          Path(updates_log_path).write_text("", encoding="utf-8")
+          Path(skipped_log_path).write_text("", encoding="utf-8")
+
+          def log_line(path: str, text: str) -> None:
+            with open(path, "a", encoding="utf-8") as f:
+              f.write(text + "\n")
+
+          workflow_files = sorted(
+            list(Path(".github/workflows").glob("*.yml"))
+            + list(Path(".github/workflows").glob("*.yaml"))
           )
 
-          updates = []
-          skipped_majors = []
-          touched = False
-
-          for path in files:
-            original = path.read_text(encoding="utf-8")
-            out_lines = []
+          for wf in workflow_files:
             changed = False
+            with wf.open("r", encoding="utf-8") as src, tempfile.NamedTemporaryFile(
+              "w", delete=False, encoding="utf-8", dir=str(wf.parent)
+            ) as dst:
+              tmp_path = dst.name
+              for raw in src:
+                line = raw.rstrip("\n")
+                m = uses_re.match(line)
+                if not m:
+                  dst.write(raw)
+                  continue
 
-            for line in original.splitlines(True):
-              m = uses_re.match(line.rstrip("\n"))
-              if not m:
-                out_lines.append(line)
-                continue
+                repo = m.group("repo")
+                ref = m.group("ref")
 
-              repo = m.group("repo")
-              ref = m.group("ref")
+                if expr_start in ref:
+                  dst.write(raw)
+                  continue
 
-              expr_start = "$" + "{{"
-              if expr_start in ref:
-                out_lines.append(line)
-                continue
+                current_ver = parse_semver(ref)
+                if current_ver is None:
+                  dst.write(raw)
+                  continue
 
-              current_ver = parse_semver(ref)
-              if current_ver is None:
-                out_lines.append(line)
-                continue
+                latest = get_latest_tag(repo)
+                latest_ver = parse_semver(latest) if isinstance(latest, str) else None
+                if latest is None or latest_ver is None:
+                  dst.write(raw)
+                  continue
 
-              latest = get_latest_tag(repo)
-              latest_ver = parse_semver(latest) if isinstance(latest, str) else None
-              if latest is None or latest_ver is None:
-                out_lines.append(line)
-                continue
+                if latest_ver == current_ver:
+                  dst.write(raw)
+                  continue
 
-              if latest_ver == current_ver:
-                out_lines.append(line)
-                continue
+                if (not allow_major) and (latest_ver[0] != current_ver[0]):
+                  skipped_majors_count += 1
+                  log_line(skipped_log_path, f"{repo}@{ref} -> {latest}")
+                  dst.write(raw)
+                  continue
 
-              if (not allow_major) and (latest_ver[0] != current_ver[0]):
-                skipped_majors.append(f"{repo}@{ref} -> {latest}")
-                out_lines.append(line)
-                continue
-
-              new_line = f"{m.group('prefix')}{repo}@{latest}{m.group('suffix')}\n"
-              out_lines.append(new_line)
-              changed = True
-              touched = True
-              updates.append(f"{repo}@{ref} -> {latest}")
+                new_line = f"{m.group('prefix')}{repo}@{latest}{m.group('suffix')}\n"
+                dst.write(new_line)
+                changed = True
+                touched = True
+                updates_count += 1
+                log_line(updates_log_path, f"{repo}@{ref} -> {latest}")
 
             if changed:
-              path.write_text("".join(out_lines), encoding="utf-8")
+              os.replace(tmp_path, wf)
+            else:
+              os.unlink(tmp_path)
 
-          append_env_line(f"workflows_updated={'true' if touched else 'false'}")
-          append_env_line(f"workflows_has_major_updates={'true' if skipped_majors else 'false'}")
-          append_env_multiline("WORKFLOWS_UPDATES", "\n".join(updates) if updates else "")
-          append_env_multiline("WORKFLOWS_SKIPPED_MAJORS", "\n".join(skipped_majors) if skipped_majors else "")
+          append_env_kv("WORKFLOWS_UPDATED", "true" if touched else "false")
+          append_env_kv("WORKFLOWS_HAS_MAJOR_UPDATES", "true" if skipped_majors_count else "false")
+          append_env_kv("WORKFLOWS_UPDATES_COUNT", str(updates_count))
+          append_env_kv("WORKFLOWS_SKIPPED_MAJORS_COUNT", str(skipped_majors_count))
+          append_env_kv("WORKFLOWS_ERRORS_COUNT", str(errors_count))
+          append_env_kv("WORKFLOWS_UPDATES_FILE", updates_log_path)
+          append_env_kv("WORKFLOWS_SKIPPED_MAJORS_FILE", skipped_log_path)
           PY
 
       - name: Setup Bun
@@ -210,14 +270,14 @@ jobs:
       - name: Check for changes
         id: check_changes
         run: |
-          git add -A
-          if git diff --staged --quiet; then
+          if [ -z "$(git status --porcelain)" ]; then
             echo "changes=false" >> "$GITHUB_OUTPUT"
             echo "📦 No dependency updates available"
           else
             echo "changes=true" >> "$GITHUB_OUTPUT"
             echo "📦 Dependencies updated!"
-            git diff --staged --stat
+            git status --porcelain | head -n 200
+            git diff --stat | head -n 200
           fi
 
       - name: Commit and push changes
@@ -251,7 +311,7 @@ jobs:
             echo "$RANDOM_MSG"
             echo ""
             echo "🤖 Automated by the tireless GitHub Actions Bot"
-            echo "📦 Updated $(git diff --staged --name-only | wc -l) file(s)"
+            echo "📦 Updated $(git status --porcelain | wc -l) file(s)"
             echo "⏰ $(date -u '+%A, %B %d, %Y at %H:%M:%S UTC')"
             echo "🎯 Workflow: auto-update.yml"
           } > commit_msg.txt
@@ -267,6 +327,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+          git add -A
           git commit -F commit_msg.txt
           git push origin main
 
@@ -296,6 +357,9 @@ jobs:
             echo "Force Update: ${{ env.FORCE_UPDATE }}"
             echo "Workflow Updates: ${{ env.UPDATE_WORKFLOWS }}"
             echo "Allow Major Updates: ${{ env.ALLOW_MAJOR_UPDATES }}"
+            echo "Workflows Updated: ${{ env.WORKFLOWS_UPDATED }}"
+            echo "Workflow Updates Count: ${{ env.WORKFLOWS_UPDATES_COUNT }}"
+            echo "Workflow Update Errors: ${{ env.WORKFLOWS_ERRORS_COUNT }}"
             echo ""
 
             if [ "${{ steps.check_changes.outputs.changes }}" == "true" ]; then
@@ -303,7 +367,7 @@ jobs:
               echo "  - 📦 Dependencies updated"
               echo "  - 🔒 Security audit executed"
 
-              if [ "${{ env.workflows_updated }}" == "true" ]; then
+              if [ "${{ env.WORKFLOWS_UPDATED }}" == "true" ]; then
                 echo "  - 🔄 GitHub Actions updated"
               fi
               echo ""
@@ -318,17 +382,17 @@ jobs:
             else
               echo "✅ No updates needed - everything is current!"
 
-              if [ "${{ env.workflows_has_major_updates }}" == "true" ]; then
+              if [ "${{ env.WORKFLOWS_HAS_MAJOR_UPDATES }}" == "true" ]; then
                 echo ""
                 echo "⚠️  Major version updates available (not applied)"
                 echo "   Run with allow_major_updates=true to apply them"
               fi
             fi
 
-            if [ -n "${{ env.WORKFLOWS_UPDATES }}" ]; then
+            if [ "${{ env.WORKFLOWS_UPDATES_COUNT }}" != "0" ] && [ -f "${{ env.WORKFLOWS_UPDATES_FILE }}" ]; then
               echo ""
               echo "🔄 Workflow updates:"
-              echo "${{ env.WORKFLOWS_UPDATES }}"
+              head -n 50 "${{ env.WORKFLOWS_UPDATES_FILE }}"
             fi
 
             echo ""

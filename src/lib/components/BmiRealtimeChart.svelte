@@ -31,9 +31,25 @@
   $: innerWidth = chartWidth - margin.left - margin.right;
   $: innerHeight = chartHeight - margin.top - margin.bottom;
 
+  function getMinBmi(data: Array<{ bmi: number }>) {
+    let min = Infinity;
+    for (const d of data) {
+      if (d.bmi < min) min = d.bmi;
+    }
+    return min === Infinity ? 0 : min;
+  }
+
+  function getMaxBmi(data: Array<{ bmi: number }>) {
+    let max = -Infinity;
+    for (const d of data) {
+      if (d.bmi > max) max = d.bmi;
+    }
+    return max === -Infinity ? 0 : max;
+  }
+
   // Dynamic Y domain based on data with better precision
-  $: yMin = chartData.length > 0 ? Math.max(0, Math.min(...chartData.map(d => d.bmi)) - 2) : 0;
-  $: yMax = chartData.length > 0 ? Math.min(50, Math.max(...chartData.map(d => d.bmi)) + 2) : 30;
+  $: yMin = chartData.length > 0 ? Math.max(0, getMinBmi(chartData) - 2) : 0;
+  $: yMax = chartData.length > 0 ? Math.min(50, getMaxBmi(chartData) + 2) : 30;
 
   function getBmiCategory(bmi: number) {
     return bmiCategories.find(cat => bmi >= cat.min && bmi < cat.max) || bmiCategories[0];
@@ -41,16 +57,19 @@
 
   function generateChartData(userHeight: number, userWeight: number) {
     if (!userHeight || !userWeight) return [];
-    
+
     const heightM = userHeight / 100;
     const data = [];
-    
+
     // Generate BMI curve for weight range around current weight
-    const weightRange = Math.max(25, userWeight * 0.5);
+    const weightRange = Math.min(200, Math.max(25, userWeight * 0.5));
     const minWeight = Math.max(40, userWeight - weightRange);
-    const maxWeight = userWeight + weightRange;
-    
-    for (let w = minWeight; w <= maxWeight; w += 1.5) {
+    const maxWeight = Math.min(1000, userWeight + weightRange);
+    const span = Math.max(0, maxWeight - minWeight);
+    const maxPoints = 180;
+    const step = Math.max(0.5, span / maxPoints);
+
+    for (let w = minWeight; w <= maxWeight; w += step) {
       const bmi = w / (heightM * heightM);
       data.push({
         weight: w,
@@ -58,13 +77,19 @@
         isCurrent: Math.abs(w - userWeight) < 0.5
       });
     }
-    
+
     return data;
   }
 
   function getXPosition(weight: number) {
-    const minWeight = Math.min(...chartData.map(d => d.weight));
-    const maxWeight = Math.max(...chartData.map(d => d.weight));
+    if (chartData.length === 0) return 0;
+    let minWeight = Infinity;
+    let maxWeight = -Infinity;
+    for (const d of chartData) {
+      if (d.weight < minWeight) minWeight = d.weight;
+      if (d.weight > maxWeight) maxWeight = d.weight;
+    }
+    if (!Number.isFinite(minWeight) || !Number.isFinite(maxWeight) || maxWeight === minWeight) return 0;
     return ((weight - minWeight) / (maxWeight - minWeight)) * innerWidth;
   }
 
@@ -101,7 +126,7 @@
   </div>
 
   <div class="chart-wrapper" bind:this={wrapperEl}>
-    <svg 
+    <svg
       class="bmi-chart"
       viewBox={`0 0 ${chartWidth} ${chartHeight}`}
       preserveAspectRatio="xMidYMid meet"
@@ -116,20 +141,20 @@
             <stop offset="100%" stop-color={category.color} stop-opacity="0.05"/>
           </linearGradient>
         {/each}
-        
+
         <!-- Chart line gradient -->
         <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stop-color="#60a5fa"/>
           <stop offset="50%" stop-color="#a78bfa"/>
           <stop offset="100%" stop-color="#f472b6"/>
         </linearGradient>
-        
+
         <!-- Glow filter -->
         <filter id="glow">
           <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-          <feMerge> 
+          <feMerge>
             <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/> 
+            <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
       </defs>
@@ -157,10 +182,10 @@
 
       {#if hasValidData && chartData.length > 0}
         <!-- Chart line -->
-        <polyline 
-          points={chartData.map(d => `${margin.left + getXPosition(d.weight)},${margin.top + getYPosition(d.bmi)}`).join(' ')} 
-          fill="none" 
-          stroke="url(#lineGradient)" 
+        <polyline
+          points={chartData.map(d => `${margin.left + getXPosition(d.weight)},${margin.top + getYPosition(d.bmi)}`).join(' ')}
+          fill="none"
+          stroke="url(#lineGradient)"
           stroke-width="3"
           filter="url(#glow)"
           class="chart-line"
@@ -204,7 +229,7 @@
       <!-- Axes -->
       <line x1={margin.left} y1={margin.top} x2={margin.left} y2={margin.top + innerHeight} stroke="#475569" stroke-width="1"/>
       <line x1={margin.left} y1={margin.top + innerHeight} x2={margin.left + innerWidth} y2={margin.top + innerHeight} stroke="#475569" stroke-width="1"/>
-      
+
       <!-- Axis labels -->
       <text x={margin.left + innerWidth/2} y={chartHeight - 10} text-anchor="middle" class="axis-label">Weight (kg)</text>
       <text x={20} y={margin.top + innerHeight/2} text-anchor="middle" transform="rotate(-90, 20, {margin.top + innerHeight/2})" class="axis-label">BMI</text>
@@ -220,7 +245,7 @@
         <div class="stat-value">{currentBMI.toFixed(2)}</div>
       </div>
     </div>
-    
+
     <div class="stat-card">
         <Target class="w-6 h-6" />
       <div>
@@ -228,7 +253,7 @@
         <div class="stat-value" style="color: {currentCategory.color}">{currentCategory.label}</div>
       </div>
     </div>
-    
+
     <div class="stat-card">
         <TrendingUp class="w-6 h-6" />
       <div>
@@ -238,4 +263,3 @@
     </div>
   </div>
 </div>
- 

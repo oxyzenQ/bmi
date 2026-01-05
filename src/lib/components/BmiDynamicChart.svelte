@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { TrendingUp, Activity, Target } from 'lucide-svelte';
 
   export let bmiValue: number | null = null;
@@ -30,15 +30,52 @@
   // Direct reactive chart data generation
   $: chartData = generateChartData(bmiValue, age, height, weight);
   $: hasData = Boolean(bmiValue && age && height && weight && chartData.length);
-  
+
+  function getMinWeight(data: Array<{ weight: number }>) {
+    let min = Infinity;
+    for (const d of data) {
+      if (d.weight < min) min = d.weight;
+    }
+    return min === Infinity ? 0 : min;
+  }
+
+  function getMaxWeight(data: Array<{ weight: number }>) {
+    let max = -Infinity;
+    for (const d of data) {
+      if (d.weight > max) max = d.weight;
+    }
+    return max === -Infinity ? 1 : max;
+  }
+
+  function getMinBmi(data: Array<{ bmi: number }>) {
+    let min = Infinity;
+    for (const d of data) {
+      if (d.bmi < min) min = d.bmi;
+    }
+    return min === Infinity ? 0 : min;
+  }
+
+  function getMaxBmi(data: Array<{ bmi: number }>) {
+    let max = -Infinity;
+    for (const d of data) {
+      if (d.bmi > max) max = d.bmi;
+    }
+    return max === -Infinity ? 1 : max;
+  }
+
+  $: minWeight = chartData.length ? getMinWeight(chartData) : 0;
+  $: maxWeight = chartData.length ? getMaxWeight(chartData) : 1;
+
   // Debug logging
   $: {
-    console.log('Chart Data Update:', { bmiValue, age, height, weight, chartDataLength: chartData.length });
+    if (import.meta.env.DEV) {
+      console.log('Chart Data Update:', { bmiValue, age, height, weight, chartDataLength: chartData.length });
+    }
   }
 
   // Always show chart with fallback domain [0,1] when no data
-  $: yDataMin = chartData.length ? Math.min(...chartData.map(d => d.bmi)) : 0;
-  $: yDataMax = chartData.length ? Math.max(...chartData.map(d => d.bmi)) : 1;
+  $: yDataMin = chartData.length ? getMinBmi(chartData) : 0;
+  $: yDataMax = chartData.length ? getMaxBmi(chartData) : 1;
   // Use exact data range, fallback to [0,1] for visibility
   $: yMin = chartData.length ? (yDataMin === yDataMax ? Math.max(0, yDataMin - 0.5) : yDataMin) : 0;
   $: yMax = chartData.length ? (yDataMin === yDataMax ? yDataMin + 0.5 : yDataMax) : 1;
@@ -56,19 +93,19 @@
     const data = [];
     const baseWeight = userWeight;
     const heightInM = userHeight / 100;
-    
+
     // Generate points showing BMI progression with weight changes
     for (let weightOffset = -20; weightOffset <= 20; weightOffset += 2) {
       const newWeight = Math.max(40, baseWeight + weightOffset);
       const newBmi = newWeight / (heightInM * heightInM);
-      
+
       data.push({
         weight: newWeight,
         bmi: parseFloat(newBmi.toFixed(1)),
         isCurrentPoint: Math.abs(weightOffset) < 1
       });
     }
-    
+
     return data;
   }
 
@@ -77,9 +114,7 @@
   }
 
   function getXPosition(weight: number) {
-    if (!chartData.length) return 0;
-    const minWeight = Math.min(...chartData.map(d => d.weight));
-    const maxWeight = Math.max(...chartData.map(d => d.weight));
+    if (!chartData.length || maxWeight === minWeight) return 0;
     return ((weight - minWeight) / (maxWeight - minWeight)) * innerWidth;
   }
 
@@ -145,6 +180,8 @@
   }
 
   function handleLeave() {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
     showTooltip = false;
   }
 
@@ -168,6 +205,11 @@
     };
   });
 
+  onDestroy(() => {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+  });
+
   // Chart always visible by design
  </script>
   <div class="chart-container">
@@ -183,7 +225,7 @@
 
     <div class="chart-wrapper" bind:this={wrapperEl}>
       <!-- Always show chart, remove visibility blocking -->
-      <svg 
+      <svg
           class="dynamic-chart"
           viewBox={`0 0 ${chartWidth} ${chartHeight}`}
           preserveAspectRatio="xMidYMid meet"
@@ -232,16 +274,16 @@
           </linearGradient>
           <filter id="softGlow">
             <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
-            <feMerge> 
+            <feMerge>
               <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/> 
+              <feMergeNode in="SourceGraphic"/>
             </feMerge>
           </filter>
           <filter id="neonGlow">
             <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-            <feMerge> 
+            <feMerge>
               <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/> 
+              <feMergeNode in="SourceGraphic"/>
             </feMerge>
           </filter>
         </defs>
@@ -278,15 +320,15 @@
 
         <!-- Chart line -->
         {#if chartData.length > 1}
-          <polyline 
-            points={chartData.map(d => `${margin.left + getXPosition(d.weight)},${margin.top + getYPosition(d.bmi)}`).join(' ')} 
-            fill="none" 
-            stroke="url(#lineGradient)" 
-            stroke-width="3" 
+          <polyline
+            points={chartData.map(d => `${margin.left + getXPosition(d.weight)},${margin.top + getYPosition(d.bmi)}`).join(' ')}
+            fill="none"
+            stroke="url(#lineGradient)"
+            stroke-width="3"
             filter="url(#softGlow)"
             class="bmi-line"
           />
-          
+
           <!-- Fill area under curve -->
           <path
             d="M {margin.left + getXPosition(chartData[0].weight)},${margin.top + innerHeight} L {chartData.map(d => `${margin.left + getXPosition(d.weight)},${margin.top + getYPosition(d.bmi)}`).join(' L ')} L ${margin.left + getXPosition(chartData[chartData.length - 1].weight)},${margin.top + innerHeight} Z"
@@ -344,25 +386,25 @@
 
         <!-- Grid lines -->
         {#each Array(5) as _unused, i (i)}
-          <line 
-            x1="60" 
-            y1={60 + i * 60} 
-            x2="540" 
-            y2={60 + i * 60} 
-            stroke="#1e293b" 
-            stroke-width="1" 
+          <line
+            x1="60"
+            y1={60 + i * 60}
+            x2="540"
+            y2={60 + i * 60}
+            stroke="#1e293b"
+            stroke-width="1"
             opacity="0.4"
           />
         {/each}
-        
+
         {#each Array(9) as _unused, i (i)}
-          <line 
-            x1={60 + i * 60} 
-            y1="60" 
-            x2={60 + i * 60} 
-            y2="300" 
-            stroke="#1e293b" 
-            stroke-width="1" 
+          <line
+            x1={60 + i * 60}
+            y1="60"
+            x2={60 + i * 60}
+            y2="300"
+            stroke="#1e293b"
+            stroke-width="1"
             opacity="0.4"
           />
         {/each}
@@ -371,7 +413,7 @@
         <div class="axis-label axis-x">Weight (kg)</div>
         <div class="axis-label axis-y">BMI</div>
         </svg>
-        
+
         <!-- Loading indicator when no data -->
         {#if !hasData}
           <div class="absolute inset-0 flex items-center justify-center bg-slate-900/50 rounded-lg">
@@ -396,7 +438,7 @@
           <div class="insight-value">{category}</div>
         </div>
       </div>
-      
+
       <div class="insight-card">
         <Target class="w-6 h-6 text-blue-400" />
         <div>
@@ -404,7 +446,7 @@
           <div class="insight-value">18.5 - 24.9</div>
         </div>
       </div>
-      
+
       <div class="insight-card">
         <TrendingUp class="w-6 h-6 text-purple-400" />
         <div>
@@ -422,5 +464,3 @@
       </div>
     </div>
   </div>
-
- 

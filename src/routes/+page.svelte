@@ -11,6 +11,8 @@
   let bmiValue: number | null = null;
   let category: string | null = null;
 
+  const MAX_HISTORY = 100;
+
   // Form inputs default empty strings for validation UX
   let age: string = '';
   let height: string = '';
@@ -22,7 +24,14 @@
     const parsedHeight = parseFloat(h);
     const parsedWeight = parseFloat(w);
 
-    if (!isNaN(parsedHeight) && !isNaN(parsedWeight) && parsedHeight > 0 && parsedWeight > 0) {
+    if (
+      Number.isFinite(parsedHeight) &&
+      Number.isFinite(parsedWeight) &&
+      parsedHeight > 0 &&
+      parsedHeight <= 300 &&
+      parsedWeight > 0 &&
+      parsedWeight <= 1000
+    ) {
       const heightInM = parsedHeight / 100;
       const bmi = parsedWeight / (heightInM * heightInM);
       bmiValue = parseFloat(bmi.toFixed(2));
@@ -39,7 +48,8 @@
       }
 
       // Add to history
-      bmiHistory = [...bmiHistory, { bmi: bmiValue, timestamp: new Date() }];
+      const nextEntry = { bmi: bmiValue, timestamp: new Date() };
+      bmiHistory = [...bmiHistory.slice(-(MAX_HISTORY - 1)), nextEntry];
     } else {
       bmiValue = null;
       category = null;
@@ -62,7 +72,12 @@
 
   onMount(() => {
     // Smooth scrolling optimization
+    const prevScrollBehavior = document.documentElement.style.scrollBehavior;
     document.documentElement.style.scrollBehavior = 'smooth';
+
+    return () => {
+      document.documentElement.style.scrollBehavior = prevScrollBehavior;
+    };
   });
 </script>
 

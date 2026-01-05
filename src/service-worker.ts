@@ -15,6 +15,28 @@ const RUNTIME_CACHE = `runtime-${version}`;
 // Assets to cache immediately
 const PRECACHE_URLS = [...build, ...files];
 
+const MAX_RUNTIME_ENTRIES = 60;
+
+let runtimeTrimInProgress = false;
+
+async function trimCache(cacheName: string, maxEntries: number) {
+	const cache = await caches.open(cacheName);
+	const keys = await cache.keys();
+	if (keys.length <= maxEntries) return;
+	const excess = keys.length - maxEntries;
+	await Promise.all(keys.slice(0, excess).map((k) => cache.delete(k)));
+}
+
+async function trimRuntimeCacheOnce() {
+	if (runtimeTrimInProgress) return;
+	runtimeTrimInProgress = true;
+	try {
+		await trimCache(RUNTIME_CACHE, MAX_RUNTIME_ENTRIES);
+	} finally {
+		runtimeTrimInProgress = false;
+	}
+}
+
 // Install event - cache core assets
 sw.addEventListener('install', (event) => {
 	event.waitUntil(
@@ -74,7 +96,7 @@ sw.addEventListener('fetch', (event) => {
 				) {
 					const responseToCache = response.clone();
 					caches.open(RUNTIME_CACHE).then((cache) => {
-						cache.put(request, responseToCache);
+						cache.put(request, responseToCache).then(() => trimRuntimeCacheOnce());
 					});
 				}
 

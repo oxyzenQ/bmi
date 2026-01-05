@@ -16,15 +16,32 @@ export interface PerformanceMetrics {
 export function reportWebVitals(onReport: (metric: { name: string; value: number }) => void) {
 	if (typeof window === 'undefined') return;
 
+	let fcpObserver: PerformanceObserver | null = null;
+	let lcpObserver: PerformanceObserver | null = null;
+	let fidObserver: PerformanceObserver | null = null;
+	let clsObserver: PerformanceObserver | null = null;
+
+	let stopped = false;
+	const stop = () => {
+		stopped = true;
+		try { fcpObserver?.disconnect(); } catch { }
+		try { lcpObserver?.disconnect(); } catch { }
+		try { fidObserver?.disconnect(); } catch { }
+		try { clsObserver?.disconnect(); } catch { }
+	};
+
+	window.addEventListener('pagehide', stop, { once: true });
+
 	// FCP - First Contentful Paint
-	const fcpObserver = new PerformanceObserver((list) => {
+	fcpObserver = new PerformanceObserver((list) => {
 		const entries = list.getEntries();
 		const fcpEntry = entries.find(entry => entry.name === 'first-contentful-paint');
 		if (fcpEntry) {
 			onReport({ name: 'FCP', value: fcpEntry.startTime });
+			try { fcpObserver?.disconnect(); } catch { }
 		}
 	});
-	
+
 	try {
 		fcpObserver.observe({ entryTypes: ['paint'] });
 	} catch {
@@ -32,7 +49,8 @@ export function reportWebVitals(onReport: (metric: { name: string; value: number
 	}
 
 	// LCP - Largest Contentful Paint
-	const lcpObserver = new PerformanceObserver((list) => {
+	lcpObserver = new PerformanceObserver((list) => {
+		if (stopped) return;
 		const entries = list.getEntries();
 		const lastEntry = entries[entries.length - 1];
 		if (lastEntry) {
@@ -47,12 +65,14 @@ export function reportWebVitals(onReport: (metric: { name: string; value: number
 	}
 
 	// FID - First Input Delay
-	const fidObserver = new PerformanceObserver((list) => {
+	fidObserver = new PerformanceObserver((list) => {
+		if (stopped) return;
 		const entries = list.getEntries();
 		const firstInput = entries[0] as PerformanceEntry & { processingStart?: number };
 		if (firstInput && 'processingStart' in firstInput && firstInput.processingStart) {
 			const fid = firstInput.processingStart - firstInput.startTime;
 			onReport({ name: 'FID', value: fid });
+			try { fidObserver?.disconnect(); } catch { }
 		}
 	});
 
@@ -64,7 +84,8 @@ export function reportWebVitals(onReport: (metric: { name: string; value: number
 
 	// CLS - Cumulative Layout Shift
 	let clsValue = 0;
-	const clsObserver = new PerformanceObserver((list) => {
+	clsObserver = new PerformanceObserver((list) => {
+		if (stopped) return;
 		for (const entry of list.getEntries()) {
 			const layoutShiftEntry = entry as PerformanceEntry & { hadRecentInput?: boolean; value: number };
 			if (!layoutShiftEntry.hadRecentInput) {
@@ -79,6 +100,8 @@ export function reportWebVitals(onReport: (metric: { name: string; value: number
 	} catch {
 		// CLS not supported
 	}
+
+	return stop;
 }
 
 /**
@@ -108,13 +131,13 @@ export function debounce<T extends (...args: never[]) => unknown>(
 	wait: number
 ): (...args: Parameters<T>) => void {
 	let timeout: ReturnType<typeof setTimeout> | null = null;
-	
+
 	return function executedFunction(...args: Parameters<T>) {
 		const later = () => {
 			timeout = null;
 			func(...args);
 		};
-		
+
 		if (timeout) clearTimeout(timeout);
 		timeout = setTimeout(later, wait);
 	};
@@ -128,7 +151,7 @@ export function throttle<T extends (...args: never[]) => unknown>(
 	limit: number
 ): (...args: Parameters<T>) => void {
 	let inThrottle: boolean;
-	
+
 	return function executedFunction(...args: Parameters<T>) {
 		if (!inThrottle) {
 			func(...args);
@@ -154,7 +177,7 @@ export function getPerformanceTier(): 'high' | 'medium' | 'low' {
 
 	// Check for hardware concurrency (CPU cores)
 	const cores = navigator.hardwareConcurrency || 2;
-	
+
 	// Check for device memory (if available)
 	const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory || 4; // Default to 4GB
 
