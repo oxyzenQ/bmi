@@ -1,3 +1,4 @@
+---
 name: 🎉 Release Publisher
 
 on:
@@ -11,33 +12,33 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Get tag name
         id: tag
-        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-      
+        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-      
+
       - name: Install dependencies
         run: bun install
-      
+
       - name: Install adapter-static
         run: bun add -D @sveltejs/adapter-static
-      
+
       - name: Backup original config and create static build config
         run: |
           # Backup original config
           mv svelte.config.js svelte.config.js.bak
-          
+
           # Create static build config
           cat > svelte.config.js << 'EOF'
           import adapter from '@sveltejs/adapter-static';
@@ -45,7 +46,7 @@ jobs:
 
           const config = {
             preprocess: vitePreprocess(),
-            kit: { 
+            kit: {
               adapter: adapter({
                 pages: 'build',
                 assets: 'build',
@@ -58,59 +59,59 @@ jobs:
 
           export default config;
           EOF
-          
+
           # Enable prerendering for static build
           echo "export const prerender = true;" > src/routes/+layout.js
-      
+
       - name: Build project with static adapter
         run: bun run build
-      
+
       - name: Restore original config
         run: |
           mv svelte.config.js.bak svelte.config.js
           rm -f src/routes/+layout.js
-      
+
       - name: Generate changelog
         id: changelog
         run: |
           # Get previous tag
           PREVIOUS_TAG=$(git tag --sort=-creatordate | grep -v "^${{ steps.tag.outputs.TAG_NAME }}$" | head -n 1)
-          
+
           if [ -z "$PREVIOUS_TAG" ]; then
             # First release - get all commits from first commit
             FIRST_COMMIT=$(git rev-list --max-parents=0 HEAD)
-            COMMITS=$(git log ${FIRST_COMMIT}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+            COMMITS=$(git log "${FIRST_COMMIT}..HEAD" --pretty=format:"- %s (%h)" --no-merges)
           else
             # Subsequent release - get commits since last tag
-            COMMITS=$(git log ${PREVIOUS_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+            COMMITS=$(git log "${PREVIOUS_TAG}..HEAD" --pretty=format:"- %s (%h)" --no-merges)
           fi
-          
+
           # Save changelog to file
           {
             echo "CHANGELOG<<EOF"
             echo "$COMMITS"
             echo "EOF"
-          } >> $GITHUB_OUTPUT
-      
+          } >> "$GITHUB_OUTPUT"
+
       - name: Create release package
         run: |
           # Create package directory
           mkdir -p release-package
-          
+
           # Copy build artifacts
           cp -r build release-package/
           cp package.json release-package/
           cp README.md release-package/
           cp LICENSE.md release-package/
-          
+
           # Create zip file
           cd release-package
           zip -r ../bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip .
           cd ..
-          
+
           # Generate SHA256 checksum
           sha256sum bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip > bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
-      
+
       - name: Create release notes
         id: release_notes
         run: |
@@ -165,10 +166,10 @@ jobs:
             echo "**Built with:** SvelteKit + TypeScript + Vite"
             echo "**Team:** LOGIGO"
             echo "EOF"
-          } >> $GITHUB_OUTPUT
-      
+          } >> "$GITHUB_OUTPUT"
+
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: BMI Stellar Edition ${{ steps.tag.outputs.TAG_NAME }}
           body: ${{ steps.release_notes.outputs.NOTES }}

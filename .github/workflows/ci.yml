@@ -1,3 +1,4 @@
+---
 name: ✅ CI/CD Pipeline
 
 on:
@@ -16,31 +17,31 @@ jobs:
   quality-check:
     name: Quality Checks
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-      
+
       - name: Install dependencies
         run: bun install
-      
+
       - name: Run type checking
         run: bun run type-check
-      
+
       - name: Run linting
         run: bun run lint
-      
+
       - name: Run tests
         run: bun run test:run
-      
+
       - name: Build project
         run: bun run build
-      
+
       - name: Check bundle size
         run: |
           if [ -d "build" ]; then

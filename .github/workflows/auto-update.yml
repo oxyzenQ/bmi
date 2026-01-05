@@ -1,29 +1,176 @@
+---
 name: 🔄 Auto Update Dependencies
 
 on:
   schedule:
     - cron: '0 0 * * *'   # Daily at 00:00 UTC (08:00 SGT)
   workflow_dispatch:       # Manual trigger option
+    inputs:
+      strategy:
+        description: How to publish updates
+        type: choice
+        options:
+          - direct
+          - pr
+        default: direct
+      force_update:
+        description: Continue even if checks fail
+        type: boolean
+        default: false
+      update_workflows:
+        description: Also update GitHub Actions versions in workflows
+        type: boolean
+        default: true
+      allow_major_updates:
+        description: Allow major version updates for GitHub Actions
+        type: boolean
+        default: false
 
 permissions:
   contents: write
   actions: read
+  pull-requests: write
+
+env:
+  BOT_TOKEN: ${{ secrets.T800_TOKEN || github.token }}
+  HAS_PAT: ${{ secrets.T800_TOKEN != '' }}
+  UPDATE_STRATEGY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.strategy || 'direct' }}
+  FORCE_UPDATE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_update || 'false' }}
+  UPDATE_WORKFLOWS: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.update_workflows || 'true' }}
+  ALLOW_MAJOR_UPDATES: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.allow_major_updates || 'false' }}
 
 jobs:
   auto-update:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      
+          token: ${{ env.BOT_TOKEN }}
+          fetch-depth: 0
+
+      - name: 🤖 Self-Update GitHub Actions
+        if: env.UPDATE_WORKFLOWS == 'true' && env.HAS_PAT == 'true'
+        env:
+          GH_TOKEN: ${{ env.BOT_TOKEN }}
+          ALLOW_MAJOR_UPDATES: ${{ env.ALLOW_MAJOR_UPDATES }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import urllib.request
+          from pathlib import Path
+
+          token = os.environ.get("GH_TOKEN", "")
+          allow_major = os.environ.get("ALLOW_MAJOR_UPDATES", "false").lower() == "true"
+          github_env = os.environ["GITHUB_ENV"]
+
+          def append_env_line(line: str) -> None:
+            with open(github_env, "a", encoding="utf-8") as f:
+              f.write(f"{line}\n")
+
+          def append_env_multiline(key: str, value: str) -> None:
+            with open(github_env, "a", encoding="utf-8") as f:
+              f.write(f"{key}<<EOF\n{value}\nEOF\n")
+
+          def parse_semver(tag: str):
+            if not tag.startswith("v"):
+              return None
+            s = tag[1:]
+            if not re.match(r"^\d+(?:\.\d+){0,2}$", s):
+              return None
+            parts = [int(p) for p in s.split(".")]
+            while len(parts) < 3:
+              parts.append(0)
+            return tuple(parts[:3])
+
+          def get_latest_tag(repo: str) -> str | None:
+            url = f"https://api.github.com/repos/{repo}/releases/latest"
+            req = urllib.request.Request(url)
+            req.add_header("Accept", "application/vnd.github+json")
+            req.add_header("X-GitHub-Api-Version", "2022-11-28")
+            if token:
+              req.add_header("Authorization", f"Bearer {token}")
+            try:
+              with urllib.request.urlopen(req, timeout=30) as resp:
+                payload = json.loads(resp.read().decode("utf-8"))
+              tag = payload.get("tag_name")
+              if isinstance(tag, str) and tag:
+                return tag
+              return None
+            except Exception:
+              return None
+
+          files = sorted(Path(".github/workflows").glob("*.yml"))
+          uses_re = re.compile(
+            r"^(?P<prefix>\s*uses:\s*)(?P<repo>[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)@(?P<ref>[^\s#]+)(?P<suffix>\s*(?:#.*)?)$"
+          )
+
+          updates = []
+          skipped_majors = []
+          touched = False
+
+          for path in files:
+            original = path.read_text(encoding="utf-8")
+            out_lines = []
+            changed = False
+
+            for line in original.splitlines(True):
+              m = uses_re.match(line.rstrip("\n"))
+              if not m:
+                out_lines.append(line)
+                continue
+
+              repo = m.group("repo")
+              ref = m.group("ref")
+
+              expr_start = "$" + "{{"
+              if expr_start in ref:
+                out_lines.append(line)
+                continue
+
+              current_ver = parse_semver(ref)
+              if current_ver is None:
+                out_lines.append(line)
+                continue
+
+              latest = get_latest_tag(repo)
+              latest_ver = parse_semver(latest) if isinstance(latest, str) else None
+              if latest is None or latest_ver is None:
+                out_lines.append(line)
+                continue
+
+              if latest_ver == current_ver:
+                out_lines.append(line)
+                continue
+
+              if (not allow_major) and (latest_ver[0] != current_ver[0]):
+                skipped_majors.append(f"{repo}@{ref} -> {latest}")
+                out_lines.append(line)
+                continue
+
+              new_line = f"{m.group('prefix')}{repo}@{latest}{m.group('suffix')}\n"
+              out_lines.append(new_line)
+              changed = True
+              touched = True
+              updates.append(f"{repo}@{ref} -> {latest}")
+
+            if changed:
+              path.write_text("".join(out_lines), encoding="utf-8")
+
+          append_env_line(f"workflows_updated={'true' if touched else 'false'}")
+          append_env_line(f"workflows_has_major_updates={'true' if skipped_majors else 'false'}")
+          append_env_multiline("WORKFLOWS_UPDATES", "\n".join(updates) if updates else "")
+          append_env_multiline("WORKFLOWS_SKIPPED_MAJORS", "\n".join(skipped_majors) if skipped_majors else "")
+          PY
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-      
+
       - name: Cache Bun dependencies
         uses: actions/cache@v4
         with:
@@ -31,54 +178,52 @@ jobs:
           key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
           restore-keys: |
             ${{ runner.os }}-bun-
-      
+
       - name: Install current dependencies
         run: bun install
-      
+
       - name: Update all dependencies
         run: |
           echo "🔄 Updating dependencies..."
           bun update
-          
+
           echo "🔍 Checking for security vulnerabilities..."
           bun audit || true
-      
+
       - name: Run quality checks
         run: |
           echo "✅ Running type checking..."
-          bun run type-check || echo "⚠️ Type check failed, but continuing..."
-          
+          bun run type-check
+
           echo "✅ Running linter..."
-          bun run lint || echo "⚠️ Lint failed, but continuing..."
-          
+          bun run lint
+
           echo "✅ Running tests..."
-          bun run test:run || echo "⚠️ Tests failed, but continuing..."
-        continue-on-error: true
-      
+          bun run test:run
+        continue-on-error: ${{ env.FORCE_UPDATE == 'true' }}
+
       - name: Build project
         run: |
           echo "🏗️ Building project..."
           bun run build
-      
+
       - name: Check for changes
         id: check_changes
         run: |
           git add -A
           if git diff --staged --quiet; then
-            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "changes=false" >> "$GITHUB_OUTPUT"
             echo "📦 No dependency updates available"
           else
-            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "changes=true" >> "$GITHUB_OUTPUT"
             echo "📦 Dependencies updated!"
             git diff --staged --stat
           fi
-      
+
       - name: Commit and push changes
+        id: commit_msg
         if: steps.check_changes.outputs.changes == 'true'
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
           # Array of creative commit messages
           MESSAGES=(
             "✨ chore(deps): sprinkle fresh dependency updates like cosmic stardust"
@@ -97,33 +242,102 @@ jobs:
             "🔥 chore(deps): ignite performance with blazing dependency updates"
             "💎 chore(deps): polish dependencies until they shine like diamonds"
           )
-          
+
           # Select random message
           RANDOM_MSG=${MESSAGES[$RANDOM % ${#MESSAGES[@]}]}
-          
+
           # Create creative commit message
-          echo "$RANDOM_MSG" > commit_msg.txt
-          echo "" >> commit_msg.txt
-          echo "🤖 Automated by the tireless GitHub Actions Bot" >> commit_msg.txt
-          echo "📦 Updated $(git diff --staged --name-only | wc -l) file(s)" >> commit_msg.txt
-          echo "⏰ $(date -u '+%A, %B %d, %Y at %H:%M:%S UTC')" >> commit_msg.txt
-          echo "🎯 Workflow: auto-update.yml" >> commit_msg.txt
-          
+          {
+            echo "$RANDOM_MSG"
+            echo ""
+            echo "🤖 Automated by the tireless GitHub Actions Bot"
+            echo "📦 Updated $(git diff --staged --name-only | wc -l) file(s)"
+            echo "⏰ $(date -u '+%A, %B %d, %Y at %H:%M:%S UTC')"
+            echo "🎯 Workflow: auto-update.yml"
+          } > commit_msg.txt
+
+          {
+            echo "title=${RANDOM_MSG}"
+            echo "commit_message=${RANDOM_MSG}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push changes (direct)
+        if: steps.check_changes.outputs.changes == 'true' && env.UPDATE_STRATEGY == 'direct'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git commit -F commit_msg.txt
           git push origin main
-          
-          echo "✅ Changes committed with style and pushed to main!"
-      
+
+          echo "✅ Changes committed and pushed to main!"
+
+      - name: Create pull request (pr)
+        id: cpr
+        if: steps.check_changes.outputs.changes == 'true' && env.UPDATE_STRATEGY == 'pr'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ env.BOT_TOKEN }}
+          commit-message: ${{ steps.commit_msg.outputs.commit_message }}
+          title: ${{ steps.commit_msg.outputs.title }}
+          body: ${{ steps.commit_msg.outputs.title }}
+          branch: bot/auto-update-deps
+          delete-branch: true
+
       - name: Summary
         if: always()
         run: |
-          echo "## 🎯 Auto Update Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.check_changes.outputs.changes }}" == "true" ]; then
-            echo "✅ **Dependencies updated and pushed to main**" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "✨ **No updates needed - all dependencies are up to date**" >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🤖 Automated by: github-actions[bot]" >> $GITHUB_STEP_SUMMARY
-          echo "📅 Run date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "════════════════════════════════════════════════════════"
+            echo "🤖 AUTO UPDATE SUMMARY"
+            echo "════════════════════════════════════════════════════════"
+            echo ""
+            echo "Strategy: ${{ env.UPDATE_STRATEGY }}"
+            echo "Force Update: ${{ env.FORCE_UPDATE }}"
+            echo "Workflow Updates: ${{ env.UPDATE_WORKFLOWS }}"
+            echo "Allow Major Updates: ${{ env.ALLOW_MAJOR_UPDATES }}"
+            echo ""
+
+            if [ "${{ steps.check_changes.outputs.changes }}" == "true" ]; then
+              echo "✨ Updates Applied:"
+              echo "  - 📦 Dependencies updated"
+              echo "  - 🔒 Security audit executed"
+
+              if [ "${{ env.workflows_updated }}" == "true" ]; then
+                echo "  - 🔄 GitHub Actions updated"
+              fi
+              echo ""
+
+              if [ "${{ env.UPDATE_STRATEGY }}" == "direct" ]; then
+                echo "✅ Changes pushed to main branch"
+                echo "📍 Commit: $(git rev-parse HEAD)"
+              else
+                echo "✅ Pull request created"
+                echo "🔗 PR: ${{ steps.cpr.outputs.pull-request-url }}"
+              fi
+            else
+              echo "✅ No updates needed - everything is current!"
+
+              if [ "${{ env.workflows_has_major_updates }}" == "true" ]; then
+                echo ""
+                echo "⚠️  Major version updates available (not applied)"
+                echo "   Run with allow_major_updates=true to apply them"
+              fi
+            fi
+
+            if [ -n "${{ env.WORKFLOWS_UPDATES }}" ]; then
+              echo ""
+              echo "🔄 Workflow updates:"
+              echo "${{ env.WORKFLOWS_UPDATES }}"
+            fi
+
+            echo ""
+            echo "════════════════════════════════════════════════════════"
+            echo "⏰ Next run: 00:00 UTC (08:00 SGT)"
+            echo "🚀 Manual trigger: Actions → Auto Update Dependencies"
+            echo "════════════════════════════════════════════════════════"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true

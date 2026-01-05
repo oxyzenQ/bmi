@@ -1,0 +1,17 @@
+extends: default
+
+ignore: |
+  **/*.md
+  .git/
+  node_modules/
+  build/
+  dist/
+
+rules:
+  trailing-spaces: disable
+  truthy:
+    check-keys: false
+  line-length:
+    max: 200
+  document-start:
+    present: true
