@@ -1,5 +1,5 @@
 ---
-name: 🔄 Auto Update Dependencies
+name: ⛑️ Auto Update Dependencies
 
 on:
   schedule:

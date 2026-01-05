@@ -24,10 +24,10 @@ export function reportWebVitals(onReport: (metric: { name: string; value: number
 	let stopped = false;
 	const stop = () => {
 		stopped = true;
-		try { fcpObserver?.disconnect(); } catch { }
-		try { lcpObserver?.disconnect(); } catch { }
-		try { fidObserver?.disconnect(); } catch { }
-		try { clsObserver?.disconnect(); } catch { }
+		try { fcpObserver?.disconnect(); } catch (e) { void e; }
+		try { lcpObserver?.disconnect(); } catch (e) { void e; }
+		try { fidObserver?.disconnect(); } catch (e) { void e; }
+		try { clsObserver?.disconnect(); } catch (e) { void e; }
 	};
 
 	window.addEventListener('pagehide', stop, { once: true });
@@ -38,7 +38,7 @@ export function reportWebVitals(onReport: (metric: { name: string; value: number
 		const fcpEntry = entries.find(entry => entry.name === 'first-contentful-paint');
 		if (fcpEntry) {
 			onReport({ name: 'FCP', value: fcpEntry.startTime });
-			try { fcpObserver?.disconnect(); } catch { }
+			try { fcpObserver?.disconnect(); } catch (e) { void e; }
 		}
 	});
 
@@ -72,7 +72,7 @@ export function reportWebVitals(onReport: (metric: { name: string; value: number
 		if (firstInput && 'processingStart' in firstInput && firstInput.processingStart) {
 			const fid = firstInput.processingStart - firstInput.startTime;
 			onReport({ name: 'FID', value: fid });
-			try { fidObserver?.disconnect(); } catch { }
+			try { fidObserver?.disconnect(); } catch (e) { void e; }
 		}
 	});
 

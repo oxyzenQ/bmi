@@ -23,7 +23,8 @@
     "build:analyze": "vite build --mode analyze",
     "deploy": "bun run build && bun run preview",
     "build:optimized": "NODE_ENV=production vite build --mode production",
-    "analyze": "vite build --mode analyze"
+    "analyze": "vite build --mode analyze",
+    "verify": "bun run check && bun run lint && bun run test:run && bun run build"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.1",

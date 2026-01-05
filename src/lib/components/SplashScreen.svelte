@@ -1,11 +1,14 @@
 <script lang="ts">
-  import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+  import { onMount, onDestroy, createEventDispatcher, afterUpdate } from 'svelte';
   import { fade, fly, scale } from 'svelte/transition';
   import { quintOut, backOut } from 'svelte/easing';
   import { Rocket } from 'lucide-svelte';
 
   export let show = true;
   export let duration = 10000;
+
+  let visible = show;
+  let lastShow = show;
 
   let splashPhase = 'loading'; // 'loading' -> 'content' -> 'exit'
   let showTitle = false;
@@ -47,10 +50,22 @@
     }
   }
 
+  function resetVisualState() {
+    splashPhase = 'loading';
+    showTitle = false;
+    showSubtitle = false;
+    showLoader = true;
+    showSkipButton = false;
+    showRocket = false;
+    currentTitleText = "";
+    currentSubtitleText = "";
+  }
+
   function start() {
     if (started || cancelled || !mounted) return;
     started = true;
     cancelled = false;
+    visible = true;
 
     const r = {
       titleStart: 1 / 6,
@@ -102,29 +117,35 @@
     }, exitDelay);
 
     schedule(() => {
-      show = false;
+      visible = false;
       dispatch('complete');
     }, duration);
   }
 
   onMount(() => {
     mounted = true;
+    visible = show;
+    lastShow = show;
     if (show) start();
   });
 
-  $: if (mounted && !show && started) {
-    cancelled = true;
-    clearTimers();
-    started = false;
-  }
+  afterUpdate(() => {
+    if (!mounted) return;
+    if (show === lastShow) return;
 
-  $: if (mounted && show && cancelled) {
-    cancelled = false;
-  }
+    if (!show) {
+      cancelled = true;
+      clearTimers();
+      started = false;
+      visible = false;
+    } else {
+      cancelled = false;
+      resetVisualState();
+      start();
+    }
 
-  $: if (mounted && show && !started) {
-    start();
-  }
+    lastShow = show;
+  });
 
   onDestroy(() => {
     cancelled = true;
@@ -137,12 +158,12 @@
     clearTimers();
     started = false;
     splashPhase = 'exit';
-    show = false;
+    visible = false;
     dispatch('complete');
   }
 </script>
 
-{#if show}
+{#if visible}
   <div
     class="splash-screen"
     class:exit-phase={splashPhase === 'exit'}
