@@ -403,7 +403,8 @@ a.button {
     background var(--dur-fast) var(--easing-smooth),
     border-color var(--dur-fast) var(--easing-smooth);
   box-shadow: var(--btn-shadow);
-  backdrop-filter: blur(8px) saturate(140%); /* Reduced for performance */
+  backdrop-filter: blur(8px) saturate(140%);
+  /* Reduced for performance */
   -webkit-backdrop-filter: blur(8px) saturate(140%);
   border-radius: var(--btn-radius);
 }
@@ -446,7 +447,8 @@ button[aria-disabled="true"] {
   border-bottom: var(--border-by-rezky);
   border-left: var(--border-by-rezky);
   border-right: var(--border-by-rezky);
-  backdrop-filter: blur(10px) saturate(150%); /* Reduced for performance */
+  backdrop-filter: blur(10px) saturate(150%);
+  /* Reduced for performance */
   -webkit-backdrop-filter: blur(10px) saturate(150%);
   transition: all 0.25s ease;
 }
@@ -591,8 +593,10 @@ button[aria-disabled="true"] {
 .orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(20px); /* Reduced from 40px for better performance */
-  opacity: 0.2; /* Reduced from 0.25 for lighter GPU load */
+  filter: blur(20px);
+  /* Reduced from 40px for better performance */
+  opacity: 0.2;
+  /* Reduced from 0.25 for lighter GPU load */
   animation: orbFloat 20s ease-in-out infinite;
 }
 
@@ -1794,6 +1798,53 @@ button[aria-disabled="true"] {
   background: rgba(255, 255, 255, 0.04);
 }
 
+.reference-table .ref-row.ref-row-underweight {
+  --ref-row-accent: rgba(96, 165, 250, 0.40);
+}
+
+.reference-table .ref-row.ref-row-normal {
+  --ref-row-accent: rgba(16, 185, 129, 0.40);
+}
+
+.reference-table .ref-row.ref-row-overweight {
+  --ref-row-accent: rgba(245, 158, 11, 0.40);
+}
+
+.reference-table .ref-row.ref-row-obese {
+  --ref-row-accent: rgba(239, 68, 68, 0.42);
+}
+
+.reference-table .ref-row.ref-row-underweight,
+.reference-table .ref-row.ref-row-normal,
+.reference-table .ref-row.ref-row-overweight,
+.reference-table .ref-row.ref-row-obese {
+  position: relative;
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.06),
+      rgba(255, 255, 255, 0.02));
+  border-bottom: 2px solid rgba(255, 255, 255, 0.10);
+  box-shadow:
+    inset 0 0 0 1px rgba(229, 231, 235, 0.20),
+    inset 4px 0 0 var(--ref-row-accent),
+    0 0 0 1px rgba(148, 163, 184, 0.08);
+}
+
+.reference-table .ref-row.ref-row-underweight:hover,
+.reference-table .ref-row.ref-row-normal:hover,
+.reference-table .ref-row.ref-row-overweight:hover,
+.reference-table .ref-row.ref-row-obese:hover {
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.08),
+      rgba(255, 255, 255, 0.03));
+}
+
+.reference-table .ref-row.ref-row-obese {
+  box-shadow:
+    inset 0 0 0 1px rgba(229, 231, 235, 0.22),
+    inset 4px 0 0 var(--ref-row-accent),
+    0 0 0 1px rgba(148, 163, 184, 0.10);
+}
+
 .reference-table .ref-col strong {
   color: #f8fafc;
   font-weight: 700;
@@ -2780,7 +2831,10 @@ button[aria-disabled="true"] {
 }
 
 /* icon about */
-.PackageCheck, .GitCompare, .Brush, .Scale{
+.PackageCheck,
+.GitCompare,
+.Brush,
+.Scale {
   color: green;
 }
 

@@ -79,7 +79,13 @@
 
   <div class="ref-body">
     {#each bmiCategories as category (category.category)}
-      <div class="ref-row">
+      <div
+        class="ref-row"
+        class:ref-row-underweight={category.category === 'Underweight'}
+        class:ref-row-normal={category.category === 'Normal Weight'}
+        class:ref-row-overweight={category.category === 'Overweight'}
+        class:ref-row-obese={category.category === 'Obese'}
+      >
         <div class="ref-col" data-label="Category">
           <div class="icon-col">
             <svelte:component this={category.icon} class={category.iconClass} style={`color: ${category.statusColor}`} />
@@ -110,8 +116,8 @@
   <div class="ref-card" style="border-top: 1px solid rgba(255,255,255,0.08);">
     <Info class="Info2" />
     <p class="subtitle" style="margin: 0;">
-      <strong>Note:</strong> BMI is a screening tool and should not be used as a sole diagnostic method. 
-      Individual factors like muscle mass, bone density, and overall health should be considered. 
+      <strong>Note:</strong> BMI is a screening tool and should not be used as a sole diagnostic method.
+      Individual factors like muscle mass, bone density, and overall health should be considered.
       Always consult healthcare professionals for personalized guidance.
     </p>
   </div>
