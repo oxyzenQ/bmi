@@ -108,7 +108,7 @@ jobs:
           errors_count = 0
 
           def get_latest_tag(repo: str) -> Optional[str]:
-            nonlocal requests_made, errors_count
+            global requests_made, errors_count
             if repo in latest_cache:
               return latest_cache[repo]
             if len(latest_cache) >= max_unique_repos:
