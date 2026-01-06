@@ -24,7 +24,7 @@ jobs:
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@v2.1.0
         with:
           bun-version: latest
 
@@ -169,7 +169,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v2.5.0
         with:
           name: BMI Stellar Edition ${{ steps.tag.outputs.TAG_NAME }}
           body: ${{ steps.release_notes.outputs.NOTES }}

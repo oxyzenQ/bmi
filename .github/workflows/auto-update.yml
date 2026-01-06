@@ -227,7 +227,7 @@ jobs:
           PY
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@v2.1.0
         with:
           bun-version: latest
 
