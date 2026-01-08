@@ -4,7 +4,6 @@
   import BmiResults from '$lib/components/BmiResults.svelte';
   import BmiRadialGauge from '$lib/components/BmiRadialGauge.svelte';
   import ReferenceTable from '$lib/components/ReferenceTable.svelte';
-  import { onMount } from 'svelte';
   // icons for About BMI section
   import { Lightbulb, Users, GitCompare, PackageCheck, Brush, AlertTriangle, Scale } from 'lucide-svelte';
 
@@ -70,15 +69,6 @@
     bmiHistory = []; // Clear history
   }
 
-  onMount(() => {
-    // Smooth scrolling optimization
-    const prevScrollBehavior = document.documentElement.style.scrollBehavior;
-    document.documentElement.style.scrollBehavior = 'smooth';
-
-    return () => {
-      document.documentElement.style.scrollBehavior = prevScrollBehavior;
-    };
-  });
 </script>
 
 <svelte:head>

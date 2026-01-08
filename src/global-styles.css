@@ -151,14 +151,10 @@ body {
   margin: 0;
   padding: 0;
   background-color: #0a0e1a;
-  background-image: url('/images/HDRstellar-v1.webp');
-  background-attachment: fixed;
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
   color: var(--text-primary);
   font-family: 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   position: relative;
+  z-index: 0;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: greyscale;
@@ -186,9 +182,24 @@ body::before {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 0.15;
+  opacity: 0.22;
   transform: translateZ(0);
   will-change: opacity;
+}
+
+@media (max-width: 480px) {
+  body::before {
+    background-size: contain;
+    background-position: center top;
+    opacity: 0.28;
+  }
+}
+
+@media (max-width: 480px) and (orientation: landscape) {
+  body::before {
+    background-size: cover;
+    background-position: center;
+  }
 }
 
 /* Gradient overlay for depth */
@@ -204,12 +215,17 @@ body::after {
   height: 100%;
   min-height: 100vh;
   z-index: -2;
-  background-color: rgba(2, 6, 23, 0.85);
-  background-image:
-    radial-gradient(1200px 800px at 15% 20%, rgba(59, 130, 246, 0.12), transparent 60%),
-    radial-gradient(1000px 700px at 85% 30%, rgba(139, 92, 246, 0.10), transparent 60%),
-    linear-gradient(180deg, rgba(2, 6, 23, 0.85), rgba(2, 6, 23, 0.60) 40%, rgba(2, 6, 23, 0.85));
+  background-color: rgba(2, 6, 23, 0);
   pointer-events: none;
+}
+
+@supports (height: 100svh) {
+
+  body::before,
+  body::after {
+    height: 100svh;
+    min-height: 100svh;
+  }
 }
 
 /* ==============================
@@ -3905,6 +3921,70 @@ body.is-scrolling .glass-card,
 body.is-scrolling .glass-panel,
 body.is-scrolling .bmi-card {
   will-change: auto;
+}
+
+body.is-scrolling .liquid-glass,
+body.is-scrolling .hero-content,
+body.is-scrolling .bmi-card,
+body.is-scrolling .footer-disclaimer,
+body.is-scrolling .about-card,
+body.is-scrolling .gauge-container,
+body.is-scrolling .reference-table,
+body.is-scrolling .form-card,
+body.is-scrolling .github-link,
+body.is-scrolling .modal-content,
+body.is-scrolling .section-header,
+body.is-scrolling .section-header-v2,
+body.is-scrolling .btn,
+body.is-scrolling button,
+body.is-scrolling a.button {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  body {
+    background-attachment: scroll;
+  }
+
+  body::before,
+  body::after {
+    position: absolute;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .cosmic-particles {
+    display: none;
+  }
+
+  .liquid-glass:hover,
+  .glass-panel:hover,
+  .btn:hover,
+  button:hover,
+  a.button:hover {
+    transform: none;
+  }
+
+  .liquid-glass,
+  .hero-content,
+  .bmi-card,
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table,
+  .form-card,
+  .github-link,
+  .modal-content,
+  .section-header,
+  .section-header-v2,
+  .btn,
+  button,
+  a.button {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
 }
 
 /* Tighten large card/container shadows generically */

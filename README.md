@@ -27,8 +27,8 @@
 
 ## Tech Stack
 
-**Frontend:** SvelteKit • TypeScript • TailwindCSS  
-**Runtime:** Bun  
+**Frontend:** SvelteKit • TypeScript • Manual CSS
+**Runtime:** Bun
 **Deployment:** Vercel Edge
 
 ## Quick Start

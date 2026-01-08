@@ -8,16 +8,20 @@ export function initScrollOptimizer() {
 
   let scrollTimer: ReturnType<typeof setTimeout>;
   const body = document.body;
+  let isScrolling = false;
 
   const handleScroll = () => {
-    // Add scrolling class to pause animations
-    body.classList.add('is-scrolling');
+    if (!isScrolling) {
+      isScrolling = true;
+      body.classList.add('is-scrolling');
+    }
 
     // Clear previous timer
     clearTimeout(scrollTimer);
 
     // Remove class after scrolling stops
     scrollTimer = setTimeout(() => {
+      isScrolling = false;
       body.classList.remove('is-scrolling');
     }, 150);
   };
