@@ -1,3 +1,4 @@
+import { dev } from '$app/environment';
 import type { Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -10,36 +11,38 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	// Content Security Policy (CSP) - Protects against XSS attacks
 	// More permissive in dev mode for Vite HMR
-	const isDev = event.url.hostname === 'localhost' || event.url.hostname === '127.0.0.1';
-	
+	const isDev = dev;
+
 	const cspDirectives = isDev
 		? [
-				"default-src 'self' 'unsafe-inline' 'unsafe-eval'",
-				"script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:",
-				"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-				"font-src 'self' https://fonts.gstatic.com data:",
-				"img-src 'self' data: blob: https:",
-				"connect-src 'self' ws: wss: https:",
-				"frame-ancestors 'none'",
-				"base-uri 'self'",
-				"form-action 'self'",
-				"object-src 'none'"
-		  ]
+			"default-src 'self' 'unsafe-inline' 'unsafe-eval'",
+			"script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:",
+			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+			"font-src 'self' https://fonts.gstatic.com data:",
+			"img-src 'self' data: blob: https:",
+			"connect-src 'self' ws: wss: https:",
+			"frame-ancestors 'none'",
+			"base-uri 'self'",
+			"form-action 'self'",
+			"object-src 'none'"
+		]
 		: [
-				"default-src 'self'",
-				"script-src 'self' 'unsafe-inline'",
-				"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-				"font-src 'self' https://fonts.gstatic.com data:",
-				"img-src 'self' data: blob: https:",
-				"connect-src 'self' https:",
-				"frame-ancestors 'none'",
-				"base-uri 'self'",
-				"form-action 'self'",
-				"object-src 'none'",
-				"upgrade-insecure-requests"
-		  ];
-	
-	response.headers.set('Content-Security-Policy', cspDirectives.join('; '));
+			"default-src 'self'",
+			"script-src 'self' 'unsafe-inline'",
+			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+			"font-src 'self' https://fonts.gstatic.com data:",
+			"img-src 'self' data: blob: https:",
+			"connect-src 'self' https:",
+			"frame-ancestors 'none'",
+			"base-uri 'self'",
+			"form-action 'self'",
+			"object-src 'none'",
+			"upgrade-insecure-requests"
+		];
+
+	if (!isDev && !response.headers.has('content-security-policy')) {
+		response.headers.set('Content-Security-Policy', cspDirectives.join('; '));
+	}
 
 	// Skip HTTPS-only headers in development
 	if (!isDev) {

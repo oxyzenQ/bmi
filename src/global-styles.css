@@ -164,6 +164,10 @@ body {
   transition: background var(--dur-normal) var(--easing-smooth);
 }
 
+.app-root {
+  display: contents;
+}
+
 /* HDR stellar background image */
 body::before {
   content: '';
@@ -371,7 +375,7 @@ pre {
 .modal-content,
 .section-header,
 .section-header-v2 {
-  background: rgba(0, 0, 0, 0.8);
+  background: rgb(0 0 0 / 60%);
   border: var(--border-by-rezky);
   border-radius: 2rem;
   backdrop-filter: blur(8px) saturate(140%);
@@ -698,7 +702,7 @@ button[aria-disabled="true"] {
   display: block;
   object-fit: cover;
   background: none;
-  border: 2px solid grey;
+  border: 2px solid black;
 }
 
 .hero-title {
@@ -3837,7 +3841,7 @@ p,
   }
 
   .gauge-container {
-    width: min(96vw, 280px);
+    width: min(96vw, 260px);
   }
 }
 
@@ -3851,7 +3855,7 @@ p,
 
 @media (min-width: 768px) {
   .gauge-container {
-    width: min(96vw, 670px);
+    width: min(96vw, 550px);
   }
 }
 
@@ -3950,7 +3954,7 @@ body.is-scrolling a.button {
 
   body::before,
   body::after {
-    position: absolute;
+    position: fixed;
     height: auto !important;
     min-height: 0 !important;
   }

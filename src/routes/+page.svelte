@@ -162,7 +162,7 @@
             <div class="app-info">
               <p class="info-row">
                 <PackageCheck class="PackageCheck" />
-                <strong>Version:</strong>Stellar-3.1
+                <strong>Version:</strong>Stellar-3.2
               </p>
               <p class="info-row">
                 <GitCompare class="GitCompare" />

@@ -40,7 +40,7 @@
 
   <div bind:this={heroContent} class="hero-content">
     <div class="hero-avatar" aria-hidden="true">
-      <img src="/assets/logobmii.webp" alt="BMI Logo" loading="lazy" decoding="async" />
+      <img src="/assets/new_bmi_logo_2026.webp" alt="BMI Logo" loading="lazy" decoding="async" />
     </div>
 
     <h1 class="hero-title">
@@ -69,7 +69,7 @@
 
     <div class="hero-bottom">
       <p class="hero-bottom-text">
-        Stellar Edition 3.1
+        Stellar Edition 3.2
       </p>
     </div>
   </div>
