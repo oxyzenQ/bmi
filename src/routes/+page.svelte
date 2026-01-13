@@ -646,14 +646,11 @@
     max-width: 820px;
     min-width: 0;
     overflow: hidden;
-    background: rgb(0 0 0 / 60%);
-    backdrop-filter: blur(8px) saturate(140%);
-    -webkit-backdrop-filter: blur(8px) saturate(140%);
-    border: var(--border-by-rezky);
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 20px color-mix(in oklab, var(--cosmic-purple) 18%, transparent);
+    background: var(--btn-surface) padding-box, var(--btn-bg);
+    backdrop-filter: blur(14px) saturate(165%);
+    -webkit-backdrop-filter: blur(14px) saturate(165%);
+    border: var(--btn-border);
+    box-shadow: var(--btn-shadow);
     border-radius: 9999px;
     margin-inline: auto;
     position: absolute;
@@ -740,14 +737,11 @@
     max-width: 820px;
     min-width: 0;
     overflow: hidden;
-    background: rgb(0 0 0 / 60%);
-    backdrop-filter: blur(8px) saturate(140%);
-    -webkit-backdrop-filter: blur(8px) saturate(140%);
-    border: var(--border-by-rezky);
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 20px rgba(96, 165, 250, 0.1);
+    background: var(--btn-surface) padding-box, var(--btn-bg);
+    backdrop-filter: blur(14px) saturate(165%);
+    -webkit-backdrop-filter: blur(14px) saturate(165%);
+    border: var(--btn-border);
+    box-shadow: var(--btn-shadow);
     border-radius: 9999px;
     margin-inline: auto;
     position: absolute;
