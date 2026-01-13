@@ -21,7 +21,7 @@
   --cosmic-blue: #60a5fa;
   --cosmic-purple: #a78bfa;
   --cosmic-text-primary: #ffffff;
-  --cosmic-text-secondary: #cbd5e1;
+  --cosmic-text-secondary: white;
 
   /* Deep Dark Plasma Theme for Splash Screen */
   --plasma-deep: #0a0a0f;
@@ -683,12 +683,12 @@ button[aria-disabled="true"] {
   align-items: center;
   justify-content: center;
   margin-bottom: 1.5rem;
-  width: 126px;
-  height: 126px;
+  width: 180px;
+  height: 180px;
   border-radius: 9999px;
-  padding: 2px;
+  padding: 1rem;
   background: none;
-  border: var(--border-by-rezky);
+  border: none;
   backdrop-filter: blur(10px) saturate(160%);
 }
 
@@ -699,7 +699,6 @@ button[aria-disabled="true"] {
   display: block;
   object-fit: cover;
   background: none;
-  border: 2px solid black;
 }
 
 .hero-title {
@@ -757,7 +756,7 @@ button[aria-disabled="true"] {
 }
 
 .Telescope {
-  color: #615bad !important;
+  color: var(--cosmic-purple) !important;
   width: 56px !important;
   height: 56px !important;
 }
@@ -778,13 +777,14 @@ button[aria-disabled="true"] {
 
 .hero-subtitle {
   font-size: 1.25rem;
-  color: #d1d5db;
+  color: white;
   margin-bottom: 2rem;
   line-height: 1.6;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
   font-weight: 400;
+  padding: 1rem;
 }
 
 .hero-features {
@@ -995,11 +995,11 @@ button[aria-disabled="true"] {
   gap: 0.5rem;
   color: grey;
   /* subtle lavender to match theme */
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 .app-info .info-row strong {
-  color: #e5e7eb;
+  color: white;
   font-weight: 600;
 }
 
@@ -1115,7 +1115,7 @@ button[aria-disabled="true"] {
 
 .input-label {
   font-weight: 500;
-  color: #e5e7eb;
+  color: white;
   font-size: 0.9rem;
   display: flex;
   align-items: center;
@@ -1129,9 +1129,12 @@ button[aria-disabled="true"] {
   padding: 1rem 1.25rem;
   width: 50%;
   border-radius: 0.75rem;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid grey;
-  color: #ffffff;
+  background: rgba(15, 23, 42, 0.239);
+  border-top: 1px solid var(--border-by-rezky);
+  border-left: 1px solid var(--border-by-rezky);
+  border-bottom: 2px solid grey;
+  border-right: 1px solid var(--border-by-rezky);
+  color: white;
   font-size: 1rem;
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1139,15 +1142,13 @@ button[aria-disabled="true"] {
 
 .form-input:focus {
   outline: none;
-  border-color: #60a5fa;
-  box-shadow:
-    0 0 0 3px rgba(96, 165, 250, 0.1),
-    0 0 20px rgba(96, 165, 250, 0.1);
+  border-color: #5900e9;
   background: rgba(15, 23, 42, 0.8);
+  border-radius: 0.75rem;
 }
 
 .form-input::placeholder {
-  color: #6b7280;
+  color: grey;
 }
 
 .form-input:hover:not(:focus) {
@@ -1181,11 +1182,11 @@ button[aria-disabled="true"] {
   padding: 0 14px;
   min-width: 140px;
   border-radius: 9999px;
-  border: 1px solid grey;
+  border: 2px solid grey;
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
   color: #e6f0ff;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 1rem;
   backdrop-filter: blur(10px) saturate(140%);
   -webkit-backdrop-filter: blur(10px) saturate(140%);
   position: relative;
@@ -1315,16 +1316,16 @@ button[aria-disabled="true"] {
 
 /* Elegant gradient text utility using theme vars */
 .text-gradient-elegant {
-  background: var(--bg-cosmic);
+  /*background: var(--bg-cosmic);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: transparent;
+  color: transparent; */
 }
 
 .card-subtitle {
-  color: var(--text-secondary);
-  font-size: 0.95rem;
+  color: white;
+  font-size: 1rem;
   line-height: 1.5;
 }
 
@@ -1534,7 +1535,7 @@ button[aria-disabled="true"] {
 }
 
 .empty-text {
-  color: #cbd5e1;
+  color: white;
 }
 
 /* Category color classes for BMI Results */
@@ -1601,10 +1602,11 @@ button[aria-disabled="true"] {
   width: 100%;
   font-size: 2.5rem;
   text-align: center;
-  background: var(--bg-cosmic);
+  color: white;
+  /*background: var(--bg-cosmic);
   background-clip: text;
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  -webkit-text-fill-color: transparent;*/
 }
 
 /* Icon styling */
@@ -1789,10 +1791,13 @@ button[aria-disabled="true"] {
   padding: 1.25rem 1.25rem;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
   border-bottom: 2px solid rgba(255, 255, 255, 0.08);
-  color: #e5e7eb;
+  color: white;
   font-weight: 700;
   border-top-left-radius: 1.25rem;
   border-top-right-radius: 1.25rem;
+  border-top: 1px solid grey;
+  border-left: 1px solid grey;
+  border-right: 1px solid grey;
 }
 
 .reference-table .ref-body {
@@ -1805,7 +1810,7 @@ button[aria-disabled="true"] {
   gap: 0.75rem;
   align-items: start;
   padding: 0.875rem 1.25rem;
-  color: #cbd5e1;
+  color: white;
   border-bottom: 2px solid rgba(255, 255, 255, 0.06);
   transition: background-color var(--dur-fast) var(--easing-smooth);
 }
@@ -1832,6 +1837,8 @@ button[aria-disabled="true"] {
 
 .reference-table .ref-row.ref-row-obese {
   --ref-row-accent: rgba(239, 68, 68, 0.42);
+  border-bottom-left-radius: 1.25rem;
+  border-bottom-right-radius: 1.25rem;
 }
 
 .reference-table .ref-row.ref-row-underweight,
@@ -1894,17 +1901,19 @@ button[aria-disabled="true"] {
   width: 100%;
   font-size: 2.5rem;
   text-align: center;
-  background: var(--bg-cosmic);
+  color: white;
+  /*background: var(--bg-cosmic);
   background-clip: text;
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  -webkit-text-fill-color: transparent;*/
 }
 
 .ref-card .subtitle {
   color: white;
-  width: 100%;
+  line-height: 1.7;
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
   text-align: center;
-  font-size: clamp(1.25rem, 2vw, 1.5rem);
 }
 
 .about-card h3,
@@ -1912,10 +1921,11 @@ button[aria-disabled="true"] {
   font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  color: white;
+  /* background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
+  background-clip: text; */
 }
 
 /* ==============================
@@ -2006,10 +2016,11 @@ button[aria-disabled="true"] {
 }
 
 .about-card p {
-  color: #cbd5e1;
+  color: white;
   line-height: 1.7;
   margin: 0 0 1rem 0;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  text-align: center;
 }
 
 .about-card p:last-child {
@@ -2061,7 +2072,7 @@ button[aria-disabled="true"] {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #e5e7eb;
+  color: white;
   font-weight: 700;
   letter-spacing: 0.2px;
 }
@@ -2092,7 +2103,7 @@ button[aria-disabled="true"] {
 /* Axis labels for charts */
 .axis-label {
   position: absolute;
-  color: #cbd5e1;
+  color: white;
   font: 600 0.85rem/1.1 'Inter Variable', system-ui, -apple-system, sans-serif;
   pointer-events: none;
 }
@@ -2118,7 +2129,7 @@ button[aria-disabled="true"] {
   border-radius: 0.75rem;
   background: rgba(15, 23, 42, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #e5e7eb;
+  color: white;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 20px rgba(96, 165, 250, 0.18);
   pointer-events: none;
   transform: translateZ(0);
@@ -2158,12 +2169,12 @@ button[aria-disabled="true"] {
 }
 
 .insight-title {
-  color: #cbd5e1;
+  color: white;
   font: 600 0.85rem/1.1 Inter, system-ui, -apple-system, sans-serif;
 }
 
 .insight-value {
-  color: #e5e7eb;
+  color: white;
   font: 700 1rem/1.1 Inter, system-ui, -apple-system, sans-serif;
 }
 
@@ -2527,13 +2538,12 @@ button[aria-disabled="true"] {
       ============================== */
 .footer-disclaimer {
   text-align: center;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
+  color: white;
+  font-size: 1rem;
   padding: clamp(2rem, 4vw, 4rem);
   margin-top: clamp(80px, 50vh, 200px);
-  margin-bottom: clamp(100px, 10vh, 100px);
+  margin-bottom: clamp(10px, 2vh, 10px);
   /* add 'auto' for horizontal centering */
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 2rem;
   max-width: 100%;
 }
@@ -2565,11 +2575,34 @@ button[aria-disabled="true"] {
 
 .github-footer span {
   font-weight: 500;
-  background: var(--bg-cosmic);
+  /*background: var(--bg-cosmic);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
+  background-clip: text;*/
+  color: white;
 }
+
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all var(--dur-fast) var(--easing-smooth);
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+}
+
+.github-link:hover {
+  color: var(--accent-blue);
+  background: color-mix(in oklab, var(--accent-blue) 12%, transparent);
+  border-color: color-mix(in oklab, var(--accent-blue) 30%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--accent-blue) 15%, transparent);
+}
+
 
 /* ==============================
       UTILITY CLASSES & COMPONENTS
@@ -2679,7 +2712,7 @@ button[aria-disabled="true"] {
 .CircleSlash2,
 .FileChartColumn,
 .Gauge {
-  color: white !important;
+  color: var(--cosmic-purple) !important;
   width: 74px !important;
   height: 74px !important;
 }
@@ -2702,7 +2735,7 @@ button[aria-disabled="true"] {
 /* about icons */
 .Lightbulb,
 .Users {
-  color: var(--cosmic-blue) !important;
+  color: var(--cosmic-purple) !important;
   width: 48px !important;
   height: 48px !important;
 }
@@ -2711,7 +2744,7 @@ button[aria-disabled="true"] {
 .SquareSigma,
 .BookCheck,
 .Sparkles {
-  color: var(--cosmic-blue) !important;
+  color: var(--cosmic-purple) !important;
   width: 24px !important;
   height: 24px !important;
 }
@@ -2719,9 +2752,9 @@ button[aria-disabled="true"] {
 .BarChart3,
 .X,
 .Calendar {
-  color: white !important;
-  width: 24px !important;
-  height: 24px !important;
+  color: var(--cosmic-purple) !important;
+  width: 74px !important;
+  height: 74px !important;
 }
 
 /* Bmi form icons */
@@ -2805,7 +2838,7 @@ button[aria-disabled="true"] {
 .GitCompare,
 .Brush,
 .Scale {
-  color: green;
+  color: var(--cosmic-purple);
 }
 
 /* Focus styles for accessibility */

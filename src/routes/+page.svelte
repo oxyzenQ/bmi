@@ -521,7 +521,7 @@
 
             <div class="github-footer">
               <a
-                href="https://github.com/oxyzenq/web-oxy"
+                href="https://github.com/oxyzenq/bmi"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="github-link"
