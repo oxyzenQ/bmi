@@ -18,6 +18,7 @@
     Brush,
     AlertTriangle,
     Scale,
+    Sparkles,
     ChevronLeft,
     ChevronRight
   } from 'lucide-svelte';
@@ -158,7 +159,7 @@
   function handlePointerDown(event: PointerEvent) {
     const target = event.target as HTMLElement | null;
     if (target?.closest('button, a, input, textarea, select, label')) return;
-    if (target?.closest('.pager-nav')) return;
+    if (target?.closest('.pager-nav, .pager-nav-shell')) return;
     pointerStartX = event.clientX;
     pointerStartY = event.clientY;
     activePointerId = event.pointerId;
@@ -216,7 +217,7 @@
   function handleWheel(event: WheelEvent) {
     if (isEditableTarget(event.target)) return;
     const target = event.target as HTMLElement | null;
-    if (target?.closest('.pager-nav')) return;
+    if (target?.closest('.pager-nav, .pager-nav-shell')) return;
 
     const now = Date.now();
     if (now - lastWheelNavAt < 520) return;
@@ -327,28 +328,31 @@
   on:pointercancel={handlePointerUp}
   on:wheel={handleWheel}
 >
-  <nav class="pager-nav" aria-label="Sections">
-    {#each sections as section, idx (section.id)}
+  <div class="pager-nav-shell">
+    <nav class="pager-nav" aria-label="Sections">
+      {#each sections as section, idx (section.id)}
+        <button
+          type="button"
+          class="btn btn-ghost pager-tab"
+          class:active={idx === activeIndex}
+          aria-current={idx === activeIndex ? 'page' : undefined}
+          on:click={() => goTo(idx)}
+        >
+          {section.label}
+        </button>
+      {/each}
+
       <button
         type="button"
-        class="btn btn-ghost pager-tab"
-        class:active={idx === activeIndex}
-        aria-current={idx === activeIndex ? 'page' : undefined}
-        on:click={() => goTo(idx)}
+        class="btn btn-ghost pager-tab pager-smooth"
+        aria-pressed={smoothModeRequested}
+        on:click={toggleSmoothMode}
       >
-        {section.label}
+        <Sparkles aria-hidden="true" />
+        Graphics: {smoothModeStatus}
       </button>
-    {/each}
-
-    <button
-      type="button"
-      class="btn btn-ghost pager-tab pager-smooth"
-      aria-pressed={smoothModeRequested}
-      on:click={toggleSmoothMode}
-    >
-      Smooth Mode: {smoothModeStatus}
-    </button>
-  </nav>
+    </nav>
+  </div>
 
   <main class="pager-view" aria-live="polite">
     {#key activeIndex}
@@ -578,13 +582,21 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    min-width: 0;
+  }
+
+  .pager-nav-shell {
+    width: calc(100% - 1.5rem);
+    max-width: 820px;
+    min-width: 0;
+    overflow: hidden;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
     border-radius: 9999px;
-    margin-inline: 0.75rem;
+    margin-inline: auto;
     position: sticky;
     top: 0.75rem;
     z-index: 20;
@@ -600,7 +612,36 @@
     font-size: 0.9rem;
     border-radius: 9999px;
     white-space: nowrap;
-    opacity: 0.78;
+    opacity: 0.86;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+    transition:
+      transform var(--dur-fast) var(--easing-smooth),
+      background var(--dur-fast) var(--easing-smooth),
+      border-color var(--dur-fast) var(--easing-smooth),
+      box-shadow var(--dur-fast) var(--easing-smooth),
+      opacity var(--dur-fast) var(--easing-smooth);
+  }
+
+  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .pager-tab {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+  }
+
+  .pager-tab:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.065);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3), 0 0 18px rgba(96, 165, 250, 0.12);
+    transform: translateY(-1px);
+  }
+
+  .pager-tab:active {
+    transform: translateY(0);
   }
 
   .pager-smooth {
@@ -609,8 +650,10 @@
 
   .pager-tab.active {
     opacity: 1;
-    border-color: color-mix(in oklab, var(--aurora-core) 40%, rgba(255, 255, 255, 0.12));
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35), 0 0 14px rgba(96, 165, 250, 0.18);
+    background: rgba(255, 255, 255, 0.09);
+    border-color: color-mix(in oklab, var(--aurora-core) 55%, rgba(255, 255, 255, 0.12));
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.38), 0 0 18px rgba(96, 165, 250, 0.22);
+    transform: translateY(-1px);
   }
 
   .pager-view {

@@ -115,16 +115,9 @@ html {
   -ms-overflow-style: none;
   scrollbar-width: none;
   overscroll-behavior: none;
-}
-
-body {
-  min-height: 100%;
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  overscroll-behavior-y: none;
-  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  background-color: #0a0e1a;
+  max-width: 100%;
 }
 
 html::-webkit-scrollbar,
@@ -135,27 +128,33 @@ body::-webkit-scrollbar,
   height: 0;
 }
 
-html {
-  scroll-behavior: smooth;
-  background-color: #0a0e1a;
-}
-
 /* Fix for mobile Safari viewport height */
 @supports (-webkit-touch-callout: none) {
   html {
     height: -webkit-fill-available;
   }
+
+  body {
+    min-height: -webkit-fill-available;
+  }
 }
 
 body {
+  min-height: 100vh;
   margin: 0;
   padding: 0;
   background-color: #0a0e1a;
   color: var(--text-primary);
   font-family: 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: clamp(0.875rem, 0.85rem + 0.3vw, 1rem);
   position: relative;
   z-index: 0;
+  max-width: 100%;
   overflow-x: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: greyscale;
   text-rendering: optimizeLegibility;
@@ -178,7 +177,6 @@ body::before {
   bottom: 0;
   width: 100%;
   height: 100vh;
-  height: 100%;
   min-height: 100vh;
   z-index: -3;
   background-color: #0a0e1a;
@@ -216,7 +214,6 @@ body::after {
   bottom: 0;
   width: 100%;
   height: 100vh;
-  height: 100%;
   min-height: 100vh;
   z-index: -2;
   background-color: rgba(2, 6, 23, 0);
@@ -1599,10 +1596,10 @@ button[aria-disabled="true"] {
 
 /* Title text styling */
 .gauge-title h3 {
-  margin: 0;
-  font-size: 4rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  font-size: 2.5rem;
   text-align: center;
   background: var(--bg-cosmic);
   background-clip: text;
@@ -1635,7 +1632,7 @@ button[aria-disabled="true"] {
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .gauge-title h3 {
-    font-size: 3rem;
+    font-size: 2.5rem;
   }
 
   .gauge-title .Gauge {
@@ -1794,7 +1791,8 @@ button[aria-disabled="true"] {
   border-bottom: 2px solid rgba(255, 255, 255, 0.08);
   color: #e5e7eb;
   font-weight: 700;
-  border-radius: 1.25rem;
+  border-top-left-radius: 1.25rem;
+  border-top-right-radius: 1.25rem;
 }
 
 .reference-table .ref-body {
@@ -1931,6 +1929,9 @@ button[aria-disabled="true"] {
 }
 
 .about-bmi-section .title {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  width: 100%;
   font-size: 2.5rem;
   text-align: center;
   background: var(--bg-cosmic);
@@ -3666,16 +3667,7 @@ button[aria-disabled="true"] {
        RESPONSIVE FOUNDATION (GLOBAL)
        ============================== */
 /* Prevent horizontal scrollbars on narrow screens */
-html,
-body {
-  max-width: 100%;
-  overflow-x: hidden;
-}
 
-/* Mobile-first base font size: min 14px, scales up to 16px */
-body {
-  font-size: clamp(0.875rem, 0.85rem + 0.3vw, 1rem);
-}
 
 /* Fluid media globally */
 img,
@@ -3881,12 +3873,7 @@ p,
 /* ==============================
        Global smooth/momentum scrolling and GPU helpers
        ============================== */
-html,
-body {
-  scroll-behavior: smooth;
-  /* Momentum scrolling on iOS */
-  -webkit-overflow-scrolling: touch;
-}
+
 
 /* Utility: mark any scrollable area */
 .scrollable {
