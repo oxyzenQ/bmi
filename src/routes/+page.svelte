@@ -51,6 +51,9 @@
   let perfTier: 'high' | 'medium' | 'low' = 'medium';
   let smoothModeRequested = false;
 
+  let activePointerId: number | null = null;
+  let lastWheelNavAt = 0;
+
   function broadcastSmoothMode(enabled: boolean) {
     if (!browser) return;
     window.dispatchEvent(new CustomEvent('bmi:smoothMode', { detail: { enabled } }));
@@ -65,18 +68,19 @@
     }
   }
 
-  $: smoothModeEnabled = smoothModeRequested && !prefersReducedMotion;
-  $: smoothModeStatus = smoothModeEnabled ? 'On' : smoothModeRequested ? 'Limited' : 'Off';
+  $: reducedMotionEffective = prefersReducedMotion && !smoothModeRequested;
+  $: smoothModeEnhanced = smoothModeRequested && perfTier !== 'low';
+  $: smoothModeStatus = smoothModeRequested ? 'On' : 'Off';
 
   $: pagerDirection = activeIndex >= lastIndex ? 1 : -1;
-  $: pagerMotionDuration = prefersReducedMotion
+  $: pagerMotionDuration = reducedMotionEffective
     ? 0
-    : smoothModeEnabled
+    : smoothModeRequested
       ? (perfTier === 'high' ? 620 : perfTier === 'medium' ? 540 : 460)
       : 260;
-  $: pagerMotionDistance = prefersReducedMotion
+  $: pagerMotionDistance = reducedMotionEffective
     ? 0
-    : smoothModeEnabled
+    : smoothModeRequested
       ? (perfTier === 'high' ? 220 : perfTier === 'medium' ? 190 : 160)
       : 120;
 
@@ -154,22 +158,77 @@
   function handlePointerDown(event: PointerEvent) {
     const target = event.target as HTMLElement | null;
     if (target?.closest('button, a, input, textarea, select, label')) return;
+    if (target?.closest('.pager-nav')) return;
     pointerStartX = event.clientX;
     pointerStartY = event.clientY;
+    activePointerId = event.pointerId;
+    try {
+      pagerEl?.setPointerCapture(event.pointerId);
+    } catch (e) {
+      void e;
+    }
   }
 
   function handlePointerUp(event: PointerEvent) {
-    if (pointerStartX === null || pointerStartY === null) return;
+    if (activePointerId !== null && event.pointerId !== activePointerId) return;
+    if (pointerStartX === null || pointerStartY === null) {
+      if (activePointerId !== null) {
+        try {
+          pagerEl?.releasePointerCapture(activePointerId);
+        } catch (e) {
+          void e;
+        }
+      }
+      activePointerId = null;
+      return;
+    }
 
     const dx = event.clientX - pointerStartX;
     const dy = event.clientY - pointerStartY;
     pointerStartX = null;
     pointerStartY = null;
 
-    if (Math.abs(dx) < 60) return;
-    if (Math.abs(dx) < Math.abs(dy) * 1.2) return;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.2) {
+      if (activePointerId !== null) {
+        try {
+          pagerEl?.releasePointerCapture(activePointerId);
+        } catch (e) {
+          void e;
+        }
+      }
+      activePointerId = null;
+      return;
+    }
 
     if (dx < 0) nextSection();
+    else prevSection();
+
+    if (activePointerId !== null) {
+      try {
+        pagerEl?.releasePointerCapture(activePointerId);
+      } catch (e) {
+        void e;
+      }
+    }
+    activePointerId = null;
+  }
+
+  function handleWheel(event: WheelEvent) {
+    if (isEditableTarget(event.target)) return;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('.pager-nav')) return;
+
+    const now = Date.now();
+    if (now - lastWheelNavAt < 520) return;
+
+    const dx = event.deltaX;
+    const dy = event.deltaY;
+    if (Math.abs(dx) < 45) return;
+    if (Math.abs(dx) < Math.abs(dy) * 1.2) return;
+
+    event.preventDefault();
+    lastWheelNavAt = now;
+    if (dx > 0) nextSection();
     else prevSection();
   }
 
@@ -266,6 +325,7 @@
   on:pointerdown={handlePointerDown}
   on:pointerup={handlePointerUp}
   on:pointercancel={handlePointerUp}
+  on:wheel={handleWheel}
 >
   <nav class="pager-nav" aria-label="Sections">
     {#each sections as section, idx (section.id)}
@@ -300,12 +360,16 @@
         in:fly={{
           x: pagerDirection * pagerMotionDistance,
           duration: pagerMotionDuration,
-          easing: smoothModeEnabled ? backOut : cubicOut,
+          easing: smoothModeEnhanced ? backOut : cubicOut,
           opacity: 0
         }}
         out:fly={{
           x: -pagerDirection * pagerMotionDistance,
-          duration: prefersReducedMotion ? 0 : smoothModeEnabled ? Math.round(pagerMotionDuration * 0.78) : 180,
+          duration: reducedMotionEffective
+            ? 0
+            : smoothModeRequested
+              ? Math.round(pagerMotionDuration * 0.78)
+              : 180,
           easing: cubicIn,
           opacity: 0
         }}
@@ -502,6 +566,7 @@
     gap: 0.75rem;
     padding-top: 0.75rem;
     overflow: hidden;
+    touch-action: pan-y;
   }
 
   .pager-nav {
@@ -509,11 +574,20 @@
     align-items: center;
     justify-content: flex-start;
     gap: 0.5rem;
-    padding-inline: 0.75rem;
+    padding: 0.5rem 0.75rem;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    background: none;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    border-radius: 9999px;
+    margin-inline: 0.75rem;
+    position: sticky;
+    top: 0.75rem;
+    z-index: 20;
   }
 
   .pager-nav::-webkit-scrollbar {

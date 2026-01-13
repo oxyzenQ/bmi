@@ -25,8 +25,10 @@
   let fillTimer: ReturnType<typeof setTimeout> | null = null;
 
   const perfTier = getPerformanceTier();
-  const reducedMotion = prefersReducedMotion();
+  const reducedMotionPref = prefersReducedMotion();
   const displayBmi = tweened(0, { duration: 0, easing: cubicOut });
+
+  $: reducedMotion = reducedMotionPref && !ultraSmooth;
 
   let useGlow = false;
   let usePulse = false;

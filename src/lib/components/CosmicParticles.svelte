@@ -15,8 +15,7 @@
   let smoothModeHandler: (() => void) | null = null;
 
   onMount(() => {
-    reduced = prefersReducedMotion();
-    if (reduced) return;
+    const reducedPref = prefersReducedMotion();
 
     const tier = getPerformanceTier();
     baseParticleCount = tier === 'low' ? 6 : tier === 'medium' ? 8 : 12;
@@ -26,6 +25,9 @@
       const storedUltra = storedSmooth ?? localStorage.getItem('bmi.ultraSmooth');
       smoothModeEnabled = storedUltra === '1' || storedUltra === 'true';
     }
+
+    reduced = reducedPref && !smoothModeEnabled;
+    if (reduced) return;
 
     particleCount = computeParticleCount(tier, smoothModeEnabled);
     createParticles();
