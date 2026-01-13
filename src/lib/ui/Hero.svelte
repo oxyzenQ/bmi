@@ -1,16 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { BookCheck, SquareSigma, Sparkles, Telescope, CircleChevronDown } from 'lucide-svelte';
+  import { BookCheck, SquareSigma, Sparkles, Telescope } from 'lucide-svelte';
 
   let heroContent: HTMLDivElement;
-  let heroSectionEl: HTMLElement;
-
-  function scrollToNextSection() {
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const next = heroSectionEl?.nextElementSibling as HTMLElement | null;
-    const targetY = next ? Math.max(0, next.offsetTop - 8) : window.innerHeight;
-    window.scrollTo({ top: targetY, behavior: reducedMotion ? 'auto' : 'smooth' });
-  }
 
   onMount(() => {
     // Hero content animation - ensure immediate visibility with safe fallback
@@ -33,7 +25,7 @@
   });
 </script>
 
-<header class="hero-section" bind:this={heroSectionEl}>
+<header class="hero-section">
   <div class="hero-background">
     <!-- Bubbles and orbs removed for cleaner performance -->
   </div>
@@ -76,16 +68,3 @@
 
   <!-- End of hero content -->
 </header>
-
-<!-- Scroll-down button standalone container (transparent) -->
-<section class="hero-scroll-container">
-  <button
-    type="button"
-    class="hero-scroll-btn"
-    aria-label="Scroll to next section"
-    title="Scroll down"
-    on:click={scrollToNextSection}
-  >
-    <CircleChevronDown class="hero-scroll-icon" aria-hidden="true" />
-  </button>
-</section>

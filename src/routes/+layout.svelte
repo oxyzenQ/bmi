@@ -4,12 +4,11 @@
   import SplashScreen from '$lib/components/SplashScreen.svelte';
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
-  import { initScrollOptimizer } from '$lib/utils/scroll-optimizer';
-  
+
   let showSplash = false; // Disabled by default
   let showMainContent = true; // Show content immediately
   const splashDuration = 10000; // 10s relaxed experience (if enabled)
-  
+
   onMount(() => {
     // Register service worker for caching (only in production)
     if (browser && 'serviceWorker' in navigator && import.meta.env.PROD) {
@@ -17,9 +16,6 @@
         console.error('Service worker registration failed:', err);
       });
     }
-
-    // Initialize scroll performance optimizer
-    const cleanupScrollOptimizer = initScrollOptimizer();
 
     // Reveal main content slightly before auto-hide, aligned with exit phase (~91.7% of duration)
     const exitPhaseRatio = 5.5 / 6; // from original 6s design
@@ -30,10 +26,9 @@
 
     return () => {
       clearTimeout(timer);
-      if (cleanupScrollOptimizer) cleanupScrollOptimizer();
     };
   });
-  
+
   function handleSplashComplete() {
     showSplash = false;
     showMainContent = true;
@@ -41,8 +36,8 @@
 </script>
 
 
-<SplashScreen 
-  bind:show={showSplash} 
+<SplashScreen
+  bind:show={showSplash}
   duration={splashDuration}
   on:complete={handleSplashComplete}
 />
@@ -58,7 +53,7 @@
     opacity: 0;
     transition: opacity 0.5s var(--easing-smooth);
   }
-  
+
   .main-content.visible {
     opacity: 1;
   }
