@@ -7,18 +7,40 @@
   let refreshTimer: ReturnType<typeof setTimeout> | null = null;
   let destroyed = false;
   let particleCount = 10;
+  let baseParticleCount = 10;
   let reduced = false;
   let paused = false;
   let visibilityHandler: (() => void) | null = null;
+  let smoothModeEnabled = false;
+  let smoothModeHandler: (() => void) | null = null;
 
   onMount(() => {
     reduced = prefersReducedMotion();
     if (reduced) return;
 
     const tier = getPerformanceTier();
-    particleCount = tier === 'low' ? 6 : tier === 'medium' ? 8 : 12;
+    baseParticleCount = tier === 'low' ? 6 : tier === 'medium' ? 8 : 12;
+
+    if (typeof window !== 'undefined') {
+      const storedSmooth = localStorage.getItem('bmi.smoothMode');
+      const storedUltra = storedSmooth ?? localStorage.getItem('bmi.ultraSmooth');
+      smoothModeEnabled = storedUltra === '1' || storedUltra === 'true';
+    }
+
+    particleCount = computeParticleCount(tier, smoothModeEnabled);
     createParticles();
     scheduleRefresh();
+
+    const handleSmoothMode = (event: Event) => {
+      if (destroyed || reduced) return;
+      const ce = event as CustomEvent<{ enabled?: boolean; requested?: boolean; status?: string }>;
+      smoothModeEnabled = Boolean(ce.detail?.enabled ?? ce.detail?.requested);
+      particleCount = computeParticleCount(tier, smoothModeEnabled);
+      if (!paused) createParticles();
+    };
+
+    window.addEventListener('bmi:smoothMode', handleSmoothMode as EventListener);
+    smoothModeHandler = () => window.removeEventListener('bmi:smoothMode', handleSmoothMode as EventListener);
 
     const handleVisibility = () => {
       if (destroyed || reduced) return;
@@ -50,7 +72,15 @@
     destroyed = true;
     if (refreshTimer) clearTimeout(refreshTimer);
     if (visibilityHandler) visibilityHandler();
+    if (smoothModeHandler) smoothModeHandler();
   });
+
+  function computeParticleCount(tier: 'high' | 'medium' | 'low', smoothEnabled: boolean) {
+    if (!smoothEnabled) return baseParticleCount;
+    if (tier === 'high') return Math.min(baseParticleCount + 5, 18);
+    if (tier === 'medium') return Math.min(baseParticleCount + 3, 14);
+    return Math.min(baseParticleCount + 1, 8);
+  }
 
   function prng(i: number, salt: number) {
     const x = Math.sin((i + 1) * 999 + salt) * 10000;

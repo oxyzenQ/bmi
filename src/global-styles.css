@@ -459,7 +459,7 @@ button[aria-disabled="true"] {
   box-shadow: none;
 }
 
-/* Variasi glassmorphism elegan untuk primary & danger */
+/* Elegant glassmorphism variants for primary & danger */
 .btn-primary {
   color: white;
   background: var(--bg-by-rezky);
@@ -479,7 +479,7 @@ button[aria-disabled="true"] {
   -webkit-backdrop-filter: blur(14px) saturate(140%);
 }
 
-/* Danger versi elegan */
+/* Elegant danger variant */
 .btn-danger {
   color: white;
   background: var(--bg-by-rezky);
@@ -760,7 +760,7 @@ button[aria-disabled="true"] {
 }
 
 .Telescope {
-  color: var(--cosmic-blue) !important;
+  color: #615bad !important;
   width: 56px !important;
   height: 56px !important;
 }
@@ -1042,9 +1042,9 @@ button[aria-disabled="true"] {
   grid-template-columns: 1fr;
   gap: 1.25rem;
   margin-bottom: 3rem;
-  /* jarak aman bawah */
+  /* bottom safe spacing */
   align-items: start;
-  /* penting: biar item tidak saling stretch */
+  /* prevents items from stretching */
   padding: 24px;
 }
 
@@ -1056,14 +1056,14 @@ button[aria-disabled="true"] {
   }
 }
 
-/* Form card (kiri) */
+/* Form card (left) */
 .form-card {
   display: flex;
   flex-direction: column;
   min-height: 750px;
-  /* tinggi minimal default */
+  /* default minimum height */
   max-height: none;
-  /* bebas kalau diisi banyak field */
+  /* allow growth when filled with many fields */
 
   border-radius: 1.5rem;
 
@@ -1078,7 +1078,7 @@ button[aria-disabled="true"] {
   margin: 0 auto;
 }
 
-/* Card kanan */
+/* Result card (right) */
 .bmi-card {
   display: flex;
   flex-direction: column;
@@ -1090,7 +1090,7 @@ button[aria-disabled="true"] {
     box-shadow var(--dur-normal) var(--easing-smooth);
 }
 
-/* Tinggi default saat kosong */
+/* Default height when empty */
 .bmi-card {
   min-height: 750px;
 }
@@ -2532,7 +2532,7 @@ button[aria-disabled="true"] {
   /* add 'auto' for horizontal centering */
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 2rem;
-  max-width: 1000px;
+  max-width: 100%;
 }
 
 @media (max-width: 1120px) {

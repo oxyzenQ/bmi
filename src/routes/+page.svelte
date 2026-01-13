@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
+  import { fly } from 'svelte/transition';
+  import { backOut, cubicIn, cubicOut } from 'svelte/easing';
   import { browser } from '$app/environment';
   import { getPerformanceTier } from '$lib/utils/performance';
   import Hero from '$lib/ui/Hero.svelte';
@@ -47,17 +49,36 @@
   let lastIndex = 0;
   let prefersReducedMotion = false;
   let perfTier: 'high' | 'medium' | 'low' = 'medium';
-  let ultraSmoothRequested = false;
+  let smoothModeRequested = false;
 
-  function toggleUltraSmooth() {
-    ultraSmoothRequested = !ultraSmoothRequested;
+  function broadcastSmoothMode(enabled: boolean) {
+    if (!browser) return;
+    window.dispatchEvent(new CustomEvent('bmi:smoothMode', { detail: { enabled } }));
+  }
+
+  function toggleSmoothMode() {
+    smoothModeRequested = !smoothModeRequested;
     if (browser) {
-      localStorage.setItem('bmi.ultraSmooth', ultraSmoothRequested ? '1' : '0');
+      localStorage.setItem('bmi.smoothMode', smoothModeRequested ? '1' : '0');
+      localStorage.setItem('bmi.ultraSmooth', smoothModeRequested ? '1' : '0');
+      broadcastSmoothMode(smoothModeRequested);
     }
   }
 
-  $: ultraSmoothEnabled = ultraSmoothRequested && !prefersReducedMotion && perfTier !== 'low';
-  $: ultraSmoothStatus = ultraSmoothEnabled ? 'On' : ultraSmoothRequested ? 'Limited' : 'Off';
+  $: smoothModeEnabled = smoothModeRequested && !prefersReducedMotion;
+  $: smoothModeStatus = smoothModeEnabled ? 'On' : smoothModeRequested ? 'Limited' : 'Off';
+
+  $: pagerDirection = activeIndex >= lastIndex ? 1 : -1;
+  $: pagerMotionDuration = prefersReducedMotion
+    ? 0
+    : smoothModeEnabled
+      ? (perfTier === 'high' ? 620 : perfTier === 'medium' ? 540 : 460)
+      : 260;
+  $: pagerMotionDistance = prefersReducedMotion
+    ? 0
+    : smoothModeEnabled
+      ? (perfTier === 'high' ? 220 : perfTier === 'medium' ? 190 : 160)
+      : 120;
 
   let pagerEl: HTMLDivElement | null = null;
   let pointerStartX: number | null = null;
@@ -75,7 +96,10 @@
 
   async function resetSectionScroll() {
     await tick();
-    const scroller = pagerEl?.querySelector<HTMLElement>('[data-pager-scroll="true"]');
+    const activeId = sections[activeIndex].id;
+    const scroller = pagerEl?.querySelector<HTMLElement>(
+      `[data-pager-scroll="true"][data-section-id="${activeId}"]`
+    );
     if (scroller) scroller.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }
 
@@ -154,8 +178,10 @@
       perfTier = getPerformanceTier();
       prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      const storedUltra = localStorage.getItem('bmi.ultraSmooth');
-      ultraSmoothRequested = storedUltra === '1' || storedUltra === 'true';
+      const storedSmooth = localStorage.getItem('bmi.smoothMode');
+      const storedUltra = storedSmooth ?? localStorage.getItem('bmi.ultraSmooth');
+      smoothModeRequested = storedUltra === '1' || storedUltra === 'true';
+      broadcastSmoothMode(smoothModeRequested);
 
       const idx = indexFromHash(window.location.hash);
       if (idx !== null) goTo(idx, { skipHash: true });
@@ -256,11 +282,11 @@
 
     <button
       type="button"
-      class="btn btn-ghost pager-tab pager-ultra"
-      aria-pressed={ultraSmoothRequested}
-      on:click={toggleUltraSmooth}
+      class="btn btn-ghost pager-tab pager-smooth"
+      aria-pressed={smoothModeRequested}
+      on:click={toggleSmoothMode}
     >
-      Ultra Smooth: {ultraSmoothStatus}
+      Smooth Mode: {smoothModeStatus}
     </button>
   </nav>
 
@@ -270,7 +296,19 @@
         class="pager-section"
         id={sections[activeIndex].id}
         data-pager-scroll="true"
-        style={`--pager-motion-duration: ${prefersReducedMotion ? '0ms' : ultraSmoothEnabled ? '360ms' : '220ms'}; --pager-motion-x: ${activeIndex >= lastIndex ? (ultraSmoothEnabled ? '44px' : '28px') : (ultraSmoothEnabled ? '-44px' : '-28px')};`}
+        data-section-id={sections[activeIndex].id}
+        in:fly={{
+          x: pagerDirection * pagerMotionDistance,
+          duration: pagerMotionDuration,
+          easing: smoothModeEnabled ? backOut : cubicOut,
+          opacity: 0
+        }}
+        out:fly={{
+          x: -pagerDirection * pagerMotionDistance,
+          duration: prefersReducedMotion ? 0 : smoothModeEnabled ? Math.round(pagerMotionDuration * 0.78) : 180,
+          easing: cubicIn,
+          opacity: 0
+        }}
       >
         {#if activeIndex === 0}
           <div class="main-container">
@@ -310,7 +348,7 @@
               <BmiRadialGauge
                 bmi={bmiValue || 0}
                 category={category}
-                ultraSmooth={ultraSmoothRequested}
+                ultraSmooth={smoothModeRequested}
               />
             </div>
           </div>
@@ -469,9 +507,11 @@
   .pager-nav {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 0.5rem;
     padding-inline: 0.75rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     background: none;
   }
@@ -489,7 +529,7 @@
     opacity: 0.78;
   }
 
-  .pager-ultra {
+  .pager-smooth {
     opacity: 1;
   }
 
@@ -503,16 +543,16 @@
     flex: 1;
     overflow: hidden;
     padding-bottom: 0.5rem;
+    position: relative;
   }
 
   .pager-section {
     height: 100%;
+    position: absolute;
+    inset: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
     will-change: transform, opacity;
-    transform: translateZ(0) translateX(var(--pager-motion-x, 0));
-    opacity: 0;
-    animation: pagerEnter var(--pager-motion-duration, 220ms) var(--easing-smooth) forwards;
     scrollbar-width: none;
     contain: layout paint style;
   }
@@ -521,18 +561,9 @@
     display: none;
   }
 
-  @keyframes pagerEnter {
-    to {
-      transform: translateZ(0) translateX(0);
-      opacity: 1;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .pager-section {
-      animation: none;
-      opacity: 1;
-      transform: translateZ(0) translateX(0);
+  @media (min-width: 900px) {
+    .pager-nav {
+      justify-content: center;
     }
   }
 
