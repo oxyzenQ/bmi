@@ -461,7 +461,7 @@ button[aria-disabled="true"] {
 
 /* Variasi glassmorphism elegan untuk primary & danger */
 .btn-primary {
-  color: grey;
+  color: white;
   background: var(--bg-by-rezky);
   border-top: var(--border-by-rezky);
   border-bottom: var(--border-by-rezky);
@@ -481,7 +481,7 @@ button[aria-disabled="true"] {
 
 /* Danger versi elegan */
 .btn-danger {
-  color: grey;
+  color: white;
   background: var(--bg-by-rezky);
   border-top: var(--border-by-rezky);
   border-bottom: var(--border-by-rezky);
@@ -733,11 +733,14 @@ button[aria-disabled="true"] {
 .hero-bottom-text {
   font-size: 1rem;
   font-weight: 500;
-  background: var(--bg-cosmic);
   text-align: center;
+  color: grey;
+  /*
+  background: var(--bg-cosmic);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  */
 }
 
 .title-gradient {
@@ -817,9 +820,11 @@ button[aria-disabled="true"] {
 
 .feature span {
   background: var(--bg-cosmic);
-  -webkit-text-fill-color: transparent;
+  /*-webkit-text-fill-color: transparent;
   -webkit-background-clip: text;
   -webkit-text-stroke: 1px var(--bg-by-rezky);
+  */
+  color: white;
   background-clip: text;
 }
 
@@ -1040,11 +1045,12 @@ button[aria-disabled="true"] {
   /* jarak aman bawah */
   align-items: start;
   /* penting: biar item tidak saling stretch */
+  padding: 24px;
 }
 
 @media (min-width: 900px) {
   .bmi-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    /*grid-template-columns: repeat(2, minmax(0, 1fr));*/
     gap: 1.5rem;
     align-items: start;
   }
@@ -1095,16 +1101,9 @@ button[aria-disabled="true"] {
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.5);
 }
 
-/* Biar isi card tidak overflow
-  .bmi-grid > * {
-    min-height: 0;
-  }
-  */
-
-
 /* ==============================
       FORM COMPONENTS
-      ============================== */
+   ============================== */
 .bmi-form {
   display: flex;
   flex-direction: column;
@@ -1134,7 +1133,7 @@ button[aria-disabled="true"] {
   width: 50%;
   border-radius: 0.75rem;
   background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid grey;
   color: #ffffff;
   font-size: 1rem;
   backdrop-filter: blur(10px);
@@ -1185,7 +1184,7 @@ button[aria-disabled="true"] {
   padding: 0 14px;
   min-width: 140px;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid grey;
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
   color: #e6f0ff;
   font-weight: 600;
@@ -2798,13 +2797,13 @@ button[aria-disabled="true"] {
 }
 
 .Trash2 {
-  color: grey !important;
+  color: white !important;
   width: 24px !important;
   height: 24px !important;
 }
 
 .Zap {
-  color: whitesmoke !important;
+  color: white !important;
   width: 24px !important;
   height: 24px !important;
 }

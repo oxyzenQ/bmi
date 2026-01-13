@@ -472,9 +472,8 @@
     justify-content: center;
     gap: 0.5rem;
     padding-inline: 0.75rem;
-    //overflow-x: auto;
     scrollbar-width: none;
-    background-color: none;
+    background: none;
   }
 
   .pager-nav::-webkit-scrollbar {
