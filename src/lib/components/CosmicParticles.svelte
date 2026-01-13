@@ -9,15 +9,17 @@
   let particleCount = 10;
   let baseParticleCount = 10;
   let reduced = false;
+  let reducedPref = false;
   let paused = false;
   let visibilityHandler: (() => void) | null = null;
   let smoothModeEnabled = false;
   let smoothModeHandler: (() => void) | null = null;
+  let tier: 'high' | 'medium' | 'low' = 'medium';
 
   onMount(() => {
-    const reducedPref = prefersReducedMotion();
+    reducedPref = prefersReducedMotion();
 
-    const tier = getPerformanceTier();
+    tier = getPerformanceTier();
     baseParticleCount = tier === 'low' ? 6 : tier === 'medium' ? 8 : 12;
 
     if (typeof window !== 'undefined') {
@@ -26,26 +28,36 @@
       smoothModeEnabled = storedUltra === '1' || storedUltra === 'true';
     }
 
-    reduced = reducedPref && !smoothModeEnabled;
-    if (reduced) return;
-
-    particleCount = computeParticleCount(tier, smoothModeEnabled);
-    createParticles();
-    scheduleRefresh();
+    updateReduced();
 
     const handleSmoothMode = (event: Event) => {
-      if (destroyed || reduced) return;
+      if (destroyed) return;
       const ce = event as CustomEvent<{ enabled?: boolean; requested?: boolean; status?: string }>;
       smoothModeEnabled = Boolean(ce.detail?.enabled ?? ce.detail?.requested);
+      const wasReduced = reduced;
+      updateReduced();
+
+      if (reduced) {
+        stopParticles();
+        return;
+      }
+
       particleCount = computeParticleCount(tier, smoothModeEnabled);
-      if (!paused) createParticles();
+      if (!paused) {
+        createParticles();
+        scheduleRefresh();
+      }
+
+      if (wasReduced) {
+        for (const p of particles) p.style.animationPlayState = paused ? 'paused' : 'running';
+      }
     };
 
     window.addEventListener('bmi:smoothMode', handleSmoothMode as EventListener);
     smoothModeHandler = () => window.removeEventListener('bmi:smoothMode', handleSmoothMode as EventListener);
 
     const handleVisibility = () => {
-      if (destroyed || reduced) return;
+      if (destroyed) return;
       const isHidden = document.hidden;
       paused = isHidden;
 
@@ -54,20 +66,26 @@
         refreshTimer = null;
       }
 
-      for (const p of particles) {
-        p.style.animationPlayState = isHidden ? 'paused' : 'running';
-      }
+      for (const p of particles) p.style.animationPlayState = isHidden ? 'paused' : 'running';
 
-      if (!isHidden) {
-        createParticles();
-        scheduleRefresh();
-      }
+      if (isHidden) return;
+      if (reduced) return;
+      createParticles();
+      scheduleRefresh();
     };
 
     document.addEventListener('visibilitychange', handleVisibility);
     visibilityHandler = () => document.removeEventListener('visibilitychange', handleVisibility);
 
     handleVisibility();
+
+    if (!reduced) {
+      particleCount = computeParticleCount(tier, smoothModeEnabled);
+      createParticles();
+      scheduleRefresh();
+    } else {
+      stopParticles();
+    }
   });
 
   onDestroy(() => {
@@ -84,6 +102,19 @@
     return Math.min(baseParticleCount + 1, 8);
   }
 
+  function updateReduced() {
+    reduced = reducedPref && !smoothModeEnabled;
+  }
+
+  function stopParticles() {
+    if (refreshTimer) {
+      clearTimeout(refreshTimer);
+      refreshTimer = null;
+    }
+    if (particlesContainer) particlesContainer.innerHTML = '';
+    particles = [];
+  }
+
   function prng(i: number, salt: number) {
     const x = Math.sin((i + 1) * 999 + salt) * 10000;
     return x - Math.floor(x);
@@ -91,7 +122,7 @@
 
   function createParticle() {
     const particle = document.createElement('div');
-    particle.className = 'particle';
+    particle.className = 'cosmic-particle';
     return particle;
   }
 
@@ -116,8 +147,8 @@
         left: ${left}%;
         width: ${size}px;
         height: ${size}px;
-        animation-delay: ${delay}s;
-        animation-duration: ${duration}s;
+        --delay: ${delay}s;
+        --duration: ${duration}s;
         opacity: ${opacity};
         --drift: ${drift}px;
         transform: translateZ(0) scale(${scale});
@@ -131,6 +162,10 @@
   function scheduleRefresh() {
     if (destroyed) return;
     if (paused) return;
+    if (refreshTimer) {
+      clearTimeout(refreshTimer);
+      refreshTimer = null;
+    }
     refreshTimer = setTimeout(() => {
       if (destroyed) return;
       createParticles();

@@ -65,6 +65,7 @@
     if (browser) {
       localStorage.setItem('bmi.smoothMode', smoothModeRequested ? '1' : '0');
       localStorage.setItem('bmi.ultraSmooth', smoothModeRequested ? '1' : '0');
+      document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
       broadcastSmoothMode(smoothModeRequested);
     }
   }
@@ -240,7 +241,14 @@
 
       const storedSmooth = localStorage.getItem('bmi.smoothMode');
       const storedUltra = storedSmooth ?? localStorage.getItem('bmi.ultraSmooth');
-      smoothModeRequested = storedUltra === '1' || storedUltra === 'true';
+      if (storedUltra === null) {
+        smoothModeRequested = true;
+        localStorage.setItem('bmi.smoothMode', smoothModeRequested ? '1' : '0');
+        localStorage.setItem('bmi.ultraSmooth', smoothModeRequested ? '1' : '0');
+      } else {
+        smoothModeRequested = storedUltra === '1' || storedUltra === 'true';
+      }
+      document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
       broadcastSmoothMode(smoothModeRequested);
 
       const idx = indexFromHash(window.location.hash);
@@ -349,7 +357,7 @@
         on:click={toggleSmoothMode}
       >
         <Sparkles aria-hidden="true" />
-        Graphics: {smoothModeStatus}
+        Render : {smoothModeStatus}
       </button>
     </nav>
   </div>
@@ -590,11 +598,14 @@
     max-width: 820px;
     min-width: 0;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    background: rgb(0 0 0 / 60%);
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    border: var(--border-by-rezky);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 0 20px rgba(96, 165, 250, 0.1);
     border-radius: 9999px;
     margin-inline: auto;
     position: sticky;
@@ -613,35 +624,6 @@
     border-radius: 9999px;
     white-space: nowrap;
     opacity: 0.86;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.04);
-    color: rgba(255, 255, 255, 0.92);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
-    transition:
-      transform var(--dur-fast) var(--easing-smooth),
-      background var(--dur-fast) var(--easing-smooth),
-      border-color var(--dur-fast) var(--easing-smooth),
-      box-shadow var(--dur-fast) var(--easing-smooth),
-      opacity var(--dur-fast) var(--easing-smooth);
-  }
-
-  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .pager-tab {
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-  }
-
-  .pager-tab:hover {
-    opacity: 1;
-    background: rgba(255, 255, 255, 0.065);
-    border-color: rgba(255, 255, 255, 0.14);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3), 0 0 18px rgba(96, 165, 250, 0.12);
-    transform: translateY(-1px);
-  }
-
-  .pager-tab:active {
-    transform: translateY(0);
   }
 
   .pager-smooth {
@@ -650,7 +632,7 @@
 
   .pager-tab.active {
     opacity: 1;
-    background: rgba(255, 255, 255, 0.09);
+    background: rgba(255, 255, 255, 0.07);
     border-color: color-mix(in oklab, var(--aurora-core) 55%, rgba(255, 255, 255, 0.12));
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.38), 0 0 18px rgba(96, 165, 250, 0.22);
     transform: translateY(-1px);

@@ -2281,7 +2281,7 @@ button[aria-disabled="true"] {
   will-change: transform;
 }
 
-.cosmic-particles .particle {
+.cosmic-particles .cosmic-particle {
   position: absolute;
   bottom: -16px;
   left: 50%;
@@ -2290,6 +2290,8 @@ button[aria-disabled="true"] {
   background: radial-gradient(circle, rgba(148, 163, 184, 0.9), rgba(148, 163, 184, 0.35) 60%, rgba(148, 163, 184, 0) 70%);
   filter: blur(0.2px);
   animation-name: particleRise;
+  animation-duration: var(--duration, 12s);
+  animation-delay: var(--delay, 0s);
   animation-timing-function: linear;
   animation-iteration-count: infinite;
   will-change: transform, opacity;
@@ -2567,62 +2569,6 @@ button[aria-disabled="true"] {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-}
-
-/* next tomorrow
-   .github-footer::before {
-     content: '';
-     position: absolute;
-     inset: 0;
-     background:
-       linear-gradient(135deg, rgba(96,165,250,0.06), rgba(168,85,247,0.04)),
-       linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.12) 8%, rgba(255,255,255,0.26) 12%, rgba(255,255,255,0.12) 16%, transparent 24%);
-     background-repeat: no-repeat, no-repeat;
-     background-size: 100% 100%, 16% 140%;
-     background-position: 0 0, -30% -20%;
-     pointer-events: none;
-     animation: footerGloss 9s var(--easing-smooth) infinite;
-     border-radius: 1rem;
-   }
-
-   @keyframes footerGloss {
-     0% {
-       background-position: 0 0, -30% -20%;
-       opacity: 0;
-     }
-     6% {
-       background-position: 0 0, 110% 120%;
-       opacity: 1;
-     }
-     30% {
-       opacity: 0;
-     }
-     100% {
-       background-position: 0 0, 110% 120%;
-       opacity: 0;
-     }
-   }
-   */
-
-.github-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all var(--dur-fast) var(--easing-smooth);
-  padding: 0.75rem 1.5rem;
-  border-radius: 1rem;
-}
-
-.github-link:hover {
-  color: var(--accent-blue);
-  background: color-mix(in oklab, var(--accent-blue) 12%, transparent);
-  border-color: color-mix(in oklab, var(--accent-blue) 30%, transparent);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px color-mix(in oklab, var(--accent-blue) 15%, transparent);
 }
 
 /* ==============================
@@ -3273,7 +3219,7 @@ button[aria-disabled="true"] {
     transition: none !important;
   }
 
-  .cosmic-particles .particle {
+  html:not([data-graphics='render']) .cosmic-particles .cosmic-particle {
     animation: none !important;
     opacity: 0;
   }
@@ -3949,7 +3895,7 @@ body.is-scrolling a.button {
     min-height: 0 !important;
   }
 
-  .cosmic-particles {
+  html:not([data-graphics='render']) .cosmic-particles {
     display: none;
   }
 
@@ -3991,10 +3937,17 @@ body.is-scrolling a.button {
 
 /* Prefer transform/opacity for animations and respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  * {
+  html:not([data-graphics='render']) * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  html[data-graphics='render'] .cosmic-particles .cosmic-particle {
+    animation-duration: var(--duration, 12s) !important;
+    animation-delay: var(--delay, 0s) !important;
+    animation-iteration-count: infinite !important;
+    animation-timing-function: linear !important;
   }
 }
