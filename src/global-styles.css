@@ -10,16 +10,16 @@
       ============================== */
 :root {
   /* Primary cosmic colors */
-  --cosmic-deep-space: #0a0e1a;
-  --cosmic-void: #1a1f2e;
-  --cosmic-nebula: #2a3447;
+  --cosmic-deep-space: #07030f;
+  --cosmic-void: #120824;
+  --cosmic-nebula: #24113f;
 
   /* Additional cosmic variables for splash screen */
   --cosmic-primary: #0f172a;
   --cosmic-secondary: #1e293b;
   --cosmic-accent: #334155;
-  --cosmic-blue: #60a5fa;
-  --cosmic-purple: #a78bfa;
+  --cosmic-blue: #9a4dff;
+  --cosmic-purple: #8000ff;
   --cosmic-text-primary: #ffffff;
   --cosmic-text-secondary: white;
 
@@ -36,20 +36,20 @@
   --plasma-text-dim: #64748b;
 
   /* Aurora beam colors */
-  --aurora-bright: #4a9eff;
-  --aurora-core: #6bb6ff;
-  --aurora-glow: #8cc5ff;
-  --aurora-whisper: #b3d9ff;
+  --aurora-bright: #8000ff;
+  --aurora-core: #8000ff;
+  --aurora-glow: #b266ff;
+  --aurora-whisper: #e2c7ff;
 
   /* Atmospheric gradients */
-  --atmosphere-deep: #1e2a4a;
-  --atmosphere-mid: #3d4a7a;
-  --atmosphere-light: #5a6fa3;
-  --atmosphere-horizon: #7a8fc7;
+  --atmosphere-deep: #1a1033;
+  --atmosphere-mid: #2a1652;
+  --atmosphere-light: #3b1e73;
+  --atmosphere-horizon: #5b2ea6;
 
   /* Accent colors */
   --stellar-white: #ffffff;
-  --cosmic-silver: #c4d1e8;
+  --cosmic-silver: #d6ccff;
   --shadow-silhouette: #0d1220;
 
   /* Overlay colors */
@@ -66,19 +66,19 @@
   --apple-glass: rgba(255, 255, 255, 0.08);
   --apple-border: rgba(255, 255, 255, 0.12);
   --apple-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  --bg-by-rezky: linear-gradient(45deg, #2b0955, #7700ee);
-  --bg-last-by-rezky: linear-gradient(45deg, #132433, #2d94e2);
+  --bg-by-rezky: linear-gradient(45deg, #1a0533, #8000ffda);
+  --bg-last-by-rezky: linear-gradient(45deg, #100a24, #8000ffda);
   --border-by-rezky: 2px solid rgba(128, 128, 128, 0.3);
   --bg-cosmic: linear-gradient(135deg,
-      #0d1b3d,
-      /* deep space navy */
-      #60a5fa,
-      /* cosmic blue */
-      #a78bfa,
-      /* violet nebula */
-      #6366f1,
-      /* indigo */
-      #e0f2ff
+      #4e3383,
+      /* deep space violet */
+      #5b4ce0,
+      /* nebula core */
+      #8000ffda,
+      /* aurora violet */
+      #8000ff,
+      /* plasma purple */
+      #e2c7ff
       /* starlight highlight */
     );
 
@@ -446,6 +446,12 @@ a.button:focus-visible {
   outline-offset: 2px;
 }
 
+.btn:focus:not(:focus-visible),
+button:focus:not(:focus-visible),
+a.button:focus:not(:focus-visible) {
+  outline: none;
+}
+
 .btn:disabled,
 .btn[aria-disabled="true"],
 button:disabled,
@@ -663,6 +669,8 @@ button[aria-disabled="true"] {
 .hero-content {
   max-width: 800px;
   margin: 0 auto;
+  margin-top: clamp(40px, 40vh, 70px) !important;
+  margin-bottom: clamp(40px, 40vh, 70px) !important;
   padding: 3rem 2rem;
   border-radius: 2rem;
   position: relative;
@@ -1038,7 +1046,8 @@ button[aria-disabled="true"] {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.25rem;
-  margin-bottom: 3rem;
+  margin-top: clamp(40px, 40vh, 160px) !important;
+  margin-bottom: clamp(40px, 40vh, 160px) !important;
   /* bottom safe spacing */
   align-items: start;
   /* prevents items from stretching */
@@ -1081,8 +1090,8 @@ button[aria-disabled="true"] {
   flex-direction: column;
   border-radius: 1.5rem;
   padding: clamp(1.25rem, 4vw, 2rem);
-  margin-top: clamp(40px, 5vh, 200px);
-  margin-bottom: clamp(40px, 5vh, 200px);
+  margin-top: clamp(40px, 40vh, 180px) !important;
+  margin-bottom: clamp(40px, 40vh, 180px) !important;
   transition: transform var(--dur-normal) var(--easing-smooth),
     box-shadow var(--dur-normal) var(--easing-smooth);
 }
@@ -1574,8 +1583,8 @@ button[aria-disabled="true"] {
   isolation: isolate;
   width: min(96vw, 1100px);
   margin-inline: auto;
-  margin-top: clamp(40px, 5vh, 200px);
-  margin-bottom: clamp(40px, 5vh, 200px);
+  margin-top: clamp(40px, 40vh, 180px) !important;
+  margin-bottom: clamp(40px, 40vh, 180px) !important;
 }
 
 /* Main gauge header container */
@@ -1931,7 +1940,11 @@ button[aria-disabled="true"] {
 
 /* ==============================
       ABOUT BMI SECTION
-      ============================== */
+  ============================== */
+.section-header-v2 {
+  margin-top: clamp(40px, 40vh, 120px) !important;
+}
+
 .main-container .section-header-v2 {
   color: white;
   padding: 4rem;
@@ -1975,7 +1988,8 @@ button[aria-disabled="true"] {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
-  margin-top: 2.5rem;
+  margin-top: clamp(40px, 40vh, 180px) !important;
+  margin-bottom: clamp(40px, 40vh, 180px) !important;
 }
 
 .about-card {
@@ -2543,8 +2557,8 @@ button[aria-disabled="true"] {
   color: white;
   font-size: 1rem;
   padding: clamp(2rem, 4vw, 4rem);
-  margin-top: clamp(80px, 50vh, 200px);
-  margin-bottom: clamp(10px, 2vh, 10px);
+  margin-top: clamp(40px, 40vh, 180px) !important;
+  margin-bottom: clamp(10px, 2vh, 10px) !important;
   /* add 'auto' for horizontal centering */
   border-radius: 2rem;
   max-width: 100%;
@@ -2747,6 +2761,18 @@ button[aria-disabled="true"] {
 .BookCheck,
 .Sparkles {
   color: var(--cosmic-purple) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.SquareSigma {
+  color: var(--cosmic-blue) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.BookCheck {
+  color: var(--cosmic-silver) !important;
   width: 24px !important;
   height: 24px !important;
 }
@@ -3824,8 +3850,8 @@ p,
 @media (min-width: 720px) and (max-width: 767px) {
   .gauge-container {
     width: min(92vw, 520px);
-    margin-top: clamp(40px, 5vh, 150px);
-    margin-bottom: clamp(40px, 5vh, 150px);
+    margin-top: clamp(40px, 40vh, 180px) !important;
+    margin-bottom: clamp(40px, 40vh, 180px) !important;
   }
 }
 

@@ -376,8 +376,11 @@
         aria-pressed={smoothModeRequested}
         on:click={toggleSmoothMode}
       >
-        <Sparkles aria-hidden="true" />
-        Render : {smoothModeStatus}
+        <Sparkles class="render-spark" aria-hidden="true" />
+        Render :
+        <span class:render-on={smoothModeRequested} class:render-off={!smoothModeRequested}>
+          {smoothModeStatus}
+        </span>
       </button>
     </nav>
   </div>
@@ -632,7 +635,7 @@
     box-shadow:
       0 8px 32px rgba(0, 0, 0, 0.4),
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 20px rgba(96, 165, 250, 0.1);
+      0 0 20px color-mix(in oklab, var(--cosmic-purple) 18%, transparent);
     border-radius: 9999px;
     margin-inline: auto;
     position: absolute;
@@ -659,11 +662,25 @@
     opacity: 1;
   }
 
+  .pager-smooth :global(.render-spark) {
+    color: var(--cosmic-purple) !important;
+  }
+
+  .pager-smooth .render-on {
+    color: #00c853;
+  }
+
+  .pager-smooth .render-off {
+    color: #ffd600;
+  }
+
   .pager-tab.active {
     opacity: 1;
     background: rgba(255, 255, 255, 0.07);
     border-color: color-mix(in oklab, var(--aurora-core) 55%, rgba(255, 255, 255, 0.12));
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.38), 0 0 18px rgba(96, 165, 250, 0.22);
+    box-shadow:
+      0 12px 32px rgba(0, 0, 0, 0.38),
+      0 0 18px color-mix(in oklab, var(--cosmic-purple) 28%, transparent);
     transform: translateY(-1px);
   }
 
@@ -684,9 +701,9 @@
     will-change: transform, opacity;
     scrollbar-width: none;
     contain: layout paint style;
-    padding-top: 0;
+    padding-top: 1rem;
     padding-bottom: calc(0.75rem + 56px + 0.75rem);
-    scroll-padding-top: 0;
+    scroll-padding-top: 1rem;
     scroll-padding-bottom: calc(0.75rem + 56px + 0.75rem);
   }
 
