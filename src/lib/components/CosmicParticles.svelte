@@ -7,19 +7,49 @@
   let refreshTimer: ReturnType<typeof setTimeout> | null = null;
   let destroyed = false;
   let particleCount = 10;
+  let reduced = false;
+  let paused = false;
+  let visibilityHandler: (() => void) | null = null;
 
   onMount(() => {
-    if (prefersReducedMotion()) return;
+    reduced = prefersReducedMotion();
+    if (reduced) return;
 
     const tier = getPerformanceTier();
     particleCount = tier === 'low' ? 6 : tier === 'medium' ? 8 : 12;
     createParticles();
     scheduleRefresh();
+
+    const handleVisibility = () => {
+      if (destroyed || reduced) return;
+      const isHidden = document.hidden;
+      paused = isHidden;
+
+      if (refreshTimer) {
+        clearTimeout(refreshTimer);
+        refreshTimer = null;
+      }
+
+      for (const p of particles) {
+        p.style.animationPlayState = isHidden ? 'paused' : 'running';
+      }
+
+      if (!isHidden) {
+        createParticles();
+        scheduleRefresh();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    visibilityHandler = () => document.removeEventListener('visibilitychange', handleVisibility);
+
+    handleVisibility();
   });
 
   onDestroy(() => {
     destroyed = true;
     if (refreshTimer) clearTimeout(refreshTimer);
+    if (visibilityHandler) visibilityHandler();
   });
 
   function prng(i: number, salt: number) {
@@ -68,6 +98,7 @@
 
   function scheduleRefresh() {
     if (destroyed) return;
+    if (paused) return;
     refreshTimer = setTimeout(() => {
       if (destroyed) return;
       createParticles();

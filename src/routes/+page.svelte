@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { browser } from '$app/environment';
+  import { getPerformanceTier } from '$lib/utils/performance';
   import Hero from '$lib/ui/Hero.svelte';
   import BmiForm from '$lib/components/BmiForm.svelte';
   import BmiResults from '$lib/components/BmiResults.svelte';
@@ -45,6 +46,18 @@
   let activeIndex = 0;
   let lastIndex = 0;
   let prefersReducedMotion = false;
+  let perfTier: 'high' | 'medium' | 'low' = 'medium';
+  let ultraSmoothRequested = false;
+
+  function toggleUltraSmooth() {
+    ultraSmoothRequested = !ultraSmoothRequested;
+    if (browser) {
+      localStorage.setItem('bmi.ultraSmooth', ultraSmoothRequested ? '1' : '0');
+    }
+  }
+
+  $: ultraSmoothEnabled = ultraSmoothRequested && !prefersReducedMotion && perfTier !== 'low';
+  $: ultraSmoothStatus = ultraSmoothEnabled ? 'On' : ultraSmoothRequested ? 'Limited' : 'Off';
 
   let pagerEl: HTMLDivElement | null = null;
   let pointerStartX: number | null = null;
@@ -138,7 +151,12 @@
 
   onMount(() => {
     if (browser) {
+      perfTier = getPerformanceTier();
       prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const storedUltra = localStorage.getItem('bmi.ultraSmooth');
+      ultraSmoothRequested = storedUltra === '1' || storedUltra === 'true';
+
       const idx = indexFromHash(window.location.hash);
       if (idx !== null) goTo(idx, { skipHash: true });
       setHash(sections[activeIndex].id);
@@ -235,6 +253,15 @@
         {section.label}
       </button>
     {/each}
+
+    <button
+      type="button"
+      class="btn btn-ghost pager-tab pager-ultra"
+      aria-pressed={ultraSmoothRequested}
+      on:click={toggleUltraSmooth}
+    >
+      Ultra Smooth: {ultraSmoothStatus}
+    </button>
   </nav>
 
   <main class="pager-view" aria-live="polite">
@@ -243,7 +270,7 @@
         class="pager-section"
         id={sections[activeIndex].id}
         data-pager-scroll="true"
-        style={`--pager-motion-duration: ${prefersReducedMotion ? '0ms' : '220ms'}; --pager-motion-x: ${activeIndex >= lastIndex ? '28px' : '-28px'};`}
+        style={`--pager-motion-duration: ${prefersReducedMotion ? '0ms' : ultraSmoothEnabled ? '360ms' : '220ms'}; --pager-motion-x: ${activeIndex >= lastIndex ? (ultraSmoothEnabled ? '44px' : '28px') : (ultraSmoothEnabled ? '-44px' : '-28px')};`}
       >
         {#if activeIndex === 0}
           <div class="main-container">
@@ -283,6 +310,7 @@
               <BmiRadialGauge
                 bmi={bmiValue || 0}
                 category={category}
+                ultraSmooth={ultraSmoothRequested}
               />
             </div>
           </div>
@@ -343,7 +371,7 @@
                     <div class="app-info">
                       <p class="info-row">
                         <PackageCheck class="PackageCheck" />
-                        <strong>Version:</strong>Stellar-3.2
+                        <strong>Version:</strong>Stellar-4.0
                       </p>
                       <p class="info-row">
                         <GitCompare class="GitCompare" />
@@ -444,8 +472,9 @@
     justify-content: center;
     gap: 0.5rem;
     padding-inline: 0.75rem;
-    overflow-x: auto;
+    //overflow-x: auto;
     scrollbar-width: none;
+    background-color: none;
   }
 
   .pager-nav::-webkit-scrollbar {
@@ -459,6 +488,10 @@
     border-radius: 9999px;
     white-space: nowrap;
     opacity: 0.78;
+  }
+
+  .pager-ultra {
+    opacity: 1;
   }
 
   .pager-tab.active {
@@ -477,10 +510,12 @@
     height: 100%;
     overflow-y: auto;
     overscroll-behavior: contain;
-    transform: translateX(var(--pager-motion-x, 0));
+    will-change: transform, opacity;
+    transform: translateZ(0) translateX(var(--pager-motion-x, 0));
     opacity: 0;
     animation: pagerEnter var(--pager-motion-duration, 220ms) var(--easing-smooth) forwards;
     scrollbar-width: none;
+    contain: layout paint style;
   }
 
   .pager-section::-webkit-scrollbar {
@@ -489,8 +524,16 @@
 
   @keyframes pagerEnter {
     to {
-      transform: translateX(0);
+      transform: translateZ(0) translateX(0);
       opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pager-section {
+      animation: none;
+      opacity: 1;
+      transform: translateZ(0) translateX(0);
     }
   }
 

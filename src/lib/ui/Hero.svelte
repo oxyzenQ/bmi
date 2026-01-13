@@ -61,7 +61,7 @@
 
     <div class="hero-bottom">
       <p class="hero-bottom-text">
-        Stellar Edition 3.2
+        Stellar Edition 4.0
       </p>
     </div>
   </div>
