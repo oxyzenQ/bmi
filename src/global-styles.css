@@ -3191,34 +3191,34 @@ button[aria-disabled="true"] {
       ============================== */
 @media (prefers-reduced-motion: reduce) {
 
-  *,
-  *::before,
-  *::after {
+  html:not([data-graphics='render']) *,
+  html:not([data-graphics='render']) *::before,
+  html:not([data-graphics='render']) *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
 
-  html,
-  body {
+  html:not([data-graphics='render']),
+  html:not([data-graphics='render']) body {
     transition: none;
   }
 
-  .btn,
-  .btn::before {
+  html:not([data-graphics='render']) .btn,
+  html:not([data-graphics='render']) .btn::before {
     transition: none !important;
   }
 
-  .btn:hover {
+  html:not([data-graphics='render']) .btn:hover {
     transform: none !important;
   }
 
-  .orb {
+  html:not([data-graphics='render']) .orb {
     animation: none;
   }
 
-  .hero-avatar .icon-glow {
+  .header-icon {
     animation: none;
   }
 
