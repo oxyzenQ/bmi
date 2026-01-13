@@ -66,7 +66,7 @@
   --apple-glass: rgba(255, 255, 255, 0.08);
   --apple-border: rgba(255, 255, 255, 0.12);
   --apple-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  --bg-by-rezky: linear-gradient(45deg, #041b30, #022b7e);
+  --bg-by-rezky: linear-gradient(45deg, #2b0955, #7700ee);
   --bg-last-by-rezky: linear-gradient(45deg, #132433, #2d94e2);
   --border-by-rezky: 2px solid rgba(128, 128, 128, 0.3);
   --bg-cosmic: linear-gradient(135deg,
@@ -1314,14 +1314,15 @@ button[aria-disabled="true"] {
   animation: iconGlow 2s ease-in-out infinite alternate;
 }
 
-/* Elegant gradient text utility using theme vars */
+/* Elegant gradient text utility using theme vars
 .text-gradient-elegant {
   /*background: var(--bg-cosmic);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: transparent; */
+  color: transparent;
 }
+*/
 
 .card-subtitle {
   color: white;
@@ -3984,4 +3985,8 @@ body.is-scrolling a.button {
     animation-iteration-count: infinite !important;
     animation-timing-function: linear !important;
   }
+}
+
+.pager-shell {
+  background-color: none;
 }

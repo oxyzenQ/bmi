@@ -557,36 +557,38 @@
     {/key}
   </main>
 
-  <div class="pager-controls" aria-label="Section navigation">
-    {#if activeIndex > 0}
-      <button
-        type="button"
-        class="btn btn-ghost pager-arrow"
-        aria-label="Previous section"
-        on:click={prevSection}
-      >
-        <ChevronLeft aria-hidden="true" />
-      </button>
-    {:else}
-      <div class="pager-arrow-spacer" aria-hidden="true"></div>
-    {/if}
+  <div class="pager-controls-shell">
+    <div class="pager-controls" aria-label="Section navigation">
+      {#if activeIndex > 0}
+        <button
+          type="button"
+          class="btn btn-ghost pager-arrow"
+          aria-label="Previous section"
+          on:click={prevSection}
+        >
+          <ChevronLeft aria-hidden="true" />
+        </button>
+      {:else}
+        <div class="pager-arrow-spacer" aria-hidden="true"></div>
+      {/if}
 
-    <div class="pager-indicator" aria-label={`Section ${activeIndex + 1} of ${sections.length}`}>
-      {activeIndex + 1} / {sections.length}
+      <div class="pager-indicator" aria-label={`Section ${activeIndex + 1} of ${sections.length}`}>
+        {activeIndex + 1} / {sections.length}
+      </div>
+
+      {#if activeIndex < sections.length - 1}
+        <button
+          type="button"
+          class="btn btn-ghost pager-arrow"
+          aria-label="Next section"
+          on:click={nextSection}
+        >
+          <ChevronRight aria-hidden="true" />
+        </button>
+      {:else}
+        <div class="pager-arrow-spacer" aria-hidden="true"></div>
+      {/if}
     </div>
-
-    {#if activeIndex < sections.length - 1}
-      <button
-        type="button"
-        class="btn btn-ghost pager-arrow"
-        aria-label="Next section"
-        on:click={nextSection}
-      >
-        <ChevronRight aria-hidden="true" />
-      </button>
-    {:else}
-      <div class="pager-arrow-spacer" aria-hidden="true"></div>
-    {/if}
   </div>
 </div>
 
@@ -690,14 +692,32 @@
     }
   }
 
-  .pager-controls {
+  .pager-controls-shell {
+    width: calc(100% - 1.5rem);
+    max-width: 820px;
+    min-width: 0;
+    overflow: hidden;
+    background: rgb(0 0 0 / 60%);
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    border: var(--border-by-rezky);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 0 20px rgba(96, 165, 250, 0.1);
+    border-radius: 9999px;
+    margin-inline: auto;
     position: sticky;
     bottom: 0.75rem;
+    z-index: 20;
+  }
+
+  .pager-controls {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
     gap: 0.75rem;
-    padding: 0 0.75rem 0.75rem;
+    padding: 0.5rem 0.75rem;
   }
 
   .pager-arrow {
@@ -733,8 +753,8 @@
     align-items: center;
     justify-content: center;
     border-radius: 9999px;
-    background: color-mix(in oklab, var(--cosmic-void) 35%, transparent);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    border: var(--btn-border);
     color: var(--stellar-white);
   }
 
