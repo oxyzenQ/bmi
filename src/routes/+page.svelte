@@ -164,7 +164,7 @@
   function handlePointerDown(event: PointerEvent) {
     const target = event.target as HTMLElement | null;
     if (target?.closest('button, a, input, textarea, select, label')) return;
-    if (target?.closest('.pager-nav, .pager-nav-shell')) return;
+    if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell')) return;
     pointerStartX = event.clientX;
     pointerStartY = event.clientY;
     activePointerId = event.pointerId;
@@ -222,7 +222,7 @@
   function handleWheel(event: WheelEvent) {
     if (isEditableTarget(event.target)) return;
     const target = event.target as HTMLElement | null;
-    if (target?.closest('.pager-nav, .pager-nav-shell')) return;
+    if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell')) return;
 
     const now = Date.now();
     if (now - lastWheelNavAt < 520) return;
@@ -597,10 +597,11 @@
     height: 100svh;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    padding-top: 0.75rem;
+    gap: 0;
+    padding-top: 0;
     overflow: hidden;
     touch-action: pan-y;
+    position: relative;
   }
 
   .pager-nav {
@@ -634,8 +635,10 @@
       0 0 20px rgba(96, 165, 250, 0.1);
     border-radius: 9999px;
     margin-inline: auto;
-    position: sticky;
+    position: absolute;
     top: 0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 20;
   }
 
@@ -669,6 +672,7 @@
     overflow: hidden;
     padding-bottom: 0.5rem;
     position: relative;
+    min-height: 0;
   }
 
   .pager-section {
@@ -680,6 +684,10 @@
     will-change: transform, opacity;
     scrollbar-width: none;
     contain: layout paint style;
+    padding-top: 0;
+    padding-bottom: calc(0.75rem + 56px + 0.75rem);
+    scroll-padding-top: 0;
+    scroll-padding-bottom: calc(0.75rem + 56px + 0.75rem);
   }
 
   .pager-section::-webkit-scrollbar {
@@ -707,8 +715,10 @@
       0 0 20px rgba(96, 165, 250, 0.1);
     border-radius: 9999px;
     margin-inline: auto;
-    position: sticky;
+    position: absolute;
     bottom: 0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 20;
   }
 

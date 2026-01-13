@@ -167,7 +167,7 @@ body {
   display: contents;
 }
 
-/* HDR stellar background image */
+/* stellar background image */
 body::before {
   content: '';
   position: fixed;
@@ -180,7 +180,7 @@ body::before {
   min-height: 100vh;
   z-index: -3;
   background-color: #0a0e1a;
-  background-image: url('/images/HDRstellar-v1.webp');
+  background-image: url('/images/oxyzen-zenlysium.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
