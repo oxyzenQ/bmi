@@ -52,6 +52,9 @@
   let perfTier: 'high' | 'medium' | 'low' = 'medium';
   let smoothModeRequested = false;
 
+  let pagerNavEl: HTMLElement | null = null;
+  let pagerNavCentered = false;
+
   let activePointerId: number | null = null;
   let lastWheelNavAt = 0;
 
@@ -67,6 +70,7 @@
       localStorage.setItem('bmi.ultraSmooth', smoothModeRequested ? '1' : '0');
       document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
       broadcastSmoothMode(smoothModeRequested);
+      void tick().then(updatePagerNavAlignment);
     }
   }
 
@@ -234,6 +238,12 @@
     else prevSection();
   }
 
+  function updatePagerNavAlignment() {
+    if (!pagerNavEl) return;
+    const overflow = pagerNavEl.scrollWidth > pagerNavEl.clientWidth + 1;
+    pagerNavCentered = !overflow;
+  }
+
   onMount(() => {
     if (browser) {
       perfTier = getPerformanceTier();
@@ -263,9 +273,14 @@
       window.addEventListener('hashchange', onHashChange);
       window.addEventListener('keydown', handleKeydown);
 
+      const onResize = () => updatePagerNavAlignment();
+      window.addEventListener('resize', onResize);
+      void tick().then(updatePagerNavAlignment);
+
       return () => {
         window.removeEventListener('hashchange', onHashChange);
         window.removeEventListener('keydown', handleKeydown);
+        window.removeEventListener('resize', onResize);
       };
     }
   });
@@ -337,7 +352,12 @@
   on:wheel={handleWheel}
 >
   <div class="pager-nav-shell">
-    <nav class="pager-nav" aria-label="Sections">
+    <nav
+      bind:this={pagerNavEl}
+      class="pager-nav"
+      class:centered={pagerNavCentered}
+      aria-label="Sections"
+    >
       {#each sections as section, idx (section.id)}
         <button
           type="button"
@@ -591,6 +611,10 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     min-width: 0;
+  }
+
+  .pager-nav.centered {
+    justify-content: center;
   }
 
   .pager-nav-shell {

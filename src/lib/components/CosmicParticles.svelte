@@ -20,7 +20,7 @@
     reducedPref = prefersReducedMotion();
 
     tier = getPerformanceTier();
-    baseParticleCount = tier === 'low' ? 6 : tier === 'medium' ? 8 : 12;
+    baseParticleCount = tier === 'low' ? 8 : tier === 'medium' ? 12 : 16;
 
     if (typeof window !== 'undefined') {
       const storedSmooth = localStorage.getItem('bmi.smoothMode');
@@ -97,9 +97,9 @@
 
   function computeParticleCount(tier: 'high' | 'medium' | 'low', smoothEnabled: boolean) {
     if (!smoothEnabled) return baseParticleCount;
-    if (tier === 'high') return Math.min(baseParticleCount + 5, 18);
-    if (tier === 'medium') return Math.min(baseParticleCount + 3, 14);
-    return Math.min(baseParticleCount + 1, 8);
+    if (tier === 'high') return Math.min(baseParticleCount + 10, 30);
+    if (tier === 'medium') return Math.min(baseParticleCount + 6, 22);
+    return Math.min(baseParticleCount + 3, 12);
   }
 
   function updateReduced() {
@@ -136,10 +136,10 @@
     for (let i = 0; i < particleCount; i++) {
       const particle = createParticle();
       const opacity = 0.25 + prng(i, 1) * 0.6;
-      const scale = 0.8 + prng(i, 2) * 0.9;
-      const drift = (prng(i, 3) - 0.5) * 40;
+      const scale = 0.9 + prng(i, 2) * 1.05;
+      const drift = (prng(i, 3) - 0.5) * 54;
       const left = prng(i, 4) * 100;
-      const size = 2 + Math.floor(prng(i, 5) * 4);
+      const size = 3 + Math.floor(prng(i, 5) * 6);
       const delay = prng(i, 6) * 2;
       const duration = 10 + prng(i, 7) * 10;
 
