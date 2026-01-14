@@ -13,6 +13,7 @@
   import {
     Lightbulb,
     Users,
+    GitBranch,
     GitCompare,
     PackageCheck,
     Brush,
@@ -518,6 +519,10 @@
                       <p class="info-row">
                         <PackageCheck class="PackageCheck" />
                         <strong>Version:</strong>Stellar-4.0
+                      </p>
+                      <p class="info-row">
+                        <GitBranch class="GitBranch" />
+                        <strong>Branch:</strong>zenlysium
                       </p>
                       <p class="info-row">
                         <GitCompare class="GitCompare" />

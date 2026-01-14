@@ -709,10 +709,10 @@ button[aria-disabled="true"] {
   align-items: center;
   justify-content: center;
   margin-bottom: 1.5rem;
-  width: 180px;
-  height: 180px;
+  width: 108px;
+  height: 108px;
   border-radius: 9999px;
-  padding: 1rem;
+  padding: 0.6rem;
   background: none;
   border: none;
   backdrop-filter: blur(10px) saturate(160%);

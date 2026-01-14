@@ -4,7 +4,6 @@
 
   let particlesContainer: HTMLDivElement;
   let particles: HTMLDivElement[] = [];
-  let refreshTimer: ReturnType<typeof setTimeout> | null = null;
   let destroyed = false;
   let particleCount = 10;
   let baseParticleCount = 10;
@@ -54,7 +53,6 @@
       particleCount = computeParticleCount(tier, smoothModeEnabled);
       if (!paused) {
         createParticles();
-        scheduleRefresh();
       }
 
       if (wasReduced) {
@@ -70,36 +68,31 @@
       const isHidden = document.hidden;
       paused = isHidden;
 
-      if (refreshTimer) {
-        clearTimeout(refreshTimer);
-        refreshTimer = null;
-      }
-
       for (const p of particles) p.style.animationPlayState = isHidden ? 'paused' : 'running';
 
       if (isHidden) return;
       if (reduced) return;
-      createParticles();
-      scheduleRefresh();
+
+      if (particles.length === 0) {
+        createParticles();
+      }
     };
 
     document.addEventListener('visibilitychange', handleVisibility);
     visibilityHandler = () => document.removeEventListener('visibilitychange', handleVisibility);
 
-    handleVisibility();
-
-    if (!reduced) {
+    if (!reduced && !document.hidden) {
       particleCount = computeParticleCount(tier, smoothModeEnabled);
       createParticles();
-      scheduleRefresh();
     } else {
       stopParticles();
     }
+
+    handleVisibility();
   });
 
   onDestroy(() => {
     destroyed = true;
-    if (refreshTimer) clearTimeout(refreshTimer);
     if (visibilityHandler) visibilityHandler();
     if (smoothModeHandler) smoothModeHandler();
   });
@@ -116,11 +109,7 @@
   }
 
   function stopParticles() {
-    if (refreshTimer) {
-      clearTimeout(refreshTimer);
-      refreshTimer = null;
-    }
-    if (particlesContainer) particlesContainer.innerHTML = '';
+    if (particlesContainer) particlesContainer.textContent = '';
     particles = [];
   }
 
@@ -138,8 +127,10 @@
   function createParticles() {
     if (!particlesContainer) return;
 
-    particlesContainer.innerHTML = '';
+    particlesContainer.textContent = '';
     particles = [];
+
+    const frag = document.createDocumentFragment();
 
     // Create particles (optimized for performance)
     for (let i = 0; i < particleCount; i++) {
@@ -165,24 +156,13 @@
         --drift-end: ${driftEnd}px;
       `;
 
-      particlesContainer.appendChild(particle);
+      frag.appendChild(particle);
       particles.push(particle);
     }
+
+    particlesContainer.appendChild(frag);
   }
 
-  function scheduleRefresh() {
-    if (destroyed) return;
-    if (paused) return;
-    if (refreshTimer) {
-      clearTimeout(refreshTimer);
-      refreshTimer = null;
-    }
-    refreshTimer = setTimeout(() => {
-      if (destroyed) return;
-      createParticles();
-      scheduleRefresh();
-    }, 120000);
-  }
 </script>
 
 <div
