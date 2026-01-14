@@ -350,7 +350,7 @@
 <svelte:head>
   <title>BMI Calculator - Calculate Your Body Mass Index</title>
   <meta name="description" content="Calculate your BMI with our modern, accessible calculator. Get instant results, health recommendations, and learn about BMI categories." />
-  <link rel="preload" as="image" href="/images/HDRstellar-v1.webp" fetchpriority="high" />
+  <link rel="preload" as="image" href="/images/oxyzen-zenlysium.jpg" fetchpriority="high" />
 </svelte:head>
 
 <div
