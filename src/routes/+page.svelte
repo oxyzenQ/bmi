@@ -250,13 +250,17 @@
       prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       const storedSmooth = localStorage.getItem('bmi.smoothMode');
-      const storedUltra = storedSmooth ?? localStorage.getItem('bmi.ultraSmooth');
-      if (storedUltra === null) {
-        smoothModeRequested = false;
+      const storedUltra = localStorage.getItem('bmi.ultraSmooth');
+      const hasAny = storedSmooth !== null || storedUltra !== null;
+      smoothModeRequested =
+        hasAny &&
+        ((storedSmooth === '1' || storedSmooth === 'true') || (storedUltra === '1' || storedUltra === 'true'));
+      if (!hasAny) {
         localStorage.setItem('bmi.smoothMode', '0');
         localStorage.setItem('bmi.ultraSmooth', '0');
       } else {
-        smoothModeRequested = storedUltra === '1' || storedUltra === 'true';
+        localStorage.setItem('bmi.smoothMode', smoothModeRequested ? '1' : '0');
+        localStorage.setItem('bmi.ultraSmooth', smoothModeRequested ? '1' : '0');
       }
       document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
       broadcastSmoothMode(smoothModeRequested);

@@ -21,8 +21,9 @@
 
     if (typeof window !== 'undefined') {
       const storedSmooth = localStorage.getItem('bmi.smoothMode');
-      const storedUltra = storedSmooth ?? localStorage.getItem('bmi.ultraSmooth');
-      smoothModeEnabled = storedUltra === '1' || storedUltra === 'true';
+      const storedUltra = localStorage.getItem('bmi.ultraSmooth');
+      smoothModeEnabled =
+        (storedSmooth === '1' || storedSmooth === 'true') || (storedUltra === '1' || storedUltra === 'true');
     }
 
     updateReduced();

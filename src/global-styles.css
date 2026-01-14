@@ -2414,7 +2414,8 @@ html:not([data-graphics='render']) .hero-avatar::after {
   opacity: 0;
   border-radius: 9999px;
   background: radial-gradient(circle, rgba(226, 232, 240, 0.95), rgba(148, 163, 184, 0.5) 58%, rgba(148, 163, 184, 0) 74%);
-  filter: blur(0.35px);
+  mix-blend-mode: screen;
+  filter: blur(0.35px) drop-shadow(0 0 8px rgba(226, 232, 240, 0.22));
   animation-name: particleRise;
   animation-duration: var(--duration, 12s);
   animation-delay: var(--delay, 0s);
@@ -2424,17 +2425,12 @@ html:not([data-graphics='render']) .hero-avatar::after {
 }
 
 @keyframes particleRise {
-
-  0%,
-  100% {
-    opacity: 0;
-  }
-
   0% {
+    opacity: 0;
     transform: translate3d(var(--drift-start, 0px), 0px, 0) scale(calc(var(--scale, 1) * 0.7));
   }
 
-  12% {
+  4% {
     opacity: var(--opacity, 0.55);
   }
 
@@ -2443,7 +2439,12 @@ html:not([data-graphics='render']) .hero-avatar::after {
     transform: translate3d(var(--drift-end, 0px), 70vh, 0) scale(var(--scale, 1));
   }
 
+  94% {
+    opacity: var(--opacity, 0.55);
+  }
+
   100% {
+    opacity: 0;
     transform: translate3d(var(--drift-end, 0px), 120vh, 0) scale(calc(var(--scale, 1) * 0.8));
   }
 }
