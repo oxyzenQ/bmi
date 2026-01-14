@@ -882,11 +882,27 @@
     z-index: 0;
   }
 
+  .pager-arrow-prev,
+  .pager-arrow-next {
+    color: white;
+    border: 1px solid color-mix(in oklab, var(--aurora-core) 22%, rgba(255, 255, 255, 0.14));
+    backdrop-filter: blur(14px) saturate(175%);
+    -webkit-backdrop-filter: blur(14px) saturate(175%);
+  }
+
   .pager-arrow-prev {
+    background: var(--bg-last-by-rezky);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 0 28px color-mix(in oklab, var(--aurora-bright) 28%, transparent);
     --end-glow-shift-x: 12px;
   }
 
   .pager-arrow-next {
+    background: var(--bg-by-rezky);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 0 28px color-mix(in oklab, var(--cosmic-purple) 30%, transparent);
     --end-glow-shift-x: -12px;
   }
 
@@ -994,4 +1010,4 @@
   }
 </style>
 
-<!-- styles moved to app.css -->
+<!-- styles moved to global-styles.css -->
