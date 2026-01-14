@@ -2557,6 +2557,7 @@ html:not([data-graphics='render']) .hero-avatar::after {
   overflow: hidden;
   contain: layout style paint;
   will-change: transform;
+  isolation: isolate;
 }
 
 .cosmic-particles .cosmic-particle {
@@ -2565,13 +2566,16 @@ html:not([data-graphics='render']) .hero-avatar::after {
   left: 0;
   opacity: 0;
   border-radius: 9999px;
-  background: radial-gradient(circle, rgba(226, 232, 240, 0.95), rgba(148, 163, 184, 0.5) 58%, rgba(148, 163, 184, 0) 74%);
+  background: radial-gradient(circle,
+      color-mix(in oklab, var(--aurora-whisper) 70%, white 30%) 0%,
+      color-mix(in oklab, var(--aurora-glow) 60%, transparent) 56%,
+      transparent 74%);
   mix-blend-mode: screen;
-  filter: blur(0.35px) drop-shadow(0 0 8px rgba(226, 232, 240, 0.22));
+  filter: blur(0.5px) drop-shadow(0 0 10px color-mix(in oklab, var(--aurora-glow) 30%, transparent)) drop-shadow(0 0 18px color-mix(in oklab, var(--aurora-core) 18%, transparent));
   animation-name: particleRise;
   animation-duration: var(--duration, 12s);
   animation-delay: var(--delay, 0s);
-  animation-timing-function: linear;
+  animation-timing-function: var(--timing, linear);
   animation-iteration-count: infinite;
   will-change: transform, opacity;
 }
@@ -2579,16 +2583,21 @@ html:not([data-graphics='render']) .hero-avatar::after {
 @keyframes particleRise {
   0% {
     opacity: 0;
-    transform: translate3d(var(--drift-start, 0px), 0px, 0) scale(calc(var(--scale, 1) * 0.7));
+    transform: translate3d(var(--drift-start, 0px), 0px, 0) rotate(0deg) scale(calc(var(--scale, 1) * 0.7));
   }
 
   4% {
     opacity: var(--opacity, 0.55);
   }
 
+  52% {
+    opacity: var(--opacity, 0.55);
+    transform: translate3d(var(--drift-mid, 0px), 54vh, 0) rotate(var(--spin-mid, 0deg)) scale(calc(var(--scale, 1) * 1.02));
+  }
+
   60% {
     opacity: var(--opacity, 0.55);
-    transform: translate3d(var(--drift-end, 0px), 70vh, 0) scale(var(--scale, 1));
+    transform: translate3d(var(--drift-end, 0px), 72vh, 0) rotate(var(--spin-end, 0deg)) scale(var(--scale, 1));
   }
 
   94% {
@@ -2597,7 +2606,7 @@ html:not([data-graphics='render']) .hero-avatar::after {
 
   100% {
     opacity: 0;
-    transform: translate3d(var(--drift-end, 0px), 120vh, 0) scale(calc(var(--scale, 1) * 0.8));
+    transform: translate3d(var(--drift-end, 0px), 118vh, 0) rotate(var(--spin-end, 0deg)) scale(calc(var(--scale, 1) * 0.82));
   }
 }
 

@@ -135,14 +135,23 @@
     // Create particles (optimized for performance)
     for (let i = 0; i < particleCount; i++) {
       const particle = createParticle();
-      const opacity = 0.35 + prng(i, 1) * 0.55;
-      const scale = 1.1 + prng(i, 2) * 1.2;
-      const driftStart = (prng(i, 3) - 0.5) * 120;
-      const driftEnd = driftStart + (prng(i, 8) - 0.5) * 180;
+      const opacity = 0.26 + prng(i, 1) * 0.58;
+      const scale = 0.85 + prng(i, 2) * 1.35;
+      const driftStart = (prng(i, 3) - 0.5) * 160;
+      const driftEnd = driftStart + (prng(i, 8) - 0.5) * 240;
+      const driftMid = driftStart + (driftEnd - driftStart) * 0.52 + (prng(i, 11) - 0.5) * 80;
       const left = prng(i, 4) * 100;
-      const size = 6 + Math.floor(prng(i, 5) * 10);
-      const delay = prng(i, 6) * 2;
-      const duration = 14 + prng(i, 7) * 18;
+      const sizeRand = prng(i, 5);
+      const size = sizeRand < 0.75
+        ? 3 + Math.floor(sizeRand * 8)
+        : 9 + Math.floor(((sizeRand - 0.75) / 0.25) * 10);
+      const delay = prng(i, 6) * 3.2;
+      const duration = 18 + prng(i, 7) * 22;
+      const spinEnd = (prng(i, 9) - 0.5) * 80;
+      const spinMid = spinEnd * 0.62 + (prng(i, 10) - 0.5) * 14;
+      const timing = prng(i, 12) < 0.5
+        ? 'cubic-bezier(0.22, 1, 0.36, 1)'
+        : 'cubic-bezier(0.16, 1, 0.3, 1)';
 
       particle.style.cssText = `
         left: ${left}%;
@@ -153,7 +162,11 @@
         --opacity: ${opacity};
         --scale: ${scale};
         --drift-start: ${driftStart}px;
+        --drift-mid: ${driftMid}px;
         --drift-end: ${driftEnd}px;
+        --spin-mid: ${spinMid}deg;
+        --spin-end: ${spinEnd}deg;
+        --timing: ${timing};
       `;
 
       frag.appendChild(particle);
