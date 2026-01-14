@@ -33,6 +33,33 @@
 	<!-- Theme color -->
 	<meta name="theme-color" content="#070a1c" />
 	<meta name="msapplication-TileColor" content="#070a1c" />
+	<script>
+		(() => {
+			try {
+				const storedRenderMode = localStorage.getItem('bmi.renderMode');
+				let enabled;
+				if (storedRenderMode === null) {
+					const storedSmooth = localStorage.getItem('bmi.smoothMode');
+					const storedUltra = localStorage.getItem('bmi.ultraSmooth');
+					const hasLegacy = storedSmooth !== null || storedUltra !== null;
+					enabled =
+						hasLegacy
+							? (storedSmooth === '1' || storedSmooth === 'true' || storedUltra === '1' || storedUltra === 'true')
+							: true;
+					localStorage.setItem('bmi.renderMode', enabled ? '1' : '0');
+					localStorage.removeItem('bmi.smoothMode');
+					localStorage.removeItem('bmi.ultraSmooth');
+				} else {
+					enabled = storedRenderMode === '1' || storedRenderMode === 'true';
+					localStorage.removeItem('bmi.smoothMode');
+					localStorage.removeItem('bmi.ultraSmooth');
+				}
+				document.documentElement.dataset.graphics = enabled ? 'render' : 'basic';
+			} catch {
+				// ignore
+			}
+		})();
+	</script>
 
 	<!-- Security headers -->
 	<meta http-equiv="X-Content-Type-Options" content="nosniff" />

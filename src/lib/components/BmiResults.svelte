@@ -1,11 +1,22 @@
 <script lang="ts">
   import { BarChart3,  CircleSlash2, TrendingUp, Info, AlertCircle, CheckCircle, Activity } from 'lucide-svelte';
+  import { tweened } from 'svelte/motion';
+  import { cubicOut } from 'svelte/easing';
 
   export let bmiValue: number | null = null;
   export let category: string | null = null;
   export let age: number | null = null;
+  export let reducedMotion: boolean = false;
 
   $: hasResults = bmiValue !== null && category !== null;
+
+  const animatedBmi = tweened(0, { duration: 0, easing: cubicOut });
+
+  $: if (hasResults) {
+    animatedBmi.set(bmiValue!, { duration: reducedMotion ? 0 : 720, easing: cubicOut });
+  } else {
+    animatedBmi.set(0, { duration: 0 });
+  }
 
   // Map category to global CSS class for colors
   $: catClass = category
@@ -53,7 +64,7 @@
   }
 </script>
 
-<div class="{catClass}">
+<div class="bmi-results-card {catClass}">
   <div class="card-header">
     <div class="icon-container">
       <CircleSlash2 class="CircleSlash2" />
@@ -67,7 +78,7 @@
     {#if hasResults}
       <div class="bmi-display">
         <div class="bmi-value">
-          {bmiValue!.toFixed(2)}
+          {$animatedBmi.toFixed(2)}
         </div>
         <div class="bmi-category-container">
           <svelte:component this={getCategoryIcon(category!)} class="category-icon" />
@@ -98,7 +109,7 @@
       <div class="bmi-explanation">
         <h4 class="explanation-title">What this means:</h4>
         <p class="explanation-text">
-          Your BMI of <strong>{bmiValue!.toFixed(2)}</strong> falls in the <strong>{category}</strong> category. 
+          Your BMI of <strong>{$animatedBmi.toFixed(2)}</strong> falls in the <strong>{category}</strong> category.
           BMI is a screening tool that helps assess weight-related health risks.
         </p>
       </div>

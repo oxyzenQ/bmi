@@ -1,9 +1,13 @@
 <script lang="ts">
   import { Gauge } from 'lucide-svelte';
   import { onDestroy } from 'svelte';
+  import { tweened } from 'svelte/motion';
+  import { cubicOut } from 'svelte/easing';
+  import { getPerformanceTier, prefersReducedMotion } from '$lib/utils/performance';
 
   export let bmi: number = 0;
   export let category: string | null = null;
+  export let ultraSmooth: boolean = false;
 
   // Optional: parent can call this exported fn to force-clear
   export function clearGauge() {
@@ -19,6 +23,20 @@
   let prevAppliedBmi = 0;
   let isFilling = false;
   let fillTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const perfTier = getPerformanceTier();
+  const reducedMotionPref = prefersReducedMotion();
+  const displayBmi = tweened(0, { duration: 0, easing: cubicOut });
+
+  $: reducedMotion = reducedMotionPref && !ultraSmooth;
+
+  let useGlow = false;
+  let usePulse = false;
+  let bmiTweenDuration = 0;
+  let strokeDuration = '1200ms';
+  let strokeDurationFill = '1800ms';
+  let strokeDelayFill = '120ms';
+  let pulseDuration = '1s';
 
   const categoryColors: Record<string, string> = {
     'Underweight': '#4A90E2',
@@ -87,7 +105,43 @@
   $: strokeDashoffset = circumference - (appliedPercentage * circumference);
 
   // Center display driven by appliedBmi/appliedCategory
-  $: bmiDisplayValue = appliedBmi > 0 ? appliedBmi.toFixed(2) : '—';
+  $: {
+    const ultraEnabled = ultraSmooth && !reducedMotion && perfTier !== 'low';
+    useGlow = ultraEnabled && perfTier === 'high';
+    usePulse = ultraEnabled;
+
+    bmiTweenDuration = reducedMotion
+      ? 0
+      : ultraEnabled
+        ? (perfTier === 'high' ? 1200 : 900)
+        : (perfTier === 'low' ? 420 : 720);
+
+    strokeDuration = reducedMotion
+      ? '0ms'
+      : ultraEnabled
+        ? (perfTier === 'high' ? '1600ms' : '1400ms')
+        : '1200ms';
+
+    strokeDurationFill = reducedMotion
+      ? '0ms'
+      : ultraEnabled
+        ? (perfTier === 'high' ? '2200ms' : '2000ms')
+        : '1800ms';
+
+    strokeDelayFill = ultraEnabled ? '160ms' : '120ms';
+    pulseDuration = ultraEnabled ? '1.35s' : '1s';
+
+    if (appliedBmi > 0) {
+      displayBmi.set(appliedBmi, {
+        duration: bmiTweenDuration,
+        easing: cubicOut
+      });
+    } else {
+      displayBmi.set(0, { duration: 0 });
+    }
+  }
+
+  $: bmiDisplayValue = appliedBmi > 0 ? $displayBmi.toFixed(2) : '—';
   $: categoryDisplayText = appliedCategory ?? 'N/A';
 
   // Gradient helpers
@@ -123,6 +177,7 @@
       height={gaugeSize}
       viewBox={`0 0 ${gaugeSize} ${gaugeSize}`}
       aria-hidden="true"
+      style={`--gauge-stroke-dur: ${strokeDuration}; --gauge-stroke-dur-fill: ${strokeDurationFill}; --gauge-stroke-delay-fill: ${strokeDelayFill}; --gauge-pulse-dur: ${pulseDuration};`}
     >
       <defs>
         <linearGradient id="gaugeBackground" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -135,13 +190,15 @@
           <stop offset="100%" stop-color={progressEnd} />
         </linearGradient>
 
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-          <feMerge>
-            <feMergeNode in="coloredBlur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
+        {#if useGlow}
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        {/if}
       </defs>
 
       <!-- Background ring -->
@@ -167,8 +224,8 @@
         stroke-dasharray={strokeDasharray}
         stroke-dashoffset={strokeDashoffset}
         transform={`rotate(-90 ${gaugeSize / 2} ${gaugeSize / 2})`}
-        filter="url(#glow)"
-        class="gauge-progress {appliedBmi > 0 ? 'pulsing' : ''} {isFilling ? 'filling' : ''}"
+        filter={useGlow ? 'url(#glow)' : undefined}
+        class="gauge-progress {appliedBmi > 0 && usePulse ? 'pulsing' : ''} {isFilling ? 'filling' : ''}"
       />
       <!-- center text -->
       <g class="gauge-center">

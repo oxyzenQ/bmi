@@ -6,6 +6,7 @@
   export let age: string = '';
   export let height: string = '';
   export let weight: string = '';
+  export let calculating: boolean = false;
   export let onClear: () => void;
   export let onCalculate: () => void;
 
@@ -49,6 +50,7 @@
 
   // Only trigger calculate when button is pressed and inputs are valid
   function handleCalculate() {
+    if (calculating) return;
     if (canCalculate && parsedHeight && parsedWeight) {
       // Clean and validate values before calculation
       const cleanHeight = Math.round(parsedHeight * 100) / 100; // Round to 2 decimals
@@ -172,12 +174,23 @@
         on:click={handleCalculate}
         on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCalculate()}
         class="btn btn-primary"
+        class:is-calculating={calculating}
         aria-label="Calculate BMI"
-        aria-disabled={!canCalculate}
-        disabled={!canCalculate}
+        aria-disabled={!canCalculate || calculating}
+        aria-busy={calculating}
+        disabled={!canCalculate || calculating}
       >
         <Zap class="Zap" />
-        Calc BMI
+        {#if calculating}
+          Calculating…
+          <span class="btn-dots" aria-hidden="true">
+            <span class="btn-dot"></span>
+            <span class="btn-dot"></span>
+            <span class="btn-dot"></span>
+          </span>
+        {:else}
+          Calc BMI
+        {/if}
       </button>
 
       <button

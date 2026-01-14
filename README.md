@@ -1,96 +1,70 @@
-<div align="center">
-
 # BMI Calculator
 
-**Modern Body Mass Index Calculator with Space-Themed UI**
+A modern, space‑themed **Body Mass Index (BMI)** calculator built with **SvelteKit + TypeScript**, designed for a fast, smooth, and accessible user experience.
 
-[![Release](https://img.shields.io/github/v/release/oxyzenq/bmi?style=plastic&logo=rocket&color=8B5CF6)](https://github.com/oxyzenq/bmi/releases)
-[![Live Demo](https://img.shields.io/badge/demo-live-10B981?style=plastic&logo=vercel)](https://bmi-logigo.vercel.app)
-[![License](https://img.shields.io/badge/license-GPL--3.0-EC4899?style=plastic&logo=gnu)](LICENSE.md)
-[![Stars](https://img.shields.io/github/stars/oxyzenq/bmi?style=plastic&color=FBBF24)](https://github.com/oxyzenq/bmi/stargazers)
+- **Live demo**: https://bmi-logigo.vercel.app
+- **License**: GPL‑3.0 (`LICENSE.md`)
 
-[![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?style=plastic&logo=svelte&logoColor=white)](https://kit.svelte.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=plastic&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Lighthouse](https://img.shields.io/badge/lighthouse-100-success?style=plastic&logo=lighthouse)](https://developer.chrome.com/docs/lighthouse)
+## Highlights
 
-[**Live Demo →**](https://bmi-logigo.vercel.app)
-
-</div>
-
-## Features
-
-- **Space-Themed UI** — Glassmorphic design with smooth animations
-- **100% Privacy** — All data stored locally, zero tracking
-- **Lightning Fast** — 100/100 Lighthouse score
-- **Offline Ready** — Works without internet connection
-- **Responsive** — Optimized for all screen sizes
+- **Instant BMI results**
+  Includes category classification and guidance.
+- **High‑quality animations (optional)**
+  Results reveal, count‑up number, and gauge/range animations.
+- **Render Mode toggle**
+  Turn advanced visuals on/off for better performance or battery life.
+  Stored in `localStorage` as `bmi.renderMode`.
+- **Reduced motion support**
+  Respects `prefers-reduced-motion`.
+- **Privacy-first**
+  No tracking — preferences and history are stored locally.
+- **Offline ready**
+  Includes a service worker in production builds.
 
 ## Tech Stack
 
-**Frontend:** SvelteKit • TypeScript • Manual CSS
-**Runtime:** Bun
-**Deployment:** Vercel Edge
+- **Framework**: SvelteKit
+- **Language**: TypeScript
+- **UI**: Svelte components + custom CSS
+- **Runtime / tooling**: Bun
+- **Deployment**: Vercel
 
 ## Quick Start
 
 ```bash
-# Clone and install
-git clone https://github.com/oxyzenq/bmi.git
-cd bmi
 bun install
-
-# Development
 bun run dev
-
-# Production
-bun run build
-bun run preview
 ```
 
-## Commands
+Open the local URL printed in your terminal.
+
+## Scripts
 
 ```bash
-bun run dev       # Start dev server
-bun run build     # Build for production
-bun run preview   # Preview production build
-bun run lint      # Lint & format code
-bun test          # Run tests
+bun run dev        # start dev server
+bun run check      # svelte-check
+bun run lint       # eslint
+bun run test:run   # tests
+bun run build      # production build
+bun run preview    # preview build
+
+./verify.sh        # check + lint + test + build
 ```
 
 ## Project Structure
 
-```
+```text
 src/
-├── lib/components/   # UI components
-├── routes/           # SvelteKit pages
-└── global-styles.css # Styles
+  lib/components/   reusable UI components
+  lib/ui/           app UI sections
+  routes/           SvelteKit routes/pages
+  global-styles.css global styling
 ```
 
 ## Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING.md](.github/CONTRIBUTING.md) for guidelines.
-
-```bash
-# Fork and create a feature branch
-git checkout -b feature/your-feature
-
-# Make changes and test
-bun run lint
-bun test
-
-# Submit a pull request
-```
+PRs are welcome.
 
 ## License
 
-Licensed under [GPL-3.0](LICENSE.md) © 2024 Team LOGIGO
-
----
-
-<div align="center">
-
-[![Star History](https://api.star-history.com/svg?repos=oxyzenq/bmi&type=Date)](https://star-history.com/#oxyzenq/bmi&Date)
-
-**Built with SvelteKit • TypeScript • Bun**
-
-</div>
+GPL‑3.0 — see `LICENSE.md`.

@@ -44,6 +44,14 @@ export const handle: Handle = async ({ event, resolve }) => {
 		response.headers.set('Content-Security-Policy', cspDirectives.join('; '));
 	}
 
+	// Ensure dev mode does not emit CSP headers (including report-only) to avoid noisy console logs
+	if (isDev) {
+		response.headers.delete('Content-Security-Policy');
+		response.headers.delete('Content-Security-Policy-Report-Only');
+		response.headers.delete('content-security-policy');
+		response.headers.delete('content-security-policy-report-only');
+	}
+
 	// Skip HTTPS-only headers in development
 	if (!isDev) {
 		// HTTP Strict Transport Security (HSTS) - Forces HTTPS

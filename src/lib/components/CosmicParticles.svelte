@@ -1,26 +1,117 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { getPerformanceTier, prefersReducedMotion } from '$lib/utils/performance';
+  import { getPerformanceTier } from '$lib/utils/performance';
 
   let particlesContainer: HTMLDivElement;
   let particles: HTMLDivElement[] = [];
-  let refreshTimer: ReturnType<typeof setTimeout> | null = null;
   let destroyed = false;
   let particleCount = 10;
+  let baseParticleCount = 10;
+  let reduced = false;
+  let paused = false;
+  let visibilityHandler: (() => void) | null = null;
+  let smoothModeEnabled = false;
+  let smoothModeHandler: (() => void) | null = null;
+  let tier: 'high' | 'medium' | 'low' = 'medium';
 
   onMount(() => {
-    if (prefersReducedMotion()) return;
+    tier = getPerformanceTier();
+    baseParticleCount = tier === 'low' ? 10 : tier === 'medium' ? 16 : 22;
 
-    const tier = getPerformanceTier();
-    particleCount = tier === 'low' ? 6 : tier === 'medium' ? 8 : 12;
-    createParticles();
-    scheduleRefresh();
+    if (typeof window !== 'undefined') {
+      const storedRenderMode = localStorage.getItem('bmi.renderMode');
+      if (storedRenderMode === null) {
+        const storedSmooth = localStorage.getItem('bmi.smoothMode');
+        const storedUltra = localStorage.getItem('bmi.ultraSmooth');
+        const hasLegacy = storedSmooth !== null || storedUltra !== null;
+        smoothModeEnabled =
+          hasLegacy
+            ? (storedSmooth === '1' || storedSmooth === 'true' || storedUltra === '1' || storedUltra === 'true')
+            : true;
+        localStorage.setItem('bmi.renderMode', smoothModeEnabled ? '1' : '0');
+        localStorage.removeItem('bmi.smoothMode');
+        localStorage.removeItem('bmi.ultraSmooth');
+      } else {
+        smoothModeEnabled = storedRenderMode === '1' || storedRenderMode === 'true';
+      }
+    }
+
+    updateReduced();
+
+    const handleSmoothMode = (event: Event) => {
+      if (destroyed) return;
+      const ce = event as CustomEvent<{ enabled?: boolean; requested?: boolean; status?: string }>;
+      smoothModeEnabled = Boolean(ce.detail?.enabled ?? ce.detail?.requested);
+      const wasReduced = reduced;
+      updateReduced();
+
+      if (reduced) {
+        stopParticles();
+        return;
+      }
+
+      particleCount = computeParticleCount(tier, smoothModeEnabled);
+      if (!paused) {
+        createParticles();
+      }
+
+      if (wasReduced) {
+        for (const p of particles) p.style.animationPlayState = paused ? 'paused' : 'running';
+      }
+    };
+
+    window.addEventListener('bmi:smoothMode', handleSmoothMode as EventListener);
+    smoothModeHandler = () => window.removeEventListener('bmi:smoothMode', handleSmoothMode as EventListener);
+
+    const handleVisibility = () => {
+      if (destroyed) return;
+      const isHidden = document.hidden;
+      paused = isHidden;
+
+      for (const p of particles) p.style.animationPlayState = isHidden ? 'paused' : 'running';
+
+      if (isHidden) return;
+      if (reduced) return;
+
+      if (particles.length === 0) {
+        createParticles();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    visibilityHandler = () => document.removeEventListener('visibilitychange', handleVisibility);
+
+    if (!reduced && !document.hidden) {
+      particleCount = computeParticleCount(tier, smoothModeEnabled);
+      createParticles();
+    } else {
+      stopParticles();
+    }
+
+    handleVisibility();
   });
 
   onDestroy(() => {
     destroyed = true;
-    if (refreshTimer) clearTimeout(refreshTimer);
+    if (visibilityHandler) visibilityHandler();
+    if (smoothModeHandler) smoothModeHandler();
   });
+
+  function computeParticleCount(tier: 'high' | 'medium' | 'low', smoothEnabled: boolean) {
+    if (!smoothEnabled) return baseParticleCount;
+    if (tier === 'high') return Math.min(baseParticleCount + 16, 48);
+    if (tier === 'medium') return Math.min(baseParticleCount + 12, 38);
+    return Math.min(baseParticleCount + 8, 22);
+  }
+
+  function updateReduced() {
+    reduced = !smoothModeEnabled;
+  }
+
+  function stopParticles() {
+    if (particlesContainer) particlesContainer.textContent = '';
+    particles = [];
+  }
 
   function prng(i: number, salt: number) {
     const x = Math.sin((i + 1) * 999 + salt) * 10000;
@@ -29,51 +120,62 @@
 
   function createParticle() {
     const particle = document.createElement('div');
-    particle.className = 'particle';
+    particle.className = 'cosmic-particle';
     return particle;
   }
 
   function createParticles() {
     if (!particlesContainer) return;
 
-    particlesContainer.innerHTML = '';
+    particlesContainer.textContent = '';
     particles = [];
+
+    const frag = document.createDocumentFragment();
 
     // Create particles (optimized for performance)
     for (let i = 0; i < particleCount; i++) {
       const particle = createParticle();
-      const opacity = 0.25 + prng(i, 1) * 0.6;
-      const scale = 0.8 + prng(i, 2) * 0.9;
-      const drift = (prng(i, 3) - 0.5) * 40;
+      const opacity = 0.26 + prng(i, 1) * 0.58;
+      const scale = 0.85 + prng(i, 2) * 1.35;
+      const driftStart = (prng(i, 3) - 0.5) * 160;
+      const driftEnd = driftStart + (prng(i, 8) - 0.5) * 240;
+      const driftMid = driftStart + (driftEnd - driftStart) * 0.52 + (prng(i, 11) - 0.5) * 80;
       const left = prng(i, 4) * 100;
-      const size = 2 + Math.floor(prng(i, 5) * 4);
-      const delay = prng(i, 6) * 2;
-      const duration = 10 + prng(i, 7) * 10;
+      const sizeRand = prng(i, 5);
+      const size = sizeRand < 0.75
+        ? 3 + Math.floor(sizeRand * 8)
+        : 9 + Math.floor(((sizeRand - 0.75) / 0.25) * 10);
+      const delay = prng(i, 6) * 3.2;
+      const duration = 18 + prng(i, 7) * 22;
+      const spinEnd = (prng(i, 9) - 0.5) * 80;
+      const spinMid = spinEnd * 0.62 + (prng(i, 10) - 0.5) * 14;
+      const timing = prng(i, 12) < 0.5
+        ? 'cubic-bezier(0.22, 1, 0.36, 1)'
+        : 'cubic-bezier(0.16, 1, 0.3, 1)';
 
       particle.style.cssText = `
         left: ${left}%;
         width: ${size}px;
         height: ${size}px;
-        animation-delay: ${delay}s;
-        animation-duration: ${duration}s;
-        opacity: ${opacity};
-        --drift: ${drift}px;
-        transform: translateZ(0) scale(${scale});
+        --delay: ${delay}s;
+        --duration: ${duration}s;
+        --opacity: ${opacity};
+        --scale: ${scale};
+        --drift-start: ${driftStart}px;
+        --drift-mid: ${driftMid}px;
+        --drift-end: ${driftEnd}px;
+        --spin-mid: ${spinMid}deg;
+        --spin-end: ${spinEnd}deg;
+        --timing: ${timing};
       `;
 
-      particlesContainer.appendChild(particle);
+      frag.appendChild(particle);
       particles.push(particle);
     }
+
+    particlesContainer.appendChild(frag);
   }
 
-  function scheduleRefresh() {
-    if (destroyed) return;
-    refreshTimer = setTimeout(() => {
-      if (destroyed) return;
-      createParticles();
-      scheduleRefresh();
-    }, 120000);
-  }
 </script>
 
 <div

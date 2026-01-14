@@ -5,12 +5,35 @@
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import { initScrollOptimizer } from '$lib/utils/scroll-optimizer';
-  
+
   let showSplash = false; // Disabled by default
   let showMainContent = true; // Show content immediately
   const splashDuration = 10000; // 10s relaxed experience (if enabled)
-  
+  let renderModeEnabled = true;
+
   onMount(() => {
+    const cleanupScroll = initScrollOptimizer();
+
+    let cleanupRenderListener: (() => void) | null = null;
+
+    if (browser) {
+      try {
+        const storedRenderMode = localStorage.getItem('bmi.renderMode');
+        renderModeEnabled = storedRenderMode === null ? true : storedRenderMode === '1' || storedRenderMode === 'true';
+      } catch {
+        // ignore
+      }
+
+      const handleRenderMode = (event: Event) => {
+        const ce = event as CustomEvent<{ enabled?: boolean; requested?: boolean; status?: string }>;
+        renderModeEnabled = Boolean(ce.detail?.enabled ?? ce.detail?.requested);
+      };
+
+      window.addEventListener('bmi:smoothMode', handleRenderMode as EventListener);
+      cleanupRenderListener = () =>
+        window.removeEventListener('bmi:smoothMode', handleRenderMode as EventListener);
+    }
+
     // Register service worker for caching (only in production)
     if (browser && 'serviceWorker' in navigator && import.meta.env.PROD) {
       navigator.serviceWorker.register('/service-worker.js').catch((err) => {
@@ -18,22 +41,24 @@
       });
     }
 
-    // Initialize scroll performance optimizer
-    const cleanupScrollOptimizer = initScrollOptimizer();
+    let timer: ReturnType<typeof setTimeout> | null = null;
 
-    // Reveal main content slightly before auto-hide, aligned with exit phase (~91.7% of duration)
-    const exitPhaseRatio = 5.5 / 6; // from original 6s design
-    const revealDelay = Math.round(splashDuration * exitPhaseRatio);
-    const timer = setTimeout(() => {
-      showMainContent = true;
-    }, revealDelay);
+    if (showSplash) {
+      // Reveal main content slightly before auto-hide, aligned with exit phase (~91.7% of duration)
+      const exitPhaseRatio = 5.5 / 6; // from original 6s design
+      const revealDelay = Math.round(splashDuration * exitPhaseRatio);
+      timer = setTimeout(() => {
+        showMainContent = true;
+      }, revealDelay);
+    }
 
     return () => {
-      clearTimeout(timer);
-      if (cleanupScrollOptimizer) cleanupScrollOptimizer();
+      if (timer) clearTimeout(timer);
+      cleanupScroll?.();
+      cleanupRenderListener?.();
     };
   });
-  
+
   function handleSplashComplete() {
     showSplash = false;
     showMainContent = true;
@@ -41,13 +66,17 @@
 </script>
 
 
-<SplashScreen 
-  bind:show={showSplash} 
-  duration={splashDuration}
-  on:complete={handleSplashComplete}
-/>
+{#if showSplash}
+  <SplashScreen
+    bind:show={showSplash}
+    duration={splashDuration}
+    on:complete={handleSplashComplete}
+  />
+{/if}
 
-<CosmicParticles />
+{#if renderModeEnabled}
+  <CosmicParticles />
+{/if}
 
 <div class="main-content" class:visible={showMainContent}>
   <slot />
@@ -55,10 +84,12 @@
 
 <style>
   .main-content {
+    position: relative;
+    z-index: 1;
     opacity: 0;
     transition: opacity 0.5s var(--easing-smooth);
   }
-  
+
   .main-content.visible {
     opacity: 1;
   }
