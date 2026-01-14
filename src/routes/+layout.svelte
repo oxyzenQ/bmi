@@ -54,6 +54,8 @@
 
 <style>
   .main-content {
+    position: relative;
+    z-index: 1;
     opacity: 0;
     transition: opacity 0.5s var(--easing-smooth);
   }

@@ -40,13 +40,9 @@
 				const storedUltra = storedSmooth ?? localStorage.getItem('bmi.ultraSmooth');
 				let enabled;
 				if (storedUltra === null) {
-					const prefersReduced =
-						typeof window !== 'undefined' &&
-						window.matchMedia &&
-						window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-					enabled = !prefersReduced;
-					localStorage.setItem('bmi.smoothMode', enabled ? '1' : '0');
-					localStorage.setItem('bmi.ultraSmooth', enabled ? '1' : '0');
+					enabled = false;
+					localStorage.setItem('bmi.smoothMode', '0');
+					localStorage.setItem('bmi.ultraSmooth', '0');
 				} else {
 					enabled = storedUltra === '1' || storedUltra === 'true';
 				}

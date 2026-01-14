@@ -252,9 +252,9 @@
       const storedSmooth = localStorage.getItem('bmi.smoothMode');
       const storedUltra = storedSmooth ?? localStorage.getItem('bmi.ultraSmooth');
       if (storedUltra === null) {
-        smoothModeRequested = !prefersReducedMotion;
-        localStorage.setItem('bmi.smoothMode', smoothModeRequested ? '1' : '0');
-        localStorage.setItem('bmi.ultraSmooth', smoothModeRequested ? '1' : '0');
+        smoothModeRequested = false;
+        localStorage.setItem('bmi.smoothMode', '0');
+        localStorage.setItem('bmi.ultraSmooth', '0');
       } else {
         smoothModeRequested = storedUltra === '1' || storedUltra === 'true';
       }
