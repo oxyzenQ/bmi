@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte';
+  import { onDestroy, onMount, tick } from 'svelte';
   import { fly } from 'svelte/transition';
   import { backOut, cubicIn, cubicOut } from 'svelte/easing';
+  import { tweened } from 'svelte/motion';
   import { browser } from '$app/environment';
   import { getPerformanceTier } from '$lib/utils/performance';
   import Hero from '$lib/ui/Hero.svelte';
@@ -36,6 +37,9 @@
   let weight: string = '';
   // BMI history for tracking calculations
   let bmiHistory: Array<{bmi: number, timestamp: Date}> = [];
+
+  let calculating = false;
+  let resultsRunId = 0;
 
   const currentYear = new Date().getFullYear();
 
@@ -108,6 +112,36 @@
     rangeValue === null
       ? 'BMI range bar. Calculate your BMI to see your position.'
       : `BMI range bar. Your BMI is ${rangeValue.toFixed(1)}. Category ${category ?? 'Unknown'}.`;
+
+  const animatedMarker = tweened(0, { duration: 0, easing: cubicOut });
+  let lastMarker = 0;
+  let markerTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function animateRangeMarker(target: number) {
+    if (markerTimer) {
+      clearTimeout(markerTimer);
+      markerTimer = null;
+    }
+
+    if (reducedMotionEffective || !smoothModeRequested) {
+      lastMarker = target;
+      animatedMarker.set(target, { duration: 0 });
+      return;
+    }
+
+    const base = perfTier === 'high' ? 860 : perfTier === 'medium' ? 780 : 680;
+    const overshootDur = Math.round(base * 0.62);
+    const settleDur = Math.round(base * 0.48);
+    const delta = target - lastMarker;
+    const overshoot = Math.max(0, Math.min(100, target + delta * 0.08));
+
+    lastMarker = target;
+    animatedMarker.set(overshoot, { duration: overshootDur, easing: backOut });
+    markerTimer = setTimeout(() => {
+      animatedMarker.set(target, { duration: settleDur, easing: cubicOut });
+      markerTimer = null;
+    }, Math.max(0, overshootDur - 80));
+  }
 
   const segUnder = Math.max(0, Math.min(BMI_UNDER_MAX, BMI_BAR_MAX) - BMI_BAR_MIN);
   const segNormal = Math.max(
@@ -303,39 +337,35 @@
         localStorage.setItem('bmi.renderMode', smoothModeRequested ? '1' : '0');
         localStorage.removeItem('bmi.smoothMode');
         localStorage.removeItem('bmi.ultraSmooth');
-      } else {
-        smoothModeRequested = storedRenderMode === '1' || storedRenderMode === 'true';
-        localStorage.removeItem('bmi.smoothMode');
-        localStorage.removeItem('bmi.ultraSmooth');
+        document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
+        broadcastSmoothMode(smoothModeRequested);
+
+        const idx = indexFromHash(window.location.hash);
+        if (idx !== null) goTo(idx, { skipHash: true });
+        setHash(sections[activeIndex].id);
+
+        const onHashChange = () => {
+          const next = indexFromHash(window.location.hash);
+          if (next !== null && next !== activeIndex) goTo(next, { skipHash: true });
+        };
+
+        window.addEventListener('hashchange', onHashChange);
+        window.addEventListener('keydown', handleKeydown);
+
+        const onResize = () => updatePagerNavAlignment();
+        window.addEventListener('resize', onResize);
+        void tick().then(updatePagerNavAlignment);
+
+        return () => {
+          window.removeEventListener('hashchange', onHashChange);
+          window.removeEventListener('keydown', handleKeydown);
+          window.removeEventListener('resize', onResize);
+        };
       }
-      document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
-      broadcastSmoothMode(smoothModeRequested);
-
-      const idx = indexFromHash(window.location.hash);
-      if (idx !== null) goTo(idx, { skipHash: true });
-      setHash(sections[activeIndex].id);
-
-      const onHashChange = () => {
-        const next = indexFromHash(window.location.hash);
-        if (next !== null && next !== activeIndex) goTo(next, { skipHash: true });
-      };
-
-      window.addEventListener('hashchange', onHashChange);
-      window.addEventListener('keydown', handleKeydown);
-
-      const onResize = () => updatePagerNavAlignment();
-      window.addEventListener('resize', onResize);
-      void tick().then(updatePagerNavAlignment);
-
-      return () => {
-        window.removeEventListener('hashchange', onHashChange);
-        window.removeEventListener('keydown', handleKeydown);
-        window.removeEventListener('resize', onResize);
-      };
     }
   });
 
-  function computeBMIFromInputs(h: string, w: string, _a: string) {
+  async function computeBMIFromInputs(h: string, w: string, _a: string) {
     const parsedHeight = parseFloat(h);
     const parsedWeight = parseFloat(w);
 
@@ -371,19 +401,39 @@
     }
   }
 
-  // Manual calculation only - remove auto calculation
-  function handleCalculate() {
-    computeBMIFromInputs(height, weight, age);
+  async function handleCalculate() {
+    if (calculating) return;
+    calculating = true;
+    const minDelay = reducedMotionEffective ? 0 : (smoothModeRequested ? 260 : 200);
+    if (minDelay > 0) {
+      await new Promise((r) => setTimeout(r, minDelay));
+    }
+    await computeBMIFromInputs(height, weight, age);
+    resultsRunId += 1;
+    calculating = false;
   }
 
   function clearAllData() {
+    calculating = false;
     age = '';
     height = '';
     weight = '';
     bmiValue = null; // Gauge will show empty/neutral state
     category = null;
     bmiHistory = []; // Clear history
+    resultsRunId += 1;
   }
+
+  $: if (bmiValue !== null) {
+    animateRangeMarker(rangeMarker);
+  } else {
+    lastMarker = 0;
+    animatedMarker.set(0, { duration: 0 });
+  }
+
+  onDestroy(() => {
+    if (markerTimer) clearTimeout(markerTimer);
+  });
 
 </script>
 
@@ -475,16 +525,20 @@
                     bind:age
                     bind:height
                     bind:weight
+                    {calculating}
                     onClear={clearAllData}
                     onCalculate={handleCalculate}
                   />
                 </div>
                 <div class="bmi-card">
-                  <BmiResults
-                    {bmiValue}
-                    {category}
-                    age={age === '' ? null : parseInt(age)}
-                  />
+                  {#key resultsRunId}
+                    <BmiResults
+                      {bmiValue}
+                      {category}
+                      age={age === '' ? null : parseInt(age)}
+                      reducedMotion={reducedMotionEffective}
+                    />
+                  {/key}
                 </div>
               </div>
             </section>
@@ -502,7 +556,7 @@
 
               <div
                 class="gauge-container bmi-rangebar"
-                class:rangebar-animated={smoothModeRequested}
+                class:rangebar-animated={smoothModeRequested && !reducedMotionEffective}
               >
                 <div class="gauge-header">
                   <div class="gauge-title">
@@ -513,17 +567,19 @@
                 </div>
 
                 <div class="rangebar">
-                  <div class="rangebar-track" style={`--marker: ${rangeMarker}%`} role="img" aria-label={rangeAriaLabel}>
+                  <div class="rangebar-track" style={`--marker: ${$animatedMarker}%`} role="img" aria-label={rangeAriaLabel}>
                     <div class="rangebar-seg range-under" style={`flex: ${segUnder}`} aria-hidden="true"></div>
                     <div class="rangebar-seg range-normal" style={`flex: ${segNormal}`} aria-hidden="true"></div>
                     <div class="rangebar-seg range-over" style={`flex: ${segOver}`} aria-hidden="true"></div>
                     <div class="rangebar-seg range-obese" style={`flex: ${segObese}`} aria-hidden="true"></div>
 
                     {#if bmiValue !== null}
-                      <div class="rangebar-marker-wrap" aria-hidden="true">
-                        <div class="rangebar-marker"></div>
-                        <div class="rangebar-marker-badge">{markerBmiText}</div>
-                      </div>
+                      {#key resultsRunId}
+                        <div class="rangebar-marker-wrap" aria-hidden="true">
+                          <div class="rangebar-marker"></div>
+                          <div class="rangebar-marker-badge">{markerBmiText}</div>
+                        </div>
+                      {/key}
                     {/if}
                   </div>
 

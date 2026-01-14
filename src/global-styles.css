@@ -505,6 +505,48 @@ button[aria-disabled="true"] {
     0 0 40px color-mix(in oklab, var(--cosmic-purple) 36%, transparent);
 }
 
+.btn.is-calculating {
+  transform: translateY(0) scale(0.985);
+}
+
+.btn .btn-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 0.55rem;
+}
+
+.btn .btn-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0.38;
+  animation: btnDotPulse 900ms ease-in-out infinite;
+}
+
+.btn .btn-dot:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.btn .btn-dot:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+@keyframes btnDotPulse {
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.32;
+  }
+
+  50% {
+    transform: translateY(-3px);
+    opacity: 0.85;
+  }
+}
+
 /* Elegant danger variant */
 .btn-danger {
   color: white;
@@ -2243,7 +2285,7 @@ button[aria-disabled="true"] {
 }
 
 .rangebar-animated .rangebar-marker-wrap {
-  transition: transform 640ms var(--easing-smooth);
+  transition: none;
 }
 
 .rangebar-marker {
