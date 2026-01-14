@@ -16,10 +16,11 @@
     GitBranch,
     GitCompare,
     PackageCheck,
-    Brush,
+    Wrench,
     AlertTriangle,
     Scale,
-    Sparkles,
+    Bot,
+    Ruler,
     ChevronLeft,
     ChevronRight
   } from 'lucide-svelte';
@@ -80,6 +81,45 @@
   $: smoothModeEnhanced = smoothModeRequested && perfTier !== 'low';
   $: smoothModeStatus = smoothModeRequested ? 'On' : 'Off';
 
+  const BMI_BAR_MIN = 12;
+  const BMI_BAR_MAX = 40;
+  const BMI_UNDER_MAX = 18.5;
+  const BMI_NORMAL_MAX = 24.9;
+  const BMI_OVER_MAX = 29.9;
+
+  $: rangeValue = bmiValue;
+  $: rangeMarker =
+    rangeValue === null
+      ? 0
+      : Math.max(
+          0,
+          Math.min(
+            100,
+            ((rangeValue - BMI_BAR_MIN) / (BMI_BAR_MAX - BMI_BAR_MIN)) * 100
+          )
+        );
+  $: markerBmiText =
+    rangeValue === null
+      ? ''
+      : rangeValue > BMI_BAR_MAX
+        ? `${BMI_BAR_MAX}+`
+        : rangeValue.toFixed(1);
+  $: rangeAriaLabel =
+    rangeValue === null
+      ? 'BMI range bar. Calculate your BMI to see your position.'
+      : `BMI range bar. Your BMI is ${rangeValue.toFixed(1)}. Category ${category ?? 'Unknown'}.`;
+
+  const segUnder = Math.max(0, Math.min(BMI_UNDER_MAX, BMI_BAR_MAX) - BMI_BAR_MIN);
+  const segNormal = Math.max(
+    0,
+    Math.min(BMI_NORMAL_MAX, BMI_BAR_MAX) - Math.max(BMI_UNDER_MAX, BMI_BAR_MIN)
+  );
+  const segOver = Math.max(
+    0,
+    Math.min(BMI_OVER_MAX, BMI_BAR_MAX) - Math.max(BMI_NORMAL_MAX, BMI_BAR_MIN)
+  );
+  const segObese = Math.max(0, BMI_BAR_MAX - Math.max(BMI_OVER_MAX, BMI_BAR_MIN));
+
   $: pagerDirection = activeIndex >= lastIndex ? 1 : -1;
   $: pagerMotionDuration = reducedMotionEffective
     ? 0
@@ -117,7 +157,7 @@
 
   function setHash(id: string) {
     if (!browser) return;
-    history.replaceState(null, '', `#${id}`);
+    location.replace(`#${id}`);
   }
 
   function goTo(index: number, opts?: { skipHash?: boolean }) {
@@ -386,7 +426,7 @@
         aria-pressed={smoothModeRequested}
         on:click={toggleSmoothMode}
       >
-        <Sparkles class="render-spark" aria-hidden="true" />
+        <Bot class="render-spark" aria-hidden="true" />
         Render :
         <span class:render-on={smoothModeRequested} class:render-off={!smoothModeRequested}>
           {smoothModeStatus}
@@ -459,6 +499,42 @@
                 category={category}
                 ultraSmooth={smoothModeRequested}
               />
+
+              <div
+                class="gauge-container bmi-rangebar"
+                class:rangebar-animated={smoothModeRequested}
+              >
+                <div class="gauge-header">
+                  <div class="gauge-title">
+                    <Ruler class="Gauge" />
+                    <h3>BMI Range</h3>
+                  </div>
+                  <div class="gauge-subtitle">See your position across standard BMI categories</div>
+                </div>
+
+                <div class="rangebar">
+                  <div class="rangebar-track" style={`--marker: ${rangeMarker}%`} role="img" aria-label={rangeAriaLabel}>
+                    <div class="rangebar-seg range-under" style={`flex: ${segUnder}`} aria-hidden="true"></div>
+                    <div class="rangebar-seg range-normal" style={`flex: ${segNormal}`} aria-hidden="true"></div>
+                    <div class="rangebar-seg range-over" style={`flex: ${segOver}`} aria-hidden="true"></div>
+                    <div class="rangebar-seg range-obese" style={`flex: ${segObese}`} aria-hidden="true"></div>
+
+                    {#if bmiValue !== null}
+                      <div class="rangebar-marker-wrap" aria-hidden="true">
+                        <div class="rangebar-marker"></div>
+                        <div class="rangebar-marker-badge">{markerBmiText}</div>
+                      </div>
+                    {/if}
+                  </div>
+
+                  <div class="rangebar-legend" aria-hidden="true">
+                    <span class="rangebar-legend-item legend-under">Underweight</span>
+                    <span class="rangebar-legend-item legend-normal">Normal</span>
+                    <span class="rangebar-legend-item legend-over">Overweight</span>
+                    <span class="rangebar-legend-item legend-obese">Obese</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         {/if}
@@ -529,7 +605,7 @@
                         <strong>Type Apps:</strong><span class="text-gradient-elegant">Open Source Project</span>
                       </p>
                       <p class="info-row">
-                        <Brush class="Brush" />
+                        <Wrench class="Wrench" />
                         <strong>Status:</strong>Maintenance
                       </p>
                       <p class="info-row">

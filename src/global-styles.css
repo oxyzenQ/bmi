@@ -32,7 +32,7 @@
   --plasma-purple-dim: #2d1b3d;
   --plasma-glow: rgba(59, 130, 246, 0.15);
   --plasma-text-primary: #e2e8f0;
-  --plasma-text-secondary: #94a3b8;
+  --plasma-text-secondary: grey;
   --plasma-text-dim: #64748b;
 
   /* Aurora beam colors */
@@ -1708,7 +1708,7 @@ button[aria-disabled="true"] {
 
 /* Subtitle with elegant ligatures */
 .gauge-subtitle {
-  color: #94a3b8;
+  color: grey;
   text-align: center;
   font-size: clamp(1.1rem, 2vw, 1.3rem);
   font-weight: 400;
@@ -1717,6 +1717,7 @@ button[aria-disabled="true"] {
   font-variant-ligatures: common-ligatures discretionary-ligatures;
   opacity: 0.9;
   margin: 0;
+  padding: 1rem;
 }
 
 /* Responsive adjustments */
@@ -1793,7 +1794,7 @@ button[aria-disabled="true"] {
 }
 
 .gauge-center .bmi-label {
-  fill: #94a3b8;
+  fill: grey;
   font: 600 12px/1 Inter, ui-sans-serif, system-ui;
   letter-spacing: 1px;
 }
@@ -1842,7 +1843,7 @@ button[aria-disabled="true"] {
 }
 
 .scale-range {
-  color: #94a3b8;
+  color: grey;
   font: 500 12px/1 Inter, ui-sans-serif, system-ui;
 }
 
@@ -2135,7 +2136,7 @@ button[aria-disabled="true"] {
 }
 
 .app-info p {
-  color: #94a3b8;
+  color: grey;
   font-size: 0.875rem;
   margin: 0.5rem 0;
 }
@@ -2160,6 +2161,157 @@ button[aria-disabled="true"] {
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
   padding: clamp(1rem, 3vw, 1.5rem);
   overflow: hidden;
+}
+
+.chart-container.bmi-rangebar {
+  margin-top: 1rem;
+}
+
+.chart-container.bmi-rangebar.liquid-glass {
+  background: rgba(0, 0, 0, 0.500);
+  border: var(--border-by-rezky);
+  border-radius: 2rem;
+  backdrop-filter: blur(8px) saturate(140%);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 20px color-mix(in oklab, var(--cosmic-purple) 16%, transparent);
+}
+
+.gauge-container.bmi-rangebar {
+  margin-top: 1.25rem !important;
+  margin-bottom: clamp(40px, 40vh, 180px) !important;
+}
+
+.rangebar {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.rangebar-track {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  height: 18px;
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.rangebar-seg {
+  min-width: 0;
+}
+
+.rangebar-seg.range-under {
+  background: linear-gradient(90deg,
+      color-mix(in oklab, #38bdf8 60%, transparent),
+      color-mix(in oklab, #60a5fa 72%, transparent));
+}
+
+.rangebar-seg.range-normal {
+  background: linear-gradient(90deg,
+      color-mix(in oklab, #22c55e 60%, transparent),
+      color-mix(in oklab, #86efac 60%, transparent));
+}
+
+.rangebar-seg.range-over {
+  background: linear-gradient(90deg,
+      color-mix(in oklab, #f59e0b 62%, transparent),
+      color-mix(in oklab, #fde68a 62%, transparent));
+}
+
+.rangebar-seg.range-obese {
+  background: linear-gradient(90deg,
+      color-mix(in oklab, #ef4444 62%, transparent),
+      color-mix(in oklab, #fecaca 58%, transparent));
+}
+
+.rangebar-marker-wrap {
+  position: absolute;
+  left: 0;
+  top: -10px;
+  height: 38px;
+  transform: translateX(calc(var(--marker, 0) * 1%)) translateX(-50%);
+  will-change: transform;
+  pointer-events: none;
+}
+
+.rangebar-animated .rangebar-marker-wrap {
+  transition: transform 640ms var(--easing-smooth);
+}
+
+.rangebar-marker {
+  width: 2px;
+  height: 38px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 0 12px color-mix(in oklab, var(--aurora-core) 55%, transparent),
+    0 0 24px color-mix(in oklab, var(--cosmic-purple) 28%, transparent);
+}
+
+.rangebar-marker-badge {
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.3rem 0.55rem;
+  border-radius: 9999px;
+  font: 700 0.8rem/1 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, monospace;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(12px) saturate(165%);
+  -webkit-backdrop-filter: blur(12px) saturate(165%);
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.4),
+    0 0 18px color-mix(in oklab, var(--cosmic-purple) 22%, transparent);
+  white-space: nowrap;
+}
+
+.rangebar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 0.9rem;
+  justify-content: space-between;
+  font: 600 0.85rem/1.2 'Inter Variable', system-ui, -apple-system, sans-serif;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.rangebar-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rangebar-legend-item::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.35);
+}
+
+.rangebar-legend-item.legend-under::before {
+  background: #38bdf8;
+}
+
+.rangebar-legend-item.legend-normal::before {
+  background: #22c55e;
+}
+
+.rangebar-legend-item.legend-over::before {
+  background: #f59e0b;
+}
+
+.rangebar-legend-item.legend-obese::before {
+  background: #ef4444;
 }
 
 .chart-header {
@@ -2873,6 +3025,7 @@ html:not([data-graphics='render']) .hero-avatar::after {
 /* Hero icons */
 .SquareSigma,
 .BookCheck,
+.BookOpenCheck,
 .Sparkles {
   color: var(--cosmic-purple) !important;
   width: 24px !important;
@@ -2885,7 +3038,8 @@ html:not([data-graphics='render']) .hero-avatar::after {
   height: 24px !important;
 }
 
-.BookCheck {
+.BookCheck,
+.BookOpenCheck {
   color: var(--cosmic-silver) !important;
   width: 24px !important;
   height: 24px !important;
@@ -2979,6 +3133,7 @@ html:not([data-graphics='render']) .hero-avatar::after {
 .PackageCheck,
 .GitCompare,
 .Brush,
+.Wrench,
 .Scale {
   color: var(--cosmic-purple);
 }

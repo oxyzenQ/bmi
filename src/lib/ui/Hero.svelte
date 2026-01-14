@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { BookCheck, SquareSigma, Sparkles, Telescope } from 'lucide-svelte';
+  import { BookOpenCheck, SquareSigma, Sparkles, Telescope } from 'lucide-svelte';
 
   let heroContent: HTMLDivElement;
 
@@ -50,7 +50,7 @@
         <span>Accurate Calculations</span>
       </div>
       <div class="feature">
-        <BookCheck class="BookCheck" />
+        <BookOpenCheck class="BookOpenCheck" />
         <span>Health Insights</span>
       </div>
       <div class="feature">
