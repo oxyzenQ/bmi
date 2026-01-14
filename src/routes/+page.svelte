@@ -66,8 +66,9 @@
   function toggleSmoothMode() {
     smoothModeRequested = !smoothModeRequested;
     if (browser) {
-      localStorage.setItem('bmi.smoothMode', smoothModeRequested ? '1' : '0');
-      localStorage.setItem('bmi.ultraSmooth', smoothModeRequested ? '1' : '0');
+      localStorage.setItem('bmi.renderMode', smoothModeRequested ? '1' : '0');
+      localStorage.removeItem('bmi.smoothMode');
+      localStorage.removeItem('bmi.ultraSmooth');
       document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
       broadcastSmoothMode(smoothModeRequested);
       void tick().then(updatePagerNavAlignment);
@@ -249,18 +250,22 @@
       perfTier = getPerformanceTier();
       prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      const storedSmooth = localStorage.getItem('bmi.smoothMode');
-      const storedUltra = localStorage.getItem('bmi.ultraSmooth');
-      const hasAny = storedSmooth !== null || storedUltra !== null;
-      smoothModeRequested =
-        hasAny &&
-        ((storedSmooth === '1' || storedSmooth === 'true') || (storedUltra === '1' || storedUltra === 'true'));
-      if (!hasAny) {
-        localStorage.setItem('bmi.smoothMode', '0');
-        localStorage.setItem('bmi.ultraSmooth', '0');
+      const storedRenderMode = localStorage.getItem('bmi.renderMode');
+      if (storedRenderMode === null) {
+        const storedSmooth = localStorage.getItem('bmi.smoothMode');
+        const storedUltra = localStorage.getItem('bmi.ultraSmooth');
+        const hasLegacy = storedSmooth !== null || storedUltra !== null;
+        smoothModeRequested =
+          hasLegacy
+            ? (storedSmooth === '1' || storedSmooth === 'true' || storedUltra === '1' || storedUltra === 'true')
+            : true;
+        localStorage.setItem('bmi.renderMode', smoothModeRequested ? '1' : '0');
+        localStorage.removeItem('bmi.smoothMode');
+        localStorage.removeItem('bmi.ultraSmooth');
       } else {
-        localStorage.setItem('bmi.smoothMode', smoothModeRequested ? '1' : '0');
-        localStorage.setItem('bmi.ultraSmooth', smoothModeRequested ? '1' : '0');
+        smoothModeRequested = storedRenderMode === '1' || storedRenderMode === 'true';
+        localStorage.removeItem('bmi.smoothMode');
+        localStorage.removeItem('bmi.ultraSmooth');
       }
       document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
       broadcastSmoothMode(smoothModeRequested);

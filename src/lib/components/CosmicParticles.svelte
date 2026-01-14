@@ -20,10 +20,21 @@
     baseParticleCount = tier === 'low' ? 10 : tier === 'medium' ? 16 : 22;
 
     if (typeof window !== 'undefined') {
-      const storedSmooth = localStorage.getItem('bmi.smoothMode');
-      const storedUltra = localStorage.getItem('bmi.ultraSmooth');
-      smoothModeEnabled =
-        (storedSmooth === '1' || storedSmooth === 'true') || (storedUltra === '1' || storedUltra === 'true');
+      const storedRenderMode = localStorage.getItem('bmi.renderMode');
+      if (storedRenderMode === null) {
+        const storedSmooth = localStorage.getItem('bmi.smoothMode');
+        const storedUltra = localStorage.getItem('bmi.ultraSmooth');
+        const hasLegacy = storedSmooth !== null || storedUltra !== null;
+        smoothModeEnabled =
+          hasLegacy
+            ? (storedSmooth === '1' || storedSmooth === 'true' || storedUltra === '1' || storedUltra === 'true')
+            : true;
+        localStorage.setItem('bmi.renderMode', smoothModeEnabled ? '1' : '0');
+        localStorage.removeItem('bmi.smoothMode');
+        localStorage.removeItem('bmi.ultraSmooth');
+      } else {
+        smoothModeEnabled = storedRenderMode === '1' || storedRenderMode === 'true';
+      }
     }
 
     updateReduced();
