@@ -9,13 +9,6 @@
   export let category: string | null = null;
   export let ultraSmooth: boolean = false;
 
-  // Optional: parent can call this exported fn to force-clear
-  export function clearGauge() {
-    appliedBmi = 0;
-    appliedColor = 'rgba(148, 163, 184, 0.3)';
-    appliedCategory = null;
-  }
-
   // Persisted dataset-like state (visual)
   let appliedBmi = 0;
   let appliedColor = 'rgba(148, 163, 184, 0.3)';

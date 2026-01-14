@@ -678,8 +678,8 @@ button[aria-disabled="true"] {
   border-radius: 50%;
   filter: blur(20px);
   /* Reduced from 40px for better performance */
-  opacity: 0.2;
   /* Reduced from 0.25 for lighter GPU load */
+  opacity: 0.2;
   animation: orbFloat 20s ease-in-out infinite;
 }
 
@@ -690,15 +690,6 @@ button[aria-disabled="true"] {
   top: 20%;
   left: 10%;
   animation-delay: 0s;
-}
-
-.orb-2 {
-  width: 150px;
-  height: 150px;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.35), transparent);
-  top: 60%;
-  right: 15%;
-  animation-delay: -7s;
 }
 
 .orb-3 {
@@ -2653,143 +2644,6 @@ html:not([data-graphics='render']) .hero-avatar::after {
 }
 
 /* Bubble effects */
-.bubble-container {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.bubble {
-  position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(96, 165, 250, 0.6), rgba(96, 165, 250, 0.2));
-  animation: bubbleRise 12s linear infinite;
-  pointer-events: none;
-  will-change: transform;
-  transform: translateZ(0);
-  contain: layout style paint;
-  isolation: isolate;
-  box-shadow:
-    0 0 20px rgba(96, 165, 250, 0.3),
-    inset 0 0 10px rgba(255, 255, 255, 0.1);
-  filter: blur(0.5px);
-}
-
-/* Individual bubble styles with varied sizes and delays */
-.bubble-1 {
-  width: 28px;
-  height: 28px;
-  left: 8%;
-  animation-delay: 0s;
-}
-
-.bubble-2 {
-  width: 35px;
-  height: 35px;
-  left: 18%;
-  animation-delay: -1.5s;
-}
-
-.bubble-3 {
-  width: 40px;
-  height: 40px;
-  left: 28%;
-  animation-delay: -3s;
-}
-
-.bubble-4 {
-  width: 28px;
-  height: 28px;
-  left: 38%;
-  animation-delay: -0.8s;
-}
-
-.bubble-5 {
-  width: 20px;
-  height: 20px;
-  left: 48%;
-  animation-delay: -2.2s;
-}
-
-.bubble-6 {
-  width: 36px;
-  height: 36px;
-  left: 58%;
-  animation-delay: -4.5s;
-}
-
-.bubble-7 {
-  width: 26px;
-  height: 26px;
-  left: 68%;
-  animation-delay: -1.2s;
-}
-
-.bubble-8 {
-  width: 22px;
-  height: 22px;
-  left: 78%;
-  animation-delay: -3.8s;
-}
-
-.bubble-9 {
-  width: 30px;
-  height: 30px;
-  left: 88%;
-  animation-delay: -0.4s;
-}
-
-.bubble-10 {
-  width: 18px;
-  height: 18px;
-  left: 15%;
-  animation-delay: -2.8s;
-}
-
-@keyframes bubbleRise {
-  0% {
-    bottom: -80px;
-    opacity: 0;
-    transform: translateX(0) scale(0.2);
-  }
-
-  3% {
-    opacity: 0.6;
-    transform: translateX(8px) scale(0.4);
-  }
-
-  15% {
-    opacity: 0.8;
-    transform: translateX(-15px) scale(0.7);
-  }
-
-  35% {
-    opacity: 0.9;
-    transform: translateX(20px) scale(1);
-  }
-
-  55% {
-    opacity: 0.85;
-    transform: translateX(-10px) scale(1.1);
-  }
-
-  75% {
-    opacity: 0.7;
-    transform: translateX(12px) scale(0.9);
-  }
-
-  90% {
-    opacity: 0.3;
-    transform: translateX(-5px) scale(0.6);
-  }
-
-  100% {
-    bottom: calc(120vh + 100px);
-    opacity: 0;
-    transform: translateX(0) scale(0.2);
-  }
-}
 
 /* Plasma star effects */
 .plasma-star {
@@ -3696,25 +3550,12 @@ body.is-scrolling a.button {
     transform: none !important;
   }
 
-  html:not([data-graphics='render']) .orb {
-    animation: none;
-  }
-
   .header-icon {
     animation: none;
   }
 
   .sparkle-icon {
     animation: none;
-  }
-
-  .plasma-star {
-    animation: none;
-  }
-
-  .bubble {
-    animation: none;
-    opacity: 0;
   }
 
   .feature:hover {
@@ -3962,8 +3803,8 @@ p,
 @media (min-width: 720px) and (max-width: 767px) {
   .gauge-container {
     width: min(92vw, 520px);
-    margin-top: clamp(40px, 40vh, 180px) !important;
-    margin-bottom: clamp(40px, 40vh, 180px) !important;
+    margin-top: clamp(20px, 10vh, 120px) !important;
+    margin-bottom: clamp(24px, 12vh, 140px) !important;
   }
 }
 
