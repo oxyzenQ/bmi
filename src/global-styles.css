@@ -1168,7 +1168,7 @@ button[aria-disabled="true"] {
   flex-direction: column;
   border-radius: 1.5rem;
   padding: clamp(1.25rem, 4vw, 2rem);
-  margin-top: clamp(40px, 40vh, 180px) !important;
+  margin-top: auto;
   margin-bottom: clamp(40px, 40vh, 180px) !important;
   transition: transform var(--dur-normal) var(--easing-smooth),
     box-shadow var(--dur-normal) var(--easing-smooth);
@@ -1662,7 +1662,7 @@ button[aria-disabled="true"] {
   width: min(96vw, 960px);
   margin-inline: auto;
   margin-top: clamp(40px, 40vh, 180px) !important;
-  margin-bottom: clamp(40px, 40vh, 180px) !important;
+  margin-bottom: auto;
 }
 
 /* Main gauge header container */
@@ -1870,6 +1870,7 @@ button[aria-disabled="true"] {
 .reference-table {
   border-radius: 1.25rem;
   overflow: hidden;
+  margin-top: clamp(40px, 40vh, 180px) !important;
 }
 
 .reference-table .ref-header {
@@ -2070,7 +2071,7 @@ button[aria-disabled="true"] {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
-  margin-top: clamp(40px, 40vh, 180px) !important;
+  margin-top: auto;
   margin-bottom: clamp(40px, 40vh, 180px) !important;
 }
 
@@ -3130,6 +3131,7 @@ html:not([data-graphics='render']) .hero-avatar::after {
 }
 
 /* icon about */
+.GitBranch,
 .PackageCheck,
 .GitCompare,
 .Brush,
