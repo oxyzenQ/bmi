@@ -730,7 +730,7 @@ button[aria-disabled="true"] {
   max-width: 800px;
   margin: 0 auto;
   margin-top: clamp(40px, 40vh, 70px) !important;
-  margin-bottom: clamp(40px, 40vh, 70px) !important;
+  margin-bottom: clamp(40px, 40vh, 180px) !important;
   padding: 3rem 2rem;
   border-radius: 2rem;
   position: relative;

@@ -321,48 +321,52 @@
   }
 
   onMount(() => {
-    if (browser) {
-      perfTier = getPerformanceTier();
-      prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!browser) return;
+    perfTier = getPerformanceTier();
+    prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      const storedRenderMode = localStorage.getItem('bmi.renderMode');
-      if (storedRenderMode === null) {
-        const storedSmooth = localStorage.getItem('bmi.smoothMode');
-        const storedUltra = localStorage.getItem('bmi.ultraSmooth');
-        const hasLegacy = storedSmooth !== null || storedUltra !== null;
-        smoothModeRequested =
-          hasLegacy
-            ? (storedSmooth === '1' || storedSmooth === 'true' || storedUltra === '1' || storedUltra === 'true')
-            : true;
-        localStorage.setItem('bmi.renderMode', smoothModeRequested ? '1' : '0');
-        localStorage.removeItem('bmi.smoothMode');
-        localStorage.removeItem('bmi.ultraSmooth');
-        document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
-        broadcastSmoothMode(smoothModeRequested);
-
-        const idx = indexFromHash(window.location.hash);
-        if (idx !== null) goTo(idx, { skipHash: true });
-        setHash(sections[activeIndex].id);
-
-        const onHashChange = () => {
-          const next = indexFromHash(window.location.hash);
-          if (next !== null && next !== activeIndex) goTo(next, { skipHash: true });
-        };
-
-        window.addEventListener('hashchange', onHashChange);
-        window.addEventListener('keydown', handleKeydown);
-
-        const onResize = () => updatePagerNavAlignment();
-        window.addEventListener('resize', onResize);
-        void tick().then(updatePagerNavAlignment);
-
-        return () => {
-          window.removeEventListener('hashchange', onHashChange);
-          window.removeEventListener('keydown', handleKeydown);
-          window.removeEventListener('resize', onResize);
-        };
-      }
+    const storedRenderMode = localStorage.getItem('bmi.renderMode');
+    if (storedRenderMode === null) {
+      const storedSmooth = localStorage.getItem('bmi.smoothMode');
+      const storedUltra = localStorage.getItem('bmi.ultraSmooth');
+      const hasLegacy = storedSmooth !== null || storedUltra !== null;
+      smoothModeRequested =
+        hasLegacy
+          ? (storedSmooth === '1' || storedSmooth === 'true' || storedUltra === '1' || storedUltra === 'true')
+          : true;
+      localStorage.setItem('bmi.renderMode', smoothModeRequested ? '1' : '0');
+      localStorage.removeItem('bmi.smoothMode');
+      localStorage.removeItem('bmi.ultraSmooth');
+    } else {
+      smoothModeRequested = storedRenderMode === '1' || storedRenderMode === 'true';
+      localStorage.removeItem('bmi.smoothMode');
+      localStorage.removeItem('bmi.ultraSmooth');
     }
+
+    document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
+    broadcastSmoothMode(smoothModeRequested);
+
+    const idx = indexFromHash(window.location.hash);
+    if (idx !== null) goTo(idx, { skipHash: true });
+    setHash(sections[activeIndex].id);
+
+    const onHashChange = () => {
+      const next = indexFromHash(window.location.hash);
+      if (next !== null && next !== activeIndex) goTo(next, { skipHash: true });
+    };
+
+    window.addEventListener('hashchange', onHashChange);
+    window.addEventListener('keydown', handleKeydown);
+
+    const onResize = () => updatePagerNavAlignment();
+    window.addEventListener('resize', onResize);
+    void tick().then(updatePagerNavAlignment);
+
+    return () => {
+      window.removeEventListener('hashchange', onHashChange);
+      window.removeEventListener('keydown', handleKeydown);
+      window.removeEventListener('resize', onResize);
+    };
   });
 
   async function computeBMIFromInputs(h: string, w: string, _a: string) {
