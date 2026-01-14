@@ -646,7 +646,7 @@
     max-width: 820px;
     min-width: 0;
     overflow: hidden;
-    background: var(--btn-surface) padding-box, var(--btn-bg);
+    background: rgba(0, 0, 0, 0.500);
     backdrop-filter: blur(14px) saturate(165%);
     -webkit-backdrop-filter: blur(14px) saturate(165%);
     border: var(--btn-border);
@@ -737,7 +737,7 @@
     max-width: 820px;
     min-width: 0;
     overflow: hidden;
-    background: var(--btn-surface) padding-box, var(--btn-bg);
+    background: rgba(0, 0, 0, 0.500);
     backdrop-filter: blur(14px) saturate(165%);
     -webkit-backdrop-filter: blur(14px) saturate(165%);
     border: var(--btn-border);

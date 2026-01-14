@@ -17,7 +17,7 @@
 
   onMount(() => {
     tier = getPerformanceTier();
-    baseParticleCount = tier === 'low' ? 8 : tier === 'medium' ? 12 : 16;
+    baseParticleCount = tier === 'low' ? 10 : tier === 'medium' ? 16 : 22;
 
     if (typeof window !== 'undefined') {
       const storedSmooth = localStorage.getItem('bmi.smoothMode');
@@ -94,9 +94,9 @@
 
   function computeParticleCount(tier: 'high' | 'medium' | 'low', smoothEnabled: boolean) {
     if (!smoothEnabled) return baseParticleCount;
-    if (tier === 'high') return Math.min(baseParticleCount + 10, 30);
-    if (tier === 'medium') return Math.min(baseParticleCount + 6, 22);
-    return Math.min(baseParticleCount + 3, 12);
+    if (tier === 'high') return Math.min(baseParticleCount + 16, 48);
+    if (tier === 'medium') return Math.min(baseParticleCount + 12, 38);
+    return Math.min(baseParticleCount + 8, 22);
   }
 
   function updateReduced() {
@@ -132,13 +132,14 @@
     // Create particles (optimized for performance)
     for (let i = 0; i < particleCount; i++) {
       const particle = createParticle();
-      const opacity = 0.25 + prng(i, 1) * 0.6;
-      const scale = 0.9 + prng(i, 2) * 1.05;
-      const drift = (prng(i, 3) - 0.5) * 54;
+      const opacity = 0.35 + prng(i, 1) * 0.55;
+      const scale = 1.1 + prng(i, 2) * 1.2;
+      const driftStart = (prng(i, 3) - 0.5) * 120;
+      const driftEnd = driftStart + (prng(i, 8) - 0.5) * 180;
       const left = prng(i, 4) * 100;
-      const size = 3 + Math.floor(prng(i, 5) * 6);
+      const size = 6 + Math.floor(prng(i, 5) * 10);
       const delay = prng(i, 6) * 2;
-      const duration = 10 + prng(i, 7) * 10;
+      const duration = 14 + prng(i, 7) * 18;
 
       particle.style.cssText = `
         left: ${left}%;
@@ -146,9 +147,10 @@
         height: ${size}px;
         --delay: ${delay}s;
         --duration: ${duration}s;
-        opacity: ${opacity};
-        --drift: ${drift}px;
-        transform: translateZ(0) scale(${scale});
+        --opacity: ${opacity};
+        --scale: ${scale};
+        --drift-start: ${driftStart}px;
+        --drift-end: ${driftEnd}px;
       `;
 
       particlesContainer.appendChild(particle);

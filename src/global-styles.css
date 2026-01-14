@@ -2409,12 +2409,12 @@ html:not([data-graphics='render']) .hero-avatar::after {
 
 .cosmic-particles .cosmic-particle {
   position: absolute;
-  bottom: -16px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: -20px;
+  left: 0;
+  opacity: 0;
   border-radius: 9999px;
-  background: radial-gradient(circle, rgba(148, 163, 184, 0.9), rgba(148, 163, 184, 0.35) 60%, rgba(148, 163, 184, 0) 70%);
-  filter: blur(0.2px);
+  background: radial-gradient(circle, rgba(226, 232, 240, 0.95), rgba(148, 163, 184, 0.5) 58%, rgba(148, 163, 184, 0) 74%);
+  filter: blur(0.35px);
   animation-name: particleRise;
   animation-duration: var(--duration, 12s);
   animation-delay: var(--delay, 0s);
@@ -2428,12 +2428,23 @@ html:not([data-graphics='render']) .hero-avatar::after {
   0%,
   100% {
     opacity: 0;
-    transform: translateY(0px) scale(0.5);
   }
 
-  50% {
-    opacity: 0.4;
-    transform: translateY(-15px) scale(1);
+  0% {
+    transform: translate3d(var(--drift-start, 0px), 0px, 0) scale(calc(var(--scale, 1) * 0.7));
+  }
+
+  12% {
+    opacity: var(--opacity, 0.55);
+  }
+
+  60% {
+    opacity: var(--opacity, 0.55);
+    transform: translate3d(var(--drift-end, 0px), 70vh, 0) scale(var(--scale, 1));
+  }
+
+  100% {
+    transform: translate3d(var(--drift-end, 0px), 120vh, 0) scale(calc(var(--scale, 1) * 0.8));
   }
 }
 
