@@ -14,7 +14,7 @@
       // Then apply entrance animation
       heroContent.style.opacity = '0';
       heroContent.style.transform = 'translateY(20px)';
-      heroContent.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+      heroContent.style.transition = 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
 
       // Immediate fallback to ensure visibility
       requestAnimationFrame(() => {

@@ -252,7 +252,7 @@
       const storedSmooth = localStorage.getItem('bmi.smoothMode');
       const storedUltra = storedSmooth ?? localStorage.getItem('bmi.ultraSmooth');
       if (storedUltra === null) {
-        smoothModeRequested = true;
+        smoothModeRequested = !prefersReducedMotion;
         localStorage.setItem('bmi.smoothMode', smoothModeRequested ? '1' : '0');
         localStorage.setItem('bmi.ultraSmooth', smoothModeRequested ? '1' : '0');
       } else {

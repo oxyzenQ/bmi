@@ -4,12 +4,15 @@
   import SplashScreen from '$lib/components/SplashScreen.svelte';
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
+  import { initScrollOptimizer } from '$lib/utils/scroll-optimizer';
 
   let showSplash = false; // Disabled by default
   let showMainContent = true; // Show content immediately
   const splashDuration = 10000; // 10s relaxed experience (if enabled)
 
   onMount(() => {
+    const cleanupScroll = initScrollOptimizer();
+
     // Register service worker for caching (only in production)
     if (browser && 'serviceWorker' in navigator && import.meta.env.PROD) {
       navigator.serviceWorker.register('/service-worker.js').catch((err) => {
@@ -26,6 +29,7 @@
 
     return () => {
       clearTimeout(timer);
+      cleanupScroll?.();
     };
   });
 

@@ -33,6 +33,29 @@
 	<!-- Theme color -->
 	<meta name="theme-color" content="#070a1c" />
 	<meta name="msapplication-TileColor" content="#070a1c" />
+	<script>
+		(() => {
+			try {
+				const storedSmooth = localStorage.getItem('bmi.smoothMode');
+				const storedUltra = storedSmooth ?? localStorage.getItem('bmi.ultraSmooth');
+				let enabled;
+				if (storedUltra === null) {
+					const prefersReduced =
+						typeof window !== 'undefined' &&
+						window.matchMedia &&
+						window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+					enabled = !prefersReduced;
+					localStorage.setItem('bmi.smoothMode', enabled ? '1' : '0');
+					localStorage.setItem('bmi.ultraSmooth', enabled ? '1' : '0');
+				} else {
+					enabled = storedUltra === '1' || storedUltra === 'true';
+				}
+				document.documentElement.dataset.graphics = enabled ? 'render' : 'basic';
+			} catch {
+				// ignore
+			}
+		})();
+	</script>
 
 	<!-- Security headers -->
 	<meta http-equiv="X-Content-Type-Options" content="nosniff" />

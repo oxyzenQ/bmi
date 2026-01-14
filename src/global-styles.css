@@ -159,7 +159,7 @@ body {
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  background-color: #0a0e1a;
+  background-color: none;
   color: var(--text-primary);
   font-family: 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   font-size: clamp(0.875rem, 0.85rem + 0.3vw, 1rem);
@@ -195,13 +195,13 @@ body::before {
   height: 100vh;
   min-height: 100vh;
   z-index: -3;
-  background-color: #0a0e1a;
+  background-color: none;
   background-image: url('/images/oxyzen-zenlysium.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   opacity: 1;
-  filter: brightness(0.78) contrast(1.08) saturate(1.1);
+  filter: brightness(1) contrast(1.25) saturate(1);
   transform: translateZ(0);
   will-change: opacity, filter;
 }
@@ -211,7 +211,7 @@ body::before {
     background-size: contain;
     background-position: center top;
     opacity: 1;
-    filter: brightness(0.72) contrast(1.08) saturate(1.1);
+    filter: brightness(1) contrast(1.25) saturate(1);
   }
 }
 
@@ -390,7 +390,7 @@ pre {
 .modal-content,
 .section-header,
 .section-header-v2 {
-  background: rgb(0 0 0 / 60%);
+  background: rgba(0, 0, 0, 0.500);
   border: var(--border-by-rezky);
   border-radius: 2rem;
   backdrop-filter: blur(8px) saturate(140%);
@@ -892,7 +892,7 @@ button[aria-disabled="true"] {
   background: transparent;
   border-radius: 2rem;
   border: var(--border-by-rezky);
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .feature:hover {
@@ -1224,7 +1224,7 @@ button[aria-disabled="true"] {
   color: white;
   font-size: 1rem;
   backdrop-filter: blur(10px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .form-input:focus {
@@ -1279,7 +1279,7 @@ button[aria-disabled="true"] {
   position: relative;
   overflow: hidden;
   outline: none;
-  transition: transform .16s ease, box-shadow .18s ease, background .2s ease;
+  transition: transform 0.16s ease, box-shadow 0.18s ease, background 0.2s ease;
   cursor: default;
   justify-content: center;
 }
@@ -1318,7 +1318,7 @@ button[aria-disabled="true"] {
   transform: translateX(-10%);
   opacity: 0;
   pointer-events: none;
-  transition: transform .42s cubic-bezier(.2, .9, .2, 1), opacity .36s ease;
+  transition: transform 0.42s cubic-bezier(.2, .9, .2, 1), opacity 0.36s ease;
 }
 
 .pill-indicator:active::after {
@@ -1364,7 +1364,7 @@ button[aria-disabled="true"] {
   min-height: 450px;
   display: flex;
   flex-direction: column;
-  transition: all var(--dur-normal) var(--easing-smooth);
+  transition: transform var(--dur-normal) var(--easing-smooth), box-shadow var(--dur-normal) var(--easing-smooth), border-color var(--dur-normal) var(--easing-smooth);
 }
 
 .bmi-results-card::before {
@@ -1488,7 +1488,7 @@ button[aria-disabled="true"] {
   margin-bottom: 1.75rem;
   border: 1px solid rgba(255, 255, 255, 0.05);
   animation: slideInLeft 0.6s var(--easing-smooth) 0.4s both;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .health-advice:hover {
@@ -1532,7 +1532,7 @@ button[aria-disabled="true"] {
   padding: 1.75rem;
   margin-bottom: 1.75rem;
   animation: slideInRight 0.6s var(--easing-smooth) 0.6s both;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .age-advisory:hover {
@@ -1576,7 +1576,7 @@ button[aria-disabled="true"] {
   padding: 1.75rem;
   border: 1px solid rgba(255, 255, 255, 0.05);
   animation: fadeInUp 0.6s var(--easing-smooth) 0.8s both;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .bmi-explanation:hover {
@@ -2076,7 +2076,7 @@ button[aria-disabled="true"] {
 .about-card {
   border-radius: 1.5rem;
   padding: 2rem;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
   will-change: transform, box-shadow;
@@ -2324,7 +2324,7 @@ button[aria-disabled="true"] {
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 0.5rem;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease, background-color 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2384,6 +2384,19 @@ button[aria-disabled="true"] {
 /* ==============================
       COSMIC PARTICLES & EFFECTS
       ============================== */
+html:not([data-graphics='render']) .cosmic-particles {
+  display: none;
+}
+
+html:not([data-graphics='render']) .orb,
+html:not([data-graphics='render']) .sparkle-icon,
+html:not([data-graphics='render']) .plasma-star,
+html:not([data-graphics='render']) .bubble,
+html:not([data-graphics='render']) .hero-avatar::before,
+html:not([data-graphics='render']) .hero-avatar::after {
+  animation: none !important;
+}
+
 .cosmic-particles {
   position: fixed;
   inset: 0;
@@ -2566,7 +2579,7 @@ button[aria-disabled="true"] {
 /* Plasma star effects */
 .plasma-star {
   position: relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .plasma-star.star-1 {
@@ -2697,7 +2710,7 @@ button[aria-disabled="true"] {
   text-decoration: none;
   font-size: 1rem;
   font-weight: 500;
-  transition: all var(--dur-fast) var(--easing-smooth);
+  transition: color var(--dur-fast) var(--easing-smooth), background-color var(--dur-fast) var(--easing-smooth), border-color var(--dur-fast) var(--easing-smooth), transform var(--dur-fast) var(--easing-smooth), box-shadow var(--dur-fast) var(--easing-smooth);
   padding: 1rem 1.5rem;
   border-radius: 1rem;
 }
@@ -3159,7 +3172,7 @@ p,
 
 @media (min-width: 1100px) {
   .gauge-container {
-    width: min(96vw, 960px) !important;
+    width: min(96vw, 760px) !important;
   }
 }
 
@@ -3207,6 +3220,7 @@ p,
    Pause animations during scroll
    ============================== */
 body.is-scrolling .particle,
+body.is-scrolling .cosmic-particle,
 body.is-scrolling .sparkle-icon,
 body.is-scrolling .plasma-star,
 body.is-scrolling .hero-scroll-icon {
@@ -3745,6 +3759,7 @@ p,
    Pause animations during scroll
    ============================== */
 body.is-scrolling .particle,
+body.is-scrolling .cosmic-particle,
 body.is-scrolling .sparkle-icon,
 body.is-scrolling .plasma-star,
 body.is-scrolling .hero-scroll-icon {
@@ -3890,7 +3905,7 @@ body.is-scrolling a.button {
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
   backdrop-filter: blur(10px);
 }
 

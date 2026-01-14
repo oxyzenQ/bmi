@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { getPerformanceTier, prefersReducedMotion } from '$lib/utils/performance';
+  import { getPerformanceTier } from '$lib/utils/performance';
 
   let particlesContainer: HTMLDivElement;
   let particles: HTMLDivElement[] = [];
@@ -9,7 +9,6 @@
   let particleCount = 10;
   let baseParticleCount = 10;
   let reduced = false;
-  let reducedPref = false;
   let paused = false;
   let visibilityHandler: (() => void) | null = null;
   let smoothModeEnabled = false;
@@ -17,8 +16,6 @@
   let tier: 'high' | 'medium' | 'low' = 'medium';
 
   onMount(() => {
-    reducedPref = prefersReducedMotion();
-
     tier = getPerformanceTier();
     baseParticleCount = tier === 'low' ? 8 : tier === 'medium' ? 12 : 16;
 
@@ -103,7 +100,7 @@
   }
 
   function updateReduced() {
-    reduced = reducedPref && !smoothModeEnabled;
+    reduced = !smoothModeEnabled;
   }
 
   function stopParticles() {
