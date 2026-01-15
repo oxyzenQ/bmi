@@ -24,7 +24,6 @@
       if (destroyed) return;
       const ce = event as CustomEvent<{ enabled?: boolean; requested?: boolean; status?: string }>;
       smoothModeEnabled = Boolean(ce.detail?.enabled ?? ce.detail?.requested);
-      const wasReduced = reduced;
       updateReduced();
 
       if (reduced) {
@@ -32,13 +31,12 @@
         return;
       }
 
-      particleCount = computeParticleCount(tier, smoothModeEnabled);
-      if (!paused) {
-        createParticles();
-      }
+      const nextCount = computeParticleCount(tier, smoothModeEnabled);
+      const shouldRecreate = particles.length !== nextCount;
+      particleCount = nextCount;
 
-      if (wasReduced) {
-        for (const p of particles) p.style.animationPlayState = paused ? 'paused' : 'running';
+      if (!paused && (particles.length === 0 || shouldRecreate)) {
+        createParticles();
       }
     };
 
@@ -49,8 +47,6 @@
       if (destroyed) return;
       const isHidden = document.hidden;
       paused = isHidden;
-
-      for (const p of particles) p.style.animationPlayState = isHidden ? 'paused' : 'running';
 
       if (isHidden) return;
       if (reduced) return;
@@ -164,5 +160,6 @@
 <div
   bind:this={particlesContainer}
   class="cosmic-particles"
+  class:is-paused={paused}
   aria-hidden="true"
 ></div>

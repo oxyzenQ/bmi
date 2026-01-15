@@ -2635,6 +2635,10 @@ html:not([data-graphics='render']) .hero-avatar::after {
   isolation: isolate;
 }
 
+.cosmic-particles.is-paused .cosmic-particle {
+  animation-play-state: paused !important;
+}
+
 .cosmic-particles .cosmic-particle {
   position: absolute;
   top: -20px;

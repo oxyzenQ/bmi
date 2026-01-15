@@ -116,6 +116,7 @@
 
   let pagerNavEl: HTMLElement | null = null;
   let pagerNavCentered = false;
+  let pagerNavAlignRaf: number | null = null;
 
   let activePointerId: number | null = null;
   let lastWheelNavAt = 0;
@@ -133,7 +134,7 @@
       localStorage.removeItem('bmi.ultraSmooth');
       document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
       broadcastSmoothMode(smoothModeRequested);
-      void tick().then(updatePagerNavAlignment);
+      void tick().then(schedulePagerNavAlignment);
     }
   }
 
@@ -370,10 +371,20 @@
     else prevSection();
   }
 
+  function schedulePagerNavAlignment() {
+    if (!browser) return;
+    if (pagerNavAlignRaf !== null) return;
+    pagerNavAlignRaf = requestAnimationFrame(() => {
+      pagerNavAlignRaf = null;
+      updatePagerNavAlignment();
+    });
+  }
+
   function updatePagerNavAlignment() {
     if (!pagerNavEl) return;
     const overflow = pagerNavEl.scrollWidth > pagerNavEl.clientWidth + 1;
-    pagerNavCentered = !overflow;
+    const nextCentered = !overflow;
+    if (pagerNavCentered !== nextCentered) pagerNavCentered = nextCentered;
   }
 
   $: if (browser) {
@@ -420,14 +431,15 @@
     window.addEventListener('hashchange', onHashChange);
     window.addEventListener('keydown', handleKeydown);
 
-    const onResize = () => updatePagerNavAlignment();
+    const onResize = () => schedulePagerNavAlignment();
     window.addEventListener('resize', onResize);
-    void tick().then(updatePagerNavAlignment);
+    void tick().then(schedulePagerNavAlignment);
 
     return () => {
       window.removeEventListener('hashchange', onHashChange);
       window.removeEventListener('keydown', handleKeydown);
       window.removeEventListener('resize', onResize);
+      if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
     };
   });
 

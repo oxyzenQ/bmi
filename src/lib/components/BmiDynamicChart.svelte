@@ -143,6 +143,10 @@
   let tooltipY = 0;
   let tooltipText = '';
   let rafId: number | null = null;
+  let pendingClientX = 0;
+  let pendingClientY = 0;
+  let pendingSvg: SVGSVGElement | null = null;
+  let sizeRafId: number | null = null;
 
   function getSuggestion(label: string) {
     switch (label) {
@@ -167,16 +171,19 @@
 
   function handleMove(e: MouseEvent) {
     if (!chartData.length) return;
-    if (rafId) cancelAnimationFrame(rafId);
+    pendingSvg = e.currentTarget as SVGSVGElement;
+    pendingClientX = e.clientX;
+    pendingClientY = e.clientY;
 
-    const svg = e.currentTarget as SVGSVGElement;
-    const clientX = e.clientX;
-    const clientY = e.clientY;
+    if (rafId !== null) return;
 
     rafId = requestAnimationFrame(() => {
+      rafId = null;
+      if (!pendingSvg) return;
+      const svg = pendingSvg;
       const rect = svg.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
+      const x = pendingClientX - rect.left;
+      const y = pendingClientY - rect.top;
 
       const sx = rect.width > 0 ? chartWidth / rect.width : 1;
       const xSvg = x * sx;
@@ -191,7 +198,8 @@
       const cat = getBmiCategory(nearest.bmi);
       const cmp = getComparisonText(nearest.bmi);
       tooltipText = `BMI ${nearest.bmi} • ${cat.label}\n${cmp}\n${getSuggestion(cat.label)}`;
-      tooltipX = Math.min(rect.width - 220, Math.max(10, x + 12));
+      const maxX = Math.max(10, rect.width - 220);
+      tooltipX = Math.min(maxX, Math.max(10, x + 12));
       tooltipY = Math.max(10, y + 12);
       showTooltip = true;
     });
@@ -200,6 +208,7 @@
   function handleLeave() {
     if (rafId) cancelAnimationFrame(rafId);
     rafId = null;
+    pendingSvg = null;
     showTooltip = false;
   }
 
@@ -212,10 +221,18 @@
     chartHeight = h;
   }
 
+  function scheduleSizeUpdate() {
+    if (sizeRafId !== null) return;
+    sizeRafId = requestAnimationFrame(() => {
+      sizeRafId = null;
+      updateSize();
+    });
+  }
+
   onMount(() => {
     // Observe container size for responsive chart
-    updateSize();
-    const ro = new ResizeObserver(() => updateSize());
+    scheduleSizeUpdate();
+    const ro = new ResizeObserver(() => scheduleSizeUpdate());
     if (wrapperEl) ro.observe(wrapperEl);
 
     return () => {
@@ -226,6 +243,8 @@
   onDestroy(() => {
     if (rafId) cancelAnimationFrame(rafId);
     rafId = null;
+    if (sizeRafId) cancelAnimationFrame(sizeRafId);
+    sizeRafId = null;
   });
 
   // Chart always visible by design
