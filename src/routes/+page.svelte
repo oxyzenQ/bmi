@@ -6,10 +6,66 @@
   import { browser } from '$app/environment';
   import { getPerformanceTier } from '$lib/utils/performance';
   import Hero from '$lib/ui/Hero.svelte';
-  import BmiForm from '$lib/components/BmiForm.svelte';
-  import BmiResults from '$lib/components/BmiResults.svelte';
-  import BmiRadialGauge from '$lib/components/BmiRadialGauge.svelte';
-  import ReferenceTable from '$lib/components/ReferenceTable.svelte';
+
+  type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
+  type BmiResultsComponentType = typeof import('$lib/components/BmiResults.svelte').default;
+  type BmiRadialGaugeComponentType = typeof import('$lib/components/BmiRadialGauge.svelte').default;
+  type ReferenceTableComponentType = typeof import('$lib/components/ReferenceTable.svelte').default;
+
+  let BmiFormComponent: BmiFormComponentType | null = null;
+  let BmiResultsComponent: BmiResultsComponentType | null = null;
+  let BmiRadialGaugeComponent: BmiRadialGaugeComponentType | null = null;
+  let ReferenceTableComponent: ReferenceTableComponentType | null = null;
+
+  let calculatorLoad: Promise<void> | null = null;
+  let gaugeLoad: Promise<void> | null = null;
+  let referenceLoad: Promise<void> | null = null;
+
+  function ensureCalculatorComponents() {
+    if (!browser) return Promise.resolve();
+    if (BmiFormComponent && BmiResultsComponent) return Promise.resolve();
+    if (calculatorLoad) return calculatorLoad;
+    calculatorLoad = Promise.all([
+      import('$lib/components/BmiForm.svelte'),
+      import('$lib/components/BmiResults.svelte')
+    ])
+      .then(([form, results]) => {
+        BmiFormComponent = form.default;
+        BmiResultsComponent = results.default;
+      })
+      .finally(() => {
+        calculatorLoad = null;
+      });
+    return calculatorLoad;
+  }
+
+  function ensureGaugeComponents() {
+    if (!browser) return Promise.resolve();
+    if (BmiRadialGaugeComponent) return Promise.resolve();
+    if (gaugeLoad) return gaugeLoad;
+    gaugeLoad = import('$lib/components/BmiRadialGauge.svelte')
+      .then((mod) => {
+        BmiRadialGaugeComponent = mod.default;
+      })
+      .finally(() => {
+        gaugeLoad = null;
+      });
+    return gaugeLoad;
+  }
+
+  function ensureReferenceTable() {
+    if (!browser) return Promise.resolve();
+    if (ReferenceTableComponent) return Promise.resolve();
+    if (referenceLoad) return referenceLoad;
+    referenceLoad = import('$lib/components/ReferenceTable.svelte')
+      .then((mod) => {
+        ReferenceTableComponent = mod.default;
+      })
+      .finally(() => {
+        referenceLoad = null;
+      });
+    return referenceLoad;
+  }
   // icons for About BMI section
   import {
     Lightbulb,
@@ -320,6 +376,12 @@
     pagerNavCentered = !overflow;
   }
 
+  $: if (browser) {
+    if (activeIndex === 1) void ensureCalculatorComponents();
+    if (activeIndex === 2) void ensureGaugeComponents();
+    if (activeIndex === 3) void ensureReferenceTable();
+  }
+
   onMount(() => {
     if (!browser) return;
     perfTier = getPerformanceTier();
@@ -525,23 +587,29 @@
             <section class="bmi-section">
               <div class="bmi-grid">
                 <div class="form-card">
-                  <BmiForm
-                    bind:age
-                    bind:height
-                    bind:weight
-                    {calculating}
-                    onClear={clearAllData}
-                    onCalculate={handleCalculate}
-                  />
+                  {#if BmiFormComponent}
+                    <svelte:component
+                      this={BmiFormComponent}
+                      bind:age
+                      bind:height
+                      bind:weight
+                      {calculating}
+                      onClear={clearAllData}
+                      onCalculate={handleCalculate}
+                    />
+                  {/if}
                 </div>
                 <div class="bmi-card">
                   {#key resultsRunId}
-                    <BmiResults
-                      {bmiValue}
-                      {category}
-                      age={age === '' ? null : parseInt(age)}
-                      reducedMotion={reducedMotionEffective}
-                    />
+                    {#if BmiResultsComponent}
+                      <svelte:component
+                        this={BmiResultsComponent}
+                        {bmiValue}
+                        {category}
+                        age={age === '' ? null : parseInt(age)}
+                        reducedMotion={reducedMotionEffective}
+                      />
+                    {/if}
                   {/key}
                 </div>
               </div>
@@ -552,11 +620,14 @@
         {#if activeIndex === 2}
           <div class="main-container">
             <div class="charts-section">
-              <BmiRadialGauge
-                bmi={bmiValue || 0}
-                category={category}
-                ultraSmooth={smoothModeRequested}
-              />
+              {#if BmiRadialGaugeComponent}
+                <svelte:component
+                  this={BmiRadialGaugeComponent}
+                  bmi={bmiValue || 0}
+                  category={category}
+                  ultraSmooth={smoothModeRequested}
+                />
+              {/if}
 
               <div
                 class="gauge-container bmi-rangebar"
@@ -602,7 +673,9 @@
         {#if activeIndex === 3}
           <div class="main-container">
             <!-- Reference Table -->
-            <ReferenceTable />
+            {#if ReferenceTableComponent}
+              <svelte:component this={ReferenceTableComponent} />
+            {/if}
           </div>
         {/if}
 
