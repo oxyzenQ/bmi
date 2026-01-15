@@ -119,6 +119,8 @@
 
   let activePointerId: number | null = null;
   let lastWheelNavAt = 0;
+  let switchingTimer: ReturnType<typeof setTimeout> | null = null;
+  let pageDestroyed = false;
 
   function broadcastSmoothMode(enabled: boolean) {
     if (!browser) return;
@@ -283,7 +285,7 @@
     location.replace(`#${id}`);
   }
 
-  function goTo(index: number, opts?: { skipHash?: boolean }) {
+  function goTo(index: number, opts?: { skipHash?: boolean; skipSwitching?: boolean }) {
     const next = clampIndex(index);
     if (next === activeIndex) {
       if (!opts?.skipHash) setHash(sections[activeIndex].id);
@@ -291,7 +293,7 @@
       return;
     }
 
-    if (browser && !reducedMotionEffective) {
+    if (browser && !reducedMotionEffective && !opts?.skipSwitching) {
       if (switchingTimer) clearTimeout(switchingTimer);
       document.body.classList.add('is-switching');
       const ms = Math.max(240, pagerMotionDuration) + 140;
@@ -306,8 +308,6 @@
     if (!opts?.skipHash) setHash(sections[activeIndex].id);
     void resetSectionScroll();
   }
-
-  let switchingTimer: ReturnType<typeof setTimeout> | null = null;
 
   function prevSection() {
     if (activeIndex <= 0) return;
@@ -444,8 +444,10 @@
   function schedulePagerNavAlignment() {
     if (!browser) return;
     if (pagerNavAlignRaf !== null) return;
+    if (pageDestroyed) return;
     pagerNavAlignRaf = requestAnimationFrame(() => {
       pagerNavAlignRaf = null;
+      if (pageDestroyed) return;
       updatePagerNavAlignment();
     });
   }
@@ -490,7 +492,7 @@
     broadcastSmoothMode(smoothModeRequested);
 
     const idx = indexFromHash(window.location.hash);
-    if (idx !== null) goTo(idx, { skipHash: true });
+    if (idx !== null) goTo(idx, { skipHash: true, skipSwitching: true });
     setHash(sections[activeIndex].id);
 
     const onHashChange = () => {
@@ -580,7 +582,11 @@
   }
 
   onDestroy(() => {
+    pageDestroyed = true;
     if (markerTimer) clearTimeout(markerTimer);
+    if (switchingTimer) clearTimeout(switchingTimer);
+    if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
+    if (browser) document.body.classList.remove('is-switching');
   });
 
 </script>
