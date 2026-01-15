@@ -819,7 +819,7 @@
                       </p>
                       <p class="info-row">
                         <GitBranch class="GitBranch" />
-                        <strong>Branch:</strong>zenlysium
+                        <strong>Branch:</strong>main
                       </p>
                       <p class="info-row">
                         <GitCompare class="GitCompare" />

@@ -3238,7 +3238,7 @@ p,
 
   .bmi-card {
     margin-top: 0;
-    margin-bottom: clamp(20px, 10vh, 120px) !important;
+    margin-bottom: clamp(48px, 24vh, 240px) !important;
   }
 
   .bmi-results-card {
@@ -3256,7 +3256,7 @@ p,
   }
 
   .gauge-container.bmi-rangebar {
-    margin-bottom: clamp(24px, 12vh, 140px) !important;
+    margin-bottom: clamp(48px, 24vh, 280px) !important;
   }
 
   .grid-responsive,
@@ -3551,7 +3551,7 @@ body.is-switching :is(.pager-nav-shell, .pager-controls-shell) {
 @media (max-width: 399px) {
   .form-input {
     width: 100% !important;
-    max-width: 420px;
+    max-width: 120px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -3563,7 +3563,7 @@ body.is-switching :is(.pager-nav-shell, .pager-controls-shell) {
 
   .button-group .btn {
     width: 100%;
-    max-width: 420px;
+    max-width: 220px;
     justify-content: center;
   }
 }
@@ -3572,7 +3572,7 @@ body.is-switching :is(.pager-nav-shell, .pager-controls-shell) {
 @media (min-width: 400px) and (max-width: 768px) {
   .form-input {
     width: 100% !important;
-    max-width: 420px;
+    max-width: 220px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -3584,7 +3584,7 @@ body.is-switching :is(.pager-nav-shell, .pager-controls-shell) {
 
   .button-group .btn {
     width: 100%;
-    max-width: 420px;
+    max-width: 220px;
     justify-content: center;
   }
 }
