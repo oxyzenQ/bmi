@@ -28,8 +28,11 @@
   $: innerHeight = chartHeight - margin.top - margin.bottom;
 
   // Direct reactive chart data generation
-  $: chartData = generateChartData(bmiValue, age, height, weight);
-  $: hasData = Boolean(bmiValue && age && height && weight && chartData.length);
+  $: chartData = generateChartData(bmiValue, height, weight);
+  $: hasData = bmiValue !== null && age !== null && height !== null && weight !== null;
+
+  const GRID_HORIZONTAL = 5;
+  const GRID_VERTICAL = 9;
 
   function getMinWeight(data: Array<{ weight: number }>) {
     let min = Infinity;
@@ -66,13 +69,6 @@
   $: minWeight = chartData.length ? getMinWeight(chartData) : 0;
   $: maxWeight = chartData.length ? getMaxWeight(chartData) : 1;
 
-  // Debug logging
-  $: {
-    if (import.meta.env.DEV) {
-      console.log('Chart Data Update:', { bmiValue, age, height, weight, chartDataLength: chartData.length });
-    }
-  }
-
   // Always show chart with fallback domain [0,1] when no data
   $: yDataMin = chartData.length ? getMinBmi(chartData) : 0;
   $: yDataMax = chartData.length ? getMaxBmi(chartData) : 1;
@@ -80,9 +76,9 @@
   $: yMin = chartData.length ? (yDataMin === yDataMax ? Math.max(0, yDataMin - 0.5) : yDataMin) : 0;
   $: yMax = chartData.length ? (yDataMin === yDataMax ? yDataMin + 0.5 : yDataMax) : 1;
 
-  function generateChartData(bmi: number | null, userAge: number | null, userHeight: number | null, userWeight: number | null) {
+  function generateChartData(bmi: number | null, userHeight: number | null, userWeight: number | null) {
     // If missing inputs, return a default series with BMI=0 across a safe weight range
-    if (!bmi || !userAge || !userHeight || !userWeight) {
+    if (bmi === null || userHeight === null || userWeight === null) {
       const defaults = [] as { weight: number; bmi: number; isCurrentPoint: boolean }[];
       for (let w = 40; w <= 120; w += 5) {
         defaults.push({ weight: w, bmi: 0, isCurrentPoint: false });
@@ -126,6 +122,21 @@
     return innerHeight - ((clamped - minBmi) / (maxBmi - minBmi)) * innerHeight;
   }
 
+  $: projectedPoints = chartData.map((point) => {
+    const x = margin.left + getXPosition(point.weight);
+    const y = margin.top + getYPosition(point.bmi);
+    return { ...point, x, y };
+  });
+
+  $: linePoints = projectedPoints.map((p) => `${p.x},${p.y}`).join(' ');
+
+  $: areaPath =
+    projectedPoints.length > 1
+      ? `M ${projectedPoints[0].x},${margin.top + innerHeight} L ${projectedPoints
+          .map((p) => `${p.x},${p.y}`)
+          .join(' L ')} L ${projectedPoints[projectedPoints.length - 1].x},${margin.top + innerHeight} Z`
+      : '';
+
   // Tooltip state (lightweight, throttled)
   let showTooltip = false;
   let tooltipX = 0;
@@ -157,17 +168,24 @@
   function handleMove(e: MouseEvent) {
     if (!chartData.length) return;
     if (rafId) cancelAnimationFrame(rafId);
+
+    const svg = e.currentTarget as SVGSVGElement;
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+
     rafId = requestAnimationFrame(() => {
-      const svg = e.currentTarget as SVGSVGElement;
       const rect = svg.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+
+      const sx = rect.width > 0 ? chartWidth / rect.width : 1;
+      const xSvg = x * sx;
+
       // Find nearest point by X
-      let nearest = chartData[0];
+      let nearest = projectedPoints[0];
       let nearestDist = Infinity;
-      for (const p of chartData) {
-        const px = margin.left + getXPosition(p.weight);
-        const dist = Math.abs(px - x);
+      for (const p of projectedPoints) {
+        const dist = Math.abs(p.x - xSvg);
         if (dist < nearestDist) { nearestDist = dist; nearest = p; }
       }
       const cat = getBmiCategory(nearest.bmi);
@@ -319,9 +337,9 @@
         {/each}
 
         <!-- Chart line -->
-        {#if chartData.length > 1}
+        {#if projectedPoints.length > 1}
           <polyline
-            points={chartData.map(d => `${margin.left + getXPosition(d.weight)},${margin.top + getYPosition(d.bmi)}`).join(' ')}
+            points={linePoints}
             fill="none"
             stroke="url(#lineGradient)"
             stroke-width="3"
@@ -331,17 +349,17 @@
 
           <!-- Fill area under curve -->
           <path
-            d="M {margin.left + getXPosition(chartData[0].weight)},${margin.top + innerHeight} L {chartData.map(d => `${margin.left + getXPosition(d.weight)},${margin.top + getYPosition(d.bmi)}`).join(' L ')} L ${margin.left + getXPosition(chartData[chartData.length - 1].weight)},${margin.top + innerHeight} Z"
+            d={areaPath}
             fill="url(#chartGradient)"
             opacity="0.2"
           />
         {/if}
 
         <!-- Data points -->
-        {#each chartData as point (point.weight + '-' + point.bmi)}
+        {#each projectedPoints as point (point.weight + '-' + point.bmi)}
           <circle
-            cx={margin.left + getXPosition(point.weight)}
-            cy={margin.top + getYPosition(point.bmi)}
+            cx={point.x}
+            cy={point.y}
             r={point.isCurrentPoint ? 6 : 3}
             fill={point.isCurrentPoint ? getBmiCategory(point.bmi).color : '#64748b'}
             stroke={point.isCurrentPoint ? '#ffffff' : 'none'}
@@ -351,8 +369,8 @@
           />
           {#if point.isCurrentPoint}
             <text
-              x={margin.left + getXPosition(point.weight)}
-              y={margin.top + getYPosition(point.bmi) - 12}
+              x={point.x}
+              y={point.y - 12}
               text-anchor="middle"
               fill="#ffffff"
               font-size="14"
@@ -385,43 +403,40 @@
         />
 
         <!-- Grid lines -->
-        {#each Array(5) as _unused, i (i)}
+        {#each Array(GRID_HORIZONTAL) as _unused, i (i)}
           <line
-            x1="60"
-            y1={60 + i * 60}
-            x2="540"
-            y2={60 + i * 60}
+            x1={margin.left}
+            y1={margin.top + (innerHeight / (GRID_HORIZONTAL + 1)) * (i + 1)}
+            x2={margin.left + innerWidth}
+            y2={margin.top + (innerHeight / (GRID_HORIZONTAL + 1)) * (i + 1)}
             stroke="#1e293b"
             stroke-width="1"
             opacity="0.4"
           />
         {/each}
 
-        {#each Array(9) as _unused, i (i)}
+        {#each Array(GRID_VERTICAL) as _unused, i (i)}
           <line
-            x1={60 + i * 60}
-            y1="60"
-            x2={60 + i * 60}
-            y2="300"
+            x1={margin.left + (innerWidth / (GRID_VERTICAL + 1)) * (i + 1)}
+            y1={margin.top}
+            x2={margin.left + (innerWidth / (GRID_VERTICAL + 1)) * (i + 1)}
+            y2={margin.top + innerHeight}
             stroke="#1e293b"
             stroke-width="1"
             opacity="0.4"
           />
         {/each}
 
-        <!-- Axis labels -->
-        <div class="axis-label axis-x">Weight (kg)</div>
-        <div class="axis-label axis-y">BMI</div>
-        </svg>
+      </svg>
 
-        <!-- Loading indicator when no data -->
-        {#if !hasData}
-          <div class="absolute inset-0 flex items-center justify-center bg-slate-900/50 rounded-lg">
-            <div class="text-center text-slate-400 animate-pulse">
-              <div class="text-sm">Waiting for BMI calculation...</div>
-            </div>
-          </div>
-        {/if}
+      <div class="axis-label axis-x">Weight (kg)</div>
+      <div class="axis-label axis-y">BMI</div>
+
+      {#if !hasData}
+        <div class="chart-loading">
+          <div class="chart-loading-inner">Waiting for BMI calculation...</div>
+        </div>
+      {/if}
 
       {#if showTooltip}
         <div class="chart-tooltip" style={`left:${tooltipX}px; top:${tooltipY}px`}>
@@ -464,3 +479,28 @@
       </div>
     </div>
   </div>
+
+<style>
+  .chart-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+    background: rgba(2, 6, 23, 0.35);
+  }
+
+  .chart-loading-inner {
+    color: #9ca3af;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px) saturate(150%);
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
+  }
+</style>
