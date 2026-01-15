@@ -3379,36 +3379,30 @@ p,
    SCROLL PERFORMANCE OPTIMIZATION
    Pause animations during scroll
    ============================== */
-body.is-scrolling .particle,
-body.is-scrolling .cosmic-particle,
-body.is-scrolling .sparkle-icon,
-body.is-scrolling .plasma-star,
-body.is-scrolling .hero-scroll-icon {
+body.is-scrolling :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star, .hero-scroll-icon) {
   animation-play-state: paused !important;
 }
 
 /* Reduce compositing layers during scroll */
-body.is-scrolling .glass-card,
-body.is-scrolling .glass-panel,
-body.is-scrolling .bmi-card {
+body.is-scrolling :is(.glass-card, .glass-panel, .bmi-card) {
   will-change: auto;
 }
 
-body.is-scrolling .liquid-glass,
-body.is-scrolling .hero-content,
-body.is-scrolling .bmi-card,
-body.is-scrolling .footer-disclaimer,
-body.is-scrolling .about-card,
-body.is-scrolling .gauge-container,
-body.is-scrolling .reference-table,
-body.is-scrolling .form-card,
-body.is-scrolling .github-link,
-body.is-scrolling .modal-content,
-body.is-scrolling .section-header,
-body.is-scrolling .section-header-v2,
-body.is-scrolling .btn,
-body.is-scrolling button,
-body.is-scrolling a.button {
+body.is-scrolling :is(.liquid-glass,
+  .hero-content,
+  .bmi-card,
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table,
+  .form-card,
+  .github-link,
+  .modal-content,
+  .section-header,
+  .section-header-v2,
+  .btn,
+  button,
+  a.button) {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   box-shadow: none !important;
@@ -3426,33 +3420,25 @@ body.is-scrolling a.button {
     min-height: 0 !important;
   }
 
-  html:not([data-graphics='render']) .cosmic-particles {
-    display: none;
-  }
-
-  .liquid-glass:hover,
-  .glass-panel:hover,
-  .btn:hover,
-  button:hover,
-  a.button:hover {
+  :is(.liquid-glass, .glass-panel, .btn, button, a.button):hover {
     transform: none;
   }
 
-  .liquid-glass,
-  .hero-content,
-  .bmi-card,
-  .footer-disclaimer,
-  .about-card,
-  .gauge-container,
-  .reference-table,
-  .form-card,
-  .github-link,
-  .modal-content,
-  .section-header,
-  .section-header-v2,
-  .btn,
-  button,
-  a.button {
+  :is(.liquid-glass,
+    .hero-content,
+    .bmi-card,
+    .footer-disclaimer,
+    .about-card,
+    .gauge-container,
+    .reference-table,
+    .form-card,
+    .github-link,
+    .modal-content,
+    .section-header,
+    .section-header-v2,
+    .btn,
+    button,
+    a.button) {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }
@@ -3468,13 +3454,6 @@ body.is-scrolling a.button {
 
 /* Prefer transform/opacity for animations and respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-graphics='render']) * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-
   html[data-graphics='render'] .cosmic-particles .cosmic-particle {
     animation-duration: var(--duration, 12s) !important;
     animation-delay: var(--delay, 0s) !important;
@@ -3596,15 +3575,11 @@ body.is-scrolling a.button {
     transform: none !important;
   }
 
-  .header-icon {
+  :is(.header-icon, .sparkle-icon) {
     animation: none;
   }
 
-  .sparkle-icon {
-    animation: none;
-  }
-
-  .feature:hover {
+  :is(.feature:hover, .pill-indicator:hover, .pill-indicator:active) {
     transform: none;
   }
 
@@ -3614,11 +3589,6 @@ body.is-scrolling a.button {
 
   .github-footer::before {
     animation: none !important;
-  }
-
-  .pill-indicator:hover,
-  .pill-indicator:active {
-    transform: none;
   }
 
   .pill-indicator::after {
@@ -3654,17 +3624,7 @@ body.is-scrolling a.button {
     opacity: 0;
   }
 
-  .modal-overlay,
-  .modal-content {
-    animation: none;
-  }
-
-  .comp-spinner .spinner {
-    animation: none;
-  }
-
-  body::before,
-  body::after {
+  :is(.modal-overlay, .modal-content, .comp-spinner .spinner, body::before, body::after) {
     animation: none;
   }
 }
