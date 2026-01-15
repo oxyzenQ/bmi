@@ -394,7 +394,6 @@ pre {
       ============================== */
 .glass-card,
 .glass-panel,
-.chart-container,
 .bmi-card {
   background: linear-gradient(180deg,
       rgba(255, 255, 255, 0.035) 6%,
@@ -2229,31 +2228,6 @@ button[aria-disabled="true"] {
   margin-top: clamp(1.5rem, 4vw, 3rem);
 }
 
-.chart-container {
-  position: relative;
-  border-radius: 1.25rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
-  padding: clamp(1rem, 3vw, 1.5rem);
-  overflow: hidden;
-}
-
-.chart-container.bmi-rangebar {
-  margin-top: 1rem;
-}
-
-.chart-container.bmi-rangebar.liquid-glass {
-  background: rgba(0, 0, 0, 0.500);
-  border: var(--border-by-rezky);
-  border-radius: 2rem;
-  backdrop-filter: blur(8px) saturate(140%);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 0 20px color-mix(in oklab, var(--cosmic-purple) 16%, transparent);
-}
-
 .gauge-container.bmi-rangebar {
   margin-top: 1.25rem !important;
   margin-bottom: clamp(40px, 40vh, 180px) !important;
@@ -2622,6 +2596,21 @@ html:not([data-graphics='render']) .bubble,
 html:not([data-graphics='render']) .hero-avatar::before,
 html:not([data-graphics='render']) .hero-avatar::after {
   animation: none !important;
+}
+
+html:not([data-graphics='render']) .hero-avatar {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html:not([data-graphics='render']) .hero-avatar::before,
+html:not([data-graphics='render']) .hero-avatar::after {
+  mix-blend-mode: normal;
+  filter: none !important;
+}
+
+html:not([data-graphics='render']) .plasma-star {
+  filter: none !important;
 }
 
 .cosmic-particles {
@@ -3238,7 +3227,7 @@ p,
 
   .bmi-card {
     margin-top: 0;
-    margin-bottom: clamp(20px, 10vh, 120px) !important;
+    margin-bottom: clamp(48px, 24vh, 240px) !important;
   }
 
   .bmi-results-card {
@@ -3256,7 +3245,7 @@ p,
   }
 
   .gauge-container.bmi-rangebar {
-    margin-bottom: clamp(24px, 12vh, 140px) !important;
+    margin-bottom: clamp(48px, 24vh, 280px) !important;
   }
 
   .grid-responsive,
@@ -3323,6 +3312,142 @@ p,
 
   .gauge-container {
     width: min(96vw, 260px);
+  }
+}
+
+/* Media queries: compact phones (<=520px) */
+@media (max-width: 520px) {
+  .reference-table .ref-header {
+    display: none;
+  }
+
+  .reference-table .ref-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+  }
+
+  .reference-table .ref-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .reference-table .ref-col::before {
+    content: attr(data-label);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9ca3af;
+  }
+
+  .reference-table .muted {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+}
+
+/* Media queries: ultra-compact width (<=360px) */
+@media (max-width: 360px) {
+  .hero-content {
+    margin-top: clamp(20px, 12vh, 48px) !important;
+    margin-bottom: clamp(28px, 16vh, 90px) !important;
+    padding: 2rem 1.25rem;
+  }
+
+  .hero-avatar {
+    width: 88px;
+    height: 88px;
+    padding: 0.5rem;
+  }
+
+  .hero-title {
+    font-size: clamp(1.35rem, 7vw, 1.9rem);
+    gap: 0.5rem;
+  }
+
+  .Telescope {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+    padding: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .hero-features {
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .feature {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .hero-bottom {
+    margin-left: -12px;
+    margin-right: -12px;
+    height: 44px;
+    margin-bottom: -44px;
+  }
+
+  .hero-bottom-text {
+    font-size: 0.9rem;
+  }
+
+  .bmi-section {
+    margin-top: clamp(20px, 8vh, 60px);
+    margin-bottom: clamp(20px, 8vh, 60px);
+  }
+
+  .bmi-grid {
+    padding: 12px;
+    gap: 0.75rem;
+  }
+
+  .gauge-container {
+    width: min(96vw, 240px);
+  }
+}
+
+/* Media queries: short-height devices (<=640px) */
+@media (max-height: 640px) {
+  .hero-content {
+    margin-top: clamp(16px, 8vh, 48px) !important;
+    margin-bottom: clamp(24px, 12vh, 90px) !important;
+    padding: 2rem 1.5rem;
+  }
+
+  .bmi-section {
+    margin-top: clamp(20px, 8vh, 60px);
+    margin-bottom: clamp(20px, 8vh, 60px);
+  }
+
+  .bmi-grid {
+    margin-top: clamp(24px, 18vh, 80px) !important;
+    margin-bottom: clamp(24px, 18vh, 80px) !important;
+    padding: 14px;
+  }
+
+  .bmi-card {
+    margin-bottom: clamp(28px, 18vh, 140px) !important;
+  }
+
+  .gauge-container.bmi-rangebar {
+    margin-bottom: clamp(32px, 18vh, 140px) !important;
+  }
+
+  .reference-table {
+    margin-top: clamp(20px, 14vh, 90px) !important;
+  }
+
+  .form-card,
+  .bmi-card,
+  .bmi-results-card {
+    min-height: 0;
   }
 }
 
@@ -3551,7 +3676,7 @@ body.is-switching :is(.pager-nav-shell, .pager-controls-shell) {
 @media (max-width: 399px) {
   .form-input {
     width: 100% !important;
-    max-width: 420px;
+    max-width: 120px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -3563,7 +3688,7 @@ body.is-switching :is(.pager-nav-shell, .pager-controls-shell) {
 
   .button-group .btn {
     width: 100%;
-    max-width: 420px;
+    max-width: 220px;
     justify-content: center;
   }
 }
@@ -3572,7 +3697,7 @@ body.is-switching :is(.pager-nav-shell, .pager-controls-shell) {
 @media (min-width: 400px) and (max-width: 768px) {
   .form-input {
     width: 100% !important;
-    max-width: 420px;
+    max-width: 220px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -3584,7 +3709,7 @@ body.is-switching :is(.pager-nav-shell, .pager-controls-shell) {
 
   .button-group .btn {
     width: 100%;
-    max-width: 420px;
+    max-width: 220px;
     justify-content: center;
   }
 }

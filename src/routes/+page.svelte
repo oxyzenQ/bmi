@@ -84,14 +84,10 @@
   let bmiValue: number | null = null;
   let category: string | null = null;
 
-  const MAX_HISTORY = 100;
-
   // Form inputs default empty strings for validation UX
   let age: string = '';
   let height: string = '';
   let weight: string = '';
-  // BMI history for tracking calculations
-  let bmiHistory: Array<{bmi: number, timestamp: Date}> = [];
 
   let calculating = false;
   let resultsRunId = 0;
@@ -541,10 +537,6 @@
       } else {
         category = 'Obese';
       }
-
-      // Add to history
-      const nextEntry = { bmi: bmiValue, timestamp: new Date() };
-      bmiHistory = [...bmiHistory.slice(-(MAX_HISTORY - 1)), nextEntry];
     } else {
       bmiValue = null;
       category = null;
@@ -570,7 +562,6 @@
     weight = '';
     bmiValue = null; // Gauge will show empty/neutral state
     category = null;
-    bmiHistory = []; // Clear history
     resultsRunId += 1;
   }
 
@@ -819,7 +810,7 @@
                       </p>
                       <p class="info-row">
                         <GitBranch class="GitBranch" />
-                        <strong>Branch:</strong>zenlysium
+                        <strong>Branch:</strong>main
                       </p>
                       <p class="info-row">
                         <GitCompare class="GitCompare" />
