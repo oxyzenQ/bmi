@@ -306,16 +306,6 @@ jobs:
           # Select random message
           RANDOM_MSG=${MESSAGES[$RANDOM % ${#MESSAGES[@]}]}
 
-          # Create creative commit message
-          {
-            echo "$RANDOM_MSG"
-            echo ""
-            echo "🤖 Automated by the tireless GitHub Actions Bot"
-            echo "📦 Updated $(git status --porcelain | wc -l) file(s)"
-            echo "⏰ $(date -u '+%A, %B %d, %Y at %H:%M:%S UTC')"
-            echo "🎯 Workflow: auto-update.yml"
-          } > commit_msg.txt
-
           {
             echo "title=${RANDOM_MSG}"
             echo "commit_message=${RANDOM_MSG}"
@@ -328,7 +318,11 @@ jobs:
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add -A
-          git commit -F commit_msg.txt
+          git commit -m "${{ steps.commit_msg.outputs.commit_message }}" \
+            -m "🤖 Automated by the tireless GitHub Actions Bot" \
+            -m "📦 Updated $(git status --porcelain | wc -l) file(s)" \
+            -m "⏰ $(date -u '+%A, %B %d, %Y at %H:%M:%S UTC')" \
+            -m "🎯 Workflow: auto-update.yml"
           git push origin main
 
           echo "✅ Changes committed and pushed to main!"

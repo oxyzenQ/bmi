@@ -6,9 +6,10 @@
 export function initScrollOptimizer() {
   if (typeof window === 'undefined') return;
 
-  let scrollTimer: ReturnType<typeof setTimeout>;
+  let scrollTimer: ReturnType<typeof setTimeout> | null = null;
   const body = document.body;
   let isScrolling = false;
+  const scrollListenerOptions: AddEventListenerOptions = { passive: true, capture: true };
 
   const handleScroll = () => {
     if (!isScrolling) {
@@ -17,7 +18,7 @@ export function initScrollOptimizer() {
     }
 
     // Clear previous timer
-    clearTimeout(scrollTimer);
+    if (scrollTimer) clearTimeout(scrollTimer);
 
     // Remove class after scrolling stops
     scrollTimer = setTimeout(() => {
@@ -27,11 +28,13 @@ export function initScrollOptimizer() {
   };
 
   // Use passive listener for better scroll performance
-  window.addEventListener('scroll', handleScroll, { passive: true });
+  document.addEventListener('scroll', handleScroll, scrollListenerOptions);
 
   // Cleanup function
   return () => {
-    window.removeEventListener('scroll', handleScroll);
-    clearTimeout(scrollTimer);
+    document.removeEventListener('scroll', handleScroll, scrollListenerOptions);
+    if (scrollTimer) clearTimeout(scrollTimer);
+    isScrolling = false;
+    body.classList.remove('is-scrolling');
   };
 }

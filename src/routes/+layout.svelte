@@ -10,6 +10,18 @@
   let showMainContent = true; // Show content immediately
   const splashDuration = 10000; // 10s relaxed experience (if enabled)
   let renderModeEnabled = true;
+  let renderModeInitialized = false;
+
+  if (browser) {
+    try {
+      const storedRenderMode = localStorage.getItem('bmi.renderMode');
+      renderModeEnabled = storedRenderMode === null ? true : storedRenderMode === '1' || storedRenderMode === 'true';
+    } catch {
+      // ignore
+    } finally {
+      renderModeInitialized = true;
+    }
+  }
 
   onMount(() => {
     const cleanupScroll = initScrollOptimizer();
@@ -17,11 +29,14 @@
     let cleanupRenderListener: (() => void) | null = null;
 
     if (browser) {
-      try {
-        const storedRenderMode = localStorage.getItem('bmi.renderMode');
-        renderModeEnabled = storedRenderMode === null ? true : storedRenderMode === '1' || storedRenderMode === 'true';
-      } catch {
-        // ignore
+      if (!renderModeInitialized) {
+        try {
+          const storedRenderMode = localStorage.getItem('bmi.renderMode');
+          renderModeEnabled = storedRenderMode === null ? true : storedRenderMode === '1' || storedRenderMode === 'true';
+        } catch {
+          // ignore
+        }
+        renderModeInitialized = true;
       }
 
       const handleRenderMode = (event: Event) => {

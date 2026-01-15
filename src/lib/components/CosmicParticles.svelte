@@ -17,32 +17,13 @@
   onMount(() => {
     tier = getPerformanceTier();
     baseParticleCount = tier === 'low' ? 10 : tier === 'medium' ? 16 : 22;
-
-    if (typeof window !== 'undefined') {
-      const storedRenderMode = localStorage.getItem('bmi.renderMode');
-      if (storedRenderMode === null) {
-        const storedSmooth = localStorage.getItem('bmi.smoothMode');
-        const storedUltra = localStorage.getItem('bmi.ultraSmooth');
-        const hasLegacy = storedSmooth !== null || storedUltra !== null;
-        smoothModeEnabled =
-          hasLegacy
-            ? (storedSmooth === '1' || storedSmooth === 'true' || storedUltra === '1' || storedUltra === 'true')
-            : true;
-        localStorage.setItem('bmi.renderMode', smoothModeEnabled ? '1' : '0');
-        localStorage.removeItem('bmi.smoothMode');
-        localStorage.removeItem('bmi.ultraSmooth');
-      } else {
-        smoothModeEnabled = storedRenderMode === '1' || storedRenderMode === 'true';
-      }
-    }
-
+    smoothModeEnabled = true;
     updateReduced();
 
     const handleSmoothMode = (event: Event) => {
       if (destroyed) return;
       const ce = event as CustomEvent<{ enabled?: boolean; requested?: boolean; status?: string }>;
       smoothModeEnabled = Boolean(ce.detail?.enabled ?? ce.detail?.requested);
-      const wasReduced = reduced;
       updateReduced();
 
       if (reduced) {
@@ -50,13 +31,12 @@
         return;
       }
 
-      particleCount = computeParticleCount(tier, smoothModeEnabled);
-      if (!paused) {
-        createParticles();
-      }
+      const nextCount = computeParticleCount(tier, smoothModeEnabled);
+      const shouldRecreate = particles.length !== nextCount;
+      particleCount = nextCount;
 
-      if (wasReduced) {
-        for (const p of particles) p.style.animationPlayState = paused ? 'paused' : 'running';
+      if (!paused && (particles.length === 0 || shouldRecreate)) {
+        createParticles();
       }
     };
 
@@ -67,8 +47,6 @@
       if (destroyed) return;
       const isHidden = document.hidden;
       paused = isHidden;
-
-      for (const p of particles) p.style.animationPlayState = isHidden ? 'paused' : 'running';
 
       if (isHidden) return;
       if (reduced) return;
@@ -93,15 +71,16 @@
 
   onDestroy(() => {
     destroyed = true;
+    stopParticles();
     if (visibilityHandler) visibilityHandler();
     if (smoothModeHandler) smoothModeHandler();
   });
 
   function computeParticleCount(tier: 'high' | 'medium' | 'low', smoothEnabled: boolean) {
     if (!smoothEnabled) return baseParticleCount;
-    if (tier === 'high') return Math.min(baseParticleCount + 16, 48);
-    if (tier === 'medium') return Math.min(baseParticleCount + 12, 38);
-    return Math.min(baseParticleCount + 8, 22);
+    if (tier === 'high') return Math.min(baseParticleCount + 8, 34);
+    if (tier === 'medium') return Math.min(baseParticleCount + 6, 26);
+    return Math.min(baseParticleCount + 4, 18);
   }
 
   function updateReduced() {
@@ -181,5 +160,6 @@
 <div
   bind:this={particlesContainer}
   class="cosmic-particles"
+  class:is-paused={paused}
   aria-hidden="true"
 ></div>

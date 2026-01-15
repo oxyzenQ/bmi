@@ -1,9 +1,51 @@
 /* Author: Rezky Nightky */
 /* ==============================
-   FONTS & IMPORTS
-   ============================== */
-@import '@fontsource-variable/inter/index.css';
-@import '@fontsource-variable/jetbrains-mono/index.css';
+  FONTS & IMPORTS
+  ============================== */
+
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url('@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url('@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
 
 /* ==============================
       CSS VARIABLES
@@ -678,8 +720,8 @@ button[aria-disabled="true"] {
   border-radius: 50%;
   filter: blur(20px);
   /* Reduced from 40px for better performance */
-  opacity: 0.2;
   /* Reduced from 0.25 for lighter GPU load */
+  opacity: 0.2;
   animation: orbFloat 20s ease-in-out infinite;
 }
 
@@ -690,15 +732,6 @@ button[aria-disabled="true"] {
   top: 20%;
   left: 10%;
   animation-delay: 0s;
-}
-
-.orb-2 {
-  width: 150px;
-  height: 150px;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.35), transparent);
-  top: 60%;
-  right: 15%;
-  animation-delay: -7s;
 }
 
 .orb-3 {
@@ -1831,18 +1864,18 @@ button[aria-disabled="true"] {
 }
 
 .gauge-center .bmi-value {
-  font: 700 36px/1.1 Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  font: 700 36px/1.1 'Inter Variable', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   text-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
 }
 
 .gauge-center .bmi-label {
   fill: grey;
-  font: 600 12px/1 Inter, ui-sans-serif, system-ui;
+  font: 600 12px/1 'Inter Variable', ui-sans-serif, system-ui;
   letter-spacing: 1px;
 }
 
 .gauge-center .category-label {
-  font: 600 12px/1 Inter, ui-sans-serif, system-ui;
+  font: 600 12px/1 'Inter Variable', ui-sans-serif, system-ui;
 }
 
 .scale-indicators {
@@ -1881,12 +1914,12 @@ button[aria-disabled="true"] {
 
 .scale-label {
   color: #e2e8f0;
-  font: 600 12px/1 Inter, ui-sans-serif, system-ui;
+  font: 600 12px/1 'Inter Variable', ui-sans-serif, system-ui;
 }
 
 .scale-range {
   color: grey;
-  font: 500 12px/1 Inter, ui-sans-serif, system-ui;
+  font: 500 12px/1 'Inter Variable', ui-sans-serif, system-ui;
 }
 
 /* Scale-item color variables */
@@ -2466,12 +2499,12 @@ button[aria-disabled="true"] {
 
 .insight-title {
   color: white;
-  font: 600 0.85rem/1.1 Inter, system-ui, -apple-system, sans-serif;
+  font: 600 0.85rem/1.1 'Inter Variable', system-ui, -apple-system, sans-serif;
 }
 
 .insight-value {
   color: white;
-  font: 700 1rem/1.1 Inter, system-ui, -apple-system, sans-serif;
+  font: 700 1rem/1.1 'Inter Variable', system-ui, -apple-system, sans-serif;
 }
 
 /* ==============================
@@ -2602,6 +2635,21 @@ html:not([data-graphics='render']) .hero-avatar::after {
   isolation: isolate;
 }
 
+.cosmic-particles.is-paused .cosmic-particle {
+  animation-play-state: paused !important;
+}
+
+body.is-scrolling .cosmic-particles,
+body.is-switching .cosmic-particles {
+  display: none !important;
+}
+
+body.is-scrolling .cosmic-particles .cosmic-particle,
+body.is-switching .cosmic-particles .cosmic-particle {
+  animation-play-state: paused !important;
+  filter: none !important;
+}
+
 .cosmic-particles .cosmic-particle {
   position: absolute;
   top: -20px;
@@ -2612,8 +2660,7 @@ html:not([data-graphics='render']) .hero-avatar::after {
       color-mix(in oklab, var(--aurora-whisper) 70%, white 30%) 0%,
       color-mix(in oklab, var(--aurora-glow) 60%, transparent) 56%,
       transparent 74%);
-  mix-blend-mode: screen;
-  filter: blur(0.5px) drop-shadow(0 0 10px color-mix(in oklab, var(--aurora-glow) 30%, transparent)) drop-shadow(0 0 18px color-mix(in oklab, var(--aurora-core) 18%, transparent));
+  filter: blur(0.35px);
   animation-name: particleRise;
   animation-duration: var(--duration, 12s);
   animation-delay: var(--delay, 0s);
@@ -2653,143 +2700,6 @@ html:not([data-graphics='render']) .hero-avatar::after {
 }
 
 /* Bubble effects */
-.bubble-container {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.bubble {
-  position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(96, 165, 250, 0.6), rgba(96, 165, 250, 0.2));
-  animation: bubbleRise 12s linear infinite;
-  pointer-events: none;
-  will-change: transform;
-  transform: translateZ(0);
-  contain: layout style paint;
-  isolation: isolate;
-  box-shadow:
-    0 0 20px rgba(96, 165, 250, 0.3),
-    inset 0 0 10px rgba(255, 255, 255, 0.1);
-  filter: blur(0.5px);
-}
-
-/* Individual bubble styles with varied sizes and delays */
-.bubble-1 {
-  width: 28px;
-  height: 28px;
-  left: 8%;
-  animation-delay: 0s;
-}
-
-.bubble-2 {
-  width: 35px;
-  height: 35px;
-  left: 18%;
-  animation-delay: -1.5s;
-}
-
-.bubble-3 {
-  width: 40px;
-  height: 40px;
-  left: 28%;
-  animation-delay: -3s;
-}
-
-.bubble-4 {
-  width: 28px;
-  height: 28px;
-  left: 38%;
-  animation-delay: -0.8s;
-}
-
-.bubble-5 {
-  width: 20px;
-  height: 20px;
-  left: 48%;
-  animation-delay: -2.2s;
-}
-
-.bubble-6 {
-  width: 36px;
-  height: 36px;
-  left: 58%;
-  animation-delay: -4.5s;
-}
-
-.bubble-7 {
-  width: 26px;
-  height: 26px;
-  left: 68%;
-  animation-delay: -1.2s;
-}
-
-.bubble-8 {
-  width: 22px;
-  height: 22px;
-  left: 78%;
-  animation-delay: -3.8s;
-}
-
-.bubble-9 {
-  width: 30px;
-  height: 30px;
-  left: 88%;
-  animation-delay: -0.4s;
-}
-
-.bubble-10 {
-  width: 18px;
-  height: 18px;
-  left: 15%;
-  animation-delay: -2.8s;
-}
-
-@keyframes bubbleRise {
-  0% {
-    bottom: -80px;
-    opacity: 0;
-    transform: translateX(0) scale(0.2);
-  }
-
-  3% {
-    opacity: 0.6;
-    transform: translateX(8px) scale(0.4);
-  }
-
-  15% {
-    opacity: 0.8;
-    transform: translateX(-15px) scale(0.7);
-  }
-
-  35% {
-    opacity: 0.9;
-    transform: translateX(20px) scale(1);
-  }
-
-  55% {
-    opacity: 0.85;
-    transform: translateX(-10px) scale(1.1);
-  }
-
-  75% {
-    opacity: 0.7;
-    transform: translateX(12px) scale(0.9);
-  }
-
-  90% {
-    opacity: 0.3;
-    transform: translateX(-5px) scale(0.6);
-  }
-
-  100% {
-    bottom: calc(120vh + 100px);
-    opacity: 0;
-    transform: translateX(0) scale(0.2);
-  }
-}
 
 /* Plasma star effects */
 .plasma-star {
@@ -3308,6 +3218,47 @@ p,
     padding-inline: clamp(0.75rem, 2vw, 1.25rem);
   }
 
+  .bmi-section {
+    margin-top: clamp(24px, 6vh, 90px);
+    margin-bottom: clamp(24px, 6vh, 90px);
+  }
+
+  .bmi-grid {
+    margin-top: clamp(20px, 10vh, 90px) !important;
+    margin-bottom: clamp(24px, 12vh, 120px) !important;
+    padding: 14px;
+    gap: 1rem;
+  }
+
+  .form-card,
+  .bmi-card {
+    min-height: 0;
+    padding: 1.25rem;
+  }
+
+  .bmi-card {
+    margin-top: 0;
+    margin-bottom: clamp(20px, 10vh, 120px) !important;
+  }
+
+  .bmi-results-card {
+    min-height: 0;
+    padding: 1.75rem;
+  }
+
+  .form-input {
+    width: 100%;
+  }
+
+  .button-group .btn {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .gauge-container.bmi-rangebar {
+    margin-bottom: clamp(24px, 12vh, 140px) !important;
+  }
+
   .grid-responsive,
   .results-grid,
   .results-layout {
@@ -3378,8 +3329,8 @@ p,
 @media (min-width: 720px) and (max-width: 767px) {
   .gauge-container {
     width: min(92vw, 520px);
-    margin-top: clamp(40px, 40vh, 180px) !important;
-    margin-bottom: clamp(40px, 40vh, 180px) !important;
+    margin-top: clamp(20px, 10vh, 120px) !important;
+    margin-bottom: clamp(24px, 12vh, 140px) !important;
   }
 }
 
@@ -3438,36 +3389,102 @@ p,
    SCROLL PERFORMANCE OPTIMIZATION
    Pause animations during scroll
    ============================== */
-body.is-scrolling .particle,
-body.is-scrolling .cosmic-particle,
-body.is-scrolling .sparkle-icon,
-body.is-scrolling .plasma-star,
-body.is-scrolling .hero-scroll-icon {
+body.is-scrolling :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star, .hero-scroll-icon) {
+  animation-play-state: paused !important;
+}
+
+body.is-switching :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star, .hero-scroll-icon) {
   animation-play-state: paused !important;
 }
 
 /* Reduce compositing layers during scroll */
-body.is-scrolling .glass-card,
-body.is-scrolling .glass-panel,
-body.is-scrolling .bmi-card {
+body.is-scrolling :is(.glass-card, .glass-panel, .bmi-card) {
   will-change: auto;
 }
 
-body.is-scrolling .liquid-glass,
-body.is-scrolling .hero-content,
-body.is-scrolling .bmi-card,
-body.is-scrolling .footer-disclaimer,
-body.is-scrolling .about-card,
-body.is-scrolling .gauge-container,
-body.is-scrolling .reference-table,
-body.is-scrolling .form-card,
-body.is-scrolling .github-link,
-body.is-scrolling .modal-content,
-body.is-scrolling .section-header,
-body.is-scrolling .section-header-v2,
-body.is-scrolling .btn,
-body.is-scrolling button,
-body.is-scrolling a.button {
+body.is-scrolling :is(.liquid-glass,
+  .hero-content,
+  .bmi-card,
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table,
+  .form-card,
+  .github-link,
+  .modal-content,
+  .section-header,
+  .section-header-v2,
+  .btn,
+  button,
+  a.button) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+body.is-scrolling :is(.form-input,
+  .icon-glow,
+  .empty-glow,
+  .gauge-reflection,
+  .gauge-title .Gauge,
+  .gauge-progress,
+  .scale-item,
+  .scale-dot,
+  .reference-table .icon-col,
+  .reference-table .ref-row,
+  .bmi-value) {
+  filter: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body.is-switching :is(.liquid-glass,
+  .hero-content,
+  .bmi-card,
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table,
+  .form-card,
+  .github-link,
+  .modal-content,
+  .section-header,
+  .section-header-v2,
+  .btn,
+  button,
+  a.button) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+body.is-switching :is(.form-input,
+  .icon-glow,
+  .empty-glow,
+  .gauge-reflection,
+  .gauge-title .Gauge,
+  .gauge-progress,
+  .scale-item,
+  .scale-dot,
+  .reference-table .icon-col,
+  .reference-table .ref-row,
+  .bmi-value) {
+  filter: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body.is-scrolling :is(.pager-nav-shell, .pager-controls-shell) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+body.is-switching :is(.pager-nav-shell, .pager-controls-shell) {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   box-shadow: none !important;
@@ -3485,33 +3502,25 @@ body.is-scrolling a.button {
     min-height: 0 !important;
   }
 
-  html:not([data-graphics='render']) .cosmic-particles {
-    display: none;
-  }
-
-  .liquid-glass:hover,
-  .glass-panel:hover,
-  .btn:hover,
-  button:hover,
-  a.button:hover {
+  :is(.liquid-glass, .glass-panel, .btn, button, a.button):hover {
     transform: none;
   }
 
-  .liquid-glass,
-  .hero-content,
-  .bmi-card,
-  .footer-disclaimer,
-  .about-card,
-  .gauge-container,
-  .reference-table,
-  .form-card,
-  .github-link,
-  .modal-content,
-  .section-header,
-  .section-header-v2,
-  .btn,
-  button,
-  a.button {
+  :is(.liquid-glass,
+    .hero-content,
+    .bmi-card,
+    .footer-disclaimer,
+    .about-card,
+    .gauge-container,
+    .reference-table,
+    .form-card,
+    .github-link,
+    .modal-content,
+    .section-header,
+    .section-header-v2,
+    .btn,
+    button,
+    a.button) {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }
@@ -3527,13 +3536,6 @@ body.is-scrolling a.button {
 
 /* Prefer transform/opacity for animations and respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-graphics='render']) * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-
   html[data-graphics='render'] .cosmic-particles .cosmic-particle {
     animation-duration: var(--duration, 12s) !important;
     animation-delay: var(--delay, 0s) !important;
@@ -3548,7 +3550,8 @@ body.is-scrolling a.button {
 /* Mobile screens (below 400px) - 50% width centered */
 @media (max-width: 399px) {
   .form-input {
-    width: 50% !important;
+    width: 100% !important;
+    max-width: 420px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -3559,7 +3562,8 @@ body.is-scrolling a.button {
   }
 
   .button-group .btn {
-    width: 50%;
+    width: 100%;
+    max-width: 420px;
     justify-content: center;
   }
 }
@@ -3567,7 +3571,8 @@ body.is-scrolling a.button {
 /* Tablets and medium screens (400px - 768px) - 50% width centered */
 @media (min-width: 400px) and (max-width: 768px) {
   .form-input {
-    width: 50% !important;
+    width: 100% !important;
+    max-width: 420px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -3578,7 +3583,8 @@ body.is-scrolling a.button {
   }
 
   .button-group .btn {
-    width: 50%;
+    width: 100%;
+    max-width: 420px;
     justify-content: center;
   }
 }
@@ -3651,28 +3657,11 @@ body.is-scrolling a.button {
     transform: none !important;
   }
 
-  html:not([data-graphics='render']) .orb {
+  :is(.header-icon, .sparkle-icon) {
     animation: none;
   }
 
-  .header-icon {
-    animation: none;
-  }
-
-  .sparkle-icon {
-    animation: none;
-  }
-
-  .plasma-star {
-    animation: none;
-  }
-
-  .bubble {
-    animation: none;
-    opacity: 0;
-  }
-
-  .feature:hover {
+  :is(.feature:hover, .pill-indicator:hover, .pill-indicator:active) {
     transform: none;
   }
 
@@ -3682,11 +3671,6 @@ body.is-scrolling a.button {
 
   .github-footer::before {
     animation: none !important;
-  }
-
-  .pill-indicator:hover,
-  .pill-indicator:active {
-    transform: none;
   }
 
   .pill-indicator::after {
@@ -3722,17 +3706,7 @@ body.is-scrolling a.button {
     opacity: 0;
   }
 
-  .modal-overlay,
-  .modal-content {
-    animation: none;
-  }
-
-  .comp-spinner .spinner {
-    animation: none;
-  }
-
-  body::before,
-  body::after {
+  :is(.modal-overlay, .modal-content, .comp-spinner .spinner, body::before, body::after) {
     animation: none;
   }
 }
@@ -3917,8 +3891,8 @@ p,
 @media (min-width: 720px) and (max-width: 767px) {
   .gauge-container {
     width: min(92vw, 520px);
-    margin-top: clamp(40px, 40vh, 180px) !important;
-    margin-bottom: clamp(40px, 40vh, 180px) !important;
+    margin-top: clamp(20px, 10vh, 120px) !important;
+    margin-bottom: clamp(24px, 12vh, 140px) !important;
   }
 }
 
@@ -3931,153 +3905,6 @@ p,
 @media (min-width: 1100px) {
   .gauge-container {
     width: min(96vw, 760px) !important;
-  }
-}
-
-/* Performance: prefer rem spacing and leverage CSS vars already defined */
-:root {
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-}
-
-/* ==============================
-       Global smooth/momentum scrolling and GPU helpers
-       ============================== */
-
-
-/* Utility: mark any scrollable area */
-.scrollable {
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  /* momentum */
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-/* Utility: opt-in GPU acceleration for animated elements */
-.gpu-accelerate {
-  will-change: transform, opacity;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  contain: layout style paint;
-}
-
-/* Parallax helper without background-attachment: fixed (Safari issue) */
-.parallax-safe {
-  background-attachment: scroll !important;
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-/* ==============================
-   SCROLL PERFORMANCE OPTIMIZATION
-   Pause animations during scroll
-   ============================== */
-body.is-scrolling .particle,
-body.is-scrolling .cosmic-particle,
-body.is-scrolling .sparkle-icon,
-body.is-scrolling .plasma-star,
-body.is-scrolling .hero-scroll-icon {
-  animation-play-state: paused !important;
-}
-
-/* Reduce compositing layers during scroll */
-body.is-scrolling .glass-card,
-body.is-scrolling .glass-panel,
-body.is-scrolling .bmi-card {
-  will-change: auto;
-}
-
-body.is-scrolling .liquid-glass,
-body.is-scrolling .hero-content,
-body.is-scrolling .bmi-card,
-body.is-scrolling .footer-disclaimer,
-body.is-scrolling .about-card,
-body.is-scrolling .gauge-container,
-body.is-scrolling .reference-table,
-body.is-scrolling .form-card,
-body.is-scrolling .github-link,
-body.is-scrolling .modal-content,
-body.is-scrolling .section-header,
-body.is-scrolling .section-header-v2,
-body.is-scrolling .btn,
-body.is-scrolling button,
-body.is-scrolling a.button {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: none !important;
-}
-
-@media (hover: none) and (pointer: coarse) {
-  body {
-    background-attachment: scroll;
-  }
-
-  body::before,
-  body::after {
-    position: fixed;
-    height: auto !important;
-    min-height: 0 !important;
-  }
-
-  html:not([data-graphics='render']) .cosmic-particles {
-    display: none;
-  }
-
-  .liquid-glass:hover,
-  .glass-panel:hover,
-  .btn:hover,
-  button:hover,
-  a.button:hover {
-    transform: none;
-  }
-
-  .liquid-glass,
-  .hero-content,
-  .bmi-card,
-  .footer-disclaimer,
-  .about-card,
-  .gauge-container,
-  .reference-table,
-  .form-card,
-  .github-link,
-  .modal-content,
-  .section-header,
-  .section-header-v2,
-  .btn,
-  button,
-  a.button {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-}
-
-/* Tighten large card/container shadows generically */
-
-/* Make modal/body scroll areas momentum-smooth on mobile */
-.modal-content,
-.modal-body {
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Prefer transform/opacity for animations and respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  html:not([data-graphics='render']) * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-
-  html[data-graphics='render'] .cosmic-particles .cosmic-particle {
-    animation-duration: var(--duration, 12s) !important;
-    animation-delay: var(--delay, 0s) !important;
-    animation-iteration-count: infinite !important;
-    animation-timing-function: linear !important;
   }
 }
 
@@ -4447,28 +4274,5 @@ body.is-scrolling a.button {
 
   .cursor {
     opacity: 1;
-  }
-}
-
-/* Make modal/body scroll areas momentum-smooth on mobile */
-.modal-content,
-.modal-body {
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Prefer transform/opacity for animations and respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  html:not([data-graphics='render']) * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-
-  html[data-graphics='render'] .cosmic-particles .cosmic-particle {
-    animation-duration: var(--duration, 12s) !important;
-    animation-delay: var(--delay, 0s) !important;
-    animation-iteration-count: infinite !important;
-    animation-timing-function: linear !important;
   }
 }

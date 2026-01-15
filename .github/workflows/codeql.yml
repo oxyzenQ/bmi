@@ -35,6 +35,7 @@ jobs:
           languages: ${{ matrix.language }}
           # Auto-detect queries (security and quality)
           queries: security-and-quality
+          config-file: ./.github/codeql/codeql-config.yml
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@v4

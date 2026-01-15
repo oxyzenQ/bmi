@@ -1,15 +1,70 @@
 <script lang="ts">
   import { onDestroy, onMount, tick } from 'svelte';
-  import { fly } from 'svelte/transition';
-  import { backOut, cubicIn, cubicOut } from 'svelte/easing';
+  import { backOut, cubicOut } from 'svelte/easing';
   import { tweened } from 'svelte/motion';
   import { browser } from '$app/environment';
   import { getPerformanceTier } from '$lib/utils/performance';
   import Hero from '$lib/ui/Hero.svelte';
-  import BmiForm from '$lib/components/BmiForm.svelte';
-  import BmiResults from '$lib/components/BmiResults.svelte';
-  import BmiRadialGauge from '$lib/components/BmiRadialGauge.svelte';
-  import ReferenceTable from '$lib/components/ReferenceTable.svelte';
+
+  type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
+  type BmiResultsComponentType = typeof import('$lib/components/BmiResults.svelte').default;
+  type BmiRadialGaugeComponentType = typeof import('$lib/components/BmiRadialGauge.svelte').default;
+  type ReferenceTableComponentType = typeof import('$lib/components/ReferenceTable.svelte').default;
+
+  let BmiFormComponent: BmiFormComponentType | null = null;
+  let BmiResultsComponent: BmiResultsComponentType | null = null;
+  let BmiRadialGaugeComponent: BmiRadialGaugeComponentType | null = null;
+  let ReferenceTableComponent: ReferenceTableComponentType | null = null;
+
+  let calculatorLoad: Promise<void> | null = null;
+  let gaugeLoad: Promise<void> | null = null;
+  let referenceLoad: Promise<void> | null = null;
+
+  function ensureCalculatorComponents() {
+    if (!browser) return Promise.resolve();
+    if (BmiFormComponent && BmiResultsComponent) return Promise.resolve();
+    if (calculatorLoad) return calculatorLoad;
+    calculatorLoad = Promise.all([
+      import('$lib/components/BmiForm.svelte'),
+      import('$lib/components/BmiResults.svelte')
+    ])
+      .then(([form, results]) => {
+        BmiFormComponent = form.default;
+        BmiResultsComponent = results.default;
+      })
+      .finally(() => {
+        calculatorLoad = null;
+      });
+    return calculatorLoad;
+  }
+
+  function ensureGaugeComponents() {
+    if (!browser) return Promise.resolve();
+    if (BmiRadialGaugeComponent) return Promise.resolve();
+    if (gaugeLoad) return gaugeLoad;
+    gaugeLoad = import('$lib/components/BmiRadialGauge.svelte')
+      .then((mod) => {
+        BmiRadialGaugeComponent = mod.default;
+      })
+      .finally(() => {
+        gaugeLoad = null;
+      });
+    return gaugeLoad;
+  }
+
+  function ensureReferenceTable() {
+    if (!browser) return Promise.resolve();
+    if (ReferenceTableComponent) return Promise.resolve();
+    if (referenceLoad) return referenceLoad;
+    referenceLoad = import('$lib/components/ReferenceTable.svelte')
+      .then((mod) => {
+        ReferenceTableComponent = mod.default;
+      })
+      .finally(() => {
+        referenceLoad = null;
+      });
+    return referenceLoad;
+  }
   // icons for About BMI section
   import {
     Lightbulb,
@@ -60,9 +115,12 @@
 
   let pagerNavEl: HTMLElement | null = null;
   let pagerNavCentered = false;
+  let pagerNavAlignRaf: number | null = null;
 
   let activePointerId: number | null = null;
   let lastWheelNavAt = 0;
+  let switchingTimer: ReturnType<typeof setTimeout> | null = null;
+  let pageDestroyed = false;
 
   function broadcastSmoothMode(enabled: boolean) {
     if (!browser) return;
@@ -77,13 +135,46 @@
       localStorage.removeItem('bmi.ultraSmooth');
       document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
       broadcastSmoothMode(smoothModeRequested);
-      void tick().then(updatePagerNavAlignment);
+      void tick().then(schedulePagerNavAlignment);
     }
   }
 
   $: reducedMotionEffective = prefersReducedMotion && !smoothModeRequested;
   $: smoothModeEnhanced = smoothModeRequested && perfTier !== 'low';
   $: smoothModeStatus = smoothModeRequested ? 'On' : 'Off';
+
+  function springSimple(t: number, amount: number) {
+    const base = backOut(t);
+    return t + (base - t) * amount;
+  }
+
+  function pagerSpring(
+    _node: Element,
+    opts: {
+      x: number;
+      duration: number;
+      phase: 'in' | 'out';
+      strength: number;
+    }
+  ) {
+    const x = opts.x;
+    const duration = opts.duration;
+    const phase = opts.phase;
+    const strength = opts.strength;
+
+    return {
+      duration,
+      css: (t: number) => {
+        const linear = phase === 'in' ? t : 1 - t;
+        const p = phase === 'in' ? springSimple(linear, strength) : cubicOut(linear);
+
+        const dx = phase === 'in' ? (1 - p) * x : p * x;
+        const opacity = phase === 'in' ? Math.min(1, p * 1.08) : Math.max(0, 1 - p * 1.15);
+
+        return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: ${opacity.toFixed(4)};`;
+      }
+    };
+  }
 
   const BMI_BAR_MIN = 12;
   const BMI_BAR_MAX = 40;
@@ -194,8 +285,24 @@
     location.replace(`#${id}`);
   }
 
-  function goTo(index: number, opts?: { skipHash?: boolean }) {
+  function goTo(index: number, opts?: { skipHash?: boolean; skipSwitching?: boolean }) {
     const next = clampIndex(index);
+    if (next === activeIndex) {
+      if (!opts?.skipHash) setHash(sections[activeIndex].id);
+      void resetSectionScroll();
+      return;
+    }
+
+    if (browser && !reducedMotionEffective && !opts?.skipSwitching) {
+      if (switchingTimer) clearTimeout(switchingTimer);
+      document.body.classList.add('is-switching');
+      const ms = Math.max(240, pagerMotionDuration) + 140;
+      switchingTimer = setTimeout(() => {
+        document.body.classList.remove('is-switching');
+        switchingTimer = null;
+      }, ms);
+    }
+
     lastIndex = activeIndex;
     activeIndex = next;
     if (!opts?.skipHash) setHash(sections[activeIndex].id);
@@ -238,6 +345,7 @@
   }
 
   function handlePointerDown(event: PointerEvent) {
+    if (event.pointerType === 'touch') return;
     const target = event.target as HTMLElement | null;
     if (target?.closest('button, a, input, textarea, select, label')) return;
     if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell')) return;
@@ -305,19 +413,56 @@
 
     const dx = event.deltaX;
     const dy = event.deltaY;
-    if (Math.abs(dx) < 45) return;
-    if (Math.abs(dx) < Math.abs(dy) * 1.2) return;
+    if (Math.abs(dx) < 60) return;
+    if (Math.abs(dy) > 12) return;
+    if (Math.abs(dx) < Math.abs(dy) * 1.8) return;
 
-    event.preventDefault();
+    const section = pagerEl?.querySelector<HTMLElement>('.pager-section') ?? null;
+    if (section && section.scrollHeight > section.clientHeight + 2) {
+      const maxY = section.scrollHeight - section.clientHeight;
+      const midScroll = section.scrollTop > 2 && section.scrollTop < maxY - 2;
+      if (midScroll) return;
+    }
+
+    if (target) {
+      for (let el: HTMLElement | null = target; el && el !== pagerEl; el = el.parentElement) {
+        if (el.scrollWidth > el.clientWidth + 2) {
+          const maxX = el.scrollWidth - el.clientWidth;
+          const canScrollX =
+            (dx > 0 && el.scrollLeft < maxX - 1) ||
+            (dx < 0 && el.scrollLeft > 1);
+          if (canScrollX) return;
+        }
+      }
+    }
+
     lastWheelNavAt = now;
     if (dx > 0) nextSection();
     else prevSection();
   }
 
+  function schedulePagerNavAlignment() {
+    if (!browser) return;
+    if (pagerNavAlignRaf !== null) return;
+    if (pageDestroyed) return;
+    pagerNavAlignRaf = requestAnimationFrame(() => {
+      pagerNavAlignRaf = null;
+      if (pageDestroyed) return;
+      updatePagerNavAlignment();
+    });
+  }
+
   function updatePagerNavAlignment() {
     if (!pagerNavEl) return;
     const overflow = pagerNavEl.scrollWidth > pagerNavEl.clientWidth + 1;
-    pagerNavCentered = !overflow;
+    const nextCentered = !overflow;
+    if (pagerNavCentered !== nextCentered) pagerNavCentered = nextCentered;
+  }
+
+  $: if (browser) {
+    if (activeIndex === 1) void ensureCalculatorComponents();
+    if (activeIndex === 2) void ensureGaugeComponents();
+    if (activeIndex === 3) void ensureReferenceTable();
   }
 
   onMount(() => {
@@ -347,7 +492,7 @@
     broadcastSmoothMode(smoothModeRequested);
 
     const idx = indexFromHash(window.location.hash);
-    if (idx !== null) goTo(idx, { skipHash: true });
+    if (idx !== null) goTo(idx, { skipHash: true, skipSwitching: true });
     setHash(sections[activeIndex].id);
 
     const onHashChange = () => {
@@ -358,14 +503,15 @@
     window.addEventListener('hashchange', onHashChange);
     window.addEventListener('keydown', handleKeydown);
 
-    const onResize = () => updatePagerNavAlignment();
+    const onResize = () => schedulePagerNavAlignment();
     window.addEventListener('resize', onResize);
-    void tick().then(updatePagerNavAlignment);
+    void tick().then(schedulePagerNavAlignment);
 
     return () => {
       window.removeEventListener('hashchange', onHashChange);
       window.removeEventListener('keydown', handleKeydown);
       window.removeEventListener('resize', onResize);
+      if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
     };
   });
 
@@ -436,7 +582,11 @@
   }
 
   onDestroy(() => {
+    pageDestroyed = true;
     if (markerTimer) clearTimeout(markerTimer);
+    if (switchingTimer) clearTimeout(switchingTimer);
+    if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
+    if (browser) document.body.classList.remove('is-switching');
   });
 
 </script>
@@ -453,7 +603,7 @@
   on:pointerdown={handlePointerDown}
   on:pointerup={handlePointerUp}
   on:pointercancel={handlePointerUp}
-  on:wheel={handleWheel}
+  on:wheel|passive={handleWheel}
 >
   <div class="pager-nav-shell">
     <nav
@@ -496,21 +646,21 @@
         id={sections[activeIndex].id}
         data-pager-scroll="true"
         data-section-id={sections[activeIndex].id}
-        in:fly={{
+        in:pagerSpring={{
           x: pagerDirection * pagerMotionDistance,
           duration: pagerMotionDuration,
-          easing: smoothModeEnhanced ? backOut : cubicOut,
-          opacity: 0
+          phase: 'in',
+          strength: reducedMotionEffective ? 0 : (smoothModeEnhanced ? 0.14 : 0.08)
         }}
-        out:fly={{
+        out:pagerSpring={{
           x: -pagerDirection * pagerMotionDistance,
           duration: reducedMotionEffective
             ? 0
             : smoothModeRequested
-              ? Math.round(pagerMotionDuration * 0.78)
-              : 180,
-          easing: cubicIn,
-          opacity: 0
+              ? Math.round(pagerMotionDuration * 0.72)
+              : 210,
+          phase: 'out',
+          strength: 0
         }}
       >
         {#if activeIndex === 0}
@@ -525,23 +675,29 @@
             <section class="bmi-section">
               <div class="bmi-grid">
                 <div class="form-card">
-                  <BmiForm
-                    bind:age
-                    bind:height
-                    bind:weight
-                    {calculating}
-                    onClear={clearAllData}
-                    onCalculate={handleCalculate}
-                  />
+                  {#if BmiFormComponent}
+                    <svelte:component
+                      this={BmiFormComponent}
+                      bind:age
+                      bind:height
+                      bind:weight
+                      {calculating}
+                      onClear={clearAllData}
+                      onCalculate={handleCalculate}
+                    />
+                  {/if}
                 </div>
                 <div class="bmi-card">
                   {#key resultsRunId}
-                    <BmiResults
-                      {bmiValue}
-                      {category}
-                      age={age === '' ? null : parseInt(age)}
-                      reducedMotion={reducedMotionEffective}
-                    />
+                    {#if BmiResultsComponent}
+                      <svelte:component
+                        this={BmiResultsComponent}
+                        {bmiValue}
+                        {category}
+                        age={age === '' ? null : parseInt(age)}
+                        reducedMotion={reducedMotionEffective}
+                      />
+                    {/if}
                   {/key}
                 </div>
               </div>
@@ -552,11 +708,14 @@
         {#if activeIndex === 2}
           <div class="main-container">
             <div class="charts-section">
-              <BmiRadialGauge
-                bmi={bmiValue || 0}
-                category={category}
-                ultraSmooth={smoothModeRequested}
-              />
+              {#if BmiRadialGaugeComponent}
+                <svelte:component
+                  this={BmiRadialGaugeComponent}
+                  bmi={bmiValue || 0}
+                  category={category}
+                  ultraSmooth={smoothModeRequested}
+                />
+              {/if}
 
               <div
                 class="gauge-container bmi-rangebar"
@@ -602,7 +761,9 @@
         {#if activeIndex === 3}
           <div class="main-container">
             <!-- Reference Table -->
-            <ReferenceTable />
+            {#if ReferenceTableComponent}
+              <svelte:component this={ReferenceTableComponent} />
+            {/if}
           </div>
         {/if}
 
@@ -654,7 +815,7 @@
                     <div class="app-info">
                       <p class="info-row">
                         <PackageCheck class="PackageCheck" />
-                        <strong>Version:</strong>Stellar-4.0
+                        <strong>Version:</strong>Stellar-4.8
                       </p>
                       <p class="info-row">
                         <GitBranch class="GitBranch" />
@@ -771,8 +932,9 @@
     gap: 0;
     padding-top: 0;
     overflow: hidden;
-    touch-action: pan-y;
+    touch-action: pan-y pinch-zoom;
     position: relative;
+    --pager-top-inset: calc(0.75rem + env(safe-area-inset-top, 0px) + 56px);
   }
 
   .pager-nav {
@@ -804,7 +966,7 @@
     border-radius: 9999px;
     margin-inline: auto;
     position: absolute;
-    top: 0.75rem;
+    top: calc(0.75rem + env(safe-area-inset-top, 0px));
     left: 50%;
     transform: translateX(-50%);
     z-index: 20;
@@ -862,14 +1024,15 @@
     position: absolute;
     inset: 0;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     will-change: transform, opacity;
     scrollbar-width: none;
     contain: layout paint style;
-    padding-top: 1rem;
-    padding-bottom: calc(0.75rem + 56px + 0.75rem);
-    scroll-padding-top: 1rem;
-    scroll-padding-bottom: calc(0.75rem + 56px + 0.75rem);
+    padding-top: calc(1rem + var(--pager-top-inset));
+    padding-bottom: calc(0.75rem + 56px + 0.75rem + env(safe-area-inset-bottom, 0px));
+    scroll-padding-top: calc(1rem + var(--pager-top-inset));
+    scroll-padding-bottom: calc(0.75rem + 56px + 0.75rem + env(safe-area-inset-bottom, 0px));
   }
 
   .pager-section::-webkit-scrollbar {
@@ -895,7 +1058,7 @@
     border-radius: 9999px;
     margin-inline: auto;
     position: absolute;
-    bottom: 0.75rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
     z-index: 20;

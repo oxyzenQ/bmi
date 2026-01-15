@@ -1,9 +1,10 @@
 # BMI Calculator
 
-A modern, space‑themed **Body Mass Index (BMI)** calculator built with **SvelteKit + TypeScript**, designed for a fast, smooth, and accessible user experience.
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/oxyzenQ/bmi)
 
-- **Live demo**: https://bmi-logigo.vercel.app
-- **License**: GPL‑3.0 (`LICENSE.md`)
+A modern, space‑themed **Body Mass Index (BMI)** calculator built with **SvelteKit + TypeScript**, designed for a accessible user experience.
+
+- **Live**: https://bmi-logigo.vercel.app
 
 ## Highlights
 
