@@ -295,6 +295,7 @@
   }
 
   function handlePointerDown(event: PointerEvent) {
+    if (event.pointerType === 'touch') return;
     const target = event.target as HTMLElement | null;
     if (target?.closest('button, a, input, textarea, select, label')) return;
     if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell')) return;
@@ -362,10 +363,29 @@
 
     const dx = event.deltaX;
     const dy = event.deltaY;
-    if (Math.abs(dx) < 45) return;
-    if (Math.abs(dx) < Math.abs(dy) * 1.2) return;
+    if (Math.abs(dx) < 60) return;
+    if (Math.abs(dy) > 12) return;
+    if (Math.abs(dx) < Math.abs(dy) * 1.8) return;
 
-    event.preventDefault();
+    const section = pagerEl?.querySelector<HTMLElement>('.pager-section') ?? null;
+    if (section && section.scrollHeight > section.clientHeight + 2) {
+      const maxY = section.scrollHeight - section.clientHeight;
+      const midScroll = section.scrollTop > 2 && section.scrollTop < maxY - 2;
+      if (midScroll) return;
+    }
+
+    if (target) {
+      for (let el: HTMLElement | null = target; el && el !== pagerEl; el = el.parentElement) {
+        if (el.scrollWidth > el.clientWidth + 2) {
+          const maxX = el.scrollWidth - el.clientWidth;
+          const canScrollX =
+            (dx > 0 && el.scrollLeft < maxX - 1) ||
+            (dx < 0 && el.scrollLeft > 1);
+          if (canScrollX) return;
+        }
+      }
+    }
+
     lastWheelNavAt = now;
     if (dx > 0) nextSection();
     else prevSection();
@@ -527,7 +547,7 @@
   on:pointerdown={handlePointerDown}
   on:pointerup={handlePointerUp}
   on:pointercancel={handlePointerUp}
-  on:wheel={handleWheel}
+  on:wheel|passive={handleWheel}
 >
   <div class="pager-nav-shell">
     <nav
@@ -856,8 +876,9 @@
     gap: 0;
     padding-top: 0;
     overflow: hidden;
-    touch-action: pan-y;
+    touch-action: pan-y pinch-zoom;
     position: relative;
+    --pager-top-inset: calc(0.75rem + env(safe-area-inset-top, 0px) + 56px);
   }
 
   .pager-nav {
@@ -889,7 +910,7 @@
     border-radius: 9999px;
     margin-inline: auto;
     position: absolute;
-    top: 0.75rem;
+    top: calc(0.75rem + env(safe-area-inset-top, 0px));
     left: 50%;
     transform: translateX(-50%);
     z-index: 20;
@@ -947,14 +968,15 @@
     position: absolute;
     inset: 0;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     will-change: transform, opacity;
     scrollbar-width: none;
     contain: layout paint style;
-    padding-top: 1rem;
-    padding-bottom: calc(0.75rem + 56px + 0.75rem);
-    scroll-padding-top: 1rem;
-    scroll-padding-bottom: calc(0.75rem + 56px + 0.75rem);
+    padding-top: calc(1rem + var(--pager-top-inset));
+    padding-bottom: calc(0.75rem + 56px + 0.75rem + env(safe-area-inset-bottom, 0px));
+    scroll-padding-top: calc(1rem + var(--pager-top-inset));
+    scroll-padding-bottom: calc(0.75rem + 56px + 0.75rem + env(safe-area-inset-bottom, 0px));
   }
 
   .pager-section::-webkit-scrollbar {
@@ -980,7 +1002,7 @@
     border-radius: 9999px;
     margin-inline: auto;
     position: absolute;
-    bottom: 0.75rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
     z-index: 20;

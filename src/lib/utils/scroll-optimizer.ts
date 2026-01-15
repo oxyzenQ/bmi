@@ -9,6 +9,7 @@ export function initScrollOptimizer() {
   let scrollTimer: ReturnType<typeof setTimeout>;
   const body = document.body;
   let isScrolling = false;
+  const scrollListenerOptions: AddEventListenerOptions = { passive: true, capture: true };
 
   const handleScroll = () => {
     if (!isScrolling) {
@@ -27,11 +28,11 @@ export function initScrollOptimizer() {
   };
 
   // Use passive listener for better scroll performance
-  window.addEventListener('scroll', handleScroll, { passive: true });
+  document.addEventListener('scroll', handleScroll, scrollListenerOptions);
 
   // Cleanup function
   return () => {
-    window.removeEventListener('scroll', handleScroll);
+    document.removeEventListener('scroll', handleScroll, scrollListenerOptions);
     clearTimeout(scrollTimer);
   };
 }
