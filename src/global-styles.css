@@ -2639,6 +2639,17 @@ html:not([data-graphics='render']) .hero-avatar::after {
   animation-play-state: paused !important;
 }
 
+body.is-scrolling .cosmic-particles,
+body.is-switching .cosmic-particles {
+  display: none !important;
+}
+
+body.is-scrolling .cosmic-particles .cosmic-particle,
+body.is-switching .cosmic-particles .cosmic-particle {
+  animation-play-state: paused !important;
+  filter: none !important;
+}
+
 .cosmic-particles .cosmic-particle {
   position: absolute;
   top: -20px;
@@ -2649,8 +2660,7 @@ html:not([data-graphics='render']) .hero-avatar::after {
       color-mix(in oklab, var(--aurora-whisper) 70%, white 30%) 0%,
       color-mix(in oklab, var(--aurora-glow) 60%, transparent) 56%,
       transparent 74%);
-  mix-blend-mode: screen;
-  filter: blur(0.5px) drop-shadow(0 0 10px color-mix(in oklab, var(--aurora-glow) 30%, transparent)) drop-shadow(0 0 18px color-mix(in oklab, var(--aurora-core) 18%, transparent));
+  filter: blur(0.35px);
   animation-name: particleRise;
   animation-duration: var(--duration, 12s);
   animation-delay: var(--delay, 0s);
@@ -3383,6 +3393,10 @@ body.is-scrolling :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star, 
   animation-play-state: paused !important;
 }
 
+body.is-switching :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star, .hero-scroll-icon) {
+  animation-play-state: paused !important;
+}
+
 /* Reduce compositing layers during scroll */
 body.is-scrolling :is(.glass-card, .glass-panel, .bmi-card) {
   will-change: auto;
@@ -3403,6 +3417,74 @@ body.is-scrolling :is(.liquid-glass,
   .btn,
   button,
   a.button) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+body.is-scrolling :is(.form-input,
+  .icon-glow,
+  .empty-glow,
+  .gauge-reflection,
+  .gauge-title .Gauge,
+  .gauge-progress,
+  .scale-item,
+  .scale-dot,
+  .reference-table .icon-col,
+  .reference-table .ref-row,
+  .bmi-value) {
+  filter: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body.is-switching :is(.liquid-glass,
+  .hero-content,
+  .bmi-card,
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table,
+  .form-card,
+  .github-link,
+  .modal-content,
+  .section-header,
+  .section-header-v2,
+  .btn,
+  button,
+  a.button) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+body.is-switching :is(.form-input,
+  .icon-glow,
+  .empty-glow,
+  .gauge-reflection,
+  .gauge-title .Gauge,
+  .gauge-progress,
+  .scale-item,
+  .scale-dot,
+  .reference-table .icon-col,
+  .reference-table .ref-row,
+  .bmi-value) {
+  filter: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body.is-scrolling :is(.pager-nav-shell, .pager-controls-shell) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+body.is-switching :is(.pager-nav-shell, .pager-controls-shell) {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   box-shadow: none !important;

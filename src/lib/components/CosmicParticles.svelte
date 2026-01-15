@@ -78,9 +78,9 @@
 
   function computeParticleCount(tier: 'high' | 'medium' | 'low', smoothEnabled: boolean) {
     if (!smoothEnabled) return baseParticleCount;
-    if (tier === 'high') return Math.min(baseParticleCount + 16, 48);
-    if (tier === 'medium') return Math.min(baseParticleCount + 12, 38);
-    return Math.min(baseParticleCount + 8, 22);
+    if (tier === 'high') return Math.min(baseParticleCount + 8, 34);
+    if (tier === 'medium') return Math.min(baseParticleCount + 6, 26);
+    return Math.min(baseParticleCount + 4, 18);
   }
 
   function updateReduced() {

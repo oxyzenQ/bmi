@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onDestroy, onMount, tick } from 'svelte';
-  import { fly } from 'svelte/transition';
-  import { backOut, cubicIn, cubicOut } from 'svelte/easing';
+  import { backOut, cubicOut } from 'svelte/easing';
   import { tweened } from 'svelte/motion';
   import { browser } from '$app/environment';
   import { getPerformanceTier } from '$lib/utils/performance';
@@ -142,6 +141,39 @@
   $: smoothModeEnhanced = smoothModeRequested && perfTier !== 'low';
   $: smoothModeStatus = smoothModeRequested ? 'On' : 'Off';
 
+  function springSimple(t: number, amount: number) {
+    const base = backOut(t);
+    return t + (base - t) * amount;
+  }
+
+  function pagerSpring(
+    _node: Element,
+    opts: {
+      x: number;
+      duration: number;
+      phase: 'in' | 'out';
+      strength: number;
+    }
+  ) {
+    const x = opts.x;
+    const duration = opts.duration;
+    const phase = opts.phase;
+    const strength = opts.strength;
+
+    return {
+      duration,
+      css: (t: number) => {
+        const linear = phase === 'in' ? t : 1 - t;
+        const p = phase === 'in' ? springSimple(linear, strength) : cubicOut(linear);
+
+        const dx = phase === 'in' ? (1 - p) * x : p * x;
+        const opacity = phase === 'in' ? Math.min(1, p * 1.08) : Math.max(0, 1 - p * 1.15);
+
+        return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: ${opacity.toFixed(4)};`;
+      }
+    };
+  }
+
   const BMI_BAR_MIN = 12;
   const BMI_BAR_MAX = 40;
   const BMI_UNDER_MAX = 18.5;
@@ -253,11 +285,29 @@
 
   function goTo(index: number, opts?: { skipHash?: boolean }) {
     const next = clampIndex(index);
+    if (next === activeIndex) {
+      if (!opts?.skipHash) setHash(sections[activeIndex].id);
+      void resetSectionScroll();
+      return;
+    }
+
+    if (browser && !reducedMotionEffective) {
+      if (switchingTimer) clearTimeout(switchingTimer);
+      document.body.classList.add('is-switching');
+      const ms = Math.max(240, pagerMotionDuration) + 140;
+      switchingTimer = setTimeout(() => {
+        document.body.classList.remove('is-switching');
+        switchingTimer = null;
+      }, ms);
+    }
+
     lastIndex = activeIndex;
     activeIndex = next;
     if (!opts?.skipHash) setHash(sections[activeIndex].id);
     void resetSectionScroll();
   }
+
+  let switchingTimer: ReturnType<typeof setTimeout> | null = null;
 
   function prevSection() {
     if (activeIndex <= 0) return;
@@ -590,21 +640,21 @@
         id={sections[activeIndex].id}
         data-pager-scroll="true"
         data-section-id={sections[activeIndex].id}
-        in:fly={{
+        in:pagerSpring={{
           x: pagerDirection * pagerMotionDistance,
           duration: pagerMotionDuration,
-          easing: smoothModeEnhanced ? backOut : cubicOut,
-          opacity: 0
+          phase: 'in',
+          strength: reducedMotionEffective ? 0 : (smoothModeEnhanced ? 0.14 : 0.08)
         }}
-        out:fly={{
+        out:pagerSpring={{
           x: -pagerDirection * pagerMotionDistance,
           duration: reducedMotionEffective
             ? 0
             : smoothModeRequested
-              ? Math.round(pagerMotionDuration * 0.78)
-              : 180,
-          easing: cubicIn,
-          opacity: 0
+              ? Math.round(pagerMotionDuration * 0.72)
+              : 210,
+          phase: 'out',
+          strength: 0
         }}
       >
         {#if activeIndex === 0}
