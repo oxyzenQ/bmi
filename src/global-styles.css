@@ -394,7 +394,6 @@ pre {
       ============================== */
 .glass-card,
 .glass-panel,
-.chart-container,
 .bmi-card {
   background: linear-gradient(180deg,
       rgba(255, 255, 255, 0.035) 6%,
@@ -2229,31 +2228,6 @@ button[aria-disabled="true"] {
   margin-top: clamp(1.5rem, 4vw, 3rem);
 }
 
-.chart-container {
-  position: relative;
-  border-radius: 1.25rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
-  padding: clamp(1rem, 3vw, 1.5rem);
-  overflow: hidden;
-}
-
-.chart-container.bmi-rangebar {
-  margin-top: 1rem;
-}
-
-.chart-container.bmi-rangebar.liquid-glass {
-  background: rgba(0, 0, 0, 0.500);
-  border: var(--border-by-rezky);
-  border-radius: 2rem;
-  backdrop-filter: blur(8px) saturate(140%);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 0 20px color-mix(in oklab, var(--cosmic-purple) 16%, transparent);
-}
-
 .gauge-container.bmi-rangebar {
   margin-top: 1.25rem !important;
   margin-bottom: clamp(40px, 40vh, 180px) !important;
@@ -2622,6 +2596,21 @@ html:not([data-graphics='render']) .bubble,
 html:not([data-graphics='render']) .hero-avatar::before,
 html:not([data-graphics='render']) .hero-avatar::after {
   animation: none !important;
+}
+
+html:not([data-graphics='render']) .hero-avatar {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html:not([data-graphics='render']) .hero-avatar::before,
+html:not([data-graphics='render']) .hero-avatar::after {
+  mix-blend-mode: normal;
+  filter: none !important;
+}
+
+html:not([data-graphics='render']) .plasma-star {
+  filter: none !important;
 }
 
 .cosmic-particles {
