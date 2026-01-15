@@ -809,7 +809,7 @@
                     <div class="app-info">
                       <p class="info-row">
                         <PackageCheck class="PackageCheck" />
-                        <strong>Version:</strong>Stellar-4.0
+                        <strong>Version:</strong>Stellar-4.8
                       </p>
                       <p class="info-row">
                         <GitBranch class="GitBranch" />
