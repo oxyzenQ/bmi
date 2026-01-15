@@ -17,8 +17,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 		? [
 			"default-src 'self' 'unsafe-inline' 'unsafe-eval'",
 			"script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:",
-			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-			"font-src 'self' https://fonts.gstatic.com data:",
+			"style-src 'self' 'unsafe-inline'",
+			"font-src 'self' data:",
 			"img-src 'self' data: blob: https:",
 			"connect-src 'self' ws: wss: https:",
 			"frame-ancestors 'none'",
@@ -29,8 +29,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 		: [
 			"default-src 'self'",
 			"script-src 'self' 'unsafe-inline'",
-			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-			"font-src 'self' https://fonts.gstatic.com data:",
+			"style-src 'self' 'unsafe-inline'",
+			"font-src 'self' data:",
 			"img-src 'self' data: blob: https:",
 			"connect-src 'self' https:",
 			"frame-ancestors 'none'",
