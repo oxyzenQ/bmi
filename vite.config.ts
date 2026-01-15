@@ -1,20 +1,20 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { defineConfig } from 'vite';
 
 export default defineConfig(({ mode }) => ({
 	plugins: [
 		sveltekit(),
 		...(mode === 'analyze'
 			? [
-					visualizer({
-						filename: 'stats.html',
-						template: 'treemap',
-						gzipSize: true,
-						brotliSize: true,
-						open: false
-					})
-				]
+				visualizer({
+					filename: '.reports/stats.html',
+					template: 'treemap',
+					gzipSize: true,
+					brotliSize: true,
+					open: false
+				})
+			]
 			: [])
 	],
 	build: {

@@ -1,0 +1,6 @@
+name: "BMI CodeQL config"
+
+paths-ignore:
+  - stats.html
+  - "**/stats.html"
+  - .reports/**

@@ -174,3 +174,7 @@ Thumbs.db
 *.AppImage
 squashfs-root/
 build.log
+
+# Bundle analyzer output
+stats.html
+.reports/
