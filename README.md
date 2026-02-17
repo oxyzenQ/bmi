@@ -4,7 +4,7 @@
 
 A modern, space‑themed **Body Mass Index (BMI)** calculator built with **SvelteKit + TypeScript**, designed for a accessible user experience.
 
-- **Live**: https://bmi-logigo.vercel.app
+- **Live**: <https://bmi-logigo.vercel.app>
 
 ## Highlights
 
