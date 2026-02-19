@@ -93,13 +93,17 @@ jobs:
 
             echo "Checking tags for ${owner}/${repo}..."
 
-            tags_json="$(curl -fsSL \
+            tags_json=""
+            if ! tags_json="$(curl -fsSL \
               -H "Authorization: Bearer ${GH_TOKEN}" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
-              "https://api.github.com/repos/${owner}/${repo}/tags?per_page=100")"
+              "https://api.github.com/repos/${owner}/${repo}/tags?per_page=100")"; then
+              echo "Skipping ${owner}/${repo}: unable to fetch tags (may not exist or not accessible)."
+              continue
+            fi
 
             # Extract vN tags and take the highest N.
-            best="$(printf '%s' "$tags_json" | grep -oE '"name"[[:space:]]*:[[:space:]]*"v[0-9]+"' | grep -oE 'v[0-9]+' | sed 's/^v//' | sort -nr | head -n 1 || true)"
+            best="$(printf '%s' "$tags_json" | grep -oE '\"name\"[[:space:]]*:[[:space:]]*\"v[0-9]+\"' | grep -oE 'v[0-9]+' | sed 's/^v//' | sort -nr | head -n 1 || true)"
 
             if [[ -z "$best" ]]; then
               echo "No major tags (vN) found for ${owner}/${repo}; skipping."
