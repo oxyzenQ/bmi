@@ -17,14 +17,6 @@ on:
         description: Continue even if checks fail
         type: boolean
         default: false
-      update_workflows:
-        description: Also update GitHub Actions versions in workflows
-        type: boolean
-        default: true
-      allow_major_updates:
-        description: Allow major version updates for GitHub Actions
-        type: boolean
-        default: false
 
 permissions:
   contents: write
@@ -36,15 +28,6 @@ env:
   HAS_PAT: ${{ secrets.T800_TOKEN != '' }}
   UPDATE_STRATEGY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.strategy || 'direct' }}
   FORCE_UPDATE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_update || 'false' }}
-  UPDATE_WORKFLOWS: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.update_workflows || 'true' }}
-  ALLOW_MAJOR_UPDATES: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.allow_major_updates || 'false' }}
-  WORKFLOWS_UPDATED: 'false'
-  WORKFLOWS_HAS_MAJOR_UPDATES: 'false'
-  WORKFLOWS_UPDATES_COUNT: '0'
-  WORKFLOWS_SKIPPED_MAJORS_COUNT: '0'
-  WORKFLOWS_ERRORS_COUNT: '0'
-  WORKFLOWS_UPDATES_FILE: ''
-  WORKFLOWS_SKIPPED_MAJORS_FILE: ''
 
 jobs:
   auto-update:
@@ -57,174 +40,6 @@ jobs:
         with:
           token: ${{ env.BOT_TOKEN }}
           fetch-depth: 0
-
-      - name: 🤖 Self-Update GitHub Actions
-        if: env.UPDATE_WORKFLOWS == 'true' && env.HAS_PAT == 'true'
-        env:
-          GH_TOKEN: ${{ env.BOT_TOKEN }}
-          ALLOW_MAJOR_UPDATES: ${{ env.ALLOW_MAJOR_UPDATES }}
-        run: |
-          python3 - <<'PY'
-          import json
-          import os
-          import re
-          import tempfile
-          import time
-          import urllib.error
-          import urllib.request
-          from pathlib import Path
-          from typing import Optional
-
-          token = os.environ.get("GH_TOKEN", "")
-          allow_major = os.environ.get("ALLOW_MAJOR_UPDATES", "false").lower() == "true"
-          github_env = os.environ["GITHUB_ENV"]
-          runner_temp = os.environ.get("RUNNER_TEMP") or "/tmp"
-
-          max_unique_repos = 50
-          max_requests = 100
-          request_timeout_seconds = 15
-          request_delay_seconds = 0.2
-
-          updates_log_path = os.path.join(runner_temp, "workflows-actions-updates.log")
-          skipped_log_path = os.path.join(runner_temp, "workflows-actions-skipped-majors.log")
-
-          def append_env_kv(key: str, value: str) -> None:
-            with open(github_env, "a", encoding="utf-8") as f:
-              f.write(f"{key}={value}\n")
-
-          def parse_semver(tag: str):
-            if not tag.startswith("v"):
-              return None
-            s = tag[1:]
-            if not re.match(r"^\d+(?:\.\d+){0,2}$", s):
-              return None
-            parts = [int(p) for p in s.split(".")]
-            while len(parts) < 3:
-              parts.append(0)
-            return tuple(parts[:3])
-
-          latest_cache: dict[str, Optional[str]] = {}
-          requests_made = 0
-          errors_count = 0
-
-          def get_latest_tag(repo: str) -> Optional[str]:
-            global requests_made, errors_count
-            if repo in latest_cache:
-              return latest_cache[repo]
-            if len(latest_cache) >= max_unique_repos:
-              latest_cache[repo] = None
-              return None
-            if requests_made >= max_requests:
-              latest_cache[repo] = None
-              return None
-
-            time.sleep(request_delay_seconds)
-            requests_made += 1
-
-            url = f"https://api.github.com/repos/{repo}/releases/latest"
-            req = urllib.request.Request(url)
-            req.add_header("Accept", "application/vnd.github+json")
-            req.add_header("X-GitHub-Api-Version", "2022-11-28")
-            if token:
-              req.add_header("Authorization", f"Bearer {token}")
-
-            try:
-              with urllib.request.urlopen(req, timeout=request_timeout_seconds) as resp:
-                payload = json.loads(resp.read().decode("utf-8"))
-              tag = payload.get("tag_name")
-              latest_cache[repo] = tag if isinstance(tag, str) and tag else None
-              return latest_cache[repo]
-            except urllib.error.HTTPError:
-              errors_count += 1
-              latest_cache[repo] = None
-              return None
-            except Exception:
-              errors_count += 1
-              latest_cache[repo] = None
-              return None
-
-          uses_re = re.compile(
-            r"^(?P<prefix>\s*uses:\s*)(?P<repo>[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)@(?P<ref>[^\s#]+)(?P<suffix>\s*(?:#.*)?)\s*$"
-          )
-          expr_start = "$" + "{{"
-
-          touched = False
-          updates_count = 0
-          skipped_majors_count = 0
-
-          Path(updates_log_path).write_text("", encoding="utf-8")
-          Path(skipped_log_path).write_text("", encoding="utf-8")
-
-          def log_line(path: str, text: str) -> None:
-            with open(path, "a", encoding="utf-8") as f:
-              f.write(text + "\n")
-
-          workflow_files = sorted(
-            list(Path(".github/workflows").glob("*.yml"))
-            + list(Path(".github/workflows").glob("*.yaml"))
-          )
-
-          for wf in workflow_files:
-            changed = False
-            with wf.open("r", encoding="utf-8") as src, tempfile.NamedTemporaryFile(
-              "w", delete=False, encoding="utf-8", dir=str(wf.parent)
-            ) as dst:
-              tmp_path = dst.name
-              for raw in src:
-                line = raw.rstrip("\n")
-                m = uses_re.match(line)
-                if not m:
-                  dst.write(raw)
-                  continue
-
-                repo = m.group("repo")
-                ref = m.group("ref")
-
-                if expr_start in ref:
-                  dst.write(raw)
-                  continue
-
-                current_ver = parse_semver(ref)
-                if current_ver is None:
-                  dst.write(raw)
-                  continue
-
-                latest = get_latest_tag(repo)
-                latest_ver = parse_semver(latest) if isinstance(latest, str) else None
-                if latest is None or latest_ver is None:
-                  dst.write(raw)
-                  continue
-
-                if latest_ver == current_ver:
-                  dst.write(raw)
-                  continue
-
-                if (not allow_major) and (latest_ver[0] != current_ver[0]):
-                  skipped_majors_count += 1
-                  log_line(skipped_log_path, f"{repo}@{ref} -> {latest}")
-                  dst.write(raw)
-                  continue
-
-                new_line = f"{m.group('prefix')}{repo}@{latest}{m.group('suffix')}\n"
-                dst.write(new_line)
-                changed = True
-                touched = True
-                updates_count += 1
-                log_line(updates_log_path, f"{repo}@{ref} -> {latest}")
-
-            if changed:
-              os.replace(tmp_path, wf)
-            else:
-              os.unlink(tmp_path)
-
-          append_env_kv("WORKFLOWS_UPDATED", "true" if touched else "false")
-          append_env_kv("WORKFLOWS_HAS_MAJOR_UPDATES", "true" if skipped_majors_count else "false")
-          append_env_kv("WORKFLOWS_UPDATES_COUNT", str(updates_count))
-          append_env_kv("WORKFLOWS_SKIPPED_MAJORS_COUNT", str(skipped_majors_count))
-          append_env_kv("WORKFLOWS_ERRORS_COUNT", str(errors_count))
-          append_env_kv("WORKFLOWS_UPDATES_FILE", updates_log_path)
-          append_env_kv("WORKFLOWS_SKIPPED_MAJORS_FILE", skipped_log_path)
-          PY
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2.1.2
@@ -349,11 +164,6 @@ jobs:
             echo ""
             echo "Strategy: ${{ env.UPDATE_STRATEGY }}"
             echo "Force Update: ${{ env.FORCE_UPDATE }}"
-            echo "Workflow Updates: ${{ env.UPDATE_WORKFLOWS }}"
-            echo "Allow Major Updates: ${{ env.ALLOW_MAJOR_UPDATES }}"
-            echo "Workflows Updated: ${{ env.WORKFLOWS_UPDATED }}"
-            echo "Workflow Updates Count: ${{ env.WORKFLOWS_UPDATES_COUNT }}"
-            echo "Workflow Update Errors: ${{ env.WORKFLOWS_ERRORS_COUNT }}"
             echo ""
 
             if [ "${{ steps.check_changes.outputs.changes }}" == "true" ]; then
@@ -361,9 +171,6 @@ jobs:
               echo "  - 📦 Dependencies updated"
               echo "  - 🔒 Security audit executed"
 
-              if [ "${{ env.WORKFLOWS_UPDATED }}" == "true" ]; then
-                echo "  - 🔄 GitHub Actions updated"
-              fi
               echo ""
 
               if [ "${{ env.UPDATE_STRATEGY }}" == "direct" ]; then
@@ -376,17 +183,6 @@ jobs:
             else
               echo "✅ No updates needed - everything is current!"
 
-              if [ "${{ env.WORKFLOWS_HAS_MAJOR_UPDATES }}" == "true" ]; then
-                echo ""
-                echo "⚠️  Major version updates available (not applied)"
-                echo "   Run with allow_major_updates=true to apply them"
-              fi
-            fi
-
-            if [ "${{ env.WORKFLOWS_UPDATES_COUNT }}" != "0" ] && [ -f "${{ env.WORKFLOWS_UPDATES_FILE }}" ]; then
-              echo ""
-              echo "🔄 Workflow updates:"
-              head -n 50 "${{ env.WORKFLOWS_UPDATES_FILE }}"
             fi
 
             echo ""
