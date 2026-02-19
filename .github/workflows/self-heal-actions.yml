@@ -45,7 +45,7 @@ jobs:
           echo "name=${{ github.event.repository.default_branch }}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.2
         with:
           ref: ${{ steps.branch.outputs.name }}
           token: ${{ secrets.WORKFLOW_UPDATER_PAT }}
