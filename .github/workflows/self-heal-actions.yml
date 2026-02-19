@@ -11,7 +11,7 @@
 # - Avoids infinite loops by not running on push events (schedule/manual only).
 # - Skips if there are no actual file changes.
 
-name: self-heal-actions
+name: ❤️‍🩹 self-heal-actions
 
 on:
   schedule:
