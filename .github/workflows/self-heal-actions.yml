@@ -66,15 +66,25 @@ jobs:
             exit 0
           fi
 
-          # Collect unique action refs of the form owner/repo (only if pinned to @vN).
+          # Collect unique action repos (owner/repo) and remember the majors we see.
+          # This handles action subpaths like github/codeql-action/analyze@v4 by mapping them to github/codeql-action.
           declare -A seen_actions
           for f in "${files[@]}"; do
             while IFS= read -r line; do
               # Match: uses: owner/repo@v123
               if [[ "$line" =~ ^[[:space:]]*uses:[[:space:]]*([^[:space:]@]+/[^[:space:]@]+)@v([0-9]+)([^0-9].*)?$ ]]; then
-                action_ref="${BASH_REMATCH[1]}"
+                action_full="${BASH_REMATCH[1]}"
                 current_major="${BASH_REMATCH[2]}"
-                seen_actions["$action_ref"]="$current_major"
+
+                owner="${action_full%%/*}"
+                rest="${action_full#*/}"
+                repo="${rest%%/*}"
+                action_repo="${owner}/${repo}"
+
+                # Keep the highest major seen for this repo (in case multiple refs exist).
+                if [[ -z "${seen_actions[$action_repo]+x}" ]] || (( current_major > seen_actions[$action_repo] )); then
+                  seen_actions["$action_repo"]="$current_major"
+                fi
               fi
             done < "$f"
           done
@@ -87,9 +97,9 @@ jobs:
           # Determine latest major tags for each action via GitHub API.
           # We only consider tags exactly matching ^v[0-9]+$.
           declare -A latest_major
-          for action_ref in "${!seen_actions[@]}"; do
-            owner="${action_ref%%/*}"
-            repo="${action_ref##*/}"
+          for action_repo in "${!seen_actions[@]}"; do
+            owner="${action_repo%%/*}"
+            repo="${action_repo##*/}"
 
             echo "Checking tags for ${owner}/${repo}..."
 
@@ -110,8 +120,8 @@ jobs:
               continue
             fi
 
-            latest_major["$action_ref"]="$best"
-            echo "Latest major for ${action_ref} = v${best}"
+            latest_major["$action_repo"]="$best"
+            echo "Latest major for ${action_repo} = v${best}"
           done
 
           # Apply updates to workflow files.
@@ -119,17 +129,17 @@ jobs:
           for f in "${files[@]}"; do
             original_checksum="$(sha256sum "$f" | awk '{print $1}')"
 
-            for action_ref in "${!latest_major[@]}"; do
-              cur="${seen_actions[$action_ref]}"
-              lat="${latest_major[$action_ref]}"
+            for action_repo in "${!latest_major[@]}"; do
+              cur="${seen_actions[$action_repo]}"
+              lat="${latest_major[$action_repo]}"
 
               if [[ -z "$lat" ]]; then
                 continue
               fi
 
               if (( lat > cur )); then
-                # Replace only exact @v<cur> occurrences for this action.
-                sed -i "s|\b${action_ref}@v${cur}\b|${action_ref}@v${lat}|g" "$f"
+                # Replace only exact @v<cur> occurrences for this repo, preserving any subpath.
+                sed -i -E "s|\b(${action_repo}(/[^[:space:]@]+)?)@v${cur}\b|\1@v${lat}|g" "$f"
               fi
             done
 
