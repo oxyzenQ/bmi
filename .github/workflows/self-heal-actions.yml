@@ -1,0 +1,158 @@
+# .github/workflows/self-heal-actions.yml
+#
+# Purpose:
+# - Scan .github/workflows/*.yml for `uses: owner/repo@vN`
+# - Check if a newer major tag `vM` exists
+# - Update files, commit as repository owner, and push to default branch
+#
+# Security/minimality notes:
+# - Uses a fine-grained PAT (stored as WORKFLOW_UPDATER_PAT) to update workflow files.
+# - Runs on ubuntu-latest.
+# - Avoids infinite loops by not running on push events (schedule/manual only).
+# - Skips if there are no actual file changes.
+
+name: self-heal-actions
+
+on:
+  schedule:
+    - cron: "30 2 * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: self-heal-actions
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  # Repository owner identity (must match the owner so contributions show up).
+  # user.name should be the account name; user.email should be your GitHub noreply email.
+  OWNER_NAME: ${{ github.repository_owner }}
+  OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
+
+jobs:
+  update-actions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Detect default branch
+        id: branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "name=${{ github.event.repository.default_branch }}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.branch.outputs.name }}
+          token: ${{ secrets.WORKFLOW_UPDATER_PAT }}
+
+      - name: Scan and update action major versions
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_UPDATER_PAT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          shopt -s nullglob
+
+          # Find workflow files.
+          files=(.github/workflows/*.yml)
+          if [[ ${#files[@]} -eq 0 ]]; then
+            echo "No workflow files found."
+            exit 0
+          fi
+
+          # Collect unique action refs of the form owner/repo (only if pinned to @vN).
+          declare -A seen_actions
+          for f in "${files[@]}"; do
+            while IFS= read -r line; do
+              # Match: uses: owner/repo@v123
+              if [[ "$line" =~ ^[[:space:]]*uses:[[:space:]]*([^[:space:]@]+/[^[:space:]@]+)@v([0-9]+)([^0-9].*)?$ ]]; then
+                action_ref="${BASH_REMATCH[1]}"
+                current_major="${BASH_REMATCH[2]}"
+                seen_actions["$action_ref"]="$current_major"
+              fi
+            done < "$f"
+          done
+
+          if [[ ${#seen_actions[@]} -eq 0 ]]; then
+            echo "No 'uses: owner/repo@vN' patterns found."
+            exit 0
+          fi
+
+          # Determine latest major tags for each action via GitHub API.
+          # We only consider tags exactly matching ^v[0-9]+$.
+          declare -A latest_major
+          for action_ref in "${!seen_actions[@]}"; do
+            owner="${action_ref%%/*}"
+            repo="${action_ref##*/}"
+
+            echo "Checking tags for ${owner}/${repo}..."
+
+            tags_json="$(curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${owner}/${repo}/tags?per_page=100")"
+
+            # Extract vN tags and take the highest N.
+            best="$(printf '%s' "$tags_json" | grep -oE '"name"[[:space:]]*:[[:space:]]*"v[0-9]+"' | grep -oE 'v[0-9]+' | sed 's/^v//' | sort -nr | head -n 1 || true)"
+
+            if [[ -z "$best" ]]; then
+              echo "No major tags (vN) found for ${owner}/${repo}; skipping."
+              continue
+            fi
+
+            latest_major["$action_ref"]="$best"
+            echo "Latest major for ${action_ref} = v${best}"
+          done
+
+          # Apply updates to workflow files.
+          changed=0
+          for f in "${files[@]}"; do
+            original_checksum="$(sha256sum "$f" | awk '{print $1}')"
+
+            for action_ref in "${!latest_major[@]}"; do
+              cur="${seen_actions[$action_ref]}"
+              lat="${latest_major[$action_ref]}"
+
+              if [[ -z "$lat" ]]; then
+                continue
+              fi
+
+              if (( lat > cur )); then
+                # Replace only exact @v<cur> occurrences for this action.
+                sed -i "s|\b${action_ref}@v${cur}\b|${action_ref}@v${lat}|g" "$f"
+              fi
+            done
+
+            new_checksum="$(sha256sum "$f" | awk '{print $1}')"
+            if [[ "$new_checksum" != "$original_checksum" ]]; then
+              echo "Updated: $f"
+              changed=1
+            fi
+          done
+
+          if [[ "$changed" -ne 1 ]]; then
+            echo "No updates found."
+            exit 0
+          fi
+
+          git config user.name "${OWNER_NAME}"
+          git config user.email "${OWNER_EMAIL}"
+
+          git add .github/workflows
+
+          if git diff --cached --quiet; then
+            echo "No staged changes; skipping commit."
+            exit 0
+          fi
+
+          git commit -m "self-heal: bump GitHub Actions major versions"
+
+          for i in 1 2 3; do
+            git push origin "HEAD:${{ steps.branch.outputs.name }}" && break || sleep 5
+          done

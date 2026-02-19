@@ -1,0 +1,196 @@
+# .github/workflows/auto-commit.yml
+#
+# Purpose:
+# - Update a file named `time` with a UTC timestamp every hour (fixed mode),
+#   OR run hourly and only commit a randomized number of times per day (random mode).
+#
+# Security/minimality notes:
+# - Uses only the built-in GITHUB_TOKEN (no PAT).
+# - Uses ubuntu-latest only.
+# - Prevents infinite loops by ignoring pushes (workflow triggers only on schedule/manual).
+# - Avoids empty commits: commits only when `time` content changes.
+
+name: auto-commit-time
+
+on:
+  # Hourly schedule. This is used for BOTH fixed mode and random mode.
+  schedule:
+    - cron: "0 * * * *"
+  # Optional manual trigger for testing.
+  workflow_dispatch:
+    inputs:
+      force_commit:
+        description: "Force a commit on manual run (true/false)."
+        required: false
+        default: "false"
+      mode:
+        description: "Override MODE for this manual run (fixed/random)."
+        required: false
+        default: ""
+
+# Ensure only one run at a time to avoid overlapping commits.
+concurrency:
+  group: auto-commit-time
+  cancel-in-progress: false
+
+permissions:
+  contents: write # required to push commits using GITHUB_TOKEN
+
+env:
+  # Toggle mode:
+  # - "fixed": always commit every run (i.e., every hour => 24 commits/day)
+  # - "random": commit only a randomized number of times/day; workflow still runs hourly.
+  MODE: random
+
+  # Random-mode bounds: min 2 and max 24 commits/day.
+  RANDOM_MIN_PER_DAY: "2"
+  RANDOM_MAX_PER_DAY: "24"
+
+  # Repository owner identity (must match the owner so contributions show up).
+  # user.name should be the account name; user.email should be your GitHub noreply email.
+  # Example noreply formats:
+  # - 12345678+username@users.noreply.github.com (recommended)
+  # - username@users.noreply.github.com
+  OWNER_NAME: ${{ github.repository_owner }}
+  OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
+
+jobs:
+  commit-time:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Detect default branch
+        id: branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Prefer the repository default branch to avoid hardcoding.
+          # This is available for schedule and workflow_dispatch.
+          echo "name=${{ github.event.repository.default_branch }}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.branch.outputs.name }}
+          # Use GITHUB_TOKEN automatically (provided by Actions) for auth.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Decide whether to commit (fixed vs random)
+        id: decide
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Allow manual runs to force a commit or override mode.
+          # - schedule runs do not set github.event.inputs.
+          FORCE_COMMIT="${{ github.event.inputs.force_commit || 'false' }}"
+          MODE_OVERRIDE="${{ github.event.inputs.mode || '' }}"
+
+          if [[ "${FORCE_COMMIT}" == "true" ]]; then
+            echo "should_commit=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [[ -n "${MODE_OVERRIDE}" ]]; then
+            MODE="${MODE_OVERRIDE}"
+          fi
+
+          MODE="${MODE}"
+          if [[ "${MODE}" == "fixed" ]]; then
+            echo "should_commit=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [[ "${MODE}" != "random" ]]; then
+            echo "Invalid MODE=${MODE}. Use fixed or random."
+            exit 1
+          fi
+
+          # Random mode:
+          # We run hourly, but only commit ~N times per UTC day where N is chosen pseudo-randomly in [min..max].
+          # Since GitHub-hosted runners are ephemeral, we avoid relying on a persisted state file.
+          # Instead, we derive a stable per-day N from a hash of the date.
+
+          DATE_UTC="$(date -u +%F)"       # YYYY-MM-DD
+          HOUR_UTC="$(date -u +%H)"       # 00..23
+          MIN="${RANDOM_MIN_PER_DAY}"
+          MAX="${RANDOM_MAX_PER_DAY}"
+
+          # Stable daily N from the date hash.
+          daily_hex="$(printf "%s" "${DATE_UTC}" | sha256sum | awk '{print $1}' | cut -c1-8)"
+          daily_num="$((16#${daily_hex}))"
+          N=$(( (daily_num % (MAX - MIN + 1)) + MIN ))
+
+          # Choose N distinct hours deterministically by hashing (date + hour)
+          # and selecting the lowest-N scored hours.
+          chosen_hours="$(
+            for h in $(seq -w 0 23); do
+              score="$(printf "%s-%s" "${DATE_UTC}" "${h}" | sha256sum | awk '{print $1}' | cut -c1-8)"
+              echo "${score} ${h}"
+            done | sort | head -n "${N}" | awk '{print $2}' | tr '\n' ' '
+          )"
+
+          echo "UTC date: ${DATE_UTC}"
+          echo "UTC hour: ${HOUR_UTC}"
+          echo "Target commits today (random): ${N}"
+          echo "Chosen commit hours (UTC): ${chosen_hours}"
+
+          if echo "${chosen_hours}" | grep -qw "${HOUR_UTC}"; then
+            echo "should_commit=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_commit=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update `time` file with UTC timestamp
+        if: steps.decide.outputs.should_commit == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Timestamp format required:
+          # $date-clocks-seconds.futures.crypto
+          #
+          # Use human-readable UTC time with seconds:
+          # Example: 2026-02-19-21:14:30.futures.crypto
+          ts="$(date -u +'%F-%H:%M:%S').futures.crypto"
+
+          # Write only the timestamp (single line).
+          printf '%s\n' "$ts" > time
+
+      - name: Commit and push (only if changed)
+        if: steps.decide.outputs.should_commit == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "${OWNER_NAME}"
+          git config user.email "${OWNER_EMAIL}"
+
+          # Avoid empty commits: only commit when `time` differs.
+          git add time
+
+          if git diff --cached --quiet; then
+            echo "No change in 'time'; skipping commit."
+            exit 0
+          fi
+
+          git commit -m "chore: update time"
+
+          # Push using the checked-out credentials (GITHUB_TOKEN via checkout).
+          for i in 1 2 3; do
+            git push origin "HEAD:${{ steps.branch.outputs.name }}" && break || sleep 5
+          done
+
+      - name: Job summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "### auto-commit-time"
+            echo
+            echo "- Branch: `${{ steps.branch.outputs.name }}`"
+            echo "- Mode: `${MODE}`"
+            echo "- Should commit: `${{ steps.decide.outputs.should_commit || 'n/a' }}`"
+            echo "- Run: `${{ github.run_id }}`"
+          } >> "$GITHUB_STEP_SUMMARY"
