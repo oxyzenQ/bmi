@@ -314,8 +314,8 @@ jobs:
       - name: Commit and push changes (direct)
         if: steps.check_changes.outputs.changes == 'true' && env.UPDATE_STRATEGY == 'direct'
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "${{ github.repository_owner }}"
+          git config --global user.email "130107241+oxyzenQ@users.noreply.github.com"
 
           git add -A
           git commit -m "${{ steps.commit_msg.outputs.commit_message }}" \
