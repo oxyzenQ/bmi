@@ -590,6 +590,7 @@
 
 <div
   class="pager-shell"
+  role="application"
   bind:this={pagerEl}
   on:pointerdown={handlePointerDown}
   on:pointerup={handlePointerUp}
