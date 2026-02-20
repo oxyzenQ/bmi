@@ -15,9 +15,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
         with:
-          fetch-depth: 0
+          fetch-depth: 1
+          fetch-tags: false
 
       - name: Get tag name
         id: tag
@@ -178,5 +179,3 @@ jobs:
             bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

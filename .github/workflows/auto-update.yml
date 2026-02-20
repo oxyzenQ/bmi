@@ -25,9 +25,10 @@ permissions:
 
 env:
   BOT_TOKEN: ${{ secrets.T800_TOKEN || github.token }}
-  HAS_PAT: ${{ secrets.T800_TOKEN != '' }}
   UPDATE_STRATEGY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.strategy || 'direct' }}
   FORCE_UPDATE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_update || 'false' }}
+  OWNER_NAME: ${{ github.repository_owner }}
+  OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
 
 jobs:
   auto-update:
@@ -130,12 +131,12 @@ jobs:
       - name: Commit and push changes (direct)
         if: steps.check_changes.outputs.changes == 'true' && env.UPDATE_STRATEGY == 'direct'
         run: |
-          git config --global user.name "${{ github.repository_owner }}"
-          git config --global user.email "130107241+oxyzenQ@users.noreply.github.com"
+          git config --global user.name "${OWNER_NAME}"
+          git config --global user.email "${OWNER_EMAIL}"
 
           git add -A
           git commit -m "${{ steps.commit_msg.outputs.commit_message }}" \
-            -m "🤖 Automated by the tireless GitHub Actions Bot" \
+            -m "🤖 Automated by GitHub Actions" \
             -m "📦 Updated $(git status --porcelain | wc -l) file(s)" \
             -m "⏰ $(date -u '+%A, %B %d, %Y at %H:%M:%S UTC')" \
             -m "🎯 Workflow: auto-update.yml"

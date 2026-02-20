@@ -20,7 +20,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 1
+          fetch-tags: false
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2.1.2
