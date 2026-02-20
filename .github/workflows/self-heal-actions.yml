@@ -13,9 +13,11 @@
 
 name: ❤️‍🩹 self-heal-actions
 
+# This workflow runs every Monday at 00:00 WIB (UTC+7)
+# Equivalent to Sunday at 17:00 UTC
 on:
   schedule:
-    - cron: "30 2 * * 1"
+    - cron: "0 17 * * 0"
   workflow_dispatch: {}
 
 concurrency:
@@ -49,8 +51,10 @@ jobs:
         with:
           ref: ${{ steps.branch.outputs.name }}
           token: ${{ secrets.WORKFLOW_UPDATER_PAT }}
+          fetch-depth: 1
+          fetch-tags: false
 
-      - name: Scan and update action major versions
+      - name: Scan and update action versions (patch/minor only)
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_UPDATER_PAT }}
         shell: bash
@@ -67,14 +71,14 @@ jobs:
           fi
 
           # Collect unique action repos (owner/repo) and remember the majors we see.
-          # This handles action subpaths like github/codeql-action/analyze@v4 by mapping them to github/codeql-action.
+          # This handles action subpaths like github/codeql-action/analyze@v4.1.2 by mapping them to github/codeql-action.
           declare -A seen_actions
           for f in "${files[@]}"; do
             while IFS= read -r line; do
-              # Match: uses: owner/repo@v123
-              if [[ "$line" =~ ^[[:space:]]*uses:[[:space:]]*([^[:space:]@]+/[^[:space:]@]+)@v([0-9]+)([^0-9].*)?$ ]]; then
+              # Match: uses: owner/repo[/subpath]@vX.Y.Z (or vX.Y)
+              if [[ "$line" =~ ^[[:space:]]*uses:[[:space:]]*([^[:space:]@]+/[^[:space:]@]+)(/[^[:space:]@]+)?@v([0-9]+)\.[0-9]+(\.[0-9]+)?([^0-9].*)?$ ]]; then
                 action_full="${BASH_REMATCH[1]}"
-                current_major="${BASH_REMATCH[2]}"
+                current_major="${BASH_REMATCH[3]}"
 
                 owner="${action_full%%/*}"
                 rest="${action_full#*/}"
@@ -94,12 +98,13 @@ jobs:
             exit 0
           fi
 
-          # Determine latest major tags for each action via GitHub API.
-          # We only consider tags exactly matching ^v[0-9]+$.
-          declare -A latest_major
+          # Determine latest tag for each action repo within the same major.
+          # We only consider tags matching ^vX.Y.Z$ (or ^vX.Y$).
+          declare -A latest_tag
           for action_repo in "${!seen_actions[@]}"; do
             owner="${action_repo%%/*}"
             repo="${action_repo##*/}"
+            major="${seen_actions[$action_repo]}"
 
             echo "Checking tags for ${owner}/${repo}..."
 
@@ -112,16 +117,21 @@ jobs:
               continue
             fi
 
-            # Extract vN tags and take the highest N.
-            best="$(printf '%s' "$tags_json" | grep -oE '\"name\"[[:space:]]*:[[:space:]]*\"v[0-9]+\"' | grep -oE 'v[0-9]+' | sed 's/^v//' | sort -nr | head -n 1 || true)"
+            # Extract tags like vX.Y.Z or vX.Y for this major.
+            best="$(printf '%s' "$tags_json" \
+              | grep -oE '\"name\"[[:space:]]*:[[:space:]]*\"v[0-9]+\.[0-9]+(\.[0-9]+)?\"' \
+              | grep -oE 'v[0-9]+\.[0-9]+(\.[0-9]+)?' \
+              | grep -E "^v${major}\." \
+              | sort -V \
+              | tail -n 1 || true)"
 
             if [[ -z "$best" ]]; then
-              echo "No major tags (vN) found for ${owner}/${repo}; skipping."
+              echo "No semver tags found for major v${major} on ${owner}/${repo}; skipping."
               continue
             fi
 
-            latest_major["$action_repo"]="$best"
-            echo "Latest major for ${action_repo} = v${best}"
+            latest_tag["$action_repo"]="$best"
+            echo "Latest tag for ${action_repo} (major v${major}) = ${best}"
           done
 
           # Apply updates to workflow files.
@@ -129,18 +139,16 @@ jobs:
           for f in "${files[@]}"; do
             original_checksum="$(sha256sum "$f" | awk '{print $1}')"
 
-            for action_repo in "${!latest_major[@]}"; do
-              cur="${seen_actions[$action_repo]}"
-              lat="${latest_major[$action_repo]}"
+            for action_repo in "${!latest_tag[@]}"; do
+              new_tag="${latest_tag[$action_repo]}"
+              major="${seen_actions[$action_repo]}"
 
-              if [[ -z "$lat" ]]; then
+              if [[ -z "$new_tag" ]]; then
                 continue
               fi
 
-              if (( lat > cur )); then
-                # Replace only exact @v<cur> occurrences for this repo, preserving any subpath.
-                sed -i -E "s|\b(${action_repo}(/[^[:space:]@]+)?)@v${cur}\b|\1@v${lat}|g" "$f"
-              fi
+              # Replace only uses refs pinned to this major with a semver tag, preserving any subpath.
+              sed -i -E "s|\b(${action_repo}(/[^[:space:]@]+)?)@v${major}\.[0-9]+(\.[0-9]+)?\b|\1@${new_tag}|g" "$f"
             done
 
             new_checksum="$(sha256sum "$f" | awk '{print $1}')"
@@ -165,7 +173,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "self-heal: bump GitHub Actions major versions"
+          git commit -m "self-heal: bump GitHub Actions patch/minor versions"
 
           for i in 1 2 3; do
             git push origin "HEAD:${{ steps.branch.outputs.name }}" && break || sleep 5
