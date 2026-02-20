@@ -71,7 +71,7 @@ jobs:
           fi
 
           # Collect unique action repos (owner/repo) and remember the majors we see.
-          # This handles action subpaths like github/codeql-action/analyze@v4.1.2 by mapping them to github/codeql-action.
+          # This handles action subpaths like github/codeql-action/analyze@v4.32.3 by mapping them to github/codeql-action.
           declare -A seen_actions
           for f in "${files[@]}"; do
             while IFS= read -r line; do
