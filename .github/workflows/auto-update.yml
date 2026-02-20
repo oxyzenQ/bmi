@@ -24,7 +24,6 @@ permissions:
   pull-requests: write
 
 env:
-  BOT_TOKEN: ${{ secrets.T800_TOKEN || github.token }}
   UPDATE_STRATEGY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.strategy || 'direct' }}
   FORCE_UPDATE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_update || 'false' }}
   OWNER_NAME: ${{ github.repository_owner }}
@@ -39,7 +38,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6.0.2
         with:
-          token: ${{ env.BOT_TOKEN }}
+          token: ${{ secrets.WORKFLOW_UPDATER_PAT }}
           fetch-depth: 1
           fetch-tags: false
 
@@ -149,7 +148,7 @@ jobs:
         if: steps.check_changes.outputs.changes == 'true' && env.UPDATE_STRATEGY == 'pr'
         uses: peter-evans/create-pull-request@v8.1.0
         with:
-          token: ${{ env.BOT_TOKEN }}
+          token: ${{ secrets.WORKFLOW_UPDATER_PAT }}
           commit-message: ${{ steps.commit_msg.outputs.commit_message }}
           title: ${{ steps.commit_msg.outputs.title }}
           body: ${{ steps.commit_msg.outputs.title }}
