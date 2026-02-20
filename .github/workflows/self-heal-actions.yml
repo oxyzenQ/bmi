@@ -1,3 +1,4 @@
+---
 # .github/workflows/self-heal-actions.yml
 #
 # Purpose:
@@ -175,6 +176,10 @@ jobs:
 
           git commit -m "self-heal: bump GitHub Actions patch/minor versions"
 
-          for i in 1 2 3; do
-            git push origin "HEAD:${{ steps.branch.outputs.name }}" && break || sleep 5
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:${{ steps.branch.outputs.name }}"; then
+              break
+            fi
+            echo "Push attempt ${attempt} failed; retrying in 5 seconds..."
+            sleep 5
           done
