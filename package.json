@@ -43,7 +43,7 @@
     "jsdom": "^27.4.0",
     "prettier": "^3.8.1",
     "prettier-plugin-svelte": "^3.5.0",
-    "rollup-plugin-visualizer": "^6.0.5",
+    "rollup-plugin-visualizer": "^6.0.8",
     "svelte": "^5.53.0",
     "svelte-check": "^4.4.1",
     "typescript": "^5.9.3",
