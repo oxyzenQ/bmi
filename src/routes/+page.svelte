@@ -927,6 +927,29 @@
     touch-action: pan-y pinch-zoom;
     position: relative;
     --pager-top-inset: calc(0.75rem + env(safe-area-inset-top, 0px) + 56px);
+    --pager-edge-fade: 120px;
+  }
+
+  .pager-shell::before,
+  .pager-shell::after {
+    content: '';
+    position: fixed;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    z-index: 19;
+  }
+
+  .pager-shell::before {
+    top: 0;
+    height: calc(0.75rem + env(safe-area-inset-top, 0px) + var(--pager-edge-fade));
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.98), rgba(0, 0, 0, 0));
+  }
+
+  .pager-shell::after {
+    bottom: 0;
+    height: calc(0.75rem + env(safe-area-inset-bottom, 0px) + var(--pager-edge-fade));
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.98), rgba(0, 0, 0, 0));
   }
 
   .pager-nav {
@@ -950,7 +973,7 @@
     max-width: 820px;
     min-width: 0;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.500);
+    background: rgba(0, 0, 0, 0.82);
     backdrop-filter: blur(14px) saturate(165%);
     -webkit-backdrop-filter: blur(14px) saturate(165%);
     border: var(--btn-border);
@@ -962,6 +985,21 @@
     left: 50%;
     transform: translateX(-50%);
     z-index: 20;
+    isolation: isolate;
+  }
+
+  .pager-nav-shell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .pager-nav {
+    position: relative;
+    z-index: 1;
   }
 
   .pager-nav::-webkit-scrollbar {
@@ -1057,7 +1095,7 @@
     max-width: 820px;
     min-width: 0;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.500);
+    background: rgba(0, 0, 0, 0.82);
     backdrop-filter: blur(14px) saturate(165%);
     -webkit-backdrop-filter: blur(14px) saturate(165%);
     border: var(--btn-border);
@@ -1069,6 +1107,16 @@
     left: 50%;
     transform: translateX(-50%);
     z-index: 20;
+    isolation: isolate;
+  }
+
+  .pager-controls-shell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    pointer-events: none;
+    z-index: 0;
   }
 
   .pager-controls {
@@ -1078,6 +1126,7 @@
     gap: 0.75rem;
     padding: 0.5rem 0.75rem;
     position: relative;
+    z-index: 1;
   }
 
   .pager-arrow-flow {
