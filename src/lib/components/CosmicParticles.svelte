@@ -116,9 +116,10 @@
       const particle = createParticle();
       const opacity = 0.26 + prng(i, 1) * 0.58;
       const scale = 0.85 + prng(i, 2) * 1.35;
-      const driftStart = (prng(i, 3) - 0.5) * 160;
-      const driftEnd = driftStart + (prng(i, 8) - 0.5) * 240;
-      const driftMid = driftStart + (driftEnd - driftStart) * 0.52 + (prng(i, 11) - 0.5) * 80;
+      const direction = i % 2 === 0 ? 1 : -1;
+      const driftStart = direction * (60 + prng(i, 3) * 140);
+      const driftEnd = driftStart + direction * (120 + prng(i, 8) * 220);
+      const driftMid = driftStart + (driftEnd - driftStart) * 0.52 + direction * (prng(i, 11) - 0.5) * 60;
       const left = prng(i, 4) * 100;
       const sizeRand = prng(i, 5);
       const size = sizeRand < 0.75

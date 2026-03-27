@@ -2628,13 +2628,13 @@ html:not([data-graphics='render']) .plasma-star {
   animation-play-state: paused !important;
 }
 
-body.is-scrolling .cosmic-particles,
-body.is-switching .cosmic-particles {
+html:not([data-graphics='render']) body.is-scrolling .cosmic-particles,
+html:not([data-graphics='render']) body.is-switching .cosmic-particles {
   display: none !important;
 }
 
-body.is-scrolling .cosmic-particles .cosmic-particle,
-body.is-switching .cosmic-particles .cosmic-particle {
+html:not([data-graphics='render']) body.is-scrolling .cosmic-particles .cosmic-particle,
+html:not([data-graphics='render']) body.is-switching .cosmic-particles .cosmic-particle {
   animation-play-state: paused !important;
   filter: none !important;
 }
@@ -2658,33 +2658,28 @@ body.is-switching .cosmic-particles .cosmic-particle {
   will-change: transform, opacity;
 }
 
+html[data-graphics='render'] .cosmic-particles .cosmic-particle {
+  animation-timing-function: linear !important;
+}
+
 @keyframes particleRise {
   0% {
     opacity: 0;
-    transform: translate3d(var(--drift-start, 0px), 0px, 0) rotate(0deg) scale(calc(var(--scale, 1) * 0.7));
+    transform: translate3d(var(--drift-start, 0px), -12vh, 0) rotate(0deg) scale(calc(var(--scale, 1) * 0.7));
   }
 
-  4% {
+  8% {
     opacity: var(--opacity, 0.55);
   }
 
-  52% {
+  92% {
     opacity: var(--opacity, 0.55);
-    transform: translate3d(var(--drift-mid, 0px), 54vh, 0) rotate(var(--spin-mid, 0deg)) scale(calc(var(--scale, 1) * 1.02));
-  }
-
-  60% {
-    opacity: var(--opacity, 0.55);
-    transform: translate3d(var(--drift-end, 0px), 72vh, 0) rotate(var(--spin-end, 0deg)) scale(var(--scale, 1));
-  }
-
-  94% {
-    opacity: var(--opacity, 0.55);
+    transform: translate3d(var(--drift-end, 0px), 106vh, 0) rotate(var(--spin-end, 0deg)) scale(var(--scale, 1));
   }
 
   100% {
     opacity: 0;
-    transform: translate3d(var(--drift-end, 0px), 118vh, 0) rotate(var(--spin-end, 0deg)) scale(calc(var(--scale, 1) * 0.82));
+    transform: translate3d(var(--drift-end, 0px), 124vh, 0) rotate(var(--spin-end, 0deg)) scale(calc(var(--scale, 1) * 0.82));
   }
 }
 
@@ -3415,10 +3410,35 @@ p,
 
 /* Media queries: short-height devices (<=640px) */
 @media (max-height: 640px) {
+  .hero-section {
+    padding: 3.5rem 1.5rem 1rem;
+    margin: 0.75rem;
+    min-height: auto;
+    align-items: flex-start;
+  }
+
   .hero-content {
-    margin-top: clamp(16px, 8vh, 48px) !important;
-    margin-bottom: clamp(24px, 12vh, 90px) !important;
-    padding: 2rem 1.5rem;
+    margin-top: clamp(12px, 4vh, 28px) !important;
+    margin-bottom: clamp(16px, 6vh, 56px) !important;
+    padding: 1.75rem 1.25rem;
+  }
+
+  .hero-avatar {
+    width: 92px;
+    height: 92px;
+    margin-bottom: 1rem;
+  }
+
+  .hero-title {
+    font-size: clamp(1.6rem, 3.8vw, 2.4rem);
+    gap: 0.6rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.05rem;
+    margin-bottom: 1.25rem;
+    padding: 0.75rem;
   }
 
   .bmi-section {
@@ -3448,6 +3468,18 @@ p,
   .bmi-card,
   .bmi-results-card {
     min-height: 0;
+  }
+}
+
+@media (max-height: 520px) {
+  .hero-section {
+    padding: 3rem 1.25rem 0.75rem;
+  }
+
+  .hero-content {
+    margin-top: 10px !important;
+    margin-bottom: 20px !important;
+    padding: 1.5rem 1.1rem;
   }
 }
 
@@ -3514,20 +3546,20 @@ p,
    SCROLL PERFORMANCE OPTIMIZATION
    Pause animations during scroll
    ============================== */
-body.is-scrolling :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star, .hero-scroll-icon) {
+html:not([data-graphics='render']) body.is-scrolling :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star, .hero-scroll-icon) {
   animation-play-state: paused !important;
 }
 
-body.is-switching :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star, .hero-scroll-icon) {
+html:not([data-graphics='render']) body.is-switching :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star, .hero-scroll-icon) {
   animation-play-state: paused !important;
 }
 
 /* Reduce compositing layers during scroll */
-body.is-scrolling :is(.glass-card, .glass-panel, .bmi-card) {
+html:not([data-graphics='render']) body.is-scrolling :is(.glass-card, .glass-panel, .bmi-card) {
   will-change: auto;
 }
 
-body.is-scrolling :is(.liquid-glass,
+html:not([data-graphics='render']) body.is-scrolling :is(.liquid-glass,
   .hero-content,
   .bmi-card,
   .footer-disclaimer,
@@ -3547,7 +3579,7 @@ body.is-scrolling :is(.liquid-glass,
   box-shadow: none !important;
 }
 
-body.is-scrolling :is(.form-input,
+html:not([data-graphics='render']) body.is-scrolling :is(.form-input,
   .icon-glow,
   .empty-glow,
   .gauge-reflection,
@@ -3565,7 +3597,7 @@ body.is-scrolling :is(.form-input,
   -webkit-backdrop-filter: none !important;
 }
 
-body.is-switching :is(.liquid-glass,
+html:not([data-graphics='render']) body.is-switching :is(.liquid-glass,
   .hero-content,
   .bmi-card,
   .footer-disclaimer,
@@ -3585,7 +3617,7 @@ body.is-switching :is(.liquid-glass,
   box-shadow: none !important;
 }
 
-body.is-switching :is(.form-input,
+html:not([data-graphics='render']) body.is-switching :is(.form-input,
   .icon-glow,
   .empty-glow,
   .gauge-reflection,
@@ -3603,13 +3635,13 @@ body.is-switching :is(.form-input,
   -webkit-backdrop-filter: none !important;
 }
 
-body.is-scrolling :is(.pager-nav-shell, .pager-controls-shell) {
+html:not([data-graphics='render']) body.is-scrolling :is(.pager-nav-shell, .pager-controls-shell) {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   box-shadow: none !important;
 }
 
-body.is-switching :is(.pager-nav-shell, .pager-controls-shell) {
+html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .pager-controls-shell) {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   box-shadow: none !important;
