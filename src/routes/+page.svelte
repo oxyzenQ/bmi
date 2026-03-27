@@ -975,6 +975,8 @@
     border-radius: 9999px;
     white-space: nowrap;
     opacity: 0.86;
+    flex: 0 0 auto;
+    min-width: max-content;
   }
 
   .pager-smooth {
@@ -1034,6 +1036,19 @@
   @media (min-width: 900px) {
     .pager-nav {
       justify-content: center;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .pager-nav {
+      gap: 0.35rem;
+      padding: 0.45rem 0.6rem;
+    }
+
+    .pager-tab {
+      height: 36px;
+      padding-inline: 0.75rem;
+      font-size: 0.85rem;
     }
   }
 
