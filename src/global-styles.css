@@ -3191,7 +3191,7 @@ p,
   gap: clamp(0.5rem, 1.5vw, 1rem);
 }
 
-/* Media queries: tablet */
+/* Media queries: tablet - CONSOLIDATED */
 @media (max-width: 768px) {
 
   .main-container,
@@ -3264,6 +3264,13 @@ p,
 
   .gauge-container {
     width: min(96vw, 400px);
+  }
+
+  /* Prevent layout shift when BMI result expands */
+  .results-grid,
+  .results-layout {
+    grid-template-columns: 1fr;
+    /* stack */
   }
 }
 
@@ -3703,14 +3710,29 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
 
 /* ==============================
       FORM WIDTH REDUCTION
+      Consolidated media queries without !important
       ============================== */
-/* Mobile screens (below 400px) - 50% width centered */
+.form-input {
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.button-group {
+  flex-direction: row;
+  justify-content: center;
+}
+
+.button-group .btn {
+  width: 50%;
+  max-width: 300px;
+}
+
+/* Mobile screens (below 400px) */
 @media (max-width: 399px) {
   .form-input {
-    width: 100% !important;
+    width: 100%;
     max-width: 120px;
-    margin-left: auto;
-    margin-right: auto;
   }
 
   .button-group {
@@ -3721,17 +3743,14 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   .button-group .btn {
     width: 100%;
     max-width: 220px;
-    justify-content: center;
   }
 }
 
-/* Tablets and medium screens (400px - 768px) - 50% width centered */
+/* Tablets and medium screens (400px - 768px) */
 @media (min-width: 400px) and (max-width: 768px) {
   .form-input {
-    width: 100% !important;
+    width: 100%;
     max-width: 220px;
-    margin-left: auto;
-    margin-right: auto;
   }
 
   .button-group {
@@ -3742,47 +3761,6 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   .button-group .btn {
     width: 100%;
     max-width: 220px;
-    justify-content: center;
-  }
-}
-
-/* Medium to large screens (768px - 1079px) - 50% width centered */
-@media (min-width: 769px) and (max-width: 1079px) {
-  .form-input {
-    width: 50% !important;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .button-group {
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .button-group .btn {
-    width: 50%;
-    max-width: 300px;
-    justify-content: center;
-  }
-}
-
-/* Large screens (1080px+) - 50% width centered */
-@media (min-width: 1080px) {
-  .form-input {
-    width: 50% !important;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .button-group {
-    flex-direction: row;
-    justify-content: center;
-  }
-
-  .button-group .btn {
-    width: 50%;
-    max-width: 300px;
   }
 }
 

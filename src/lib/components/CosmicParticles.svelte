@@ -126,7 +126,6 @@
       const direction = i % 2 === 0 ? 1 : -1;
       const driftStart = direction * (60 + prng(i, 3) * 140);
       const driftEnd = driftStart + direction * (120 + prng(i, 8) * 220);
-      const driftMid = driftStart + (driftEnd - driftStart) * 0.52 + direction * (prng(i, 11) - 0.5) * 60;
       const left = prng(i, 4) * 100;
       const sizeRand = prng(i, 5);
       const size = sizeRand < 0.75
@@ -135,7 +134,6 @@
       const delay = prng(i, 6) * 3.2;
       const duration = 18 + prng(i, 7) * 22;
       const spinEnd = (prng(i, 9) - 0.5) * 80;
-      const spinMid = spinEnd * 0.62 + (prng(i, 10) - 0.5) * 14;
       const timing = prng(i, 12) < 0.5
         ? 'cubic-bezier(0.22, 1, 0.36, 1)'
         : 'cubic-bezier(0.16, 1, 0.3, 1)';
@@ -149,9 +147,7 @@
         --opacity: ${opacity};
         --scale: ${scale};
         --drift-start: ${driftStart}px;
-        --drift-mid: ${driftMid}px;
         --drift-end: ${driftEnd}px;
-        --spin-mid: ${spinMid}deg;
         --spin-end: ${spinEnd}deg;
         --timing: ${timing};
       `;

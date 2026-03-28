@@ -12,15 +12,19 @@
   let renderModeEnabled = true;
   let renderModeInitialized = false;
 
-  if (browser) {
+  // Extracted function to avoid duplicate localStorage logic
+  function initRenderMode(): boolean {
     try {
       const storedRenderMode = localStorage.getItem('bmi.renderMode');
-      renderModeEnabled = storedRenderMode === null ? true : storedRenderMode === '1' || storedRenderMode === 'true';
+      return storedRenderMode === null ? true : storedRenderMode === '1' || storedRenderMode === 'true';
     } catch {
-      // ignore
-    } finally {
-      renderModeInitialized = true;
+      return true;
     }
+  }
+
+  if (browser) {
+    renderModeEnabled = initRenderMode();
+    renderModeInitialized = true;
   }
 
   onMount(() => {
@@ -30,12 +34,7 @@
 
     if (browser) {
       if (!renderModeInitialized) {
-        try {
-          const storedRenderMode = localStorage.getItem('bmi.renderMode');
-          renderModeEnabled = storedRenderMode === null ? true : storedRenderMode === '1' || storedRenderMode === 'true';
-        } catch {
-          // ignore
-        }
+        renderModeEnabled = initRenderMode();
         renderModeInitialized = true;
       }
 

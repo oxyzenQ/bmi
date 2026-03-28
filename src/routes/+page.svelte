@@ -188,6 +188,35 @@
   const BMI_NORMAL_MAX = 24.9;
   const BMI_OVER_MAX = 29.9;
 
+  // Animation duration constants (ms)
+  const MARKER_ANIM_HIGH = 860;
+  const MARKER_ANIM_MEDIUM = 780;
+  const MARKER_ANIM_LOW = 680;
+  const OVERSHOOT_RATIO = 0.62;
+  const SETTLE_RATIO = 0.48;
+  const SETTLE_DELAY_OFFSET = 80;
+
+  // Pager motion duration constants (ms)
+  const PAGER_DUR_HIGH = 620;
+  const PAGER_DUR_MEDIUM = 540;
+  const PAGER_DUR_LOW = 460;
+  const PAGER_DUR_BASIC = 260;
+  const PAGER_OUT_RATIO = 0.72;
+  const PAGER_OUT_BASIC = 210;
+
+  // Pager motion distance constants (px)
+  const PAGER_DIST_HIGH = 220;
+  const PAGER_DIST_MEDIUM = 190;
+  const PAGER_DIST_LOW = 160;
+  const PAGER_DIST_BASIC = 120;
+
+  // Other animation constants
+  const SWITCHING_DELAY = 140;
+  const CALC_DELAY_SMOOTH = 260;
+  const CALC_DELAY_BASIC = 200;
+  const SPRING_STRENGTH_ENHANCED = 0.14;
+  const SPRING_STRENGTH_BASIC = 0.08;
+
   $: rangeValue = bmiValue;
   $: rangeMarker =
     rangeValue === null
@@ -226,9 +255,9 @@
       return;
     }
 
-    const base = perfTier === 'high' ? 860 : perfTier === 'medium' ? 780 : 680;
-    const overshootDur = Math.round(base * 0.62);
-    const settleDur = Math.round(base * 0.48);
+    const base = perfTier === 'high' ? MARKER_ANIM_HIGH : perfTier === 'medium' ? MARKER_ANIM_MEDIUM : MARKER_ANIM_LOW;
+    const overshootDur = Math.round(base * OVERSHOOT_RATIO);
+    const settleDur = Math.round(base * SETTLE_RATIO);
     const delta = target - lastMarker;
     const overshoot = Math.max(0, Math.min(100, target + delta * 0.08));
 
@@ -237,7 +266,7 @@
     markerTimer = setTimeout(() => {
       animatedMarker.set(target, { duration: settleDur, easing: cubicOut });
       markerTimer = null;
-    }, Math.max(0, overshootDur - 80));
+    }, Math.max(0, overshootDur - SETTLE_DELAY_OFFSET));
   }
 
   const segUnder = Math.max(0, Math.min(BMI_UNDER_MAX, BMI_BAR_MAX) - BMI_BAR_MIN);
@@ -255,13 +284,13 @@
   $: pagerMotionDuration = reducedMotionEffective
     ? 0
     : smoothModeRequested
-      ? (perfTier === 'high' ? 620 : perfTier === 'medium' ? 540 : 460)
-      : 260;
+      ? (perfTier === 'high' ? PAGER_DUR_HIGH : perfTier === 'medium' ? PAGER_DUR_MEDIUM : PAGER_DUR_LOW)
+      : PAGER_DUR_BASIC;
   $: pagerMotionDistance = reducedMotionEffective
     ? 0
     : smoothModeRequested
-      ? (perfTier === 'high' ? 220 : perfTier === 'medium' ? 190 : 160)
-      : 120;
+      ? (perfTier === 'high' ? PAGER_DIST_HIGH : perfTier === 'medium' ? PAGER_DIST_MEDIUM : PAGER_DIST_LOW)
+      : PAGER_DIST_BASIC;
 
   let pagerEl: HTMLDivElement | null = null;
   let pointerStartX: number | null = null;
@@ -302,7 +331,7 @@
     if (browser && !reducedMotionEffective && !opts?.skipSwitching) {
       if (switchingTimer) clearTimeout(switchingTimer);
       document.body.classList.add('is-switching');
-      const ms = Math.max(240, pagerMotionDuration) + 140;
+      const ms = Math.max(240, pagerMotionDuration) + SWITCHING_DELAY;
       switchingTimer = setTimeout(() => {
         document.body.classList.remove('is-switching');
         switchingTimer = null;
@@ -557,7 +586,7 @@
   async function handleCalculate() {
     if (calculating) return;
     calculating = true;
-    const minDelay = reducedMotionEffective ? 0 : (smoothModeRequested ? 260 : 200);
+    const minDelay = reducedMotionEffective ? 0 : (smoothModeRequested ? CALC_DELAY_SMOOTH : CALC_DELAY_BASIC);
     if (minDelay > 0) {
       await new Promise((r) => setTimeout(r, minDelay));
     }
@@ -596,7 +625,6 @@
 <svelte:head>
   <title>BMI Calculator - Calculate Your Body Mass Index</title>
   <meta name="description" content="Calculate your BMI with our modern, accessible calculator. Get instant results, health recommendations, and learn about BMI categories." />
-  <link rel="preload" as="image" href="/images/oxyzen-zenlysium.jpg" fetchpriority="high" />
 </svelte:head>
 
 <div
@@ -653,15 +681,15 @@
           x: pagerDirection * pagerMotionDistance,
           duration: pagerMotionDuration,
           phase: 'in',
-          strength: reducedMotionEffective ? 0 : (smoothModeEnhanced ? 0.14 : 0.08)
+          strength: reducedMotionEffective ? 0 : (smoothModeEnhanced ? SPRING_STRENGTH_ENHANCED : SPRING_STRENGTH_BASIC)
         }}
         out:pagerSpring={{
           x: -pagerDirection * pagerMotionDistance,
           duration: reducedMotionEffective
             ? 0
             : smoothModeRequested
-              ? Math.round(pagerMotionDuration * 0.72)
-              : 210,
+              ? Math.round(pagerMotionDuration * PAGER_OUT_RATIO)
+              : PAGER_OUT_BASIC,
           phase: 'out',
           strength: 0
         }}

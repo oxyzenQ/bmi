@@ -1,27 +1,14 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { BookOpenCheck, SquareSigma, Sparkles, Telescope } from 'lucide-svelte';
+  import { onMount } from 'svelte';
 
-  let heroContent: HTMLDivElement;
+  let animate = false;
 
   onMount(() => {
-    // Hero content animation - ensure immediate visibility with safe fallback
-    if (heroContent) {
-      // Set visible by default first
-      heroContent.style.opacity = '1';
-      heroContent.style.transform = 'translateY(0)';
-
-      // Then apply entrance animation
-      heroContent.style.opacity = '0';
-      heroContent.style.transform = 'translateY(20px)';
-      heroContent.style.transition = 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-
-      // Immediate fallback to ensure visibility
-      requestAnimationFrame(() => {
-        heroContent.style.opacity = '1';
-        heroContent.style.transform = 'translateY(0)';
-      });
-    }
+    // Trigger animation on next frame for smooth entry
+    requestAnimationFrame(() => {
+      animate = true;
+    });
   });
 </script>
 
@@ -30,7 +17,7 @@
     <!-- Bubbles and orbs removed for cleaner performance -->
   </div>
 
-  <div bind:this={heroContent} class="hero-content">
+  <div class="hero-content" class:animate>
     <div class="hero-avatar" aria-hidden="true">
       <img src="/assets/new_bmi_logo_2026.webp" alt="BMI Logo" loading="lazy" decoding="async" />
     </div>
@@ -68,3 +55,27 @@
 
   <!-- End of hero content -->
 </header>
+
+<style>
+  .hero-content {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity, transform;
+  }
+
+  .hero-content.animate {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-content {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
