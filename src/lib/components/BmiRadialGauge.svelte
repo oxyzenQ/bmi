@@ -23,13 +23,13 @@
 
   $: reducedMotion = reducedMotionPref && !ultraSmooth;
 
-  let useGlow = false;
-  let usePulse = false;
-  let bmiTweenDuration = 0;
-  let strokeDuration = '1200ms';
-  let strokeDurationFill = '1800ms';
-  let strokeDelayFill = '120ms';
-  let pulseDuration = '1s';
+  let useGlow: boolean;
+  let usePulse: boolean;
+  let bmiTweenDuration: number;
+  let strokeDuration: string;
+  let strokeDurationFill: string;
+  let strokeDelayFill: string;
+  let pulseDuration: string;
 
   const categoryColors: Record<string, string> = {
     'Underweight': '#4A90E2',

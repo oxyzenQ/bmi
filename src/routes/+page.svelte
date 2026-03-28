@@ -6,11 +6,6 @@
   import { getPerformanceTier } from '$lib/utils/performance';
   import Hero from '$lib/ui/Hero.svelte';
 
-  // Global constants injected by Vite at build time
-  declare const __GIT_COMMIT_ID__: string;
-  declare const __GIT_BRANCH__: string;
-  declare const __BUILD_TIME__: string;
-
   type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
   type BmiResultsComponentType = typeof import('$lib/components/BmiResults.svelte').default;
   type BmiRadialGaugeComponentType = typeof import('$lib/components/BmiRadialGauge.svelte').default;
@@ -102,7 +97,6 @@
   // Git info - injected at build time by Vite
   const gitCommitId = typeof __GIT_COMMIT_ID__ !== 'undefined' ? __GIT_COMMIT_ID__ : 'dev';
   const gitBranch = typeof __GIT_BRANCH__ !== 'undefined' ? __GIT_BRANCH__ : 'main';
-  const buildTime = typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : new Date().toISOString();
 
   const sections = [
     { id: 'welcome', label: 'Welcome' },

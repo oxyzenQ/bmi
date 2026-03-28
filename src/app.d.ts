@@ -8,6 +8,11 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+
+	// Global constants injected by Vite at build time
+	const __GIT_COMMIT_ID__: string;
+	const __GIT_BRANCH__: string;
+	const __BUILD_TIME__: string;
 }
 
-export {};
+export { };
