@@ -886,7 +886,7 @@
                 class="github-link"
               >
                 <span>
-                  &copy; {currentYear} Rezky Nightky. All rights reserved.
+                  &copy; 2025-{currentYear} Rezky Nightky. All rights reserved.
                 </span>
               </a>
             </div>
