@@ -4433,3 +4433,125 @@ p,
     opacity: 1;
   }
 }
+
+/* ==============================
+   PERFORMANCE TIER OPTIMIZATIONS
+   Reduce expensive effects on low-end devices
+   ============================== */
+
+/* LOW TIER: Disable expensive effects completely */
+html[data-performance-tier="low"] {
+  /* Disable backdrop-filter globally on low-end */
+  --btn-blur: 0px;
+  --btn-saturate: 100%;
+}
+
+html[data-performance-tier="low"] :is(
+  .liquid-glass,
+  .hero-content,
+  .bmi-card,
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table,
+  .form-card,
+  .github-link,
+  .modal-content,
+  .section-header,
+  .section-header-v2,
+  .btn,
+  button,
+  a.button,
+  .form-input,
+  .pill-indicator,
+  .rangebar-marker-badge
+) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+html[data-performance-tier="low"] .cosmic-particles .cosmic-particle {
+  filter: none !important;
+  background: rgba(255, 255, 255, 0.6) !important;
+  will-change: transform;
+}
+
+html[data-performance-tier="low"] :is(
+  .plasma-star,
+  .sparkle-icon,
+  .gauge-reflection,
+  .Coffee
+) {
+  filter: none !important;
+  animation: none !important;
+}
+
+html[data-performance-tier="low"] .gauge-progress.pulsing {
+  animation: none !important;
+}
+
+html[data-performance-tier="low"] :is(
+  .icon-glow,
+  .empty-glow
+) {
+  filter: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* MEDIUM TIER: Reduce expensive effects */
+html[data-performance-tier="medium"] {
+  --btn-blur: 6px;
+  --btn-saturate: 120%;
+}
+
+html[data-performance-tier="medium"] :is(
+  .liquid-glass,
+  .hero-content,
+  .bmi-card,
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table,
+  .form-card
+) {
+  backdrop-filter: blur(4px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(4px) saturate(120%) !important;
+}
+
+html[data-performance-tier="medium"] .cosmic-particles .cosmic-particle {
+  filter: blur(0.2px) !important;
+  will-change: transform;
+}
+
+html[data-performance-tier="medium"] :is(
+  .plasma-star,
+  .sparkle-icon
+) {
+  filter: drop-shadow(0 0 4px currentColor) !important;
+}
+
+/* HIGH TIER: Full effects - ensure will-change hints for GPU acceleration */
+html[data-performance-tier="high"] .cosmic-particles .cosmic-particle {
+  will-change: transform, opacity;
+  contain: layout style paint;
+}
+
+html[data-performance-tier="high"] :is(
+  .liquid-glass,
+  .hero-content,
+  .bmi-card
+) {
+  will-change: transform;
+  contain: layout style;
+}
+
+/* Ensure smooth scrolling and compositing on all tiers */
+html[data-performance-tier="low"] .cosmic-particles {
+  contain: layout;
+}
+
+html[data-performance-tier="medium"] .cosmic-particles {
+  contain: layout style;
+}

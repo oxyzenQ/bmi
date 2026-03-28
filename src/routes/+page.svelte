@@ -485,6 +485,7 @@
     }
 
     document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
+    document.documentElement.dataset.performanceTier = perfTier;
     broadcastSmoothMode(smoothModeRequested);
 
     const idx = indexFromHash(window.location.hash);

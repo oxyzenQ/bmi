@@ -16,9 +16,15 @@
 
   onMount(() => {
     tier = getPerformanceTier();
-    baseParticleCount = tier === 'low' ? 10 : tier === 'medium' ? 16 : 22;
+    // More aggressive reduction: low = 6, medium = 12, high = 20
+    baseParticleCount = tier === 'low' ? 6 : tier === 'medium' ? 12 : 20;
     smoothModeEnabled = true;
     updateReduced();
+
+    // Set performance tier on document for CSS optimizations
+    if (typeof document !== 'undefined') {
+      document.documentElement.dataset.performanceTier = tier;
+    }
 
     const handleSmoothMode = (event: Event) => {
       if (destroyed) return;
@@ -78,9 +84,10 @@
 
   function computeParticleCount(tier: 'high' | 'medium' | 'low', smoothEnabled: boolean) {
     if (!smoothEnabled) return baseParticleCount;
-    if (tier === 'high') return Math.min(baseParticleCount + 8, 34);
-    if (tier === 'medium') return Math.min(baseParticleCount + 6, 26);
-    return Math.min(baseParticleCount + 4, 18);
+    // Aggressive limits: high=28, medium=18, low=8
+    if (tier === 'high') return Math.min(baseParticleCount + 8, 28);
+    if (tier === 'medium') return Math.min(baseParticleCount + 6, 18);
+    return Math.min(baseParticleCount + 2, 8);
   }
 
   function updateReduced() {
