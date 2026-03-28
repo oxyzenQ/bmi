@@ -49,6 +49,7 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.2",
     "vite": "^7.3.1",
+    "vite-plugin-purgecss": "^0.2.13",
     "vitest": "^3.2.4"
   },
   "keywords": [
