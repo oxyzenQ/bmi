@@ -48,6 +48,21 @@
   // Calculation only allowed when all three are valid
   $: canCalculate = ageValid && heightValid && weightValid;
 
+  function handleAgeInput(e: Event) {
+    const target = e.currentTarget as HTMLInputElement;
+    age = sanitizeInteger(target.value);
+  }
+
+  function handleHeightInput(e: Event) {
+    const target = e.currentTarget as HTMLInputElement;
+    height = sanitizeDecimal(target.value);
+  }
+
+  function handleWeightInput(e: Event) {
+    const target = e.currentTarget as HTMLInputElement;
+    weight = sanitizeDecimal(target.value);
+  }
+
   // Only trigger calculate when button is pressed and inputs are valid
   function handleCalculate() {
     if (calculating) return;
@@ -111,7 +126,7 @@
         placeholder="e.g., 25"
         aria-label="Age in years"
         aria-invalid={age !== '' && !ageValid}
-        on:input={(e) => { const t = e.currentTarget as HTMLInputElement; age = sanitizeInteger(t.value); }}
+        on:input={handleAgeInput}
       />
       {#if age !== '' && !ageValid}
         <div class="input-error" role="alert">Please enter a valid age between 1 and 120.</div>
@@ -136,7 +151,7 @@
         disabled={!ageValid}
         aria-disabled={!ageValid}
         on:focus={() => { if (!ageValid) ageInputEl?.focus(); }}
-        on:input={(e) => { const t = e.currentTarget as HTMLInputElement; height = sanitizeDecimal(t.value); }}
+        on:input={handleHeightInput}
       />
       {#if height !== '' && !heightValid}
         <div class="input-error" role="alert">Height must be between 1-300 cm.</div>
@@ -161,7 +176,7 @@
         disabled={!heightValid}
         aria-disabled={!heightValid}
         on:focus={() => { if (!heightValid) heightInputEl?.focus(); }}
-        on:input={(e) => { const t = e.currentTarget as HTMLInputElement; weight = sanitizeDecimal(t.value); }}
+        on:input={handleWeightInput}
       />
       {#if weight !== '' && !weightValid}
         <div class="input-error" role="alert">Weight must be between 1-1000 kg.</div>
