@@ -1,0 +1,2 @@
+[codespell]
+skip = node_modules,reports,.svelte-kit,build,dist,bun.lock
