@@ -118,7 +118,9 @@ export async function lazyLoad<T>(
 		onLoaded?.();
 		return module.default;
 	} catch (error) {
-		console.error('Failed to lazy load component:', error);
+		if (import.meta.env.DEV) {
+			console.error('Failed to lazy load component:', error);
+		}
 		throw error;
 	}
 }
