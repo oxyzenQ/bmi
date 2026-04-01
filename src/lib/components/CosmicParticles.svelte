@@ -16,8 +16,8 @@
 
   onMount(() => {
     tier = getPerformanceTier();
-    // More aggressive reduction: low = 6, medium = 12, high = 20
-    baseParticleCount = tier === 'low' ? 6 : tier === 'medium' ? 12 : 20;
+    // Smooth rain: low = 15, medium = 25, high = 40 (fewer but smoother)
+    baseParticleCount = tier === 'low' ? 15 : tier === 'medium' ? 25 : 40;
     smoothModeEnabled = true;
     updateReduced();
 
@@ -84,10 +84,10 @@
 
   function computeParticleCount(tier: 'high' | 'medium' | 'low', smoothEnabled: boolean) {
     if (!smoothEnabled) return baseParticleCount;
-    // Aggressive limits: high=28, medium=18, low=8
-    if (tier === 'high') return Math.min(baseParticleCount + 8, 28);
-    if (tier === 'medium') return Math.min(baseParticleCount + 6, 18);
-    return Math.min(baseParticleCount + 2, 8);
+    // Smooth limits: high=60, medium=40, low=25 (not too many)
+    if (tier === 'high') return Math.min(baseParticleCount + 20, 60);
+    if (tier === 'medium') return Math.min(baseParticleCount + 15, 40);
+    return Math.min(baseParticleCount + 10, 25);
   }
 
   function updateReduced() {
@@ -124,15 +124,16 @@
       const opacity = 0.26 + prng(i, 1) * 0.58;
       const scale = 0.85 + prng(i, 2) * 1.35;
       const direction = i % 2 === 0 ? 1 : -1;
-      const driftStart = direction * (60 + prng(i, 3) * 140);
-      const driftEnd = driftStart + direction * (120 + prng(i, 8) * 220);
+      const driftStart = 0;
+      const driftEnd = 0;
       const left = prng(i, 4) * 100;
       const sizeRand = prng(i, 5);
-      const size = sizeRand < 0.75
-        ? 3 + Math.floor(sizeRand * 8)
-        : 9 + Math.floor(((sizeRand - 0.75) / 0.25) * 10);
-      const delay = prng(i, 6) * 3.2;
-      const duration = 18 + prng(i, 7) * 22;
+      // Rain drops: thin and long (2px x 15-35px)
+      const width = 2;
+      const height = 15 + Math.floor(sizeRand * 20);
+      // Smooth rain: 1.5-3s duration (not too fast)
+      const delay = prng(i, 6) * 3;
+      const duration = 1.5 + prng(i, 7) * 1.5;
       const spinEnd = (prng(i, 9) - 0.5) * 80;
       const timing = prng(i, 12) < 0.5
         ? 'cubic-bezier(0.22, 1, 0.36, 1)'
@@ -140,16 +141,12 @@
 
       particle.style.cssText = `
         left: ${left}%;
-        width: ${size}px;
-        height: ${size}px;
+        width: ${width}px;
+        height: ${height}px;
         --delay: ${delay}s;
         --duration: ${duration}s;
         --opacity: ${opacity};
         --scale: ${scale};
-        --drift-start: ${driftStart}px;
-        --drift-end: ${driftEnd}px;
-        --spin-end: ${spinEnd}deg;
-        --timing: ${timing};
       `;
 
       frag.appendChild(particle);

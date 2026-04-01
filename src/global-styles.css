@@ -2618,45 +2618,58 @@ html:not([data-graphics='render']) body.is-switching .cosmic-particles .cosmic-p
 
 .cosmic-particles .cosmic-particle {
   position: absolute;
-  top: -20px;
+  top: -10vh;
   left: 0;
   opacity: 0;
   border-radius: 9999px;
-  background: radial-gradient(circle,
-      color-mix(in oklab, var(--aurora-whisper) 70%, white 30%) 0%,
-      color-mix(in oklab, var(--aurora-glow) 60%, transparent) 56%,
-      transparent 74%);
-  filter: blur(0.35px);
-  animation-name: particleRise;
-  animation-duration: var(--duration, 12s);
+  /* Blade Runner purple rain - elongated drops */
+  background: linear-gradient(180deg,
+      rgba(147, 51, 234, 0) 0%,
+      rgba(147, 51, 234, 0.8) 20%,
+      rgba(168, 85, 247, 0.9) 50%,
+      rgba(147, 51, 234, 0.8) 80%,
+      rgba(147, 51, 234, 0) 100%);
+  box-shadow: 0 0 6px rgba(168, 85, 247, 0.6),
+              0 0 12px rgba(147, 51, 234, 0.4);
+  filter: blur(0.5px);
+  animation-name: rainFall;
+  animation-duration: var(--duration, 1.5s);
   animation-delay: var(--delay, 0s);
-  animation-timing-function: var(--timing, linear);
+  animation-timing-function: ease-out;
   animation-iteration-count: infinite;
   will-change: transform, opacity;
+  /* Rain drop shape - thin and tall */
+  width: 2px !important;
+  height: 24px !important;
 }
 
 html[data-graphics='render'] .cosmic-particles .cosmic-particle {
-  animation-timing-function: linear !important;
+  animation-timing-function: ease-out !important;
+  /* Enhanced glow for render mode */
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.8),
+              0 0 16px rgba(147, 51, 234, 0.5),
+              0 0 24px rgba(147, 51, 234, 0.3);
 }
 
-@keyframes particleRise {
+@keyframes rainFall {
   0% {
     opacity: 0;
-    transform: translate3d(var(--drift-start, 0px), -12vh, 0) rotate(0deg) scale(calc(var(--scale, 1) * 0.7));
+    transform: translate3d(0, -10vh, 0) scaleY(0.5);
   }
 
-  8% {
-    opacity: var(--opacity, 0.55);
+  5% {
+    opacity: var(--opacity, 0.85);
+    transform: translate3d(0, 0vh, 0) scaleY(1);
   }
 
-  92% {
-    opacity: var(--opacity, 0.55);
-    transform: translate3d(var(--drift-end, 0px), 106vh, 0) rotate(var(--spin-end, 0deg)) scale(var(--scale, 1));
+  95% {
+    opacity: var(--opacity, 0.85);
+    transform: translate3d(0, 105vh, 0) scaleY(1);
   }
 
   100% {
     opacity: 0;
-    transform: translate3d(var(--drift-end, 0px), 124vh, 0) rotate(var(--spin-end, 0deg)) scale(calc(var(--scale, 1) * 0.82));
+    transform: translate3d(0, 115vh, 0) scaleY(0.5);
   }
 }
 
