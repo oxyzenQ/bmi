@@ -1,14 +1,21 @@
 <script lang="ts">
   import { BookOpenCheck, SquareSigma, Sparkles, Telescope } from 'lucide-svelte';
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
 
   let animate = false;
+  let rafId: number | null = null;
 
   onMount(() => {
     // Trigger animation on next frame for smooth entry
-    requestAnimationFrame(() => {
+    rafId = requestAnimationFrame(() => {
       animate = true;
     });
+  });
+
+  onDestroy(() => {
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+    }
   });
 </script>
 

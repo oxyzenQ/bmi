@@ -79,6 +79,8 @@
 
   onDestroy(() => {
     if (fillTimer) clearTimeout(fillTimer);
+    // Cleanup tweened store subscription
+    displayBmi.set(0, { duration: 0 });
   });
 
   // Reactive entry point that only reads external props

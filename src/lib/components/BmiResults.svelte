@@ -1,5 +1,6 @@
 <script lang="ts">
   import { BarChart3,  CircleSlash2, TrendingUp, Info, AlertCircle, CheckCircle, Activity } from 'lucide-svelte';
+import { onDestroy } from 'svelte';
   import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
 
@@ -11,6 +12,11 @@
   $: hasResults = bmiValue !== null && category !== null;
 
   const animatedBmi = tweened(0, { duration: 0, easing: cubicOut });
+
+  // Cleanup tweened store subscription to prevent memory leak
+  onDestroy(() => {
+    animatedBmi.set(0, { duration: 0 });
+  });
 
   $: if (hasResults) {
     animatedBmi.set(bmiValue!, { duration: reducedMotion ? 0 : 720, easing: cubicOut });

@@ -122,7 +122,6 @@
     for (let i = 0; i < particleCount; i++) {
       const particle = createParticle();
       const opacity = 0.26 + prng(i, 1) * 0.58;
-      const scale = 0.85 + prng(i, 2) * 1.35;
       const left = prng(i, 4) * 100;
       const sizeRand = prng(i, 5);
       // Rain drops: thin and long (2px x 15-35px)
@@ -139,7 +138,6 @@
         --delay: ${delay}s;
         --duration: ${duration}s;
         --opacity: ${opacity};
-        --scale: ${scale};
       `;
 
       frag.appendChild(particle);

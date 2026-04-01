@@ -51,7 +51,9 @@
     // Register service worker for caching (only in production)
     if (browser && 'serviceWorker' in navigator && import.meta.env.PROD) {
       navigator.serviceWorker.register('/service-worker.js').catch((err) => {
-        console.error('Service worker registration failed:', err);
+        if (import.meta.env.DEV) {
+          console.error('Service worker registration failed:', err);
+        }
       });
     }
 

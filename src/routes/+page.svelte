@@ -23,46 +23,49 @@
   function ensureCalculatorComponents() {
     if (!browser) return Promise.resolve();
     if (BmiFormComponent && BmiResultsComponent) return Promise.resolve();
-    if (calculatorLoad) return calculatorLoad;
-    calculatorLoad = Promise.all([
-      import('$lib/components/BmiForm.svelte'),
-      import('$lib/components/BmiResults.svelte')
-    ])
-      .then(([form, results]) => {
-        BmiFormComponent = form.default;
-        BmiResultsComponent = results.default;
-      })
-      .finally(() => {
-        calculatorLoad = null;
-      });
+    if (!calculatorLoad) {
+      calculatorLoad = Promise.all([
+        import('$lib/components/BmiForm.svelte'),
+        import('$lib/components/BmiResults.svelte')
+      ])
+        .then(([form, results]) => {
+          BmiFormComponent = form.default;
+          BmiResultsComponent = results.default;
+        })
+        .finally(() => {
+          calculatorLoad = null;
+        });
+    }
     return calculatorLoad;
   }
 
   function ensureGaugeComponents() {
     if (!browser) return Promise.resolve();
     if (BmiRadialGaugeComponent) return Promise.resolve();
-    if (gaugeLoad) return gaugeLoad;
-    gaugeLoad = import('$lib/components/BmiRadialGauge.svelte')
-      .then((mod) => {
-        BmiRadialGaugeComponent = mod.default;
-      })
-      .finally(() => {
-        gaugeLoad = null;
-      });
+    if (!gaugeLoad) {
+      gaugeLoad = import('$lib/components/BmiRadialGauge.svelte')
+        .then((mod) => {
+          BmiRadialGaugeComponent = mod.default;
+        })
+        .finally(() => {
+          gaugeLoad = null;
+        });
+    }
     return gaugeLoad;
   }
 
   function ensureReferenceTable() {
     if (!browser) return Promise.resolve();
     if (ReferenceTableComponent) return Promise.resolve();
-    if (referenceLoad) return referenceLoad;
-    referenceLoad = import('$lib/components/ReferenceTable.svelte')
-      .then((mod) => {
-        ReferenceTableComponent = mod.default;
-      })
-      .finally(() => {
-        referenceLoad = null;
-      });
+    if (!referenceLoad) {
+      referenceLoad = import('$lib/components/ReferenceTable.svelte')
+        .then((mod) => {
+          ReferenceTableComponent = mod.default;
+        })
+        .finally(() => {
+          referenceLoad = null;
+        });
+    }
     return referenceLoad;
   }
   // icons for About BMI section
