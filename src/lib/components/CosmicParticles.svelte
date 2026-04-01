@@ -123,9 +123,6 @@
       const particle = createParticle();
       const opacity = 0.26 + prng(i, 1) * 0.58;
       const scale = 0.85 + prng(i, 2) * 1.35;
-      const direction = i % 2 === 0 ? 1 : -1;
-      const driftStart = 0;
-      const driftEnd = 0;
       const left = prng(i, 4) * 100;
       const sizeRand = prng(i, 5);
       // Rain drops: thin and long (2px x 15-35px)
@@ -134,10 +131,6 @@
       // Smooth rain: 1.5-3s duration (not too fast)
       const delay = prng(i, 6) * 3;
       const duration = 1.5 + prng(i, 7) * 1.5;
-      const spinEnd = (prng(i, 9) - 0.5) * 80;
-      const timing = prng(i, 12) < 0.5
-        ? 'cubic-bezier(0.22, 1, 0.36, 1)'
-        : 'cubic-bezier(0.16, 1, 0.3, 1)';
 
       particle.style.cssText = `
         left: ${left}%;
