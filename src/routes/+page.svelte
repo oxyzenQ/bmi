@@ -691,6 +691,12 @@
     category = null;
     resultsRunId += 1;
 
+    // Clear localStorage history to reset "Your Best"
+    if (browser) {
+      localStorage.removeItem('bmi.history');
+      lastSavedBmi = null;
+    }
+
     // Show delete notification
     notifyType = 'delete';
     notifyMessage = 'all data has been cleared..';

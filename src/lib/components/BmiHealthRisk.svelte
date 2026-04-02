@@ -124,7 +124,7 @@
       <div class="risk-description">{risk.description}</div>
     </div>
     {#if bmi !== null}
-      <div class="risk-bmi">BMI {bmi.toFixed(1)}</div>
+      <div class="risk-bmi">BMI {bmi.toFixed(2)}</div>
     {/if}
   </div>
 

@@ -62,16 +62,22 @@
 
     // Calculate progress to ideal (for overweight) or from underweight
     let progressPercent = 0;
+    // Use fixed reference bounds for consistent progress calculation
+    const BMI_MIN_REF = 10;  // Extreme underweight reference (BMI <10 is life-threatening)
+    const BMI_MAX_REF = 45;  // Extreme obese reference (BMI >45 is severe)
+
     if (currentBmi > IDEAL_BMI) {
       // Overweight - progress is reducing toward ideal
-      // Assume worst case is BMI 35, progress = (35 - current) / (35 - 22)
-      const maxBmi = Math.max(35, currentBmi);
-      progressPercent = Math.round(((maxBmi - currentBmi) / (maxBmi - IDEAL_BMI)) * 100);
+      // Progress = how far from max reference we've come toward ideal
+      const totalRange = BMI_MAX_REF - IDEAL_BMI;
+      const currentDistance = currentBmi - IDEAL_BMI;
+      progressPercent = Math.round(((totalRange - currentDistance) / totalRange) * 100);
     } else if (currentBmi < IDEAL_BMI) {
       // Underweight - progress is gaining toward ideal
-      // Assume worst case is BMI 15, progress = (current - 15) / (22 - 15)
-      const minBmi = Math.min(15, currentBmi);
-      progressPercent = Math.round(((currentBmi - minBmi) / (IDEAL_BMI - minBmi)) * 100);
+      // Progress = how far from min reference we've come toward ideal
+      const totalRange = IDEAL_BMI - BMI_MIN_REF;
+      const currentDistance = currentBmi - BMI_MIN_REF;
+      progressPercent = Math.round((currentDistance / totalRange) * 100);
     } else {
       progressPercent = 100;
     }
@@ -117,7 +123,7 @@
         <span>Current</span>
       </div>
       <div class="card-value" style={currentBmi !== null ? `color: ${getStatusColor(currentBmi)}` : ''}>
-        {currentBmi !== null ? currentBmi.toFixed(1) : '—'}
+        {currentBmi !== null ? currentBmi.toFixed(2) : '—'}
       </div>
       <div class="card-category">{category ?? 'N/A'}</div>
     </div>
@@ -129,7 +135,7 @@
         <span>Your Best</span>
       </div>
       <div class="card-value" style={bestBmi !== null ? `color: ${getStatusColor(bestBmi)}` : ''}>
-        {bestBmi !== null ? bestBmi.toFixed(1) : '—'}
+        {bestBmi !== null ? bestBmi.toFixed(2) : '—'}
       </div>
       <div class="card-category">
         {#if bestBmi !== null}
@@ -155,7 +161,7 @@
         <span>Target</span>
       </div>
       <div class="card-value" style={currentBmi !== null ? 'color: #00C853' : ''}>
-        {currentBmi !== null ? IDEAL_BMI.toFixed(1) : '—'}
+        {currentBmi !== null ? IDEAL_BMI.toFixed(2) : '—'}
       </div>
       <div class="card-category">{currentBmi !== null ? 'Optimal BMI' : 'N/A'}</div>
     </div>
@@ -187,12 +193,12 @@
         {#if currentBmi > IDEAL_BMI}
           <div class="insight-item">
             <TrendingDown size={16} />
-            <span>Need to lose <strong>{(currentBmi - IDEAL_BMI).toFixed(1)} BMI points</strong> to reach optimal</span>
+            <span>Need to lose <strong>{(currentBmi - IDEAL_BMI).toFixed(2)} BMI points</strong> to reach optimal</span>
           </div>
         {:else if currentBmi < IDEAL_BMI}
           <div class="insight-item">
             <TrendingUp size={16} />
-            <span>Need to gain <strong>{(IDEAL_BMI - currentBmi).toFixed(1)} BMI points</strong> to reach optimal</span>
+            <span>Need to gain <strong>{(IDEAL_BMI - currentBmi).toFixed(2)} BMI points</strong> to reach optimal</span>
           </div>
         {:else}
           <div class="insight-item success">
@@ -205,10 +211,10 @@
           <div class="insight-item comparison">
             {#if stats.isImprovement}
               <TrendingDown size={16} class="trend-good" />
-              <span>Better than your best recorded BMI by <strong class="trend-good">{Math.abs(stats.diffFromBest).toFixed(1)}</strong></span>
+              <span>Better than your best recorded BMI by <strong class="trend-good">{Math.abs(stats.diffFromBest).toFixed(2)}</strong></span>
             {:else}
               <TrendingUp size={16} class="trend-bad" />
-              <span>Above your best recorded BMI by <strong class="trend-bad">{Math.abs(stats.diffFromBest).toFixed(1)}</strong></span>
+              <span>Above your best recorded BMI by <strong class="trend-bad">{Math.abs(stats.diffFromBest).toFixed(2)}</strong></span>
             {/if}
           </div>
         {/if}
