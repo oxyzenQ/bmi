@@ -9,6 +9,7 @@
     buttonText?: string;
     onContinue?: () => void;
     onClose?: () => void;
+    onCancel?: () => void;
   }
 
   let {
@@ -17,7 +18,8 @@
     message = '',
     buttonText = 'Continue',
     onContinue = () => {},
-    onClose = () => {}
+    onClose = () => {},
+    onCancel = () => {}
   }: Props = $props();
 
   let visible = $state(false);
@@ -40,6 +42,13 @@
     visible = false;
     setTimeout(() => {
       onContinue();
+    }, 200);
+  }
+
+  function handleCancel() {
+    visible = false;
+    setTimeout(() => {
+      onCancel();
     }, 200);
   }
 
@@ -71,12 +80,29 @@
 
       <p class="notify-message">{message}</p>
 
-      <button
-        class="notify-btn {buttonClass}"
-        onclick={handleContinue}
-      >
-        {buttonText}
-      </button>
+      {#if type === 'delete'}
+        <div class="notify-btn-group">
+          <button
+            class="notify-btn btn-cancel"
+            onclick={handleCancel}
+          >
+            Cancel
+          </button>
+          <button
+            class="notify-btn btn-delete"
+            onclick={handleContinue}
+          >
+            Delete
+          </button>
+        </div>
+      {:else}
+        <button
+          class="notify-btn {buttonClass}"
+          onclick={handleContinue}
+        >
+          {buttonText}
+        </button>
+      {/if}
     </div>
   </div>
 {/if}
@@ -255,6 +281,36 @@
       0 8px 25px rgba(213, 0, 0, 0.4),
       0 0 0 1px rgba(255, 255, 255, 0.15) inset;
     background: linear-gradient(135deg, rgba(213, 0, 0, 0.95) 0%, rgba(183, 28, 28, 0.95) 100%);
+  }
+
+  .btn-cancel {
+    background: linear-gradient(135deg, rgba(100, 116, 139, 0.9) 0%, rgba(71, 85, 105, 0.9) 100%);
+    color: white;
+    box-shadow:
+      0 4px 20px rgba(100, 116, 139, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .btn-cancel:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow:
+      0 8px 25px rgba(100, 116, 139, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+    background: linear-gradient(135deg, rgba(100, 116, 139, 0.95) 0%, rgba(71, 85, 105, 0.95) 100%);
+  }
+
+  .notify-btn-group {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .notify-btn-group .notify-btn {
+    min-width: 120px;
   }
 
   @media (max-width: 480px) {

@@ -1046,6 +1046,7 @@
       }
     }}
     onClose={() => showNotify = false}
+    onCancel={() => showNotify = false}
   />
 {/if}
 
