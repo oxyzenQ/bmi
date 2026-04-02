@@ -5,19 +5,90 @@
   import { browser } from '$app/environment';
   import { getPerformanceTier } from '$lib/utils/performance';
   import Hero from '$lib/ui/Hero.svelte';
+  import NotifyFloat from '$lib/components/NotifyFloat.svelte';
 
   type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
   type BmiResultsComponentType = typeof import('$lib/components/BmiResults.svelte').default;
   type BmiRadialGaugeComponentType = typeof import('$lib/components/BmiRadialGauge.svelte').default;
-  type ReferenceTableComponentType = typeof import('$lib/components/ReferenceTable.svelte').default;
+  type BmiHealthRiskComponentType = typeof import('$lib/components/BmiHealthRisk.svelte').default;
+  type BmiSnapshotComponentType = typeof import('$lib/components/BmiSnapshot.svelte').default;
+  // NotifyFloat imported directly above
 
   let BmiFormComponent: BmiFormComponentType | null = null;
   let BmiResultsComponent: BmiResultsComponentType | null = null;
   let BmiRadialGaugeComponent: BmiRadialGaugeComponentType | null = null;
-  let ReferenceTableComponent: ReferenceTableComponentType | null = null;
+  let BmiHealthRiskComponent: BmiHealthRiskComponentType | null = null;
+  let BmiSnapshotComponent: BmiSnapshotComponentType | null = null;
+  // NotifyFloat imported directly as NotifyFloat
 
   let calculatorLoad: Promise<void> | null = null;
   let gaugeLoad: Promise<void> | null = null;
+  let healthRiskLoad: Promise<void> | null = null;
+  let snapshotLoad: Promise<void> | null = null;
+
+  // Track if BMI was already saved to prevent duplicates
+  let lastSavedBmi: number | null = null;
+
+  function saveBmiToHistory(bmi: number, h: number, w: number, a: string) {
+    if (!browser) return;
+    if (lastSavedBmi === bmi) return; // Prevent duplicate saves
+
+    const stored = localStorage.getItem('bmi.history');
+    const history: Array<{ timestamp: number; bmi: number; height: number; weight: number; age?: number }> = stored ? JSON.parse(stored) : [];
+
+    const ageNum = a !== '' ? parseInt(a) : undefined;
+
+    const newRecord = {
+      timestamp: Date.now(),
+      bmi,
+      height: h,
+      weight: w,
+      age: ageNum
+    };
+
+    // Keep only last year of data
+    const oneYearAgo = Date.now() - 365 * 24 * 60 * 60 * 1000;
+    const filtered = history.filter((h) => h.timestamp > oneYearAgo);
+    filtered.push(newRecord);
+    filtered.sort((a, b) => a.timestamp - b.timestamp);
+
+    localStorage.setItem('bmi.history', JSON.stringify(filtered));
+    lastSavedBmi = bmi;
+  }
+
+  function ensureHealthRisk() {
+    if (!browser) return Promise.resolve();
+    if (BmiHealthRiskComponent) return Promise.resolve();
+    if (!healthRiskLoad) {
+      healthRiskLoad = import('$lib/components/BmiHealthRisk.svelte')
+        .then((mod) => {
+          BmiHealthRiskComponent = mod.default;
+        })
+        .finally(() => {
+          healthRiskLoad = null;
+        });
+    }
+    return healthRiskLoad;
+  }
+
+  function ensureSnapshot() {
+    if (!browser) return Promise.resolve();
+    if (BmiSnapshotComponent) return Promise.resolve();
+    if (!snapshotLoad) {
+      snapshotLoad = import('$lib/components/BmiSnapshot.svelte')
+        .then((mod) => {
+          BmiSnapshotComponent = mod.default;
+        })
+        .finally(() => {
+          snapshotLoad = null;
+        });
+    }
+    return snapshotLoad;
+  }
+
+  type ReferenceTableComponentType = typeof import('$lib/components/ReferenceTable.svelte').default;
+  let ReferenceTableComponent: ReferenceTableComponentType | null = null;
+
   let referenceLoad: Promise<void> | null = null;
 
   function ensureCalculatorComponents() {
@@ -94,6 +165,12 @@
 
   let calculating = false;
   let resultsRunId = 0;
+
+  // Notification state
+  let showNotify = false;
+  let notifyType: 'success' | 'delete' = 'success';
+  let notifyMessage = '';
+  let notifyButtonText = '';
 
   const currentYear = new Date().getFullYear();
 
@@ -493,7 +570,11 @@
 
   $: if (browser) {
     if (activeIndex === 1) void ensureCalculatorComponents();
-    if (activeIndex === 2) void ensureGaugeComponents();
+    if (activeIndex === 2) {
+      void ensureGaugeComponents();
+      void ensureHealthRisk();
+      void ensureSnapshot();
+    }
     if (activeIndex === 3) void ensureReferenceTable();
   }
 
@@ -564,6 +645,9 @@
       const bmi = parsedWeight / (heightInM * heightInM);
       bmiValue = parseFloat(bmi.toFixed(2));
 
+      // Save to history
+      saveBmiToHistory(bmiValue, parsedHeight, parsedWeight, _a);
+
       // Determine category with improved accuracy
       if (bmi < 18.5) {
         category = 'Underweight';
@@ -590,6 +674,12 @@
     await computeBMIFromInputs(height, weight, age);
     resultsRunId += 1;
     calculating = false;
+
+    // Show success notification
+    notifyType = 'success';
+    notifyMessage = 'your input has been proceed..';
+    notifyButtonText = 'continue to see';
+    showNotify = true;
   }
 
   function clearAllData() {
@@ -600,6 +690,12 @@
     bmiValue = null; // Gauge will show empty/neutral state
     category = null;
     resultsRunId += 1;
+
+    // Show delete notification
+    notifyType = 'delete';
+    notifyMessage = 'all data has been cleared..';
+    notifyButtonText = 'understand';
+    showNotify = true;
   }
 
   $: if (bmiValue !== null) {
@@ -742,6 +838,22 @@
                   bmi={bmiValue || 0}
                   category={category}
                   ultraSmooth={smoothModeRequested}
+                />
+              {/if}
+
+              {#if BmiHealthRiskComponent}
+                <svelte:component
+                  this={BmiHealthRiskComponent}
+                  bmi={bmiValue}
+                  category={category}
+                />
+              {/if}
+
+              {#if BmiSnapshotComponent}
+                <svelte:component
+                  this={BmiSnapshotComponent}
+                  currentBmi={bmiValue}
+                  category={category}
                 />
               {/if}
 
@@ -951,6 +1063,17 @@
     </div>
   </div>
 </div>
+
+{#if showNotify}
+  <NotifyFloat
+    show={showNotify}
+    type={notifyType}
+    message={notifyMessage}
+    buttonText={notifyButtonText}
+    onContinue={() => showNotify = false}
+    onClose={() => showNotify = false}
+  />
+{/if}
 
 <style>
   .pager-shell {
