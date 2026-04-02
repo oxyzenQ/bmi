@@ -856,44 +856,6 @@
                   category={category}
                 />
               {/if}
-
-              <div
-                class="gauge-container bmi-rangebar"
-                class:rangebar-animated={smoothModeRequested && !reducedMotionEffective}
-              >
-                <div class="gauge-header">
-                  <div class="gauge-title">
-                    <Ruler class="Gauge" />
-                    <h3>BMI Range</h3>
-                  </div>
-                  <div class="gauge-subtitle">See your position across standard BMI categories</div>
-                </div>
-
-                <div class="rangebar">
-                  <div class="rangebar-track" style={`--marker: ${$animatedMarker}%`} role="img" aria-label={rangeAriaLabel}>
-                    <div class="rangebar-seg range-under" style={`flex: ${segUnder}`} aria-hidden="true"></div>
-                    <div class="rangebar-seg range-normal" style={`flex: ${segNormal}`} aria-hidden="true"></div>
-                    <div class="rangebar-seg range-over" style={`flex: ${segOver}`} aria-hidden="true"></div>
-                    <div class="rangebar-seg range-obese" style={`flex: ${segObese}`} aria-hidden="true"></div>
-
-                    {#if bmiValue !== null}
-                      {#key resultsRunId}
-                        <div class="rangebar-marker-wrap" aria-hidden="true">
-                          <div class="rangebar-marker"></div>
-                          <div class="rangebar-marker-badge">{markerBmiText}</div>
-                        </div>
-                      {/key}
-                    {/if}
-                  </div>
-
-                  <div class="rangebar-legend" aria-hidden="true">
-                    <span class="rangebar-legend-item legend-under">Underweight</span>
-                    <span class="rangebar-legend-item legend-normal">Normal</span>
-                    <span class="rangebar-legend-item legend-over">Overweight</span>
-                    <span class="rangebar-legend-item legend-obese">Obese</span>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         {/if}
@@ -1070,7 +1032,13 @@
     type={notifyType}
     message={notifyMessage}
     buttonText={notifyButtonText}
-    onContinue={() => showNotify = false}
+    onContinue={() => {
+      showNotify = false;
+      // Auto-redirect to gauge section (index 2) for success notification
+      if (notifyType === 'success') {
+        goTo(2);
+      }
+    }}
     onClose={() => showNotify = false}
   />
 {/if}

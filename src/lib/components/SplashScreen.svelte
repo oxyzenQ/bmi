@@ -17,7 +17,7 @@
   let showSkipButton = false;
   let showRocket = false;
   let titleText = "Hey...welcome";
-  let subtitleText = "Copyright by rezky nightky 2025";
+  let subtitleText = "Copyright by rezky nightky 2025-2026";
   let currentTitleText = "";
   let currentSubtitleText = "";
   const dispatch = createEventDispatcher();

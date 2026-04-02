@@ -1,4 +1,4 @@
-/* Author: Rezky Nightky */
+/* Author: Rezky Nightky 2025-2026 */
 /* ==============================
   FONTS & IMPORTS
   ============================== */
@@ -738,7 +738,7 @@ button[aria-disabled="true"] {
 .hero-content {
   max-width: 800px;
   margin: 0 auto;
-  margin-top: clamp(40px, 40vh, 70px) !important;
+  /* margin-top: clamp(40px, 40vh, 70px) !important; */
   margin-bottom: clamp(40px, 40vh, 180px) !important;
   padding: 3rem 2rem;
   border-radius: 2rem;
@@ -1141,7 +1141,7 @@ button[aria-disabled="true"] {
 }
 
 .bmi-section {
-  margin-top: clamp(40px, 5vh, 200px);
+  /*margin-top: clamp(40px, 5vh, 200px);*/
   margin-bottom: clamp(40px, 5vh, 200px);
 }
 
@@ -1175,7 +1175,7 @@ button[aria-disabled="true"] {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.25rem;
-  margin-top: clamp(40px, 40vh, 160px) !important;
+  /*margin-top: clamp(40px, 40vh, 160px) !important;*/
   margin-bottom: clamp(40px, 40vh, 160px) !important;
   /* bottom safe spacing */
   align-items: start;
@@ -1707,13 +1707,12 @@ button[aria-disabled="true"] {
       ============================== */
 .gauge-container {
   position: relative;
-  padding: 26px 28px 28px;
-  border-radius: 22px;
+  padding: 10px 16px 12px;
+  border-radius: 16px;
   isolation: isolate;
-  width: min(96vw, 960px);
+  width: min(92vw, 420px);
   margin-inline: auto;
-  margin-top: clamp(40px, 40vh, 180px) !important;
-  margin-bottom: auto;
+  margin-bottom: 100px;
 }
 
 /* Main gauge header container */
@@ -1721,8 +1720,8 @@ button[aria-disabled="true"] {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: clamp(1rem, 2vw, 1 rem);
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 /* Title container with icon and text */
@@ -1736,10 +1735,10 @@ button[aria-disabled="true"] {
 
 /* Title text styling */
 .gauge-title h3 {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
   width: 100%;
-  font-size: 2.5rem;
+  font-size: 1.25rem;
   text-align: center;
   color: white;
   /*background: var(--bg-cosmic);
@@ -1750,8 +1749,8 @@ button[aria-disabled="true"] {
 
 /* Icon styling */
 .gauge-title .Gauge {
-  width: 3rem;
-  height: 3rem;
+  width: 2rem;
+  height: 2rem;
   color: var(--accent-blue);
   filter: drop-shadow(0 0 8px color-mix(in oklab, var(--accent-blue) 40%, transparent));
   flex-shrink: 0;
@@ -1761,7 +1760,8 @@ button[aria-disabled="true"] {
 .gauge-subtitle {
   color: grey;
   text-align: center;
-  font-size: clamp(1.1rem, 2vw, 1.3rem);
+  font-size: clamp(0.9rem, 1.5vw, 1rem);
+  margin-top: 0;
   font-weight: 400;
   letter-spacing: 0.01em;
   font-feature-settings: "liga" 1, "dlig" 1, "calt" 1;
@@ -1791,7 +1791,8 @@ button[aria-disabled="true"] {
 }
 
 .radial-gauge {
-  width: min(70vw, 340px);
+  /*width: min(70vw, 340px);*/
+  width: auto;
   height: auto;
   contain: layout paint style;
   will-change: transform;
@@ -1921,7 +1922,7 @@ button[aria-disabled="true"] {
 .reference-table {
   border-radius: 1.25rem;
   overflow: hidden;
-  margin-top: clamp(40px, 40vh, 180px) !important;
+  /*margin-top: clamp(40px, 40vh, 180px) !important;*/
 }
 
 .reference-table .ref-header {
@@ -2075,9 +2076,9 @@ button[aria-disabled="true"] {
 /* ==============================
       ABOUT BMI SECTION
   ============================== */
-.section-header-v2 {
+/*.section-header-v2 {
   margin-top: clamp(40px, 40vh, 120px) !important;
-}
+}*/
 
 .main-container .section-header-v2 {
   color: white;
@@ -2206,8 +2207,16 @@ button[aria-disabled="true"] {
 }
 
 .gauge-container.bmi-rangebar {
-  margin-top: 1.25rem !important;
-  margin-bottom: clamp(40px, 40vh, 180px) !important;
+  padding-top: 16px !important;
+  margin-bottom: 20px;
+}
+
+.bmi-health-risk {
+  margin-bottom: 100px !important;
+}
+
+.bmi-snapshot {
+  margin-bottom: 200px !important;
 }
 
 .rangebar {
@@ -2749,7 +2758,7 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
   color: white;
   font-size: 1rem;
   padding: clamp(2rem, 4vw, 4rem);
-  margin-top: clamp(40px, 40vh, 180px) !important;
+  /* margin-top: clamp(40px, 40vh, 180px) !important; */
   margin-bottom: clamp(10px, 2vh, 10px) !important;
   /* add 'auto' for horizontal centering */
   border-radius: 2rem;

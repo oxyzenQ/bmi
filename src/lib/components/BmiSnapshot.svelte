@@ -40,7 +40,11 @@
     }
   }
 
-  let bestBmi = $derived(loadBestBmi());
+  let bestBmi = $derived.by(() => {
+    // Reset to null if no current BMI (data cleared)
+    if (currentBmi === null) return null;
+    return loadBestBmi();
+  });
 
   let stats = $derived.by(() => {
     if (currentBmi === null) {
@@ -139,21 +143,21 @@
             Obese
           {/if}
         {:else}
-          No history
+          N/A
         {/if}
       </div>
     </div>
 
     <!-- Target Card -->
-    <div class="snapshot-card target">
+    <div class="snapshot-card target {currentBmi !== null ? '' : 'status-unknown'}">
       <div class="card-label">
         <Activity size={16} />
         <span>Target</span>
       </div>
-      <div class="card-value" style="color: #00C853">
-        {IDEAL_BMI.toFixed(1)}
+      <div class="card-value" style={currentBmi !== null ? 'color: #00C853' : ''}>
+        {currentBmi !== null ? IDEAL_BMI.toFixed(1) : '—'}
       </div>
-      <div class="card-category">Optimal BMI</div>
+      <div class="card-category">{currentBmi !== null ? 'Optimal BMI' : 'N/A'}</div>
     </div>
   </div>
 
