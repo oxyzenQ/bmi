@@ -1141,7 +1141,7 @@ button[aria-disabled="true"] {
 }
 
 .bmi-section {
-  /*margin-top: clamp(40px, 5vh, 200px);*/
+  margin-top: clamp(40px, 5vh, 200px);
   margin-bottom: clamp(40px, 5vh, 200px);
 }
 
@@ -1175,7 +1175,7 @@ button[aria-disabled="true"] {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.25rem;
-  /*margin-top: clamp(40px, 40vh, 160px) !important;*/
+  margin-top: clamp(40px, 40vh, 160px) !important;
   margin-bottom: clamp(40px, 40vh, 160px) !important;
   /* bottom safe spacing */
   align-items: start;
@@ -1922,7 +1922,7 @@ button[aria-disabled="true"] {
 .reference-table {
   border-radius: 1.25rem;
   overflow: hidden;
-  /*margin-top: clamp(40px, 40vh, 180px) !important;*/
+  margin-top: clamp(40px, 40vh, 180px) !important;
 }
 
 .reference-table .ref-header {
@@ -2076,9 +2076,9 @@ button[aria-disabled="true"] {
 /* ==============================
       ABOUT BMI SECTION
   ============================== */
-/*.section-header-v2 {
+.section-header-v2 {
   margin-top: clamp(40px, 40vh, 120px) !important;
-}*/
+}
 
 .main-container .section-header-v2 {
   color: white;
@@ -2758,7 +2758,7 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
   color: white;
   font-size: 1rem;
   padding: clamp(2rem, 4vw, 4rem);
-  /* margin-top: clamp(40px, 40vh, 180px) !important; */
+  margin-top: clamp(40px, 40vh, 180px) !important;
   margin-bottom: clamp(10px, 2vh, 10px) !important;
   /* add 'auto' for horizontal centering */
   border-radius: 2rem;
@@ -4531,4 +4531,105 @@ html[data-performance-tier="low"] .cosmic-particles {
 
 html[data-performance-tier="medium"] .cosmic-particles {
   contain: layout style;
+}
+
+/* ==============================
+   PAGER / BOTTOM NAV STYLES
+   ============================== */
+
+.pager-controls-shell {
+  width: calc(100% - 1.5rem);
+  max-width: 820px;
+  min-width: 0;
+  overflow: visible;
+  background: transparent;
+  margin-inline: auto;
+  position: absolute;
+  bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+
+.pager-controls-shell.pager-hidden {
+  transform: translateX(-50%) translateY(calc(100% + 1rem));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pager-controls-shell::before {
+  content: none;
+  display: none;
+}
+
+.pager-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.pager-btn-futuristic {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.pager-btn-futuristic:hover {
+  transform: scale(1.06) translateY(-1px);
+  background: rgba(147, 112, 219, 0.15);
+  border-color: rgba(147, 112, 219, 0.3);
+  box-shadow:
+    0 12px 40px rgba(147, 112, 219, 0.15),
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.pager-btn-futuristic:active {
+  transform: scale(0.98) translateY(0);
+  background: rgba(147, 112, 219, 0.25);
+  box-shadow:
+    0 4px 16px rgba(147, 112, 219, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.pager-btn-futuristic::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 50%);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.pager-btn-spacer {
+  width: 56px;
+  height: 56px;
+}
+
+@media (max-width: 480px) {
+  .pager-btn-futuristic,
+  .pager-btn-spacer {
+    width: 52px;
+    height: 52px;
+  }
 }

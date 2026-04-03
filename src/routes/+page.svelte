@@ -1036,50 +1036,28 @@
   </main>
 
   <div class="pager-controls-shell" class:pager-hidden={!pagerControlsVisible}>
-    <div class="pager-controls" class:arrow-flow-on={!reducedMotionEffective} aria-label="Section navigation">
+    <div class="pager-controls" aria-label="Section navigation">
       {#if activeIndex > 0}
         <button
           type="button"
-          class="btn btn-ghost pager-arrow pager-arrow-prev"
+          class="pager-btn-futuristic pager-btn-prev"
           aria-label="Previous section"
           on:click={prevSection}
         >
-          <ChevronLeft aria-hidden="true" />
+          <ChevronLeft aria-hidden="true" size={24} />
         </button>
       {:else}
-        <div class="pager-arrow-spacer" aria-hidden="true"></div>
-      {/if}
-
-      <div class="pager-indicator" aria-label={`Section ${activeIndex + 1} of ${sections.length}`}>
-        {activeIndex + 1} / {sections.length}
-      </div>
-
-      {#if !reducedMotionEffective}
-        {#if activeIndex > 0}
-          <div class="pager-arrow-flow pager-arrow-flow-left" aria-hidden="true">
-            <span class="pager-flow-chevron flow-1">‹</span>
-            <span class="pager-flow-chevron flow-2">‹</span>
-            <span class="pager-flow-chevron flow-3">‹</span>
-          </div>
-        {/if}
-
-        {#if activeIndex < sections.length - 1}
-          <div class="pager-arrow-flow pager-arrow-flow-right" aria-hidden="true">
-            <span class="pager-flow-chevron flow-1">›</span>
-            <span class="pager-flow-chevron flow-2">›</span>
-            <span class="pager-flow-chevron flow-3">›</span>
-          </div>
-        {/if}
+        <div class="pager-btn-spacer" aria-hidden="true"></div>
       {/if}
 
       {#if activeIndex < sections.length - 1}
         <button
           type="button"
-          class="btn btn-ghost pager-arrow pager-arrow-next"
+          class="pager-btn-futuristic pager-btn-next"
           aria-label="Next section"
           on:click={nextSection}
         >
-          <ChevronRight aria-hidden="true" />
+          <ChevronRight aria-hidden="true" size={24} />
         </button>
       {:else}
         <div class="pager-arrow-spacer" aria-hidden="true"></div>
@@ -1287,20 +1265,14 @@
     width: calc(100% - 1.5rem);
     max-width: 820px;
     min-width: 0;
-    overflow: hidden;
-    background: rgba(0, 0, 0, 0.82);
-    backdrop-filter: blur(14px) saturate(165%);
-    -webkit-backdrop-filter: blur(14px) saturate(165%);
-    border: var(--btn-border);
-    box-shadow: var(--btn-shadow);
-    border-radius: 9999px;
+    overflow: visible;
+    background: transparent;
     margin-inline: auto;
     position: absolute;
-    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
     z-index: 20;
-    isolation: isolate;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
   }
 
@@ -1310,255 +1282,13 @@
     pointer-events: none;
   }
 
-  .pager-controls-shell::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.92);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .pager-controls {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0.75rem;
-    position: relative;
-    z-index: 1;
-  }
-
-  .pager-arrow-flow {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: inline-flex;
-    align-items: center;
-    gap: var(--flow-gap, 0.42rem);
-    pointer-events: none;
-    z-index: 30;
-    opacity: 0.95;
-    --flow-duration: 2800ms;
-    --flow-stagger-2: 260ms;
-    --flow-stagger-3: 520ms;
-  }
-
-  .pager-arrow-flow-left {
-    --flow-start: -34px;
-    --flow-end: clamp(-260px, -26vw, -140px);
-    --flow-kick: -18px;
-    --flow-settle: -8px;
-    --flow-out: -38px;
-  }
-
-  .pager-arrow-flow-right {
-    --flow-start: 34px;
-    --flow-end: clamp(140px, 26vw, 260px);
-    --flow-kick: 18px;
-    --flow-settle: 8px;
-    --flow-out: 38px;
-  }
-
-  .pager-flow-chevron {
-    font-family: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-      'Liberation Mono', 'Courier New', monospace;
-    font-weight: 700;
-    font-size: clamp(1.1rem, 1.2vw + 0.9rem, 1.55rem);
-    line-height: 1;
-    color: rgba(255, 255, 255, 0.9);
-    text-shadow:
-      0 0 12px color-mix(in oklab, var(--cosmic-purple) 52%, transparent),
-      0 0 24px color-mix(in oklab, var(--cosmic-purple) 34%, transparent);
-    will-change: transform, opacity;
-    opacity: 0;
-  }
-
-  .pager-arrow-flow .pager-flow-chevron {
-    animation: pagerFlow var(--flow-duration) cubic-bezier(0.16, 1, 0.3, 1) infinite;
-  }
-
-  .pager-flow-chevron.flow-1 {
-    animation-delay: 0ms;
-  }
-
-  .pager-flow-chevron.flow-2 {
-    animation-delay: var(--flow-stagger-2);
-  }
-
-  .pager-flow-chevron.flow-3 {
-    animation-delay: var(--flow-stagger-3);
-  }
-
-  @keyframes pagerFlow {
-    0% {
-      transform: translate3d(var(--flow-start), 0, 0) scale(0.92);
-      opacity: 0;
-    }
-
-    12% {
-      opacity: 0.88;
-    }
-
-    60% {
-      transform: translate3d(var(--flow-end), 0, 0) scale(1.1);
-      opacity: 0.72;
-    }
-
-    72% {
-      transform: translate3d(calc(var(--flow-end) + var(--flow-kick)), 0, 0) scale(1.02);
-      opacity: 0.62;
-    }
-
-    82% {
-      transform: translate3d(calc(var(--flow-end) + var(--flow-settle)), 0, 0) scale(1);
-      opacity: 0.56;
-    }
-
-    100% {
-      transform: translate3d(calc(var(--flow-end) + var(--flow-out)), 0, 0) scale(0.92);
-      opacity: 0;
-    }
-  }
-
-  .pager-arrow {
-    justify-self: start;
+  .pager-btn-spacer {
     width: 56px;
     height: 56px;
-    padding: 0;
-    border-radius: 9999px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: visible;
-    isolation: isolate;
-    z-index: 0;
-  }
-
-  .pager-arrow-prev,
-  .pager-arrow-next {
-    color: white;
-    border: 1px solid color-mix(in oklab, var(--aurora-core) 22%, rgba(255, 255, 255, 0.14));
-    backdrop-filter: blur(14px) saturate(175%);
-    -webkit-backdrop-filter: blur(14px) saturate(175%);
-  }
-
-  .pager-arrow-prev {
-    background: var(--bg-last-by-rezky);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 28px color-mix(in oklab, var(--aurora-bright) 28%, transparent);
-    --end-glow-shift-x: 12px;
-  }
-
-  .pager-arrow-next {
-    background: var(--bg-by-rezky);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 28px color-mix(in oklab, var(--cosmic-purple) 30%, transparent);
-    --end-glow-shift-x: -12px;
-  }
-
-  .pager-arrow::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: calc(50% + var(--end-glow-shift-x, 0px));
-    width: 58px;
-    height: 58px;
-    transform: translate(-50%, -50%) scale(0.92);
-    border-radius: 9999px;
-    opacity: 0;
-    z-index: -1;
-    pointer-events: none;
-  }
-
-  .arrow-flow-on .pager-arrow-prev::after,
-  .arrow-flow-on .pager-arrow-next::after {
-    background: radial-gradient(
-      circle,
-      color-mix(in oklab, var(--cosmic-purple) 78%, transparent) 0%,
-      color-mix(in oklab, var(--cosmic-purple) 34%, transparent) 38%,
-      transparent 72%
-    );
-    filter: blur(5px);
-    animation: pagerEndGlow var(--flow-duration, 2800ms) ease-in-out infinite;
-  }
-
-  .arrow-flow-on .pager-arrow-next::after {
-    animation-delay: 140ms;
-  }
-
-  @keyframes pagerEndGlow {
-    0% {
-      opacity: 0.06;
-      transform: translate(-50%, -50%) scale(0.86);
-    }
-
-    52% {
-      opacity: 0.16;
-      transform: translate(-50%, -50%) scale(0.98);
-    }
-
-    70% {
-      opacity: 0.36;
-      transform: translate(-50%, -50%) scale(1.12);
-    }
-
-    84% {
-      opacity: 0.22;
-      transform: translate(-50%, -50%) scale(1);
-    }
-
-    100% {
-      opacity: 0.06;
-      transform: translate(-50%, -50%) scale(0.86);
-    }
-  }
-
-  .pager-controls :global(.pager-arrow:last-child) {
-    justify-self: end;
-  }
-
-  .pager-arrow :global(svg) {
-    width: 26px;
-    height: 26px;
-  }
-
-  .pager-controls :global(.btn)::before {
-    content: none;
-    display: none;
-  }
-
-  .pager-arrow-spacer {
-    width: 56px;
-    height: 56px;
-  }
-
-  .pager-indicator {
-    font: var(--btn-font);
-    height: 44px;
-    padding-inline: 1rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.04);
-    border: var(--btn-border);
-    color: var(--stellar-white);
   }
 
   @media (max-width: 480px) {
-    .pager-tab {
-      height: 36px;
-      padding-inline: 0.75rem;
-      font-size: 0.85rem;
-    }
-
-    .pager-arrow,
-    .pager-arrow-spacer {
+    .pager-btn-spacer {
       width: 52px;
       height: 52px;
     }
