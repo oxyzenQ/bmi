@@ -682,6 +682,14 @@
     showNotify = true;
   }
 
+  function confirmClearData() {
+    // Show confirmation dialog first - don't clear anything yet
+    notifyType = 'delete';
+    notifyMessage = 'Are you sure you want to delete all data? This action cannot be undone.';
+    notifyButtonText = 'Delete';
+    showNotify = true;
+  }
+
   function clearAllData() {
     calculating = false;
     age = '';
@@ -696,12 +704,6 @@
       localStorage.removeItem('bmi.history');
       lastSavedBmi = null;
     }
-
-    // Show delete notification
-    notifyType = 'delete';
-    notifyMessage = 'all data has been cleared..';
-    notifyButtonText = 'understand';
-    showNotify = true;
   }
 
   $: if (bmiValue !== null) {
@@ -812,7 +814,7 @@
                       bind:height
                       bind:weight
                       {calculating}
-                      onClear={clearAllData}
+                      onClear={confirmClearData}
                       onCalculate={handleCalculate}
                     />
                   {/if}
@@ -1043,6 +1045,9 @@
       // Auto-redirect to gauge section (index 2) for success notification
       if (notifyType === 'success') {
         goTo(2);
+      } else if (notifyType === 'delete') {
+        // Perform actual data clearing when delete is confirmed
+        clearAllData();
       }
     }}
     onClose={() => showNotify = false}

@@ -78,9 +78,7 @@
   }
 
   function handleClear() {
-    age = '';
-    height = '';
-    weight = '';
+    // Just trigger confirmation dialog - parent will handle actual clearing
     onClear();
   }
 </script>
