@@ -511,8 +511,9 @@ button[aria-disabled="true"] {
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     0 0 28px color-mix(in oklab, var(--cosmic-purple) 30%, transparent);
-  backdrop-filter: blur(14px) saturate(175%);
-  -webkit-backdrop-filter: blur(14px) saturate(175%);
+  /* Reduced blur from 14px to 8px for GPU performance */
+  backdrop-filter: blur(8px) saturate(175%);
+  -webkit-backdrop-filter: blur(8px) saturate(175%);
 }
 
 .btn-primary:hover {
@@ -539,31 +540,19 @@ button[aria-disabled="true"] {
   height: 4px;
   border-radius: 9999px;
   background: currentColor;
-  opacity: 0.38;
-  animation: btnDotPulse 900ms ease-in-out infinite;
+  opacity: 0.5;
+  /* animation removed for GPU performance */
 }
 
 .btn .btn-dot:nth-child(2) {
-  animation-delay: 120ms;
+  /* animation-delay: 120ms; */
 }
 
 .btn .btn-dot:nth-child(3) {
-  animation-delay: 240ms;
+  /* animation-delay: 240ms; */
 }
 
-@keyframes btnDotPulse {
-
-  0%,
-  100% {
-    transform: translateY(0);
-    opacity: 0.32;
-  }
-
-  50% {
-    transform: translateY(-3px);
-    opacity: 0.85;
-  }
-}
+/* @keyframes btnDotPulse removed for GPU performance */
 
 /* Elegant danger variant */
 .btn-danger {
@@ -573,8 +562,9 @@ button[aria-disabled="true"] {
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     0 0 28px color-mix(in oklab, var(--cosmic-purple) 22%, transparent);
-  backdrop-filter: blur(14px) saturate(175%);
-  -webkit-backdrop-filter: blur(14px) saturate(175%);
+  /* Reduced blur from 14px to 8px for GPU performance */
+  backdrop-filter: blur(8px) saturate(175%);
+  -webkit-backdrop-filter: blur(8px) saturate(175%);
 }
 
 .btn-danger:hover {
@@ -694,11 +684,11 @@ button[aria-disabled="true"] {
 .orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(20px);
-  /* Reduced from 40px for better performance */
-  /* Reduced from 0.25 for lighter GPU load */
-  opacity: 0.2;
-  animation: orbFloat 20s ease-in-out infinite;
+  /* Reduced blur from 20px to 10px for GPU performance */
+  filter: blur(10px);
+  /* Reduced opacity for lighter GPU load */
+  opacity: 0.15;
+  /* animation removed for GPU performance */
 }
 
 .orb-1 {
@@ -719,21 +709,7 @@ button[aria-disabled="true"] {
   animation-delay: -14s;
 }
 
-@keyframes orbFloat {
-
-  0%,
-  100% {
-    transform: translateY(0) translateX(0);
-  }
-
-  33% {
-    transform: translateY(-20px) translateX(10px);
-  }
-
-  66% {
-    transform: translateY(10px) translateX(-15px);
-  }
-}
+/* @keyframes orbFloat removed for GPU performance */
 
 .hero-content {
   max-width: 800px;
@@ -765,77 +741,16 @@ button[aria-disabled="true"] {
   border-radius: 9999px;
   padding: 0.6rem;
   background: none;
-  border: none;
-  backdrop-filter: blur(10px) saturate(160%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   isolation: isolate;
-}
-
-.hero-avatar::before,
-.hero-avatar::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 165%;
-  height: 74%;
-  border-radius: 9999px;
-  transform: translate(-50%, -50%) rotate(-18deg) rotate(0deg);
-  background: linear-gradient(90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.24) 16%,
-      color-mix(in oklab, var(--cosmic-purple) 46%, rgba(255, 255, 255, 0.16)) 44%,
-      color-mix(in oklab, var(--aurora-core) 48%, rgba(255, 255, 255, 0.16)) 58%,
-      rgba(255, 255, 255, 0.24) 84%,
-      transparent 100%);
-  -webkit-mask: radial-gradient(closest-side, transparent 54%, #000 56%, #000 78%, transparent 80%);
-  mask: radial-gradient(closest-side, transparent 54%, #000 56%, #000 78%, transparent 80%);
-  pointer-events: none;
-  mix-blend-mode: screen;
-  animation: saturnRingSpin 14s linear infinite;
-}
-
-.hero-avatar::before {
-  z-index: 1;
-  clip-path: inset(0 0 50% 0);
-  opacity: 0.88;
-  filter: drop-shadow(0 0 34px color-mix(in oklab, var(--cosmic-purple) 48%, transparent));
-}
-
-.hero-avatar::after {
-  z-index: 3;
-  clip-path: inset(50% 0 0 0);
-  opacity: 1;
-  filter: drop-shadow(0 0 42px color-mix(in oklab, var(--aurora-core) 56%, transparent));
+  overflow: hidden;
 }
 
 .hero-avatar img {
   width: 100%;
   height: 100%;
-  border-radius: inherit;
-  display: block;
   object-fit: cover;
-  background: none;
-  position: relative;
-  z-index: 2;
-  border: 2px solid grey;
-}
-
-@keyframes saturnRingSpin {
-  0% {
-    transform: translate(-50%, -50%) rotate(-18deg) rotate(0deg);
-  }
-
-  100% {
-    transform: translate(-50%, -50%) rotate(-18deg) rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-  html:not([data-graphics='render']) .hero-avatar::before,
-  html:not([data-graphics='render']) .hero-avatar::after {
-    animation: none;
-  }
+  border-radius: 50%;
 }
 
 .hero-title {
@@ -885,11 +800,11 @@ button[aria-disabled="true"] {
 }
 
 .sparkle-icon {
-  animation: plasmaGlow 2s ease-in-out infinite;
-  will-change: filter, transform;
+  /* animation removed for GPU performance */
+  will-change: auto;
   backface-visibility: hidden;
   transform: translateZ(0);
-  contain: layout style paint;
+  contain: layout style;
 }
 
 .Telescope {
@@ -898,19 +813,7 @@ button[aria-disabled="true"] {
   height: 56px !important;
 }
 
-@keyframes plasmaGlow {
-
-  0%,
-  100% {
-    filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.6)) drop-shadow(0 0 16px rgba(168, 85, 247, 0.4));
-    transform: scale(1) translateZ(0);
-  }
-
-  50% {
-    filter: drop-shadow(0 0 12px rgba(96, 165, 250, 0.8)) drop-shadow(0 0 24px rgba(168, 85, 247, 0.6));
-    transform: scale(1.05) translateZ(0);
-  }
-}
+/* @keyframes plasmaGlow removed for GPU performance */
 
 .hero-subtitle {
   font-size: 1.25rem;
@@ -1448,8 +1351,10 @@ button[aria-disabled="true"] {
   height: 60px;
   background: var(--atmosphere-horizon);
   border-radius: 50%;
-  filter: blur(15px);
-  animation: iconGlow 2s ease-in-out infinite alternate;
+  /* Reduced blur from 15px to 8px for GPU performance */
+  filter: blur(8px);
+  /* animation removed for GPU performance */
+  opacity: 0.7;
 }
 
 /* Elegant gradient text utility using theme vars
@@ -1500,18 +1405,10 @@ button[aria-disabled="true"] {
   line-height: 1;
   margin-bottom: 1rem;
   text-shadow: 0 0 20px currentColor;
-  animation: valueGlow 2s ease-in-out infinite alternate;
+  /* animation removed for GPU performance */
 }
 
-@keyframes valueGlow {
-  0% {
-    text-shadow: 0 0 20px currentColor;
-  }
-
-  100% {
-    text-shadow: 0 0 30px currentColor, 0 0 40px currentColor;
-  }
-}
+/* @keyframes valueGlow removed for GPU performance */
 
 .bmi-category-container {
   display: flex;
@@ -1810,25 +1707,10 @@ button[aria-disabled="true"] {
 }
 
 .gauge-progress.pulsing {
-  animation: gaugePulse var(--gauge-pulse-dur, 1s) ease-in-out infinite;
+  /* animation removed for GPU performance */
 }
 
-@keyframes gaugePulse {
-  0% {
-    stroke-width: 20;
-    filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.25));
-  }
-
-  50% {
-    stroke-width: 23;
-    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.4));
-  }
-
-  100% {
-    stroke-width: 20;
-    filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.25));
-  }
-}
+/* @keyframes gaugePulse removed for GPU performance */
 
 .gauge-reflection {
   width: min(52vw, 280px);
@@ -2423,8 +2305,9 @@ button[aria-disabled="true"] {
   pointer-events: none;
   transform: translateZ(0);
   white-space: pre-wrap;
-  backdrop-filter: blur(14px) saturate(160%);
-  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  /* Reduced blur from 14px to 8px for GPU performance */
+  backdrop-filter: blur(8px) saturate(160%);
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
 }
 
 .chart-tooltip pre {
@@ -2578,21 +2461,13 @@ html:not([data-graphics='render']) .cosmic-particles {
 html:not([data-graphics='render']) .orb,
 html:not([data-graphics='render']) .sparkle-icon,
 html:not([data-graphics='render']) .plasma-star,
-html:not([data-graphics='render']) .bubble,
-html:not([data-graphics='render']) .hero-avatar::before,
-html:not([data-graphics='render']) .hero-avatar::after {
+html:not([data-graphics='render']) .bubble {
   animation: none !important;
 }
 
 html:not([data-graphics='render']) .hero-avatar {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-}
-
-html:not([data-graphics='render']) .hero-avatar::before,
-html:not([data-graphics='render']) .hero-avatar::after {
-  mix-blend-mode: normal;
-  filter: none !important;
 }
 
 html:not([data-graphics='render']) .plasma-star {
@@ -2693,62 +2568,22 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 .plasma-star.star-1 {
   color: #60a5fa;
   filter: drop-shadow(0 0 6px rgba(96, 165, 250, 0.5));
-  animation: plasmaStarGlow1 4s ease-in-out infinite;
+  /* animation removed for GPU performance */
 }
 
 .plasma-star.star-2 {
   color: #3b82f6;
   filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.5));
-  animation: plasmaStarGlow2 4s ease-in-out infinite 1.3s;
+  /* animation removed for GPU performance */
 }
 
 .plasma-star.star-3 {
   color: #8b5cf6;
   filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.5));
-  animation: plasmaStarGlow3 4s ease-in-out infinite 2.6s;
+  /* animation removed for GPU performance */
 }
 
-@keyframes plasmaStarGlow1 {
-
-  0%,
-  100% {
-    filter: drop-shadow(0 0 6px rgba(96, 165, 250, 0.5));
-    transform: scale(1);
-  }
-
-  50% {
-    filter: drop-shadow(0 0 12px rgba(96, 165, 250, 0.8)) drop-shadow(0 0 20px rgba(96, 165, 250, 0.4));
-    transform: scale(1.05);
-  }
-}
-
-@keyframes plasmaStarGlow2 {
-
-  0%,
-  100% {
-    filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.5));
-    transform: scale(1);
-  }
-
-  50% {
-    filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 20px rgba(59, 130, 246, 0.4));
-    transform: scale(1.05);
-  }
-}
-
-@keyframes plasmaStarGlow3 {
-
-  0%,
-  100% {
-    filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.5));
-    transform: scale(1);
-  }
-
-  50% {
-    filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.8)) drop-shadow(0 0 20px rgba(139, 92, 246, 0.4));
-    transform: scale(1.05);
-  }
-}
+/* @keyframes plasmaStarGlow1/2/3 removed for GPU performance */
 
 /* ==============================
       FOOTER COMPONENTS
@@ -4133,11 +3968,14 @@ p,
   width: 400px;
   height: 400px;
   background: radial-gradient(circle, var(--plasma-glow) 0%, transparent 80%);
-  opacity: 0.1;
-  animation: plasmaPulse 6s ease-in-out infinite alternate;
+  opacity: 0.08;
+  /* animation removed for GPU performance */
   border-radius: 50%;
-  filter: blur(60px);
+  /* Reduced blur from 60px to 15px for GPU performance */
+  filter: blur(15px);
 }
+
+/* @keyframes plasmaPulse removed for GPU performance */
 
 .splash-title {
   font-size: clamp(2.5rem, 8vw, 4.5rem);
@@ -4579,8 +4417,9 @@ html[data-performance-tier="medium"] .cosmic-particles {
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  /* Reduced blur from 20px to 10px for GPU performance */
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
   color: rgba(255, 255, 255, 0.9);
   display: flex;
   align-items: center;
