@@ -197,6 +197,11 @@
   let pagerNavCentered = false;
   let pagerNavAlignRaf: number | null = null;
 
+  // Auto-hide navbar state
+  let lastScrollY = 0;
+  let pagerControlsVisible = true;
+  let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+
   let activePointerId: number | null = null;
   let lastWheelNavAt = 0;
   let switchingTimer: ReturnType<typeof setTimeout> | null = null;
@@ -517,6 +522,25 @@
     const target = event.target as HTMLElement | null;
     if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell')) return;
 
+    // Auto-hide logic for pager-controls
+    const currentScrollY = window.scrollY;
+    const scrollingDown = currentScrollY > lastScrollY;
+    const scrollingUp = currentScrollY < lastScrollY;
+
+    if (scrollingDown && currentScrollY > 50) {
+      pagerControlsVisible = false;
+    } else if (scrollingUp) {
+      pagerControlsVisible = true;
+    }
+
+    lastScrollY = currentScrollY;
+
+    // Show after idle scroll
+    if (scrollTimeout) clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      pagerControlsVisible = true;
+    }, 2000);
+
     const now = Date.now();
     if (now - lastWheelNavAt < 520) return;
 
@@ -619,13 +643,43 @@
 
     const onResize = () => schedulePagerNavAlignment();
     window.addEventListener('resize', onResize);
+
+    // Auto-hide scroll listener for pager-section (container scroll, not window)
+    const onScroll = (event: Event) => {
+      const target = event.target as HTMLElement;
+      if (!target.classList.contains('pager-section')) return;
+
+      const currentScrollY = target.scrollTop;
+      const scrollingDown = currentScrollY > lastScrollY;
+      const scrollingUp = currentScrollY < lastScrollY;
+
+      if (scrollingDown && currentScrollY > 50) {
+        pagerControlsVisible = false;
+      } else if (scrollingUp) {
+        pagerControlsVisible = true;
+      }
+
+      lastScrollY = currentScrollY;
+
+      // Show after idle scroll
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        pagerControlsVisible = true;
+      }, 2000);
+    };
+
+    // Use event delegation on document for pager-section scroll
+    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+
     void tick().then(schedulePagerNavAlignment);
 
     return () => {
       window.removeEventListener('hashchange', onHashChange);
       window.removeEventListener('keydown', handleKeydown);
       window.removeEventListener('resize', onResize);
+      document.removeEventListener('scroll', onScroll, { capture: true });
       if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
+      if (scrollTimeout !== null) clearTimeout(scrollTimeout);
     };
   });
 
@@ -981,7 +1035,7 @@
     {/key}
   </main>
 
-  <div class="pager-controls-shell">
+  <div class="pager-controls-shell" class:pager-hidden={!pagerControlsVisible}>
     <div class="pager-controls" class:arrow-flow-on={!reducedMotionEffective} aria-label="Section navigation">
       {#if activeIndex > 0}
         <button
@@ -1247,6 +1301,13 @@
     transform: translateX(-50%);
     z-index: 20;
     isolation: isolate;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+  }
+
+  .pager-controls-shell.pager-hidden {
+    transform: translateX(-50%) translateY(calc(100% + 1rem));
+    opacity: 0;
+    pointer-events: none;
   }
 
   .pager-controls-shell::before {
