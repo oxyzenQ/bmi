@@ -60,7 +60,7 @@
         bgClass: 'risk-elevated',
         icon: Activity,
         description: 'Increased risk for cardiovascular disease and diabetes',
-        position: 75
+        position: 62.5 + ((bmiVal - 25) / (30 - 25)) * 12.5
       };
     }
 
@@ -71,7 +71,7 @@
       bgClass: 'risk-high',
       icon: AlertTriangle,
       description: 'Significantly increased risk for serious health conditions',
-      position: 90
+      position: 75 + ((bmiVal - 30) / (50 - 30)) * 25
     };
   }
 

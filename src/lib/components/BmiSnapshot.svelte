@@ -63,8 +63,8 @@
     // Calculate progress to ideal (for overweight) or from underweight
     let progressPercent = 0;
     // Use fixed reference bounds for consistent progress calculation
-    const BMI_MIN_REF = 10;  // Extreme underweight reference (BMI <10 is life-threatening)
-    const BMI_MAX_REF = 45;  // Extreme obese reference (BMI >45 is severe)
+    const BMI_MIN_REF = 1;   // Extreme underweight reference (absolute minimum)
+    const BMI_MAX_REF = 50;  // Extreme obese reference (absolute maximum)
 
     if (currentBmi > IDEAL_BMI) {
       // Overweight - progress is reducing toward ideal
