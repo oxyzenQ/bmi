@@ -49,7 +49,7 @@
         bgClass: 'risk-low',
         icon: Heart,
         description: 'Optimal BMI range associated with lowest health risks',
-        position: 50
+        position: ((bmiVal - 18.5) / (24.9 - 18.5)) * 25
       };
     }
 
