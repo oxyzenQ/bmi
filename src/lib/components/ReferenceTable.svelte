@@ -79,6 +79,7 @@
 
   <div class="ref-body">
     {#each bmiCategories as category (category.category)}
+      {@const Icon = category.icon}
       <div
         class="ref-row"
         class:ref-row-underweight={category.category === 'Underweight'}
@@ -88,7 +89,7 @@
       >
         <div class="ref-col" data-label="Category">
           <div class="icon-col">
-            <svelte:component this={category.icon} class={category.iconClass} style={`color: ${category.statusColor}`} />
+            <Icon class={category.iconClass} style={`color: ${category.statusColor}`} />
             <strong>{category.category}</strong>
           </div>
           <div class="muted" style="margin-top: 0.35rem;">

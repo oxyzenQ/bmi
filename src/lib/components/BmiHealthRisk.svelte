@@ -31,7 +31,7 @@
 
     const lowerCat = cat.toLowerCase();
 
-    if (lowerCat.includes('underweight')) {
+    if (lowerCat === 'underweight') {
       return {
         label: 'Moderate Risk',
         color: '#4A90E2',
@@ -42,7 +42,7 @@
       };
     }
 
-    if (lowerCat.includes('normal')) {
+    if (lowerCat === 'normal weight') {
       return {
         label: 'Low Risk',
         color: '#00C853',
@@ -53,7 +53,7 @@
       };
     }
 
-    if (lowerCat.includes('overweight')) {
+    if (lowerCat === 'overweight') {
       return {
         label: 'Elevated Risk',
         color: '#FFD600',
@@ -131,19 +131,19 @@
   <!-- Health tips -->
   <div class="health-tips">
     <h4>Recommendations</h4>
-    {#if category?.toLowerCase().includes('normal')}
+    {#if category?.toLowerCase() === 'normal weight'}
       <ul>
         <li>Maintain your healthy weight with balanced diet</li>
         <li>Regular physical activity (150 min/week)</li>
         <li>Annual health checkups to monitor</li>
       </ul>
-    {:else if category?.toLowerCase().includes('underweight')}
+    {:else if category?.toLowerCase() === 'underweight'}
       <ul>
         <li>Consult a nutritionist for healthy weight gain</li>
         <li>Focus on nutrient-dense foods</li>
         <li>Rule out underlying medical conditions</li>
       </ul>
-    {:else if category?.toLowerCase().includes('overweight') || category?.toLowerCase().includes('obese')}
+    {:else if category?.toLowerCase() === 'overweight' || category?.toLowerCase() === 'obese'}
       <ul>
         <li>Aim for gradual weight loss (0.5-1kg/week)</li>
         <li>Increase daily physical activity</li>

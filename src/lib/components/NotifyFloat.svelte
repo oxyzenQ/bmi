@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { CheckCircle, Trash2, X } from 'lucide-svelte';
+  import { onMount, untrack } from 'svelte';
+  import { CheckCircle, Trash2, X, ShieldAlert } from 'lucide-svelte';
 
   interface Props {
     show?: boolean;
-    type?: 'success' | 'delete';
+    type?: 'success' | 'delete' | 'warn';
     message?: string;
     buttonText?: string;
     onContinue?: () => void;
@@ -24,50 +24,91 @@
 
   let visible = $state(false);
   let mounted = $state(false);
+  let notifyKey = $state(0);
+  let actionTimer: ReturnType<typeof setTimeout> | null = null;
 
+  // Effect handles three triggers:
+  //   1. show: false → true (open)
+  //   2. type or message change while show is true (content change)
+  //   3. mounted: false → true while show is true (mount race condition)
+  // Using untrack on notifyKey to prevent infinite loop (+= reads the value).
   $effect(() => {
-    if (show && mounted) {
-      // Small delay for animation
-      setTimeout(() => visible = true, 10);
-    } else {
+    if (!mounted) return;
+
+    if (!show) {
       visible = false;
+      return;
     }
+
+    // Track type and message so content changes re-trigger animation
+    void type;
+    void message;
+
+    visible = false;
+    untrack(() => { notifyKey += 1; });
+
+    const timer = setTimeout(() => { visible = true; }, 60);
+    return () => { clearTimeout(timer); };
   });
 
   onMount(() => {
     mounted = true;
+    return () => {
+      if (actionTimer) clearTimeout(actionTimer);
+    };
   });
 
   function handleContinue() {
     visible = false;
-    setTimeout(() => {
+    if (actionTimer) clearTimeout(actionTimer);
+    actionTimer = setTimeout(() => {
       onContinue();
+      actionTimer = null;
     }, 200);
   }
 
   function handleCancel() {
     visible = false;
-    setTimeout(() => {
+    if (actionTimer) clearTimeout(actionTimer);
+    actionTimer = setTimeout(() => {
       onCancel();
+      actionTimer = null;
     }, 200);
   }
 
   function handleClose() {
     visible = false;
-    setTimeout(() => {
+    if (actionTimer) clearTimeout(actionTimer);
+    actionTimer = setTimeout(() => {
       onClose();
+      actionTimer = null;
     }, 200);
   }
 
-  const Icon = $derived(type === 'success' ? CheckCircle : Trash2);
-  const iconColor = $derived(type === 'success' ? '#00C853' : '#D50000');
-  const buttonClass = $derived(type === 'success' ? 'btn-success' : 'btn-delete');
+  const Icon = $derived(
+    type === 'success' ? CheckCircle :
+    type === 'warn' ? ShieldAlert :
+    Trash2
+  );
+  const iconColor = $derived(
+    type === 'success' ? '#00C853' :
+    type === 'warn' ? '#F59E0B' :
+    '#D50000'
+  );
+  const buttonClass = $derived(
+    type === 'success' ? 'btn-success' :
+    type === 'warn' ? 'btn-warn' :
+    'btn-delete'
+  );
 </script>
 
 {#if show}
+  {#key notifyKey}
   <div
     class="notify-backdrop"
     class:visible
+    role="dialog"
+    aria-modal="true"
   >
     <div class="notify-float-box">
       <button class="notify-close" onclick={handleClose} aria-label="Close notification">
@@ -80,7 +121,7 @@
 
       <p class="notify-message">{message}</p>
 
-      {#if type === 'delete'}
+      {#if type === 'delete' || type === 'warn'}
         <div class="notify-btn-group">
           <button
             class="notify-btn btn-cancel"
@@ -89,10 +130,10 @@
             Cancel
           </button>
           <button
-            class="notify-btn btn-delete"
+            class="notify-btn {buttonClass}"
             onclick={handleContinue}
           >
-            Delete
+            {buttonText}
           </button>
         </div>
       {:else}
@@ -105,6 +146,7 @@
       {/if}
     </div>
   </div>
+  {/key}
 {/if}
 
 <style>
@@ -311,6 +353,25 @@
 
   .notify-btn-group .notify-btn {
     min-width: 120px;
+  }
+
+  .btn-warn {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.9) 0%, rgba(217, 119, 6, 0.9) 100%);
+    color: white;
+    box-shadow:
+      0 4px 20px rgba(245, 158, 11, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .btn-warn:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow:
+      0 8px 25px rgba(245, 158, 11, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.95) 0%, rgba(217, 119, 6, 0.95) 100%);
   }
 
   @media (max-width: 480px) {

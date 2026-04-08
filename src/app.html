@@ -4,10 +4,8 @@
 <head>
 	<meta charset="utf-8" />
 	<link rel="icon" href="%sveltekit.assets%/assets/new_bmi_logo_2026.webp" />
+	<link rel="manifest" href="/manifest.json" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-
-	<!-- Performance: Preconnect to font CDN -->
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 	<!-- SEO and accessibility -->
 	<meta name="description"
@@ -20,8 +18,8 @@
 	<meta property="og:title" content="A Simple BMI Calc" />
 	<meta property="og:description"
 		content="A simple BMI calc - modern, responsive Body Mass Index calculator with space-themed design." />
+	<meta property="og:image" content="/assets/new_bmi_logo_2026.webp" />
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://your-domain.com" />
 
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary_large_image" />
@@ -30,39 +28,10 @@
 		content="A simple BMI calc - modern, responsive Body Mass Index calculator with space-themed design." />
 
 	<!-- Theme color -->
-	<meta name="theme-color" content="#070a1c" />
+	<meta name="theme-color" content="#7c3aed" />
 	<meta name="msapplication-TileColor" content="#070a1c" />
-	<script>
-		(() => {
-			try {
-				const storedRenderMode = localStorage.getItem('bmi.renderMode');
-				let enabled;
-				if (storedRenderMode === null) {
-					const storedSmooth = localStorage.getItem('bmi.smoothMode');
-					const storedUltra = localStorage.getItem('bmi.ultraSmooth');
-					const hasLegacy = storedSmooth !== null || storedUltra !== null;
-					enabled =
-						hasLegacy
-							? (storedSmooth === '1' || storedSmooth === 'true' || storedUltra === '1' || storedUltra === 'true')
-							: true;
-					localStorage.setItem('bmi.renderMode', enabled ? '1' : '0');
-					localStorage.removeItem('bmi.smoothMode');
-					localStorage.removeItem('bmi.ultraSmooth');
-				} else {
-					enabled = storedRenderMode === '1' || storedRenderMode === 'true';
-					localStorage.removeItem('bmi.smoothMode');
-					localStorage.removeItem('bmi.ultraSmooth');
-				}
-				document.documentElement.dataset.graphics = enabled ? 'render' : 'basic';
-			} catch {
-				// ignore
-			}
-		})();
-	</script>
 
-	<!-- Security headers -->
-	<meta http-equiv="X-Content-Type-Options" content="nosniff" />
-	<meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+	<!-- Security headers are set via hooks.server.ts (authoritative) -->
 
 	%sveltekit.head%
 </head>

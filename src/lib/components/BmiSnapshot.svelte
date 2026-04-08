@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Target, TrendingDown, TrendingUp, Award, Scale, Activity } from 'lucide-svelte';
   import { browser } from '$app/environment';
+  import BmiHistorySparkline from './BmiHistorySparkline.svelte';
 
   interface Props {
     currentBmi?: number | null;
@@ -19,13 +20,19 @@
   // Ideal BMI is 22 (middle of normal range 18.5-25)
   const IDEAL_BMI = 22;
 
-  function loadBestBmi(): number | null {
-    if (!browser) return null;
+  // Best BMI state — updated via $effect (side effect isolated from derived)
+  let bestBmiState: number | null = $state(null);
+
+  // Pure derived from state (no side effects)
+  let bestBmi = $derived<number | null>(bestBmiState);
+
+  function refreshBestBmi() {
+    if (!browser) return;
     try {
       const stored = localStorage.getItem('bmi.history');
-      if (!stored) return null;
+      if (!stored) { bestBmiState = null; return; }
       const history: BMIRecord[] = JSON.parse(stored);
-      if (history.length === 0) return null;
+      if (history.length === 0) { bestBmiState = null; return; }
 
       // Find best BMI - closest to ideal (22) within or near normal range
       const best = history.reduce((best, record) => {
@@ -34,16 +41,19 @@
         return currentDistance < bestDistance ? record : best;
       });
 
-      return best.bmi;
+      bestBmiState = best.bmi;
     } catch {
-      return null;
+      bestBmiState = null;
     }
   }
 
-  let bestBmi = $derived.by(() => {
-    // Reset to null if no current BMI (data cleared)
-    if (currentBmi === null) return null;
-    return loadBestBmi();
+  // Side-effect: read localStorage when currentBmi changes
+  $effect(() => {
+    if (currentBmi === null) {
+      bestBmiState = null;
+    } else {
+      refreshBestBmi();
+    }
   });
 
   let stats = $derived.by(() => {
@@ -220,6 +230,9 @@
         {/if}
       </div>
     </div>
+
+    <!-- BMI History Trend Sparkline -->
+    <BmiHistorySparkline {currentBmi} />
   {:else}
     <div class="empty-snapshot">
       <Activity size={48} />

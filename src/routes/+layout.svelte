@@ -4,7 +4,6 @@
   import SplashScreen from '$lib/components/SplashScreen.svelte';
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
-  import { initScrollOptimizer } from '$lib/utils/scroll-optimizer';
 
   let showSplash = false; // Disabled by default
   let showMainContent = true; // Show content immediately
@@ -25,10 +24,11 @@
   if (browser) {
     renderModeEnabled = initRenderMode();
     renderModeInitialized = true;
+    document.documentElement.dataset.graphics = renderModeEnabled ? 'render' : 'basic';
   }
 
   onMount(() => {
-    const cleanupScroll = initScrollOptimizer();
+    // NOTE: scroll-optimizer merged into +page.svelte unified scroll handler
 
     let cleanupRenderListener: (() => void) | null = null;
 
@@ -50,10 +50,9 @@
 
     // Register service worker for caching (only in production)
     if (browser && 'serviceWorker' in navigator && import.meta.env.PROD) {
-      navigator.serviceWorker.register('/service-worker.js').catch((err) => {
-        if (import.meta.env.DEV) {
-          console.error('Service worker registration failed:', err);
-        }
+      navigator.serviceWorker.register('/service-worker.js', { type: 'classic' }).catch((err) => {
+        // Silently fail in production — caching is a progressive enhancement
+        if (import.meta.env.DEV) console.warn('SW registration skipped:', err.message);
       });
     }
 
@@ -70,7 +69,6 @@
 
     return () => {
       if (timer) clearTimeout(timer);
-      cleanupScroll?.();
       cleanupRenderListener?.();
     };
   });
@@ -86,7 +84,7 @@
   <SplashScreen
     bind:show={showSplash}
     duration={splashDuration}
-    on:complete={handleSplashComplete}
+    onComplete={handleSplashComplete}
   />
 {/if}
 

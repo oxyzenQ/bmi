@@ -1,31 +1,39 @@
 <script lang="ts">
-  import { onMount, onDestroy, createEventDispatcher, afterUpdate } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { fade, fly, scale } from 'svelte/transition';
   import { quintOut, backOut } from 'svelte/easing';
   import { Rocket } from 'lucide-svelte';
 
-  export let show = true;
-  export let duration = 10000;
+  interface Props {
+    show?: boolean;
+    duration?: number;
+    onComplete?: () => void;
+  }
 
-  let visible = show;
-  let lastShow = show;
+  let {
+    show = $bindable(true),
+    duration = 10000,
+    onComplete = () => {}
+  }: Props = $props();
 
-  let splashPhase = 'loading'; // 'loading' -> 'content' -> 'exit'
-  let showTitle = false;
-  let showSubtitle = false;
-  let showLoader = true;
-  let showSkipButton = false;
-  let showRocket = false;
-  let titleText = "Hey...welcome";
-  let subtitleText = "Copyright by rezky nightky 2025-2026";
-  let currentTitleText = "";
-  let currentSubtitleText = "";
-  const dispatch = createEventDispatcher();
+  let visible = $state(false);
+  let splashPhase = $state('loading');
+  let showTitle = $state(false);
+  let showSubtitle = $state(false);
+  let showLoader = $state(true);
+  let showSkipButton = $state(false);
+  let showRocket = $state(false);
+  let currentTitleText = $state('');
+  let currentSubtitleText = $state('');
 
-  let mounted = false;
-  let started = false;
-  let cancelled = false;
+  let mounted = $state(false);
+  let started = $state(false);
+  let cancelled = $state(false);
+  let lastShow = false;
   const timers: Array<ReturnType<typeof setTimeout>> = [];
+
+  const titleText = 'Hey...welcome';
+  const subtitleText = 'Copyright by rezky nightky 2025-2026';
 
   function clearTimers() {
     for (const t of timers) clearTimeout(t);
@@ -57,8 +65,8 @@
     showLoader = true;
     showSkipButton = false;
     showRocket = false;
-    currentTitleText = "";
-    currentSubtitleText = "";
+    currentTitleText = '';
+    currentSubtitleText = '';
   }
 
   function start() {
@@ -118,8 +126,17 @@
 
     schedule(() => {
       visible = false;
-      dispatch('complete');
+      onComplete();
     }, duration);
+  }
+
+  function skipSplash() {
+    cancelled = true;
+    clearTimers();
+    started = false;
+    splashPhase = 'exit';
+    visible = false;
+    onComplete();
   }
 
   onMount(() => {
@@ -129,11 +146,16 @@
     if (show) start();
   });
 
-  afterUpdate(() => {
+  // Watch for external `show` prop changes
+  $effect(() => {
     if (!mounted) return;
-    if (show === lastShow) return;
 
-    if (!show) {
+    // Access show to track it reactively
+    const currentShow = show;
+
+    if (currentShow === lastShow) return;
+
+    if (!currentShow) {
       cancelled = true;
       clearTimers();
       started = false;
@@ -144,7 +166,7 @@
       start();
     }
 
-    lastShow = show;
+    lastShow = currentShow;
   });
 
   onDestroy(() => {
@@ -152,15 +174,6 @@
     mounted = false;
     clearTimers();
   });
-
-  function skipSplash() {
-    cancelled = true;
-    clearTimers();
-    started = false;
-    splashPhase = 'exit';
-    visible = false;
-    dispatch('complete');
-  }
 </script>
 
 {#if visible}
@@ -173,7 +186,8 @@
     {#if showSkipButton}
       <button
         class="skip-button"
-        on:click={skipSplash}
+        onclick={skipSplash}
+        aria-label="Skip splash screen"
         transition:fade={{ duration: 400, delay: 200 }}
       >
         Skip

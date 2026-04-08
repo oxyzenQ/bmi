@@ -1,4 +1,4 @@
-# BMI Calculator – Stellar Edition
+# BMI Calculator – Stellar Edition 10.0
 
 Copyright (C) 2025 Team LOGIGO and rezky_nightky
 

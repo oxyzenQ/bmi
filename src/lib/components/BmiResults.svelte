@@ -1,15 +1,24 @@
 <script lang="ts">
-  import { BarChart3,  CircleSlash2, TrendingUp, Info, AlertCircle, CheckCircle, Activity } from 'lucide-svelte';
-import { onDestroy } from 'svelte';
+  import { BarChart3, CircleSlash2, TrendingUp, Info, AlertCircle, CheckCircle, Activity } from 'lucide-svelte';
+  import { onDestroy } from 'svelte';
   import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
 
-  export let bmiValue: number | null = null;
-  export let category: string | null = null;
-  export let age: number | null = null;
-  export let reducedMotion: boolean = false;
+  interface Props {
+    bmiValue?: number | null;
+    category?: string | null;
+    age?: number | null;
+    reducedMotion?: boolean;
+  }
 
-  $: hasResults = bmiValue !== null && category !== null;
+  let {
+    bmiValue = null,
+    category = null,
+    age = null,
+    reducedMotion = false
+  }: Props = $props();
+
+  let hasResults = $derived(bmiValue !== null && category !== null);
 
   const animatedBmi = tweened(0, { duration: 0, easing: cubicOut });
 
@@ -18,23 +27,29 @@ import { onDestroy } from 'svelte';
     animatedBmi.set(0, { duration: 0 });
   });
 
-  $: if (hasResults) {
-    animatedBmi.set(bmiValue!, { duration: reducedMotion ? 0 : 720, easing: cubicOut });
-  } else {
-    animatedBmi.set(0, { duration: 0 });
-  }
+  // Animate BMI value when results change
+  $effect(() => {
+    if (hasResults) {
+      animatedBmi.set(bmiValue!, { duration: reducedMotion ? 0 : 720, easing: cubicOut });
+    } else {
+      animatedBmi.set(0, { duration: 0 });
+    }
+  });
 
-  // Map category to global CSS class for colors
-  $: catClass = category
-    ? ({
-        'underweight': 'cat-underweight',
-        'normal weight': 'cat-normal',
-        'overweight': 'cat-overweight',
-        'obese': 'cat-obese'
-      }[category.toLowerCase()] || '')
-    : '';
+  let catClass = $derived(
+    category
+      ? ({
+          'underweight': 'cat-underweight',
+          'normal weight': 'cat-normal',
+          'overweight': 'cat-overweight',
+          'obese': 'cat-obese'
+        }[category.toLowerCase()] || '')
+      : ''
+  );
 
-  function getCategoryIcon(category: string) {
+  // Dynamic icon component for the category (Svelte 5 runes: components are dynamic by default)
+  let CategoryIcon = $derived.by(() => {
+    if (!category) return BarChart3;
     switch (category.toLowerCase()) {
       case 'underweight': return AlertCircle;
       case 'normal weight': return CheckCircle;
@@ -42,10 +57,10 @@ import { onDestroy } from 'svelte';
       case 'obese': return Activity;
       default: return BarChart3;
     }
-  }
+  });
 
-  function getHealthAdvice(category: string): string {
-    switch (category.toLowerCase()) {
+  function getHealthAdvice(cat: string): string {
+    switch (cat.toLowerCase()) {
       case 'underweight':
         return 'Consider consulting a healthcare provider about healthy weight gain strategies.';
       case 'normal weight':
@@ -59,10 +74,10 @@ import { onDestroy } from 'svelte';
     }
   }
 
-  function getAgeAdvisory(age: number): string {
-    if (age < 18) {
+  function getAgeAdvisory(a: number): string {
+    if (a < 18) {
       return 'For users under 18, BMI interpretation differs; consult a healthcare professional for age-appropriate guidance.';
-    } else if (age >= 65) {
+    } else if (a >= 65) {
       return 'For older adults (65+), consider muscle mass and consult a healthcare professional for personalized advice.';
     } else {
       return 'This BMI assessment is for adults aged 18-64. For personalized health guidance, consult a healthcare professional.';
@@ -87,7 +102,7 @@ import { onDestroy } from 'svelte';
           {$animatedBmi.toFixed(2)}
         </div>
         <div class="bmi-category-container">
-          <svelte:component this={getCategoryIcon(category!)} class="category-icon" />
+          <CategoryIcon class="category-icon" />
           <span class="bmi-category">
             {category}
           </span>

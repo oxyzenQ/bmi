@@ -5,31 +5,40 @@
   import { cubicOut } from 'svelte/easing';
   import { getPerformanceTier, prefersReducedMotion } from '$lib/utils/performance';
 
-  export let bmi: number = 0;
-  export let category: string | null = null;
-  export let ultraSmooth: boolean = false;
+  interface Props {
+    bmi?: number;
+    category?: string | null;
+    ultraSmooth?: boolean;
+  }
+
+  let {
+    bmi = 0,
+    category = null,
+    ultraSmooth = false
+  }: Props = $props();
 
   // Persisted dataset-like state (visual)
-  let appliedBmi = 0;
-  let appliedColor = 'rgba(148, 163, 184, 0.3)';
-  let appliedCategory: string | null = null;
-  let prevAppliedBmi = 0;
-  let isFilling = false;
+  let appliedBmi = $state(0);
+  let appliedColor = $state('rgba(148, 163, 184, 0.3)');
+  let appliedCategory = $state<string | null>(null);
+  let prevAppliedBmi = $state(0);
+  let isFilling = $state(false);
   let fillTimer: ReturnType<typeof setTimeout> | null = null;
+
+  // Derived animation config
+  let useGlow = $state(false);
+  let usePulse = $state(false);
+  let bmiTweenDuration = $state(0);
+  let strokeDuration = $state('0ms');
+  let strokeDurationFill = $state('0ms');
+  let strokeDelayFill = $state('0ms');
+  let pulseDuration = $state('1s');
 
   const perfTier = getPerformanceTier();
   const reducedMotionPref = prefersReducedMotion();
   const displayBmi = tweened(0, { duration: 0, easing: cubicOut });
 
-  $: reducedMotion = reducedMotionPref && !ultraSmooth;
-
-  let useGlow: boolean;
-  let usePulse: boolean;
-  let bmiTweenDuration: number;
-  let strokeDuration: string;
-  let strokeDurationFill: string;
-  let strokeDelayFill: string;
-  let pulseDuration: string;
+  let reducedMotion = $derived(reducedMotionPref && !ultraSmooth);
 
   const categoryColors: Record<string, string> = {
     'Underweight': '#4A90E2',
@@ -83,24 +92,25 @@
     displayBmi.set(0, { duration: 0 });
   });
 
-  // Reactive entry point that only reads external props
-  $: if (bmi > 0 && category) {
-    applyInputs(bmi, category);
-  } else {
-    // Clear visual state when inputs are cleared
-    prevAppliedBmi = appliedBmi;
-    appliedBmi = 0;
-    appliedColor = 'rgba(148, 163, 184, 0.3)';
-    appliedCategory = null;
-  }
+  // Reactive entry point — syncs props to visual state (side effects: mutations)
+  $effect(() => {
+    if (bmi > 0 && category) {
+      applyInputs(bmi, category);
+    } else {
+      prevAppliedBmi = appliedBmi;
+      appliedBmi = 0;
+      appliedColor = 'rgba(148, 163, 184, 0.3)';
+      appliedCategory = null;
+    }
+  });
 
   // Stroke driven by appliedBmi (persistent)
-  $: appliedPercentage = Math.max(0, Math.min(appliedBmi / maxBMI, 1));
+  let appliedPercentage = $derived(Math.max(0, Math.min(appliedBmi / maxBMI, 1)));
   const strokeDasharray = circumference;
-  $: strokeDashoffset = circumference - (appliedPercentage * circumference);
+  let strokeDashoffset = $derived(circumference - (appliedPercentage * circumference));
 
-  // Center display driven by appliedBmi/appliedCategory
-  $: {
+  // Center display + animation config — side effects (displayBmi.set) + state mutations
+  $effect(() => {
     const ultraEnabled = ultraSmooth && !reducedMotion && perfTier !== 'low';
     useGlow = ultraEnabled && perfTier === 'high';
     usePulse = ultraEnabled;
@@ -134,10 +144,10 @@
     } else {
       displayBmi.set(0, { duration: 0 });
     }
-  }
+  });
 
-  $: bmiDisplayValue = appliedBmi > 0 ? $displayBmi.toFixed(2) : '—';
-  $: categoryDisplayText = appliedCategory ?? 'N/A';
+  let bmiDisplayValue = $derived(appliedBmi > 0 ? $displayBmi.toFixed(2) : '—');
+  let categoryDisplayText = $derived(appliedCategory ?? 'N/A');
 
   // Gradient helpers
   function lighten(hex: string, amount = 0.35) {
@@ -152,8 +162,8 @@
     return `#${toHex(lr)}${toHex(lg)}${toHex(lb)}`;
   }
 
-  $: progressStart = appliedBmi > 0 ? appliedColor : 'rgba(148, 163, 184, 0.3)';
-  $: progressEnd = appliedBmi > 0 ? lighten(appliedColor, 0.25) : 'rgba(148, 163, 184, 0.3)';
+  let progressStart = $derived(appliedBmi > 0 ? appliedColor : 'rgba(148, 163, 184, 0.3)');
+  let progressEnd = $derived(appliedBmi > 0 ? lighten(appliedColor, 0.25) : 'rgba(148, 163, 184, 0.3)');
 </script>
 
 <div class="gauge-container">

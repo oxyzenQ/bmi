@@ -4,37 +4,56 @@
   import { tweened } from 'svelte/motion';
   import { browser } from '$app/environment';
   import { getPerformanceTier } from '$lib/utils/performance';
+  import { importBmiHistory } from '$lib/utils/history-io';
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
-
+  import {
+    Lightbulb,
+    Users,
+    GitBranch,
+    GitCompare,
+    PackageCheck,
+    Wrench,
+    AlertTriangle,
+    Scale,
+    Bot,
+    ChevronLeft,
+    ChevronRight
+  } from 'lucide-svelte';
   type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
   type BmiResultsComponentType = typeof import('$lib/components/BmiResults.svelte').default;
   type BmiRadialGaugeComponentType = typeof import('$lib/components/BmiRadialGauge.svelte').default;
   type BmiHealthRiskComponentType = typeof import('$lib/components/BmiHealthRisk.svelte').default;
   type BmiSnapshotComponentType = typeof import('$lib/components/BmiSnapshot.svelte').default;
-  // NotifyFloat imported directly above
-
-  let BmiFormComponent: BmiFormComponentType | null = null;
-  let BmiResultsComponent: BmiResultsComponentType | null = null;
-  let BmiRadialGaugeComponent: BmiRadialGaugeComponentType | null = null;
-  let BmiHealthRiskComponent: BmiHealthRiskComponentType | null = null;
-  let BmiSnapshotComponent: BmiSnapshotComponentType | null = null;
-  // NotifyFloat imported directly as NotifyFloat
-
+  type BodyFatEstimateComponentType = typeof import('$lib/components/BodyFatEstimate.svelte').default;
+  let BmiFormComponent: BmiFormComponentType | null = $state(null);
+  let BmiResultsComponent: BmiResultsComponentType | null = $state(null);
+  let BmiRadialGaugeComponent: BmiRadialGaugeComponentType | null = $state(null);
+  let BmiHealthRiskComponent: BmiHealthRiskComponentType | null = $state(null);
+  let BmiSnapshotComponent: BmiSnapshotComponentType | null = $state(null);
+  let BodyFatEstimateComponent: BodyFatEstimateComponentType | null = $state(null);
   let calculatorLoad: Promise<void> | null = null;
   let gaugeLoad: Promise<void> | null = null;
   let healthRiskLoad: Promise<void> | null = null;
   let snapshotLoad: Promise<void> | null = null;
+  let bodyFatLoad: Promise<void> | null = null;
 
   // Track if BMI was already saved to prevent duplicates
   let lastSavedBmi: number | null = null;
 
   function saveBmiToHistory(bmi: number, h: number, w: number, a: string) {
     if (!browser) return;
+    if (!window.isSecureContext) return; // Don't store health data in insecure contexts
     if (lastSavedBmi === bmi) return; // Prevent duplicate saves
 
-    const stored = localStorage.getItem('bmi.history');
-    const history: Array<{ timestamp: number; bmi: number; height: number; weight: number; age?: number }> = stored ? JSON.parse(stored) : [];
+    let history: Array<{ timestamp: number; bmi: number; height: number; weight: number; age?: number }> = [];
+    try {
+      const stored = localStorage.getItem('bmi.history');
+      if (stored) history = JSON.parse(stored);
+    } catch {
+      // Corrupted data — reset history silently
+      localStorage.removeItem('bmi.history');
+    }
 
     const ageNum = a !== '' ? parseInt(a) : undefined;
 
@@ -86,8 +105,23 @@
     return snapshotLoad;
   }
 
+  function ensureBodyFat() {
+    if (!browser) return Promise.resolve();
+    if (BodyFatEstimateComponent) return Promise.resolve();
+    if (!bodyFatLoad) {
+      bodyFatLoad = import('$lib/components/BodyFatEstimate.svelte')
+        .then((mod) => {
+          BodyFatEstimateComponent = mod.default;
+        })
+        .finally(() => {
+          bodyFatLoad = null;
+        });
+    }
+    return bodyFatLoad;
+  }
+
   type ReferenceTableComponentType = typeof import('$lib/components/ReferenceTable.svelte').default;
-  let ReferenceTableComponent: ReferenceTableComponentType | null = null;
+  let ReferenceTableComponent: ReferenceTableComponentType | null = $state(null);
 
   let referenceLoad: Promise<void> | null = null;
 
@@ -139,38 +173,26 @@
     }
     return referenceLoad;
   }
-  // icons for About BMI section
-  import {
-    Lightbulb,
-    Users,
-    GitBranch,
-    GitCompare,
-    PackageCheck,
-    Wrench,
-    AlertTriangle,
-    Scale,
-    Bot,
-    Ruler,
-    ChevronLeft,
-    ChevronRight
-  } from 'lucide-svelte';
-
-  let bmiValue: number | null = null;
-  let category: string | null = null;
+  let bmiValue: number | null = $state(null);
+  let category: string | null = $state(null);
 
   // Form inputs default empty strings for validation UX
-  let age: string = '';
-  let height: string = '';
-  let weight: string = '';
+  let age: string = $state('');
+  let height: string = $state('');
+  let weight: string = $state('');
+  let unitSystem = $state<'metric' | 'imperial'>('metric');
+  let unitSystemInitialized = $state(false);
 
-  let calculating = false;
-  let resultsRunId = 0;
+  let calculating = $state(false);
+  let resultsRunId = $state(0);
 
   // Notification state
-  let showNotify = false;
-  let notifyType: 'success' | 'delete' = 'success';
-  let notifyMessage = '';
-  let notifyButtonText = '';
+  let showNotify = $state(false);
+  let notifyType = $state<'success' | 'delete' | 'warn'>('success');
+  let notifyMessage = $state('');
+  let notifyButtonText = $state('');
+  let pendingImportText = $state<string | null>(null);
+
 
   const currentYear = new Date().getFullYear();
 
@@ -187,25 +209,25 @@
     { id: 'info', label: 'Info' }
   ] as const;
 
-  let activeIndex = 0;
-  let lastIndex = 0;
-  let prefersReducedMotion = false;
-  let perfTier: 'high' | 'medium' | 'low' = 'medium';
-  let smoothModeRequested = false;
+  let activeIndex = $state(0);
+  let lastIndex = $state(0);
+  let prefersReducedMotion = $state(false);
+  let perfTier = $state<'high' | 'medium' | 'low'>('medium');
+  let smoothModeRequested = $state(false);
 
   let pagerNavEl: HTMLElement | null = null;
-  let pagerNavCentered = false;
+  let pagerNavCentered = $state(false);
   let pagerNavAlignRaf: number | null = null;
 
   // Auto-hide navbar state
   let lastScrollY = 0;
-  let pagerControlsVisible = true;
+  let pagerControlsVisible = $state(true);
   let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
   let activePointerId: number | null = null;
   let lastWheelNavAt = 0;
   let switchingTimer: ReturnType<typeof setTimeout> | null = null;
-  let pageDestroyed = false;
+  let pageDestroyed = $state(false);
 
   function broadcastSmoothMode(enabled: boolean) {
     if (!browser) return;
@@ -224,9 +246,20 @@
     }
   }
 
-  $: reducedMotionEffective = prefersReducedMotion && !smoothModeRequested;
-  $: smoothModeEnhanced = smoothModeRequested && perfTier !== 'low';
-  $: smoothModeStatus = smoothModeRequested ? 'On' : 'Off';
+  let reducedMotionEffective = $derived(prefersReducedMotion && !smoothModeRequested);
+  let smoothModeEnhanced = $derived(smoothModeRequested && perfTier !== 'low');
+  let smoothModeStatus = $derived(smoothModeRequested ? 'On' : 'Off');
+
+  // Persist unit system in localStorage (only after initialization from onMount)
+  $effect(() => {
+    if (browser && unitSystemInitialized) {
+      try {
+        localStorage.setItem('bmi.unitSystem', unitSystem);
+      } catch {
+        // localStorage unavailable
+      }
+    }
+  });
 
   function springSimple(t: number, amount: number) {
     const base = backOut(t);
@@ -256,7 +289,8 @@
         const dx = phase === 'in' ? (1 - p) * x : p * x;
         const opacity = phase === 'in' ? Math.min(1, p * 1.08) : Math.max(0, 1 - p * 1.15);
 
-        return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: ${opacity.toFixed(4)};`;
+        const pe = phase === 'out' ? 'pointer-events: none;' : '';
+        return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: ${opacity.toFixed(4)}; ${pe}`;
       }
     };
   }
@@ -291,33 +325,21 @@
 
   // Other animation constants
   const SWITCHING_DELAY = 140;
-  const CALC_DELAY_SMOOTH = 260;
-  const CALC_DELAY_BASIC = 200;
   const SPRING_STRENGTH_ENHANCED = 0.14;
   const SPRING_STRENGTH_BASIC = 0.08;
 
-  $: rangeValue = bmiValue;
-  $: rangeMarker =
-    rangeValue === null
-      ? 0
-      : Math.max(
-          0,
-          Math.min(
-            100,
-            ((rangeValue - BMI_BAR_MIN) / (BMI_BAR_MAX - BMI_BAR_MIN)) * 100
+  let rangeMarker =
+    $derived(
+      bmiValue === null
+        ? 0
+        : Math.max(
+            0,
+            Math.min(
+              100,
+              ((bmiValue - BMI_BAR_MIN) / (BMI_BAR_MAX - BMI_BAR_MIN)) * 100
+            )
           )
-        );
-  $: markerBmiText =
-    rangeValue === null
-      ? ''
-      : rangeValue > BMI_BAR_MAX
-        ? `${BMI_BAR_MAX}+`
-        : rangeValue.toFixed(1);
-  $: rangeAriaLabel =
-    rangeValue === null
-      ? 'BMI range bar. Calculate your BMI to see your position.'
-      : `BMI range bar. Your BMI is ${rangeValue.toFixed(1)}. Category ${category ?? 'Unknown'}.`;
-
+    );
   const animatedMarker = tweened(0, { duration: 0, easing: cubicOut });
   let lastMarker = 0;
   let markerTimer: ReturnType<typeof setTimeout> | null = null;
@@ -348,28 +370,17 @@
     }, Math.max(0, overshootDur - SETTLE_DELAY_OFFSET));
   }
 
-  const segUnder = Math.max(0, Math.min(BMI_UNDER_MAX, BMI_BAR_MAX) - BMI_BAR_MIN);
-  const segNormal = Math.max(
-    0,
-    Math.min(BMI_NORMAL_MAX, BMI_BAR_MAX) - Math.max(BMI_UNDER_MAX, BMI_BAR_MIN)
-  );
-  const segOver = Math.max(
-    0,
-    Math.min(BMI_OVER_MAX, BMI_BAR_MAX) - Math.max(BMI_NORMAL_MAX, BMI_BAR_MIN)
-  );
-  const segObese = Math.max(0, BMI_BAR_MAX - Math.max(BMI_OVER_MAX, BMI_BAR_MIN));
-
-  $: pagerDirection = activeIndex >= lastIndex ? 1 : -1;
-  $: pagerMotionDuration = reducedMotionEffective
+  let pagerDirection = $derived(activeIndex >= lastIndex ? 1 : -1);
+  let pagerMotionDuration = $derived(reducedMotionEffective
     ? 0
     : smoothModeRequested
       ? (perfTier === 'high' ? PAGER_DUR_HIGH : perfTier === 'medium' ? PAGER_DUR_MEDIUM : PAGER_DUR_LOW)
-      : PAGER_DUR_BASIC;
-  $: pagerMotionDistance = reducedMotionEffective
+      : PAGER_DUR_BASIC);
+  let pagerMotionDistance = $derived(reducedMotionEffective
     ? 0
     : smoothModeRequested
       ? (perfTier === 'high' ? PAGER_DIST_HIGH : perfTier === 'medium' ? PAGER_DIST_MEDIUM : PAGER_DIST_LOW)
-      : PAGER_DIST_BASIC;
+      : PAGER_DIST_BASIC);
 
   let pagerEl: HTMLDivElement | null = null;
   let pointerStartX: number | null = null;
@@ -522,25 +533,6 @@
     const target = event.target as HTMLElement | null;
     if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell')) return;
 
-    // Auto-hide logic for pager-controls
-    const currentScrollY = window.scrollY;
-    const scrollingDown = currentScrollY > lastScrollY;
-    const scrollingUp = currentScrollY < lastScrollY;
-
-    if (scrollingDown && currentScrollY > 50) {
-      pagerControlsVisible = false;
-    } else if (scrollingUp) {
-      pagerControlsVisible = true;
-    }
-
-    lastScrollY = currentScrollY;
-
-    // Show after idle scroll
-    if (scrollTimeout) clearTimeout(scrollTimeout);
-    scrollTimeout = setTimeout(() => {
-      pagerControlsVisible = true;
-    }, 2000);
-
     const now = Date.now();
     if (now - lastWheelNavAt < 520) return;
 
@@ -574,6 +566,16 @@
     else prevSection();
   }
 
+  // Action: attach passive wheel listener (Svelte 5 doesn't support |passive modifier on onwheel)
+  function passiveWheel(node: HTMLElement) {
+    node.addEventListener('wheel', handleWheel, { passive: true });
+    return {
+      destroy() {
+        node.removeEventListener('wheel', handleWheel);
+      }
+    };
+  }
+
   function schedulePagerNavAlignment() {
     if (!browser) return;
     if (pagerNavAlignRaf !== null) return;
@@ -592,15 +594,20 @@
     if (pagerNavCentered !== nextCentered) pagerNavCentered = nextCentered;
   }
 
-  $: if (browser) {
-    if (activeIndex === 1) void ensureCalculatorComponents();
+  // Lazy-load components when section becomes active
+  $effect(() => {
+    if (!browser) return;
+    if (activeIndex === 1) {
+      void ensureCalculatorComponents();
+    }
     if (activeIndex === 2) {
       void ensureGaugeComponents();
       void ensureHealthRisk();
       void ensureSnapshot();
+      void ensureBodyFat();
     }
     if (activeIndex === 3) void ensureReferenceTable();
-  }
+  });
 
   onMount(() => {
     if (!browser) return;
@@ -629,6 +636,17 @@
     document.documentElement.dataset.performanceTier = perfTier;
     broadcastSmoothMode(smoothModeRequested);
 
+    // Read unit system preference from localStorage
+    try {
+      const storedUnit = localStorage.getItem('bmi.unitSystem');
+      if (storedUnit === 'imperial' || storedUnit === 'metric') {
+        unitSystem = storedUnit;
+      }
+    } catch {
+      // localStorage unavailable
+    }
+    unitSystemInitialized = true;
+
     const idx = indexFromHash(window.location.hash);
     if (idx !== null) goTo(idx, { skipHash: true, skipSwitching: true });
     setHash(sections[activeIndex].id);
@@ -638,22 +656,47 @@
       if (next !== null && next !== activeIndex) goTo(next, { skipHash: true });
     };
 
+    // Cross-tab sync for unit system via storage event
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'bmi.unitSystem') {
+        if (e.newValue === 'imperial' || e.newValue === 'metric') {
+          unitSystem = e.newValue;
+        } else if (e.newValue === null) {
+          unitSystem = 'metric';
+        }
+      }
+    };
+    window.addEventListener('storage', onStorage);
+
     window.addEventListener('hashchange', onHashChange);
     window.addEventListener('keydown', handleKeydown);
 
     const onResize = () => schedulePagerNavAlignment();
     window.addEventListener('resize', onResize);
 
-    // Auto-hide scroll listener for pager-section (container scroll, not window)
+    // Unified scroll listener: is-scrolling class + pager-controls auto-hide
+    let isScrolling = false;
+    let isScrollingTimer: ReturnType<typeof setTimeout> | null = null;
     const onScroll = (event: Event) => {
+      // Scroll optimizer: add is-scrolling class during active scroll
+      if (!isScrolling) {
+        isScrolling = true;
+        document.body.classList.add('is-scrolling');
+      }
+      if (isScrollingTimer) clearTimeout(isScrollingTimer);
+      isScrollingTimer = setTimeout(() => {
+        isScrolling = false;
+        document.body.classList.remove('is-scrolling');
+      }, 150);
+
+      // Pager-controls auto-hide: only for pager-section scroll
       const target = event.target as HTMLElement;
       if (!target.classList.contains('pager-section')) return;
 
       const currentScrollY = target.scrollTop;
-      const scrollingDown = currentScrollY > lastScrollY;
       const scrollingUp = currentScrollY < lastScrollY;
 
-      if (scrollingDown && currentScrollY > 50) {
+      if (!scrollingUp && currentScrollY > 50) {
         pagerControlsVisible = false;
       } else if (scrollingUp) {
         pagerControlsVisible = true;
@@ -668,7 +711,7 @@
       }, 2000);
     };
 
-    // Use event delegation on document for pager-section scroll
+    // Use event delegation on document for all scroll events
     document.addEventListener('scroll', onScroll, { capture: true, passive: true });
 
     void tick().then(schedulePagerNavAlignment);
@@ -677,21 +720,30 @@
       window.removeEventListener('hashchange', onHashChange);
       window.removeEventListener('keydown', handleKeydown);
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('storage', onStorage);
       document.removeEventListener('scroll', onScroll, { capture: true });
       if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
       if (scrollTimeout !== null) clearTimeout(scrollTimeout);
+      if (isScrollingTimer) clearTimeout(isScrollingTimer);
+      document.body.classList.remove('is-scrolling');
     };
   });
 
-  async function computeBMIFromInputs(h: string, w: string, _a: string) {
-    const parsedHeight = parseFloat(h);
-    const parsedWeight = parseFloat(w);
+  function computeBMIFromInputs(h: string, w: string, _a: string) {
+    let parsedHeight = parseFloat(h);
+    let parsedWeight = parseFloat(w);
+
+    // Convert imperial to metric before calculation
+    if (unitSystem === 'imperial') {
+      parsedHeight = parsedHeight * 2.54; // inches to cm
+      parsedWeight = parsedWeight * 0.453592; // lbs to kg
+    }
 
     if (
       Number.isFinite(parsedHeight) &&
       Number.isFinite(parsedWeight) &&
       parsedHeight > 0 &&
-      parsedHeight <= 300 &&
+      parsedHeight <= 310 &&
       parsedWeight > 0 &&
       parsedWeight <= 1000
     ) {
@@ -721,18 +773,30 @@
   async function handleCalculate() {
     if (calculating) return;
     calculating = true;
-    const minDelay = reducedMotionEffective ? 0 : (smoothModeRequested ? CALC_DELAY_SMOOTH : CALC_DELAY_BASIC);
-    if (minDelay > 0) {
-      await new Promise((r) => setTimeout(r, minDelay));
-    }
-    await computeBMIFromInputs(height, weight, age);
+
+    // Calculate BMI synchronously (before any await) so that
+    // bmiValue / category are available for the Gauge page.
+    computeBMIFromInputs(height, weight, age);
     resultsRunId += 1;
     calculating = false;
 
-    // Show success notification
+    // Navigate to Gauge NOW — still in the synchronous click-handler
+    // context so Svelte 5's {#key activeIndex} structural re-render
+    // triggers reliably.  Previous approaches (setTimeout / tick().then)
+    // ran goTo() inside async callbacks where {#key} failed silently,
+    // leaving activeIndex desynced from the DOM.
+    // The notification will appear as an overlay on top of the Gauge page.
+    goTo(2);
+
+    // Brief delay so the page transition begins before the
+    // notification overlay fades in on top of Gauge.
+    const overlayDelay = reducedMotionEffective ? 30 : 180;
+    await new Promise((r) => setTimeout(r, overlayDelay));
+
+    // Show success notification (overlaid on the Gauge page)
     notifyType = 'success';
-    notifyMessage = 'your input has been proceed..';
-    notifyButtonText = 'continue to see';
+    notifyMessage = 'Your BMI has been calculated successfully!';
+    notifyButtonText = 'Continue to see';
     showNotify = true;
   }
 
@@ -760,18 +824,20 @@
     }
   }
 
-  $: if (bmiValue !== null) {
-    animateRangeMarker(rangeMarker);
-  } else {
-    lastMarker = 0;
-    animatedMarker.set(0, { duration: 0 });
-  }
+  // Animate range marker when BMI value changes
+  $effect(() => {
+    if (bmiValue !== null) {
+      animateRangeMarker(rangeMarker);
+    } else {
+      lastMarker = 0;
+      animatedMarker.set(0, { duration: 0 });
+    }
+  });
 
   onDestroy(() => {
     pageDestroyed = true;
     if (markerTimer) clearTimeout(markerTimer);
     if (switchingTimer) clearTimeout(switchingTimer);
-    if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
     if (browser) document.body.classList.remove('is-switching');
   });
 
@@ -784,12 +850,13 @@
 
 <div
   class="pager-shell"
-  role="application"
+  role="region"
+  aria-label="BMI Calculator"
   bind:this={pagerEl}
-  on:pointerdown={handlePointerDown}
-  on:pointerup={handlePointerUp}
-  on:pointercancel={handlePointerUp}
-  on:wheel|passive={handleWheel}
+  onpointerdown={handlePointerDown}
+  onpointerup={handlePointerUp}
+  onpointercancel={handlePointerUp}
+  use:passiveWheel
 >
   <div class="pager-nav-shell">
     <nav
@@ -804,7 +871,7 @@
           class="btn btn-ghost pager-tab"
           class:active={idx === activeIndex}
           aria-current={idx === activeIndex ? 'page' : undefined}
-          on:click={() => goTo(idx)}
+          onclick={() => goTo(idx)}
         >
           {section.label}
         </button>
@@ -813,8 +880,9 @@
       <button
         type="button"
         class="btn btn-ghost pager-tab pager-smooth"
+        aria-label="Toggle render mode"
         aria-pressed={smoothModeRequested}
-        on:click={toggleSmoothMode}
+        onclick={toggleSmoothMode}
       >
         <Bot class="render-spark" aria-hidden="true" />
         Render :
@@ -825,7 +893,7 @@
     </nav>
   </div>
 
-  <main class="pager-view" aria-live="polite">
+  <main class="pager-view">
     {#key activeIndex}
       <section
         class="pager-section"
@@ -862,22 +930,35 @@
               <div class="bmi-grid">
                 <div class="form-card">
                   {#if BmiFormComponent}
-                    <svelte:component
-                      this={BmiFormComponent}
+                    <BmiFormComponent
                       bind:age
                       bind:height
                       bind:weight
+                      bind:unitSystem
                       {calculating}
                       onClear={confirmClearData}
                       onCalculate={handleCalculate}
+                      onNotify={(result) => {
+                        if (result.action === 'import-validate' && result.text) {
+                          pendingImportText = result.text;
+                          notifyType = 'warn';
+                          notifyMessage = `Sure to import your data? ${result.recordCount} record${(result.recordCount ?? 0) === 1 ? '' : 's'} found. Be careful with current data because it will be overridden.`;
+                          notifyButtonText = 'Keep Import';
+                          showNotify = true;
+                        } else if (result.action === 'import-error') {
+                          notifyType = 'delete';
+                          notifyMessage = result.error || 'Import failed. Please check the file format.';
+                          notifyButtonText = 'OK';
+                          showNotify = true;
+                        }
+                      }}
                     />
                   {/if}
                 </div>
                 <div class="bmi-card">
                   {#key resultsRunId}
                     {#if BmiResultsComponent}
-                      <svelte:component
-                        this={BmiResultsComponent}
+                      <BmiResultsComponent
                         {bmiValue}
                         {category}
                         age={age === '' ? null : parseInt(age)}
@@ -895,8 +976,7 @@
           <div class="main-container">
             <div class="charts-section">
               {#if BmiRadialGaugeComponent}
-                <svelte:component
-                  this={BmiRadialGaugeComponent}
+                <BmiRadialGaugeComponent
                   bmi={bmiValue || 0}
                   category={category}
                   ultraSmooth={smoothModeRequested}
@@ -904,20 +984,26 @@
               {/if}
 
               {#if BmiHealthRiskComponent}
-                <svelte:component
-                  this={BmiHealthRiskComponent}
+                <BmiHealthRiskComponent
                   bmi={bmiValue}
                   category={category}
                 />
               {/if}
 
               {#if BmiSnapshotComponent}
-                <svelte:component
-                  this={BmiSnapshotComponent}
+                <BmiSnapshotComponent
                   currentBmi={bmiValue}
                   category={category}
                 />
               {/if}
+
+              {#if BodyFatEstimateComponent}
+                <BodyFatEstimateComponent
+                  bmi={bmiValue}
+                  age={age === '' ? null : parseInt(age)}
+                />
+              {/if}
+
             </div>
           </div>
         {/if}
@@ -926,7 +1012,7 @@
           <div class="main-container">
             <!-- Reference Table -->
             {#if ReferenceTableComponent}
-              <svelte:component this={ReferenceTableComponent} />
+              <ReferenceTableComponent />
             {/if}
           </div>
         {/if}
@@ -979,7 +1065,7 @@
                     <div class="app-info">
                       <p class="info-row">
                         <PackageCheck class="PackageCheck" />
-                        <strong>Version:</strong>Stellar-6.0 <span class="commit-id">({gitCommitId})</span>
+                        <strong>Version:</strong>Stellar-10.0 <span class="commit-id">({gitCommitId})</span>
                       </p>
                       <p class="info-row">
                         <GitBranch class="GitBranch" />
@@ -1042,7 +1128,7 @@
           type="button"
           class="pager-btn-futuristic pager-btn-prev"
           aria-label="Previous section"
-          on:click={prevSection}
+          onclick={prevSection}
         >
           <ChevronLeft aria-hidden="true" size={24} />
         </button>
@@ -1055,7 +1141,7 @@
           type="button"
           class="pager-btn-futuristic pager-btn-next"
           aria-label="Next section"
-          on:click={nextSection}
+          onclick={nextSection}
         >
           <ChevronRight aria-hidden="true" size={24} />
         </button>
@@ -1072,18 +1158,38 @@
     type={notifyType}
     message={notifyMessage}
     buttonText={notifyButtonText}
-    onContinue={() => {
-      showNotify = false;
-      // Auto-redirect to gauge section (index 2) for success notification
-      if (notifyType === 'success') {
-        goTo(2);
+    onContinue={async () => {
+      if (notifyType === 'warn' && pendingImportText) {
+        // User confirmed import — perform it now
+        const result = await importBmiHistory(pendingImportText);
+        pendingImportText = null;
+        if (result.success) {
+          const checksumMsg = result.checksumVerified ? ' ✓ Checksum verified' : '';
+          notifyType = 'success';
+          notifyMessage = `Successfully imported ${result.count} record${result.count === 1 ? '' : 's'}!${checksumMsg}`;
+          notifyButtonText = 'OK';
+        } else {
+          notifyType = 'delete';
+          notifyMessage = result.error || 'Import failed.';
+          notifyButtonText = 'OK';
+        }
+      } else if (notifyType === 'success') {
+        // Navigation to Gauge already happened in handleCalculate
+        // (synchronous click-handler context). Just dismiss the notification.
+        showNotify = false;
       } else if (notifyType === 'delete') {
-        // Perform actual data clearing when delete is confirmed
+        showNotify = false;
         clearAllData();
       }
     }}
-    onClose={() => showNotify = false}
-    onCancel={() => showNotify = false}
+    onClose={() => {
+      pendingImportText = null;
+      showNotify = false;
+    }}
+    onCancel={() => {
+      pendingImportText = null;
+      showNotify = false;
+    }}
   />
 {/if}
 
