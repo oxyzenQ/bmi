@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import { CheckCircle, Trash2, X, ShieldAlert } from 'lucide-svelte';
 
   interface Props {
@@ -26,27 +26,28 @@
   let mounted = $state(false);
   let notifyKey = $state(0);
 
-  // Track previous values to detect content changes while show stays true
-  let prevShow = false;
-  let prevType = '';
-  let prevMessage = '';
-
+  // Effect handles three triggers:
+  //   1. show: false → true (open)
+  //   2. type or message change while show is true (content change)
+  //   3. mounted: false → true while show is true (mount race condition)
+  // Using untrack on notifyKey to prevent infinite loop (+= reads the value).
   $effect(() => {
-    const contentChanged = (show && prevShow) && (type !== prevType || message !== prevMessage);
-    const justOpened = show && !prevShow;
+    if (!mounted) return;
 
-    prevShow = show;
-    prevType = type;
-    prevMessage = message;
-
-    if ((justOpened || contentChanged) && mounted) {
-      // Reset animation
+    if (!show) {
       visible = false;
-      notifyKey += 1;
-      setTimeout(() => { visible = true; }, 50);
-    } else if (!show) {
-      visible = false;
+      return;
     }
+
+    // Track type and message so content changes re-trigger animation
+    void type;
+    void message;
+
+    visible = false;
+    untrack(() => { notifyKey += 1; });
+
+    const timer = setTimeout(() => { visible = true; }, 60);
+    return () => { clearTimeout(timer); };
   });
 
   onMount(() => {
