@@ -48,6 +48,7 @@
 
   function saveBmiToHistory(bmi: number, h: number, w: number, a: string) {
     if (!browser) return;
+    if (!window.isSecureContext) return; // Don't store health data in insecure contexts
     if (lastSavedBmi === bmi) return; // Prevent duplicate saves
 
     let history: Array<{ timestamp: number; bmi: number; height: number; weight: number; age?: number }> = [];

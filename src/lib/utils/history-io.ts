@@ -1,19 +1,17 @@
 /**
- * BMI History Export/Import utilities with BLAKE3 checksum verification.
+ * BMI History Export/Import utilities with SHA-256 checksum verification.
  *
  * Export wraps records in a versioned envelope with a cryptographic checksum
- * (BLAKE3 — fastest production-grade hash, 256-bit / 64-char hex).
+ * (SHA-256 — built-in Web Crypto API, zero dependencies, 64-char hex).
  * Import validates the checksum (rejects tampered files) and overrides
  * existing data when the user confirms.
  *
  * Checksum evolution:
  *   v0 (8-char)  — FNV-1a 32-bit on records only      [legacy, no longer exported]
  *   v1 (16-char) — FNV-1a+DJB2 64-bit on full envelope  [legacy, no longer exported]
- *   v2 (64-char) — BLAKE3 256-bit on full envelope       [current]
+ *   v2 (64-char) — SHA-256 256-bit on full envelope      [current]
  * All three formats are still accepted on import for backward compatibility.
  */
-
-import { blake3 } from 'hash-wasm';
 
 interface BmiRecord {
   timestamp: number;
@@ -33,12 +31,17 @@ interface ExportedEnvelope {
 }
 
 // ---------------------------------------------------------------------------
-// BLAKE3 hash — covers the *entire* export envelope (version, source,
+// SHA-256 hash — covers the *entire* export envelope (version, source,
 // exportedAt, and the JSON-serialized records).  Swapping any field —
 // including metadata — breaks the checksum.
+// Uses built-in Web Crypto API — zero dependencies.
 // ---------------------------------------------------------------------------
 async function computeHash(data: string): Promise<string> {
-  return blake3(data);
+  const encoder = new TextEncoder();
+  const dataBuffer = encoder.encode(data);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+  const hashArray = new Uint8Array(hashBuffer);
+  return Array.from(hashArray, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 // ---------------------------------------------------------------------------
@@ -86,7 +89,7 @@ function toRecord(entry: unknown): BmiRecord {
     bmi: r.bmi as number,
     height: r.height as number,
     weight: r.weight as number,
-    age: typeof r.age === 'number' ? (r.age as number) : undefined
+    age: typeof r.age === 'number' ? r.age : undefined
   };
 }
 
@@ -158,7 +161,7 @@ function buildPayload(version: number, source: string, exportedAt: string, recor
 
 /**
  * Verify a checksum with backward compatibility for all three formats:
- *   64-char → BLAKE3 256-bit (current)
+ *   64-char → SHA-256 256-bit (current)
  *   16-char → FNV-1a + DJB2 64-bit (v1 legacy)
  *    8-char → FNV-1a 32-bit     (v0 legacy)
  */
@@ -170,7 +173,7 @@ async function verifyChecksum(
   recordsJson: string
 ): Promise<boolean> {
   if (checksum.length === 64) {
-    // v2: BLAKE3 on full envelope
+    // v2: SHA-256 on full envelope
     const payload = buildPayload(version, source, exportedAt, recordsJson);
     const expected = await computeHash(payload);
     return checksum === expected;

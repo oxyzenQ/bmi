@@ -1,13 +1,13 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { type UserConfig } from 'vite';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 
 // Get commit info from local git (fast, no network needed)
 function getLocalGitInfo(): { sha: string; branch: string } {
   try {
-    const sha = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim();
-    const branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf-8' }).trim();
+    const sha = execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf-8' }).trim();
+    const branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { encoding: 'utf-8' }).trim();
     return { sha, branch };
   } catch {
     return { sha: 'unknown', branch: 'main' };

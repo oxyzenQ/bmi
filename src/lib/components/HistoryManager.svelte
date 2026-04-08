@@ -1,14 +1,23 @@
 <script lang="ts">
   import { ArrowDownToLine, ArrowUpFromLine } from 'lucide-svelte';
-  import { exportBmiHistory, importBmiHistory } from '$lib/utils/history-io';
+  import { exportBmiHistory, validateBmiImport, importBmiHistory } from '$lib/utils/history-io';
 
   interface Props {
-    onNotify?: (type: 'success' | 'delete', message: string) => void;
+    onNotify?: (result: ImportNotifyResult) => void;
   }
 
   let { onNotify }: Props = $props();
 
   let fileInputEl: HTMLInputElement | undefined = $state();
+  let pendingImportText: string | null = null;
+
+  interface ImportNotifyResult {
+    action: 'import-validate' | 'import-error';
+    text?: string;
+    recordCount?: number;
+    checksumVerified?: boolean;
+    error?: string;
+  }
 
   function formatDate(): string {
     const now = new Date();
@@ -21,7 +30,10 @@
   async function handleExport() {
     const json = await exportBmiHistory();
     if (!json) {
-      onNotify?.('delete', 'No history to export.');
+      onNotify?.({
+        action: 'import-error',
+        error: 'No history to export.'
+      });
       return;
     }
 
@@ -47,19 +59,38 @@
 
     try {
       const text = await file.text();
-      const result = await importBmiHistory(text);
+      const validation = await validateBmiImport(text);
 
-      if (result.success) {
-        onNotify?.('success', `Imported ${result.count} record${result.count === 1 ? '' : 's'} successfully.`);
+      if (validation.valid && validation.recordCount) {
+        // Store pending text for confirmed import via onNotify callback
+        pendingImportText = text;
+        onNotify?.({
+          action: 'import-validate',
+          text,
+          recordCount: validation.recordCount,
+          checksumVerified: validation.checksumVerified ?? false
+        });
       } else {
-        onNotify?.('delete', `Import failed: ${result.error}`);
+        onNotify?.({
+          action: 'import-error',
+          error: validation.error || 'Import failed. Please check the file format.'
+        });
       }
     } catch {
-      onNotify?.('delete', 'Import failed: Could not read the file.');
+      onNotify?.({
+        action: 'import-error',
+        error: 'Could not read the file.'
+      });
     }
 
-    // Reset file input so same file can be re-imported
     input.value = '';
+  }
+
+  // Expose pending import text for parent to perform the confirmed import
+  export function getPendingImportText(): string | null {
+    const text = pendingImportText;
+    pendingImportText = null;
+    return text;
   }
 </script>
 
@@ -89,7 +120,7 @@
   .history-actions {
     display: flex;
     gap: 0.75rem;
-    margin-top: 1rem;
+    margin-top: 0.75rem;
     justify-content: center;
     flex-wrap: wrap;
   }
@@ -99,6 +130,7 @@
     align-items: center;
     gap: 0.4rem;
     font-size: 0.85rem;
+    border-radius: 9999px;
   }
 
   .sr-only {
