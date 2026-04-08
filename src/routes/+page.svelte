@@ -219,10 +219,6 @@
   let pendingImportText = $state<string | null>(null);
   // Track notification source to control post-notify behavior
   let notifySource = $state<'calculate' | 'import' | 'clear' | 'error'>('calculate');
-  // Pending navigation index — set during notify callbacks, consumed by $effect
-  // This avoids the race condition of calling goTo() from nested setTimeout callbacks
-  // where Svelte's structural updates ({#key} blocks) may not trigger reliably.
-  let pendingNavIndex: number | null = $state(null);
 
 
 
@@ -668,17 +664,6 @@
     const nextCentered = !overflow;
     if (pagerNavCentered !== nextCentered) pagerNavCentered = nextCentered;
   }
-
-  // Consume pending navigation after notify dismisses.
-  // Runs inside Svelte's reactive update cycle so {#key activeIndex}
-  // structural re-render triggers reliably (fixes nested-setTimeout race condition).
-  $effect(() => {
-    if (pendingNavIndex !== null && !showNotify) {
-      const target = pendingNavIndex;
-      pendingNavIndex = null;
-      goTo(target);
-    }
-  });
 
   // Lazy-load components when section becomes active
   $effect(() => {
@@ -1243,12 +1228,14 @@
         }
       } else if (notifyType === 'success') {
         showNotify = false;
-        // Only navigate to gauge if this was a calculate notification
-        // Defer navigation via pendingNavIndex so it runs inside Svelte's
-        // reactive update cycle — avoids the race condition where goTo() called
-        // from nested setTimeout fails to trigger {#key} structural re-renders.
+        // Only navigate to gauge if this was a calculate notification.
+        // Use tick() to flush the showNotify=false update (NotifyFloat DOM
+        // removal) BEFORE calling goTo(). Calling goTo() inside $effect or
+        // nested setTimeout caused Svelte 5 to batch the activeIndex change
+        // with the effect's own re-run cycle, silently dropping the {#key}
+        // structural re-render on subsequent uses.
         if (notifySource === 'calculate') {
-          pendingNavIndex = 2;
+          void tick().then(() => goTo(2));
         }
       } else if (notifyType === 'delete') {
         showNotify = false;
