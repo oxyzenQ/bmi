@@ -16,8 +16,8 @@
 
   onMount(() => {
     tier = getPerformanceTier();
-    // Smooth rain: low = 15, medium = 25, high = 40 (fewer but smoother)
-    baseParticleCount = tier === 'low' ? 15 : tier === 'medium' ? 25 : 40;
+    // Base rain: low = 10, medium = 10, high = 10
+    baseParticleCount = 10;
     smoothModeEnabled = true;
     updateReduced();
 
@@ -84,10 +84,10 @@
 
   function computeParticleCount(tier: 'high' | 'medium' | 'low', smoothEnabled: boolean) {
     if (!smoothEnabled) return baseParticleCount;
-    // Smooth limits: high=60, medium=40, low=25 (not too many)
-    if (tier === 'high') return Math.min(baseParticleCount + 20, 60);
-    if (tier === 'medium') return Math.min(baseParticleCount + 15, 40);
-    return Math.min(baseParticleCount + 10, 25);
+    // Smooth limits: high=20, medium=15, low=10
+    if (tier === 'high') return Math.min(baseParticleCount + 10, 20);
+    if (tier === 'medium') return Math.min(baseParticleCount + 5, 15);
+    return Math.min(baseParticleCount + 0, 10);
   }
 
   function updateReduced() {

@@ -20,16 +20,19 @@
   // Ideal BMI is 22 (middle of normal range 18.5-25)
   const IDEAL_BMI = 22;
 
-  // Cache best BMI to avoid re-reading localStorage on every reactive cycle
-  let cachedBestBmi: number | null = null;
+  // Best BMI state — updated via $effect (side effect isolated from derived)
+  let bestBmiState: number | null = $state(null);
 
-  function loadBestBmi(): number | null {
-    if (!browser) return null;
+  // Pure derived from state (no side effects)
+  let bestBmi = $derived(bestBmiState);
+
+  function refreshBestBmi() {
+    if (!browser) return;
     try {
       const stored = localStorage.getItem('bmi.history');
-      if (!stored) return null;
+      if (!stored) { bestBmiState = null; return; }
       const history: BMIRecord[] = JSON.parse(stored);
-      if (history.length === 0) return null;
+      if (history.length === 0) { bestBmiState = null; return; }
 
       // Find best BMI - closest to ideal (22) within or near normal range
       const best = history.reduce((best, record) => {
@@ -38,21 +41,19 @@
         return currentDistance < bestDistance ? record : best;
       });
 
-      return best.bmi;
+      bestBmiState = best.bmi;
     } catch {
-      return null;
+      bestBmiState = null;
     }
   }
 
-  // Load best BMI once and cache it; refresh when BMI changes
-  let bestBmi = $derived.by(() => {
+  // Side-effect: read localStorage when currentBmi changes
+  $effect(() => {
     if (currentBmi === null) {
-      cachedBestBmi = null;
-      return null;
+      bestBmiState = null;
+    } else {
+      refreshBestBmi();
     }
-    // Refresh cache on each new BMI calculation
-    cachedBestBmi = loadBestBmi();
-    return cachedBestBmi;
   });
 
   let stats = $derived.by(() => {

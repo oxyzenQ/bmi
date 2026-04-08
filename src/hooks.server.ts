@@ -28,8 +28,7 @@ export const handle: Handle = async ({ event, resolve }) => {
                 ]
                 : [
                         "default-src 'self'",
-                        // Note: 'unsafe-inline' still needed for Svelte's scoped style injection
-                        // Inline script moved from app.html to +layout.svelte module script
+                        // 'unsafe-inline' needed for Svelte style:xxx directives and style={...} bindings
                         "script-src 'self'",
                         "style-src 'self' 'unsafe-inline'",
                         "font-src 'self' data:",

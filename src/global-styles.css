@@ -113,9 +113,9 @@
   --btn-height: 44px;
   --btn-padding-x: 18px;
   --btn-font: 600 0.95rem/1 'Inter Variable', system-ui, -apple-system, sans-serif;
-  --btn-bg: color-mix(in oklab, var(--cosmic-void) 62%, transparent);
-  --btn-bg-hover: color-mix(in oklab, var(--cosmic-void) 52%, transparent);
-  --btn-bg-active: color-mix(in oklab, var(--cosmic-void) 70%, transparent);
+  --btn-bg: color-mix(in oklab, var(--cosmic-void) 80%, transparent);
+  --btn-bg-hover: color-mix(in oklab, var(--cosmic-void) 70%, transparent);
+  --btn-bg-active: color-mix(in oklab, var(--cosmic-void) 88%, transparent);
   --btn-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025));
   --btn-border: 1px solid rgba(255, 255, 255, 0.14);
   --btn-border-hover: 1px solid rgba(255, 255, 255, 0.18);
@@ -389,7 +389,6 @@ pre {
 /* Enhanced liquid glass effect */
 /* All container box background enhancement on here */
 .liquid-glass,
-.hero-content,
 .bmi-card,
 .footer-disclaimer,
 .about-card,
@@ -399,6 +398,20 @@ pre {
 .github-link,
 .section-header,
 .section-header-v2 {
+  background: rgba(10, 8, 24, 0.82);
+  border: var(--border-by-rezky);
+  border-radius: 2rem;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 20px color-mix(in oklab, var(--cosmic-purple) 16%, transparent);
+  transition: transform var(--dur-slow) var(--easing-smooth),
+    box-shadow var(--dur-slow) var(--easing-smooth),
+    border-color var(--dur-slow) var(--easing-smooth);
+}
+
+/* Hero content retains backdrop-filter for main visual impact */
+.hero-content {
   background: rgba(0, 0, 0, 0.500);
   border: var(--border-by-rezky);
   border-radius: 2rem;
@@ -449,8 +462,6 @@ a.button {
   background: var(--btn-surface) padding-box, var(--btn-bg);
   border: var(--btn-border);
   box-shadow: var(--btn-shadow);
-  backdrop-filter: blur(var(--btn-blur)) saturate(var(--btn-saturate));
-  -webkit-backdrop-filter: blur(var(--btn-blur)) saturate(var(--btn-saturate));
   border-radius: var(--btn-radius);
 }
 
@@ -502,9 +513,6 @@ button[aria-disabled="true"] {
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     0 0 28px color-mix(in oklab, var(--cosmic-purple) 30%, transparent);
-  /* Reduced blur from 14px to 8px for GPU performance */
-  backdrop-filter: blur(8px) saturate(175%);
-  -webkit-backdrop-filter: blur(8px) saturate(175%);
 }
 
 .btn-primary:hover {
@@ -553,9 +561,6 @@ button[aria-disabled="true"] {
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     0 0 28px color-mix(in oklab, var(--cosmic-purple) 22%, transparent);
-  /* Reduced blur from 14px to 8px for GPU performance */
-  backdrop-filter: blur(8px) saturate(175%);
-  -webkit-backdrop-filter: blur(8px) saturate(175%);
 }
 
 .btn-danger:hover {
@@ -1196,14 +1201,13 @@ button[aria-disabled="true"] {
   width: 100%;
   max-width: 320px;
   border-radius: 0.75rem;
-  background: rgba(15, 23, 42, 0.239);
+  background: rgba(15, 23, 42, 0.75);
   border-top: 1px solid var(--border-by-rezky);
   border-left: 1px solid var(--border-by-rezky);
   border-bottom: 2px solid grey;
   border-right: 1px solid var(--border-by-rezky);
   color: white;
   font-size: 1rem;
-  backdrop-filter: blur(10px);
   transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -1250,12 +1254,10 @@ button[aria-disabled="true"] {
   min-width: 140px;
   border-radius: 9999px;
   border: 2px solid grey;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  background: rgba(15, 23, 42, 0.55);
   color: #e6f0ff;
   font-weight: 600;
   font-size: 1rem;
-  backdrop-filter: blur(10px) saturate(140%);
-  -webkit-backdrop-filter: blur(10px) saturate(140%);
   position: relative;
   overflow: hidden;
   outline: none;
@@ -2209,10 +2211,8 @@ button[aria-disabled="true"] {
   border-radius: 9999px;
   font: 700 0.8rem/1 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, monospace;
   color: rgba(255, 255, 255, 0.95);
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(12px) saturate(165%);
-  -webkit-backdrop-filter: blur(12px) saturate(165%);
   box-shadow:
     0 10px 22px rgba(0, 0, 0, 0.4),
     0 0 18px color-mix(in oklab, var(--cosmic-purple) 22%, transparent);
@@ -2332,9 +2332,6 @@ button[aria-disabled="true"] {
   pointer-events: none;
   transform: translateZ(0);
   white-space: pre-wrap;
-  /* Reduced blur from 14px to 8px for GPU performance */
-  backdrop-filter: blur(8px) saturate(160%);
-  -webkit-backdrop-filter: blur(8px) saturate(160%);
 }
 
 .chart-tooltip pre {
@@ -2490,11 +2487,6 @@ html:not([data-graphics='render']) .sparkle-icon,
 html:not([data-graphics='render']) .plasma-star,
 html:not([data-graphics='render']) .bubble {
   animation: none !important;
-}
-
-html:not([data-graphics='render']) .hero-avatar {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
 }
 
 html:not([data-graphics='render']) .plasma-star {
@@ -3448,8 +3440,6 @@ html:not([data-graphics='render']) body.is-scrolling :is(.liquid-glass,
   .btn,
   button,
   a.button) {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
   box-shadow: none !important;
 }
 
@@ -3467,8 +3457,6 @@ html:not([data-graphics='render']) body.is-scrolling :is(.form-input,
   filter: none !important;
   box-shadow: none !important;
   text-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
 }
 
 html:not([data-graphics='render']) body.is-switching :is(.liquid-glass,
@@ -3486,8 +3474,6 @@ html:not([data-graphics='render']) body.is-switching :is(.liquid-glass,
   .btn,
   button,
   a.button) {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
   box-shadow: none !important;
 }
 
@@ -3505,19 +3491,13 @@ html:not([data-graphics='render']) body.is-switching :is(.form-input,
   filter: none !important;
   box-shadow: none !important;
   text-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
 }
 
 html:not([data-graphics='render']) body.is-scrolling :is(.pager-nav-shell, .pager-controls-shell) {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
   box-shadow: none !important;
 }
 
 html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .pager-controls-shell) {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
   box-shadow: none !important;
 }
 
@@ -3537,21 +3517,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
     transform: none;
   }
 
-  :is(.liquid-glass,
-    .hero-content,
-    .bmi-card,
-    .footer-disclaimer,
-    .about-card,
-    .gauge-container,
-    .reference-table,
-    .form-card,
-    .github-link,
-    .modal-content,
-    .section-header,
-    .section-header-v2,
-    .btn,
-    button,
-    a.button) {
+  :is(.hero-content, .pager-btn-futuristic) {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }
@@ -3962,14 +3928,13 @@ p,
   padding: 0.75rem 1.5rem;
   border: 1px solid var(--plasma-glow);
   border-radius: 2rem;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.65);
   color: var(--plasma-text-secondary);
   font-family: 'Inter Variable', system-ui, sans-serif;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-  backdrop-filter: blur(10px);
 }
 
 .skip-button:hover {
@@ -4310,24 +4275,8 @@ html[data-performance-tier="low"] {
 }
 
 html[data-performance-tier="low"] :is(
-  .liquid-glass,
   .hero-content,
-  .bmi-card,
-  .footer-disclaimer,
-  .about-card,
-  .gauge-container,
-  .reference-table,
-  .form-card,
-  .github-link,
-  .modal-content,
-  .section-header,
-  .section-header-v2,
-  .btn,
-  button,
-  a.button,
-  .form-input,
-  .pill-indicator,
-  .rangebar-marker-badge
+  .pager-btn-futuristic
 ) {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -4367,20 +4316,6 @@ html[data-performance-tier="low"] :is(
 html[data-performance-tier="medium"] {
   --btn-blur: 6px;
   --btn-saturate: 120%;
-}
-
-html[data-performance-tier="medium"] :is(
-  .liquid-glass,
-  .hero-content,
-  .bmi-card,
-  .footer-disclaimer,
-  .about-card,
-  .gauge-container,
-  .reference-table,
-  .form-card
-) {
-  backdrop-filter: blur(4px) saturate(120%) !important;
-  -webkit-backdrop-filter: blur(4px) saturate(120%) !important;
 }
 
 html[data-performance-tier="medium"] .cosmic-particles .cosmic-particle {
@@ -4518,5 +4453,16 @@ html[data-performance-tier="medium"] .cosmic-particles {
   .pager-btn-spacer {
     width: 52px;
     height: 52px;
+  }
+}
+
+/* ==============================
+   REDUCED MOTION
+   Disable backdrop-filter for accessibility
+   ============================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 }

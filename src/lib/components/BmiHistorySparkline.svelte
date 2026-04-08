@@ -30,15 +30,18 @@
     }
   }
 
-  let history = $derived.by(() => {
-    if (currentBmi === null) return [];
-    return loadHistory();
+  // History state — updated via $effect (side effect isolated from derived)
+  let historyState: BMIRecord[] = $state([]);
+
+  // Side-effect: read localStorage when currentBmi changes
+  $effect(() => {
+    historyState = currentBmi === null ? [] : loadHistory();
   });
 
   let chartData = $derived.by(() => {
-    if (history.length === 0) return null;
+    if (historyState.length === 0) return null;
 
-    const values = history.map(r => r.bmi);
+    const values = historyState.map(r => r.bmi);
     const min = Math.min(...values);
     const max = Math.max(...values);
     const range = max - min || 1;
