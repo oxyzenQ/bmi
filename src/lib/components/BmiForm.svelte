@@ -1,10 +1,14 @@
 <script lang="ts">
-  import { Orbit, User, Ruler, Weight, Zap, Trash2 } from 'lucide-svelte';
+  import { onMount } from 'svelte';
+  import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight } from 'lucide-svelte';
+
+  const isBrowser = typeof window !== 'undefined';
 
   interface Props {
     age?: string;
     height?: string;
     weight?: string;
+    unitSystem?: 'metric' | 'imperial';
     calculating?: boolean;
     onClear: () => void;
     onCalculate: () => void;
@@ -14,10 +18,49 @@
     age = $bindable(''),
     height = $bindable(''),
     weight = $bindable(''),
+    unitSystem = $bindable<'metric' | 'imperial'>('metric'),
     calculating = false,
     onClear,
     onCalculate
   }: Props = $props();
+
+  // Persist unit system preference in localStorage
+  onMount(() => {
+    if (!isBrowser) return;
+    try {
+      const stored = localStorage.getItem('bmi.unitSystem');
+      if (stored === 'imperial' || stored === 'metric') {
+        unitSystem = stored;
+      }
+    } catch {
+      // localStorage unavailable
+    }
+  });
+
+  $effect(() => {
+    if (!isBrowser) return;
+    try {
+      localStorage.setItem('bmi.unitSystem', unitSystem);
+    } catch {
+      // localStorage unavailable
+    }
+  });
+
+  // Derived unit-specific labels, placeholders, and validation bounds
+  let heightLabel = $derived(unitSystem === 'metric' ? 'Height (cm)' : 'Height (in)');
+  let weightLabel = $derived(unitSystem === 'metric' ? 'Weight (kg)' : 'Weight (lbs)');
+  let heightExample = $derived(unitSystem === 'metric' ? 'e.g., 170' : 'e.g., 66');
+  let weightExample = $derived(unitSystem === 'metric' ? 'e.g., 70.5' : 'e.g., 154');
+  let heightAriaLabel = $derived(unitSystem === 'metric' ? 'Height in centimeters' : 'Height in inches');
+  let weightAriaLabel = $derived(unitSystem === 'metric' ? 'Weight in kilograms' : 'Weight in pounds');
+  let heightErrorText = $derived(
+    unitSystem === 'metric' ? 'Height must be between 1-300 cm.' : 'Height must be between 1-120 in.'
+  );
+  let weightErrorText = $derived(
+    unitSystem === 'metric' ? 'Weight must be between 1-1000 kg.' : 'Weight must be between 1-1500 lbs.'
+  );
+  let heightMax = $derived(unitSystem === 'metric' ? 300 : 120);
+  let weightMax = $derived(unitSystem === 'metric' ? 1000 : 1500);
 
   // Sanitizers: age as integer, height/weight as decimals (one dot)
   function sanitizeInteger(value: string): string {
@@ -53,8 +96,8 @@
     const ph = height !== '' ? parseFloat(height) : null;
     const pw = weight !== '' ? parseFloat(weight) : null;
     const av = pa !== null && !isNaN(pa) && pa > 0 && pa <= 120;
-    const hv = ph !== null && !isNaN(ph) && ph > 0 && ph <= 300;
-    const wv = pw !== null && !isNaN(pw) && pw > 0 && pw <= 1000;
+    const hv = ph !== null && !isNaN(ph) && ph > 0 && ph <= heightMax;
+    const wv = pw !== null && !isNaN(pw) && pw > 0 && pw <= weightMax;
     return {
       parsedAge: pa,
       parsedHeight: ph,
@@ -115,6 +158,30 @@
     </div>
   </div>
 
+  <div class="unit-toggle" role="radiogroup" aria-label="Unit system">
+    <button
+      type="button"
+      class="unit-toggle-segment"
+      class:active={unitSystem === 'metric'}
+      role="radio"
+      aria-checked={unitSystem === 'metric'}
+      onclick={() => { unitSystem = 'metric'; }}
+    >
+      <ArrowLeftRight size={14} aria-hidden="true" />
+      Metric (kg/cm)
+    </button>
+    <button
+      type="button"
+      class="unit-toggle-segment"
+      class:active={unitSystem === 'imperial'}
+      role="radio"
+      aria-checked={unitSystem === 'imperial'}
+      onclick={() => { unitSystem = 'imperial'; }}
+    >
+      Imperial (lb/in)
+    </button>
+  </div>
+
   <div class="bmi-form">
     <div class="input-group">
       <label for="age" class="input-label">
@@ -142,7 +209,7 @@
     <div class="input-group">
       <label for="height" class="input-label">
         <Ruler class="Ruler" />
-        Height (cm)
+        {heightLabel}
       </label>
       <input
         type="text"
@@ -151,8 +218,8 @@
         bind:value={height}
         class="form-input"
         inputmode="decimal"
-        placeholder={ageValid ? 'e.g., 170' : 'Enter age first'}
-        aria-label="Height in centimeters"
+        placeholder={ageValid ? heightExample : 'Enter age first'}
+        aria-label={heightAriaLabel}
         aria-invalid={height !== '' && !heightValid}
         disabled={!ageValid}
         aria-disabled={!ageValid}
@@ -160,14 +227,14 @@
         oninput={handleHeightInput}
       />
       {#if height !== '' && !heightValid}
-        <div class="input-error" role="alert">Height must be between 1-300 cm.</div>
+        <div class="input-error" role="alert">{heightErrorText}</div>
       {/if}
     </div>
 
     <div class="input-group">
       <label for="weight" class="input-label">
         <Weight class="Weight" />
-        Weight (kg)
+        {weightLabel}
       </label>
       <input
         type="text"
@@ -176,8 +243,8 @@
         bind:value={weight}
         class="form-input"
         inputmode="decimal"
-        placeholder={heightValid ? 'e.g., 70.5' : 'Enter height first'}
-        aria-label="Weight in kilograms"
+        placeholder={heightValid ? weightExample : 'Enter height first'}
+        aria-label={weightAriaLabel}
         aria-invalid={weight !== '' && !weightValid}
         disabled={!heightValid}
         aria-disabled={!heightValid}
@@ -185,7 +252,7 @@
         oninput={handleWeightInput}
       />
       {#if weight !== '' && !weightValid}
-        <div class="input-error" role="alert">Weight must be between 1-1000 kg.</div>
+        <div class="input-error" role="alert">{weightErrorText}</div>
       {/if}
     </div>
 
@@ -227,3 +294,39 @@
     </div>
   </div>
 </div>
+
+<style>
+  .unit-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    border: var(--btn-border);
+    border-radius: 9999px;
+    padding: 2px;
+    margin: 0 auto 1rem;
+  }
+
+  .unit-toggle-segment {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.7rem;
+    border: none;
+    border-radius: 9999px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: background 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .unit-toggle-segment:hover {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .unit-toggle-segment.active {
+    background: var(--cosmic-purple);
+    color: white;
+  }
+</style>

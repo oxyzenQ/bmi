@@ -12,6 +12,7 @@
   type BmiRadialGaugeComponentType = typeof import('$lib/components/BmiRadialGauge.svelte').default;
   type BmiHealthRiskComponentType = typeof import('$lib/components/BmiHealthRisk.svelte').default;
   type BmiSnapshotComponentType = typeof import('$lib/components/BmiSnapshot.svelte').default;
+  type HistoryManagerComponentType = typeof import('$lib/components/HistoryManager.svelte').default;
   // NotifyFloat imported directly above
 
   let BmiFormComponent: BmiFormComponentType | null = $state(null);
@@ -19,12 +20,14 @@
   let BmiRadialGaugeComponent: BmiRadialGaugeComponentType | null = $state(null);
   let BmiHealthRiskComponent: BmiHealthRiskComponentType | null = $state(null);
   let BmiSnapshotComponent: BmiSnapshotComponentType | null = $state(null);
+  let HistoryManagerComponent: HistoryManagerComponentType | null = $state(null);
   // NotifyFloat imported directly as NotifyFloat
 
   let calculatorLoad: Promise<void> | null = null;
   let gaugeLoad: Promise<void> | null = null;
   let healthRiskLoad: Promise<void> | null = null;
   let snapshotLoad: Promise<void> | null = null;
+  let historyManagerLoad: Promise<void> | null = null;
 
   // Track if BMI was already saved to prevent duplicates
   let lastSavedBmi: number | null = null;
@@ -131,6 +134,21 @@
     return gaugeLoad;
   }
 
+  function ensureHistoryManager() {
+    if (!browser) return Promise.resolve();
+    if (HistoryManagerComponent) return Promise.resolve();
+    if (!historyManagerLoad) {
+      historyManagerLoad = import('$lib/components/HistoryManager.svelte')
+        .then((mod) => {
+          HistoryManagerComponent = mod.default;
+        })
+        .finally(() => {
+          historyManagerLoad = null;
+        });
+    }
+    return historyManagerLoad;
+  }
+
   function ensureReferenceTable() {
     if (!browser) return Promise.resolve();
     if (ReferenceTableComponent) return Promise.resolve();
@@ -168,6 +186,8 @@
   let age: string = $state('');
   let height: string = $state('');
   let weight: string = $state('');
+  let unitSystem = $state<'metric' | 'imperial'>('metric');
+  let unitSystemInitialized = $state(false);
 
   let calculating = $state(false);
   let resultsRunId = $state(0);
@@ -235,6 +255,17 @@
   let reducedMotionEffective = $derived(prefersReducedMotion && !smoothModeRequested);
   let smoothModeEnhanced = $derived(smoothModeRequested && perfTier !== 'low');
   let smoothModeStatus = $derived(smoothModeRequested ? 'On' : 'Off');
+
+  // Persist unit system in localStorage (only after initialization from onMount)
+  $effect(() => {
+    if (browser && unitSystemInitialized) {
+      try {
+        localStorage.setItem('bmi.unitSystem', unitSystem);
+      } catch {
+        // localStorage unavailable
+      }
+    }
+  });
 
   function springSimple(t: number, amount: number) {
     const base = backOut(t);
@@ -614,7 +645,10 @@
   // Lazy-load components when section becomes active
   $effect(() => {
     if (!browser) return;
-    if (activeIndex === 1) void ensureCalculatorComponents();
+    if (activeIndex === 1) {
+      void ensureCalculatorComponents();
+      void ensureHistoryManager();
+    }
     if (activeIndex === 2) {
       void ensureGaugeComponents();
       void ensureHealthRisk();
@@ -650,6 +684,17 @@
     document.documentElement.dataset.performanceTier = perfTier;
     broadcastSmoothMode(smoothModeRequested);
 
+    // Read unit system preference from localStorage
+    try {
+      const storedUnit = localStorage.getItem('bmi.unitSystem');
+      if (storedUnit === 'imperial' || storedUnit === 'metric') {
+        unitSystem = storedUnit;
+      }
+    } catch {
+      // localStorage unavailable
+    }
+    unitSystemInitialized = true;
+
     const idx = indexFromHash(window.location.hash);
     if (idx !== null) goTo(idx, { skipHash: true, skipSwitching: true });
     setHash(sections[activeIndex].id);
@@ -658,6 +703,18 @@
       const next = indexFromHash(window.location.hash);
       if (next !== null && next !== activeIndex) goTo(next, { skipHash: true });
     };
+
+    // Cross-tab sync for unit system via storage event
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'bmi.unitSystem') {
+        if (e.newValue === 'imperial' || e.newValue === 'metric') {
+          unitSystem = e.newValue;
+        } else if (e.newValue === null) {
+          unitSystem = 'metric';
+        }
+      }
+    };
+    window.addEventListener('storage', onStorage);
 
     window.addEventListener('hashchange', onHashChange);
     window.addEventListener('keydown', handleKeydown);
@@ -698,6 +755,7 @@
       window.removeEventListener('hashchange', onHashChange);
       window.removeEventListener('keydown', handleKeydown);
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('storage', onStorage);
       document.removeEventListener('scroll', onScroll, { capture: true });
       if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
       if (scrollTimeout !== null) clearTimeout(scrollTimeout);
@@ -705,14 +763,20 @@
   });
 
   async function computeBMIFromInputs(h: string, w: string, _a: string) {
-    const parsedHeight = parseFloat(h);
-    const parsedWeight = parseFloat(w);
+    let parsedHeight = parseFloat(h);
+    let parsedWeight = parseFloat(w);
+
+    // Convert imperial to metric before calculation
+    if (unitSystem === 'imperial') {
+      parsedHeight = parsedHeight * 2.54; // inches to cm
+      parsedWeight = parsedWeight * 0.453592; // lbs to kg
+    }
 
     if (
       Number.isFinite(parsedHeight) &&
       Number.isFinite(parsedWeight) &&
       parsedHeight > 0 &&
-      parsedHeight <= 300 &&
+      parsedHeight <= 310 &&
       parsedWeight > 0 &&
       parsedWeight <= 1000
     ) {
@@ -890,6 +954,7 @@
                       bind:age
                       bind:height
                       bind:weight
+                      bind:unitSystem
                       {calculating}
                       onClear={confirmClearData}
                       onCalculate={handleCalculate}
@@ -909,6 +974,16 @@
                   {/key}
                 </div>
               </div>
+              {#if HistoryManagerComponent}
+                <HistoryManagerComponent
+                  onNotify={(type, message) => {
+                    notifyType = type;
+                    notifyMessage = message;
+                    notifyButtonText = type === 'success' ? 'OK' : 'Close';
+                    showNotify = true;
+                  }}
+                />
+              {/if}
             </section>
           </div>
         {/if}

@@ -593,6 +593,18 @@ button[aria-disabled="true"] {
   background: color-mix(in oklab, var(--cosmic-void) 48%, transparent);
 }
 
+.btn-secondary {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035)) padding-box,
+    color-mix(in oklab, var(--cosmic-void) 52%, transparent);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.05)) padding-box,
+    color-mix(in oklab, var(--cosmic-void) 44%, transparent);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
 .btn-ghost {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.018)) padding-box,
     color-mix(in oklab, var(--cosmic-void) 58%, transparent);
