@@ -157,8 +157,8 @@
     return `${y}-${m}-${d}`;
   }
 
-  function handleExport() {
-    const json = exportBmiHistory();
+  async function handleExport() {
+    const json = await exportBmiHistory();
     if (!json) return;
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -181,7 +181,7 @@
     if (!file) return;
     try {
       const text = await file.text();
-      const validation = validateBmiImport(text);
+      const validation = await validateBmiImport(text);
 
       if (validation.valid && validation.recordCount) {
         onNotify?.({

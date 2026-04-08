@@ -18,8 +18,8 @@
     return `${y}-${m}-${d}`;
   }
 
-  function handleExport() {
-    const json = exportBmiHistory();
+  async function handleExport() {
+    const json = await exportBmiHistory();
     if (!json) {
       onNotify?.('delete', 'No history to export.');
       return;
@@ -47,7 +47,7 @@
 
     try {
       const text = await file.text();
-      const result = importBmiHistory(text);
+      const result = await importBmiHistory(text);
 
       if (result.success) {
         onNotify?.('success', `Imported ${result.count} record${result.count === 1 ? '' : 's'} successfully.`);

@@ -1160,10 +1160,10 @@
     type={notifyType}
     message={notifyMessage}
     buttonText={notifyButtonText}
-    onContinue={() => {
+    onContinue={async () => {
       if (notifyType === 'warn' && pendingImportText) {
         // User confirmed import — perform it now
-        const result = importBmiHistory(pendingImportText);
+        const result = await importBmiHistory(pendingImportText);
         pendingImportText = null;
         if (result.success) {
           const checksumMsg = result.checksumVerified ? ' ✓ Checksum verified' : '';
