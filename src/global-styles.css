@@ -1164,6 +1164,7 @@ button[aria-disabled="true"] {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  align-items: center;
 }
 
 .input-label {
@@ -1174,6 +1175,16 @@ button[aria-disabled="true"] {
   align-items: center;
   gap: 0.5rem;
   justify-content: center;
+}
+
+.input-error {
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  color: #ff6b6b;
+  font-size: 0.8rem;
+  text-align: center;
+  line-height: 1.3;
 }
 
 .form-input {
@@ -3080,6 +3091,12 @@ p,
     width: 100%;
   }
 
+  .input-error {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
   .button-group .btn {
     width: 100%;
     max-width: 420px;
@@ -3581,6 +3598,13 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
     max-width: 120px;
   }
 
+  .input-error {
+    width: 100%;
+    max-width: 120px;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
   .button-group {
     flex-direction: column;
     align-items: center;
@@ -3597,6 +3621,13 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   .form-input {
     width: 100%;
     max-width: 220px;
+  }
+
+  .input-error {
+    width: 100%;
+    max-width: 220px;
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .button-group {
