@@ -2,8 +2,6 @@
   import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine } from 'lucide-svelte';
   import { exportBmiHistory, validateBmiImport } from '$lib/utils/history-io';
 
-  const isBrowser = typeof window !== 'undefined';
-
   interface Props {
     age?: string;
     height?: string;

@@ -30,7 +30,10 @@
     }
   }
 
-  // History state — updated via $effect (side effect isolated from derived)
+  // History state — intentionally $state + $effect instead of writable $derived
+  // because loadHistory() reads localStorage (side effect). Using $derived here
+  // would reintroduce the Svelte 5 reactive graph desync bug (see PERF-06 / Bug 3).
+  // eslint-disable-next-line svelte/prefer-writable-derived
   let historyState: BMIRecord[] = $state([]);
 
   // Side-effect: read localStorage when currentBmi changes
@@ -116,7 +119,7 @@
     </div>
 
     <div class="sparkline-chart">
-      <svg viewBox="0 0 {CHART_WIDTH} {CHART_HEIGHT}" preserveAspectRatio="none" class="sparkline-svg">
+      <svg viewBox="0 0 {CHART_WIDTH} {CHART_HEIGHT}" preserveAspectRatio="none" class="sparkline-svg" role="img" aria-label="BMI history sparkline chart">
         <!-- Gradient fill -->
         <defs>
           <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">

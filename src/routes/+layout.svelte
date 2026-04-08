@@ -52,7 +52,7 @@
     if (browser && 'serviceWorker' in navigator && import.meta.env.PROD) {
       navigator.serviceWorker.register('/service-worker.js', { type: 'classic' }).catch((err) => {
         // Silently fail in production — caching is a progressive enhancement
-        console.warn('SW registration skipped:', err.message);
+        if (import.meta.env.DEV) console.warn('SW registration skipped:', err.message);
       });
     }
 

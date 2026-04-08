@@ -17,7 +17,6 @@
     AlertTriangle,
     Scale,
     Bot,
-    Ruler,
     ChevronLeft,
     ChevronRight
   } from 'lucide-svelte';
@@ -27,16 +26,12 @@
   type BmiHealthRiskComponentType = typeof import('$lib/components/BmiHealthRisk.svelte').default;
   type BmiSnapshotComponentType = typeof import('$lib/components/BmiSnapshot.svelte').default;
   type BodyFatEstimateComponentType = typeof import('$lib/components/BodyFatEstimate.svelte').default;
-  // NotifyFloat imported directly above
-
   let BmiFormComponent: BmiFormComponentType | null = $state(null);
   let BmiResultsComponent: BmiResultsComponentType | null = $state(null);
   let BmiRadialGaugeComponent: BmiRadialGaugeComponentType | null = $state(null);
   let BmiHealthRiskComponent: BmiHealthRiskComponentType | null = $state(null);
   let BmiSnapshotComponent: BmiSnapshotComponentType | null = $state(null);
   let BodyFatEstimateComponent: BodyFatEstimateComponentType | null = $state(null);
-  // NotifyFloat imported directly as NotifyFloat
-
   let calculatorLoad: Promise<void> | null = null;
   let gaugeLoad: Promise<void> | null = null;
   let healthRiskLoad: Promise<void> | null = null;
@@ -197,9 +192,6 @@
   let notifyMessage = $state('');
   let notifyButtonText = $state('');
   let pendingImportText = $state<string | null>(null);
-  // Track notification source to control post-notify behavior
-  let notifySource = $state<'calculate' | 'import' | 'clear' | 'error'>('calculate');
-
 
 
   const currentYear = new Date().getFullYear();
@@ -333,34 +325,21 @@
 
   // Other animation constants
   const SWITCHING_DELAY = 140;
-  const CALC_DELAY_SMOOTH = 260;
-  const CALC_DELAY_BASIC = 200;
   const SPRING_STRENGTH_ENHANCED = 0.14;
   const SPRING_STRENGTH_BASIC = 0.08;
 
-  let rangeValue = $derived(bmiValue);
   let rangeMarker =
     $derived(
-      rangeValue === null
+      bmiValue === null
         ? 0
         : Math.max(
             0,
             Math.min(
               100,
-              ((rangeValue - BMI_BAR_MIN) / (BMI_BAR_MAX - BMI_BAR_MIN)) * 100
+              ((bmiValue - BMI_BAR_MIN) / (BMI_BAR_MAX - BMI_BAR_MIN)) * 100
             )
           )
     );
-  let markerBmiText = $derived.by(() => {
-    if (bmiValue === null) return '';
-    if (bmiValue > BMI_BAR_MAX) return `${BMI_BAR_MAX}+`;
-    return bmiValue.toFixed(1);
-  });
-  let rangeAriaLabel = $derived.by(() => {
-    if (bmiValue === null) return 'BMI range bar. Calculate your BMI to see your position.';
-    return `BMI range bar. Your BMI is ${bmiValue.toFixed(1)}. Category ${category ?? 'Unknown'}.`;
-  });
-
   const animatedMarker = tweened(0, { duration: 0, easing: cubicOut });
   let lastMarker = 0;
   let markerTimer: ReturnType<typeof setTimeout> | null = null;
@@ -390,17 +369,6 @@
       markerTimer = null;
     }, Math.max(0, overshootDur - SETTLE_DELAY_OFFSET));
   }
-
-  const segUnder = Math.max(0, Math.min(BMI_UNDER_MAX, BMI_BAR_MAX) - BMI_BAR_MIN);
-  const segNormal = Math.max(
-    0,
-    Math.min(BMI_NORMAL_MAX, BMI_BAR_MAX) - Math.max(BMI_UNDER_MAX, BMI_BAR_MIN)
-  );
-  const segOver = Math.max(
-    0,
-    Math.min(BMI_OVER_MAX, BMI_BAR_MAX) - Math.max(BMI_NORMAL_MAX, BMI_BAR_MIN)
-  );
-  const segObese = Math.max(0, BMI_BAR_MAX - Math.max(BMI_OVER_MAX, BMI_BAR_MIN));
 
   let pagerDirection = $derived(activeIndex >= lastIndex ? 1 : -1);
   let pagerMotionDuration = $derived(reducedMotionEffective
@@ -565,25 +533,6 @@
     const target = event.target as HTMLElement | null;
     if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell')) return;
 
-    // Auto-hide logic for pager-controls
-    const currentScrollY = window.scrollY;
-    const scrollingDown = currentScrollY > lastScrollY;
-    const scrollingUp = currentScrollY < lastScrollY;
-
-    if (scrollingDown && currentScrollY > 50) {
-      pagerControlsVisible = false;
-    } else if (scrollingUp) {
-      pagerControlsVisible = true;
-    }
-
-    lastScrollY = currentScrollY;
-
-    // Show after idle scroll
-    if (scrollTimeout) clearTimeout(scrollTimeout);
-    scrollTimeout = setTimeout(() => {
-      pagerControlsVisible = true;
-    }, 2000);
-
     const now = Date.now();
     if (now - lastWheelNavAt < 520) return;
 
@@ -745,10 +694,9 @@
       if (!target.classList.contains('pager-section')) return;
 
       const currentScrollY = target.scrollTop;
-      const scrollingDown = currentScrollY > lastScrollY;
       const scrollingUp = currentScrollY < lastScrollY;
 
-      if (scrollingDown && currentScrollY > 50) {
+      if (!scrollingUp && currentScrollY > 50) {
         pagerControlsVisible = false;
       } else if (scrollingUp) {
         pagerControlsVisible = true;
@@ -781,7 +729,7 @@
     };
   });
 
-  async function computeBMIFromInputs(h: string, w: string, _a: string) {
+  function computeBMIFromInputs(h: string, w: string, _a: string) {
     let parsedHeight = parseFloat(h);
     let parsedWeight = parseFloat(w);
 
@@ -846,7 +794,6 @@
     await new Promise((r) => setTimeout(r, overlayDelay));
 
     // Show success notification (overlaid on the Gauge page)
-    notifySource = 'calculate';
     notifyType = 'success';
     notifyMessage = 'Your BMI has been calculated successfully!';
     notifyButtonText = 'Continue to see';
@@ -855,7 +802,6 @@
 
   function confirmClearData() {
     // Show confirmation dialog first - don't clear anything yet
-    notifySource = 'clear';
     notifyType = 'delete';
     notifyMessage = 'Are you sure you want to delete all data? This action cannot be undone.';
     notifyButtonText = 'Delete';
@@ -934,6 +880,7 @@
       <button
         type="button"
         class="btn btn-ghost pager-tab pager-smooth"
+        aria-label="Toggle render mode"
         aria-pressed={smoothModeRequested}
         onclick={toggleSmoothMode}
       >
@@ -994,13 +941,11 @@
                       onNotify={(result) => {
                         if (result.action === 'import-validate' && result.text) {
                           pendingImportText = result.text;
-                          notifySource = 'import';
                           notifyType = 'warn';
                           notifyMessage = `Sure to import your data? ${result.recordCount} record${(result.recordCount ?? 0) === 1 ? '' : 's'} found. Be careful with current data because it will be overridden.`;
                           notifyButtonText = 'Keep Import';
                           showNotify = true;
                         } else if (result.action === 'import-error') {
-                          notifySource = 'error';
                           notifyType = 'delete';
                           notifyMessage = result.error || 'Import failed. Please check the file format.';
                           notifyButtonText = 'OK';
@@ -1220,12 +1165,10 @@
         pendingImportText = null;
         if (result.success) {
           const checksumMsg = result.checksumVerified ? ' ✓ Checksum verified' : '';
-          notifySource = 'import';
           notifyType = 'success';
           notifyMessage = `Successfully imported ${result.count} record${result.count === 1 ? '' : 's'}!${checksumMsg}`;
           notifyButtonText = 'OK';
         } else {
-          notifySource = 'error';
           notifyType = 'delete';
           notifyMessage = result.error || 'Import failed.';
           notifyButtonText = 'OK';
