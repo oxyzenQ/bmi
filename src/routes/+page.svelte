@@ -13,6 +13,7 @@
   type BmiHealthRiskComponentType = typeof import('$lib/components/BmiHealthRisk.svelte').default;
   type BmiSnapshotComponentType = typeof import('$lib/components/BmiSnapshot.svelte').default;
   type BodyFatEstimateComponentType = typeof import('$lib/components/BodyFatEstimate.svelte').default;
+  type BmiTrendChartComponentType = typeof import('$lib/components/BmiTrendChart.svelte').default;
   // NotifyFloat imported directly above
 
   let BmiFormComponent: BmiFormComponentType | null = $state(null);
@@ -21,6 +22,7 @@
   let BmiHealthRiskComponent: BmiHealthRiskComponentType | null = $state(null);
   let BmiSnapshotComponent: BmiSnapshotComponentType | null = $state(null);
   let BodyFatEstimateComponent: BodyFatEstimateComponentType | null = $state(null);
+  let BmiTrendChartComponent: BmiTrendChartComponentType | null = $state(null);
   // NotifyFloat imported directly as NotifyFloat
 
   let calculatorLoad: Promise<void> | null = null;
@@ -28,6 +30,7 @@
   let healthRiskLoad: Promise<void> | null = null;
   let snapshotLoad: Promise<void> | null = null;
   let bodyFatLoad: Promise<void> | null = null;
+  let trendChartLoad: Promise<void> | null = null;
 
 
   // Track if BMI was already saved to prevent duplicates
@@ -109,6 +112,21 @@
         });
     }
     return bodyFatLoad;
+  }
+
+  function ensureTrendChart() {
+    if (!browser) return Promise.resolve();
+    if (BmiTrendChartComponent) return Promise.resolve();
+    if (!trendChartLoad) {
+      trendChartLoad = import('$lib/components/BmiTrendChart.svelte')
+        .then((mod) => {
+          BmiTrendChartComponent = mod.default;
+        })
+        .finally(() => {
+          trendChartLoad = null;
+        });
+    }
+    return trendChartLoad;
   }
 
   type ReferenceTableComponentType = typeof import('$lib/components/ReferenceTable.svelte').default;
@@ -657,6 +675,7 @@
       void ensureHealthRisk();
       void ensureSnapshot();
       void ensureBodyFat();
+      void ensureTrendChart();
     }
     if (activeIndex === 3) void ensureReferenceTable();
   });
@@ -1030,6 +1049,10 @@
                   bmi={bmiValue}
                   age={age === '' ? null : parseInt(age)}
                 />
+              {/if}
+
+              {#if BmiTrendChartComponent}
+                <BmiTrendChartComponent currentBmi={bmiValue} />
               {/if}
             </div>
           </div>
