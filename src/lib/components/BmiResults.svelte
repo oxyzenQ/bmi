@@ -47,15 +47,17 @@
       : ''
   );
 
-  function getCategoryIcon(cat: string) {
-    switch (cat.toLowerCase()) {
+  // Dynamic icon component for the category (Svelte 5 runes: components are dynamic by default)
+  let CategoryIcon = $derived.by(() => {
+    if (!category) return BarChart3;
+    switch (category.toLowerCase()) {
       case 'underweight': return AlertCircle;
       case 'normal weight': return CheckCircle;
       case 'overweight': return TrendingUp;
       case 'obese': return Activity;
       default: return BarChart3;
     }
-  }
+  });
 
   function getHealthAdvice(cat: string): string {
     switch (cat.toLowerCase()) {
@@ -100,7 +102,7 @@
           {$animatedBmi.toFixed(2)}
         </div>
         <div class="bmi-category-container">
-          <svelte:component this={getCategoryIcon(category!)} class="category-icon" />
+          <CategoryIcon class="category-icon" />
           <span class="bmi-category">
             {category}
           </span>

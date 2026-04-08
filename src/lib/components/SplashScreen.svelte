@@ -11,12 +11,12 @@
   }
 
   let {
-    show = true,
+    show = $bindable(true),
     duration = 10000,
     onComplete = () => {}
   }: Props = $props();
 
-  let visible = $state(show);
+  let visible = $state(false);
   let splashPhase = $state('loading');
   let showTitle = $state(false);
   let showSubtitle = $state(false);
@@ -29,7 +29,7 @@
   let mounted = $state(false);
   let started = $state(false);
   let cancelled = $state(false);
-  let lastShow = $state(show);
+  let lastShow = false;
   const timers: Array<ReturnType<typeof setTimeout>> = [];
 
   const titleText = 'Hey...welcome';
