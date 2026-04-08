@@ -1,5 +1,9 @@
 /**
- * BMI History Export/Import utilities
+ * BMI History Export/Import utilities with checksum verification.
+ *
+ * Export wraps records in a versioned envelope with an integrity checksum.
+ * Import validates the checksum (rejects tampered files) and overrides
+ * existing data when the user confirms.
  */
 
 interface BmiRecord {
@@ -10,9 +14,60 @@ interface BmiRecord {
   age?: number;
 }
 
+/** Shape of the exported JSON file */
+interface ExportedEnvelope {
+  version: number;
+  source: string;
+  exportedAt: string;
+  checksum: string;
+  records: BmiRecord[];
+}
+
+// ---------------------------------------------------------------------------
+// Deterministic hash (FNV-1a 32-bit) — fast, synchronous, collision-resistant
+// enough for tamper-detection on small datasets.
+// ---------------------------------------------------------------------------
+function computeHash(data: string): string {
+  let h = 0x811c9dc5; // FNV offset basis
+  for (let i = 0; i < data.length; i++) {
+    h ^= data.charCodeAt(i);
+    h = Math.imul(h, 0x01000193); // FNV prime
+  }
+  return (h >>> 0).toString(16).padStart(8, '0');
+}
+
+// ---------------------------------------------------------------------------
+// Helpers to validate individual record fields
+// ---------------------------------------------------------------------------
+function isValidRecord(entry: unknown): entry is BmiRecord {
+  if (typeof entry !== 'object' || entry === null) return false;
+  const r = entry as Record<string, unknown>;
+  return (
+    typeof r.timestamp === 'number' &&
+    typeof r.bmi === 'number' &&
+    typeof r.height === 'number' &&
+    typeof r.weight === 'number'
+  );
+}
+
+function toRecord(entry: unknown): BmiRecord {
+  const r = entry as Record<string, unknown>;
+  return {
+    timestamp: r.timestamp as number,
+    bmi: r.bmi as number,
+    height: r.height as number,
+    weight: r.weight as number,
+    age: typeof r.age === 'number' ? (r.age as number) : undefined
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Export
+// ---------------------------------------------------------------------------
+
 /**
- * Export BMI history from localStorage as a formatted JSON string.
- * Returns null if no history exists or data is invalid.
+ * Export BMI history from localStorage as a checksummed JSON string.
+ * Returns `null` if no history exists or data is invalid.
  */
 export function exportBmiHistory(): string | null {
   try {
@@ -20,106 +75,148 @@ export function exportBmiHistory(): string | null {
     if (!stored) return null;
 
     const parsed: unknown = JSON.parse(stored);
-
     if (!Array.isArray(parsed) || parsed.length === 0) return null;
 
-    return JSON.stringify(parsed, null, 2);
+    const records = parsed.filter(isValidRecord).map(toRecord);
+    if (records.length === 0) return null;
+
+    const recordsJson = JSON.stringify(records);
+    const checksum = computeHash(recordsJson);
+
+    const envelope: ExportedEnvelope = {
+      version: 1,
+      source: 'bmi-calculator',
+      exportedAt: new Date().toISOString(),
+      checksum,
+      records
+    };
+
+    return JSON.stringify(envelope, null, 2);
   } catch {
     return null;
   }
 }
 
+// ---------------------------------------------------------------------------
+// Validate (no side-effects)
+// ---------------------------------------------------------------------------
+
+export interface ValidationResult {
+  valid: boolean;
+  recordCount?: number;
+  checksumVerified?: boolean;
+  error?: string;
+}
+
 /**
- * Import BMI history from a JSON string, merging with existing data.
- * Deduplicates by timestamp and keeps only the last year of records.
+ * Validate an imported JSON string without touching localStorage.
+ * Use this to pre-check a file before asking the user for confirmation.
  */
-export function importBmiHistory(
-  json: string
-): { success: boolean; count: number; error?: string } {
-  // Parse the JSON string
+export function validateBmiImport(json: string): ValidationResult {
   let incoming: unknown;
   try {
     incoming = JSON.parse(json);
   } catch {
-    return { success: false, count: 0, error: 'Invalid JSON format.' };
+    return { valid: false, error: 'Invalid JSON format.' };
   }
 
-  // Validate it's an array
-  if (!Array.isArray(incoming)) {
-    return { success: false, count: 0, error: 'Expected a JSON array of BMI records.' };
-  }
+  // ---- New envelope format (v1+) ----
+  if (
+    typeof incoming === 'object' &&
+    incoming !== null &&
+    typeof (incoming as ExportedEnvelope).version === 'number' &&
+    (incoming as ExportedEnvelope).source === 'bmi-calculator' &&
+    Array.isArray((incoming as ExportedEnvelope).records)
+  ) {
+    const env = incoming as ExportedEnvelope;
+    const records = env.records.filter(isValidRecord).map(toRecord);
 
-  // Validate each entry has required fields
-  const validRecords: BmiRecord[] = [];
-  for (let i = 0; i < incoming.length; i++) {
-    const entry = incoming[i];
-    if (
-      typeof entry === 'object' &&
-      entry !== null &&
-      typeof entry.timestamp === 'number' &&
-      typeof entry.bmi === 'number' &&
-      typeof entry.height === 'number' &&
-      typeof entry.weight === 'number'
-    ) {
-      validRecords.push({
-        timestamp: entry.timestamp as number,
-        bmi: entry.bmi as number,
-        height: entry.height as number,
-        weight: entry.weight as number,
-        age: typeof entry.age === 'number' ? (entry.age as number) : undefined
-      });
+    if (records.length === 0) {
+      return { valid: false, error: 'No valid BMI records found in the file.' };
     }
-  }
 
-  if (validRecords.length === 0) {
-    return { success: false, count: 0, error: 'No valid BMI records found in the file.' };
-  }
-
-  // Read existing history
-  let existing: BmiRecord[] = [];
-  try {
-    const stored = localStorage.getItem('bmi.history');
-    if (stored) {
-      const parsed: unknown = JSON.parse(stored);
-      if (Array.isArray(parsed)) {
-        existing = parsed as BmiRecord[];
-      }
+    // Verify checksum
+    const expected = computeHash(JSON.stringify(records));
+    if (env.checksum !== expected) {
+      return {
+        valid: false,
+        error:
+          'Checksum verification failed — the file has been modified and is not safe to import.'
+      };
     }
-  } catch {
-    // Corrupted data — start fresh
-    existing = [];
+
+    return { valid: true, recordCount: records.length, checksumVerified: true };
   }
 
-  // Merge: use a Map keyed by timestamp to skip duplicates
-  const merged = new Map<number, BmiRecord>();
-
-  for (const record of existing) {
-    merged.set(record.timestamp, record);
-  }
-
-  let importedCount = 0;
-  for (const record of validRecords) {
-    if (!merged.has(record.timestamp)) {
-      merged.set(record.timestamp, record);
-      importedCount++;
+  // ---- Legacy format: bare array (backward compat) ----
+  if (Array.isArray(incoming)) {
+    const records = (incoming as unknown[]).filter(isValidRecord).map(toRecord);
+    if (records.length === 0) {
+      return { valid: false, error: 'No valid BMI records found in the file.' };
     }
+    return { valid: true, recordCount: records.length, checksumVerified: false };
   }
 
-  // Keep only last year of data
-  const oneYearAgo = Date.now() - 365 * 24 * 60 * 60 * 1000;
-  const filtered = Array.from(merged.values()).filter(
-    (r) => r.timestamp > oneYearAgo
-  );
+  return {
+    valid: false,
+    error: 'Invalid file format. Expected a BMI Calculator export file.'
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Import (writes to localStorage — call only after user confirmation)
+// ---------------------------------------------------------------------------
+
+export interface ImportResult {
+  success: boolean;
+  count: number;
+  checksumVerified?: boolean;
+  error?: string;
+}
+
+/**
+ * Import BMI history from a JSON string, **replacing** all existing data.
+ * The caller is responsible for having already validated and confirmed with the user.
+ */
+export function importBmiHistory(json: string): ImportResult {
+  const validation = validateBmiImport(json);
+  if (!validation.valid) {
+    return { success: false, count: 0, error: validation.error };
+  }
+
+  // Extract records
+  const incoming = JSON.parse(json);
+  let records: BmiRecord[];
+
+  if (
+    typeof incoming === 'object' &&
+    incoming !== null &&
+    Array.isArray((incoming as ExportedEnvelope).records)
+  ) {
+    records = (incoming as ExportedEnvelope).records.filter(isValidRecord).map(toRecord);
+  } else if (Array.isArray(incoming)) {
+    records = (incoming as unknown[]).filter(isValidRecord).map(toRecord);
+  } else {
+    return { success: false, count: 0, error: 'Could not extract records from file.' };
+  }
+
+  if (records.length === 0) {
+    return { success: false, count: 0, error: 'No valid BMI records found.' };
+  }
 
   // Sort by timestamp
-  filtered.sort((a, b) => a.timestamp - b.timestamp);
+  records.sort((a, b) => a.timestamp - b.timestamp);
 
-  // Save back to localStorage
+  // Override (replace) existing data
   try {
-    localStorage.setItem('bmi.history', JSON.stringify(filtered));
+    localStorage.setItem('bmi.history', JSON.stringify(records));
   } catch {
     return { success: false, count: 0, error: 'Failed to save history to storage.' };
   }
 
-  return { success: true, count: importedCount };
+  return {
+    success: true,
+    count: records.length,
+    checksumVerified: validation.checksumVerified
+  };
 }

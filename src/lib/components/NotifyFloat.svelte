@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { CheckCircle, Trash2, X } from 'lucide-svelte';
+  import { CheckCircle, Trash2, X, ShieldAlert } from 'lucide-svelte';
 
   interface Props {
     show?: boolean;
-    type?: 'success' | 'delete';
+    type?: 'success' | 'delete' | 'warn';
     message?: string;
     buttonText?: string;
     onContinue?: () => void;
@@ -59,9 +59,21 @@
     }, 200);
   }
 
-  const Icon = $derived(type === 'success' ? CheckCircle : Trash2);
-  const iconColor = $derived(type === 'success' ? '#00C853' : '#D50000');
-  const buttonClass = $derived(type === 'success' ? 'btn-success' : 'btn-delete');
+  const Icon = $derived(
+    type === 'success' ? CheckCircle :
+    type === 'warn' ? ShieldAlert :
+    Trash2
+  );
+  const iconColor = $derived(
+    type === 'success' ? '#00C853' :
+    type === 'warn' ? '#F59E0B' :
+    '#D50000'
+  );
+  const buttonClass = $derived(
+    type === 'success' ? 'btn-success' :
+    type === 'warn' ? 'btn-warn' :
+    'btn-delete'
+  );
 </script>
 
 {#if show}
@@ -80,7 +92,7 @@
 
       <p class="notify-message">{message}</p>
 
-      {#if type === 'delete'}
+      {#if type === 'delete' || type === 'warn'}
         <div class="notify-btn-group">
           <button
             class="notify-btn btn-cancel"
@@ -89,10 +101,10 @@
             Cancel
           </button>
           <button
-            class="notify-btn btn-delete"
+            class="notify-btn {buttonClass}"
             onclick={handleContinue}
           >
-            Delete
+            {buttonText}
           </button>
         </div>
       {:else}
@@ -311,6 +323,25 @@
 
   .notify-btn-group .notify-btn {
     min-width: 120px;
+  }
+
+  .btn-warn {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.9) 0%, rgba(217, 119, 6, 0.9) 100%);
+    color: white;
+    box-shadow:
+      0 4px 20px rgba(245, 158, 11, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .btn-warn:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow:
+      0 8px 25px rgba(245, 158, 11, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.95) 0%, rgba(217, 119, 6, 0.95) 100%);
   }
 
   @media (max-width: 480px) {

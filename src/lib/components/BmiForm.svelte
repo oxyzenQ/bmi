@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine } from 'lucide-svelte';
-  import { exportBmiHistory, importBmiHistory } from '$lib/utils/history-io';
+  import { exportBmiHistory, validateBmiImport } from '$lib/utils/history-io';
 
   const isBrowser = typeof window !== 'undefined';
 
@@ -13,7 +13,7 @@
     calculating?: boolean;
     onClear: () => void;
     onCalculate: () => void;
-    onNotify?: (importedCount: number) => void;
+    onNotify?: (result: ImportNotifyResult) => void;
   }
 
   let {
@@ -141,6 +141,14 @@
   // Export / Import history
   let fileInputEl: HTMLInputElement | undefined = $state();
 
+  interface ImportNotifyResult {
+    action: 'import-validate' | 'import-error';
+    text?: string;
+    recordCount?: number;
+    checksumVerified?: boolean;
+    error?: string;
+  }
+
   function formatDate(): string {
     const now = new Date();
     const y = now.getFullYear();
@@ -173,12 +181,26 @@
     if (!file) return;
     try {
       const text = await file.text();
-      const result = importBmiHistory(text);
-      if (result.success) {
-        onNotify?.(result.count);
+      const validation = validateBmiImport(text);
+
+      if (validation.valid && validation.recordCount) {
+        onNotify?.({
+          action: 'import-validate',
+          text,
+          recordCount: validation.recordCount,
+          checksumVerified: validation.checksumVerified ?? false
+        });
+      } else {
+        onNotify?.({
+          action: 'import-error',
+          error: validation.error || 'Import failed. Please check the file format.'
+        });
       }
     } catch {
-      onNotify?.(0);
+      onNotify?.({
+        action: 'import-error',
+        error: 'Could not read the file.'
+      });
     }
     input.value = '';
   }
@@ -413,6 +435,7 @@
     align-items: center;
     gap: 0.4rem;
     font-size: 0.85rem;
+    border-radius: 9999px;
   }
 
   .sr-only {

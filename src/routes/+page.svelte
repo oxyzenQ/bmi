@@ -4,6 +4,7 @@
   import { tweened } from 'svelte/motion';
   import { browser } from '$app/environment';
   import { getPerformanceTier } from '$lib/utils/performance';
+  import { importBmiHistory } from '$lib/utils/history-io';
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
 
@@ -177,9 +178,10 @@
 
   // Notification state
   let showNotify = $state(false);
-  let notifyType = $state<'success' | 'delete'>('success');
+  let notifyType = $state<'success' | 'delete' | 'warn'>('success');
   let notifyMessage = $state('');
   let notifyButtonText = $state('');
+  let pendingImportText = $state<string | null>(null);
 
 
 
@@ -940,16 +942,19 @@
                       {calculating}
                       onClear={confirmClearData}
                       onCalculate={handleCalculate}
-                      onNotify={(count) => {
-                        if (count > 0) {
-                          notifyType = 'success';
-                          notifyMessage = `Imported ${count} record${count === 1 ? '' : 's'} successfully.`;
-                        } else {
+                      onNotify={(result) => {
+                        if (result.action === 'import-validate' && result.text) {
+                          pendingImportText = result.text;
+                          notifyType = 'warn';
+                          notifyMessage = `Sure to import your data? ${result.recordCount} record${(result.recordCount ?? 0) === 1 ? '' : 's'} found. Be careful with current data because it will be overridden.`;
+                          notifyButtonText = 'Keep Import';
+                          showNotify = true;
+                        } else if (result.action === 'import-error') {
                           notifyType = 'delete';
-                          notifyMessage = 'Import failed. Please check the file format.';
+                          notifyMessage = result.error || 'Import failed. Please check the file format.';
+                          notifyButtonText = 'OK';
+                          showNotify = true;
                         }
-                        notifyButtonText = 'OK';
-                        showNotify = true;
                       }}
                     />
                   {/if}
@@ -1150,17 +1155,36 @@
     message={notifyMessage}
     buttonText={notifyButtonText}
     onContinue={() => {
-      showNotify = false;
-      // Auto-redirect to gauge section (index 2) for success notification
-      if (notifyType === 'success') {
+      if (notifyType === 'warn' && pendingImportText) {
+        // User confirmed import — perform it now
+        const result = importBmiHistory(pendingImportText);
+        pendingImportText = null;
+        if (result.success) {
+          const checksumMsg = result.checksumVerified ? ' ✓ Checksum verified' : '';
+          notifyType = 'success';
+          notifyMessage = `Successfully imported ${result.count} record${result.count === 1 ? '' : 's'}!${checksumMsg}`;
+          notifyButtonText = 'Continue';
+        } else {
+          notifyType = 'delete';
+          notifyMessage = result.error || 'Import failed.';
+          notifyButtonText = 'OK';
+        }
+      } else if (notifyType === 'success') {
+        showNotify = false;
         goTo(2);
       } else if (notifyType === 'delete') {
-        // Perform actual data clearing when delete is confirmed
+        showNotify = false;
         clearAllData();
       }
     }}
-    onClose={() => showNotify = false}
-    onCancel={() => showNotify = false}
+    onClose={() => {
+      pendingImportText = null;
+      showNotify = false;
+    }}
+    onCancel={() => {
+      pendingImportText = null;
+      showNotify = false;
+    }}
   />
 {/if}
 
