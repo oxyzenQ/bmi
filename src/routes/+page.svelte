@@ -182,6 +182,8 @@
   let notifyMessage = $state('');
   let notifyButtonText = $state('');
   let pendingImportText = $state<string | null>(null);
+  // Track notification source to control post-notify behavior
+  let notifySource = $state<'calculate' | 'import' | 'clear' | 'error'>('calculate');
 
 
 
@@ -799,6 +801,7 @@
     calculating = false;
 
     // Show success notification
+    notifySource = 'calculate';
     notifyType = 'success';
     notifyMessage = 'Your BMI has been calculated successfully!';
     notifyButtonText = 'Continue to see';
@@ -807,6 +810,7 @@
 
   function confirmClearData() {
     // Show confirmation dialog first - don't clear anything yet
+    notifySource = 'clear';
     notifyType = 'delete';
     notifyMessage = 'Are you sure you want to delete all data? This action cannot be undone.';
     notifyButtonText = 'Delete';
@@ -945,11 +949,13 @@
                       onNotify={(result) => {
                         if (result.action === 'import-validate' && result.text) {
                           pendingImportText = result.text;
+                          notifySource = 'import';
                           notifyType = 'warn';
                           notifyMessage = `Sure to import your data? ${result.recordCount} record${(result.recordCount ?? 0) === 1 ? '' : 's'} found. Be careful with current data because it will be overridden.`;
                           notifyButtonText = 'Keep Import';
                           showNotify = true;
                         } else if (result.action === 'import-error') {
+                          notifySource = 'error';
                           notifyType = 'delete';
                           notifyMessage = result.error || 'Import failed. Please check the file format.';
                           notifyButtonText = 'OK';
@@ -1161,17 +1167,22 @@
         pendingImportText = null;
         if (result.success) {
           const checksumMsg = result.checksumVerified ? ' ✓ Checksum verified' : '';
+          notifySource = 'import';
           notifyType = 'success';
           notifyMessage = `Successfully imported ${result.count} record${result.count === 1 ? '' : 's'}!${checksumMsg}`;
-          notifyButtonText = 'Continue';
+          notifyButtonText = 'OK';
         } else {
+          notifySource = 'error';
           notifyType = 'delete';
           notifyMessage = result.error || 'Import failed.';
           notifyButtonText = 'OK';
         }
       } else if (notifyType === 'success') {
         showNotify = false;
-        goTo(2);
+        // Only navigate to gauge if this was a calculate notification
+        if (notifySource === 'calculate') {
+          goTo(2);
+        }
       } else if (notifyType === 'delete') {
         showNotify = false;
         clearAllData();
