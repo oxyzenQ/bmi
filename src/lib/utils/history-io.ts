@@ -115,7 +115,7 @@ export async function exportBmiHistory(): Promise<string | null> {
     const recordsJson = JSON.stringify(records);
     const exportedAt = new Date().toISOString();
 
-    // BLAKE3 hash of the full envelope payload
+    // SHA-256 hash of the full envelope payload
     const payload = JSON.stringify({ version: 2, source: 'bmi-calculator', exportedAt, records: recordsJson });
     const checksum = await computeHash(payload);
 
