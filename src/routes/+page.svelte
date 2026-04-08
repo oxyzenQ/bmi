@@ -219,6 +219,10 @@
   let pendingImportText = $state<string | null>(null);
   // Track notification source to control post-notify behavior
   let notifySource = $state<'calculate' | 'import' | 'clear' | 'error'>('calculate');
+  // Pending navigation index — set during notify callbacks, consumed by $effect
+  // This avoids the race condition of calling goTo() from nested setTimeout callbacks
+  // where Svelte's structural updates ({#key} blocks) may not trigger reliably.
+  let pendingNavIndex: number | null = $state(null);
 
 
 
@@ -664,6 +668,17 @@
     const nextCentered = !overflow;
     if (pagerNavCentered !== nextCentered) pagerNavCentered = nextCentered;
   }
+
+  // Consume pending navigation after notify dismisses.
+  // Runs inside Svelte's reactive update cycle so {#key activeIndex}
+  // structural re-render triggers reliably (fixes nested-setTimeout race condition).
+  $effect(() => {
+    if (pendingNavIndex !== null && !showNotify) {
+      const target = pendingNavIndex;
+      pendingNavIndex = null;
+      goTo(target);
+    }
+  });
 
   // Lazy-load components when section becomes active
   $effect(() => {
@@ -1229,10 +1244,11 @@
       } else if (notifyType === 'success') {
         showNotify = false;
         // Only navigate to gauge if this was a calculate notification
-        // Use tick to ensure NotifyFloat DOM is removed before navigating
+        // Defer navigation via pendingNavIndex so it runs inside Svelte's
+        // reactive update cycle — avoids the race condition where goTo() called
+        // from nested setTimeout fails to trigger {#key} structural re-renders.
         if (notifySource === 'calculate') {
-          // Small delay to let the notification backdrop fully dismiss
-          setTimeout(() => goTo(2), 50);
+          pendingNavIndex = 2;
         }
       } else if (notifyType === 'delete') {
         showNotify = false;
