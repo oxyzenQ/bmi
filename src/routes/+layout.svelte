@@ -5,6 +5,7 @@
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import { initScrollOptimizer } from '$lib/utils/scroll-optimizer';
+  import { getStoredTheme, getEffectiveTheme, applyTheme } from '$lib/utils/theme';
 
   let showSplash = false; // Disabled by default
   let showMainContent = true; // Show content immediately
@@ -23,10 +24,12 @@
   }
 
   if (browser) {
+    // Apply theme immediately to prevent flash
+    const storedTheme = getStoredTheme();
+    applyTheme(getEffectiveTheme(storedTheme));
+
     renderModeEnabled = initRenderMode();
     renderModeInitialized = true;
-
-    // Apply render mode immediately to prevent flash of wrong graphics mode
     document.documentElement.dataset.graphics = renderModeEnabled ? 'render' : 'basic';
   }
 

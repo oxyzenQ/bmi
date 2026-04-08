@@ -7,12 +7,14 @@
   import { importBmiHistory } from '$lib/utils/history-io';
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
+  import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 
   type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
   type BmiResultsComponentType = typeof import('$lib/components/BmiResults.svelte').default;
   type BmiRadialGaugeComponentType = typeof import('$lib/components/BmiRadialGauge.svelte').default;
   type BmiHealthRiskComponentType = typeof import('$lib/components/BmiHealthRisk.svelte').default;
   type BmiSnapshotComponentType = typeof import('$lib/components/BmiSnapshot.svelte').default;
+  type BodyFatEstimateComponentType = typeof import('$lib/components/BodyFatEstimate.svelte').default;
   // NotifyFloat imported directly above
 
   let BmiFormComponent: BmiFormComponentType | null = $state(null);
@@ -20,12 +22,14 @@
   let BmiRadialGaugeComponent: BmiRadialGaugeComponentType | null = $state(null);
   let BmiHealthRiskComponent: BmiHealthRiskComponentType | null = $state(null);
   let BmiSnapshotComponent: BmiSnapshotComponentType | null = $state(null);
+  let BodyFatEstimateComponent: BodyFatEstimateComponentType | null = $state(null);
   // NotifyFloat imported directly as NotifyFloat
 
   let calculatorLoad: Promise<void> | null = null;
   let gaugeLoad: Promise<void> | null = null;
   let healthRiskLoad: Promise<void> | null = null;
   let snapshotLoad: Promise<void> | null = null;
+  let bodyFatLoad: Promise<void> | null = null;
 
 
   // Track if BMI was already saved to prevent duplicates
@@ -92,6 +96,21 @@
         });
     }
     return snapshotLoad;
+  }
+
+  function ensureBodyFat() {
+    if (!browser) return Promise.resolve();
+    if (BodyFatEstimateComponent) return Promise.resolve();
+    if (!bodyFatLoad) {
+      bodyFatLoad = import('$lib/components/BodyFatEstimate.svelte')
+        .then((mod) => {
+          BodyFatEstimateComponent = mod.default;
+        })
+        .finally(() => {
+          bodyFatLoad = null;
+        });
+    }
+    return bodyFatLoad;
   }
 
   type ReferenceTableComponentType = typeof import('$lib/components/ReferenceTable.svelte').default;
@@ -639,6 +658,7 @@
       void ensureGaugeComponents();
       void ensureHealthRisk();
       void ensureSnapshot();
+      void ensureBodyFat();
     }
     if (activeIndex === 3) void ensureReferenceTable();
   });
@@ -898,6 +918,7 @@
           {smoothModeStatus}
         </span>
       </button>
+      <ThemeToggle />
     </nav>
   </div>
 
@@ -1004,6 +1025,13 @@
                 <BmiSnapshotComponent
                   currentBmi={bmiValue}
                   category={category}
+                />
+              {/if}
+
+              {#if BodyFatEstimateComponent}
+                <BodyFatEstimateComponent
+                  bmi={bmiValue}
+                  age={age === '' ? null : parseInt(age)}
                 />
               {/if}
             </div>
