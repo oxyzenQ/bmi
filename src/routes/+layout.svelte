@@ -89,7 +89,7 @@
   <SplashScreen
     bind:show={showSplash}
     duration={splashDuration}
-    on:complete={handleSplashComplete}
+    onComplete={handleSplashComplete}
   />
 {/if}
 

@@ -1,52 +1,70 @@
 <script lang="ts">
   import { Orbit, User, Ruler, Weight, Zap, Trash2 } from 'lucide-svelte';
-  import { createEventDispatcher } from 'svelte';
 
-  // Inputs as strings for empty default UX
-  export let age: string = '';
-  export let height: string = '';
-  export let weight: string = '';
-  export let calculating: boolean = false;
-  export let onClear: () => void;
-  export let onCalculate: () => void;
+  interface Props {
+    age?: string;
+    height?: string;
+    weight?: string;
+    calculating?: boolean;
+    onClear: () => void;
+    onCalculate: () => void;
+  }
 
-  const dispatch = createEventDispatcher();
+  let {
+    age = $bindable(''),
+    height = $bindable(''),
+    weight = $bindable(''),
+    calculating = false,
+    onClear,
+    onCalculate
+  }: Props = $props();
 
   // Sanitizers: age as integer, height/weight as decimals (one dot)
   function sanitizeInteger(value: string): string {
-    // keep digits only
-    return value.replace(/\D+/g, '').slice(0, 3); // cap length reasonably
+    return value.replace(/\D+/g, '').slice(0, 3);
   }
 
   function sanitizeDecimal(value: string): string {
-    // remove invalid chars, allow one dot
     let v = value.replace(/[^0-9.]/g, '');
     const firstDot = v.indexOf('.');
     if (firstDot !== -1) {
-      // remove additional dots
       v = v.slice(0, firstDot + 1) + v.slice(firstDot + 1).replace(/\./g, '');
     }
-    // trim leading zeros sensibly (but keep "0." cases)
     if (v.startsWith('00')) {
       v = v.replace(/^0+/, '0');
     }
-    return v.slice(0, 6); // cap length
+    return v.slice(0, 6);
   }
 
-  // Enhanced validation with better accuracy and ordering
   let ageInputEl: HTMLInputElement;
   let heightInputEl: HTMLInputElement;
   let weightInputEl: HTMLInputElement;
 
-  $: parsedAge = age !== '' ? parseInt(age) : null;
-  $: parsedHeight = height !== '' ? parseFloat(height) : null;
-  $: parsedWeight = weight !== '' ? parseFloat(weight) : null;
-  // Require realistic ranges
-  $: ageValid = parsedAge !== null && !isNaN(parsedAge) && parsedAge > 0 && parsedAge <= 120;
-  $: heightValid = parsedHeight !== null && !isNaN(parsedHeight) && parsedHeight > 0 && parsedHeight <= 300;
-  $: weightValid = parsedWeight !== null && !isNaN(parsedWeight) && parsedWeight > 0 && parsedWeight <= 1000;
-  // Calculation only allowed when all three are valid
-  $: canCalculate = ageValid && heightValid && weightValid;
+  let {
+    parsedAge,
+    parsedHeight,
+    parsedWeight,
+    ageValid,
+    heightValid,
+    weightValid,
+    canCalculate
+  } = $derived.by(() => {
+    const pa = age !== '' ? parseInt(age) : null;
+    const ph = height !== '' ? parseFloat(height) : null;
+    const pw = weight !== '' ? parseFloat(weight) : null;
+    const av = pa !== null && !isNaN(pa) && pa > 0 && pa <= 120;
+    const hv = ph !== null && !isNaN(ph) && ph > 0 && ph <= 300;
+    const wv = pw !== null && !isNaN(pw) && pw > 0 && pw <= 1000;
+    return {
+      parsedAge: pa,
+      parsedHeight: ph,
+      parsedWeight: pw,
+      ageValid: av,
+      heightValid: hv,
+      weightValid: wv,
+      canCalculate: av && hv && wv
+    };
+  });
 
   function handleAgeInput(e: Event) {
     const target = e.currentTarget as HTMLInputElement;
@@ -63,22 +81,14 @@
     weight = sanitizeDecimal(target.value);
   }
 
-  // Only trigger calculate when button is pressed and inputs are valid
   function handleCalculate() {
     if (calculating) return;
     if (canCalculate && parsedHeight && parsedWeight) {
-      // Clean and validate values before calculation
-      const cleanHeight = Math.round(parsedHeight * 100) / 100; // Round to 2 decimals
-      const cleanWeight = Math.round(parsedWeight * 100) / 100; // Round to 2 decimals
-
-      // Optional: dispatch event if parent listens; keep for extensibility
-      dispatch('calculate', { age: parsedAge, height: cleanHeight, weight: cleanWeight });
       onCalculate();
     }
   }
 
   function handleClear() {
-    // Just trigger confirmation dialog - parent will handle actual clearing
     onClear();
   }
 </script>
@@ -90,9 +100,7 @@
       <div class="icon-glow"></div>
     </div>
     <h2 class="card-title">BMI Calculator</h2>
-    <!-- <p class="card-subtitle">Fill in order: Age → Height → Weight. Click Calculate BMI to see results.</p> -->
 
-    <!-- status pill: indicates readiness -->
     <div class="status-row">
       <span
         class="pill-indicator"
@@ -124,7 +132,7 @@
         placeholder="e.g., 25"
         aria-label="Age in years"
         aria-invalid={age !== '' && !ageValid}
-        on:input={handleAgeInput}
+        oninput={handleAgeInput}
       />
       {#if age !== '' && !ageValid}
         <div class="input-error" role="alert">Please enter a valid age between 1 and 120.</div>
@@ -148,8 +156,8 @@
         aria-invalid={height !== '' && !heightValid}
         disabled={!ageValid}
         aria-disabled={!ageValid}
-        on:focus={() => { if (!ageValid) ageInputEl?.focus(); }}
-        on:input={handleHeightInput}
+        onfocus={() => { if (!ageValid) ageInputEl?.focus(); }}
+        oninput={handleHeightInput}
       />
       {#if height !== '' && !heightValid}
         <div class="input-error" role="alert">Height must be between 1-300 cm.</div>
@@ -173,8 +181,8 @@
         aria-invalid={weight !== '' && !weightValid}
         disabled={!heightValid}
         aria-disabled={!heightValid}
-        on:focus={() => { if (!heightValid) heightInputEl?.focus(); }}
-        on:input={handleWeightInput}
+        onfocus={() => { if (!heightValid) heightInputEl?.focus(); }}
+        oninput={handleWeightInput}
       />
       {#if weight !== '' && !weightValid}
         <div class="input-error" role="alert">Weight must be between 1-1000 kg.</div>
@@ -184,8 +192,8 @@
     <div class="button-group">
       <button
         type="button"
-        on:click={handleCalculate}
-        on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCalculate()}
+        onclick={handleCalculate}
+        onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCalculate()}
         class="btn btn-primary"
         class:is-calculating={calculating}
         aria-label="Calculate BMI"
@@ -208,8 +216,8 @@
 
       <button
         type="button"
-        on:click={handleClear}
-        on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClear()}
+        onclick={handleClear}
+        onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClear()}
         class="btn btn-danger"
         aria-label="Clear all data"
       >

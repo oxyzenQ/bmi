@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Target, TrendingDown, TrendingUp, Award, Scale, Activity } from 'lucide-svelte';
   import { browser } from '$app/environment';
+  import BmiHistorySparkline from './BmiHistorySparkline.svelte';
 
   interface Props {
     currentBmi?: number | null;
@@ -228,6 +229,9 @@
         {/if}
       </div>
     </div>
+
+    <!-- BMI History Trend Sparkline -->
+    <BmiHistorySparkline {currentBmi} />
   {:else}
     <div class="empty-snapshot">
       <Activity size={48} />
