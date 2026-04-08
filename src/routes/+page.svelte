@@ -14,11 +14,11 @@
   type BmiSnapshotComponentType = typeof import('$lib/components/BmiSnapshot.svelte').default;
   // NotifyFloat imported directly above
 
-  let BmiFormComponent: BmiFormComponentType | null = null;
-  let BmiResultsComponent: BmiResultsComponentType | null = null;
-  let BmiRadialGaugeComponent: BmiRadialGaugeComponentType | null = null;
-  let BmiHealthRiskComponent: BmiHealthRiskComponentType | null = null;
-  let BmiSnapshotComponent: BmiSnapshotComponentType | null = null;
+  let BmiFormComponent: BmiFormComponentType | null = $state(null);
+  let BmiResultsComponent: BmiResultsComponentType | null = $state(null);
+  let BmiRadialGaugeComponent: BmiRadialGaugeComponentType | null = $state(null);
+  let BmiHealthRiskComponent: BmiHealthRiskComponentType | null = $state(null);
+  let BmiSnapshotComponent: BmiSnapshotComponentType | null = $state(null);
   // NotifyFloat imported directly as NotifyFloat
 
   let calculatorLoad: Promise<void> | null = null;
@@ -93,7 +93,7 @@
   }
 
   type ReferenceTableComponentType = typeof import('$lib/components/ReferenceTable.svelte').default;
-  let ReferenceTableComponent: ReferenceTableComponentType | null = null;
+  let ReferenceTableComponent: ReferenceTableComponentType | null = $state(null);
 
   let referenceLoad: Promise<void> | null = null;
 
@@ -161,22 +161,24 @@
     ChevronRight
   } from 'lucide-svelte';
 
-  let bmiValue: number | null = null;
-  let category: string | null = null;
+  let bmiValue: number | null = $state(null);
+  let category: string | null = $state(null);
 
   // Form inputs default empty strings for validation UX
-  let age: string = '';
-  let height: string = '';
-  let weight: string = '';
+  let age: string = $state('');
+  let height: string = $state('');
+  let weight: string = $state('');
 
-  let calculating = false;
-  let resultsRunId = 0;
+  let calculating = $state(false);
+  let resultsRunId = $state(0);
 
   // Notification state
-  let showNotify = false;
-  let notifyType: 'success' | 'delete' = 'success';
-  let notifyMessage = '';
-  let notifyButtonText = '';
+  let showNotify = $state(false);
+  let notifyType = $state<'success' | 'delete'>('success');
+  let notifyMessage = $state('');
+  let notifyButtonText = $state('');
+
+
 
   const currentYear = new Date().getFullYear();
 
@@ -193,25 +195,25 @@
     { id: 'info', label: 'Info' }
   ] as const;
 
-  let activeIndex = 0;
-  let lastIndex = 0;
-  let prefersReducedMotion = false;
-  let perfTier: 'high' | 'medium' | 'low' = 'medium';
-  let smoothModeRequested = false;
+  let activeIndex = $state(0);
+  let lastIndex = $state(0);
+  let prefersReducedMotion = $state(false);
+  let perfTier = $state<'high' | 'medium' | 'low'>('medium');
+  let smoothModeRequested = $state(false);
 
   let pagerNavEl: HTMLElement | null = null;
-  let pagerNavCentered = false;
+  let pagerNavCentered = $state(false);
   let pagerNavAlignRaf: number | null = null;
 
   // Auto-hide navbar state
   let lastScrollY = 0;
-  let pagerControlsVisible = true;
+  let pagerControlsVisible = $state(true);
   let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
   let activePointerId: number | null = null;
   let lastWheelNavAt = 0;
   let switchingTimer: ReturnType<typeof setTimeout> | null = null;
-  let pageDestroyed = false;
+  let pageDestroyed = $state(false);
 
   function broadcastSmoothMode(enabled: boolean) {
     if (!browser) return;
@@ -230,9 +232,9 @@
     }
   }
 
-  $: reducedMotionEffective = prefersReducedMotion && !smoothModeRequested;
-  $: smoothModeEnhanced = smoothModeRequested && perfTier !== 'low';
-  $: smoothModeStatus = smoothModeRequested ? 'On' : 'Off';
+  let reducedMotionEffective = $derived(prefersReducedMotion && !smoothModeRequested);
+  let smoothModeEnhanced = $derived(smoothModeRequested && perfTier !== 'low');
+  let smoothModeStatus = $derived(smoothModeRequested ? 'On' : 'Off');
 
   function springSimple(t: number, amount: number) {
     const base = backOut(t);
@@ -302,27 +304,28 @@
   const SPRING_STRENGTH_ENHANCED = 0.14;
   const SPRING_STRENGTH_BASIC = 0.08;
 
-  $: rangeValue = bmiValue;
-  $: rangeMarker =
-    rangeValue === null
-      ? 0
-      : Math.max(
-          0,
-          Math.min(
-            100,
-            ((rangeValue - BMI_BAR_MIN) / (BMI_BAR_MAX - BMI_BAR_MIN)) * 100
+  let rangeValue = $derived(bmiValue);
+  let rangeMarker =
+    $derived(
+      rangeValue === null
+        ? 0
+        : Math.max(
+            0,
+            Math.min(
+              100,
+              ((rangeValue - BMI_BAR_MIN) / (BMI_BAR_MAX - BMI_BAR_MIN)) * 100
+            )
           )
-        );
-  $: markerBmiText =
-    rangeValue === null
-      ? ''
-      : rangeValue > BMI_BAR_MAX
-        ? `${BMI_BAR_MAX}+`
-        : rangeValue.toFixed(1);
-  $: rangeAriaLabel =
-    rangeValue === null
-      ? 'BMI range bar. Calculate your BMI to see your position.'
-      : `BMI range bar. Your BMI is ${rangeValue.toFixed(1)}. Category ${category ?? 'Unknown'}.`;
+    );
+  let markerBmiText = $derived.by(() => {
+    if (bmiValue === null) return '';
+    if (bmiValue > BMI_BAR_MAX) return `${BMI_BAR_MAX}+`;
+    return bmiValue.toFixed(1);
+  });
+  let rangeAriaLabel = $derived.by(() => {
+    if (bmiValue === null) return 'BMI range bar. Calculate your BMI to see your position.';
+    return `BMI range bar. Your BMI is ${bmiValue.toFixed(1)}. Category ${category ?? 'Unknown'}.`;
+  });
 
   const animatedMarker = tweened(0, { duration: 0, easing: cubicOut });
   let lastMarker = 0;
@@ -365,17 +368,17 @@
   );
   const segObese = Math.max(0, BMI_BAR_MAX - Math.max(BMI_OVER_MAX, BMI_BAR_MIN));
 
-  $: pagerDirection = activeIndex >= lastIndex ? 1 : -1;
-  $: pagerMotionDuration = reducedMotionEffective
+  let pagerDirection = $derived(activeIndex >= lastIndex ? 1 : -1);
+  let pagerMotionDuration = $derived(reducedMotionEffective
     ? 0
     : smoothModeRequested
       ? (perfTier === 'high' ? PAGER_DUR_HIGH : perfTier === 'medium' ? PAGER_DUR_MEDIUM : PAGER_DUR_LOW)
-      : PAGER_DUR_BASIC;
-  $: pagerMotionDistance = reducedMotionEffective
+      : PAGER_DUR_BASIC);
+  let pagerMotionDistance = $derived(reducedMotionEffective
     ? 0
     : smoothModeRequested
       ? (perfTier === 'high' ? PAGER_DIST_HIGH : perfTier === 'medium' ? PAGER_DIST_MEDIUM : PAGER_DIST_LOW)
-      : PAGER_DIST_BASIC;
+      : PAGER_DIST_BASIC);
 
   let pagerEl: HTMLDivElement | null = null;
   let pointerStartX: number | null = null;
@@ -580,6 +583,16 @@
     else prevSection();
   }
 
+  // Action: attach passive wheel listener (Svelte 5 doesn't support |passive modifier on onwheel)
+  function passiveWheel(node: HTMLElement) {
+    node.addEventListener('wheel', handleWheel, { passive: true });
+    return {
+      destroy() {
+        node.removeEventListener('wheel', handleWheel);
+      }
+    };
+  }
+
   function schedulePagerNavAlignment() {
     if (!browser) return;
     if (pagerNavAlignRaf !== null) return;
@@ -598,7 +611,9 @@
     if (pagerNavCentered !== nextCentered) pagerNavCentered = nextCentered;
   }
 
-  $: if (browser) {
+  // Lazy-load components when section becomes active
+  $effect(() => {
+    if (!browser) return;
     if (activeIndex === 1) void ensureCalculatorComponents();
     if (activeIndex === 2) {
       void ensureGaugeComponents();
@@ -606,7 +621,7 @@
       void ensureSnapshot();
     }
     if (activeIndex === 3) void ensureReferenceTable();
-  }
+  });
 
   onMount(() => {
     if (!browser) return;
@@ -766,12 +781,15 @@
     }
   }
 
-  $: if (bmiValue !== null) {
-    animateRangeMarker(rangeMarker);
-  } else {
-    lastMarker = 0;
-    animatedMarker.set(0, { duration: 0 });
-  }
+  // Animate range marker when BMI value changes
+  $effect(() => {
+    if (bmiValue !== null) {
+      animateRangeMarker(rangeMarker);
+    } else {
+      lastMarker = 0;
+      animatedMarker.set(0, { duration: 0 });
+    }
+  });
 
   onDestroy(() => {
     pageDestroyed = true;
@@ -792,10 +810,10 @@
   class="pager-shell"
   role="application"
   bind:this={pagerEl}
-  on:pointerdown={handlePointerDown}
-  on:pointerup={handlePointerUp}
-  on:pointercancel={handlePointerUp}
-  on:wheel|passive={handleWheel}
+  onpointerdown={handlePointerDown}
+  onpointerup={handlePointerUp}
+  onpointercancel={handlePointerUp}
+  use:passiveWheel
 >
   <div class="pager-nav-shell">
     <nav
@@ -810,7 +828,7 @@
           class="btn btn-ghost pager-tab"
           class:active={idx === activeIndex}
           aria-current={idx === activeIndex ? 'page' : undefined}
-          on:click={() => goTo(idx)}
+          onclick={() => goTo(idx)}
         >
           {section.label}
         </button>
@@ -820,7 +838,7 @@
         type="button"
         class="btn btn-ghost pager-tab pager-smooth"
         aria-pressed={smoothModeRequested}
-        on:click={toggleSmoothMode}
+        onclick={toggleSmoothMode}
       >
         <Bot class="render-spark" aria-hidden="true" />
         Render :
@@ -868,8 +886,7 @@
               <div class="bmi-grid">
                 <div class="form-card">
                   {#if BmiFormComponent}
-                    <svelte:component
-                      this={BmiFormComponent}
+                    <BmiFormComponent
                       bind:age
                       bind:height
                       bind:weight
@@ -882,8 +899,7 @@
                 <div class="bmi-card">
                   {#key resultsRunId}
                     {#if BmiResultsComponent}
-                      <svelte:component
-                        this={BmiResultsComponent}
+                      <BmiResultsComponent
                         {bmiValue}
                         {category}
                         age={age === '' ? null : parseInt(age)}
@@ -901,8 +917,7 @@
           <div class="main-container">
             <div class="charts-section">
               {#if BmiRadialGaugeComponent}
-                <svelte:component
-                  this={BmiRadialGaugeComponent}
+                <BmiRadialGaugeComponent
                   bmi={bmiValue || 0}
                   category={category}
                   ultraSmooth={smoothModeRequested}
@@ -910,16 +925,14 @@
               {/if}
 
               {#if BmiHealthRiskComponent}
-                <svelte:component
-                  this={BmiHealthRiskComponent}
+                <BmiHealthRiskComponent
                   bmi={bmiValue}
                   category={category}
                 />
               {/if}
 
               {#if BmiSnapshotComponent}
-                <svelte:component
-                  this={BmiSnapshotComponent}
+                <BmiSnapshotComponent
                   currentBmi={bmiValue}
                   category={category}
                 />
@@ -932,7 +945,7 @@
           <div class="main-container">
             <!-- Reference Table -->
             {#if ReferenceTableComponent}
-              <svelte:component this={ReferenceTableComponent} />
+              <ReferenceTableComponent />
             {/if}
           </div>
         {/if}
@@ -1048,7 +1061,7 @@
           type="button"
           class="pager-btn-futuristic pager-btn-prev"
           aria-label="Previous section"
-          on:click={prevSection}
+          onclick={prevSection}
         >
           <ChevronLeft aria-hidden="true" size={24} />
         </button>
@@ -1061,7 +1074,7 @@
           type="button"
           class="pager-btn-futuristic pager-btn-next"
           aria-label="Next section"
-          on:click={nextSection}
+          onclick={nextSection}
         >
           <ChevronRight aria-hidden="true" size={24} />
         </button>

@@ -1,11 +1,11 @@
 <script lang="ts">
-  // Size variants correspond to global classes: .comp-spinner.small|medium|large
-  export let size: 'small' | 'medium' | 'large' = 'medium';
-  /**
-   * Back-compat color prop: accepts semantic names or legacy hex values.
-   * Mapped to global classes: .comp-spinner.color-*
-   */
-  export let color: string = 'white';
+  interface Props {
+    size?: 'small' | 'medium' | 'large';
+    color?: string;
+    [key: string]: unknown;
+  }
+
+  let { size = 'medium', color = 'white', ...restProps }: Props = $props();
 
   function toColorVariant(c: string): 'white' | 'blue' | 'green' | 'yellow' | 'red' {
     const v = (c || '').toLowerCase().trim();
@@ -17,9 +17,9 @@
     return 'white';
   }
 
-  $: colorClass = `color-${toColorVariant(color)}`;
+  let colorClass = $derived(`color-${toColorVariant(color)}`);
 </script>
 
-<div class={`comp-spinner ${size} ${colorClass}`} {...$$restProps}>
+<div class={`comp-spinner ${size} ${colorClass}`} {...restProps}>
   <div class="spinner"></div>
 </div>
