@@ -148,18 +148,10 @@ export function validateBmiImport(json: string): ValidationResult {
     return { valid: true, recordCount: records.length, checksumVerified: true };
   }
 
-  // ---- Legacy format: bare array (backward compat) ----
-  if (Array.isArray(incoming)) {
-    const records = (incoming as unknown[]).filter(isValidRecord).map(toRecord);
-    if (records.length === 0) {
-      return { valid: false, error: 'No valid BMI records found in the file.' };
-    }
-    return { valid: true, recordCount: records.length, checksumVerified: false };
-  }
-
+  // No legacy fallback — only envelope format with checksum is accepted
   return {
     valid: false,
-    error: 'Invalid file format. Expected a BMI Calculator export file.'
+    error: 'Invalid file format. This file was not exported by BMI Calculator or has been modified. Please export a new file and try again.'
   };
 }
 
@@ -184,21 +176,9 @@ export function importBmiHistory(json: string): ImportResult {
     return { success: false, count: 0, error: validation.error };
   }
 
-  // Extract records
-  const incoming = JSON.parse(json);
-  let records: BmiRecord[];
-
-  if (
-    typeof incoming === 'object' &&
-    incoming !== null &&
-    Array.isArray((incoming as ExportedEnvelope).records)
-  ) {
-    records = (incoming as ExportedEnvelope).records.filter(isValidRecord).map(toRecord);
-  } else if (Array.isArray(incoming)) {
-    records = (incoming as unknown[]).filter(isValidRecord).map(toRecord);
-  } else {
-    return { success: false, count: 0, error: 'Could not extract records from file.' };
-  }
+  // Extract records (only envelope format accepted)
+  const incoming = JSON.parse(json) as ExportedEnvelope;
+  const records = incoming.records.filter(isValidRecord).map(toRecord);
 
   if (records.length === 0) {
     return { success: false, count: 0, error: 'No valid BMI records found.' };

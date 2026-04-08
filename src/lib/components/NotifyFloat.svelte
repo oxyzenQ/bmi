@@ -24,12 +24,27 @@
 
   let visible = $state(false);
   let mounted = $state(false);
+  let notifyKey = $state(0);
+
+  // Track previous values to detect content changes while show stays true
+  let prevShow = false;
+  let prevType = '';
+  let prevMessage = '';
 
   $effect(() => {
-    if (show && mounted) {
-      // Small delay for animation
-      setTimeout(() => visible = true, 10);
-    } else {
+    const contentChanged = (show && prevShow) && (type !== prevType || message !== prevMessage);
+    const justOpened = show && !prevShow;
+
+    prevShow = show;
+    prevType = type;
+    prevMessage = message;
+
+    if ((justOpened || contentChanged) && mounted) {
+      // Reset animation
+      visible = false;
+      notifyKey += 1;
+      setTimeout(() => { visible = true; }, 50);
+    } else if (!show) {
       visible = false;
     }
   });
@@ -77,6 +92,7 @@
 </script>
 
 {#if show}
+  {#key notifyKey}
   <div
     class="notify-backdrop"
     class:visible
@@ -117,6 +133,7 @@
       {/if}
     </div>
   </div>
+  {/key}
 {/if}
 
 <style>

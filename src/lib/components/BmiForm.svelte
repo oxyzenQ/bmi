@@ -235,7 +235,7 @@
       class:active={unitSystem === 'metric'}
       role="radio"
       aria-checked={unitSystem === 'metric'}
-      onclick={() => { unitSystem = 'metric'; }}
+      onclick={() => { unitSystem = 'metric'; height = ''; weight = ''; }}
     >
       <ArrowLeftRight size={14} aria-hidden="true" />
       Metric (kg/cm)
@@ -246,7 +246,7 @@
       class:active={unitSystem === 'imperial'}
       role="radio"
       aria-checked={unitSystem === 'imperial'}
-      onclick={() => { unitSystem = 'imperial'; }}
+      onclick={() => { unitSystem = 'imperial'; height = ''; weight = ''; }}
     >
       Imperial (lb/in)
     </button>
@@ -365,7 +365,7 @@
 
     <div class="history-actions">
       <button type="button" class="btn btn-secondary" onclick={handleExport} aria-label="Export BMI history">
-        <ArrowDownToLine size={16} aria-hidden="true" />
+        <ArrowUpFromLine size={16} aria-hidden="true" />
         Export
       </button>
       <input
@@ -378,7 +378,7 @@
         aria-hidden="true"
       />
       <button type="button" class="btn btn-secondary" onclick={handleImportClick} aria-label="Import BMI history">
-        <ArrowUpFromLine size={16} aria-hidden="true" />
+        <ArrowDownToLine size={16} aria-hidden="true" />
         Import
       </button>
     </div>
