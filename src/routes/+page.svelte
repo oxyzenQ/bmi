@@ -7,8 +7,6 @@
   import { importBmiHistory } from '$lib/utils/history-io';
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
-  import ThemeToggle from '$lib/components/ThemeToggle.svelte';
-
   type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
   type BmiResultsComponentType = typeof import('$lib/components/BmiResults.svelte').default;
   type BmiRadialGaugeComponentType = typeof import('$lib/components/BmiRadialGauge.svelte').default;
@@ -918,7 +916,6 @@
           {smoothModeStatus}
         </span>
       </button>
-      <ThemeToggle />
     </nav>
   </div>
 
