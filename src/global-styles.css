@@ -1098,11 +1098,22 @@ button[aria-disabled="true"] {
   padding: 24px;
 }
 
+@media (max-width: 899px) {
+  .bmi-card {
+    margin-bottom: clamp(40px, 40vh, 180px) !important;
+  }
+}
+
 @media (min-width: 900px) {
   .bmi-grid {
-    /*grid-template-columns: repeat(2, minmax(0, 1fr));*/
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.5rem;
     align-items: start;
+  }
+
+  .bmi-card {
+    margin-bottom: 0 !important;
+    margin-top: auto;
   }
 }
 
@@ -1135,7 +1146,6 @@ button[aria-disabled="true"] {
   border-radius: 1.5rem;
   padding: clamp(1.25rem, 4vw, 2rem);
   margin-top: auto;
-  margin-bottom: clamp(40px, 40vh, 180px) !important;
   transition: transform var(--dur-normal) var(--easing-smooth),
     box-shadow var(--dur-normal) var(--easing-smooth);
 }
@@ -1178,9 +1188,10 @@ button[aria-disabled="true"] {
 }
 
 .input-error {
-  width: 50%;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
+  max-width: 320px;
+  margin-left: 0;
+  margin-right: 0;
   color: #ff6b6b;
   font-size: 0.8rem;
   text-align: center;
@@ -1191,7 +1202,8 @@ button[aria-disabled="true"] {
   align-items: center;
   justify-content: center;
   padding: 1rem 1.25rem;
-  width: 50%;
+  width: 100%;
+  max-width: 320px;
   border-radius: 0.75rem;
   background: rgba(15, 23, 42, 0.239);
   border-top: 1px solid var(--border-by-rezky);
@@ -3576,9 +3588,10 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
       Consolidated media queries without !important
       ============================== */
 .form-input {
-  width: 50%;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
+  max-width: 320px;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .button-group {
