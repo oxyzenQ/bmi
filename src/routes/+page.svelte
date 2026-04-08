@@ -4,6 +4,7 @@
   import { tweened } from 'svelte/motion';
   import { browser } from '$app/environment';
   import { getPerformanceTier } from '$lib/utils/performance';
+  import { importBmiHistory } from '$lib/utils/history-io';
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
   import {

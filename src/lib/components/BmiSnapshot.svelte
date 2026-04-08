@@ -24,7 +24,7 @@
   let bestBmiState: number | null = $state(null);
 
   // Pure derived from state (no side effects)
-  let bestBmi = $derived(bestBmiState);
+  let bestBmi = $derived<number | null>(bestBmiState);
 
   function refreshBestBmi() {
     if (!browser) return;
