@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine } from 'lucide-svelte';
   import { exportBmiHistory, validateBmiImport } from '$lib/utils/history-io';
 
@@ -26,28 +25,9 @@
     onCalculate,
     onNotify
   }: Props = $props();
-
-  // Persist unit system preference in localStorage
-  onMount(() => {
-    if (!isBrowser) return;
-    try {
-      const stored = localStorage.getItem('bmi.unitSystem');
-      if (stored === 'imperial' || stored === 'metric') {
-        unitSystem = stored;
-      }
-    } catch {
-      // localStorage unavailable
-    }
-  });
-
-  $effect(() => {
-    if (!isBrowser) return;
-    try {
-      localStorage.setItem('bmi.unitSystem', unitSystem);
-    } catch {
-      // localStorage unavailable
-    }
-  });
+  // NOTE: Unit system persistence is managed by the parent (+page.svelte)
+  // via bind:unitSystem. Do NOT read/write localStorage here — it causes
+  // a race condition where child overwrites parent's value on mount.
 
   // Derived unit-specific labels, placeholders, and validation bounds
   let heightLabel = $derived(unitSystem === 'metric' ? 'Height (cm)' : 'Height (in)');

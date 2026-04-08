@@ -69,9 +69,11 @@ export const handle: Handle = async ({ event, resolve }) => {
         // Cross-Origin-Resource-Policy (CORP) - Protects resources
         response.headers.set('Cross-Origin-Resource-Policy', isDev ? 'cross-origin' : 'same-origin');
 
-        // Cross-Origin-Embedder-Policy (COEP) - Controls resource loading (skip in dev)
+        // Cross-Origin-Embedder-Policy (COEP) - credentialless allows cross-origin
+        // resources (e.g. Google Fonts) without CORP headers while still providing
+        // cross-origin isolation for SharedArrayBuffer support
         if (!isDev) {
-                response.headers.set('Cross-Origin-Embedder-Policy', 'require-corp');
+                response.headers.set('Cross-Origin-Embedder-Policy', 'credentialless');
         }
 
         // Permissions Policy - Controls browser features

@@ -4,7 +4,6 @@
   import { tweened } from 'svelte/motion';
   import { browser } from '$app/environment';
   import { getPerformanceTier } from '$lib/utils/performance';
-  import { importBmiHistory } from '$lib/utils/history-io';
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
   type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
@@ -726,8 +725,22 @@
     const onResize = () => schedulePagerNavAlignment();
     window.addEventListener('resize', onResize);
 
-    // Auto-hide scroll listener for pager-section (container scroll, not window)
+    // Unified scroll listener: is-scrolling class + pager-controls auto-hide
+    let isScrolling = false;
+    let isScrollingTimer: ReturnType<typeof setTimeout> | null = null;
     const onScroll = (event: Event) => {
+      // Scroll optimizer: add is-scrolling class during active scroll
+      if (!isScrolling) {
+        isScrolling = true;
+        document.body.classList.add('is-scrolling');
+      }
+      if (isScrollingTimer) clearTimeout(isScrollingTimer);
+      isScrollingTimer = setTimeout(() => {
+        isScrolling = false;
+        document.body.classList.remove('is-scrolling');
+      }, 150);
+
+      // Pager-controls auto-hide: only for pager-section scroll
       const target = event.target as HTMLElement;
       if (!target.classList.contains('pager-section')) return;
 
@@ -750,7 +763,7 @@
       }, 2000);
     };
 
-    // Use event delegation on document for pager-section scroll
+    // Use event delegation on document for all scroll events
     document.addEventListener('scroll', onScroll, { capture: true, passive: true });
 
     void tick().then(schedulePagerNavAlignment);
@@ -763,6 +776,8 @@
       document.removeEventListener('scroll', onScroll, { capture: true });
       if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
       if (scrollTimeout !== null) clearTimeout(scrollTimeout);
+      if (isScrollingTimer) clearTimeout(isScrollingTimer);
+      document.body.classList.remove('is-scrolling');
     };
   });
 

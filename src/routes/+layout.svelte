@@ -4,7 +4,6 @@
   import SplashScreen from '$lib/components/SplashScreen.svelte';
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
-  import { initScrollOptimizer } from '$lib/utils/scroll-optimizer';
 
   let showSplash = false; // Disabled by default
   let showMainContent = true; // Show content immediately
@@ -29,7 +28,7 @@
   }
 
   onMount(() => {
-    const cleanupScroll = initScrollOptimizer();
+    // NOTE: scroll-optimizer merged into +page.svelte unified scroll handler
 
     let cleanupRenderListener: (() => void) | null = null;
 
@@ -71,7 +70,6 @@
 
     return () => {
       if (timer) clearTimeout(timer);
-      cleanupScroll?.();
       cleanupRenderListener?.();
     };
   });
