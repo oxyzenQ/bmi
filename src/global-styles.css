@@ -142,7 +142,6 @@ html {
   -ms-overflow-style: none;
   scrollbar-width: none;
   overscroll-behavior: none;
-  scroll-behavior: smooth;
   background-color: #0a0e1a;
   max-width: 100%;
 }
@@ -214,7 +213,6 @@ body::before {
   opacity: 1;
   filter: brightness(1) contrast(1.25) saturate(1);
   transform: translateZ(0);
-  will-change: opacity, filter;
 }
 
 @media (max-width: 480px) {

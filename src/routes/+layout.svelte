@@ -50,10 +50,9 @@
 
     // Register service worker for caching (only in production)
     if (browser && 'serviceWorker' in navigator && import.meta.env.PROD) {
-      navigator.serviceWorker.register('/service-worker.js').catch((err) => {
-        if (import.meta.env.DEV) {
-          console.error('Service worker registration failed:', err);
-        }
+      navigator.serviceWorker.register('/service-worker.js', { type: 'classic' }).catch((err) => {
+        // Silently fail in production — caching is a progressive enhancement
+        console.warn('SW registration skipped:', err.message);
       });
     }
 

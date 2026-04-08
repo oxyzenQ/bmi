@@ -187,6 +187,7 @@
       <button
         class="skip-button"
         onclick={skipSplash}
+        aria-label="Skip splash screen"
         transition:fade={{ duration: 400, delay: 200 }}
       >
         Skip
