@@ -904,6 +904,8 @@
 
 <div
   class="pager-shell"
+  role="region"
+  aria-label="BMI Calculator"
   bind:this={pagerEl}
   onpointerdown={handlePointerDown}
   onpointerup={handlePointerUp}

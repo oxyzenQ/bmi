@@ -107,6 +107,8 @@
   <div
     class="notify-backdrop"
     class:visible
+    role="dialog"
+    aria-modal="true"
   >
     <div class="notify-float-box">
       <button class="notify-close" onclick={handleClose} aria-label="Close notification">
