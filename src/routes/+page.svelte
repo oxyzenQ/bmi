@@ -317,7 +317,8 @@
         const dx = phase === 'in' ? (1 - p) * x : p * x;
         const opacity = phase === 'in' ? Math.min(1, p * 1.08) : Math.max(0, 1 - p * 1.15);
 
-        return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: ${opacity.toFixed(4)};`;
+        const pe = phase === 'out' ? 'pointer-events: none;' : '';
+        return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: ${opacity.toFixed(4)}; ${pe}`;
       }
     };
   }
@@ -1228,8 +1229,10 @@
       } else if (notifyType === 'success') {
         showNotify = false;
         // Only navigate to gauge if this was a calculate notification
+        // Use tick to ensure NotifyFloat DOM is removed before navigating
         if (notifySource === 'calculate') {
-          goTo(2);
+          // Small delay to let the notification backdrop fully dismiss
+          setTimeout(() => goTo(2), 50);
         }
       } else if (notifyType === 'delete') {
         showNotify = false;
