@@ -12,7 +12,6 @@
   type BmiRadialGaugeComponentType = typeof import('$lib/components/BmiRadialGauge.svelte').default;
   type BmiHealthRiskComponentType = typeof import('$lib/components/BmiHealthRisk.svelte').default;
   type BmiSnapshotComponentType = typeof import('$lib/components/BmiSnapshot.svelte').default;
-  type HistoryManagerComponentType = typeof import('$lib/components/HistoryManager.svelte').default;
   // NotifyFloat imported directly above
 
   let BmiFormComponent: BmiFormComponentType | null = $state(null);
@@ -20,14 +19,13 @@
   let BmiRadialGaugeComponent: BmiRadialGaugeComponentType | null = $state(null);
   let BmiHealthRiskComponent: BmiHealthRiskComponentType | null = $state(null);
   let BmiSnapshotComponent: BmiSnapshotComponentType | null = $state(null);
-  let HistoryManagerComponent: HistoryManagerComponentType | null = $state(null);
   // NotifyFloat imported directly as NotifyFloat
 
   let calculatorLoad: Promise<void> | null = null;
   let gaugeLoad: Promise<void> | null = null;
   let healthRiskLoad: Promise<void> | null = null;
   let snapshotLoad: Promise<void> | null = null;
-  let historyManagerLoad: Promise<void> | null = null;
+
 
   // Track if BMI was already saved to prevent duplicates
   let lastSavedBmi: number | null = null;
@@ -132,21 +130,6 @@
         });
     }
     return gaugeLoad;
-  }
-
-  function ensureHistoryManager() {
-    if (!browser) return Promise.resolve();
-    if (HistoryManagerComponent) return Promise.resolve();
-    if (!historyManagerLoad) {
-      historyManagerLoad = import('$lib/components/HistoryManager.svelte')
-        .then((mod) => {
-          HistoryManagerComponent = mod.default;
-        })
-        .finally(() => {
-          historyManagerLoad = null;
-        });
-    }
-    return historyManagerLoad;
   }
 
   function ensureReferenceTable() {
@@ -647,7 +630,6 @@
     if (!browser) return;
     if (activeIndex === 1) {
       void ensureCalculatorComponents();
-      void ensureHistoryManager();
     }
     if (activeIndex === 2) {
       void ensureGaugeComponents();
@@ -958,6 +940,17 @@
                       {calculating}
                       onClear={confirmClearData}
                       onCalculate={handleCalculate}
+                      onNotify={(count) => {
+                        if (count > 0) {
+                          notifyType = 'success';
+                          notifyMessage = `Imported ${count} record${count === 1 ? '' : 's'} successfully.`;
+                        } else {
+                          notifyType = 'delete';
+                          notifyMessage = 'Import failed. Please check the file format.';
+                        }
+                        notifyButtonText = 'OK';
+                        showNotify = true;
+                      }}
                     />
                   {/if}
                 </div>
@@ -974,16 +967,6 @@
                   {/key}
                 </div>
               </div>
-              {#if HistoryManagerComponent}
-                <HistoryManagerComponent
-                  onNotify={(type, message) => {
-                    notifyType = type;
-                    notifyMessage = message;
-                    notifyButtonText = type === 'success' ? 'OK' : 'Close';
-                    showNotify = true;
-                  }}
-                />
-              {/if}
             </section>
           </div>
         {/if}
