@@ -6,6 +6,20 @@
   import { getPerformanceTier } from '$lib/utils/performance';
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
+  import {
+    Lightbulb,
+    Users,
+    GitBranch,
+    GitCompare,
+    PackageCheck,
+    Wrench,
+    AlertTriangle,
+    Scale,
+    Bot,
+    Ruler,
+    ChevronLeft,
+    ChevronRight
+  } from 'lucide-svelte';
   type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
   type BmiResultsComponentType = typeof import('$lib/components/BmiResults.svelte').default;
   type BmiRadialGaugeComponentType = typeof import('$lib/components/BmiRadialGauge.svelte').default;
@@ -162,22 +176,6 @@
     }
     return referenceLoad;
   }
-  // icons for About BMI section
-  import {
-    Lightbulb,
-    Users,
-    GitBranch,
-    GitCompare,
-    PackageCheck,
-    Wrench,
-    AlertTriangle,
-    Scale,
-    Bot,
-    Ruler,
-    ChevronLeft,
-    ChevronRight
-  } from 'lucide-svelte';
-
   let bmiValue: number | null = $state(null);
   let category: string | null = $state(null);
 
@@ -892,7 +890,6 @@
     pageDestroyed = true;
     if (markerTimer) clearTimeout(markerTimer);
     if (switchingTimer) clearTimeout(switchingTimer);
-    if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
     if (browser) document.body.classList.remove('is-switching');
   });
 
@@ -945,7 +942,7 @@
     </nav>
   </div>
 
-  <main class="pager-view" aria-live="polite">
+  <main class="pager-view">
     {#key activeIndex}
       <section
         class="pager-section"

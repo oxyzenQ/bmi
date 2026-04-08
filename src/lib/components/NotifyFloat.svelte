@@ -25,6 +25,7 @@
   let visible = $state(false);
   let mounted = $state(false);
   let notifyKey = $state(0);
+  let actionTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Effect handles three triggers:
   //   1. show: false → true (open)
@@ -52,26 +53,35 @@
 
   onMount(() => {
     mounted = true;
+    return () => {
+      if (actionTimer) clearTimeout(actionTimer);
+    };
   });
 
   function handleContinue() {
     visible = false;
-    setTimeout(() => {
+    if (actionTimer) clearTimeout(actionTimer);
+    actionTimer = setTimeout(() => {
       onContinue();
+      actionTimer = null;
     }, 200);
   }
 
   function handleCancel() {
     visible = false;
-    setTimeout(() => {
+    if (actionTimer) clearTimeout(actionTimer);
+    actionTimer = setTimeout(() => {
       onCancel();
+      actionTimer = null;
     }, 200);
   }
 
   function handleClose() {
     visible = false;
-    setTimeout(() => {
+    if (actionTimer) clearTimeout(actionTimer);
+    actionTimer = setTimeout(() => {
       onClose();
+      actionTimer = null;
     }, 200);
   }
 
