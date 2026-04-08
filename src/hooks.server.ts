@@ -28,8 +28,12 @@ export const handle: Handle = async ({ event, resolve }) => {
                 ]
                 : [
                         "default-src 'self'",
+                        // 'unsafe-inline' REQUIRED for SvelteKit hydration (<script> in HTML)
+                        // Without this, production deployments (Vercel) render blank pages
+                        // because the browser blocks inline __sveltekit bootstrap scripts.
+                        // Note: CSP still protects against external script injection (script-src 'self')
+                        "script-src 'self' 'unsafe-inline'",
                         // 'unsafe-inline' needed for Svelte style:xxx directives and style={...} bindings
-                        "script-src 'self'",
                         "style-src 'self' 'unsafe-inline'",
                         "font-src 'self' data:",
                         "img-src 'self' data: blob: https:",
