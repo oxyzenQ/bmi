@@ -19,6 +19,9 @@
   // Ideal BMI is 22 (middle of normal range 18.5-25)
   const IDEAL_BMI = 22;
 
+  // Cache best BMI to avoid re-reading localStorage on every reactive cycle
+  let cachedBestBmi: number | null = null;
+
   function loadBestBmi(): number | null {
     if (!browser) return null;
     try {
@@ -40,10 +43,15 @@
     }
   }
 
+  // Load best BMI once and cache it; refresh when BMI changes
   let bestBmi = $derived.by(() => {
-    // Reset to null if no current BMI (data cleared)
-    if (currentBmi === null) return null;
-    return loadBestBmi();
+    if (currentBmi === null) {
+      cachedBestBmi = null;
+      return null;
+    }
+    // Refresh cache on each new BMI calculation
+    cachedBestBmi = loadBestBmi();
+    return cachedBestBmi;
   });
 
   let stats = $derived.by(() => {

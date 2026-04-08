@@ -99,7 +99,7 @@
         tabindex="0"
         role="button"
         aria-label={canCalculate ? 'Inputs valid. Ready to calculate.' : 'Incomplete inputs. Enter age, height and weight.'}
-        data-color={canCalculate ? 'green' : 'gray'}
+        data-color={canCalculate ? 'green' : 'grey'}
       >
         <span class="dot" aria-hidden="true"></span>
         {canCalculate ? 'Ready' : 'Enter all fields'}

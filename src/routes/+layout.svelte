@@ -25,6 +25,9 @@
   if (browser) {
     renderModeEnabled = initRenderMode();
     renderModeInitialized = true;
+
+    // Apply render mode immediately to prevent flash of wrong graphics mode
+    document.documentElement.dataset.graphics = renderModeEnabled ? 'render' : 'basic';
   }
 
   onMount(() => {

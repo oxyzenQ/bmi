@@ -33,8 +33,14 @@
     if (!browser) return;
     if (lastSavedBmi === bmi) return; // Prevent duplicate saves
 
-    const stored = localStorage.getItem('bmi.history');
-    const history: Array<{ timestamp: number; bmi: number; height: number; weight: number; age?: number }> = stored ? JSON.parse(stored) : [];
+    let history: Array<{ timestamp: number; bmi: number; height: number; weight: number; age?: number }> = [];
+    try {
+      const stored = localStorage.getItem('bmi.history');
+      if (stored) history = JSON.parse(stored);
+    } catch {
+      // Corrupted data — reset history silently
+      localStorage.removeItem('bmi.history');
+    }
 
     const ageNum = a !== '' ? parseInt(a) : undefined;
 
@@ -731,8 +737,8 @@
 
     // Show success notification
     notifyType = 'success';
-    notifyMessage = 'your input has been proceed..';
-    notifyButtonText = 'continue to see';
+    notifyMessage = 'Your BMI has been calculated successfully!';
+    notifyButtonText = 'Continue to see';
     showNotify = true;
   }
 

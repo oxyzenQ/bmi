@@ -1,52 +1,22 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { type UserConfig } from 'vite';
+import { execSync } from 'child_process';
 
-// GitHub repo info
-const GITHUB_OWNER = 'oxyzenQ';
-const GITHUB_REPO = 'bmi';
-const GITHUB_BRANCH = 'main';
-
-// Fetch latest commit from GitHub API
-async function fetchGitHubCommit(): Promise<{ sha: string; branch: string }> {
+// Get commit info from local git (fast, no network needed)
+function getLocalGitInfo(): { sha: string; branch: string } {
   try {
-    const response = await fetch(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/commits/${GITHUB_BRANCH}`,
-      {
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'bmi-calculator-build'
-        }
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`GitHub API error: ${response.status}`);
-    }
-
-    const data = await response.json() as { sha: string };
-    return {
-      sha: data.sha.substring(0, 7),
-      branch: GITHUB_BRANCH
-    };
-  } catch (error) {
-    console.warn('Failed to fetch from GitHub API, falling back to local git:', error);
-    // Fallback to local git
-    const { execSync } = await import('child_process');
-    try {
-      const sha = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim();
-      const branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf-8' }).trim();
-      return { sha, branch };
-    } catch {
-      return { sha: 'unknown', branch: 'main' };
-    }
+    const sha = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim();
+    const branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf-8' }).trim();
+    return { sha, branch };
+  } catch {
+    return { sha: 'unknown', branch: 'main' };
   }
 }
 
 // Export async config function
-export default async function config({ mode }: { mode: string }): Promise<UserConfig> {
-  // Fetch commit info from GitHub API (or fallback to local)
-  const commitInfo = await fetchGitHubCommit();
+export default function config({ mode }: { mode: string }): UserConfig {
+  const commitInfo = getLocalGitInfo();
 
   return {
     plugins: [
