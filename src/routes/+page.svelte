@@ -830,15 +830,27 @@
   async function handleCalculate() {
     if (calculating) return;
     calculating = true;
-    const minDelay = reducedMotionEffective ? 0 : (smoothModeRequested ? CALC_DELAY_SMOOTH : CALC_DELAY_BASIC);
-    if (minDelay > 0) {
-      await new Promise((r) => setTimeout(r, minDelay));
-    }
-    await computeBMIFromInputs(height, weight, age);
+
+    // Calculate BMI synchronously (before any await) so that
+    // bmiValue / category are available for the Gauge page.
+    computeBMIFromInputs(height, weight, age);
     resultsRunId += 1;
     calculating = false;
 
-    // Show success notification
+    // Navigate to Gauge NOW — still in the synchronous click-handler
+    // context so Svelte 5's {#key activeIndex} structural re-render
+    // triggers reliably.  Previous approaches (setTimeout / tick().then)
+    // ran goTo() inside async callbacks where {#key} failed silently,
+    // leaving activeIndex desynced from the DOM.
+    // The notification will appear as an overlay on top of the Gauge page.
+    goTo(2);
+
+    // Brief delay so the page transition begins before the
+    // notification overlay fades in on top of Gauge.
+    const overlayDelay = reducedMotionEffective ? 30 : 180;
+    await new Promise((r) => setTimeout(r, overlayDelay));
+
+    // Show success notification (overlaid on the Gauge page)
     notifySource = 'calculate';
     notifyType = 'success';
     notifyMessage = 'Your BMI has been calculated successfully!';
@@ -1227,16 +1239,9 @@
           notifyButtonText = 'OK';
         }
       } else if (notifyType === 'success') {
+        // Navigation to Gauge already happened in handleCalculate
+        // (synchronous click-handler context). Just dismiss the notification.
         showNotify = false;
-        // Only navigate to gauge if this was a calculate notification.
-        // Use tick() to flush the showNotify=false update (NotifyFloat DOM
-        // removal) BEFORE calling goTo(). Calling goTo() inside $effect or
-        // nested setTimeout caused Svelte 5 to batch the activeIndex change
-        // with the effect's own re-run cycle, silently dropping the {#key}
-        // structural re-render on subsequent uses.
-        if (notifySource === 'calculate') {
-          void tick().then(() => goTo(2));
-        }
       } else if (notifyType === 'delete') {
         showNotify = false;
         clearAllData();
