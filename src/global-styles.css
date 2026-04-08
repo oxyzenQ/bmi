@@ -1831,6 +1831,7 @@ button[aria-disabled="true"] {
   border-radius: 1.25rem;
   overflow: hidden;
   margin-top: clamp(40px, 40vh, 180px) !important;
+  margin-bottom: clamp(40px, 40vh, 180px) !important;
 }
 
 .reference-table .ref-header {
