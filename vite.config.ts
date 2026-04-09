@@ -3,15 +3,34 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { type UserConfig } from 'vite';
 import { execFileSync } from 'child_process';
 
-// Get commit info from local git (fast, no network needed)
+// Get commit info — prefer Vercel env vars (reliable in Vercel builds),
+// fall back to local git commands for local dev.
 function getLocalGitInfo(): { sha: string; branch: string } {
-  try {
-    const sha = execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf-8' }).trim();
-    const branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { encoding: 'utf-8' }).trim();
-    return { sha, branch };
-  } catch {
-    return { sha: 'unknown', branch: 'main' };
-  }
+  // Vercel injects these during builds; they are always accurate.
+  const vercelSha = process.env.VERCEL_GIT_COMMIT_SHA;
+  const vercelRef = process.env.VERCEL_GIT_COMMIT_REF;
+
+  const sha = vercelSha
+    ? vercelSha.slice(0, 7)
+    : (() => {
+        try {
+          return execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf-8' }).trim();
+        } catch {
+          return 'unknown';
+        }
+      })();
+
+  const branch = vercelRef
+    ? vercelRef
+    : (() => {
+        try {
+          return execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { encoding: 'utf-8' }).trim();
+        } catch {
+          return 'main';
+        }
+      })();
+
+  return { sha, branch };
 }
 
 // Export async config function
