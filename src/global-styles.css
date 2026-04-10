@@ -132,6 +132,14 @@
   /* Button shine effect */
   --shine-duration: 600ms;
   --shine-easing: var(--easing-smooth);
+
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
 }
 
 /* ==============================
@@ -259,29 +267,13 @@ body::after {
 /* ==============================
       TYPOGRAPHY
       ============================== */
-.section-title {
-  font-size: clamp(1.5rem, 3.2vw, 2rem);
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: 0.2px;
-}
-
-.section-subtitle {
-  font-size: clamp(1rem, 2vw, 1.125rem);
-  color: grey;
-}
 
 /* Monospace usage */
 code,
 pre,
 kbd,
 samp,
-.numeric,
-.num,
-.monospace-numeric,
 input[type="number"],
-.dynamic-chart text,
-.stat-number,
 .bmi-value {
   font-family: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   font-feature-settings: 'tnum' 1, 'lnum' 1;
@@ -299,23 +291,6 @@ pre {
 /* ==============================
       UTILITY CLASSES
       ============================== */
-/* Status colors */
-.status-green {
-  color: #00C853;
-}
-
-.status-yellow {
-  color: #FFD600;
-}
-
-.status-red {
-  color: #D50000;
-}
-
-.status-blue {
-  color: #4A90E2;
-}
-
 /* Container utilities */
 .main-container {
   max-width: 1200px;
@@ -327,40 +302,11 @@ pre {
   z-index: 2;
 }
 
-/* Grid utilities */
-.feature-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
 
-.feature-grid--two {
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 640px) {
-  .feature-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 768px) {
-  .feature-grid--two {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1024px) {
-  .feature-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
 
 /* ==============================
       GLASSMORPHISM COMPONENTS
       ============================== */
-.glass-card,
-.glass-panel,
 .bmi-card {
   background: linear-gradient(180deg,
       rgba(255, 255, 255, 0.035) 6%,
@@ -370,23 +316,8 @@ pre {
   border-radius: 18px;
 }
 
-.glass-card {
-  padding: clamp(1rem, 2.2vw, 1.25rem);
-}
-
-.glass-panel {
-  padding: clamp(1rem, 2.5vw, 1.5rem);
-  transition: transform var(--dur-normal) var(--easing-smooth), box-shadow var(--dur-normal) var(--easing-smooth);
-}
-
-.glass-panel:hover {
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(96, 165, 250, 0.15);
-}
-
 /* Enhanced liquid glass effect */
 /* All container box background enhancement on here */
-.liquid-glass,
 .bmi-card,
 .footer-disclaimer,
 .about-card,
@@ -423,14 +354,7 @@ pre {
     border-color var(--dur-slow) var(--easing-smooth);
 }
 
-.liquid-glass:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow:
-    0 16px 48px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 0 40px color-mix(in oklab, var(--cosmic-purple) 28%, transparent);
-  border-color: color-mix(in oklab, var(--cosmic-purple) 22%, rgba(255, 255, 255, 0.12));
-}
+
 
 /* ==============================
       BUTTON SYSTEM
@@ -577,16 +501,6 @@ button[aria-disabled="true"] {
   border-radius: var(--btn-radius);
 }
 
-.btn-outline {
-  background: var(--btn-surface) padding-box, color-mix(in oklab, var(--cosmic-void) 50%, transparent);
-  border-color: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 10px 22px color-mix(in oklab, var(--shadow-silhouette) 52%, transparent);
-}
-
-.btn-outline:hover {
-  background: color-mix(in oklab, var(--cosmic-void) 48%, transparent);
-}
-
 .btn-secondary {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035)) padding-box,
     color-mix(in oklab, var(--cosmic-void) 52%, transparent);
@@ -606,12 +520,6 @@ button[aria-disabled="true"] {
 }
 
 /* Button sizes */
-.btn-sm {
-  height: 36px;
-  padding-inline: 14px;
-  font-size: 0.9rem;
-}
-
 .btn-lg {
   height: 52px;
   padding-inline: 22px;
@@ -944,59 +852,6 @@ button[aria-disabled="true"] {
 /* ==============================
        BMI SECTION LAYOUT
        ============================== */
-
-/* Standalone transparent container for hero scroll button */
-.hero-scroll-container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 4rem 0 15rem 0;
-  background: none;
-  pointer-events: none;
-  /* container doesn't catch clicks */
-}
-
-/* Override button when inside standalone container (centered flow) */
-.hero-scroll-container .hero-scroll-btn {
-  position: static;
-  left: auto;
-  bottom: auto;
-  transform: none;
-  pointer-events: auto;
-  /* button remains clickable */
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: clamp(62px, 6vw, 62px);
-  height: clamp(62px, 6vw, 62px);
-  border-radius: 9999px;
-  border: var(--border-by-rezky);
-  background: var(--bg-by-rezky);
-  box-shadow:
-    0 10px 28px rgba(0, 0, 0, 0.35),
-    0 0 18px rgba(96, 165, 250, 0.25),
-    0 0 28px rgba(167, 139, 250, 0.18);
-  color: white;
-  -webkit-tap-highlight-color: transparent;
-  transition: transform 220ms var(--easing-smooth), box-shadow 220ms var(--easing-smooth);
-  animation:
-    scrollBounce 1.5s ease-in-out 0s infinite,
-    scrollPulse 1.5s ease-in-out 0s infinite;
-  contain: layout style paint;
-}
-
-.hero-scroll-container .hero-scroll-btn:hover {
-  transform: translateY(-2px) scale(1.05);
-}
-
-.hero-scroll-icon {
-  width: 90% !important;
-  height: 90% !important;
-  color: white !important;
-}
-
 
 @keyframes scrollBounce {
 
@@ -1970,8 +1825,7 @@ button[aria-disabled="true"] {
   overflow-wrap: break-word;
 }
 
-.about-card h3,
-.modal-title {
+.about-card h3 {
   font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
@@ -2109,371 +1963,6 @@ button[aria-disabled="true"] {
 }
 
 /* ==============================
-      CHARTS SECTION
-      ============================== */
-.charts-section {
-  margin-top: clamp(1.5rem, 4vw, 3rem);
-}
-
-.gauge-container.bmi-rangebar {
-  padding-top: 16px !important;
-  margin-bottom: 20px;
-}
-
-.bmi-health-risk {
-  margin-bottom: 100px !important;
-}
-
-.bmi-snapshot {
-  margin-bottom: 200px !important;
-}
-
-.rangebar {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.rangebar-track {
-  position: relative;
-  display: flex;
-  align-items: stretch;
-  width: 100%;
-  height: 18px;
-  border-radius: 9999px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(0, 0, 0, 0.25);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 10px 24px rgba(0, 0, 0, 0.35);
-}
-
-.rangebar-seg {
-  min-width: 0;
-}
-
-.rangebar-seg.range-under {
-  background: linear-gradient(90deg,
-      color-mix(in oklab, #38bdf8 60%, transparent),
-      color-mix(in oklab, #60a5fa 72%, transparent));
-}
-
-.rangebar-seg.range-normal {
-  background: linear-gradient(90deg,
-      color-mix(in oklab, #22c55e 60%, transparent),
-      color-mix(in oklab, #86efac 60%, transparent));
-}
-
-.rangebar-seg.range-over {
-  background: linear-gradient(90deg,
-      color-mix(in oklab, #f59e0b 62%, transparent),
-      color-mix(in oklab, #fde68a 62%, transparent));
-}
-
-.rangebar-seg.range-obese {
-  background: linear-gradient(90deg,
-      color-mix(in oklab, #ef4444 62%, transparent),
-      color-mix(in oklab, #fecaca 58%, transparent));
-}
-
-.rangebar-marker-wrap {
-  position: absolute;
-  left: 0;
-  top: -10px;
-  height: 38px;
-  transform: translateX(calc(var(--marker, 0) * 1%)) translateX(-50%);
-  will-change: transform;
-  pointer-events: none;
-}
-
-.rangebar-animated .rangebar-marker-wrap {
-  transition: none;
-}
-
-.rangebar-marker {
-  width: 2px;
-  height: 38px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow:
-    0 0 12px color-mix(in oklab, var(--aurora-core) 55%, transparent),
-    0 0 24px color-mix(in oklab, var(--cosmic-purple) 28%, transparent);
-}
-
-.rangebar-marker-badge {
-  position: absolute;
-  top: -34px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0.3rem 0.55rem;
-  border-radius: 9999px;
-  font: 700 0.8rem/1 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, monospace;
-  color: rgba(255, 255, 255, 0.95);
-  background: rgba(0, 0, 0, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow:
-    0 10px 22px rgba(0, 0, 0, 0.4),
-    0 0 18px color-mix(in oklab, var(--cosmic-purple) 22%, transparent);
-  white-space: nowrap;
-}
-
-.rangebar-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem 0.9rem;
-  justify-content: space-between;
-  font: 600 0.85rem/1.2 'Inter Variable', system-ui, -apple-system, sans-serif;
-  color: rgba(255, 255, 255, 0.82);
-}
-
-.rangebar-legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.rangebar-legend-item::before {
-  content: '';
-  width: 10px;
-  height: 10px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.35);
-}
-
-.rangebar-legend-item.legend-under::before {
-  background: #38bdf8;
-}
-
-.rangebar-legend-item.legend-normal::before {
-  background: #22c55e;
-}
-
-.rangebar-legend-item.legend-over::before {
-  background: #f59e0b;
-}
-
-.rangebar-legend-item.legend-obese::before {
-  background: #ef4444;
-}
-
-.chart-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-
-.chart-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: white;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-}
-
-.chart-title h3 {
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.chart-subtitle {
-  color: #9ca3af;
-  font-size: 0.9rem;
-}
-
-.chart-wrapper {
-  position: relative;
-  width: 100%;
-  height: auto;
-  contain: layout style paint;
-}
-
-.dynamic-chart {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-/* Axis labels for charts */
-.axis-label {
-  position: absolute;
-  color: white;
-  font: 600 0.85rem/1.1 'Inter Variable', system-ui, -apple-system, sans-serif;
-  pointer-events: none;
-}
-
-.axis-label.axis-x {
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.axis-label.axis-y {
-  top: 50%;
-  left: 8px;
-  transform: translateY(-50%) rotate(-90deg);
-  transform-origin: left top;
-}
-
-.chart-tooltip {
-  position: absolute;
-  min-width: 220px;
-  max-width: min(280px, 80vw);
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: white;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 20px rgba(96, 165, 250, 0.18);
-  pointer-events: none;
-  transform: translateZ(0);
-  white-space: pre-wrap;
-}
-
-.chart-tooltip pre {
-  margin: 0;
-  font: 600 0.85rem/1.35 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, monospace;
-}
-
-.chart-insights {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.insight-card {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: transform var(--dur-fast) var(--easing-smooth),
-    box-shadow var(--dur-fast) var(--easing-smooth);
-}
-
-.insight-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
-}
-
-.insight-title {
-  color: white;
-  font: 600 0.85rem/1.1 'Inter Variable', system-ui, -apple-system, sans-serif;
-}
-
-.insight-value {
-  color: white;
-  font: 700 1rem/1.1 'Inter Variable', system-ui, -apple-system, sans-serif;
-}
-
-/* ==============================
-      MODAL COMPONENTS
-      ============================== */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  animation: fadeIn var(--dur-normal) var(--easing-smooth);
-}
-
-.modal-content {
-  border-radius: 2rem;
-  max-width: 800px;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.6),
-    0 0 40px rgba(96, 165, 250, 0.2);
-  animation: slideUp var(--dur-slow) var(--easing-smooth);
-  padding: 2.5rem;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  transition: color 0.2s ease, background-color 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-close:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.modal-body {
-  color: #d1d5db;
-  line-height: 1.7;
-  font-size: 1rem;
-  max-height: 60vh;
-  overflow-y: auto;
-  scroll-behavior: smooth;
-}
-
-.modal-body h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 2rem 0 1rem 0;
-  background: var(--accent-blue);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.modal-body h3:first-child {
-  margin-top: 0;
-}
-
-.modal-body p {
-  margin-bottom: 1.5rem;
-  text-align: justify;
-}
-
-.progress-bar {
-  position: sticky;
-  top: 0;
-  width: 100%;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  margin-bottom: 1rem;
-  z-index: 10;
-}
-
-.progress-fill {
-  height: 100%;
-  background: var(--bg-cosmic);
-  border-radius: 2px;
-  transition: width 0.2s ease;
-}
-
-/* ==============================
       COSMIC PARTICLES & EFFECTS
       ============================== */
 html:not([data-graphics='render']) .cosmic-particles {
@@ -2482,8 +1971,7 @@ html:not([data-graphics='render']) .cosmic-particles {
 
 html:not([data-graphics='render']) .orb,
 html:not([data-graphics='render']) .sparkle-icon,
-html:not([data-graphics='render']) .plasma-star,
-html:not([data-graphics='render']) .bubble {
+html:not([data-graphics='render']) .plasma-star {
   animation: none !important;
 }
 
@@ -2687,64 +2175,7 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
       UTILITY CLASSES & COMPONENTS
       ============================== */
 
-/* Loading spinner component */
-.comp-spinner {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
 
-.comp-spinner .spinner {
-  border: 2px solid transparent;
-  border-top: 2px solid currentColor;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-.comp-spinner.small .spinner {
-  width: 16px;
-  height: 16px;
-}
-
-.comp-spinner.medium .spinner {
-  width: 24px;
-  height: 24px;
-}
-
-.comp-spinner.large .spinner {
-  width: 32px;
-  height: 32px;
-}
-
-.comp-spinner.color-white {
-  color: #ffffff;
-}
-
-.comp-spinner.color-blue {
-  color: #60a5fa;
-}
-
-.comp-spinner.color-green {
-  color: #10b981;
-}
-
-.comp-spinner.color-yellow {
-  color: #f59e0b;
-}
-
-.comp-spinner.color-red {
-  color: #ef4444;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
-}
 
 @keyframes fadeIn {
   from {
@@ -2780,10 +2211,6 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
   }
 }
 
-.chart-appear {
-  animation: fadeInUp 0.4s var(--easing-smooth);
-}
-
 /* Icon sizing */
 
 /* Bmi form icons and other biggest icons over 50px */
@@ -2801,14 +2228,6 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
   color: yellow !important;
   width: 48px !important;
   height: 48px !important;
-}
-
-.Coffee {
-  color: var(--cosmic-blue) !important;
-  width: 64px !important;
-  height: 64px !important;
-  filter: drop-shadow(0 0 8px var(--cosmic-blue));
-  transition: filter 200ms ease, transform 200ms ease;
 }
 
 /* about icons */
@@ -2843,8 +2262,7 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 }
 
 .BarChart3,
-.X,
-.Calendar {
+.X {
   color: var(--cosmic-purple) !important;
   width: 74px !important;
   height: 74px !important;
@@ -2930,7 +2348,6 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 .GitBranch,
 .PackageCheck,
 .GitCompare,
-.Brush,
 .Wrench,
 .Scale {
   color: var(--cosmic-purple);
@@ -2998,50 +2415,6 @@ p,
   font-size: clamp(0.95rem, 1.25vw, 1.05rem);
 }
 
-/* Responsive grid helpers */
-.grid-responsive {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: clamp(0.75rem, 2vw, 1.25rem);
-  align-items: stretch;
-}
-
-/* Ensure forms/results can wrap on mobile */
-.flex-responsive {
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(0.5rem, 1.5vw, 1rem);
-  align-items: stretch;
-}
-
-/* Common card/container style to stretch equally in grids */
-.card,
-.panel,
-.result-box {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Results layout alignment: keep columns aligned and auto-height */
-.results-grid,
-.results-layout {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: clamp(0.75rem, 2vw, 1.25rem);
-  align-items: stretch;
-}
-
-/* Inputs remain centered as container heights change */
-.form-center,
-.centered-inline {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: clamp(0.5rem, 1.5vw, 1rem);
-}
-
 /* Media queries: tablet - CONSOLIDATED */
 @media (max-width: 768px) {
 
@@ -3096,16 +2469,6 @@ p,
     max-width: 420px;
   }
 
-  .gauge-container.bmi-rangebar {
-    margin-bottom: clamp(48px, 24vh, 280px) !important;
-  }
-
-  .grid-responsive,
-  .results-grid,
-  .results-layout {
-    gap: clamp(0.75rem, 2vw, 1.25rem);
-  }
-
   /* Ensure no overflow from wide elements */
   img,
   svg,
@@ -3121,13 +2484,6 @@ p,
 
   .gauge-container {
     width: min(96vw, 400px);
-  }
-
-  /* Prevent layout shift when BMI result expands */
-  .results-grid,
-  .results-layout {
-    grid-template-columns: 1fr;
-    /* stack */
   }
 }
 
@@ -3156,13 +2512,6 @@ p,
   h3,
   .h3 {
     font-size: clamp(1.15rem, 4vw, 1.5rem);
-  }
-
-  /* Prevent layout shift when BMI result expands */
-  .results-grid,
-  .results-layout {
-    grid-template-columns: 1fr;
-    /* stack */
   }
 
   .hero-bottom {
@@ -3320,10 +2669,6 @@ p,
     margin-bottom: clamp(28px, 18vh, 140px) !important;
   }
 
-  .gauge-container.bmi-rangebar {
-    margin-bottom: clamp(32px, 18vh, 140px) !important;
-  }
-
   .reference-table {
     margin-top: clamp(20px, 14vh, 90px) !important;
   }
@@ -3367,64 +2712,24 @@ p,
   }
 }
 
-/* Performance: prefer rem spacing and leverage CSS vars already defined */
-:root {
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-}
-
-/* ==============================
-       Global smooth/momentum scrolling and GPU helpers
-       ============================== */
-
-
-/* Utility: mark any scrollable area */
-.scrollable {
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  /* momentum */
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-/* Utility: opt-in GPU acceleration for animated elements */
-.gpu-accelerate {
-  will-change: transform, opacity;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  contain: layout style paint;
-}
-
-/* Parallax helper without background-attachment: fixed (Safari issue) */
-.parallax-safe {
-  background-attachment: scroll !important;
-  will-change: transform;
-  transform: translateZ(0);
-}
-
 /* ==============================
    SCROLL PERFORMANCE OPTIMIZATION
    Pause animations during scroll
    ============================== */
-html:not([data-graphics='render']) body.is-scrolling :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star, .hero-scroll-icon) {
+html:not([data-graphics='render']) body.is-scrolling :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star) {
   animation-play-state: paused !important;
 }
 
-html:not([data-graphics='render']) body.is-switching :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star, .hero-scroll-icon) {
+html:not([data-graphics='render']) body.is-switching :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star) {
   animation-play-state: paused !important;
 }
 
 /* Reduce compositing layers during scroll */
-html:not([data-graphics='render']) body.is-scrolling :is(.glass-card, .glass-panel, .bmi-card) {
+html:not([data-graphics='render']) body.is-scrolling :is(.bmi-card) {
   will-change: auto;
 }
 
-html:not([data-graphics='render']) body.is-scrolling :is(.liquid-glass,
-  .hero-content,
+html:not([data-graphics='render']) body.is-scrolling :is(.hero-content,
   .bmi-card,
   .footer-disclaimer,
   .about-card,
@@ -3432,7 +2737,6 @@ html:not([data-graphics='render']) body.is-scrolling :is(.liquid-glass,
   .reference-table,
   .form-card,
   .github-link,
-  .modal-content,
   .section-header,
   .section-header-v2,
   .btn,
@@ -3457,8 +2761,7 @@ html:not([data-graphics='render']) body.is-scrolling :is(.form-input,
   text-shadow: none !important;
 }
 
-html:not([data-graphics='render']) body.is-switching :is(.liquid-glass,
-  .hero-content,
+html:not([data-graphics='render']) body.is-switching :is(.hero-content,
   .bmi-card,
   .footer-disclaimer,
   .about-card,
@@ -3466,7 +2769,6 @@ html:not([data-graphics='render']) body.is-switching :is(.liquid-glass,
   .reference-table,
   .form-card,
   .github-link,
-  .modal-content,
   .section-header,
   .section-header-v2,
   .btn,
@@ -3511,7 +2813,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
     min-height: 0 !important;
   }
 
-  :is(.liquid-glass, .glass-panel, .btn, button, a.button):hover {
+  :is(.btn, button, a.button):hover {
     transform: none;
   }
 
@@ -3519,14 +2821,6 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }
-}
-
-/* Tighten large card/container shadows generically */
-
-/* Make modal/body scroll areas momentum-smooth on mobile */
-.modal-content,
-.modal-body {
-  -webkit-overflow-scrolling: touch;
 }
 
 /* Prefer transform/opacity for animations and respect reduced motion */
@@ -3662,7 +2956,6 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
     animation: none;
   }
 
-  .chart-appear,
   .results-content,
   .bmi-display {
     animation: none !important;
@@ -3676,8 +2969,6 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
     animation: none;
   }
 
-  .chart-tooltip,
-  .insight-card,
   .bmi-card {
     transition: none !important;
   }
@@ -3687,205 +2978,8 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
     opacity: 0;
   }
 
-  :is(.modal-overlay, .modal-content, .comp-spinner .spinner, body::before, body::after) {
+  :is(body::before, body::after) {
     animation: none;
-  }
-}
-
-/* ==============================
-       RESPONSIVE FOUNDATION (GLOBAL)
-       ============================== */
-/* Prevent horizontal scrollbars on narrow screens */
-
-
-/* Fluid media globally */
-img,
-svg,
-canvas,
-video {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-/* Fluid container utility for central alignment */
-.main-container,
-.container,
-.section-container {
-  max-width: min(96vw, 850px);
-  margin-inline: auto;
-  padding-inline: clamp(0.75rem, 2vw, 1.25rem);
-}
-
-/* Typographic scale using clamp for readability */
-h1,
-.h1 {
-  font-size: clamp(1.75rem, 4vw, 2.75rem);
-  line-height: 1.125;
-}
-
-h2,
-.h2 {
-  font-size: clamp(1.5rem, 3.25vw, 2.25rem);
-  line-height: 1.15;
-}
-
-h3,
-.h3 {
-  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
-  line-height: 1.2;
-}
-
-h4,
-.h4 {
-  font-size: clamp(1.125rem, 2vw, 1.5rem);
-  line-height: 1.25;
-}
-
-p,
-.text-base {
-  font-size: clamp(0.95rem, 1.25vw, 1.05rem);
-}
-
-/* Responsive grid helpers */
-.grid-responsive {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: clamp(0.75rem, 2vw, 1.25rem);
-  align-items: stretch;
-}
-
-/* Ensure forms/results can wrap on mobile */
-.flex-responsive {
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(0.5rem, 1.5vw, 1rem);
-  align-items: stretch;
-}
-
-/* Common card/container style to stretch equally in grids */
-.card,
-.panel,
-.result-box {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Results layout alignment: keep columns aligned and auto-height */
-.results-grid,
-.results-layout {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: clamp(0.75rem, 2vw, 1.25rem);
-  align-items: stretch;
-}
-
-/* Inputs remain centered as container heights change */
-.form-center,
-.centered-inline {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: clamp(0.5rem, 1.5vw, 1rem);
-}
-
-/* Media queries: tablet */
-@media (max-width: 768px) {
-
-  .main-container,
-  .container,
-  .section-container {
-    max-width: 660px;
-    margin-inline: auto;
-    padding-inline: clamp(0.75rem, 2vw, 1.25rem);
-  }
-
-  .grid-responsive,
-  .results-grid,
-  .results-layout {
-    gap: clamp(0.75rem, 2vw, 1.25rem);
-  }
-
-  /* Ensure no overflow from wide elements */
-  img,
-  svg,
-  canvas,
-  video {
-    max-width: 100%;
-    height: auto;
-  }
-
-  .hero-bottom {
-    margin-bottom: -20px;
-  }
-
-  .gauge-container {
-    width: min(96vw, 400px);
-  }
-}
-
-/* Media queries: mobile (incl. 1080x2340 logical CSS px density-aware) */
-@media (max-width: 480px) {
-
-  .main-container,
-  .container,
-  .section-container {
-    max-width: 400px;
-    margin-inline: auto;
-    padding-inline: clamp(0.75rem, 4vw, 0.9rem);
-  }
-
-  /* Slightly reduce headings for smaller screens */
-  h1,
-  .h1 {
-    font-size: clamp(1.5rem, 6vw, 2.25rem);
-  }
-
-  h2,
-  .h2 {
-    font-size: clamp(1.35rem, 5vw, 1.9rem);
-  }
-
-  h3,
-  .h3 {
-    font-size: clamp(1.15rem, 4vw, 1.5rem);
-  }
-
-  /* Prevent layout shift when BMI result expands */
-  .results-grid,
-  .results-layout {
-    grid-template-columns: 1fr;
-    /* stack */
-  }
-
-  .hero-bottom {
-    margin-bottom: -20px;
-  }
-
-  .gauge-container {
-    width: min(96vw, 260px);
-  }
-}
-
-@media (min-width: 720px) and (max-width: 767px) {
-  .gauge-container {
-    width: min(92vw, 520px);
-    margin-top: clamp(20px, 10vh, 120px) !important;
-    margin-bottom: clamp(24px, 12vh, 140px) !important;
-  }
-}
-
-@media (min-width: 768px) {
-  .gauge-container {
-    width: min(96vw, 550px);
-  }
-}
-
-@media (min-width: 1100px) {
-  .gauge-container {
-    width: min(96vw, 760px) !important;
   }
 }
 
@@ -4278,8 +3372,7 @@ html[data-performance-tier="low"] .cosmic-particles .cosmic-particle {
 html[data-performance-tier="low"] :is(
   .plasma-star,
   .sparkle-icon,
-  .gauge-reflection,
-  .Coffee
+  .gauge-reflection
 ) {
   filter: none !important;
   animation: none !important;
@@ -4323,7 +3416,6 @@ html[data-performance-tier="high"] .cosmic-particles .cosmic-particle {
 }
 
 html[data-performance-tier="high"] :is(
-  .liquid-glass,
   .hero-content,
   .bmi-card
 ) {

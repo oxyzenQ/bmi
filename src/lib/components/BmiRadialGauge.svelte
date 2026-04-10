@@ -275,4 +275,4 @@
   </div>
 </div>
 
-<!-- styles moved to app.css -->
+<!-- styles in global-styles.css -->

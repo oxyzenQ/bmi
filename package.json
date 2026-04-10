@@ -59,10 +59,8 @@
     "typescript",
     "health",
     "performance",
-    "tauri",
-    "rust",
-    "desktop",
-    "android"
+    "pwa",
+    "responsive"
   ],
   "author": "Rezky Nightly",
   "license": "GPL-3.0",
