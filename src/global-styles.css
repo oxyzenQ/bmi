@@ -307,17 +307,7 @@ pre {
 /* ==============================
       GLASSMORPHISM COMPONENTS
       ============================== */
-.bmi-card {
-  background: linear-gradient(180deg,
-      rgba(255, 255, 255, 0.035) 6%,
-      rgba(255, 255, 255, 0.024) 35%,
-      rgba(255, 255, 255, 0.018) 100%) padding-box, rgba(13, 22, 43, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 18px;
-}
-
-/* Enhanced liquid glass effect */
-/* All container box background enhancement on here */
+/* Enhanced liquid glass effect — all container box backgrounds consolidated here */
 .bmi-card,
 .footer-disclaimer,
 .about-card,
@@ -465,14 +455,6 @@ button[aria-disabled="true"] {
   /* animation removed for GPU performance */
 }
 
-.btn .btn-dot:nth-child(2) {
-  /* animation-delay: 120ms; */
-}
-
-.btn .btn-dot:nth-child(3) {
-  /* animation-delay: 240ms; */
-}
-
 /* @keyframes btnDotPulse removed for GPU performance */
 
 /* Elegant danger variant */
@@ -611,7 +593,6 @@ button[aria-disabled="true"] {
   background: radial-gradient(circle, rgba(96, 165, 250, 0.35), transparent);
   top: 20%;
   left: 10%;
-  animation-delay: 0s;
 }
 
 .orb-3 {
@@ -620,7 +601,6 @@ button[aria-disabled="true"] {
   background: radial-gradient(circle, rgba(6, 182, 212, 0.35), transparent);
   bottom: 20%;
   left: 20%;
-  animation-delay: -14s;
 }
 
 /* @keyframes orbFloat removed for GPU performance */
@@ -628,7 +608,6 @@ button[aria-disabled="true"] {
 .hero-content {
   max-width: 800px;
   margin: 0 auto;
-  /* margin-top: clamp(40px, 40vh, 70px) !important; */
   margin-bottom: clamp(40px, 40vh, 180px) !important;
   padding: 3rem 2rem;
   border-radius: 2rem;
@@ -697,12 +676,6 @@ button[aria-disabled="true"] {
   font-weight: 500;
   text-align: center;
   color: grey;
-  /*
-  background: var(--bg-cosmic);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  */
 }
 
 .title-gradient {
@@ -771,10 +744,6 @@ button[aria-disabled="true"] {
 
 .feature span {
   background: var(--bg-cosmic);
-  /*-webkit-text-fill-color: transparent;
-  -webkit-background-clip: text;
-  -webkit-text-stroke: 1px var(--bg-by-rezky);
-  */
   color: white;
   background-clip: text;
 }
@@ -853,41 +822,13 @@ button[aria-disabled="true"] {
        BMI SECTION LAYOUT
        ============================== */
 
-@keyframes scrollBounce {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes scrollPulse {
-
-  0%,
-  100% {
-    box-shadow:
-      0 10px 28px rgba(0, 0, 0, 0.35),
-      0 0 16px rgba(96, 165, 250, 0.25),
-      0 0 24px rgba(167, 139, 250, 0.18);
-  }
-
-  50% {
-    box-shadow:
-      0 12px 32px rgba(0, 0, 0, 0.45),
-      0 0 22px rgba(96, 165, 250, 0.40),
-      0 0 34px rgba(167, 139, 250, 0.30);
-  }
-}
-
 /* About BMI app info rows */
 .app-info {
   display: grid;
   gap: 0.35rem;
-  margin-top: 0.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .app-info .info-row {
@@ -895,7 +836,6 @@ button[aria-disabled="true"] {
   align-items: center;
   gap: 0.5rem;
   color: grey;
-  /* subtle lavender to match theme */
   font-size: 1rem;
 }
 
@@ -995,13 +935,9 @@ button[aria-disabled="true"] {
   border-radius: 1.5rem;
   padding: clamp(1.25rem, 4vw, 2rem);
   margin-top: auto;
+  min-height: 750px;
   transition: transform var(--dur-normal) var(--easing-smooth),
     box-shadow var(--dur-normal) var(--easing-smooth);
-}
-
-/* Default height when empty */
-.bmi-card {
-  min-height: 750px;
 }
 
 .bmi-card:hover,
@@ -1238,15 +1174,14 @@ button[aria-disabled="true"] {
   opacity: 0.7;
 }
 
-/* Elegant gradient text utility using theme vars
+/* Elegant gradient text utility using theme vars */
 .text-gradient-elegant {
-  /*background: var(--bg-cosmic);
+  background: var(--bg-cosmic);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
 }
-*/
 
 .card-subtitle {
   color: white;
@@ -1519,10 +1454,6 @@ button[aria-disabled="true"] {
   font-size: 1.25rem;
   text-align: center;
   color: white;
-  /*background: var(--bg-cosmic);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;*/
 }
 
 /* Icon styling */
@@ -1569,7 +1500,6 @@ button[aria-disabled="true"] {
 }
 
 .radial-gauge {
-  /*width: min(70vw, 340px);*/
   width: auto;
   height: auto;
   contain: layout paint style;
@@ -1808,10 +1738,6 @@ button[aria-disabled="true"] {
   font-size: 2.5rem;
   text-align: center;
   color: white;
-  /*background: var(--bg-cosmic);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;*/
 }
 
 .ref-card .subtitle {
@@ -1830,10 +1756,6 @@ button[aria-disabled="true"] {
   font-weight: 700;
   margin-bottom: 0.75rem;
   color: white;
-  /* background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text; */
 }
 
 /* ==============================
@@ -1857,10 +1779,6 @@ button[aria-disabled="true"] {
   font-size: 2.5rem;
   text-align: center;
   color: white;
-  /*background: var(--bg-cosmic);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;*/
 }
 
 .about-bmi-section .subtitle {
@@ -1943,23 +1861,6 @@ button[aria-disabled="true"] {
 
 .about-card p:last-child {
   margin-bottom: 0;
-}
-
-.app-info {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.app-info p {
-  color: grey;
-  font-size: 0.875rem;
-  margin: 0.5rem 0;
-}
-
-.app-info strong {
-  color: #e2e8f0;
-  font-weight: 600;
 }
 
 /* ==============================
@@ -2062,8 +1963,6 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
   }
 }
 
-/* Bubble effects */
-
 /* Plasma star effects */
 .plasma-star {
   position: relative;
@@ -2100,7 +1999,7 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
   padding: clamp(2rem, 4vw, 4rem);
   margin-top: clamp(40px, 40vh, 180px) !important;
   margin-bottom: clamp(10px, 2vh, 10px) !important;
-  /* add 'auto' for horizontal centering */
+  /* horizontal centering */
   border-radius: 2rem;
   max-width: 100%;
 }
@@ -2132,9 +2031,7 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
   text-align: center;
   padding: 1.5rem;
   margin: 1rem auto 0;
-  /* Tambah 'auto' dan konsisten dengan footer atas */
   max-width: 1000px;
-  /* Tambah max-width yang sama */
   position: relative;
   overflow: none;
   will-change: auto;
@@ -2143,10 +2040,6 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 
 .github-footer span {
   font-weight: 500;
-  /*background: var(--bg-cosmic);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;*/
   color: white;
 }
 
