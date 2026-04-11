@@ -165,3 +165,44 @@ Stage Summary:
 - Category colors unified: Normal/Good → #a78bfa (purple), replacing all green references
 - Performance tiers and smooth mode toggle fully preserved
 - All builds and tests passing
+
+---
+Task ID: 5c
+Agent: Super Z (Phase 5c)
+Task: Update SplashScreen text and remaining component styling for Web3 Crypto Edition
+
+Work Log:
+- SplashScreen.svelte: Updated typewriter title text from "Hey...welcome" to "LOGIGO$ BMI"
+- SplashScreen.svelte: Updated HTML comment "Subtle plasma glow effect" → "Subtle web3 glow effect"
+- SplashScreen.svelte: Renamed CSS class references: plasma-glow → splash-glow, plasma-ring → splash-ring, plasma-particles → splash-particles
+- global-styles.css: Renamed .Telescope → .Hexagon (2 selectors: main + 360px responsive)
+- global-styles.css: Replaced var(--cosmic-blue) → var(--web3-glow-purple-bright) in .SquareSigma icon rule
+- global-styles.css: Replaced var(--cosmic-silver) → var(--web3-text-silver) in .BookCheck/.BookOpenCheck icon rules
+- global-styles.css: Renamed all CSS class names containing legacy prefixes:
+  - cosmic-particles → web3-particles (40+ selectors)
+  - cosmic-particle → web3-particle (20+ selectors)
+  - plasma-star → web3-star (5 selectors)
+  - plasma-glow → splash-glow (5 selectors)
+  - plasma-ring → splash-ring (5 selectors)
+  - plasma-particles → splash-particles (1 selector)
+  - cosmic-orbs → web3-orbs (1 selector)
+- global-styles.css: Renamed @keyframes plasmaRingSpin → splashRingSpin (declaration + usage)
+- global-styles.css: Updated CSS section comment "COSMIC PARTICLES & EFFECTS" → "WEB3 PARTICLES & EFFECTS"
+- global-styles.css: Updated gradient comments: "aurora violet" → "web3 violet", "plasma purple" → "web3 purple", "starlight highlight" → "web3 highlight"
+- global-styles.css: Updated splash background comment "Deep Dark Plasma Background" → "Web3 dark overlay background"
+- global-styles.css: Updated removed animation comments: plasmaGlow → web3Glow, plasmaPulse → splashPulse, plasmaStarGlow → web3StarGlow
+- CosmicParticles.svelte: Renamed class names in JS (particle.className) and template (cosmic-particles → web3-particles)
+- BmiResults.svelte: Updated empty state text "cosmic BMI results" → "BMI results"
+- ReferenceTable.svelte: Updated subtitle text "cosmic health journey" → "health journey"
+- Final sweep confirmed zero remaining legacy references (cosmic-, aurora-, plasma-, stellar-, bg-cosmic, bg-by-rezky, bg-last-by-rezky, border-by-rezky) across all .svelte files and global-styles.css
+- All verification passed: svelte-check (0 errors), eslint (clean), vitest (7/7 tests), vite build (success)
+- Committed to dev branch as 5554c73 and pushed to origin
+
+Stage Summary:
+- Files modified: 5 (SplashScreen.svelte, CosmicParticles.svelte, BmiResults.svelte, ReferenceTable.svelte, global-styles.css)
+- Net change: +63 insertions, -63 deletions
+- Splash screen: "LOGIGO$ BMI" typewriter title with Web3 branding
+- Icon CSS: .Telescope → .Hexagon, all --cosmic-* variables eliminated
+- Class names: All legacy-prefixed CSS classes renamed to web3-*/splash-* namespace
+- Zero legacy references remaining across entire codebase
+- All builds and tests passing
