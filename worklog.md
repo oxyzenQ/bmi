@@ -73,3 +73,34 @@ Stage Summary:
 - Persistence: `localStorage` key `bmi.backgroundMode` (values: `'dark'` | `'wallpaper'`)
 - Flash prevention: Early `.bg-wallpaper` class application in +layout.svelte inline script
 - All builds and tests passing
+
+---
+Task ID: 4
+Agent: Super Z (Phase 4)
+Task: Add LOGIGO$ ticker marquee branding bar
+
+Work Log:
+- Added fixed-position ticker marquee bar at top of page (28px height, z-index 9998)
+- CSS-only infinite horizontal scroll animation using `@keyframes tickerScroll` with `translateX(-50%)`
+- Dual-span technique for seamless loop: two identical `.ticker-content` spans side by side
+- Content: `LOGIGO$` repeated 12 times per span with `&bull;` separators (crypto-ticker aesthetic)
+- Glassmorphism background: rgba(10,10,18,0.85) with backdrop-filter blur(12px) saturate(140%)
+- Text styling: JetBrains Mono Variable, 0.75rem, weight 600, letter-spacing 0.15em, purple accent color
+- `pointer-events: none` and `user-select: none` for non-interactive decorative element
+- `aria-hidden="true"` on the container for accessibility
+- Adjusted `.pager-shell` padding-top from 0 to 28px to prevent content from hiding behind ticker
+- `will-change: transform` for GPU-accelerated animation
+- `@media (prefers-reduced-motion: reduce)` disables animation
+- `@media (max-width: 360px)` reduces height to 22px and font-size to 0.65rem
+- CSS added to global-styles.css (not component-scoped) for global availability
+- HTML added to +page.svelte between `</svelte:head>` and `.pager-shell` div
+- All verification passed: svelte-check (0 errors), eslint (clean), vitest (7/7 tests), vite build (success)
+- Committed to dev branch as 197f19e and pushed to origin
+
+Stage Summary:
+- Files modified: 2 (global-styles.css, +page.svelte)
+- Net change: +71 insertions, -1 deletion
+- Ticker: Fixed 28px bar at page top, seamless CSS-only marquee animation
+- Responsive: Reduced size on screens <360px
+- Accessible: aria-hidden, prefers-reduced-motion respected
+- All builds and tests passing
