@@ -6,7 +6,7 @@
       category: 'Underweight',
       range: '< 18.5',
       status: 'May increase health risks',
-      statusColor: '#60a5fa',
+      statusColor: 'var(--cat-underweight)',
       icon: AlertTriangle,
       iconClass: 'AlertTriangle2',
       subcategories: [
@@ -20,7 +20,7 @@
       category: 'Normal Weight',
       range: '18.5 - 24.9',
       status: 'Optimal health range',
-      statusColor: '#10b981',
+      statusColor: 'var(--cat-normal)',
       icon: CheckCircle,
       iconClass: 'CheckCircle',
       subcategories: [
@@ -33,7 +33,7 @@
       category: 'Overweight',
       range: '25.0 - 29.9',
       status: 'Increased health risks',
-      statusColor: '#ffff00',
+      statusColor: 'var(--cat-overweight)',
       icon: TrendingUp,
       iconClass: 'TrendingUp',
       subcategories: [
@@ -46,7 +46,7 @@
       category: 'Obese',
       range: '≥ 30.0',
       status: 'High health risks',
-      statusColor: '#ef4444',
+      statusColor: 'var(--cat-obese)',
       icon: Activity,
       iconClass: 'Activity',
       subcategories: [
@@ -114,7 +114,7 @@
     {/each}
   </div>
 
-  <div class="ref-card" style="border-top: 1px solid rgba(255,255,255,0.08);">
+  <div class="ref-card ref-card-note">
     <Info class="Info2" />
     <p class="subtitle" style="margin: 0;">
       <strong>Note:</strong> BMI is a screening tool and should not be used as a sole diagnostic method.

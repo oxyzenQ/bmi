@@ -21,7 +21,7 @@
     if (bmiVal === null || cat === null) {
       return {
         label: 'Unknown',
-        color: '#94a3b8',
+        color: 'var(--text-label)',
         bgClass: 'risk-unknown',
         icon: Shield,
         description: 'Calculate your BMI to assess health risk',
@@ -34,7 +34,7 @@
     if (lowerCat === 'underweight') {
       return {
         label: 'Moderate Risk',
-        color: '#4A90E2',
+        color: 'var(--cat-underweight)',
         bgClass: 'risk-moderate',
         icon: AlertTriangle,
         description: 'May indicate nutritional deficiencies or underlying conditions',
@@ -56,7 +56,7 @@
     if (lowerCat === 'overweight') {
       return {
         label: 'Elevated Risk',
-        color: '#FFD600',
+        color: 'var(--cat-overweight)',
         bgClass: 'risk-elevated',
         icon: Activity,
         description: 'Increased risk for cardiovascular disease and diabetes',
@@ -67,7 +67,7 @@
     // Obese
     return {
       label: 'High Risk',
-      color: '#D50000',
+      color: 'var(--cat-obese)',
       bgClass: 'risk-high',
       icon: AlertTriangle,
       description: 'Significantly increased risk for serious health conditions',
@@ -170,7 +170,7 @@
     height: 12px;
     border-radius: 6px;
     overflow: hidden;
-    background: rgba(148, 163, 184, 0.1);
+    background: var(--border-slate);
   }
 
   .risk-segment {
@@ -179,22 +179,22 @@
   }
 
   .risk-low-seg {
-    background: linear-gradient(90deg, #a78bfa 0%, #a78bfa 100%);
+    background: var(--accent);
     opacity: 0.6;
   }
 
   .risk-moderate-seg {
-    background: linear-gradient(90deg, #4A90E2 0%, #4A90E2 100%);
+    background: var(--cat-underweight);
     opacity: 0.6;
   }
 
   .risk-elevated-seg {
-    background: linear-gradient(90deg, #FFD600 0%, #FFD600 100%);
+    background: var(--cat-overweight);
     opacity: 0.6;
   }
 
   .risk-high-seg {
-    background: linear-gradient(90deg, #D50000 0%, #D50000 100%);
+    background: var(--cat-obese);
     opacity: 0.6;
   }
 
@@ -221,28 +221,28 @@
   }
 
   .risk-marker.risk-low {
-    background: #a78bfa;
-    box-shadow: 0 0 20px rgba(167, 139, 250, 0.4);
+    background: var(--accent);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
   }
 
   .risk-marker.risk-moderate {
-    background: #4A90E2;
-    box-shadow: 0 0 20px rgba(74, 144, 226, 0.4);
+    background: var(--cat-underweight);
+    box-shadow: 0 0 20px rgba(96, 165, 250, 0.4);
   }
 
   .risk-marker.risk-elevated {
-    background: #FFD600;
-    box-shadow: 0 0 20px rgba(255, 214, 0, 0.4);
+    background: var(--cat-overweight);
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
     color: #1a1a2e;
   }
 
   .risk-marker.risk-high {
-    background: #D50000;
-    box-shadow: 0 0 20px rgba(213, 0, 0, 0.4);
+    background: var(--cat-obese);
+    box-shadow: 0 0 20px rgba(248, 113, 113, 0.4);
   }
 
   .risk-marker.risk-unknown {
-    background: #64748b;
+    background: var(--text-slate);
   }
 
   .risk-arrow {
@@ -264,7 +264,7 @@
 
   .risk-label {
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--text-slate);
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
@@ -274,30 +274,30 @@
     align-items: center;
     gap: 1rem;
     padding: 1.25rem;
-    border-radius: 16px;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(148, 163, 184, 0.1);
+    border-radius: var(--radius-lg);
+    background: var(--surface-raised);
+    border: 1px solid var(--border-slate);
     margin-bottom: 1.5rem;
   }
 
   .risk-result.risk-low {
-    border-color: rgba(167, 139, 250, 0.3);
-    background: rgba(167, 139, 250, 0.08);
+    border-color: var(--cat-underweight-tint);
+    background: rgba(139, 92, 246, 0.08);
   }
 
   .risk-result.risk-moderate {
-    border-color: rgba(74, 144, 226, 0.3);
-    background: rgba(74, 144, 226, 0.08);
+    border-color: var(--cat-underweight-tint);
+    background: rgba(96, 165, 250, 0.08);
   }
 
   .risk-result.risk-elevated {
-    border-color: rgba(255, 214, 0, 0.3);
-    background: rgba(255, 214, 0, 0.08);
+    border-color: var(--cat-overweight-tint);
+    background: rgba(251, 191, 36, 0.08);
   }
 
   .risk-result.risk-high {
-    border-color: rgba(213, 0, 0, 0.3);
-    background: rgba(213, 0, 0, 0.08);
+    border-color: var(--cat-obese-tint);
+    background: rgba(248, 113, 113, 0.08);
   }
 
   .risk-icon {
@@ -316,28 +316,28 @@
 
   .risk-description {
     font-size: 0.875rem;
-    color: #94a3b8;
+    color: var(--text-label);
     line-height: 1.4;
   }
 
   .risk-bmi {
     font-size: 1.5rem;
     font-weight: 700;
-    color: white;
+    color: var(--text-primary);
     text-align: right;
   }
 
   .health-tips {
     padding: 1.25rem;
-    background: rgba(15, 23, 42, 0.4);
-    border-radius: 16px;
-    border: 1px solid rgba(148, 163, 184, 0.1);
+    background: var(--surface-subtle);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-slate);
   }
 
   .health-tips h4 {
     margin: 0 0 1rem;
     font-size: 1rem;
-    color: #f8fafc;
+    color: var(--text-primary);
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -346,7 +346,7 @@
   .health-tips ul {
     margin: 0;
     padding-left: 1.25rem;
-    color: #94a3b8;
+    color: var(--text-label);
     font-size: 0.875rem;
     line-height: 1.6;
   }
@@ -361,7 +361,7 @@
 
   .no-data {
     margin: 0;
-    color: #64748b;
+    color: var(--text-slate);
     font-size: 0.875rem;
     font-style: italic;
   }

@@ -92,7 +92,7 @@
       <div class="icon-glow"></div>
     </div>
     <h2 class="card-title">Your Results</h2>
-    <p class="card-subtitle">Cosmic BMI analysis and personalized recommendations.</p>
+    <p class="card-subtitle">Web3 BMI analysis and personalized recommendations.</p>
   </div>
 
   <div class="results-content" role="status" aria-live="polite">

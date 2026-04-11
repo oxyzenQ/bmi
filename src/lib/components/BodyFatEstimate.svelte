@@ -21,17 +21,17 @@
 
   function getCategory(bf: number, isMale: boolean): { label: string; color: string; desc: string } {
     if (isMale) {
-      if (bf < 6) return { label: 'Essential Fat', color: '#4A90E2', desc: 'Minimum fat required for physiological health' };
-      if (bf < 14) return { label: 'Athletic', color: '#00C853', desc: 'Typical of trained athletes and fitness enthusiasts' };
-      if (bf < 18) return { label: 'Fitness', color: '#00C853', desc: 'Healthy range associated with good physical condition' };
-      if (bf < 25) return { label: 'Average', color: '#FFD600', desc: 'Most common range in the general population' };
-      return { label: 'Above Average', color: '#D50000', desc: 'Higher than typical — consult a healthcare provider' };
+      if (bf < 6) return { label: 'Essential Fat', color: 'var(--cat-underweight)', desc: 'Minimum fat required for physiological health' };
+      if (bf < 14) return { label: 'Athletic', color: 'var(--cat-normal)', desc: 'Typical of trained athletes and fitness enthusiasts' };
+      if (bf < 18) return { label: 'Fitness', color: 'var(--cat-normal)', desc: 'Healthy range associated with good physical condition' };
+      if (bf < 25) return { label: 'Average', color: 'var(--cat-overweight)', desc: 'Most common range in the general population' };
+      return { label: 'Above Average', color: 'var(--cat-obese)', desc: 'Higher than typical — consult a healthcare provider' };
     } else {
-      if (bf < 14) return { label: 'Essential Fat', color: '#4A90E2', desc: 'Minimum fat required for physiological health' };
-      if (bf < 21) return { label: 'Athletic', color: '#00C853', desc: 'Typical of trained athletes and fitness enthusiasts' };
-      if (bf < 25) return { label: 'Fitness', color: '#00C853', desc: 'Healthy range associated with good physical condition' };
-      if (bf < 32) return { label: 'Average', color: '#FFD600', desc: 'Most common range in the general population' };
-      return { label: 'Above Average', color: '#D50000', desc: 'Higher than typical — consult a healthcare provider' };
+      if (bf < 14) return { label: 'Essential Fat', color: 'var(--cat-underweight)', desc: 'Minimum fat required for physiological health' };
+      if (bf < 21) return { label: 'Athletic', color: 'var(--cat-normal)', desc: 'Typical of trained athletes and fitness enthusiasts' };
+      if (bf < 25) return { label: 'Fitness', color: 'var(--cat-normal)', desc: 'Healthy range associated with good physical condition' };
+      if (bf < 32) return { label: 'Average', color: 'var(--cat-overweight)', desc: 'Most common range in the general population' };
+      return { label: 'Above Average', color: 'var(--cat-obese)', desc: 'Higher than typical — consult a healthcare provider' };
     }
   }
 
@@ -131,53 +131,53 @@
       {#if sex === 'male'}
         <div class="range-row">
           <span class="range-label">Essential</span>
-          <div class="range-bar"><div class="range-fill" style="width: 24%; background: #4A90E2;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 24%; background: var(--cat-underweight);"></div></div>
           <span class="range-val">2-5%</span>
         </div>
         <div class="range-row">
           <span class="range-label">Athletic</span>
-          <div class="range-bar"><div class="range-fill" style="width: 32%; background: #00C853;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 32%; background: var(--cat-normal);"></div></div>
           <span class="range-val">6-13%</span>
         </div>
         <div class="range-row">
           <span class="range-label">Fitness</span>
-          <div class="range-bar"><div class="range-fill" style="width: 36%; background: #00C853;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 36%; background: var(--cat-normal);"></div></div>
           <span class="range-val">14-17%</span>
         </div>
         <div class="range-row">
           <span class="range-label">Average</span>
-          <div class="range-bar"><div class="range-fill" style="width: 56%; background: #FFD600;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 56%; background: var(--cat-overweight);"></div></div>
           <span class="range-val">18-24%</span>
         </div>
         <div class="range-row">
           <span class="range-label">Obese</span>
-          <div class="range-bar"><div class="range-fill" style="width: 75%; background: #D50000;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 75%; background: var(--cat-obese);"></div></div>
           <span class="range-val">25%+</span>
         </div>
       {:else}
         <div class="range-row">
           <span class="range-label">Essential</span>
-          <div class="range-bar"><div class="range-fill" style="width: 28%; background: #4A90E2;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 28%; background: var(--cat-underweight);"></div></div>
           <span class="range-val">10-13%</span>
         </div>
         <div class="range-row">
           <span class="range-label">Athletic</span>
-          <div class="range-bar"><div class="range-fill" style="width: 42%; background: #00C853;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 42%; background: var(--cat-normal);"></div></div>
           <span class="range-val">14-20%</span>
         </div>
         <div class="range-row">
           <span class="range-label">Fitness</span>
-          <div class="range-bar"><div class="range-fill" style="width: 42%; background: #00C853;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 42%; background: var(--cat-normal);"></div></div>
           <span class="range-val">21-24%</span>
         </div>
         <div class="range-row">
           <span class="range-label">Average</span>
-          <div class="range-bar"><div class="range-fill" style="width: 56%; background: #FFD600;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 56%; background: var(--cat-overweight);"></div></div>
           <span class="range-val">25-31%</span>
         </div>
         <div class="range-row">
           <span class="range-label">Obese</span>
-          <div class="range-bar"><div class="range-fill" style="width: 75%; background: #D50000;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 75%; background: var(--cat-obese);"></div></div>
           <span class="range-val">32%+</span>
         </div>
       {/if}
@@ -205,11 +205,12 @@
     display: flex;
     justify-content: center;
     gap: 2px;
-    border: var(--web3-border);
-    border-radius: 9999px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-full);
     padding: 2px;
-    margin: 1rem auto;
+    margin: var(--sp-4) auto;
     width: fit-content;
+    background: var(--bg-base);
   }
 
   .sex-btn {
@@ -229,8 +230,9 @@
   }
 
   .sex-btn.active {
-    background: var(--web3-glow-purple);
-    color: white;
+    background: var(--accent);
+    color: var(--text-primary);
+    box-shadow: 0 1px 4px rgba(139, 92, 246, 0.25);
   }
 
   .bf-result {
@@ -239,7 +241,7 @@
   }
 
   .bf-value {
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono);
     font-size: 3rem;
     font-weight: 700;
     line-height: 1;
@@ -260,7 +262,7 @@
 
   .comp-header {
     font-size: 0.8rem;
-    color: #64748b;
+    color: var(--text-slate);
     margin-bottom: 0.5rem;
     font-weight: 500;
   }
@@ -270,7 +272,7 @@
     height: 16px;
     border-radius: 8px;
     overflow: hidden;
-    background: rgba(148, 163, 184, 0.1);
+    background: var(--border-slate);
   }
 
   .comp-fill {
@@ -279,11 +281,11 @@
   }
 
   .comp-fill.fat {
-    background: linear-gradient(90deg, #FFD600, #F59E0B);
+    background: linear-gradient(90deg, var(--cat-overweight), var(--accent-hover));
   }
 
   .comp-fill.lean {
-    background: linear-gradient(90deg, #00C853, #4A90E2);
+    background: linear-gradient(90deg, var(--cat-normal), var(--cat-underweight));
   }
 
   .comp-legend {
@@ -292,7 +294,7 @@
     gap: 1.25rem;
     margin-top: 0.5rem;
     font-size: 0.75rem;
-    color: #94a3b8;
+    color: var(--text-label);
   }
 
   .legend-item {
@@ -308,17 +310,17 @@
   }
 
   .fat-dot {
-    background: #F59E0B;
+    background: var(--cat-overweight);
   }
 
   .lean-dot {
-    background: #00C853;
+    background: var(--cat-normal);
   }
 
   .bf-desc {
     text-align: center;
     font-size: 0.875rem;
-    color: #94a3b8;
+    color: var(--text-label);
     margin-bottom: 1rem;
     line-height: 1.5;
   }
@@ -330,16 +332,16 @@
     padding: 0.75rem 1rem;
     background: rgba(74, 144, 226, 0.08);
     border: 1px solid rgba(74, 144, 226, 0.15);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     margin-bottom: 1.25rem;
     font-size: 0.78rem;
-    color: #94a3b8;
+    color: var(--text-label);
     line-height: 1.5;
   }
 
   .bf-info-box :global(svg) {
     flex-shrink: 0;
-    color: #4A90E2;
+    color: var(--cat-underweight);
     margin-top: 1px;
   }
 
@@ -349,9 +351,9 @@
 
   .bf-ranges {
     padding: 1rem;
-    background: rgba(15, 23, 42, 0.4);
-    border-radius: 12px;
-    border: 1px solid rgba(148, 163, 184, 0.1);
+    background: var(--surface-subtle);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-slate);
   }
 
   .bf-ranges h4 {
@@ -374,7 +376,7 @@
 
   .range-label {
     font-size: 0.72rem;
-    color: #94a3b8;
+    color: var(--text-label);
     width: 60px;
     flex-shrink: 0;
     text-align: right;
@@ -396,10 +398,10 @@
 
   .range-val {
     font-size: 0.7rem;
-    color: #64748b;
+    color: var(--text-slate);
     width: 40px;
     flex-shrink: 0;
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono);
   }
 
   .bf-empty {
@@ -409,7 +411,7 @@
     justify-content: center;
     padding: 2.5rem;
     text-align: center;
-    color: #64748b;
+    color: var(--text-slate);
   }
 
   .bf-empty :global(svg) {

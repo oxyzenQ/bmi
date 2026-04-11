@@ -49,6 +49,8 @@
   --text-secondary: #a1a1aa;
   --text-muted: #71717a;
   --text-dim: #52525b;
+  --text-label: #94a3b8;
+  --text-slate: #64748b;
 
   /* Accent */
   --accent: #8b5cf6;
@@ -65,6 +67,16 @@
   --cat-normal: #34d399;
   --cat-overweight: #fbbf24;
   --cat-obese: #f87171;
+
+  /* Category alpha helpers (border tint) */
+  --cat-underweight-tint: rgba(96, 165, 250, 0.3);
+  --cat-normal-tint: rgba(52, 211, 153, 0.3);
+  --cat-overweight-tint: rgba(251, 191, 36, 0.3);
+  --cat-obese-tint: rgba(248, 113, 113, 0.3);
+
+  /* Surface tiers */
+  --surface-subtle: rgba(15, 23, 42, 0.4);
+  --surface-raised: rgba(15, 23, 42, 0.6);
 
   /* Typography */
   --font-sans: 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -112,6 +124,9 @@
   /* Button */
   --btn-height: 44px;
   --btn-radius: 12px;
+
+  /* Utility */
+  --border-slate: rgba(148, 163, 184, 0.1);
 }
 
 /* === RESET & BASE === */
@@ -1421,6 +1436,10 @@ button[aria-disabled="true"] {
   font-size: 0.85rem;
   color: var(--text-secondary);
   line-height: 1.5;
+}
+
+.ref-card-note {
+  border-top: 1px solid var(--border-subtle);
 }
 
 .ref-header {

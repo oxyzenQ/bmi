@@ -102,10 +102,10 @@
   });
 
   function getStatusColor(bmi: number): string {
-    if (bmi < 18.5) return '#4A90E2';
-    if (bmi < 25) return '#00C853';
-    if (bmi < 30) return '#FFD600';
-    return '#D50000';
+    if (bmi < 18.5) return 'var(--cat-underweight)';
+    if (bmi < 25) return 'var(--cat-normal)';
+    if (bmi < 30) return 'var(--cat-overweight)';
+    return 'var(--cat-obese)';
   }
 
   function getStatusBg(bmi: number): string {
@@ -170,7 +170,7 @@
         <Activity size={16} />
         <span>Target</span>
       </div>
-      <div class="card-value" style={currentBmi !== null ? 'color: #00C853' : ''}>
+      <div class="card-value" style={currentBmi !== null ? 'color: var(--cat-normal)' : ''}>
         {currentBmi !== null ? IDEAL_BMI.toFixed(2) : '—'}
       </div>
       <div class="card-category">{currentBmi !== null ? 'Optimal BMI' : 'N/A'}</div>
@@ -254,9 +254,9 @@
   }
 
   .snapshot-card {
-    background: rgba(15, 23, 42, 0.6);
+    background: var(--surface-raised);
     border: 1px solid rgba(148, 163, 184, 0.15);
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     padding: 1.25rem;
     text-align: center;
     transition: all 0.3s ease;
@@ -302,7 +302,7 @@
     justify-content: center;
     gap: 0.5rem;
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--text-slate);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 0.75rem;
@@ -313,18 +313,18 @@
     font-weight: 700;
     line-height: 1;
     margin-bottom: 0.5rem;
-    color: white;
+    color: var(--text-primary);
   }
 
   .card-category {
     font-size: 0.875rem;
-    color: #94a3b8;
+    color: var(--text-label);
   }
 
   .progress-section {
-    background: rgba(15, 23, 42, 0.4);
-    border: 1px solid rgba(148, 163, 184, 0.1);
-    border-radius: 16px;
+    background: var(--surface-subtle);
+    border: 1px solid var(--border-slate);
+    border-radius: var(--radius-lg);
     padding: 1.5rem;
   }
 
@@ -337,13 +337,13 @@
 
   .progress-label {
     font-size: 0.875rem;
-    color: #94a3b8;
+    color: var(--text-label);
   }
 
   .progress-value {
     font-size: 1.25rem;
     font-weight: 700;
-    color: white;
+    color: var(--text-primary);
   }
 
   .progress-bar {
@@ -365,11 +365,11 @@
   }
 
   .progress-fill.progress-lose {
-    background: linear-gradient(90deg, #D50000 0%, #FFD600 50%, #00C853 100%);
+    background: linear-gradient(90deg, var(--cat-obese) 0%, var(--cat-overweight) 50%, var(--cat-normal) 100%);
   }
 
   .progress-fill.progress-gain {
-    background: linear-gradient(90deg, #4A90E2 0%, #00C853 100%);
+    background: linear-gradient(90deg, var(--cat-underweight) 0%, var(--cat-normal) 100%);
   }
 
   .progress-markers {
@@ -377,11 +377,11 @@
     justify-content: space-between;
     margin-top: 0.5rem;
     font-size: 0.625rem;
-    color: #64748b;
+    color: var(--text-slate);
   }
 
   .progress-markers .marker.ideal {
-    color: #00C853;
+    color: var(--cat-normal);
     font-weight: 500;
   }
 
@@ -396,25 +396,25 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.875rem 1rem;
-    background: rgba(15, 23, 42, 0.6);
-    border-radius: 12px;
+    background: var(--surface-raised);
+    border-radius: var(--radius-md);
     font-size: 0.875rem;
-    color: #94a3b8;
+    color: var(--text-label);
   }
 
   .insight-item.success {
     background: rgba(0, 200, 83, 0.1);
     border: 1px solid rgba(0, 200, 83, 0.2);
-    color: #00C853;
+    color: var(--cat-normal);
   }
 
   .insight-item :global(svg) {
     flex-shrink: 0;
-    color: #64748b;
+    color: var(--text-slate);
   }
 
   .insight-item.success :global(svg) {
-    color: #00C853;
+    color: var(--cat-normal);
   }
 
   .insight-item strong {
@@ -422,11 +422,11 @@
   }
 
   .trend-good {
-    color: #00C853 !important;
+    color: var(--cat-normal) !important;
   }
 
   .trend-bad {
-    color: #D50000 !important;
+    color: var(--cat-obese) !important;
   }
 
   .empty-snapshot {
@@ -436,7 +436,7 @@
     justify-content: center;
     padding: 3rem;
     text-align: center;
-    color: #64748b;
+    color: var(--text-slate);
   }
 
   .empty-snapshot :global(svg) {

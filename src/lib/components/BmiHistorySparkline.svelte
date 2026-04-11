@@ -85,10 +85,10 @@
   });
 
   function getBmiColor(bmi: number): string {
-    if (bmi < 18.5) return '#4A90E2';
-    if (bmi < 25) return '#00C853';
-    if (bmi < 30) return '#FFD600';
-    return '#D50000';
+    if (bmi < 18.5) return 'var(--cat-underweight)';
+    if (bmi < 25) return 'var(--cat-normal)';
+    if (bmi < 30) return 'var(--cat-overweight)';
+    return 'var(--cat-obese)';
   }
 
   function formatDate(ts: number): string {
@@ -178,16 +178,16 @@
 
 <style>
   .sparkline-container {
-    background: rgba(15, 23, 42, 0.4);
-    border: 1px solid rgba(148, 163, 184, 0.1);
-    border-radius: 16px;
+    background: var(--surface-subtle);
+    border: 1px solid var(--border-slate);
+    border-radius: var(--radius-lg);
     padding: 1.25rem;
     margin-top: 1rem;
   }
 
   .sparkline-empty {
     text-align: center;
-    color: #64748b;
+    color: var(--text-slate);
     font-size: 0.875rem;
     padding: 1.5rem;
   }
@@ -204,7 +204,7 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.875rem;
-    color: #94a3b8;
+    color: var(--text-label);
     font-weight: 500;
   }
 
@@ -215,19 +215,19 @@
     font-size: 0.75rem;
     font-weight: 600;
     padding: 0.2rem 0.6rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-full);
     background: rgba(148, 163, 184, 0.15);
-    color: #94a3b8;
+    color: var(--text-label);
   }
 
   .sparkline-badge.trend-down {
     background: rgba(0, 200, 83, 0.15);
-    color: #00C853;
+    color: var(--cat-normal);
   }
 
   .sparkline-badge.trend-up {
     background: rgba(213, 0, 0, 0.15);
-    color: #D50000;
+    color: var(--cat-obese);
   }
 
   .sparkline-chart {
@@ -260,7 +260,7 @@
   .label-y {
     font-size: 0.6rem;
     color: #475569;
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono);
   }
 
   .sparkline-footer {
@@ -273,11 +273,11 @@
 
   .sparkline-stat {
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--text-slate);
   }
 
   .sparkline-stat strong {
-    color: #e2e8f0;
+    color: var(--text-primary);
     font-weight: 600;
   }
 

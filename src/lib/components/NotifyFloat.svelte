@@ -91,9 +91,9 @@
     Trash2
   );
   const iconColor = $derived(
-    type === 'success' ? '#00C853' :
-    type === 'warn' ? '#F59E0B' :
-    '#D50000'
+    type === 'success' ? 'var(--cat-normal)' :
+    type === 'warn' ? 'var(--cat-overweight)' :
+    'var(--cat-obese)'
   );
   const buttonClass = $derived(
     type === 'success' ? 'btn-success' :
