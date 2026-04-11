@@ -44,3 +44,32 @@ Stage Summary:
 - Net change: +114 insertions, -119 deletions
 - Zero remaining legacy CSS variable references (--cosmic-*, --aurora-*, --plasma-*, --stellar-*, --shadow-silhouette, --bg-cosmic, --bg-by-rezky, --bg-last-by-rezky, --border-by-rezky)
 - All builds and tests passing
+
+---
+Task ID: 3
+Agent: Super Z (Phase 3)
+Task: Background toggle system — dark CSS default with wallpaper option
+
+Work Log:
+- Replaced always-on wallpaper background (`body::before` using `/images/oxyzen-zenlysium.webp`) with premium CSS-only dark background as default
+- Dark CSS background features: #050508 base, radial purple glow (top-left), radial blue glow (bottom-right), 24px dot grid pattern
+- Added `.bg-wallpaper` class on `<body>` to toggle between modes via CSS (`body::before` conditional styling)
+- Updated gradient overlay (`body::after`) from `rgba(2,6,23)` to `rgba(5,5,8)` to match new dark base
+- Added smooth crossfade transition via `opacity` and `var(--dur-slow)` on `body::before`
+- Imported `Monitor` and `Moon` icons from lucide-svelte for the toggle button
+- Added `bgWallpaper` state ($state) in +page.svelte with localStorage persistence (`bmi.backgroundMode`, default `'dark'`)
+- Added `toggleBackground()` function: flips state, saves to localStorage, toggles `.bg-wallpaper` class on `document.body`
+- Added early background mode initialization in +layout.svelte (inline `if (browser)` block) to prevent flash of wallpaper for returning users
+- Toggle button placed in the navigation bar alongside the existing Render mode pill, styled as `btn-ghost pager-tab bg-toggle-btn`
+- Mobile responsive: wallpaper mode uses `contain` on portrait, `cover` on landscape (≤480px)
+- All verification passed: svelte-check (0 errors), eslint (clean), vitest (7/7 tests), vite build (success)
+- Committed to dev branch as 272b9f4 and pushed to origin
+
+Stage Summary:
+- Files modified: 3 (global-styles.css, +layout.svelte, +page.svelte)
+- Net change: +75 insertions, -13 deletions
+- Default background: dark CSS-only (no image, no network dependency)
+- Toggle: Nav bar button with Moon (dark) / Monitor (wallpaper) icons
+- Persistence: `localStorage` key `bmi.backgroundMode` (values: `'dark'` | `'wallpaper'`)
+- Flash prevention: Early `.bg-wallpaper` class application in +layout.svelte inline script
+- All builds and tests passing
