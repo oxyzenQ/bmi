@@ -875,6 +875,14 @@
   <meta name="description" content="Calculate your BMI with our modern, accessible calculator. Get instant results, health recommendations, and learn about BMI categories." />
 </svelte:head>
 
+<!-- LOGIGO$ Ticker Marquee Branding Bar -->
+<div class="ticker-bar" aria-hidden="true">
+  <div class="ticker-track">
+    <span class="ticker-content">LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull;</span>
+    <span class="ticker-content" aria-hidden="true">LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull;</span>
+  </div>
+</div>
+
 <div
   class="pager-shell"
   role="region"
@@ -1242,7 +1250,7 @@
     display: flex;
     flex-direction: column;
     gap: 0;
-    padding-top: 0;
+    padding-top: 28px;
     overflow: hidden;
     touch-action: pan-y pinch-zoom;
     position: relative;
