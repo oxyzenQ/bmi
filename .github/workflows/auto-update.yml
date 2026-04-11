@@ -38,7 +38,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6.0.2
         with:
-          token: ${{ secrets.WORKFLOW_UPDATER_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 1
           fetch-tags: false
 
@@ -148,7 +148,7 @@ jobs:
         if: steps.check_changes.outputs.changes == 'true' && env.UPDATE_STRATEGY == 'pr'
         uses: peter-evans/create-pull-request@v8.1.0
         with:
-          token: ${{ secrets.WORKFLOW_UPDATER_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: ${{ steps.commit_msg.outputs.commit_message }}
           title: ${{ steps.commit_msg.outputs.title }}
           body: ${{ steps.commit_msg.outputs.title }}
