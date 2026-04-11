@@ -140,7 +140,7 @@
           <BarChart3 class="BarChart3" />
           <div class="empty-glow"></div>
         </div>
-        <p class="empty-text">Enter your measurements to see your cosmic BMI results</p>
+        <p class="empty-text">Enter your measurements to see your BMI results</p>
       </div>
     {/if}
   </div>

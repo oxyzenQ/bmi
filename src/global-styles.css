@@ -90,11 +90,11 @@
       #5b4ce0,
       /* nebula core */
       #8000ffda,
-      /* aurora violet */
+      /* web3 violet */
       #8000ff,
-      /* plasma purple */
+      /* web3 purple */
       #e2c7ff
-      /* starlight highlight */
+      /* web3 highlight */
     );
 
 
@@ -637,7 +637,7 @@ button[aria-disabled="true"] {
   z-index: -1;
 }
 
-.cosmic-orbs {
+.web3-orbs {
   position: relative;
   width: 100%;
   height: 100%;
@@ -760,13 +760,13 @@ button[aria-disabled="true"] {
   contain: layout style;
 }
 
-.Telescope {
+.Hexagon {
   color: var(--web3-glow-purple) !important;
   width: 56px !important;
   height: 56px !important;
 }
 
-/* @keyframes plasmaGlow removed for GPU performance */
+/* @keyframes web3Glow removed for GPU performance */
 
 .hero-subtitle {
   font-size: 1.25rem;
@@ -1930,23 +1930,23 @@ button[aria-disabled="true"] {
 }
 
 /* ==============================
-      COSMIC PARTICLES & EFFECTS
+      WEB3 PARTICLES & EFFECTS
       ============================== */
-html:not([data-graphics='render']) .cosmic-particles {
+html:not([data-graphics='render']) .web3-particles {
   display: none;
 }
 
 html:not([data-graphics='render']) .orb,
 html:not([data-graphics='render']) .sparkle-icon,
-html:not([data-graphics='render']) .plasma-star {
+html:not([data-graphics='render']) .web3-star {
   animation: none !important;
 }
 
-html:not([data-graphics='render']) .plasma-star {
+html:not([data-graphics='render']) .web3-star {
   filter: none !important;
 }
 
-.cosmic-particles {
+.web3-particles {
   position: fixed;
   inset: 0;
   z-index: 0;
@@ -1957,22 +1957,22 @@ html:not([data-graphics='render']) .plasma-star {
   isolation: isolate;
 }
 
-.cosmic-particles.is-paused .cosmic-particle {
+.web3-particles.is-paused .web3-particle {
   animation-play-state: paused !important;
 }
 
-html:not([data-graphics='render']) body.is-scrolling .cosmic-particles,
-html:not([data-graphics='render']) body.is-switching .cosmic-particles {
+html:not([data-graphics='render']) body.is-scrolling .web3-particles,
+html:not([data-graphics='render']) body.is-switching .web3-particles {
   display: none !important;
 }
 
-html:not([data-graphics='render']) body.is-scrolling .cosmic-particles .cosmic-particle,
-html:not([data-graphics='render']) body.is-switching .cosmic-particles .cosmic-particle {
+html:not([data-graphics='render']) body.is-scrolling .web3-particles .web3-particle,
+html:not([data-graphics='render']) body.is-switching .web3-particles .web3-particle {
   animation-play-state: paused !important;
   filter: none !important;
 }
 
-.cosmic-particles .cosmic-particle {
+.web3-particles .web3-particle {
   position: absolute;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(124, 58, 237, 0.7), rgba(124, 58, 237, 0.1));
@@ -1988,13 +1988,13 @@ html:not([data-graphics='render']) body.is-switching .cosmic-particles .cosmic-p
 }
 
 /* Blue-tinted particle variant */
-.cosmic-particles .cosmic-particle[style*="--is-blue: 1"],
-.cosmic-particles .cosmic-particle[style*="--is-blue:1"] {
+.web3-particles .web3-particle[style*="--is-blue: 1"],
+.web3-particles .web3-particle[style*="--is-blue:1"] {
   background: radial-gradient(circle, rgba(59, 130, 246, 0.6), rgba(59, 130, 246, 0.1));
   box-shadow: 0 0 8px rgba(59, 130, 246, 0.4), 0 0 16px rgba(59, 130, 246, 0.15);
 }
 
-html[data-graphics='render'] .cosmic-particles .cosmic-particle {
+html[data-graphics='render'] .web3-particles .web3-particle {
   animation-timing-function: ease-in-out !important;
   /* Enhanced glow for render mode */
   box-shadow: 0 0 12px rgba(124, 58, 237, 0.6),
@@ -2002,8 +2002,8 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
               0 0 36px rgba(124, 58, 237, 0.15);
 }
 
-html[data-graphics='render'] .cosmic-particles .cosmic-particle[style*="--is-blue: 1"],
-html[data-graphics='render'] .cosmic-particles .cosmic-particle[style*="--is-blue:1"] {
+html[data-graphics='render'] .web3-particles .web3-particle[style*="--is-blue: 1"],
+html[data-graphics='render'] .web3-particles .web3-particle[style*="--is-blue:1"] {
   box-shadow: 0 0 12px rgba(59, 130, 246, 0.6),
               0 0 24px rgba(59, 130, 246, 0.3),
               0 0 36px rgba(59, 130, 246, 0.15);
@@ -2033,30 +2033,30 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle[style*="--is-blu
 }
 
 /* Plasma star effects */
-.plasma-star {
+.web3-star {
   position: relative;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.plasma-star.star-1 {
+.web3-star.star-1 {
   color: #60a5fa;
   filter: drop-shadow(0 0 6px rgba(96, 165, 250, 0.5));
   /* animation removed for GPU performance */
 }
 
-.plasma-star.star-2 {
+.web3-star.star-2 {
   color: #3b82f6;
   filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.5));
   /* animation removed for GPU performance */
 }
 
-.plasma-star.star-3 {
+.web3-star.star-3 {
   color: #8b5cf6;
   filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.5));
   /* animation removed for GPU performance */
 }
 
-/* @keyframes plasmaStarGlow1/2/3 removed for GPU performance */
+/* @keyframes web3StarGlow1/2/3 removed for GPU performance */
 
 /* ==============================
       FOOTER COMPONENTS
@@ -2211,14 +2211,14 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle[style*="--is-blu
 }
 
 .SquareSigma {
-  color: var(--cosmic-blue) !important;
+  color: var(--web3-glow-purple-bright) !important;
   width: 24px !important;
   height: 24px !important;
 }
 
 .BookCheck,
 .BookOpenCheck {
-  color: var(--cosmic-silver) !important;
+  color: var(--web3-text-silver) !important;
   width: 24px !important;
   height: 24px !important;
 }
@@ -2536,7 +2536,7 @@ p,
     gap: 0.5rem;
   }
 
-  .Telescope {
+  .Hexagon {
     width: 40px !important;
     height: 40px !important;
   }
@@ -2678,11 +2678,11 @@ p,
    SCROLL PERFORMANCE OPTIMIZATION
    Pause animations during scroll
    ============================== */
-html:not([data-graphics='render']) body.is-scrolling :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star) {
+html:not([data-graphics='render']) body.is-scrolling :is(.particle, .web3-particle, .sparkle-icon, .web3-star) {
   animation-play-state: paused !important;
 }
 
-html:not([data-graphics='render']) body.is-switching :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star) {
+html:not([data-graphics='render']) body.is-switching :is(.particle, .web3-particle, .sparkle-icon, .web3-star) {
   animation-play-state: paused !important;
 }
 
@@ -2787,7 +2787,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
 
 /* Prefer transform/opacity for animations and respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  html[data-graphics='render'] .cosmic-particles .cosmic-particle {
+  html[data-graphics='render'] .web3-particles .web3-particle {
     animation-duration: 25s !important;
     animation-delay: var(--delay, 0s) !important;
     animation-iteration-count: infinite !important;
@@ -2935,7 +2935,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
     transition: none !important;
   }
 
-  html:not([data-graphics='render']) .cosmic-particles .cosmic-particle {
+  html:not([data-graphics='render']) .web3-particles .web3-particle {
     animation: none !important;
     opacity: 0;
   }
@@ -2960,7 +2960,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   justify-content: center;
   overflow: hidden;
 
-  /* Deep Dark Plasma Background - 70% darker than original */
+  /* Web3 dark overlay background */
   background: rgba(0, 0, 0, 0.5);
 
   /* Performance optimizations */
@@ -3027,7 +3027,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   }
 }
 
-.plasma-glow {
+.splash-glow {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -3042,7 +3042,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   filter: blur(15px);
 }
 
-/* @keyframes plasmaPulse removed for GPU performance */
+/* @keyframes splashPulse removed for GPU performance */
 
 .splash-title {
   font-size: clamp(2.5rem, 8vw, 4.5rem);
@@ -3082,13 +3082,13 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   margin-top: 2rem;
 }
 
-.plasma-ring {
+.splash-ring {
   width: 50px;
   height: 50px;
   border: 2px solid transparent;
   border-top: 2px solid var(--web3-glow);
   border-radius: 50%;
-  animation: plasmaRingSpin 2s linear infinite;
+  animation: splashRingSpin 2s linear infinite;
   opacity: 0.8;
 }
 
@@ -3118,7 +3118,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   animation-delay: 0.4s;
 }
 
-.plasma-particles {
+.splash-particles {
   position: absolute;
   top: 0;
   left: 0;
@@ -3193,7 +3193,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   }
 }
 
-@keyframes plasmaRingSpin {
+@keyframes splashRingSpin {
   0% {
     transform: rotate(0deg);
   }
@@ -3248,12 +3248,12 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
     padding: 0 1rem;
   }
 
-  .plasma-glow {
+  .splash-glow {
     width: 250px;
     height: 250px;
   }
 
-  .plasma-ring {
+  .splash-ring {
     width: 40px;
     height: 40px;
   }
@@ -3277,7 +3277,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
     color: #cccccc;
   }
 
-  .plasma-ring {
+  .splash-ring {
     border-top-color: #ffffff;
     border-right-color: #ffffff;
   }
@@ -3286,15 +3286,15 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
 /* Splash Screen Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
 
-  .plasma-glow,
-  .plasma-ring,
+  .splash-glow,
+  .splash-ring,
   .dot,
   .particle,
   .cursor {
     animation: none !important;
   }
 
-  .plasma-glow {
+  .splash-glow {
     opacity: 0.1;
     transform: translate(-50%, -50%) scale(1);
   }
@@ -3325,14 +3325,14 @@ html[data-performance-tier="low"] :is(
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
-html[data-performance-tier="low"] .cosmic-particles .cosmic-particle {
+html[data-performance-tier="low"] .web3-particles .web3-particle {
   filter: none !important;
   box-shadow: none !important;
   will-change: transform;
 }
 
 html[data-performance-tier="low"] :is(
-  .plasma-star,
+  .web3-star,
   .sparkle-icon,
   .gauge-reflection
 ) {
@@ -3359,21 +3359,21 @@ html[data-performance-tier="medium"] {
   --btn-saturate: 120%;
 }
 
-html[data-performance-tier="medium"] .cosmic-particles .cosmic-particle {
+html[data-performance-tier="medium"] .web3-particles .web3-particle {
   filter: none !important;
   box-shadow: 0 0 4px rgba(124, 58, 237, 0.2) !important;
   will-change: transform;
 }
 
 html[data-performance-tier="medium"] :is(
-  .plasma-star,
+  .web3-star,
   .sparkle-icon
 ) {
   filter: drop-shadow(0 0 4px currentColor) !important;
 }
 
 /* HIGH TIER: Full effects - ensure will-change hints for GPU acceleration */
-html[data-performance-tier="high"] .cosmic-particles .cosmic-particle {
+html[data-performance-tier="high"] .web3-particles .web3-particle {
   will-change: transform, opacity;
   contain: layout style paint;
 }
@@ -3387,11 +3387,11 @@ html[data-performance-tier="high"] :is(
 }
 
 /* Ensure smooth scrolling and compositing on all tiers */
-html[data-performance-tier="low"] .cosmic-particles {
+html[data-performance-tier="low"] .web3-particles {
   contain: layout;
 }
 
-html[data-performance-tier="medium"] .cosmic-particles {
+html[data-performance-tier="medium"] .web3-particles {
   contain: layout style;
 }
 

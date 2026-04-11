@@ -106,7 +106,7 @@
 
   function createParticle() {
     const particle = document.createElement('div');
-    particle.className = 'cosmic-particle';
+    particle.className = 'web3-particle';
     return particle;
   }
 
@@ -159,7 +159,7 @@
 
 <div
   bind:this={particlesContainer}
-  class="cosmic-particles"
+  class="web3-particles"
   class:is-paused={paused}
   aria-hidden="true"
 ></div>

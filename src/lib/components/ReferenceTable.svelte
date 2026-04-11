@@ -66,7 +66,7 @@
     </div>
     <div>
       <div class="title">BMI Reference Chart</div>
-      <div class="subtitle">Understanding BMI categories and ranges for your cosmic health journey.</div>
+      <div class="subtitle">Understanding BMI categories and ranges for your health journey.</div>
     </div>
   </div>
 

@@ -32,7 +32,7 @@
   let lastShow = false;
   const timers: Array<ReturnType<typeof setTimeout>> = [];
 
-  const titleText = 'Hey...welcome';
+  const titleText = 'LOGIGO$ BMI';
   const subtitleText = 'Copyright by rezky nightky 2025-2026';
 
   function clearTimers() {
@@ -195,8 +195,8 @@
     {/if}
 
     <div class="splash-content">
-      <!-- Subtle plasma glow effect -->
-      <div class="plasma-glow"></div>
+      <!-- Subtle web3 glow effect -->
+      <div class="splash-glow"></div>
 
       <!-- Main title with typewriter effect -->
       {#if showTitle}
@@ -227,7 +227,7 @@
       <!-- Enhanced loading indicator -->
       {#if showLoader}
         <div class="loading-indicator" transition:scale={{ duration: 600, easing: backOut }}>
-          <div class="plasma-ring"></div>
+          <div class="splash-ring"></div>
           <div class="loading-dots">
             <div class="dot"></div>
             <div class="dot"></div>
@@ -238,7 +238,7 @@
     </div>
 
     <!-- Subtle floating particles -->
-    <div class="plasma-particles">
+    <div class="splash-particles">
       {#each Array(8) as _, i (i)}
         <div
           class="particle"
