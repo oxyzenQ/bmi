@@ -6,7 +6,6 @@
   let rafId: number | null = null;
 
   onMount(() => {
-    // Trigger animation on next frame for smooth entry
     rafId = requestAnimationFrame(() => {
       animate = true;
     });
@@ -20,10 +19,6 @@
 </script>
 
 <header class="hero-section">
-  <div class="hero-background">
-    <!-- Bubbles and orbs removed for cleaner performance -->
-  </div>
-
   <div class="hero-content" class:animate>
     <div class="hero-avatar" aria-hidden="true">
       <img src="/assets/new_bmi_logo_2026.webp" alt="BMI Logo" fetchpriority="high" decoding="async" />
@@ -35,21 +30,21 @@
     </h1>
 
     <p class="hero-subtitle">
-      Unlock your body metrics — powered by Web3 design precision.
+      Precision body metrics — designed with modern health-first principles.
     </p>
 
     <div class="hero-features">
       <div class="feature">
         <SquareSigma class="SquareSigma" />
-        <span>Accurate Calculations</span>
+        <span>Accurate</span>
       </div>
       <div class="feature">
         <BookOpenCheck class="BookOpenCheck" />
-        <span>Health Insights</span>
+        <span>Insights</span>
       </div>
       <div class="feature">
         <Sparkles class="Sparkles" />
-        <span>Modern Design</span>
+        <span>Premium</span>
       </div>
     </div>
 
@@ -59,16 +54,13 @@
       </p>
     </div>
   </div>
-
-  <!-- End of hero content -->
 </header>
 
 <style>
   .hero-content {
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-                transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(12px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
     will-change: opacity, transform;
   }
 
@@ -77,7 +69,6 @@
     transform: translateY(0);
   }
 
-  /* Reduced motion support */
   @media (prefers-reduced-motion: reduce) {
     .hero-content {
       opacity: 1;

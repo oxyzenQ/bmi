@@ -178,3 +178,6 @@ build.log
 # Bundle analyzer output
 stats.html
 .reports/
+
+# Agent skills (not part of app)
+skills/
