@@ -86,17 +86,11 @@
   --web3-border: 1px solid rgba(255, 255, 255, 0.14);
   --web3-gradient: linear-gradient(135deg,
       #4e3383,
-      /* deep space violet */
       #5b4ce0,
-      /* nebula core */
       #8000ffda,
-      /* web3 violet */
       #8000ff,
-      /* web3 purple */
       #e2c7ff
-      /* web3 highlight */
     );
-
 
   /* Animation/transition tuning */
   --easing-smooth: cubic-bezier(0.22, 1, 0.36, 1);
@@ -123,7 +117,6 @@
   --btn-blur: 12px;
   --btn-saturate: 165%;
 
-  /* Animation/transition tuning */
   /* Button shine effect */
   --shine-duration: 600ms;
   --shine-easing: var(--easing-smooth);
@@ -361,13 +354,10 @@ pre {
 .main-container {
   max-width: 1200px;
   margin-inline: auto;
-  /* center */
   padding-inline: clamp(1rem, 2vw, 2rem);
-  /* gutter fleksibel */
   position: relative;
   z-index: 2;
 }
-
 
 
 /* ==============================
@@ -409,7 +399,6 @@ pre {
     box-shadow var(--dur-slow) var(--easing-smooth),
     border-color var(--dur-slow) var(--easing-smooth);
 }
-
 
 
 /* ==============================
@@ -518,10 +507,7 @@ button[aria-disabled="true"] {
   border-radius: 9999px;
   background: currentColor;
   opacity: 0.5;
-  /* animation removed for GPU performance */
 }
-
-/* @keyframes btnDotPulse removed for GPU performance */
 
 /* Elegant danger variant */
 .btn-danger {
@@ -637,40 +623,6 @@ button[aria-disabled="true"] {
   z-index: -1;
 }
 
-.web3-orbs {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  /* Reduced blur from 20px to 10px for GPU performance */
-  filter: blur(10px);
-  /* Reduced opacity for lighter GPU load */
-  opacity: 0.15;
-  /* animation removed for GPU performance */
-}
-
-.orb-1 {
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, rgba(96, 165, 250, 0.35), transparent);
-  top: 20%;
-  left: 10%;
-}
-
-.orb-3 {
-  width: 100px;
-  height: 100px;
-  background: radial-gradient(circle, rgba(6, 182, 212, 0.35), transparent);
-  bottom: 20%;
-  left: 20%;
-}
-
-/* @keyframes orbFloat removed for GPU performance */
-
 .hero-content {
   max-width: 800px;
   margin: 0 auto;
@@ -753,7 +705,6 @@ button[aria-disabled="true"] {
 }
 
 .sparkle-icon {
-  /* animation removed for GPU performance */
   will-change: auto;
   backface-visibility: hidden;
   transform: translateZ(0);
@@ -766,7 +717,6 @@ button[aria-disabled="true"] {
   height: 56px !important;
 }
 
-/* @keyframes web3Glow removed for GPU performance */
 
 .hero-subtitle {
   font-size: 1.25rem;
@@ -814,77 +764,7 @@ button[aria-disabled="true"] {
   background-clip: text;
 }
 
-/* button scroll for hero */
-
-.hero-scroll-btn {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(-2rem, -3vh, -2.5rem);
-  transform: translateX(-50%);
-
-  width: clamp(56px, 6vw, 72px);
-  height: clamp(56px, 6vw, 72px);
-  border-radius: 50%;
-
-  background: var(--web3-gradient-dark);
-  border: var(--web3-border);
-  padding: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  cursor: pointer;
-  z-index: 10;
-
-  animation: bounce 2.5s ease-in-out infinite, pulse 2.5s ease-in-out infinite;
-  transition: transform 0.25s ease;
-}
-
-.hero-scroll-btn::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  border-radius: 50%;
-  background: var(--web3-gradient-darker);
-  z-index: -1;
-}
-
-.hero-scroll-btn:hover {
-  transform: translateX(-50%) scale(1.08);
-}
-
-.icon {
-  width: clamp(64px, 6vw, 64px);
-  height: clamp(64px, 6vw, 64px);
-  color: white;
-}
-
-@keyframes bounce {
-
-  0%,
-  100% {
-    transform: translate(-50%, 0);
-  }
-
-  50% {
-    transform: translate(-50%, -10px);
-  }
-}
-
-@keyframes pulse {
-
-  0%,
-  100% {
-    filter: drop-shadow(0 0 6px rgba(79, 172, 254, 0.6));
-  }
-
-  50% {
-    filter: drop-shadow(0 0 12px rgba(142, 45, 226, 0.8));
-  }
-}
-
-/* ==============================
+/* ============================== 
        BMI SECTION LAYOUT
        ============================== */
 
@@ -918,11 +798,9 @@ button[aria-disabled="true"] {
 /* Footer disclaimer warning icon */
 .footer-disclaimer .warn-ic {
   color: #facc15;
-  /* yellow-400 */
   margin-right: 0.5rem;
   position: relative;
   top: 2px;
-  /* slight optical alignment */
   filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.35));
 }
 
@@ -937,7 +815,6 @@ button[aria-disabled="true"] {
   margin-right: 0;
   top: 0;
   color: #fde047;
-  /* yellow-300 for brighter */
   filter: drop-shadow(0 0 10px rgba(253, 224, 71, 0.45));
 }
 
@@ -947,9 +824,7 @@ button[aria-disabled="true"] {
   gap: 1.25rem;
   margin-top: clamp(40px, 40vh, 160px) !important;
   margin-bottom: clamp(40px, 40vh, 160px) !important;
-  /* bottom safe spacing */
   align-items: start;
-  /* prevents items from stretching */
   padding: 24px;
 }
 
@@ -977,9 +852,7 @@ button[aria-disabled="true"] {
   display: flex;
   flex-direction: column;
   min-height: 750px;
-  /* default minimum height */
   max-height: none;
-  /* allow growth when filled with many fields */
 
   border-radius: 1.5rem;
 
@@ -1234,9 +1107,7 @@ button[aria-disabled="true"] {
   height: 60px;
   background: var(--web3-atmosphere-horizon);
   border-radius: 50%;
-  /* Reduced blur from 15px to 8px for GPU performance */
   filter: blur(8px);
-  /* animation removed for GPU performance */
   opacity: 0.7;
 }
 
@@ -1287,10 +1158,8 @@ button[aria-disabled="true"] {
   line-height: 1;
   margin-bottom: 1rem;
   text-shadow: 0 0 20px currentColor;
-  /* animation removed for GPU performance */
 }
 
-/* @keyframes valueGlow removed for GPU performance */
 
 .bmi-category-container {
   display: flex;
@@ -1584,10 +1453,8 @@ button[aria-disabled="true"] {
 }
 
 .gauge-progress.pulsing {
-  /* animation removed for GPU performance */
 }
 
-/* @keyframes gaugePulse removed for GPU performance */
 
 .gauge-reflection {
   width: min(52vw, 280px);
@@ -1936,14 +1803,8 @@ html:not([data-graphics='render']) .web3-particles {
   display: none;
 }
 
-html:not([data-graphics='render']) .orb,
-html:not([data-graphics='render']) .sparkle-icon,
-html:not([data-graphics='render']) .web3-star {
+html:not([data-graphics='render']) .sparkle-icon {
   animation: none !important;
-}
-
-html:not([data-graphics='render']) .web3-star {
-  filter: none !important;
 }
 
 .web3-particles {
@@ -1993,8 +1854,6 @@ html:not([data-graphics='render']) body.is-scrolling .web3-particles .web3-parti
 }
 
 html[data-graphics='render'] .web3-particles .web3-particle {
-  animation-timing-function: ease-in-out !important;
-  /* Enhanced glow for render mode */
   box-shadow: 0 0 12px rgba(124, 58, 237, 0.6),
               0 0 24px rgba(124, 58, 237, 0.3),
               0 0 36px rgba(124, 58, 237, 0.15);
@@ -2030,33 +1889,7 @@ html[data-graphics='render'] .web3-particles .web3-particle[style*="--is-blue:1"
   }
 }
 
-/* Plasma star effects */
-.web3-star {
-  position: relative;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.web3-star.star-1 {
-  color: #60a5fa;
-  filter: drop-shadow(0 0 6px rgba(96, 165, 250, 0.5));
-  /* animation removed for GPU performance */
-}
-
-.web3-star.star-2 {
-  color: #3b82f6;
-  filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.5));
-  /* animation removed for GPU performance */
-}
-
-.web3-star.star-3 {
-  color: #8b5cf6;
-  filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.5));
-  /* animation removed for GPU performance */
-}
-
-/* @keyframes web3StarGlow1/2/3 removed for GPU performance */
-
-/* ==============================
+/* ============================== 
       FOOTER COMPONENTS
       ============================== */
 .footer-disclaimer {
@@ -2134,8 +1967,6 @@ html[data-graphics='render'] .web3-particles .web3-particle[style*="--is-blue:1"
 /* ==============================
       UTILITY CLASSES & COMPONENTS
       ============================== */
-
-
 
 @keyframes fadeIn {
   from {
@@ -2458,7 +2289,6 @@ p,
     padding-inline: clamp(0.75rem, 4vw, 0.9rem);
   }
 
-  /* Slightly reduce headings for smaller screens */
   h1,
   .h1 {
     font-size: clamp(1.5rem, 6vw, 2.25rem);
@@ -2676,11 +2506,10 @@ p,
    SCROLL PERFORMANCE OPTIMIZATION
    Pause animations during scroll
    ============================== */
-html:not([data-graphics='render']) body.is-scrolling :is(.particle, .web3-particle, .sparkle-icon, .web3-star) {
+html:not([data-graphics='render']) body.is-scrolling :is(.particle, .web3-particle, .sparkle-icon) {
   animation-play-state: paused !important;
 }
 
-/* Reduce compositing layers during scroll */
 html:not([data-graphics='render']) body.is-scrolling :is(.bmi-card) {
   will-change: auto;
 }
@@ -2990,13 +2819,10 @@ html:not([data-graphics='render']) body.is-scrolling :is(.form-input,
   height: 400px;
   background: radial-gradient(circle, var(--web3-glow) 0%, transparent 80%);
   opacity: 0.08;
-  /* animation removed for GPU performance */
   border-radius: 50%;
-  /* Reduced blur from 60px to 15px for GPU performance */
   filter: blur(15px);
 }
 
-/* @keyframes splashPulse removed for GPU performance */
 
 .splash-title {
   font-size: clamp(2.5rem, 8vw, 4.5rem);
@@ -3285,7 +3111,6 @@ html[data-performance-tier="low"] .web3-particles .web3-particle {
 }
 
 html[data-performance-tier="low"] :is(
-  .web3-star,
   .sparkle-icon,
   .gauge-reflection
 ) {
@@ -3318,10 +3143,7 @@ html[data-performance-tier="medium"] .web3-particles .web3-particle {
   will-change: transform;
 }
 
-html[data-performance-tier="medium"] :is(
-  .web3-star,
-  .sparkle-icon
-) {
+html[data-performance-tier="medium"] .sparkle-icon {
   filter: drop-shadow(0 0 4px currentColor) !important;
 }
 

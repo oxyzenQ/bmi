@@ -571,7 +571,7 @@
 </div>
 
 <!-- Scroll progress bar -->
-<div class="scroll-progress-bar" style="width: {scrollProgress * 100}%;" role="progressbar" aria-label="Page scroll progress" aria-valuenow={Math.round(scrollProgress * 100)} />
+<div class="scroll-progress-bar" style="width: {scrollProgress * 100}%;" role="progressbar" aria-label="Page scroll progress" aria-valuenow={Math.round(scrollProgress * 100)}></div>
 
 <!-- Scroll-to-top button -->
 {#if showScrollTop}
@@ -977,16 +977,6 @@
 
   .nav-smooth .render-off {
     color: #ffd600;
-  }
-
-  .nav-tab.active {
-    opacity: 1;
-    background: rgba(255, 255, 255, 0.07);
-    border-color: color-mix(in oklab, var(--web3-glow-purple) 55%, rgba(255, 255, 255, 0.12));
-    box-shadow:
-      0 12px 32px rgba(0, 0, 0, 0.38),
-      0 0 18px color-mix(in oklab, var(--web3-glow-purple) 28%, transparent);
-    transform: translateY(-1px);
   }
 
   /* === Scroll progress bar === */
