@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BookOpenCheck, SquareSigma, Sparkles, Telescope } from 'lucide-svelte';
+  import { BookOpenCheck, SquareSigma, Sparkles, Hexagon } from 'lucide-svelte';
   import { onMount, onDestroy } from 'svelte';
 
   let animate = false;
@@ -31,11 +31,11 @@
 
     <h1 class="hero-title">
       <span class="title-gradient">BMI Calculator</span>
-      <Telescope class="Telescope sparkle-icon" />
+      <Hexagon class="Hexagon sparkle-icon" />
     </h1>
 
     <p class="hero-subtitle">
-      Explore the cosmos of your body — discover your balance under the stars.
+      Unlock your body metrics — powered by Web3 design precision.
     </p>
 
     <div class="hero-features">
@@ -55,7 +55,7 @@
 
     <div class="hero-bottom">
       <p class="hero-bottom-text">
-        Stellar Edition 10.0
+        Web3 Crypto Edition
       </p>
     </div>
   </div>
