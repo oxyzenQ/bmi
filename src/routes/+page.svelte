@@ -17,8 +17,7 @@
     AlertTriangle,
     Scale,
     Bot,
-    ChevronLeft,
-    ChevronRight,
+    ChevronUp,
     Monitor,
     Moon
   } from 'lucide-svelte';
@@ -211,20 +210,9 @@
     { id: 'info', label: 'Info' }
   ] as const;
 
-  let activeIndex = $state(0);
-  let lastIndex = $state(0);
   let prefersReducedMotion = $state(false);
   let perfTier = $state<'high' | 'medium' | 'low'>('medium');
   let smoothModeRequested = $state(false);
-
-  let pagerNavEl: HTMLElement | null = null;
-  let pagerNavCentered = $state(false);
-  let pagerNavAlignRaf: number | null = null;
-
-  // Auto-hide navbar state
-  let lastScrollY = 0;
-  let pagerControlsVisible = $state(true);
-  let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
   // Background mode state
   let bgWallpaper = $state(false);
@@ -241,11 +229,6 @@
     }
   }
 
-  let activePointerId: number | null = null;
-  let lastWheelNavAt = 0;
-  let switchingTimer: ReturnType<typeof setTimeout> | null = null;
-  let pageDestroyed = $state(false);
-
   function broadcastSmoothMode(enabled: boolean) {
     if (!browser) return;
     window.dispatchEvent(new CustomEvent('bmi:smoothMode', { detail: { enabled } }));
@@ -259,7 +242,6 @@
       localStorage.removeItem('bmi.ultraSmooth');
       document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
       broadcastSmoothMode(smoothModeRequested);
-      void tick().then(schedulePagerNavAlignment);
     }
   }
 
@@ -278,40 +260,6 @@
     }
   });
 
-  function springSimple(t: number, amount: number) {
-    const base = backOut(t);
-    return t + (base - t) * amount;
-  }
-
-  function pagerSpring(
-    _node: Element,
-    opts: {
-      x: number;
-      duration: number;
-      phase: 'in' | 'out';
-      strength: number;
-    }
-  ) {
-    const x = opts.x;
-    const duration = opts.duration;
-    const phase = opts.phase;
-    const strength = opts.strength;
-
-    return {
-      duration,
-      css: (t: number) => {
-        const linear = phase === 'in' ? t : 1 - t;
-        const p = phase === 'in' ? springSimple(linear, strength) : cubicOut(linear);
-
-        const dx = phase === 'in' ? (1 - p) * x : p * x;
-        const opacity = phase === 'in' ? Math.min(1, p * 1.08) : Math.max(0, 1 - p * 1.15);
-
-        const pe = phase === 'out' ? 'pointer-events: none;' : '';
-        return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: ${opacity.toFixed(4)}; ${pe}`;
-      }
-    };
-  }
-
   const BMI_BAR_MIN = 12;
   const BMI_BAR_MAX = 40;
   const BMI_UNDER_MAX = 18.5;
@@ -325,25 +273,6 @@
   const OVERSHOOT_RATIO = 0.62;
   const SETTLE_RATIO = 0.48;
   const SETTLE_DELAY_OFFSET = 80;
-
-  // Pager motion duration constants (ms)
-  const PAGER_DUR_HIGH = 620;
-  const PAGER_DUR_MEDIUM = 540;
-  const PAGER_DUR_LOW = 460;
-  const PAGER_DUR_BASIC = 260;
-  const PAGER_OUT_RATIO = 0.72;
-  const PAGER_OUT_BASIC = 210;
-
-  // Pager motion distance constants (px)
-  const PAGER_DIST_HIGH = 220;
-  const PAGER_DIST_MEDIUM = 190;
-  const PAGER_DIST_LOW = 160;
-  const PAGER_DIST_BASIC = 120;
-
-  // Other animation constants
-  const SWITCHING_DELAY = 140;
-  const SPRING_STRENGTH_ENHANCED = 0.14;
-  const SPRING_STRENGTH_BASIC = 0.08;
 
   let rangeMarker =
     $derived(
@@ -387,244 +316,59 @@
     }, Math.max(0, overshootDur - SETTLE_DELAY_OFFSET));
   }
 
-  let pagerDirection = $derived(activeIndex >= lastIndex ? 1 : -1);
-  let pagerMotionDuration = $derived(reducedMotionEffective
-    ? 0
-    : smoothModeRequested
-      ? (perfTier === 'high' ? PAGER_DUR_HIGH : perfTier === 'medium' ? PAGER_DUR_MEDIUM : PAGER_DUR_LOW)
-      : PAGER_DUR_BASIC);
-  let pagerMotionDistance = $derived(reducedMotionEffective
-    ? 0
-    : smoothModeRequested
-      ? (perfTier === 'high' ? PAGER_DIST_HIGH : perfTier === 'medium' ? PAGER_DIST_MEDIUM : PAGER_DIST_LOW)
-      : PAGER_DIST_BASIC);
+  // IntersectionObserver-based lazy loading
+  let lazyObserver: IntersectionObserver | null = null;
 
-  let pagerEl: HTMLDivElement | null = null;
-  let pointerStartX: number | null = null;
-  let pointerStartY: number | null = null;
-
-  function clampIndex(next: number) {
-    return Math.min(sections.length - 1, Math.max(0, next));
-  }
-
-  function indexFromHash(hash: string) {
-    const clean = hash.replace(/^#/, '').trim().toLowerCase();
-    const idx = sections.findIndex((s) => s.id === clean);
-    return idx >= 0 ? idx : null;
-  }
-
-  async function resetSectionScroll() {
-    await tick();
-    const activeId = sections[activeIndex].id;
-    const scroller = pagerEl?.querySelector<HTMLElement>(
-      `[data-pager-scroll="true"][data-section-id="${activeId}"]`
-    );
-    if (scroller) scroller.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-  }
-
-  function setHash(id: string) {
+  function setupLazyObserver() {
     if (!browser) return;
-    location.replace(`#${id}`);
-  }
-
-  function goTo(index: number, opts?: { skipHash?: boolean; skipSwitching?: boolean }) {
-    const next = clampIndex(index);
-    if (next === activeIndex) {
-      if (!opts?.skipHash) setHash(sections[activeIndex].id);
-      void resetSectionScroll();
-      return;
-    }
-
-    if (browser && !reducedMotionEffective && !opts?.skipSwitching) {
-      if (switchingTimer) clearTimeout(switchingTimer);
-      document.body.classList.add('is-switching');
-      const ms = Math.max(240, pagerMotionDuration) + SWITCHING_DELAY;
-      switchingTimer = setTimeout(() => {
-        document.body.classList.remove('is-switching');
-        switchingTimer = null;
-      }, ms);
-    }
-
-    lastIndex = activeIndex;
-    activeIndex = next;
-    if (!opts?.skipHash) setHash(sections[activeIndex].id);
-    void resetSectionScroll();
-  }
-
-  function prevSection() {
-    if (activeIndex <= 0) return;
-    goTo(activeIndex - 1);
-  }
-
-  function nextSection() {
-    if (activeIndex >= sections.length - 1) return;
-    goTo(activeIndex + 1);
-  }
-
-  function isEditableTarget(el: EventTarget | null) {
-    const t = el as HTMLElement | null;
-    if (!t) return false;
-    const tag = t.tagName;
-    return (
-      tag === 'INPUT' ||
-      tag === 'TEXTAREA' ||
-      tag === 'SELECT' ||
-      t.isContentEditable ||
-      Boolean(t.closest('input, textarea, select, [contenteditable="true"]'))
-    );
-  }
-
-  function handleKeydown(event: KeyboardEvent) {
-    if (isEditableTarget(event.target)) return;
-    if (event.key === 'ArrowLeft') {
-      event.preventDefault();
-      prevSection();
-    }
-    if (event.key === 'ArrowRight') {
-      event.preventDefault();
-      nextSection();
-    }
-  }
-
-  function handlePointerDown(event: PointerEvent) {
-    if (event.pointerType === 'touch') return;
-    const target = event.target as HTMLElement | null;
-    if (target?.closest('button, a, input, textarea, select, label')) return;
-    if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell')) return;
-    pointerStartX = event.clientX;
-    pointerStartY = event.clientY;
-    activePointerId = event.pointerId;
-    try {
-      pagerEl?.setPointerCapture(event.pointerId);
-    } catch (e) {
-      void e;
-    }
-  }
-
-  function handlePointerUp(event: PointerEvent) {
-    if (activePointerId !== null && event.pointerId !== activePointerId) return;
-    if (pointerStartX === null || pointerStartY === null) {
-      if (activePointerId !== null) {
-        try {
-          pagerEl?.releasePointerCapture(activePointerId);
-        } catch (e) {
-          void e;
-        }
+    lazyObserver = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const lazyType = (entry.target as HTMLElement).dataset.lazy;
+        if (lazyType === 'calculator') void ensureCalculatorComponents();
+        else if (lazyType === 'gauge') { void ensureGaugeComponents(); void ensureHealthRisk(); void ensureSnapshot(); void ensureBodyFat(); }
+        else if (lazyType === 'reference') void ensureReferenceTable();
+        lazyObserver?.unobserve(entry.target);
       }
-      activePointerId = null;
-      return;
-    }
-
-    const dx = event.clientX - pointerStartX;
-    const dy = event.clientY - pointerStartY;
-    pointerStartX = null;
-    pointerStartY = null;
-
-    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.2) {
-      if (activePointerId !== null) {
-        try {
-          pagerEl?.releasePointerCapture(activePointerId);
-        } catch (e) {
-          void e;
-        }
-      }
-      activePointerId = null;
-      return;
-    }
-
-    if (dx < 0) nextSection();
-    else prevSection();
-
-    if (activePointerId !== null) {
-      try {
-        pagerEl?.releasePointerCapture(activePointerId);
-      } catch (e) {
-        void e;
-      }
-    }
-    activePointerId = null;
+    }, { rootMargin: '200px' });
+    document.querySelectorAll('[data-lazy]').forEach((el) => lazyObserver?.observe(el));
   }
 
-  function handleWheel(event: WheelEvent) {
-    if (isEditableTarget(event.target)) return;
-    const target = event.target as HTMLElement | null;
-    if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell')) return;
+  // Scroll progress tracking
+  let scrollProgress = $state(0);
+  let showScrollTop = $state(false);
+  let scrollListenerSetup = false;
 
-    const now = Date.now();
-    if (now - lastWheelNavAt < 520) return;
+  function setupScrollListener() {
+    if (!browser || scrollListenerSetup) return;
+    scrollListenerSetup = true;
+    let scrollTimer: ReturnType<typeof setTimeout> | null = null;
+    const onScroll = () => {
+      // Update scroll progress bar
+      const scrollTop = window.scrollY || 0;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      scrollProgress = docHeight > 0 ? Math.min(1, Math.max(0, scrollTop / docHeight)) : 0;
+      showScrollTop = scrollTop > 400;
 
-    const dx = event.deltaX;
-    const dy = event.deltaY;
-    if (Math.abs(dx) < 60) return;
-    if (Math.abs(dy) > 12) return;
-    if (Math.abs(dx) < Math.abs(dy) * 1.8) return;
-
-    const section = pagerEl?.querySelector<HTMLElement>('.pager-section') ?? null;
-    if (section && section.scrollHeight > section.clientHeight + 2) {
-      const maxY = section.scrollHeight - section.clientHeight;
-      const midScroll = section.scrollTop > 2 && section.scrollTop < maxY - 2;
-      if (midScroll) return;
-    }
-
-    if (target) {
-      for (let el: HTMLElement | null = target; el && el !== pagerEl; el = el.parentElement) {
-        if (el.scrollWidth > el.clientWidth + 2) {
-          const maxX = el.scrollWidth - el.clientWidth;
-          const canScrollX =
-            (dx > 0 && el.scrollLeft < maxX - 1) ||
-            (dx < 0 && el.scrollLeft > 1);
-          if (canScrollX) return;
-        }
-      }
-    }
-
-    lastWheelNavAt = now;
-    if (dx > 0) nextSection();
-    else prevSection();
-  }
-
-  // Action: attach passive wheel listener (Svelte 5 doesn't support |passive modifier on onwheel)
-  function passiveWheel(node: HTMLElement) {
-    node.addEventListener('wheel', handleWheel, { passive: true });
-    return {
-      destroy() {
-        node.removeEventListener('wheel', handleWheel);
-      }
+      // is-scrolling class
+      document.body.classList.add('is-scrolling');
+      if (scrollTimer) clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        document.body.classList.remove('is-scrolling');
+      }, 150);
     };
+    window.addEventListener('scroll', onScroll, { passive: true });
   }
 
-  function schedulePagerNavAlignment() {
+  function scrollToSection(id: string) {
     if (!browser) return;
-    if (pagerNavAlignRaf !== null) return;
-    if (pageDestroyed) return;
-    pagerNavAlignRaf = requestAnimationFrame(() => {
-      pagerNavAlignRaf = null;
-      if (pageDestroyed) return;
-      updatePagerNavAlignment();
-    });
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   }
 
-  function updatePagerNavAlignment() {
-    if (!pagerNavEl) return;
-    const overflow = pagerNavEl.scrollWidth > pagerNavEl.clientWidth + 1;
-    const nextCentered = !overflow;
-    if (pagerNavCentered !== nextCentered) pagerNavCentered = nextCentered;
-  }
-
-  // Lazy-load components when section becomes active
-  $effect(() => {
+  function scrollToTop() {
     if (!browser) return;
-    if (activeIndex === 1) {
-      void ensureCalculatorComponents();
-    }
-    if (activeIndex === 2) {
-      void ensureGaugeComponents();
-      void ensureHealthRisk();
-      void ensureSnapshot();
-      void ensureBodyFat();
-    }
-    if (activeIndex === 3) void ensureReferenceTable();
-  });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   onMount(() => {
     if (!browser) return;
@@ -674,14 +418,15 @@
     }
     unitSystemInitialized = true;
 
-    const idx = indexFromHash(window.location.hash);
-    if (idx !== null) goTo(idx, { skipHash: true, skipSwitching: true });
-    setHash(sections[activeIndex].id);
-
-    const onHashChange = () => {
-      const next = indexFromHash(window.location.hash);
-      if (next !== null && next !== activeIndex) goTo(next, { skipHash: true });
-    };
+    // Scroll to hash if present
+    if (window.location.hash) {
+      const hash = window.location.hash.replace(/^#/, '').trim().toLowerCase();
+      if (sections.some((s) => s.id === hash)) {
+        void tick().then(() => {
+          document.getElementById(hash)?.scrollIntoView({ behavior: 'instant' });
+        });
+      }
+    }
 
     // Cross-tab sync for unit system via storage event
     const onStorage = (e: StorageEvent) => {
@@ -695,63 +440,14 @@
     };
     window.addEventListener('storage', onStorage);
 
-    window.addEventListener('hashchange', onHashChange);
-    window.addEventListener('keydown', handleKeydown);
-
-    const onResize = () => schedulePagerNavAlignment();
-    window.addEventListener('resize', onResize);
-
-    // Unified scroll listener: is-scrolling class + pager-controls auto-hide
-    let isScrolling = false;
-    let isScrollingTimer: ReturnType<typeof setTimeout> | null = null;
-    const onScroll = (event: Event) => {
-      // Scroll optimizer: add is-scrolling class during active scroll
-      if (!isScrolling) {
-        isScrolling = true;
-        document.body.classList.add('is-scrolling');
-      }
-      if (isScrollingTimer) clearTimeout(isScrollingTimer);
-      isScrollingTimer = setTimeout(() => {
-        isScrolling = false;
-        document.body.classList.remove('is-scrolling');
-      }, 150);
-
-      // Pager-controls auto-hide: only for pager-section scroll
-      const target = event.target as HTMLElement;
-      if (!target.classList.contains('pager-section')) return;
-
-      const currentScrollY = target.scrollTop;
-      const scrollingUp = currentScrollY < lastScrollY;
-
-      if (!scrollingUp && currentScrollY > 50) {
-        pagerControlsVisible = false;
-      } else if (scrollingUp) {
-        pagerControlsVisible = true;
-      }
-
-      lastScrollY = currentScrollY;
-
-      // Show after idle scroll
-      if (scrollTimeout) clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        pagerControlsVisible = true;
-      }, 2000);
-    };
-
-    // Use event delegation on document for all scroll events
-    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
-
-    void tick().then(schedulePagerNavAlignment);
+    // Setup scroll listener and lazy observer
+    setupScrollListener();
+    void tick().then(setupLazyObserver);
 
     return () => {
-      window.removeEventListener('hashchange', onHashChange);
-      window.removeEventListener('keydown', handleKeydown);
-      window.removeEventListener('resize', onResize);
       window.removeEventListener('storage', onStorage);
-      document.removeEventListener('scroll', onScroll, { capture: true });
-      if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
-      if (scrollTimeout !== null) clearTimeout(scrollTimeout);
-      if (isScrollingTimer) clearTimeout(isScrollingTimer);
+      if (lazyObserver) lazyObserver.disconnect();
+      lazyObserver = null;
       document.body.classList.remove('is-scrolling');
     };
   });
@@ -807,16 +503,10 @@
     resultsRunId += 1;
     calculating = false;
 
-    // Navigate to Gauge NOW — still in the synchronous click-handler
-    // context so Svelte 5's {#key activeIndex} structural re-render
-    // triggers reliably.  Previous approaches (setTimeout / tick().then)
-    // ran goTo() inside async callbacks where {#key} failed silently,
-    // leaving activeIndex desynced from the DOM.
-    // The notification will appear as an overlay on top of the Gauge page.
-    goTo(2);
+    // Navigate to Gauge section
+    scrollToSection('gauge');
 
-    // Brief delay so the page transition begins before the
-    // notification overlay fades in on top of Gauge.
+    // Brief delay so scroll begins before the notification
     const overlayDelay = reducedMotionEffective ? 30 : 180;
     await new Promise((r) => setTimeout(r, overlayDelay));
 
@@ -862,10 +552,7 @@
   });
 
   onDestroy(() => {
-    pageDestroyed = true;
     if (markerTimer) clearTimeout(markerTimer);
-    if (switchingTimer) clearTimeout(switchingTimer);
-    if (browser) document.body.classList.remove('is-switching');
   });
 
 </script>
@@ -878,35 +565,37 @@
 <!-- LOGIGO$ Ticker Marquee Branding Bar -->
 <div class="ticker-bar" aria-hidden="true">
   <div class="ticker-track">
-    <span class="ticker-content">LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull;</span>
-    <span class="ticker-content" aria-hidden="true">LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull;</span>
+    <span class="ticker-content">LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull;</span>
+    <span class="ticker-content" aria-hidden="true">LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull; LOGIGO$ &bull;</span>
   </div>
 </div>
 
-<div
-  class="pager-shell"
-  role="region"
-  aria-label="BMI Calculator"
-  bind:this={pagerEl}
-  onpointerdown={handlePointerDown}
-  onpointerup={handlePointerUp}
-  onpointercancel={handlePointerUp}
-  use:passiveWheel
->
-  <div class="pager-nav-shell">
-    <nav
-      bind:this={pagerNavEl}
-      class="pager-nav"
-      class:centered={pagerNavCentered}
-      aria-label="Sections"
-    >
+<!-- Scroll progress bar -->
+<div class="scroll-progress-bar" style="width: {scrollProgress * 100}%;" role="progressbar" aria-label="Page scroll progress" aria-valuenow={Math.round(scrollProgress * 100)} />
+
+<!-- Scroll-to-top button -->
+{#if showScrollTop}
+  <button
+    type="button"
+    class="scroll-to-top-btn"
+    aria-label="Scroll to top"
+    onclick={scrollToTop}
+  >
+    <ChevronUp size={28} />
+  </button>
+{/if}
+
+<!-- Main content: long scroll page -->
+<div class="long-scroll-page" role="main">
+
+  <!-- Sticky navigation bar -->
+  <div class="sticky-nav-shell">
+    <nav class="sticky-nav" aria-label="Sections">
       {#each sections as section, idx (section.id)}
         <button
           type="button"
-          class="btn btn-ghost pager-tab"
-          class:active={idx === activeIndex}
-          aria-current={idx === activeIndex ? 'page' : undefined}
-          onclick={() => goTo(idx)}
+          class="btn btn-ghost nav-tab"
+          onclick={() => scrollToSection(section.id)}
         >
           {section.label}
         </button>
@@ -914,7 +603,7 @@
 
       <button
         type="button"
-        class="btn btn-ghost pager-tab pager-smooth"
+        class="btn btn-ghost nav-tab nav-smooth"
         aria-label="Toggle render mode"
         aria-pressed={smoothModeRequested}
         onclick={toggleSmoothMode}
@@ -928,7 +617,7 @@
 
       <button
         type="button"
-        class="btn btn-ghost pager-tab bg-toggle-btn"
+        class="btn btn-ghost nav-tab bg-toggle-btn"
         aria-label={bgWallpaper ? 'Switch to dark background' : 'Switch to wallpaper background'}
         aria-pressed={bgWallpaper}
         onclick={toggleBackground}
@@ -944,263 +633,212 @@
     </nav>
   </div>
 
-  <main class="pager-view">
-    {#key activeIndex}
-      <section
-        class="pager-section"
-        id={sections[activeIndex].id}
-        data-pager-scroll="true"
-        data-section-id={sections[activeIndex].id}
-        in:pagerSpring={{
-          x: pagerDirection * pagerMotionDistance,
-          duration: pagerMotionDuration,
-          phase: 'in',
-          strength: reducedMotionEffective ? 0 : (smoothModeEnhanced ? SPRING_STRENGTH_ENHANCED : SPRING_STRENGTH_BASIC)
-        }}
-        out:pagerSpring={{
-          x: -pagerDirection * pagerMotionDistance,
-          duration: reducedMotionEffective
-            ? 0
-            : smoothModeRequested
-              ? Math.round(pagerMotionDuration * PAGER_OUT_RATIO)
-              : PAGER_OUT_BASIC,
-          phase: 'out',
-          strength: 0
-        }}
-      >
-        {#if activeIndex === 0}
-          <div class="main-container">
-            <Hero />
-          </div>
-        {/if}
+  <!-- Welcome / Hero Section -->
+  <section id="welcome" class="scroll-section" data-lazy="welcome">
+    <div class="main-container">
+      <Hero />
+    </div>
+  </section>
 
-        {#if activeIndex === 1}
-          <div class="main-container">
-            <!-- BMI Calculator Section -->
-            <section class="bmi-section">
-              <div class="bmi-grid">
-                <div class="form-card">
-                  {#if BmiFormComponent}
-                    <BmiFormComponent
-                      bind:age
-                      bind:height
-                      bind:weight
-                      bind:unitSystem
-                      {calculating}
-                      onClear={confirmClearData}
-                      onCalculate={handleCalculate}
-                      onNotify={(result) => {
-                        if (result.action === 'import-validate' && result.text) {
-                          pendingImportText = result.text;
-                          notifyType = 'warn';
-                          notifyMessage = `Sure to import your data? ${result.recordCount} record${(result.recordCount ?? 0) === 1 ? '' : 's'} found. Be careful with current data because it will be overridden.`;
-                          notifyButtonText = 'Keep Import';
-                          showNotify = true;
-                        } else if (result.action === 'import-error') {
-                          notifyType = 'delete';
-                          notifyMessage = result.error || 'Import failed. Please check the file format.';
-                          notifyButtonText = 'OK';
-                          showNotify = true;
-                        }
-                      }}
-                    />
-                  {/if}
-                </div>
-                <div class="bmi-card">
-                  {#key resultsRunId}
-                    {#if BmiResultsComponent}
-                      <BmiResultsComponent
-                        {bmiValue}
-                        {category}
-                        age={age === '' ? null : parseInt(age)}
-                        reducedMotion={reducedMotionEffective}
-                      />
-                    {/if}
-                  {/key}
-                </div>
-              </div>
-            </section>
-          </div>
-        {/if}
-
-        {#if activeIndex === 2}
-          <div class="main-container">
-            <div class="charts-section">
-              {#if BmiRadialGaugeComponent}
-                <BmiRadialGaugeComponent
-                  bmi={bmiValue || 0}
-                  category={category}
-                  ultraSmooth={smoothModeRequested}
-                />
-              {/if}
-
-              {#if BmiHealthRiskComponent}
-                <BmiHealthRiskComponent
-                  bmi={bmiValue}
-                  category={category}
-                />
-              {/if}
-
-              {#if BmiSnapshotComponent}
-                <BmiSnapshotComponent
-                  currentBmi={bmiValue}
-                  category={category}
-                />
-              {/if}
-
-              {#if BodyFatEstimateComponent}
-                <BodyFatEstimateComponent
-                  bmi={bmiValue}
-                  age={age === '' ? null : parseInt(age)}
-                />
-              {/if}
-
-            </div>
-          </div>
-        {/if}
-
-        {#if activeIndex === 3}
-          <div class="main-container">
-            <!-- Reference Table -->
-            {#if ReferenceTableComponent}
-              <ReferenceTableComponent />
+  <!-- Calculator Section -->
+  <section id="calculator" class="scroll-section" data-lazy="calculator">
+    <div class="main-container">
+      <!-- BMI Calculator Section -->
+      <section class="bmi-section">
+        <div class="bmi-grid">
+          <div class="form-card">
+            {#if BmiFormComponent}
+              <BmiFormComponent
+                bind:age
+                bind:height
+                bind:weight
+                bind:unitSystem
+                {calculating}
+                onClear={confirmClearData}
+                onCalculate={handleCalculate}
+                onNotify={(result) => {
+                  if (result.action === 'import-validate' && result.text) {
+                    pendingImportText = result.text;
+                    notifyType = 'warn';
+                    notifyMessage = `Sure to import your data? ${result.recordCount} record${(result.recordCount ?? 0) === 1 ? '' : 's'} found. Be careful with current data because it will be overridden.`;
+                    notifyButtonText = 'Keep Import';
+                    showNotify = true;
+                  } else if (result.action === 'import-error') {
+                    notifyType = 'delete';
+                    notifyMessage = result.error || 'Import failed. Please check the file format.';
+                    notifyButtonText = 'OK';
+                    showNotify = true;
+                  }
+                }}
+              />
             {/if}
           </div>
-        {/if}
-
-        {#if activeIndex === 4}
-          <!-- About BMI Section -->
-          <section class="about-bmi-section">
-            <div class="main-container">
-              <div class="section-header-v2">
-                <h2 class="title">About BMI</h2>
-                <p class="subtitle">Understanding Body Mass Index and our application</p>
-              </div>
-
-              <div class="about-bmi-grid">
-                <!-- What is BMI Card -->
-                <div class="about-card">
-                  <div class="about-card-header">
-                    <Lightbulb class="Lightbulb" />
-                    <h3>What is BMI?</h3>
-                  </div>
-                  <div class="about-card-content">
-                    <p>
-                      Body Mass Index (BMI) is a simple weight‑for‑height index: weight (kg) divided by height (m) squared.
-                      It’s a quick population‑level screening tool to gauge potential health risk.
-                    </p>
-                    <p>
-                      Adult ranges: <em>Underweight</em> (&lt; 18.5), <em>Normal</em> (18.5–24.9), <em>Overweight</em> (25.0–29.9),
-                      <em>Obese</em> (≥ 30).
-                    </p>
-                    <p>
-                      Limitations: BMI doesn’t distinguish fat vs muscle or fat distribution. Use it alongside waist circumference,
-                      body‑fat %, lifestyle factors, and clinical assessment.
-                    </p>
-                  </div>
-                </div>
-
-                <!-- About Our App Card -->
-                <div class="about-card">
-                  <div class="about-card-header">
-                    <Users class="Users" />
-                    <h3>About Our BMI App</h3>
-                  </div>
-                  <div class="about-card-content">
-                    <p>
-                      Our BMI app features a modern and clean design, developed by <strong>Team LOGIGO</strong>.
-                      The team includes Rezky (Project Lead), Fiqih (Menu Design), Agus (Competitor Research),
-                      Virlan (Login Functionality), Andre (Graph and BMI Calculation Functions), and Ferdian (Website Testing).
-                      Thank you for your support!
-                    </p>
-                    <div class="app-info">
-                      <p class="info-row">
-                        <PackageCheck class="PackageCheck" />
-                        <strong>Version:</strong>Web3-Crypto-11.0 <span class="commit-id">({gitCommitId})</span>
-                      </p>
-                      <p class="info-row">
-                        <GitBranch class="GitBranch" />
-                        <strong>Branch:</strong>{gitBranch}
-                      </p>
-                      <p class="info-row">
-                        <GitCompare class="GitCompare" />
-                        <strong>Type Apps:</strong><span class="text-gradient-elegant">Open Source Project</span>
-                      </p>
-                      <p class="info-row">
-                        <Wrench class="Wrench" />
-                        <strong>Status:</strong>Maintenance
-                      </p>
-                      <p class="info-row">
-                        <Scale class="Scale" />
-                        <strong>License:</strong>GPL v3
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        {/if}
-
-        {#if activeIndex === 5}
-          <div class="main-container">
-            <footer class="footer-disclaimer">
-              <div class="disclaimer-icon">
-                <AlertTriangle class="AlertTriangle" />
-              </div>
-              <p>
-                BMI is a screening tool and should not be used as a sole diagnostic method.
-                Please consult healthcare professionals for comprehensive health assessment.
-              </p>
-            </footer>
-
-            <div class="github-footer">
-              <a
-                href="https://github.com/oxyzenq/bmi"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="github-link"
-              >
-                <span>
-                  &copy; 2025-{currentYear} Rezky Nightky. All rights reserved.
-                </span>
-              </a>
-            </div>
+          <div class="bmi-card">
+            {#key resultsRunId}
+              {#if BmiResultsComponent}
+                <BmiResultsComponent
+                  {bmiValue}
+                  {category}
+                  age={age === '' ? null : parseInt(age)}
+                  reducedMotion={reducedMotionEffective}
+                />
+              {/if}
+            {/key}
           </div>
-        {/if}
+        </div>
       </section>
-    {/key}
-  </main>
+    </div>
+  </section>
 
-  <div class="pager-controls-shell" class:pager-hidden={!pagerControlsVisible}>
-    <div class="pager-controls" aria-label="Section navigation">
-      {#if activeIndex > 0}
-        <button
-          type="button"
-          class="pager-btn-futuristic pager-btn-prev"
-          aria-label="Previous section"
-          onclick={prevSection}
-        >
-          <ChevronLeft aria-hidden="true" size={24} />
-        </button>
-      {:else}
-        <div class="pager-btn-spacer" aria-hidden="true"></div>
-      {/if}
+  <!-- Gauge Section -->
+  <section id="gauge" class="scroll-section" data-lazy="gauge">
+    <div class="main-container">
+      <div class="charts-section">
+        {#if BmiRadialGaugeComponent}
+          <BmiRadialGaugeComponent
+            bmi={bmiValue || 0}
+            category={category}
+            ultraSmooth={smoothModeRequested}
+          />
+        {/if}
 
-      {#if activeIndex < sections.length - 1}
-        <button
-          type="button"
-          class="pager-btn-futuristic pager-btn-next"
-          aria-label="Next section"
-          onclick={nextSection}
-        >
-          <ChevronRight aria-hidden="true" size={24} />
-        </button>
-      {:else}
-        <div class="pager-arrow-spacer" aria-hidden="true"></div>
+        {#if BmiHealthRiskComponent}
+          <BmiHealthRiskComponent
+            bmi={bmiValue}
+            category={category}
+          />
+        {/if}
+
+        {#if BmiSnapshotComponent}
+          <BmiSnapshotComponent
+            currentBmi={bmiValue}
+            category={category}
+          />
+        {/if}
+
+        {#if BodyFatEstimateComponent}
+          <BodyFatEstimateComponent
+            bmi={bmiValue}
+            age={age === '' ? null : parseInt(age)}
+          />
+        {/if}
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Reference Section -->
+  <section id="reference" class="scroll-section" data-lazy="reference">
+    <div class="main-container">
+      <!-- Reference Table -->
+      {#if ReferenceTableComponent}
+        <ReferenceTableComponent />
       {/if}
     </div>
-  </div>
+  </section>
+
+  <!-- About BMI Section -->
+  <section id="about" class="scroll-section">
+    <section class="about-bmi-section">
+      <div class="main-container">
+        <div class="section-header-v2">
+          <h2 class="title">About BMI</h2>
+          <p class="subtitle">Understanding Body Mass Index and our application</p>
+        </div>
+
+        <div class="about-bmi-grid">
+          <!-- What is BMI Card -->
+          <div class="about-card">
+            <div class="about-card-header">
+              <Lightbulb class="Lightbulb" />
+              <h3>What is BMI?</h3>
+            </div>
+            <div class="about-card-content">
+              <p>
+                Body Mass Index (BMI) is a simple weight‑for‑height index: weight (kg) divided by height (m) squared.
+                It's a quick population‑level screening tool to gauge potential health risk.
+              </p>
+              <p>
+                Adult ranges: <em>Underweight</em> (&lt; 18.5), <em>Normal</em> (18.5–24.9), <em>Overweight</em> (25.0–29.9),
+                <em>Obese</em> (≥ 30).
+              </p>
+              <p>
+                Limitations: BMI doesn't distinguish fat vs muscle or fat distribution. Use it alongside waist circumference,
+                body‑fat %, lifestyle factors, and clinical assessment.
+              </p>
+            </div>
+          </div>
+
+          <!-- About Our App Card -->
+          <div class="about-card">
+            <div class="about-card-header">
+              <Users class="Users" />
+              <h3>About Our BMI App</h3>
+            </div>
+            <div class="about-card-content">
+              <p>
+                Our BMI app features a modern and clean design, developed by <strong>Team LOGIGO</strong>.
+                The team includes Rezky (Project Lead), Fiqih (Menu Design), Agus (Competitor Research),
+                Virlan (Login Functionality), Andre (Graph and BMI Calculation Functions), and Ferdian (Website Testing).
+                Thank you for your support!
+              </p>
+              <div class="app-info">
+                <p class="info-row">
+                  <PackageCheck class="PackageCheck" />
+                  <strong>Version:</strong>Web3-Crypto-11.0 <span class="commit-id">({gitCommitId})</span>
+                </p>
+                <p class="info-row">
+                  <GitBranch class="GitBranch" />
+                  <strong>Branch:</strong>{gitBranch}
+                </p>
+                <p class="info-row">
+                  <GitCompare class="GitCompare" />
+                  <strong>Type Apps:</strong><span class="text-gradient-elegant">Open Source Project</span>
+                </p>
+                <p class="info-row">
+                  <Wrench class="Wrench" />
+                  <strong>Status:</strong>Maintenance
+                </p>
+                <p class="info-row">
+                  <Scale class="Scale" />
+                  <strong>License:</strong>GPL v3
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- Info / Footer Section -->
+  <section id="info" class="scroll-section">
+    <div class="main-container">
+      <footer class="footer-disclaimer">
+        <div class="disclaimer-icon">
+          <AlertTriangle class="AlertTriangle" />
+        </div>
+        <p>
+          BMI is a screening tool and should not be used as a sole diagnostic method.
+          Please consult healthcare professionals for comprehensive health assessment.
+        </p>
+      </footer>
+
+      <div class="github-footer">
+        <a
+          href="https://github.com/oxyzenq/bmi"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="github-link"
+        >
+          <span>
+            &copy; 2025-{currentYear} Rezky Nightky. All rights reserved.
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 {#if showNotify}
@@ -1225,8 +863,6 @@
           notifyButtonText = 'OK';
         }
       } else if (notifyType === 'success') {
-        // Navigation to Gauge already happened in handleCalculate
-        // (synchronous click-handler context). Just dismiss the notification.
         showNotify = false;
       } else if (notifyType === 'delete') {
         showNotify = false;
@@ -1245,42 +881,41 @@
 {/if}
 
 <style>
-  .pager-shell {
-    height: 100svh;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    padding-top: 28px;
+  /* === Long-scroll page layout === */
+  .long-scroll-page {
+    width: 100%;
+    padding-top: 56px;
+    min-height: 100vh;
+  }
+
+  /* === Sticky navigation bar === */
+  .sticky-nav-shell {
+    width: calc(100% - 1.5rem);
+    max-width: 820px;
     overflow: hidden;
-    touch-action: pan-y pinch-zoom;
-    position: relative;
-    --pager-top-inset: calc(0.75rem + env(safe-area-inset-top, 0px) + 56px);
-    --pager-edge-fade: 120px;
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(14px) saturate(165%);
+    -webkit-backdrop-filter: blur(14px) saturate(165%);
+    border: var(--btn-border);
+    box-shadow: var(--btn-shadow);
+    border-radius: 9999px;
+    margin-inline: auto;
+    position: sticky;
+    top: calc(0.75rem + env(safe-area-inset-top, 0px));
+    z-index: 20;
+    isolation: isolate;
   }
 
-  .pager-shell::before,
-  .pager-shell::after {
+  .sticky-nav-shell::before {
     content: '';
-    position: fixed;
-    left: 0;
-    right: 0;
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
     pointer-events: none;
-    z-index: 19;
+    z-index: 0;
   }
 
-  .pager-shell::before {
-    top: 0;
-    height: calc(0.75rem + env(safe-area-inset-top, 0px) + var(--pager-edge-fade));
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.98), rgba(0, 0, 0, 0));
-  }
-
-  .pager-shell::after {
-    bottom: 0;
-    height: calc(0.75rem + env(safe-area-inset-bottom, 0px) + var(--pager-edge-fade));
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.98), rgba(0, 0, 0, 0));
-  }
-
-  .pager-nav {
+  .sticky-nav {
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -1290,51 +925,34 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     min-width: 0;
-  }
-
-  .pager-nav.centered {
-    justify-content: center;
-  }
-
-  .pager-nav-shell {
-    width: calc(100% - 1.5rem);
-    max-width: 820px;
-    min-width: 0;
-    overflow: hidden;
-    background: rgba(0, 0, 0, 0.82);
-    backdrop-filter: blur(14px) saturate(165%);
-    -webkit-backdrop-filter: blur(14px) saturate(165%);
-    border: var(--btn-border);
-    box-shadow: var(--btn-shadow);
-    border-radius: 9999px;
-    margin-inline: auto;
-    position: absolute;
-    top: calc(0.75rem + env(safe-area-inset-top, 0px));
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 20;
-    isolation: isolate;
-  }
-
-  .pager-nav-shell::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.92);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .pager-nav {
     position: relative;
     z-index: 1;
   }
 
-  .pager-nav::-webkit-scrollbar {
+  .sticky-nav::-webkit-scrollbar {
     display: none;
   }
 
-  .pager-tab {
+  @media (min-width: 900px) {
+    .sticky-nav {
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .sticky-nav {
+      gap: 0.35rem;
+      padding: 0.45rem 0.6rem;
+    }
+
+    .nav-tab {
+      height: 36px;
+      padding-inline: 0.75rem;
+      font-size: 0.85rem;
+    }
+  }
+
+  .nav-tab {
     height: 38px;
     padding-inline: 0.9rem;
     font-size: 0.9rem;
@@ -1345,23 +963,23 @@
     min-width: max-content;
   }
 
-  .pager-smooth {
+  .nav-smooth {
     opacity: 1;
   }
 
-  .pager-smooth :global(.render-spark) {
+  .nav-smooth :global(.render-spark) {
     color: var(--web3-glow-purple) !important;
   }
 
-  .pager-smooth .render-on {
+  .nav-smooth .render-on {
     color: #00c853;
   }
 
-  .pager-smooth .render-off {
+  .nav-smooth .render-off {
     color: #ffd600;
   }
 
-  .pager-tab.active {
+  .nav-tab.active {
     opacity: 1;
     background: rgba(255, 255, 255, 0.07);
     border-color: color-mix(in oklab, var(--web3-glow-purple) 55%, rgba(255, 255, 255, 0.12));
@@ -1371,85 +989,58 @@
     transform: translateY(-1px);
   }
 
-  .pager-view {
-    flex: 1;
-    overflow: hidden;
-    padding-bottom: 0.5rem;
-    position: relative;
-    min-height: 0;
-  }
-
-  .pager-section {
-    height: 100%;
-    position: absolute;
-    inset: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    will-change: transform, opacity;
-    scrollbar-width: none;
-    contain: layout paint style;
-    padding-top: calc(1rem + var(--pager-top-inset));
-    padding-bottom: calc(0.75rem + 56px + 0.75rem + env(safe-area-inset-bottom, 0px));
-    scroll-padding-top: calc(1rem + var(--pager-top-inset));
-    scroll-padding-bottom: calc(0.75rem + 56px + 0.75rem + env(safe-area-inset-bottom, 0px));
-  }
-
-  .pager-section::-webkit-scrollbar {
-    display: none;
-  }
-
-  @media (min-width: 900px) {
-    .pager-nav {
-      justify-content: center;
-    }
-  }
-
-  @media (max-width: 600px) {
-    .pager-nav {
-      gap: 0.35rem;
-      padding: 0.45rem 0.6rem;
-    }
-
-    .pager-tab {
-      height: 36px;
-      padding-inline: 0.75rem;
-      font-size: 0.85rem;
-    }
-  }
-
-  .pager-controls-shell {
-    width: calc(100% - 1.5rem);
-    max-width: 820px;
-    min-width: 0;
-    overflow: visible;
-    background: transparent;
-    margin-inline: auto;
-    position: absolute;
-    bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 20;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-  }
-
-  .pager-controls-shell.pager-hidden {
-    transform: translateX(-50%) translateY(calc(100% + 1rem));
-    opacity: 0;
+  /* === Scroll progress bar === */
+  .scroll-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--web3-glow-purple), var(--web3-glow-blue));
+    z-index: 9999;
     pointer-events: none;
+    transition: width 80ms linear;
+    will-change: width;
   }
 
-  .pager-btn-spacer {
-    width: 56px;
-    height: 56px;
+  /* === Scroll-to-top button === */
+  .scroll-to-top-btn {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
 
-  @media (max-width: 480px) {
-    .pager-btn-spacer {
-      width: 52px;
-      height: 52px;
-    }
+  .scroll-to-top-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    background: rgba(147, 112, 219, 0.15);
+    border-color: rgba(147, 112, 219, 0.3);
+    box-shadow: 0 8px 24px rgba(147, 112, 219, 0.15);
+  }
+
+  .scroll-to-top-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* === Scroll sections === */
+  .scroll-section {
+    min-height: 50vh;
+  }
+
+  .scroll-section .main-container {
+    min-height: 50vh;
   }
 </style>
-
-<!-- styles moved to global-styles.css -->
