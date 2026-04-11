@@ -280,21 +280,46 @@
   let scrollProgress = $state(0);
   let showScrollTop = $state(false);
   let scrollListenerSetup = false;
+  let scrollHandler: (() => void) | null = null;
+  let keyHandler: ((e: KeyboardEvent) => void) | null = null;
 
   function setupScrollListener() {
     if (!browser || scrollListenerSetup) return;
     scrollListenerSetup = true;
-    let scrollTimer: ReturnType<typeof setTimeout> | null = null;
-    const onScroll = () => {
+
+    scrollHandler = () => {
       const scrollTop = window.scrollY || 0;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       scrollProgress = docHeight > 0 ? Math.min(1, Math.max(0, scrollTop / docHeight)) : 0;
       showScrollTop = scrollTop > 400;
-      document.body.classList.add('is-scrolling');
-      if (scrollTimer) clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(() => { document.body.classList.remove('is-scrolling'); }, 150);
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('scroll', scrollHandler, { passive: true });
+
+    // Keyboard navigation: PageDown/Up to jump between sections
+    keyHandler = (e: KeyboardEvent) => {
+      const active = document.activeElement;
+      if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
+
+      const sectionIds = sections.map((s) => s.id);
+      const scrollPos = window.scrollY + window.innerHeight * 0.3;
+
+      let currentIdx = -1;
+      for (let i = 0; i < sectionIds.length; i++) {
+        const el = document.getElementById(sectionIds[i]);
+        if (el && el.offsetTop <= scrollPos) currentIdx = i;
+      }
+
+      if (e.key === 'PageDown' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        const next = Math.min(currentIdx + 1, sectionIds.length - 1);
+        scrollToSection(sectionIds[next]);
+      } else if (e.key === 'PageUp' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prev = Math.max(currentIdx - 1, 0);
+        scrollToSection(sectionIds[prev]);
+      }
+    };
+    window.addEventListener('keydown', keyHandler, { passive: false });
   }
 
   function scrollToSection(id: string) {
@@ -372,9 +397,10 @@
 
     return () => {
       window.removeEventListener('storage', onStorage);
+      if (scrollHandler) window.removeEventListener('scroll', scrollHandler);
+      if (keyHandler) window.removeEventListener('keydown', keyHandler);
       if (lazyObserver) lazyObserver.disconnect();
       lazyObserver = null;
-      document.body.classList.remove('is-scrolling');
     };
   });
 
