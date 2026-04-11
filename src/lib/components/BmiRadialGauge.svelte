@@ -19,7 +19,7 @@
 
   // Persisted dataset-like state (visual)
   let appliedBmi = $state(0);
-  let appliedColor = $state('rgba(148, 163, 184, 0.3)');
+  let appliedColor = $state('rgba(124, 58, 237, 0.3)');
   let appliedCategory = $state<string | null>(null);
   let prevAppliedBmi = $state(0);
   let isFilling = $state(false);
@@ -41,10 +41,10 @@
   let reducedMotion = $derived(reducedMotionPref && !ultraSmooth);
 
   const categoryColors: Record<string, string> = {
-    'Underweight': '#4A90E2',
-    'Normal Weight': '#00C853',
-    'Overweight': '#FFD600',
-    'Obese': '#D50000'
+    'Underweight': '#60a5fa',
+    'Normal Weight': '#a78bfa',
+    'Overweight': '#f59e0b',
+    'Obese': '#ef4444'
   };
 
   const categoryScale = [
@@ -72,7 +72,7 @@
 
   // Sync visual state with inputs via a helper to avoid reactive self-dependency
   function applyInputs(nextBmi: number, nextCategory: string) {
-    const nextColor = categoryColors[nextCategory] ?? '#00C853';
+    const nextColor = categoryColors[nextCategory] ?? '#a78bfa';
     if (nextBmi !== appliedBmi || nextColor !== appliedColor || nextCategory !== appliedCategory) {
       prevAppliedBmi = appliedBmi;
       appliedBmi = nextBmi;
@@ -99,7 +99,7 @@
     } else {
       prevAppliedBmi = appliedBmi;
       appliedBmi = 0;
-      appliedColor = 'rgba(148, 163, 184, 0.3)';
+      appliedColor = 'rgba(124, 58, 237, 0.3)';
       appliedCategory = null;
     }
   });
@@ -162,8 +162,8 @@
     return `#${toHex(lr)}${toHex(lg)}${toHex(lb)}`;
   }
 
-  let progressStart = $derived(appliedBmi > 0 ? appliedColor : 'rgba(148, 163, 184, 0.3)');
-  let progressEnd = $derived(appliedBmi > 0 ? lighten(appliedColor, 0.25) : 'rgba(148, 163, 184, 0.3)');
+  let progressStart = $derived(appliedBmi > 0 ? appliedColor : 'rgba(124, 58, 237, 0.3)');
+  let progressEnd = $derived(appliedBmi > 0 ? lighten(appliedColor, 0.25) : 'rgba(124, 58, 237, 0.15)');
 </script>
 
 <div class="gauge-container">
@@ -186,12 +186,13 @@
     >
       <defs>
         <linearGradient id="gaugeBackground" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="rgba(148, 163, 184, 0.1)" />
-          <stop offset="100%" stop-color="rgba(148, 163, 184, 0.05)" />
+          <stop offset="0%" stop-color="rgba(148, 163, 184, 0.06)" />
+          <stop offset="100%" stop-color="rgba(148, 163, 184, 0.02)" />
         </linearGradient>
 
         <linearGradient id="gaugeProgressGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color={progressStart} />
+          <stop offset="0%" stop-color="#8000ff" />
+          <stop offset="50%" stop-color={progressStart} />
           <stop offset="100%" stop-color={progressEnd} />
         </linearGradient>
 

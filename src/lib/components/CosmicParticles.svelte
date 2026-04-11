@@ -16,7 +16,7 @@
 
   onMount(() => {
     tier = getPerformanceTier();
-    // Base rain: low = 10, medium = 10, high = 10
+    // Base nodes: low = 10, medium = 10, high = 10
     baseParticleCount = 10;
     smoothModeEnabled = true;
     updateReduced();
@@ -121,23 +121,31 @@
     // Create particles (optimized for performance)
     for (let i = 0; i < particleCount; i++) {
       const particle = createParticle();
-      const opacity = 0.26 + prng(i, 1) * 0.58;
+      const opacity = 0.3 + prng(i, 1) * 0.5;
       const left = prng(i, 4) * 100;
+      const top = prng(i, 8) * 100;
       const sizeRand = prng(i, 5);
-      // Rain drops: thin and long (2px x 15-35px)
-      const width = 2;
-      const height = 15 + Math.floor(sizeRand * 20);
-      // Smooth rain: 1.5-3s duration (not too fast)
-      const delay = prng(i, 6) * 3;
-      const duration = 1.5 + prng(i, 7) * 1.5;
+      // Floating grid nodes: circular dots (6-10px)
+      const size = 6 + Math.floor(sizeRand * 4);
+      // Random drift direction (-30 to 30px)
+      const dx = (prng(i, 9) - 0.5) * 60;
+      const dy = (prng(i, 10) - 0.5) * 60;
+      // Slow float: 15-25s duration
+      const delay = prng(i, 6) * 5;
+      const duration = 15 + prng(i, 7) * 10;
+      // Alternate purple and blue nodes
+      const isBlue = prng(i, 11) > 0.5;
 
       particle.style.cssText = `
         left: ${left}%;
-        width: ${width}px;
-        height: ${height}px;
-        --delay: ${delay}s;
-        --duration: ${duration}s;
-        --opacity: ${opacity};
+        top: ${top}%;
+        --size: ${size}px;
+        --dx: ${dx.toFixed(1)}px;
+        --dy: ${dy.toFixed(1)}px;
+        --delay: ${delay.toFixed(1)}s;
+        --duration: ${duration.toFixed(1)}s;
+        --opacity: ${opacity.toFixed(2)};
+        --is-blue: ${isBlue ? 1 : 0};
       `;
 
       frag.appendChild(particle);

@@ -104,3 +104,64 @@ Stage Summary:
 - Responsive: Reduced size on screens <360px
 - Accessible: aria-hidden, prefers-reduced-motion respected
 - All builds and tests passing
+
+---
+Task ID: 5a
+Agent: Super Z (Phase 5a)
+Task: Rebrand Hero component and version strings from "Stellar Edition" to "Web3 Crypto Edition"
+
+Work Log:
+- Replaced `Telescope` icon with `Hexagon` from lucide-svelte in Hero.svelte import (crypto/blockchain aesthetic)
+- Updated Hero subtitle: "Explore the cosmos of your body — discover your balance under the stars." → "Unlock your body metrics — powered by Web3 design precision."
+- Updated Hero edition text: "Stellar Edition 10.0" → "Web3 Crypto Edition"
+- Updated version string in +page.svelte About section: "Stellar-10.0" → "Web3-Crypto-11.0"
+- Updated static/manifest.json: theme_color #7c3aed → #050508, background_color #0a0a0f → #050508, description updated to mention "Web3-powered"
+- Updated src/app.html theme-color meta tag: #7c3aed → #050508
+- All verification passed: svelte-check (0 errors), eslint (clean), vitest (7/7 tests), vite build (success))
+- Committed to dev branch as 2bbc754 and pushed to origin
+
+Stage Summary:
+- Files modified: 4 (src/lib/ui/Hero.svelte, src/routes/+page.svelte, static/manifest.json, src/app.html)
+- Net change: +54 insertions, -54 deletions
+- Hero: Hexagon icon, Web3 subtitle, "Web3 Crypto Edition" branding
+- Version: Web3-Crypto-11.0 displayed in About section
+- PWA theme: Dark base #050508 across manifest.json and app.html
+- All builds and tests passing
+
+---
+Task ID: 5b
+Agent: Super Z (Phase 5b)
+Task: Update Particle System and Radial Gauge visuals for Web3 aesthetic
+
+Work Log:
+- Replaced Blade Runner-style purple rain particles with floating grid nodes (blockchain network visualization)
+- CosmicParticles.svelte: Changed particle creation from 2px×15-35px rain drops to 6-10px circular dots
+- Particles now scatter across viewport (random top/left) instead of falling from top
+- Added random drift direction via --dx/--dy CSS variables (-30 to 30px range)
+- Slow float animation (15-25s duration) replacing fast rain (1.5-3s)
+- Dual color scheme: purple (rgba(124,58,237,0.7)) and blue (rgba(59,130,246,0.6)) via --is-blue CSS variable
+- Soft glow box-shadow on all particles
+- global-styles.css: Replaced `.cosmic-particle` styles with circular dot styles using radial-gradient
+- Replaced `@keyframes rainFall` with `@keyframes nodeFloat` (gentle drift with opacity pulsing)
+- Added blue particle variant CSS selector for `[style*="--is-blue: 1"]`
+- Updated render mode glow to purple/blue instead of legacy violet
+- Updated performance tier overrides: low removes box-shadow, medium reduces glow
+- Updated prefers-reduced-motion duration to 25s (matching slow float)
+- BmiRadialGauge.svelte: Updated category colors — Underweight #60a5fa, Normal #a78bfa (was green), Overweight #f59e0b, Obese #ef4444
+- Gauge progress gradient now starts from #8000ff purple base
+- Gauge background track darkened (rgba opacity reduced from 0.1/0.05 to 0.06/0.02)
+- Default idle gauge color changed from slate gray to purple tint
+- BmiHealthRisk.svelte: Updated Normal Weight/Low Risk color from #00C853 (green) to #a78bfa (purple)
+- Updated risk-low segment, marker, and result card colors to purple
+- global-styles.css: Updated `.scale-item.sc-normal` --category-color to #a78bfa
+- global-styles.css: Updated `.bmi-results-card.cat-normal` color to #a78bfa
+- All verification passed: svelte-check (0 errors), eslint (clean), vitest (7/7 tests), vite build (success))
+- Committed to dev branch and pushed to origin
+
+Stage Summary:
+- Files modified: 4 (CosmicParticles.svelte, BmiRadialGauge.svelte, BmiHealthRisk.svelte, global-styles.css)
+- Particles: Floating grid nodes (6-10px dots) with purple/blue glow, 15-25s drift animation
+- Gauge: Purple-to-blue gradient stroke, darker background track, unified Web3 category colors
+- Category colors unified: Normal/Good → #a78bfa (purple), replacing all green references
+- Performance tiers and smooth mode toggle fully preserved
+- All builds and tests passing

@@ -1466,7 +1466,7 @@ button[aria-disabled="true"] {
 .bmi-results-card.cat-normal .bmi-value,
 .bmi-results-card.cat-normal .bmi-category,
 .bmi-results-card.cat-normal .category-icon {
-  color: #10b981;
+  color: #a78bfa;
 }
 
 .bmi-results-card.cat-overweight .bmi-value,
@@ -1664,7 +1664,7 @@ button[aria-disabled="true"] {
 }
 
 .scale-item.sc-normal {
-  --category-color: #00C853;
+  --category-color: #a78bfa;
 }
 
 .scale-item.sc-overweight {
@@ -1974,58 +1974,61 @@ html:not([data-graphics='render']) body.is-switching .cosmic-particles .cosmic-p
 
 .cosmic-particles .cosmic-particle {
   position: absolute;
-  top: -10vh;
-  left: 0;
-  opacity: 0;
-  border-radius: 9999px;
-  /* Blade Runner purple rain - elongated drops */
-  background: linear-gradient(180deg,
-      rgba(147, 51, 234, 0) 0%,
-      rgba(147, 51, 234, 0.8) 20%,
-      rgba(168, 85, 247, 0.9) 50%,
-      rgba(147, 51, 234, 0.8) 80%,
-      rgba(147, 51, 234, 0) 100%);
-  box-shadow: 0 0 6px rgba(168, 85, 247, 0.6),
-              0 0 12px rgba(147, 51, 234, 0.4);
-  filter: blur(0.5px);
-  animation-name: rainFall;
-  animation-duration: var(--duration, 1.5s);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.7), rgba(124, 58, 237, 0.1));
+  box-shadow: 0 0 8px rgba(124, 58, 237, 0.4), 0 0 16px rgba(124, 58, 237, 0.15);
+  width: var(--size, 6px) !important;
+  height: var(--size, 6px) !important;
+  animation-name: nodeFloat;
+  animation-duration: var(--duration, 18s);
   animation-delay: var(--delay, 0s);
-  animation-timing-function: ease-out;
+  animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   will-change: transform, opacity;
-  /* Rain drop shape - thin and tall */
-  width: 2px !important;
-  height: 24px !important;
+}
+
+/* Blue-tinted particle variant */
+.cosmic-particles .cosmic-particle[style*="--is-blue: 1"],
+.cosmic-particles .cosmic-particle[style*="--is-blue:1"] {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.6), rgba(59, 130, 246, 0.1));
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.4), 0 0 16px rgba(59, 130, 246, 0.15);
 }
 
 html[data-graphics='render'] .cosmic-particles .cosmic-particle {
-  animation-timing-function: ease-out !important;
+  animation-timing-function: ease-in-out !important;
   /* Enhanced glow for render mode */
-  box-shadow: 0 0 8px rgba(168, 85, 247, 0.8),
-              0 0 16px rgba(147, 51, 234, 0.5),
-              0 0 24px rgba(147, 51, 234, 0.3);
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.6),
+              0 0 24px rgba(124, 58, 237, 0.3),
+              0 0 36px rgba(124, 58, 237, 0.15);
 }
 
-@keyframes rainFall {
+html[data-graphics='render'] .cosmic-particles .cosmic-particle[style*="--is-blue: 1"],
+html[data-graphics='render'] .cosmic-particles .cosmic-particle[style*="--is-blue:1"] {
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6),
+              0 0 24px rgba(59, 130, 246, 0.3),
+              0 0 36px rgba(59, 130, 246, 0.15);
+}
+
+@keyframes nodeFloat {
   0% {
     opacity: 0;
-    transform: translate3d(0, -10vh, 0) scaleY(0.5);
+    transform: translate3d(0, 0, 0) scale(0.5);
   }
-
-  5% {
-    opacity: var(--opacity, 0.85);
-    transform: translate3d(0, 0vh, 0) scaleY(1);
+  15% {
+    opacity: var(--opacity, 0.7);
+    transform: translate3d(var(--dx, 10px), var(--dy, -20px), 0) scale(1);
   }
-
-  95% {
-    opacity: var(--opacity, 0.85);
-    transform: translate3d(0, 105vh, 0) scaleY(1);
+  50% {
+    opacity: var(--opacity, 0.5);
+    transform: translate3d(calc(var(--dx, 10px) * -0.5), calc(var(--dy, -20px) * 1.5), 0) scale(0.85);
   }
-
+  85% {
+    opacity: var(--opacity, 0.6);
+    transform: translate3d(calc(var(--dx, 10px) * 0.8), calc(var(--dy, -20px) * 0.3), 0) scale(1);
+  }
   100% {
     opacity: 0;
-    transform: translate3d(0, 115vh, 0) scaleY(0.5);
+    transform: translate3d(0, 0, 0) scale(0.5);
   }
 }
 
@@ -2785,7 +2788,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
 /* Prefer transform/opacity for animations and respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   html[data-graphics='render'] .cosmic-particles .cosmic-particle {
-    animation-duration: var(--duration, 12s) !important;
+    animation-duration: 25s !important;
     animation-delay: var(--delay, 0s) !important;
     animation-iteration-count: infinite !important;
     animation-timing-function: linear !important;
@@ -3324,7 +3327,7 @@ html[data-performance-tier="low"] :is(
 
 html[data-performance-tier="low"] .cosmic-particles .cosmic-particle {
   filter: none !important;
-  background: rgba(255, 255, 255, 0.6) !important;
+  box-shadow: none !important;
   will-change: transform;
 }
 
@@ -3357,7 +3360,8 @@ html[data-performance-tier="medium"] {
 }
 
 html[data-performance-tier="medium"] .cosmic-particles .cosmic-particle {
-  filter: blur(0.2px) !important;
+  filter: none !important;
+  box-shadow: 0 0 4px rgba(124, 58, 237, 0.2) !important;
   will-change: transform;
 }
 

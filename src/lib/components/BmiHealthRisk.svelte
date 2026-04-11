@@ -45,7 +45,7 @@
     if (lowerCat === 'normal weight') {
       return {
         label: 'Low Risk',
-        color: '#00C853',
+        color: '#a78bfa',
         bgClass: 'risk-low',
         icon: Heart,
         description: 'Optimal BMI range associated with lowest health risks',
@@ -179,7 +179,7 @@
   }
 
   .risk-low-seg {
-    background: linear-gradient(90deg, #00C853 0%, #00C853 100%);
+    background: linear-gradient(90deg, #a78bfa 0%, #a78bfa 100%);
     opacity: 0.6;
   }
 
@@ -221,8 +221,8 @@
   }
 
   .risk-marker.risk-low {
-    background: #00C853;
-    box-shadow: 0 0 20px rgba(0, 200, 83, 0.4);
+    background: #a78bfa;
+    box-shadow: 0 0 20px rgba(167, 139, 250, 0.4);
   }
 
   .risk-marker.risk-moderate {
@@ -281,8 +281,8 @@
   }
 
   .risk-result.risk-low {
-    border-color: rgba(0, 200, 83, 0.3);
-    background: rgba(0, 200, 83, 0.08);
+    border-color: rgba(167, 139, 250, 0.3);
+    background: rgba(167, 139, 250, 0.08);
   }
 
   .risk-result.risk-moderate {
