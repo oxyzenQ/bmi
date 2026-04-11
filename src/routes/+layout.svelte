@@ -25,6 +25,16 @@
     renderModeEnabled = initRenderMode();
     renderModeInitialized = true;
     document.documentElement.dataset.graphics = renderModeEnabled ? 'render' : 'basic';
+
+    // Initialize background mode early to prevent flash
+    try {
+      const storedBgMode = localStorage.getItem('bmi.backgroundMode');
+      if (storedBgMode === 'wallpaper') {
+        document.body.classList.add('bg-wallpaper');
+      }
+    } catch {
+      // localStorage unavailable
+    }
   }
 
   onMount(() => {

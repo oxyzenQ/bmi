@@ -18,7 +18,9 @@
     Scale,
     Bot,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Monitor,
+    Moon
   } from 'lucide-svelte';
   type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
   type BmiResultsComponentType = typeof import('$lib/components/BmiResults.svelte').default;
@@ -223,6 +225,21 @@
   let lastScrollY = 0;
   let pagerControlsVisible = $state(true);
   let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  // Background mode state
+  let bgWallpaper = $state(false);
+
+  function toggleBackground() {
+    bgWallpaper = !bgWallpaper;
+    if (browser) {
+      localStorage.setItem('bmi.backgroundMode', bgWallpaper ? 'wallpaper' : 'dark');
+      if (bgWallpaper) {
+        document.body.classList.add('bg-wallpaper');
+      } else {
+        document.body.classList.remove('bg-wallpaper');
+      }
+    }
+  }
 
   let activePointerId: number | null = null;
   let lastWheelNavAt = 0;
@@ -636,6 +653,16 @@
     document.documentElement.dataset.performanceTier = perfTier;
     broadcastSmoothMode(smoothModeRequested);
 
+    // Read background mode preference
+    const storedBgMode = localStorage.getItem('bmi.backgroundMode');
+    if (storedBgMode === 'wallpaper') {
+      bgWallpaper = true;
+      document.body.classList.add('bg-wallpaper');
+    } else {
+      bgWallpaper = false;
+      document.body.classList.remove('bg-wallpaper');
+    }
+
     // Read unit system preference from localStorage
     try {
       const storedUnit = localStorage.getItem('bmi.unitSystem');
@@ -889,6 +916,22 @@
         <span class:render-on={smoothModeRequested} class:render-off={!smoothModeRequested}>
           {smoothModeStatus}
         </span>
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-ghost pager-tab bg-toggle-btn"
+        aria-label={bgWallpaper ? 'Switch to dark background' : 'Switch to wallpaper background'}
+        aria-pressed={bgWallpaper}
+        onclick={toggleBackground}
+      >
+        {#if bgWallpaper}
+          <Monitor size={16} aria-hidden="true" />
+          Wallpaper
+        {:else}
+          <Moon size={16} aria-hidden="true" />
+          Dark
+        {/if}
       </button>
     </nav>
   </div>

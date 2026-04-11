@@ -196,39 +196,48 @@ body {
   display: contents;
 }
 
-/* stellar background image */
+/* Background system — dark CSS default + wallpaper toggle */
 body::before {
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   width: 100%;
   height: 100vh;
   min-height: 100vh;
   z-index: -3;
+  background-color: #050508;
+  background-image:
+    radial-gradient(ellipse at 15% 15%, rgba(124, 58, 237, 0.08), transparent 50%),
+    radial-gradient(ellipse at 85% 85%, rgba(59, 130, 246, 0.06), transparent 50%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 24px 24px;
+  background-position: center, center, center;
+  background-repeat: no-repeat, no-repeat, repeat;
+  opacity: 1;
+  filter: none;
+  transform: translateZ(0);
+  transition: opacity var(--dur-slow) var(--easing-smooth);
+}
+
+/* Wallpaper mode — activated via .bg-wallpaper class on body */
+body.bg-wallpaper::before {
   background-color: transparent;
   background-image: url('/images/oxyzen-zenlysium.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 1;
   filter: brightness(1) contrast(1.25) saturate(1);
-  transform: translateZ(0);
 }
 
 @media (max-width: 480px) {
-  body::before {
+  body.bg-wallpaper::before {
     background-size: contain;
     background-position: center top;
-    opacity: 1;
-    filter: brightness(1) contrast(1.25) saturate(1);
   }
 }
 
 @media (max-width: 480px) and (orientation: landscape) {
-  body::before {
+  body.bg-wallpaper::before {
     background-size: cover;
     background-position: center;
   }
@@ -246,7 +255,7 @@ body::after {
   height: 100vh;
   min-height: 100vh;
   z-index: -2;
-  background: linear-gradient(180deg, rgba(2, 6, 23, 0.58), rgba(2, 6, 23, 0.9));
+  background: linear-gradient(180deg, rgba(5, 5, 8, 0.58), rgba(5, 5, 8, 0.9));
   pointer-events: none;
 }
 
