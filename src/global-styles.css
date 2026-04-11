@@ -26,70 +26,65 @@
 }
 
 /* ==============================
-      CSS VARIABLES
+      CSS VARIABLES — Web3 Crypto Edition
+      Palette: Black / Purple / Blue / Gray
       ============================== */
 :root {
-  /* Primary cosmic colors */
-  --cosmic-deep-space: #07030f;
-  --cosmic-void: #120824;
-  --cosmic-nebula: #24113f;
+  /* === Web3 Surface Colors === */
+  --web3-base: #07030f;
+  --web3-surface: #120824;
+  --web3-elevated: #1e293b;
+  --web3-muted: #334155;
 
-  /* Additional cosmic variables for splash screen */
-  --cosmic-primary: #0f172a;
-  --cosmic-secondary: #1e293b;
-  --cosmic-accent: #334155;
-  --cosmic-blue: #9a4dff;
-  --cosmic-purple: #8000ff;
-  --cosmic-text-primary: #ffffff;
-  --cosmic-text-secondary: white;
+  /* === Nebula === */
+  --web3-nebula: #24113f;
 
-  /* Deep Dark Plasma Theme for Splash Screen */
-  --plasma-deep: #0a0a0f;
-  --plasma-dark: #141420;
-  --plasma-darker: #1a1a2e;
-  --plasma-accent: #16213e;
-  --plasma-blue-dim: #2d3748;
-  --plasma-purple-dim: #2d1b3d;
-  --plasma-glow: rgba(59, 130, 246, 0.15);
-  --plasma-text-primary: #e2e8f0;
-  --plasma-text-secondary: grey;
-  --plasma-text-dim: #64748b;
+  /* === Web3 Glow Colors === */
+  --web3-glow-purple: #8000ff;
+  --web3-glow-purple-bright: #b266ff;
+  --web3-glow-purple-soft: #e2c7ff;
+  --web3-glow-purple-whisper: #e2c7ff;
+  --web3-glow-blue: #9a4dff;
+  --web3-glow-blue-bright: #9a4dff;
 
-  /* Aurora beam colors */
-  --aurora-bright: #8000ff;
-  --aurora-core: #8000ff;
-  --aurora-glow: #b266ff;
-  --aurora-whisper: #e2c7ff;
+  /* === Web3 Surface Gradients === */
+  --web3-surface-deep: #0a0a0f;
+  --web3-surface-dark: #141420;
+  --web3-surface-elevated: #1a1a2e;
 
-  /* Atmospheric gradients */
-  --atmosphere-deep: #1a1033;
-  --atmosphere-mid: #2a1652;
-  --atmosphere-light: #3b1e73;
-  --atmosphere-horizon: #5b2ea6;
+  /* === Glow (splash screen & accents) === */
+  --web3-glow: rgba(59, 130, 246, 0.15);
 
-  /* Accent colors */
-  --stellar-white: #ffffff;
-  --cosmic-silver: #d6ccff;
-  --shadow-silhouette: #0d1220;
+  /* === Atmospheric (Web3 dark gradients) === */
+  --web3-atmosphere-deep: #1a1033;
+  --web3-atmosphere-mid: #2a1652;
+  --web3-atmosphere-light: #3b1e73;
+  --web3-atmosphere-horizon: #5b2ea6;
+
+  /* === Text hierarchy === */
+  --web3-text-white: #ffffff;
+  --web3-text-silver: #d6ccff;
+  --web3-text-muted: grey;
+  --web3-text-dim: #64748b;
 
   /* Overlay colors */
-  --bg-overlay-1: color-mix(in oklab, var(--cosmic-deep-space) 80%, transparent);
-  --bg-overlay-2: color-mix(in oklab, var(--cosmic-void) 60%, transparent);
+  --bg-overlay-1: color-mix(in oklab, var(--web3-base) 80%, transparent);
+  --bg-overlay-2: color-mix(in oklab, var(--web3-surface) 60%, transparent);
 
   /* Text & accents */
-  --text-primary: var(--stellar-white);
-  --text-secondary: var(--cosmic-silver);
-  --accent-blue: var(--aurora-bright);
-  --accent-purple: var(--aurora-core);
+  --text-primary: var(--web3-text-white);
+  --text-secondary: var(--web3-text-silver);
+  --accent-blue: var(--web3-glow-blue);
+  --accent-purple: var(--web3-glow-purple);
 
   /* Glassmorphism constants */
   --apple-glass: rgba(255, 255, 255, 0.08);
   --apple-border: rgba(255, 255, 255, 0.12);
   --apple-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  --bg-by-rezky: linear-gradient(45deg, #1a0533, #8000ffda);
-  --bg-last-by-rezky: linear-gradient(45deg, #100a24, #8000ffda);
-  --border-by-rezky: 1px solid rgba(255, 255, 255, 0.14);
-  --bg-cosmic: linear-gradient(135deg,
+  --web3-gradient-dark: linear-gradient(45deg, #1a0533, #8000ffda);
+  --web3-gradient-darker: linear-gradient(45deg, #100a24, #8000ffda);
+  --web3-border: 1px solid rgba(255, 255, 255, 0.14);
+  --web3-gradient: linear-gradient(135deg,
       #4e3383,
       /* deep space violet */
       #5b4ce0,
@@ -113,18 +108,18 @@
   --btn-height: 44px;
   --btn-padding-x: 18px;
   --btn-font: 600 0.95rem/1 'Inter Variable', system-ui, -apple-system, sans-serif;
-  --btn-bg: color-mix(in oklab, var(--cosmic-void) 80%, transparent);
-  --btn-bg-hover: color-mix(in oklab, var(--cosmic-void) 70%, transparent);
-  --btn-bg-active: color-mix(in oklab, var(--cosmic-void) 88%, transparent);
+  --btn-bg: color-mix(in oklab, var(--web3-surface) 80%, transparent);
+  --btn-bg-hover: color-mix(in oklab, var(--web3-surface) 70%, transparent);
+  --btn-bg-active: color-mix(in oklab, var(--web3-surface) 88%, transparent);
   --btn-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025));
   --btn-border: 1px solid rgba(255, 255, 255, 0.14);
   --btn-border-hover: 1px solid rgba(255, 255, 255, 0.18);
   --btn-shadow: 0 12px 28px rgba(0, 0, 0, 0.42),
     inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    0 0 18px color-mix(in oklab, var(--cosmic-purple) 18%, transparent);
+    0 0 18px color-mix(in oklab, var(--web3-glow-purple) 18%, transparent);
   --btn-shadow-hover: 0 18px 44px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 28px color-mix(in oklab, var(--cosmic-purple) 26%, transparent);
+    0 0 28px color-mix(in oklab, var(--web3-glow-purple) 26%, transparent);
   --btn-blur: 12px;
   --btn-saturate: 165%;
 
@@ -318,12 +313,12 @@ pre {
 .section-header,
 .section-header-v2 {
   background: rgba(10, 8, 24, 0.82);
-  border: var(--border-by-rezky);
+  border: var(--web3-border);
   border-radius: 2rem;
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 0 20px color-mix(in oklab, var(--cosmic-purple) 16%, transparent);
+    0 0 20px color-mix(in oklab, var(--web3-glow-purple) 16%, transparent);
   transition: transform var(--dur-slow) var(--easing-smooth),
     box-shadow var(--dur-slow) var(--easing-smooth),
     border-color var(--dur-slow) var(--easing-smooth);
@@ -332,13 +327,13 @@ pre {
 /* Hero content retains backdrop-filter for main visual impact */
 .hero-content {
   background: rgba(0, 0, 0, 0.500);
-  border: var(--border-by-rezky);
+  border: var(--web3-border);
   border-radius: 2rem;
   backdrop-filter: blur(8px) saturate(140%);
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 0 20px color-mix(in oklab, var(--cosmic-purple) 16%, transparent);
+    0 0 20px color-mix(in oklab, var(--web3-glow-purple) 16%, transparent);
   transition: transform var(--dur-slow) var(--easing-smooth),
     box-shadow var(--dur-slow) var(--easing-smooth),
     border-color var(--dur-slow) var(--easing-smooth);
@@ -360,7 +355,7 @@ a.button {
   height: var(--btn-height);
   padding-inline: var(--btn-padding-x);
   font: var(--btn-font);
-  color: var(--stellar-white);
+  color: var(--web3-text-white);
   text-decoration: none;
   cursor: pointer;
   user-select: none;
@@ -397,7 +392,7 @@ a.button:active {
 .btn:focus-visible,
 button:focus-visible,
 a.button:focus-visible {
-  outline: 3px solid color-mix(in oklab, var(--aurora-core) 35%, transparent);
+  outline: 3px solid color-mix(in oklab, var(--web3-glow-purple) 35%, transparent);
   outline-offset: 2px;
 }
 
@@ -420,19 +415,19 @@ button[aria-disabled="true"] {
 /* Elegant glassmorphism variants for primary & danger */
 .btn-primary {
   color: white;
-  background: var(--bg-by-rezky);
-  border: 1px solid color-mix(in oklab, var(--aurora-core) 22%, rgba(255, 255, 255, 0.14));
+  background: var(--web3-gradient-dark);
+  border: 1px solid color-mix(in oklab, var(--web3-glow-purple) 22%, rgba(255, 255, 255, 0.14));
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 0 28px color-mix(in oklab, var(--cosmic-purple) 30%, transparent);
+    0 0 28px color-mix(in oklab, var(--web3-glow-purple) 30%, transparent);
 }
 
 .btn-primary:hover {
-  background: var(--bg-last-by-rezky);
-  border-color: color-mix(in oklab, var(--aurora-core) 34%, rgba(255, 255, 255, 0.16));
+  background: var(--web3-gradient-darker);
+  border-color: color-mix(in oklab, var(--web3-glow-purple) 34%, rgba(255, 255, 255, 0.16));
   box-shadow: 0 20px 52px rgba(0, 0, 0, 0.55),
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 40px color-mix(in oklab, var(--cosmic-purple) 36%, transparent);
+    0 0 40px color-mix(in oklab, var(--web3-glow-purple) 36%, transparent);
 }
 
 .btn.is-calculating {
@@ -460,44 +455,44 @@ button[aria-disabled="true"] {
 /* Elegant danger variant */
 .btn-danger {
   color: white;
-  background: var(--bg-by-rezky);
-  border: 1px solid color-mix(in oklab, var(--aurora-core) 22%, rgba(255, 255, 255, 0.14));
+  background: var(--web3-gradient-dark);
+  border: 1px solid color-mix(in oklab, var(--web3-glow-purple) 22%, rgba(255, 255, 255, 0.14));
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 0 28px color-mix(in oklab, var(--cosmic-purple) 22%, transparent);
+    0 0 28px color-mix(in oklab, var(--web3-glow-purple) 22%, transparent);
 }
 
 .btn-danger:hover {
-  background: var(--bg-last-by-rezky);
-  border-color: color-mix(in oklab, var(--aurora-core) 32%, rgba(255, 255, 255, 0.16));
+  background: var(--web3-gradient-darker);
+  border-color: color-mix(in oklab, var(--web3-glow-purple) 32%, rgba(255, 255, 255, 0.16));
   box-shadow: 0 20px 52px rgba(0, 0, 0, 0.55),
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 40px color-mix(in oklab, var(--cosmic-purple) 30%, transparent);
+    0 0 40px color-mix(in oklab, var(--web3-glow-purple) 30%, transparent);
 }
 
 .btn-danger:active,
 .btn-danger:focus,
 .btn-primary:active,
 .btn-primary:focus {
-  background: var(--bg-last-by-rezky);
+  background: var(--web3-gradient-darker);
   border-radius: var(--btn-radius);
 }
 
 .btn-secondary {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035)) padding-box,
-    color-mix(in oklab, var(--cosmic-void) 52%, transparent);
+    color-mix(in oklab, var(--web3-surface) 52%, transparent);
   border-color: rgba(255, 255, 255, 0.18);
 }
 
 .btn-secondary:hover {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.05)) padding-box,
-    color-mix(in oklab, var(--cosmic-void) 44%, transparent);
+    color-mix(in oklab, var(--web3-surface) 44%, transparent);
   border-color: rgba(255, 255, 255, 0.24);
 }
 
 .btn-ghost {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.018)) padding-box,
-    color-mix(in oklab, var(--cosmic-void) 58%, transparent);
+    color-mix(in oklab, var(--web3-surface) 58%, transparent);
   border-color: rgba(255, 255, 255, 0.12);
 }
 
@@ -662,7 +657,7 @@ button[aria-disabled="true"] {
   background: transparent;
   border-top-left-radius: 2rem;
   border-top-right-radius: 2rem;
-  border-top: var(--border-by-rezky);
+  border-top: var(--web3-border);
   padding: 0.5rem;
   height: 50px;
   margin-bottom: -50px;
@@ -679,7 +674,7 @@ button[aria-disabled="true"] {
 }
 
 .title-gradient {
-  background: var(--bg-cosmic);
+  background: var(--web3-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -695,7 +690,7 @@ button[aria-disabled="true"] {
 }
 
 .Telescope {
-  color: var(--cosmic-purple) !important;
+  color: var(--web3-glow-purple) !important;
   width: 56px !important;
   height: 56px !important;
 }
@@ -732,7 +727,7 @@ button[aria-disabled="true"] {
   padding: 0.5rem 1rem;
   background: transparent;
   border-radius: 2rem;
-  border: var(--border-by-rezky);
+  border: var(--web3-border);
   transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -743,7 +738,7 @@ button[aria-disabled="true"] {
 }
 
 .feature span {
-  background: var(--bg-cosmic);
+  background: var(--web3-gradient);
   color: white;
   background-clip: text;
 }
@@ -760,8 +755,8 @@ button[aria-disabled="true"] {
   height: clamp(56px, 6vw, 72px);
   border-radius: 50%;
 
-  background: var(--bg-by-rezky);
-  border: var(--border-by-rezky);
+  background: var(--web3-gradient-dark);
+  border: var(--web3-border);
   padding: 0;
 
   display: flex;
@@ -780,7 +775,7 @@ button[aria-disabled="true"] {
   position: absolute;
   inset: -2px;
   border-radius: 50%;
-  background: var(--bg-last-by-rezky);
+  background: var(--web3-gradient-darker);
   z-index: -1;
 }
 
@@ -991,10 +986,10 @@ button[aria-disabled="true"] {
   max-width: 320px;
   border-radius: 0.75rem;
   background: rgba(15, 23, 42, 0.75);
-  border-top: 1px solid var(--border-by-rezky);
-  border-left: 1px solid var(--border-by-rezky);
+  border-top: 1px solid var(--web3-border);
+  border-left: 1px solid var(--web3-border);
   border-bottom: 2px solid grey;
-  border-right: 1px solid var(--border-by-rezky);
+  border-right: 1px solid var(--web3-border);
   color: white;
   font-size: 1rem;
   transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1166,7 +1161,7 @@ button[aria-disabled="true"] {
   transform: translate(-50%, -50%);
   width: 60px;
   height: 60px;
-  background: var(--atmosphere-horizon);
+  background: var(--web3-atmosphere-horizon);
   border-radius: 50%;
   /* Reduced blur from 15px to 8px for GPU performance */
   filter: blur(8px);
@@ -1176,7 +1171,7 @@ button[aria-disabled="true"] {
 
 /* Elegant gradient text utility using theme vars */
 .text-gradient-elegant {
-  background: var(--bg-cosmic);
+  background: var(--web3-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1277,7 +1272,7 @@ button[aria-disabled="true"] {
 .advice-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--stellar-white);
+  color: var(--web3-text-white);
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -1353,7 +1348,7 @@ button[aria-disabled="true"] {
 .explanation-title {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--stellar-white);
+  color: var(--web3-text-white);
   margin-bottom: 1rem;
 }
 
@@ -2111,7 +2106,7 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 .CircleSlash2,
 .FileChartColumn,
 .Gauge {
-  color: var(--cosmic-purple) !important;
+  color: var(--web3-glow-purple) !important;
   width: 74px !important;
   height: 74px !important;
 }
@@ -2126,7 +2121,7 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 /* about icons */
 .Lightbulb,
 .Users {
-  color: var(--cosmic-purple) !important;
+  color: var(--web3-glow-purple) !important;
   width: 48px !important;
   height: 48px !important;
 }
@@ -2136,7 +2131,7 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 .BookCheck,
 .BookOpenCheck,
 .Sparkles {
-  color: var(--cosmic-purple) !important;
+  color: var(--web3-glow-purple) !important;
   width: 24px !important;
   height: 24px !important;
 }
@@ -2156,7 +2151,7 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 
 .BarChart3,
 .X {
-  color: var(--cosmic-purple) !important;
+  color: var(--web3-glow-purple) !important;
   width: 74px !important;
   height: 74px !important;
 }
@@ -2243,12 +2238,12 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 .GitCompare,
 .Wrench,
 .Scale {
-  color: var(--cosmic-purple);
+  color: var(--web3-glow-purple);
 }
 
 /* Focus styles for accessibility */
 *:focus {
-  outline: 2px solid color-mix(in oklab, var(--aurora-core) 42%, transparent);
+  outline: 2px solid color-mix(in oklab, var(--web3-glow-purple) 42%, transparent);
   outline-offset: 2px;
   border-radius: 0.25rem;
 }
@@ -2911,10 +2906,10 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   right: 2rem;
   z-index: 10;
   padding: 0.75rem 1.5rem;
-  border: 1px solid var(--plasma-glow);
+  border: 1px solid var(--web3-glow);
   border-radius: 2rem;
   background: rgba(0, 0, 0, 0.65);
-  color: var(--plasma-text-secondary);
+  color: var(--web3-text-muted);
   font-family: 'Inter Variable', system-ui, sans-serif;
   font-size: 0.9rem;
   font-weight: 500;
@@ -2924,7 +2919,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
 
 .skip-button:hover {
   background: rgba(0, 0, 0, 0.5);
-  color: var(--plasma-text-primary);
+  color: var(--web3-text-silver);
   transform: translateY(-1px);
 }
 
@@ -2938,7 +2933,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
 /* Rocket under title - subtle, professional styling */
 .splash-rocket {
   margin: 0.25rem auto 0.35rem;
-  color: var(--plasma-text-secondary);
+  color: var(--web3-text-muted);
   opacity: 0.9;
   filter: drop-shadow(0 0 6px rgba(120, 120, 255, 0.08)) drop-shadow(0 0 12px rgba(120, 120, 255, 0.06));
   will-change: transform, opacity;
@@ -2965,7 +2960,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   transform: translate(-50%, -50%);
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, var(--plasma-glow) 0%, transparent 80%);
+  background: radial-gradient(circle, var(--web3-glow) 0%, transparent 80%);
   opacity: 0.08;
   /* animation removed for GPU performance */
   border-radius: 50%;
@@ -2980,14 +2975,14 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   font-weight: 700;
   margin: 0 0 2rem 0;
   font-family: 'Inter Variable', system-ui, -apple-system, sans-serif;
-  color: var(--plasma-text-primary);
-  text-shadow: 0 0 20px var(--plasma-glow);
+  color: var(--web3-text-silver);
+  text-shadow: 0 0 20px var(--web3-glow);
   line-height: 1.2;
 }
 
 .splash-subtitle {
   font-size: clamp(0.9rem, 3vw, 1.1rem);
-  color: var(--plasma-text-secondary);
+  color: var(--web3-text-muted);
   margin: 0 0 4rem 0;
   font-family: 'Inter Variable', system-ui, -apple-system, sans-serif;
   font-weight: 400;
@@ -3017,7 +3012,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   width: 50px;
   height: 50px;
   border: 2px solid transparent;
-  border-top: 2px solid var(--plasma-glow);
+  border-top: 2px solid var(--web3-glow);
   border-radius: 50%;
   animation: plasmaRingSpin 2s linear infinite;
   opacity: 0.8;
@@ -3032,7 +3027,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--plasma-glow);
+  background: var(--web3-glow);
   animation: dotPulse 1.5s ease-in-out infinite;
   opacity: 0.6;
 }
@@ -3063,7 +3058,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   position: absolute;
   width: 2px;
   height: 2px;
-  background: var(--plasma-glow);
+  background: var(--web3-glow);
   border-radius: 50%;
   opacity: 0;
   animation: particleFloat var(--duration) ease-in-out infinite;

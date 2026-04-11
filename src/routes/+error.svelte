@@ -87,7 +87,7 @@
                 font-size: clamp(5rem, 15vw, 8rem);
                 font-weight: 700;
                 line-height: 1;
-                background: var(--bg-cosmic);
+                background: var(--web3-gradient);
                 -webkit-background-clip: text;
                 background-clip: text;
                 -webkit-text-fill-color: transparent;

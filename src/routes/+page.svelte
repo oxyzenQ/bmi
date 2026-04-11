@@ -1299,7 +1299,7 @@
   }
 
   .pager-smooth :global(.render-spark) {
-    color: var(--cosmic-purple) !important;
+    color: var(--web3-glow-purple) !important;
   }
 
   .pager-smooth .render-on {
@@ -1313,10 +1313,10 @@
   .pager-tab.active {
     opacity: 1;
     background: rgba(255, 255, 255, 0.07);
-    border-color: color-mix(in oklab, var(--aurora-core) 55%, rgba(255, 255, 255, 0.12));
+    border-color: color-mix(in oklab, var(--web3-glow-purple) 55%, rgba(255, 255, 255, 0.12));
     box-shadow:
       0 12px 32px rgba(0, 0, 0, 0.38),
-      0 0 18px color-mix(in oklab, var(--cosmic-purple) 28%, transparent);
+      0 0 18px color-mix(in oklab, var(--web3-glow-purple) 28%, transparent);
     transform: translateY(-1px);
   }
 

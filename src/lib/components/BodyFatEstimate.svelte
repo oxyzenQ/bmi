@@ -205,7 +205,7 @@
     display: flex;
     justify-content: center;
     gap: 2px;
-    border: var(--border-by-rezky);
+    border: var(--web3-border);
     border-radius: 9999px;
     padding: 2px;
     margin: 1rem auto;
@@ -229,7 +229,7 @@
   }
 
   .sex-btn.active {
-    background: var(--cosmic-purple);
+    background: var(--web3-glow-purple);
     color: white;
   }
 

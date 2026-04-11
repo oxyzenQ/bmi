@@ -396,7 +396,7 @@
   }
 
   .unit-toggle-segment.active {
-    background: var(--cosmic-purple);
+    background: var(--web3-glow-purple);
     color: white;
   }
 
