@@ -1276,7 +1276,7 @@
     align-items: center;
     justify-content: flex-start;
     gap: 0.5rem;
-    padding: 0.5rem 1.5rem;
+    padding: 0.5rem 2rem;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
@@ -1415,7 +1415,7 @@
   @media (max-width: 600px) {
     .pager-nav {
       gap: 0.35rem;
-      padding: 0.45rem 1.25rem;
+      padding: 0.45rem 1.75rem;
     }
 
     .pager-tab {
