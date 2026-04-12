@@ -1547,6 +1547,202 @@ button[aria-disabled="true"] {
   color: white;
 }
 
+/* ==============================
+   STAT ROW GRID — BMI Prime & Ideal Weight
+   ============================== */
+.stat-row-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+  animation: fadeInUp 0.6s var(--easing-smooth) 0.3s both;
+}
+
+@media (max-width: 480px) {
+  .stat-row-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat-block {
+  background: var(--sd-40);
+  border: 1px solid var(--w-5);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-block:hover {
+  background: var(--sd-60);
+  border-color: var(--w-10);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--k-20);
+}
+
+.stat-block-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.stat-icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--cosmic-purple);
+  flex-shrink: 0;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.stat-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.35rem;
+}
+
+.stat-number {
+  font-family: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
+.stat-number.range-num {
+  font-size: 1.25rem;
+}
+
+.range-sep {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin: 0 0.1rem;
+}
+
+.stat-unit {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-left: 0.15rem;
+}
+
+/* Percentage badge */
+.stat-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+  letter-spacing: 0.02em;
+}
+
+.stat-badge.badge-above {
+  background: var(--cat-red-15);
+  color: #fca5a5;
+  border: 1px solid var(--cat-red-30);
+}
+
+.stat-badge.badge-below {
+  background: var(--cat-blue-15);
+  color: #93c5fd;
+  border: 1px solid var(--cat-blue-30);
+}
+
+.stat-desc {
+  font-size: 0.8rem;
+  color: #d1d5db;
+  line-height: 1.4;
+}
+
+/* Delta descriptions for ideal weight */
+.delta-desc {
+  font-weight: 600;
+}
+
+.delta-desc.delta-above {
+  color: #fca5a5;
+}
+
+.delta-desc.delta-below {
+  color: #93c5fd;
+}
+
+.delta-desc.delta-within {
+  color: #86efac;
+}
+
+/* BMI Prime progress bar */
+.prime-bar-track {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: var(--w-5);
+  border-radius: 9999px;
+  margin-top: 0.6rem;
+  overflow: visible;
+}
+
+.prime-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.8s var(--easing-smooth), background 0.5s ease;
+  min-width: 4px;
+}
+
+.prime-bar-fill.fill-under {
+  background: #60a5fa;
+}
+
+.prime-bar-fill.fill-normal {
+  background: #4ade80;
+}
+
+.prime-bar-fill.fill-over {
+  background: #fbbf24;
+}
+
+.prime-bar-fill.fill-obese {
+  background: #f87171;
+}
+
+/* 1.0 marker on the bar */
+.prime-bar-marker {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: 12px;
+  background: white;
+  border-radius: 1px;
+  opacity: 0.6;
+  transform: translateX(-50%);
+}
+
+.prime-bar-labels {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.25rem;
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+}
+
+.prime-bar-labels .label-marker {
+  position: absolute;
+  left: 62.5%;
+  transform: translateX(-50%);
+}
+
 /* Category color classes for BMI Results */
 .bmi-results-card.cat-underweight .bmi-value,
 .bmi-results-card.cat-underweight .bmi-category,

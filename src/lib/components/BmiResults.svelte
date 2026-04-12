@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BarChart3, CircleSlash2, TrendingUp, Info, AlertCircle, CheckCircle, Activity } from 'lucide-svelte';
+  import { BarChart3, CircleSlash2, TrendingUp, Info, AlertCircle, CheckCircle, Activity, Target, Scale } from 'lucide-svelte';
   import { onDestroy } from 'svelte';
   import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
@@ -8,6 +8,8 @@
     bmiValue?: number | null;
     category?: string | null;
     age?: number | null;
+    height?: number | null;
+    unitSystem?: 'metric' | 'imperial';
     reducedMotion?: boolean;
   }
 
@@ -15,24 +17,76 @@
     bmiValue = null,
     category = null,
     age = null,
+    height = null,
+    unitSystem = 'metric',
     reducedMotion = false
   }: Props = $props();
 
   let hasResults = $derived(bmiValue !== null && category !== null);
 
   const animatedBmi = tweened(0, { duration: 0, easing: cubicOut });
+  const animatedPrime = tweened(0, { duration: 0, easing: cubicOut });
 
-  // Cleanup tweened store subscription to prevent memory leak
+  // Cleanup tweened store subscriptions to prevent memory leak
   onDestroy(() => {
     animatedBmi.set(0, { duration: 0 });
+    animatedPrime.set(0, { duration: 0 });
+  });
+
+  // ── BMI Prime ──
+  let bmiPrime = $derived(bmiValue !== null ? bmiValue / 25 : null);
+  let primePercent = $derived(bmiPrime !== null ? ((bmiPrime - 1) * 100) : null);
+  let primeLabel = $derived.by(() => {
+    if (bmiPrime === null) return '';
+    if (bmiPrime < 0.74) return 'Significantly Underweight';
+    if (bmiPrime < 1.00) return 'Within Normal Range';
+    if (bmiPrime <= 1.20) return 'Above Normal Range';
+    return 'Significantly Above Normal';
+  });
+
+  // ── Ideal Weight Range ──
+  let idealMin = $derived.by(() => {
+    if (height === null || height <= 0) return null;
+    const hM = height / 100;
+    return 18.5 * hM * hM;
+  });
+  let idealMax = $derived.by(() => {
+    if (height === null || height <= 0) return null;
+    const hM = height / 100;
+    return 24.9 * hM * hM;
+  });
+
+  // Convert for display based on unit system
+  const KG_TO_LBS = 2.20462;
+  let idealMinDisplay = $derived(idealMin !== null ? parseFloat((unitSystem === 'imperial' ? idealMin * KG_TO_LBS : idealMin).toFixed(1)) : null);
+  let idealMaxDisplay = $derived(idealMax !== null ? parseFloat((unitSystem === 'imperial' ? idealMax * KG_TO_LBS : idealMax).toFixed(1)) : null);
+  let weightUnit = $derived(unitSystem === 'imperial' ? 'lbs' : 'kg');
+
+  // How far user is from ideal range
+  let weightDelta = $derived.by(() => {
+    if (bmiValue === null || height === null || height <= 0) return null;
+    const hM = height / 100;
+    // Derive current weight from BMI: w = bmi * h^2
+    const currentKg = bmiValue * hM * hM;
+    if (currentKg < idealMin!) return { amount: parseFloat((idealMin! - currentKg).toFixed(1)), direction: 'below' as const, unit: 'kg' };
+    if (currentKg > idealMax!) return { amount: parseFloat((currentKg - idealMax!).toFixed(1)), direction: 'above' as const, unit: 'kg' };
+    return { amount: 0, direction: 'within' as const, unit: 'kg' };
+  });
+  let deltaDisplay = $derived.by(() => {
+    if (weightDelta === null) return null;
+    const amt = unitSystem === 'imperial' ? parseFloat((weightDelta.amount * KG_TO_LBS).toFixed(1)) : weightDelta.amount;
+    const u = unitSystem === 'imperial' ? 'lbs' : 'kg';
+    return { amount: amt, direction: weightDelta.direction, unit: u };
   });
 
   // Animate BMI value when results change
   $effect(() => {
     if (hasResults) {
       animatedBmi.set(bmiValue!, { duration: reducedMotion ? 0 : 720, easing: cubicOut });
+      animatedPrime.set(bmiPrime!, { duration: reducedMotion ? 0 : 720, easing: cubicOut });
     } else {
       animatedBmi.set(0, { duration: 0 });
+      animatedPrime.set(0, { duration: 0 });
     }
   });
 
@@ -106,6 +160,66 @@
           <span class="bmi-category">
             {category}
           </span>
+        </div>
+      </div>
+
+      <!-- BMI Prime Stat -->
+      <div class="stat-row-grid">
+        <div class="stat-block prime-block">
+          <div class="stat-block-header">
+            <Target class="stat-icon" />
+            <span class="stat-label">BMI Prime</span>
+          </div>
+          <div class="stat-value-row">
+            <span class="stat-number">{$animatedPrime.toFixed(2)}</span>
+            {#if primePercent !== null && primePercent !== 0}
+              <span class="stat-badge" class:badge-above={primePercent! > 0} class:badge-below={primePercent! < 0}>
+                {primePercent! > 0 ? '+' : ''}{primePercent!.toFixed(0)}%
+              </span>
+            {/if}
+          </div>
+          <p class="stat-desc">{primeLabel}</p>
+          <div class="prime-bar-track">
+            <div
+              class="prime-bar-fill"
+              class:fill-under={$animatedPrime < 1.0}
+              class:fill-normal={$animatedPrime >= 0.74 && $animatedPrime <= 1.0}
+              class:fill-over={$animatedPrime > 1.0 && $animatedPrime <= 1.2}
+              class:fill-obese={$animatedPrime > 1.2}
+              style="width: {Math.min(100, Math.max(0, ($animatedPrime / 1.6) * 100))}%"
+            ></div>
+            <div class="prime-bar-marker" style="left: 62.5%"></div>
+          </div>
+          <div class="prime-bar-labels">
+            <span>0</span>
+            <span class="label-marker">1.0</span>
+            <span>1.6</span>
+          </div>
+        </div>
+
+        <!-- Ideal Weight Range Stat -->
+        <div class="stat-block ideal-block">
+          <div class="stat-block-header">
+            <Scale class="stat-icon" />
+            <span class="stat-label">Ideal Range</span>
+          </div>
+          {#if idealMinDisplay !== null && idealMaxDisplay !== null}
+            <div class="stat-value-row">
+              <span class="stat-number range-num">{idealMinDisplay}</span>
+              <span class="range-sep">&mdash;</span>
+              <span class="stat-number range-num">{idealMaxDisplay}</span>
+              <span class="stat-unit">{weightUnit}</span>
+            </div>
+            {#if deltaDisplay && deltaDisplay.direction !== 'within'}
+              <p class="stat-desc delta-desc" class:delta-above={deltaDisplay.direction === 'above'} class:delta-below={deltaDisplay.direction === 'below'}>
+                {deltaDisplay.direction === 'above' ? '+' : '&minus;'}{deltaDisplay.amount} {deltaDisplay.unit} from range
+              </p>
+            {:else if deltaDisplay}
+              <p class="stat-desc delta-within">You are within range</p>
+            {/if}
+          {:else}
+            <p class="stat-desc">Enter height to see ideal range</p>
+          {/if}
         </div>
       </div>
 

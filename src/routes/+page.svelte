@@ -1003,6 +1003,8 @@
                       <BmiResultsComponent
                         {bmiValue}
                         {category}
+                        {unitSystem}
+                        height={height === '' ? null : parseFloat(height)}
                         age={age === '' ? null : parseInt(age)}
                         reducedMotion={reducedMotionEffective}
                       />
