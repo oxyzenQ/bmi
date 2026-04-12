@@ -1172,7 +1172,7 @@
           aria-label="Previous section"
           onclick={prevSection}
         >
-          <ChevronLeft aria-hidden="true" size={28} />
+          <ChevronLeft aria-hidden="true" size={32} />
         </button>
       {:else}
         <div class="pager-btn-spacer" aria-hidden="true"></div>
@@ -1185,7 +1185,7 @@
           aria-label="Next section"
           onclick={nextSection}
         >
-          <ChevronRight aria-hidden="true" size={28} />
+          <ChevronRight aria-hidden="true" size={32} />
         </button>
       {:else}
         <div class="pager-arrow-spacer" aria-hidden="true"></div>
@@ -1482,9 +1482,9 @@
     max-width: none;
     min-width: 0;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.85) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
+    background: var(--k-78) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
     border: none !important;
     border-top: 1px solid var(--w-8) !important;
     box-shadow: 0 -1px 0 var(--w-6), 0 -8px 30px rgba(0,0,0,0.5), 0 -2px 8px rgba(0,0,0,0.3);
