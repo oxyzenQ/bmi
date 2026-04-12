@@ -1415,7 +1415,7 @@
   @media (max-width: 600px) {
     .pager-nav {
       gap: 0.35rem;
-      padding: 0.45rem 0.6rem;
+      padding: 0.45rem 1.25rem;
     }
 
     .pager-tab {
