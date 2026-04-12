@@ -3496,7 +3496,7 @@ html[data-performance-tier="medium"] .cosmic-particles {
 .pager-btn-futuristic {
   width: 52px;
   height: 52px;
-  border-radius: 14px;
+  border-radius: 50%;
   border: 1px solid var(--w-14);
   background: var(--w-6);
   color: var(--w-85);
@@ -3536,7 +3536,7 @@ html[data-performance-tier="medium"] .cosmic-particles {
   .pager-btn-spacer {
     width: 48px;
     height: 48px;
-    border-radius: 12px;
+    border-radius: 50%;
   }
 }
 

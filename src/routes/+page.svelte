@@ -1443,9 +1443,9 @@
     scrollbar-width: none;
     contain: layout paint style;
     padding-top: calc(var(--pager-top-inset) + 0.5rem);
-    padding-bottom: calc(0.75rem + 56px + 0.75rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(1rem + 58px + 1rem + env(safe-area-inset-bottom, 0px));
     scroll-padding-top: calc(var(--pager-top-inset) + 0.5rem);
-    scroll-padding-bottom: calc(0.75rem + 56px + 0.75rem + env(safe-area-inset-bottom, 0px));
+    scroll-padding-bottom: calc(1rem + 58px + 1rem + env(safe-area-inset-bottom, 0px));
   }
 
   .pager-section::-webkit-scrollbar {
