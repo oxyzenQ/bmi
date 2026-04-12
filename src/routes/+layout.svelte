@@ -11,18 +11,13 @@
   let renderModeEnabled = true;
   let renderModeInitialized = false;
 
-  // Extracted function to avoid duplicate localStorage logic
-  function initRenderMode(): boolean {
-    try {
-      const storedRenderMode = localStorage.getItem('bmi.renderMode');
-      return storedRenderMode === null ? true : storedRenderMode === '1' || storedRenderMode === 'true';
-    } catch {
-      return true;
-    }
-  }
-
   if (browser) {
-    renderModeEnabled = initRenderMode();
+    try {
+      const stored = localStorage.getItem('bmi.renderMode');
+      renderModeEnabled = stored === null ? true : stored === '1' || stored === 'true';
+    } catch {
+      // localStorage unavailable
+    }
     renderModeInitialized = true;
     document.documentElement.dataset.graphics = renderModeEnabled ? 'render' : 'basic';
   }
@@ -34,7 +29,12 @@
 
     if (browser) {
       if (!renderModeInitialized) {
-        renderModeEnabled = initRenderMode();
+        try {
+          const stored = localStorage.getItem('bmi.renderMode');
+          renderModeEnabled = stored === null ? true : stored === '1' || stored === 'true';
+        } catch {
+          // localStorage unavailable
+        }
         renderModeInitialized = true;
       }
 

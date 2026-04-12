@@ -17,6 +17,7 @@
     AlertTriangle,
     Scale,
     Bot,
+    Sparkles,
     ChevronLeft,
     ChevronRight
   } from 'lucide-svelte';
@@ -250,6 +251,23 @@
   let smoothModeEnhanced = $derived(smoothModeRequested && perfTier !== 'low');
   let smoothModeStatus = $derived(smoothModeRequested ? 'On' : 'Off');
 
+  // Wallpaper theme toggle
+  let currentTheme = $state<'space' | 'energy'>('space');
+  let themeLabel = $derived(currentTheme === 'space' ? 'Space' : 'Energy');
+
+  function toggleWallpaperTheme() {
+    currentTheme = currentTheme === 'space' ? 'energy' : 'space';
+    if (browser) {
+      localStorage.setItem('bmi.wallpaperTheme', currentTheme);
+      const root = document.documentElement;
+      if (currentTheme === 'energy') {
+        root.style.setProperty('--wallpaper-current', 'url("/images/oxyzen-cyberagent.webp")');
+      } else {
+        root.style.setProperty('--wallpaper-current', 'url("/images/oxyzen-zenlysium.webp")');
+      }
+    }
+  }
+
   // Persist unit system in localStorage (only after initialization from onMount)
   $effect(() => {
     if (browser && unitSystemInitialized) {
@@ -297,9 +315,6 @@
 
   const BMI_BAR_MIN = 12;
   const BMI_BAR_MAX = 40;
-  const BMI_UNDER_MAX = 18.5;
-  const BMI_NORMAL_MAX = 24.9;
-  const BMI_OVER_MAX = 29.9;
 
   // Animation duration constants (ms)
   const MARKER_ANIM_HIGH = 860;
@@ -647,6 +662,19 @@
     }
     unitSystemInitialized = true;
 
+    // Read wallpaper theme preference
+    try {
+      const storedTheme = localStorage.getItem('bmi.wallpaperTheme');
+      if (storedTheme === 'energy' || storedTheme === 'space') {
+        currentTheme = storedTheme;
+        if (currentTheme === 'energy') {
+          document.documentElement.style.setProperty('--wallpaper-current', 'url("/images/oxyzen-cyberagent.webp")');
+        }
+      }
+    } catch {
+      // localStorage unavailable
+    }
+
     const idx = indexFromHash(window.location.hash);
     if (idx !== null) goTo(idx, { skipHash: true, skipSwitching: true });
     setHash(sections[activeIndex].id);
@@ -888,6 +916,20 @@
         Render :
         <span class:render-on={smoothModeRequested} class:render-off={!smoothModeRequested}>
           {smoothModeStatus}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-ghost pager-tab pager-theme"
+        aria-label="Toggle wallpaper theme"
+        aria-pressed={currentTheme === 'energy'}
+        onclick={toggleWallpaperTheme}
+      >
+        <Sparkles class="render-spark" aria-hidden="true" />
+        Theme :
+        <span class:theme-energy={currentTheme === 'energy'} class:theme-space={currentTheme === 'space'}>
+          {themeLabel}
         </span>
       </button>
     </nav>
@@ -1308,6 +1350,22 @@
 
   .pager-smooth .render-off {
     color: #ffd600;
+  }
+
+  .pager-theme :global(.render-spark) {
+    color: var(--aurora-glow, #b266ff) !important;
+    transition: color 0.3s ease, filter 0.3s ease;
+  }
+
+  .pager-theme .theme-space {
+    color: var(--cosmic-blue);
+    font-weight: 600;
+  }
+
+  .pager-theme .theme-energy {
+    color: #00f0ff;
+    font-weight: 600;
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
   }
 
   .pager-tab.active {

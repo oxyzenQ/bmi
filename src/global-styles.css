@@ -72,13 +72,15 @@
   --cosmic-silver: #d6ccff;
   --shadow-silhouette: #0d1220;
 
-  /* Overlay colors */
-  --bg-overlay-1: color-mix(in oklab, var(--cosmic-deep-space) 80%, transparent);
-  --bg-overlay-2: color-mix(in oklab, var(--cosmic-void) 60%, transparent);
+  /* Wallpaper system */
+  --wallpaper-current: url('/images/oxyzen-zenlysium.webp');
+  --wallpaper-space: url('/images/oxyzen-zenlysium.webp');
+  --wallpaper-energy: url('/images/oxyzen-cyberagent.webp');
 
   /* Text & accents */
   --text-primary: var(--stellar-white);
   --text-secondary: var(--cosmic-silver);
+  --text-muted: grey;
   --accent-blue: var(--aurora-bright);
   --accent-purple: var(--aurora-core);
 
@@ -214,7 +216,7 @@ body::before {
   min-height: 100vh;
   z-index: -3;
   background-color: transparent;
-  background-image: url('/images/oxyzen-zenlysium.webp');
+  background-image: var(--wallpaper-current);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -675,7 +677,7 @@ button[aria-disabled="true"] {
   font-size: 1rem;
   font-weight: 500;
   text-align: center;
-  color: grey;
+  color: var(--text-muted);
 }
 
 .title-gradient {
@@ -835,7 +837,7 @@ button[aria-disabled="true"] {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: grey;
+  color: var(--text-muted);
   font-size: 1rem;
 }
 
@@ -993,7 +995,7 @@ button[aria-disabled="true"] {
   background: rgba(15, 23, 42, 0.75);
   border-top: 1px solid var(--border-by-rezky);
   border-left: 1px solid var(--border-by-rezky);
-  border-bottom: 2px solid grey;
+  border-bottom: 2px solid var(--text-muted);
   border-right: 1px solid var(--border-by-rezky);
   color: white;
   font-size: 1rem;
@@ -1008,7 +1010,7 @@ button[aria-disabled="true"] {
 }
 
 .form-input::placeholder {
-  color: grey;
+  color: var(--text-muted);
 }
 
 .form-input:hover:not(:focus) {
@@ -1042,7 +1044,7 @@ button[aria-disabled="true"] {
   padding: 0 14px;
   min-width: 140px;
   border-radius: 9999px;
-  border: 2px solid grey;
+  border: 2px solid var(--text-muted);
   background: rgba(15, 23, 42, 0.55);
   color: #e6f0ff;
   font-weight: 600;
@@ -1467,7 +1469,7 @@ button[aria-disabled="true"] {
 
 /* Subtitle with elegant ligatures */
 .gauge-subtitle {
-  color: grey;
+  color: var(--text-muted);
   text-align: center;
   font-size: clamp(0.9rem, 1.5vw, 1rem);
   margin-top: 0;
@@ -1539,7 +1541,7 @@ button[aria-disabled="true"] {
 }
 
 .gauge-center .bmi-label {
-  fill: grey;
+  fill: var(--text-muted);
   font: 600 12px/1 'Inter Variable', ui-sans-serif, system-ui;
   letter-spacing: 1px;
 }
@@ -1588,7 +1590,7 @@ button[aria-disabled="true"] {
 }
 
 .scale-range {
-  color: grey;
+  color: var(--text-muted);
   font: 500 12px/1 'Inter Variable', ui-sans-serif, system-ui;
 }
 
@@ -1631,9 +1633,9 @@ button[aria-disabled="true"] {
   font-weight: 700;
   border-top-left-radius: 1.25rem;
   border-top-right-radius: 1.25rem;
-  border-top: 1px solid grey;
-  border-left: 1px solid grey;
-  border-right: 1px solid grey;
+  border-top: 1px solid var(--text-muted);
+  border-left: 1px solid var(--text-muted);
+  border-right: 1px solid var(--text-muted);
 }
 
 .reference-table .ref-body {
@@ -2033,7 +2035,7 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
   margin: 1rem auto 0;
   max-width: 1000px;
   position: relative;
-  overflow: none;
+  overflow: hidden;
   will-change: auto;
   contain: layout style;
 }
