@@ -1172,7 +1172,7 @@
           aria-label="Previous section"
           onclick={prevSection}
         >
-          <ChevronLeft aria-hidden="true" size={24} />
+          <ChevronLeft aria-hidden="true" size={28} />
         </button>
       {:else}
         <div class="pager-btn-spacer" aria-hidden="true"></div>
@@ -1185,7 +1185,7 @@
           aria-label="Next section"
           onclick={nextSection}
         >
-          <ChevronRight aria-hidden="true" size={24} />
+          <ChevronRight aria-hidden="true" size={28} />
         </button>
       {:else}
         <div class="pager-arrow-spacer" aria-hidden="true"></div>
