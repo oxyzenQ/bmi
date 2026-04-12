@@ -3529,6 +3529,12 @@ html[data-performance-tier="medium"] .cosmic-particles {
   box-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
 
+.pager-btn-futuristic svg {
+  width: 32px;
+  height: 32px;
+  stroke-width: 2;
+}
+
 .pager-btn-futuristic:hover {
   background: color-mix(in oklab, var(--aurora-core) 18%, var(--w-10));
   border-color: color-mix(in oklab, var(--aurora-core) 60%, transparent);
