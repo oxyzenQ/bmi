@@ -1172,7 +1172,7 @@
           aria-label="Previous section"
           onclick={prevSection}
         >
-          <ChevronLeft aria-hidden="true" size={32} />
+          <ChevronLeft aria-hidden="true" size={36} />
         </button>
       {:else}
         <div class="pager-btn-spacer" aria-hidden="true"></div>
@@ -1185,7 +1185,7 @@
           aria-label="Next section"
           onclick={nextSection}
         >
-          <ChevronRight aria-hidden="true" size={32} />
+          <ChevronRight aria-hidden="true" size={36} />
         </button>
       {:else}
         <div class="pager-arrow-spacer" aria-hidden="true"></div>
@@ -1510,14 +1510,14 @@
   }
 
   .pager-btn-spacer {
-    width: 52px;
-    height: 52px;
+    width: 56px;
+    height: 56px;
   }
 
   @media (max-width: 480px) {
     .pager-btn-spacer {
-      width: 48px;
-      height: 48px;
+      width: 50px;
+      height: 50px;
     }
   }
 </style>
