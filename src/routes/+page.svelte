@@ -1276,13 +1276,11 @@
     align-items: center;
     justify-content: flex-start;
     gap: 0.5rem;
-    padding: 0.5rem 1.75rem;
+    padding: 0.5rem 0.75rem;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     min-width: 0;
-    scroll-padding-inline: 1.75rem;
-    scroll-snap-type: x proximity;
   }
 
   .pager-nav.centered {
@@ -1321,7 +1319,7 @@
     opacity: 0.86;
     flex: 0 0 auto;
     min-width: max-content;
-    scroll-snap-align: start;
+    overflow: visible;
   }
 
   .pager-smooth {
@@ -1402,18 +1400,15 @@
 
   @media (max-width: 600px) {
     .pager-nav {
-      gap: 0.2rem;
-      padding: 0.4rem 1.5rem;
+      gap: 0.35rem;
+      padding: 0.45rem 0.6rem;
       overflow-x: hidden;
-      scroll-snap-type: none;
-      justify-content: center;
     }
 
     .pager-tab {
-      height: 34px;
-      padding-inline: 0.5rem;
-      font-size: 0.75rem;
-      flex: 0 0 auto;
+      height: 36px;
+      padding-inline: 0.75rem;
+      font-size: 0.85rem;
     }
   }
 
