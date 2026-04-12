@@ -1267,9 +1267,9 @@
   }
 
   .pager-shell::after {
-    bottom: 0;
-    height: calc(0.75rem + env(safe-area-inset-bottom, 0px) + var(--pager-edge-fade));
-    background: linear-gradient(to top, var(--k-98), var(--k-0));
+    bottom: calc(54px + env(safe-area-inset-bottom, 0px));
+    height: var(--pager-edge-fade);
+    background: linear-gradient(to top, var(--k-92), var(--k-0));
   }
 
   .pager-nav {
@@ -1477,24 +1477,34 @@
   }
 
   .pager-controls-shell {
-    width: calc(100% - 1.5rem);
-    max-width: 820px;
+    width: 100%;
+    max-width: 100%;
     min-width: 0;
-    overflow: visible;
-    background: transparent;
-    margin-inline: auto;
+    overflow: hidden;
+    background: var(--k-78);
+    border: none;
+    border-top: 1px solid var(--w-5);
+    box-shadow: 0 -4px 24px var(--k-52);
+    border-radius: 20px 20px 0 0;
+    margin-inline: 0;
     position: absolute;
-    bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: none;
     z-index: 20;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    height: calc(54px + env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.3s ease;
   }
 
   .pager-controls-shell.pager-hidden {
-    transform: translateX(-50%) translateY(calc(100% + 1rem));
     opacity: 0;
     pointer-events: none;
+    transform: translateY(100%);
   }
 
   .pager-btn-spacer {
