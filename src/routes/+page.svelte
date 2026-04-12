@@ -1297,11 +1297,7 @@
     max-width: 100%;
     min-width: 0;
     overflow: hidden;
-    background: linear-gradient(
-      180deg,
-      var(--k-72) 0%,
-      var(--k-60) 100%
-    );
+    background: var(--k-50);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     border: none;
@@ -1482,7 +1478,7 @@
     max-width: none;
     min-width: 0;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.82) !important;
+    background: var(--k-50) !important;
     backdrop-filter: blur(24px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
     border: none !important;
