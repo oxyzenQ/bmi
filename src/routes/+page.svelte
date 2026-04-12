@@ -1276,7 +1276,7 @@
     align-items: center;
     justify-content: flex-start;
     gap: 0.5rem;
-    padding: 0.5rem 2rem;
+    padding: 0.5rem 0.75rem;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
@@ -1291,7 +1291,7 @@
     width: calc(100% - 1.5rem);
     max-width: 820px;
     min-width: 0;
-    overflow: hidden;
+    overflow: visible;
     background: rgba(0, 0, 0, 0.82);
     backdrop-filter: blur(14px) saturate(165%);
     -webkit-backdrop-filter: blur(14px) saturate(165%);
@@ -1304,21 +1304,6 @@
     left: 50%;
     transform: translateX(-50%);
     z-index: 20;
-    isolation: isolate;
-  }
-
-  .pager-nav-shell::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.92);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .pager-nav {
-    position: relative;
-    z-index: 1;
   }
 
   .pager-nav::-webkit-scrollbar {
@@ -1415,7 +1400,7 @@
   @media (max-width: 600px) {
     .pager-nav {
       gap: 0.35rem;
-      padding: 0.45rem 1.75rem;
+      padding: 0.45rem 0.6rem;
     }
 
     .pager-tab {
