@@ -3447,8 +3447,8 @@ html[data-performance-tier="medium"] .cosmic-particles {
    ============================== */
 
 .pager-controls-shell {
-  width: 100%;
-  max-width: 100%;
+  width: calc(100% - 2rem);
+  max-width: 320px;
   min-width: 0;
   overflow: hidden;
   background: var(--k-78) !important;
@@ -3458,12 +3458,11 @@ html[data-performance-tier="medium"] .cosmic-particles {
   border-top: 1px solid var(--w-5) !important;
   box-shadow: 0 -4px 24px var(--k-52);
   border-radius: 20px 20px 0 0;
-  margin-inline: 0;
+  margin-inline: auto;
   position: absolute;
   bottom: 0;
-  left: 0;
-  right: 0;
-  transform: none;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 20;
   padding-bottom: env(safe-area-inset-bottom, 0px);
   height: calc(54px + env(safe-area-inset-bottom, 0px));
@@ -3476,7 +3475,7 @@ html[data-performance-tier="medium"] .cosmic-particles {
 .pager-controls-shell.pager-hidden {
   opacity: 0;
   pointer-events: none;
-  transform: translateY(100%);
+  transform: translateX(-50%) translateY(100%);
 }
 
 .pager-controls-shell::before {
@@ -3495,9 +3494,9 @@ html[data-performance-tier="medium"] .cosmic-particles {
 }
 
 .pager-btn-futuristic {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
   border: 1px solid var(--w-10);
   background: var(--k-72);
   color: var(--w-70);
@@ -3528,16 +3527,16 @@ html[data-performance-tier="medium"] .cosmic-particles {
 }
 
 .pager-btn-spacer {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
 }
 
 @media (max-width: 480px) {
   .pager-btn-futuristic,
   .pager-btn-spacer {
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
   }
 }
 
