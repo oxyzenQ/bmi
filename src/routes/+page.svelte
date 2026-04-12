@@ -1245,8 +1245,9 @@
     overflow: hidden;
     touch-action: pan-y pinch-zoom;
     position: relative;
-    --pager-top-inset: calc(0.75rem + env(safe-area-inset-top, 0px) + 56px);
-    --pager-edge-fade: 120px;
+    --pager-top-inset: calc(env(safe-area-inset-top, 0px) + 54px);
+    --pager-edge-fade: 80px;
+    --nav-bar-h: 54px;
   }
 
   .pager-shell::before,
@@ -1260,9 +1261,9 @@
   }
 
   .pager-shell::before {
-    top: 0;
-    height: calc(0.75rem + env(safe-area-inset-top, 0px) + var(--pager-edge-fade));
-    background: linear-gradient(to bottom, var(--k-98), var(--k-0));
+    top: var(--nav-bar-h);
+    height: var(--pager-edge-fade);
+    background: linear-gradient(to bottom, var(--k-92), var(--k-0));
   }
 
   .pager-shell::after {
@@ -1275,12 +1276,15 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
+    gap: 0.35rem;
+    padding: 0 0.85rem 0.55rem 0.85rem;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     min-width: 0;
+    width: 100%;
+    height: var(--nav-bar-h);
+    box-sizing: border-box;
   }
 
   .pager-nav.centered {
@@ -1288,22 +1292,57 @@
   }
 
   .pager-nav-shell {
-    width: calc(100% - 1.5rem);
-    max-width: 820px;
+    width: 100%;
+    max-width: 100%;
     min-width: 0;
     overflow: hidden;
-    background: var(--k-82);
-    backdrop-filter: blur(14px) saturate(165%);
-    -webkit-backdrop-filter: blur(14px) saturate(165%);
-    border: var(--btn-border);
-    box-shadow: var(--btn-shadow);
-    border-radius: 9999px;
-    margin-inline: auto;
+    background: linear-gradient(
+      180deg,
+      var(--k-72) 0%,
+      var(--k-60) 100%
+    );
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: none;
+    border-bottom: 1px solid var(--w-8);
+    box-shadow:
+      0 1px 0 0 var(--w-4),
+      0 8px 32px var(--k-48),
+      0 2px 16px var(--k-32),
+      inset 0 1px 0 var(--w-6);
+    border-radius: 0 0 22px 22px;
+    margin-inline: 0;
     position: absolute;
-    top: calc(0.75rem + env(safe-area-inset-top, 0px));
-    left: 50%;
-    transform: translateX(-50%);
+    top: 0;
+    left: 0;
+    right: 0;
+    transform: none;
     z-index: 20;
+    padding-top: env(safe-area-inset-top, 0px);
+    height: calc(var(--nav-bar-h) + env(safe-area-inset-top, 0px));
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  /* Aurora glow accent line at bottom of navbar */
+  .pager-nav-shell::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--aurora-glow, #b266ff) 30%,
+      var(--cosmic-blue) 50%,
+      var(--aurora-glow, #b266ff) 70%,
+      transparent 100%
+    );
+    opacity: 0.5;
+    pointer-events: none;
   }
 
   .pager-nav::-webkit-scrollbar {
@@ -1311,19 +1350,34 @@
   }
 
   .pager-tab {
-    height: 38px;
-    padding-inline: 0.9rem;
-    font-size: 0.9rem;
+    height: 36px;
+    padding-inline: 0.85rem;
+    font-size: 0.88rem;
     border-radius: 9999px;
     white-space: nowrap;
-    opacity: 0.86;
+    opacity: 0.7;
     flex: 0 0 auto;
     min-width: max-content;
     overflow: visible;
+    letter-spacing: 0.02em;
+    border: 1px solid transparent;
+    transition:
+      opacity 0.25s ease,
+      background 0.25s ease,
+      border-color 0.25s ease,
+      box-shadow 0.25s ease,
+      transform 0.2s var(--easing-smooth);
+  }
+
+  .pager-tab:hover {
+    opacity: 0.9;
+    background: var(--w-6);
+    border-color: var(--w-10);
   }
 
   .pager-smooth {
     opacity: 1;
+    font-size: 0.82rem;
   }
 
   .pager-smooth :global(.render-spark) {
@@ -1356,12 +1410,17 @@
 
   .pager-tab.active {
     opacity: 1;
-    background: var(--w-7);
-    border-color: color-mix(in oklab, var(--aurora-core) 55%, var(--w-12));
+    background: linear-gradient(
+      135deg,
+      var(--w-10) 0%,
+      var(--w-5) 100%
+    );
+    border-color: color-mix(in oklab, var(--aurora-core) 45%, var(--w-14));
     box-shadow:
-      0 12px 32px var(--k-38),
-      0 0 18px color-mix(in oklab, var(--cosmic-purple) 28%, transparent);
+      0 0 20px color-mix(in oklab, var(--cosmic-purple) 22%, transparent),
+      0 0 6px color-mix(in oklab, var(--aurora-core) 15%, transparent);
     transform: translateY(-1px);
+    font-weight: 500;
   }
 
   .pager-view {
@@ -1382,9 +1441,9 @@
     will-change: transform, opacity;
     scrollbar-width: none;
     contain: layout paint style;
-    padding-top: calc(1rem + var(--pager-top-inset));
+    padding-top: calc(var(--pager-top-inset) + 0.5rem);
     padding-bottom: calc(0.75rem + 56px + 0.75rem + env(safe-area-inset-bottom, 0px));
-    scroll-padding-top: calc(1rem + var(--pager-top-inset));
+    scroll-padding-top: calc(var(--pager-top-inset) + 0.5rem);
     scroll-padding-bottom: calc(0.75rem + 56px + 0.75rem + env(safe-area-inset-bottom, 0px));
   }
 
@@ -1395,20 +1454,25 @@
   @media (min-width: 900px) {
     .pager-nav {
       justify-content: center;
+      padding-inline: 2rem;
     }
   }
 
   @media (max-width: 600px) {
     .pager-nav {
-      gap: 0.35rem;
-      padding: 0.45rem 0.6rem;
-      overflow-x: hidden;
+      gap: 0.25rem;
+      padding: 0 0.55rem 0.45rem 0.55rem;
+      overflow-x: auto;
     }
 
     .pager-tab {
-      height: 36px;
-      padding-inline: 0.75rem;
-      font-size: 0.85rem;
+      height: 34px;
+      padding-inline: 0.65rem;
+      font-size: 0.8rem;
+    }
+
+    .pager-smooth {
+      font-size: 0.76rem;
     }
   }
 

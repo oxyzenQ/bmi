@@ -544,7 +544,7 @@ a.button {
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   transition: transform var(--dur-fast) var(--easing-smooth),
     box-shadow var(--dur-fast) var(--easing-smooth),
     background var(--dur-fast) var(--easing-smooth),
