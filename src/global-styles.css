@@ -2183,6 +2183,7 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
   text-align: center;
   padding: 1.5rem;
   margin: 1rem auto 0;
+  padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
   max-width: 1000px;
   position: relative;
   overflow: hidden;
@@ -3482,64 +3483,49 @@ html[data-performance-tier="medium"] .cosmic-particles {
 }
 
 .pager-btn-futuristic {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: 1px solid var(--w-18);
-  background: var(--w-8);
-  /* Reduced blur from 20px to 10px for GPU performance */
-  backdrop-filter: blur(10px) saturate(180%);
-  -webkit-backdrop-filter: blur(10px) saturate(180%);
-  color: var(--w-90);
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid var(--w-10);
+  background: var(--k-72);
+  color: var(--w-70);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   position: relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow:
-    0 8px 32px var(--k-20),
-    inset 0 1px 0 var(--w-10);
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s var(--easing-smooth);
+  box-shadow: 0 2px 12px var(--k-38);
 }
 
 .pager-btn-futuristic:hover {
-  transform: scale(1.06) translateY(-1px);
-  background: var(--orchid-15);
-  border-color: var(--orchid-30);
-  box-shadow:
-    0 12px 40px var(--orchid-15),
-    0 8px 32px var(--k-25),
-    inset 0 1px 0 var(--w-15);
+  background: color-mix(in oklab, var(--aurora-core) 12%, var(--k-65));
+  border-color: color-mix(in oklab, var(--aurora-core) 30%, transparent);
+  color: var(--stellar-white);
+  transform: translateY(-1px);
 }
 
 .pager-btn-futuristic:active {
-  transform: scale(0.98) translateY(0);
-  background: var(--orchid-25);
-  box-shadow:
-    0 4px 16px var(--orchid-10),
-    inset 0 1px 0 var(--w-10);
+  transform: translateY(0) scale(0.96);
+  background: color-mix(in oklab, var(--aurora-core) 18%, var(--k-60));
 }
 
 .pager-btn-futuristic::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--w-20) 0%, var(--w-0) 50%);
-  pointer-events: none;
-  opacity: 0.6;
+  content: none;
+  display: none;
 }
 
 .pager-btn-spacer {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
 }
 
 @media (max-width: 480px) {
   .pager-btn-futuristic,
   .pager-btn-spacer {
-    width: 52px;
-    height: 52px;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
   }
 }
 

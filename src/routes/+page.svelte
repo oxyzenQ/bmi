@@ -1498,14 +1498,14 @@
   }
 
   .pager-btn-spacer {
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
   }
 
   @media (max-width: 480px) {
     .pager-btn-spacer {
-      width: 52px;
-      height: 52px;
+      width: 44px;
+      height: 44px;
     }
   }
 </style>
