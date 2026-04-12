@@ -1478,7 +1478,7 @@
   }
 
   .pager-controls-shell {
-    width: auto;
+    width: 100%;
     max-width: none;
     min-width: 0;
     overflow: hidden;
