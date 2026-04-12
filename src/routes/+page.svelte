@@ -1402,22 +1402,17 @@
 
   @media (max-width: 600px) {
     .pager-nav {
-      gap: 0.25rem;
+      gap: 0.2rem;
       padding: 0.4rem 1.5rem;
       overflow-x: hidden;
       scroll-snap-type: none;
+      justify-content: center;
     }
 
     .pager-tab {
       height: 34px;
-      padding-inline: 0.6rem;
-      font-size: 0.78rem;
-      flex: 1 1 0%;
-      min-width: 0;
-    }
-
-    .pager-smooth,
-    .pager-theme {
+      padding-inline: 0.5rem;
+      font-size: 0.75rem;
       flex: 0 0 auto;
     }
   }
