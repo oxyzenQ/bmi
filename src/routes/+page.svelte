@@ -1246,7 +1246,7 @@
     touch-action: pan-y pinch-zoom;
     position: relative;
     --pager-top-inset: calc(env(safe-area-inset-top, 0px) + 54px);
-    --pager-edge-fade: 80px;
+    --pager-edge-fade: 100px;
     --nav-bar-h: 54px;
   }
 
@@ -1267,9 +1267,9 @@
   }
 
   .pager-shell::after {
-    bottom: calc(54px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
     height: var(--pager-edge-fade);
-    background: linear-gradient(to top, var(--k-92), var(--k-0));
+    background: linear-gradient(to top, #0a0a0f 30%, var(--k-0));
   }
 
   .pager-nav {
