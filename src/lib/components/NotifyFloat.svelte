@@ -156,7 +156,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.65);
+    background: var(--k-65);
     backdrop-filter: blur(12px) saturate(180%);
     -webkit-backdrop-filter: blur(12px) saturate(180%);
     z-index: 9999;
@@ -174,10 +174,10 @@
     position: relative;
     background: linear-gradient(
       135deg,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0.05) 100%
+      var(--w-10) 0%,
+      var(--w-5) 100%
     );
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    border: 1px solid var(--w-18);
     border-radius: 24px;
     padding: 2.5rem 2rem;
     min-width: 320px;
@@ -186,9 +186,9 @@
     backdrop-filter: blur(20px) saturate(200%);
     -webkit-backdrop-filter: blur(20px) saturate(200%);
     box-shadow:
-      0 25px 50px -12px rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset,
-      0 0 60px rgba(128, 0, 255, 0.15);
+      0 25px 50px -12px var(--k-50),
+      0 0 0 1px var(--w-10) inset,
+      0 0 60px var(--neon-15);
     transform: scale(0.9) translateY(20px);
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -201,15 +201,15 @@
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--w-10);
+    border: 1px solid var(--w-20);
     border-radius: 50%;
     width: 36px;
     height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--w-80);
     cursor: pointer;
     transition: all 0.25s ease;
     backdrop-filter: blur(10px);
@@ -218,10 +218,10 @@
   }
 
   .notify-close:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--w-15);
     color: white;
     transform: rotate(90deg) scale(1.1);
-    border-color: rgba(255, 255, 255, 0.25);
+    border-color: var(--w-25);
   }
 
   .notify-close :global(svg) {
@@ -264,12 +264,12 @@
 
   .notify-message {
     font-size: 1.125rem;
-    color: rgba(255, 255, 255, 0.95);
+    color: var(--w-95);
     margin: 0 0 1.5rem;
     line-height: 1.5;
     font-weight: 500;
     letter-spacing: -0.01em;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 2px var(--k-20);
   }
 
   .notify-btn {
@@ -288,60 +288,60 @@
   }
 
   .btn-success {
-    background: linear-gradient(135deg, rgba(0, 200, 83, 0.9) 0%, rgba(0, 168, 71, 0.9) 100%);
+    background: linear-gradient(135deg, var(--cat-green-90) 0%, var(--dkgreen-90) 100%);
     color: white;
     box-shadow:
-      0 4px 20px rgba(0, 200, 83, 0.3),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      0 4px 20px var(--cat-green-30),
+      0 0 0 1px var(--w-10) inset;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--w-15);
   }
 
   .btn-success:hover {
     transform: translateY(-2px) scale(1.02);
     box-shadow:
-      0 8px 25px rgba(0, 200, 83, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.15) inset;
-    background: linear-gradient(135deg, rgba(0, 200, 83, 0.95) 0%, rgba(0, 168, 71, 0.95) 100%);
+      0 8px 25px var(--cat-green-40),
+      0 0 0 1px var(--w-15) inset;
+    background: linear-gradient(135deg, var(--cat-green-95) 0%, var(--dkgreen-95) 100%);
   }
 
   .btn-delete {
-    background: linear-gradient(135deg, rgba(213, 0, 0, 0.9) 0%, rgba(183, 28, 28, 0.9) 100%);
+    background: linear-gradient(135deg, var(--cat-red-90) 0%, var(--darkred-90) 100%);
     color: white;
     box-shadow:
-      0 4px 20px rgba(213, 0, 0, 0.3),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      0 4px 20px var(--cat-red-30),
+      0 0 0 1px var(--w-10) inset;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--w-15);
   }
 
   .btn-delete:hover {
     transform: translateY(-2px) scale(1.02);
     box-shadow:
-      0 8px 25px rgba(213, 0, 0, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.15) inset;
-    background: linear-gradient(135deg, rgba(213, 0, 0, 0.95) 0%, rgba(183, 28, 28, 0.95) 100%);
+      0 8px 25px var(--cat-red-40),
+      0 0 0 1px var(--w-15) inset;
+    background: linear-gradient(135deg, var(--cat-red-95) 0%, var(--darkred-95) 100%);
   }
 
   .btn-cancel {
-    background: linear-gradient(135deg, rgba(100, 116, 139, 0.9) 0%, rgba(71, 85, 105, 0.9) 100%);
+    background: linear-gradient(135deg, var(--coolgray-90) 0%, var(--dkgray-90) 100%);
     color: white;
     box-shadow:
-      0 4px 20px rgba(100, 116, 139, 0.3),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      0 4px 20px var(--coolgray-30),
+      0 0 0 1px var(--w-10) inset;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--w-15);
   }
 
   .btn-cancel:hover {
     transform: translateY(-2px) scale(1.02);
     box-shadow:
-      0 8px 25px rgba(100, 116, 139, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.15) inset;
-    background: linear-gradient(135deg, rgba(100, 116, 139, 0.95) 0%, rgba(71, 85, 105, 0.95) 100%);
+      0 8px 25px var(--coolgray-40),
+      0 0 0 1px var(--w-15) inset;
+    background: linear-gradient(135deg, var(--coolgray-95) 0%, var(--dkgray-95) 100%);
   }
 
   .notify-btn-group {
@@ -356,22 +356,22 @@
   }
 
   .btn-warn {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.9) 0%, rgba(217, 119, 6, 0.9) 100%);
+    background: linear-gradient(135deg, var(--cat-amber-90) 0%, var(--dkamber-90) 100%);
     color: white;
     box-shadow:
-      0 4px 20px rgba(245, 158, 11, 0.3),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      0 4px 20px var(--cat-amber-30),
+      0 0 0 1px var(--w-10) inset;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--w-15);
   }
 
   .btn-warn:hover {
     transform: translateY(-2px) scale(1.02);
     box-shadow:
-      0 8px 25px rgba(245, 158, 11, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.15) inset;
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.95) 0%, rgba(217, 119, 6, 0.95) 100%);
+      0 8px 25px var(--cat-amber-40),
+      0 0 0 1px var(--w-15) inset;
+    background: linear-gradient(135deg, var(--cat-amber-95) 0%, var(--dkamber-95) 100%);
   }
 
   @media (max-width: 480px) {

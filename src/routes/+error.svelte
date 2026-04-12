@@ -99,7 +99,7 @@
                 position: absolute;
                 inset: -20px;
                 border-radius: 50%;
-                background: radial-gradient(circle, rgba(128, 0, 255, 0.15), transparent 70%);
+                background: radial-gradient(circle, var(--neon-15), transparent 70%);
                 animation: errorPulse 3s ease-in-out infinite;
         }
 

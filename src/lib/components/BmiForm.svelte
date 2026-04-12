@@ -382,7 +382,7 @@
     border: none;
     border-radius: 9999px;
     background: transparent;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--w-50);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -392,7 +392,7 @@
   }
 
   .unit-toggle-segment:hover {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--w-70);
   }
 
   .unit-toggle-segment.active {

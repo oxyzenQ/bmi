@@ -218,14 +218,14 @@
     border: none;
     border-radius: 9999px;
     background: transparent;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--w-50);
     cursor: pointer;
     transition: all 0.2s ease;
     font-weight: 500;
   }
 
   .sex-btn:hover {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--w-70);
   }
 
   .sex-btn.active {
@@ -270,7 +270,7 @@
     height: 16px;
     border-radius: 8px;
     overflow: hidden;
-    background: rgba(148, 163, 184, 0.1);
+    background: var(--sg-10);
   }
 
   .comp-fill {
@@ -328,8 +328,8 @@
     align-items: flex-start;
     gap: 0.5rem;
     padding: 0.75rem 1rem;
-    background: rgba(74, 144, 226, 0.08);
-    border: 1px solid rgba(74, 144, 226, 0.15);
+    background: var(--cat-blue-8);
+    border: 1px solid var(--cat-blue-15);
     border-radius: 12px;
     margin-bottom: 1.25rem;
     font-size: 0.78rem;
@@ -349,9 +349,9 @@
 
   .bf-ranges {
     padding: 1rem;
-    background: rgba(15, 23, 42, 0.4);
+    background: var(--sd-40);
     border-radius: 12px;
-    border: 1px solid rgba(148, 163, 184, 0.1);
+    border: 1px solid var(--sg-10);
   }
 
   .bf-ranges h4 {
@@ -383,7 +383,7 @@
   .range-bar {
     flex: 1;
     height: 8px;
-    background: rgba(148, 163, 184, 0.08);
+    background: var(--sg-8);
     border-radius: 4px;
     overflow: hidden;
   }

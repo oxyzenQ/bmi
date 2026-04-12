@@ -143,7 +143,7 @@
             cy={pt.y}
             r={i === chartData.points.length - 1 ? 4 : 2.5}
             fill={getBmiColor(pt.bmi)}
-            stroke="rgba(255,255,255,0.3)"
+            stroke="var(--w-30)"
             stroke-width="1"
             class="spark-point"
           />
@@ -178,8 +178,8 @@
 
 <style>
   .sparkline-container {
-    background: rgba(15, 23, 42, 0.4);
-    border: 1px solid rgba(148, 163, 184, 0.1);
+    background: var(--sd-40);
+    border: 1px solid var(--sg-10);
     border-radius: 16px;
     padding: 1.25rem;
     margin-top: 1rem;
@@ -216,17 +216,17 @@
     font-weight: 600;
     padding: 0.2rem 0.6rem;
     border-radius: 9999px;
-    background: rgba(148, 163, 184, 0.15);
+    background: var(--sg-15);
     color: #94a3b8;
   }
 
   .sparkline-badge.trend-down {
-    background: rgba(0, 200, 83, 0.15);
+    background: var(--cat-green-15);
     color: #00C853;
   }
 
   .sparkline-badge.trend-up {
-    background: rgba(213, 0, 0, 0.15);
+    background: var(--cat-red-15);
     color: #D50000;
   }
 
@@ -268,7 +268,7 @@
     justify-content: space-between;
     margin-top: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px solid rgba(148, 163, 184, 0.08);
+    border-top: 1px solid var(--sg-8);
   }
 
   .sparkline-stat {

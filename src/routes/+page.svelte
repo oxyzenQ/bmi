@@ -1262,13 +1262,13 @@
   .pager-shell::before {
     top: 0;
     height: calc(0.75rem + env(safe-area-inset-top, 0px) + var(--pager-edge-fade));
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.98), rgba(0, 0, 0, 0));
+    background: linear-gradient(to bottom, var(--k-98), var(--k-0));
   }
 
   .pager-shell::after {
     bottom: 0;
     height: calc(0.75rem + env(safe-area-inset-bottom, 0px) + var(--pager-edge-fade));
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.98), rgba(0, 0, 0, 0));
+    background: linear-gradient(to top, var(--k-98), var(--k-0));
   }
 
   .pager-nav {
@@ -1292,7 +1292,7 @@
     max-width: 820px;
     min-width: 0;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.82);
+    background: var(--k-82);
     backdrop-filter: blur(14px) saturate(165%);
     -webkit-backdrop-filter: blur(14px) saturate(165%);
     border: var(--btn-border);
@@ -1351,15 +1351,15 @@
   .pager-theme .theme-energy {
     color: #00f0ff;
     font-weight: 600;
-    text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+    text-shadow: 0 0 8px var(--cyan2-40);
   }
 
   .pager-tab.active {
     opacity: 1;
-    background: rgba(255, 255, 255, 0.07);
-    border-color: color-mix(in oklab, var(--aurora-core) 55%, rgba(255, 255, 255, 0.12));
+    background: var(--w-7);
+    border-color: color-mix(in oklab, var(--aurora-core) 55%, var(--w-12));
     box-shadow:
-      0 12px 32px rgba(0, 0, 0, 0.38),
+      0 12px 32px var(--k-38),
       0 0 18px color-mix(in oklab, var(--cosmic-purple) 28%, transparent);
     transform: translateY(-1px);
   }

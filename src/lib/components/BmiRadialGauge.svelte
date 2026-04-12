@@ -186,8 +186,8 @@
     >
       <defs>
         <linearGradient id="gaugeBackground" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="rgba(148, 163, 184, 0.1)" />
-          <stop offset="100%" stop-color="rgba(148, 163, 184, 0.05)" />
+          <stop offset="0%" style="stop-color: var(--sg-10)" />
+          <stop offset="100%" style="stop-color: var(--sg-5)" />
         </linearGradient>
 
         <linearGradient id="gaugeProgressGrad" x1="0%" y1="0%" x2="100%" y2="0%">
