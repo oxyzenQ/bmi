@@ -495,7 +495,7 @@ pre {
 .github-link,
 .section-header,
 .section-header-v2 {
-  background: var(--cbase-82);
+  background: var(--k-50);
   border: var(--border-by-rezky);
   border-radius: 2rem;
   box-shadow:
