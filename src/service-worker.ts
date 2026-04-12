@@ -9,7 +9,7 @@ const sw = self as unknown as ServiceWorkerGlobalScope;
 
 // Cache names
 const CACHE_NAME = `cache-${version}`;
-const STATIC_CACHE = `static-${version}`;
+
 const RUNTIME_CACHE = `runtime-${version}`;
 
 // Assets to cache immediately
@@ -55,7 +55,7 @@ sw.addEventListener('activate', (event) => {
                         .then((keys) => {
                                 return Promise.all(
                                         keys
-                                                .filter((key) => key !== CACHE_NAME && key !== STATIC_CACHE && key !== RUNTIME_CACHE)
+                                                .filter((key) => key !== CACHE_NAME && key !== RUNTIME_CACHE)
                                                 .map((key) => caches.delete(key))
                                 );
                         })
