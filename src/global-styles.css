@@ -3451,9 +3451,9 @@ html[data-performance-tier="medium"] .cosmic-particles {
   max-width: none;
   min-width: 0;
   overflow: hidden;
-  background: #0a0a0f !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
   border: none !important;
   border-top: 1px solid var(--w-8) !important;
   box-shadow: 0 -1px 0 var(--w-6), 0 -8px 30px rgba(0,0,0,0.5), 0 -2px 8px rgba(0,0,0,0.3);
