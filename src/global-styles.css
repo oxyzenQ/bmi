@@ -687,32 +687,6 @@ button[aria-disabled="true"] {
   border-radius: var(--btn-radius);
 }
 
-/* Button shine effect */
-.btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -120%;
-  width: 120%;
-  height: 100%;
-  background: linear-gradient(100deg, transparent 28%, var(--w-22) 50%, transparent 72%);
-  transition: left 600ms var(--easing-smooth);
-  pointer-events: none;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .btn:hover::before {
-    left: 120%;
-  }
-}
-
-@media (hover: none) {
-  .btn::before {
-    content: none;
-    display: none;
-  }
-}
-
 /* Button groups */
 .button-group {
   display: flex;
@@ -2972,8 +2946,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
     transition: none;
   }
 
-  html:not([data-graphics='render']) .btn,
-  html:not([data-graphics='render']) .btn::before {
+  html:not([data-graphics='render']) .btn {
     transition: none !important;
   }
 
