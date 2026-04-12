@@ -1276,11 +1276,13 @@
     align-items: center;
     justify-content: flex-start;
     gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 1.75rem;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     min-width: 0;
+    scroll-padding-inline: 1.75rem;
+    scroll-snap-type: x proximity;
   }
 
   .pager-nav.centered {
@@ -1291,7 +1293,7 @@
     width: calc(100% - 1.5rem);
     max-width: 820px;
     min-width: 0;
-    overflow: visible;
+    overflow: hidden;
     background: rgba(0, 0, 0, 0.82);
     backdrop-filter: blur(14px) saturate(165%);
     -webkit-backdrop-filter: blur(14px) saturate(165%);
@@ -1319,6 +1321,7 @@
     opacity: 0.86;
     flex: 0 0 auto;
     min-width: max-content;
+    scroll-snap-align: start;
   }
 
   .pager-smooth {
@@ -1399,14 +1402,23 @@
 
   @media (max-width: 600px) {
     .pager-nav {
-      gap: 0.35rem;
-      padding: 0.45rem 0.6rem;
+      gap: 0.25rem;
+      padding: 0.4rem 1.5rem;
+      overflow-x: hidden;
+      scroll-snap-type: none;
     }
 
     .pager-tab {
-      height: 36px;
-      padding-inline: 0.75rem;
-      font-size: 0.85rem;
+      height: 34px;
+      padding-inline: 0.6rem;
+      font-size: 0.78rem;
+      flex: 1 1 0%;
+      min-width: 0;
+    }
+
+    .pager-smooth,
+    .pager-theme {
+      flex: 0 0 auto;
     }
   }
 
