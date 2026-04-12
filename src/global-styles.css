@@ -3530,9 +3530,9 @@ html[data-performance-tier="medium"] .cosmic-particles {
 }
 
 .pager-btn-futuristic svg {
-  width: 32px;
-  height: 32px;
-  stroke-width: 2;
+  width: 36px !important;
+  height: 36px !important;
+  stroke-width: 2 !important;
 }
 
 .pager-btn-futuristic:hover {
