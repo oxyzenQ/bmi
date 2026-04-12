@@ -30,47 +30,26 @@
       ============================== */
 :root {
   /* Primary cosmic colors */
-  --cosmic-deep-space: #07030f;
   --cosmic-void: #120824;
-  --cosmic-nebula: #24113f;
-
-  /* Additional cosmic variables for splash screen */
-  --cosmic-primary: #0f172a;
-  --cosmic-secondary: #1e293b;
-  --cosmic-accent: #334155;
   --cosmic-blue: #9a4dff;
   --cosmic-purple: #8000ff;
-  --cosmic-text-primary: #ffffff;
-  --cosmic-text-secondary: white;
 
-  /* Deep Dark Plasma Theme for Splash Screen */
-  --plasma-deep: #0a0a0f;
-  --plasma-dark: #141420;
-  --plasma-darker: #1a1a2e;
-  --plasma-accent: #16213e;
-  --plasma-blue-dim: #2d3748;
-  --plasma-purple-dim: #2d1b3d;
+  /* Plasma theme (splash screen) */
   --plasma-glow: rgba(59, 130, 246, 0.15);
   --plasma-text-primary: #e2e8f0;
   --plasma-text-secondary: grey;
-  --plasma-text-dim: #64748b;
 
   /* Aurora beam colors */
   --aurora-bright: #8000ff;
   --aurora-core: #8000ff;
   --aurora-glow: #b266ff;
-  --aurora-whisper: #e2c7ff;
 
   /* Atmospheric gradients */
-  --atmosphere-deep: #1a1033;
-  --atmosphere-mid: #2a1652;
-  --atmosphere-light: #3b1e73;
   --atmosphere-horizon: #5b2ea6;
 
   /* Accent colors */
   --stellar-white: #ffffff;
   --cosmic-silver: #d6ccff;
-  --shadow-silhouette: #0d1220;
 
   /* Wallpaper system */
   --wallpaper-current: url('/images/oxyzen-zenlysium.webp');
@@ -82,12 +61,8 @@
   --text-secondary: var(--cosmic-silver);
   --text-muted: grey;
   --accent-blue: var(--aurora-bright);
-  --accent-purple: var(--aurora-core);
 
-  /* Glassmorphism constants */
-  --apple-glass: rgba(255, 255, 255, 0.08);
-  --apple-border: rgba(255, 255, 255, 0.12);
-  --apple-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  /* Glassmorphism & branding */
   --bg-by-rezky: linear-gradient(45deg, #1a0533, #8000ffda);
   --bg-last-by-rezky: linear-gradient(45deg, #100a24, #8000ffda);
   --border-by-rezky: 1px solid rgba(255, 255, 255, 0.14);
@@ -104,13 +79,13 @@
       /* starlight highlight */
     );
 
-
   /* Animation/transition tuning */
   --easing-smooth: cubic-bezier(0.22, 1, 0.36, 1);
   --dur-fast: 280ms;
   --dur-normal: 500ms;
   --dur-slow: 800ms;
-  /* Button system variables */
+
+  /* Button system */
   --btn-radius: 14px;
   --btn-height: 44px;
   --btn-padding-x: 18px;
@@ -127,21 +102,6 @@
   --btn-shadow-hover: 0 18px 44px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
     0 0 28px color-mix(in oklab, var(--cosmic-purple) 26%, transparent);
-  --btn-blur: 12px;
-  --btn-saturate: 165%;
-
-  /* Animation/transition tuning */
-  /* Button shine effect */
-  --shine-duration: 600ms;
-  --shine-easing: var(--easing-smooth);
-
-  /* Spacing scale */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
 }
 
 /* ==============================
@@ -192,7 +152,7 @@ body {
   overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: greyscale;
+  -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   font-variation-settings: 'wght' 400;
@@ -279,7 +239,6 @@ input[type="number"],
 .bmi-value {
   font-family: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   font-feature-settings: 'tnum' 1, 'lnum' 1;
-  font-display: swap;
 }
 
 pre {
@@ -333,7 +292,7 @@ pre {
 
 /* Hero content retains backdrop-filter for main visual impact */
 .hero-content {
-  background: rgba(0, 0, 0, 0.500);
+  background: rgba(0, 0, 0, 0.5);
   border: var(--border-by-rezky);
   border-radius: 2rem;
   backdrop-filter: blur(8px) saturate(140%);
@@ -791,8 +750,8 @@ button[aria-disabled="true"] {
 }
 
 .icon {
-  width: clamp(64px, 6vw, 64px);
-  height: clamp(64px, 6vw, 64px);
+  width: 64px;
+  height: 64px;
   color: white;
 }
 
@@ -993,10 +952,10 @@ button[aria-disabled="true"] {
   max-width: 320px;
   border-radius: 0.75rem;
   background: rgba(15, 23, 42, 0.75);
-  border-top: 1px solid var(--border-by-rezky);
-  border-left: 1px solid var(--border-by-rezky);
+  border-top: var(--border-by-rezky);
+  border-left: var(--border-by-rezky);
   border-bottom: 2px solid var(--text-muted);
-  border-right: 1px solid var(--border-by-rezky);
+  border-right: var(--border-by-rezky);
   color: white;
   font-size: 1rem;
   transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2071,28 +2030,6 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
       ============================== */
 
 
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
 
 @keyframes fadeInUp {
   from {
@@ -3242,13 +3179,6 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
    Reduce expensive effects on low-end devices
    ============================== */
 
-/* LOW TIER: Disable expensive effects completely */
-html[data-performance-tier="low"] {
-  /* Disable backdrop-filter globally on low-end */
-  --btn-blur: 0px;
-  --btn-saturate: 100%;
-}
-
 html[data-performance-tier="low"] :is(
   .hero-content,
   .pager-btn-futuristic
@@ -3284,12 +3214,6 @@ html[data-performance-tier="low"] :is(
   filter: none !important;
   box-shadow: none !important;
   text-shadow: none !important;
-}
-
-/* MEDIUM TIER: Reduce expensive effects */
-html[data-performance-tier="medium"] {
-  --btn-blur: 6px;
-  --btn-saturate: 120%;
 }
 
 html[data-performance-tier="medium"] .cosmic-particles .cosmic-particle {

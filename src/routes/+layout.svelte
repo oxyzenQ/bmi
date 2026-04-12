@@ -11,30 +11,27 @@
   let renderModeEnabled = true;
   let renderModeInitialized = false;
 
-  if (browser) {
+  function readRenderMode(): boolean {
     try {
       const stored = localStorage.getItem('bmi.renderMode');
-      renderModeEnabled = stored === null ? true : stored === '1' || stored === 'true';
+      return stored === null ? true : stored === '1' || stored === 'true';
     } catch {
-      // localStorage unavailable
+      return true;
     }
+  }
+
+  if (browser) {
+    renderModeEnabled = readRenderMode();
     renderModeInitialized = true;
     document.documentElement.dataset.graphics = renderModeEnabled ? 'render' : 'basic';
   }
 
   onMount(() => {
-    // NOTE: scroll-optimizer merged into +page.svelte unified scroll handler
-
     let cleanupRenderListener: (() => void) | null = null;
 
     if (browser) {
       if (!renderModeInitialized) {
-        try {
-          const stored = localStorage.getItem('bmi.renderMode');
-          renderModeEnabled = stored === null ? true : stored === '1' || stored === 'true';
-        } catch {
-          // localStorage unavailable
-        }
+        renderModeEnabled = readRenderMode();
         renderModeInitialized = true;
       }
 
