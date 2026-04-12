@@ -1267,9 +1267,10 @@
   }
 
   .pager-shell::after {
-    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
-    height: var(--pager-edge-fade);
-    background: linear-gradient(to top, #0a0a0f 30%, var(--k-0));
+    bottom: 0;
+    height: 0;
+    background: none;
+    pointer-events: none;
   }
 
   .pager-nav {
@@ -1477,8 +1478,8 @@
   }
 
   .pager-controls-shell {
-    width: calc(100% - 1.5rem);
-    max-width: 400px;
+    width: auto;
+    max-width: none;
     min-width: 0;
     overflow: hidden;
     background: #0a0a0f !important;
@@ -1486,7 +1487,7 @@
     -webkit-backdrop-filter: none !important;
     border: none !important;
     border-top: 1px solid var(--w-8) !important;
-    box-shadow: 0 -2px 20px rgba(0,0,0,0.6);
+    box-shadow: 0 -1px 0 var(--w-6), 0 -8px 30px rgba(0,0,0,0.5), 0 -2px 8px rgba(0,0,0,0.3);
     border-radius: 18px 18px 0 0;
     margin-inline: auto;
     position: absolute;
