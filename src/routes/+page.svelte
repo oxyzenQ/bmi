@@ -1477,17 +1477,17 @@
   }
 
   .pager-controls-shell {
-    width: calc(100% - 2rem);
-    max-width: 320px;
+    width: calc(100% - 1.5rem);
+    max-width: 400px;
     min-width: 0;
     overflow: hidden;
-    background: var(--k-78) !important;
-    backdrop-filter: blur(24px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    background: #0a0a0f !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
     border: none !important;
-    border-top: 1px solid var(--w-5) !important;
-    box-shadow: 0 -4px 24px var(--k-52);
-    border-radius: 20px 20px 0 0;
+    border-top: 1px solid var(--w-8) !important;
+    box-shadow: 0 -2px 20px rgba(0,0,0,0.6);
+    border-radius: 18px 18px 0 0;
     margin-inline: auto;
     position: absolute;
     bottom: 0;
@@ -1495,7 +1495,7 @@
     transform: translateX(-50%);
     z-index: 20;
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    height: calc(54px + env(safe-area-inset-bottom, 0px));
+    height: calc(58px + env(safe-area-inset-bottom, 0px));
     box-sizing: border-box;
     display: flex;
     align-items: center;

@@ -3447,17 +3447,17 @@ html[data-performance-tier="medium"] .cosmic-particles {
    ============================== */
 
 .pager-controls-shell {
-  width: calc(100% - 2rem);
-  max-width: 320px;
+  width: calc(100% - 1.5rem);
+  max-width: 400px;
   min-width: 0;
   overflow: hidden;
-  background: var(--k-78) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  background: #0a0a0f !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   border: none !important;
-  border-top: 1px solid var(--w-5) !important;
-  box-shadow: 0 -4px 24px var(--k-52);
-  border-radius: 20px 20px 0 0;
+  border-top: 1px solid var(--w-8) !important;
+  box-shadow: 0 -2px 20px rgba(0,0,0,0.6);
+  border-radius: 18px 18px 0 0;
   margin-inline: auto;
   position: absolute;
   bottom: 0;
@@ -3465,7 +3465,7 @@ html[data-performance-tier="medium"] .cosmic-particles {
   transform: translateX(-50%);
   z-index: 20;
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  height: calc(54px + env(safe-area-inset-bottom, 0px));
+  height: calc(58px + env(safe-area-inset-bottom, 0px));
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -3497,28 +3497,28 @@ html[data-performance-tier="medium"] .cosmic-particles {
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  border: 1px solid var(--w-10);
-  background: var(--k-72);
-  color: var(--w-70);
+  border: 1px solid var(--w-14);
+  background: var(--w-6);
+  color: var(--w-85);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   position: relative;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s var(--easing-smooth);
-  box-shadow: 0 2px 12px var(--k-38);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
 
 .pager-btn-futuristic:hover {
-  background: color-mix(in oklab, var(--aurora-core) 12%, var(--k-65));
-  border-color: color-mix(in oklab, var(--aurora-core) 30%, transparent);
+  background: color-mix(in oklab, var(--aurora-core) 18%, var(--w-10));
+  border-color: color-mix(in oklab, var(--aurora-core) 40%, transparent);
   color: var(--stellar-white);
   transform: translateY(-1px);
 }
 
 .pager-btn-futuristic:active {
   transform: translateY(0) scale(0.96);
-  background: color-mix(in oklab, var(--aurora-core) 18%, var(--k-60));
+  background: color-mix(in oklab, var(--aurora-core) 24%, var(--w-8));
 }
 
 .pager-btn-futuristic::before {
