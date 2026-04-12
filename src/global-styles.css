@@ -1001,6 +1001,11 @@ button[aria-disabled="true"] {
   margin-bottom: clamp(40px, 5vh, 200px);
 }
 
+.charts-section {
+  margin-top: clamp(40px, 5vh, 200px);
+  margin-bottom: clamp(40px, 5vh, 200px);
+}
+
 /* Footer disclaimer warning icon */
 .footer-disclaimer .warn-ic {
   color: #facc15;
@@ -2455,6 +2460,11 @@ p,
     margin-bottom: clamp(24px, 6vh, 90px);
   }
 
+  .charts-section {
+    margin-top: clamp(24px, 6vh, 90px);
+    margin-bottom: clamp(24px, 6vh, 90px);
+  }
+
   .bmi-grid {
     margin-top: clamp(20px, 10vh, 90px) !important;
     margin-bottom: clamp(24px, 12vh, 120px) !important;
@@ -2635,6 +2645,11 @@ p,
     margin-bottom: clamp(20px, 8vh, 60px);
   }
 
+  .charts-section {
+    margin-top: clamp(20px, 8vh, 60px);
+    margin-bottom: clamp(20px, 8vh, 60px);
+  }
+
   .bmi-grid {
     padding: 12px;
     gap: 0.75rem;
@@ -2679,6 +2694,11 @@ p,
   }
 
   .bmi-section {
+    margin-top: clamp(20px, 8vh, 60px);
+    margin-bottom: clamp(20px, 8vh, 60px);
+  }
+
+  .charts-section {
     margin-top: clamp(20px, 8vh, 60px);
     margin-bottom: clamp(20px, 8vh, 60px);
   }

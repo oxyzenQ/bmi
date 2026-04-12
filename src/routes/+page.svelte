@@ -1441,11 +1441,11 @@
     overscroll-behavior: contain;
     will-change: transform, opacity;
     scrollbar-width: none;
-    contain: layout paint style;
+    contain: style;
     padding-top: calc(var(--pager-top-inset) + 0.5rem);
-    padding-bottom: calc(1rem + 58px + 1rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(1.5rem + 58px + 1.5rem + env(safe-area-inset-bottom, 0px));
     scroll-padding-top: calc(var(--pager-top-inset) + 0.5rem);
-    scroll-padding-bottom: calc(1rem + 58px + 1rem + env(safe-area-inset-bottom, 0px));
+    scroll-padding-bottom: calc(1.5rem + 58px + 1.5rem + env(safe-area-inset-bottom, 0px));
   }
 
   .pager-section::-webkit-scrollbar {
