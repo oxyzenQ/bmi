@@ -1296,21 +1296,11 @@
     max-width: 100%;
     min-width: 0;
     overflow: hidden;
-    background: linear-gradient(
-      180deg,
-      var(--k-72) 0%,
-      var(--k-60) 100%
-    );
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    background: var(--k-78);
     border: none;
-    border-bottom: 1px solid var(--w-8);
-    box-shadow:
-      0 1px 0 0 var(--w-4),
-      0 8px 32px var(--k-48),
-      0 2px 16px var(--k-32),
-      inset 0 1px 0 var(--w-6);
-    border-radius: 0 0 22px 22px;
+    border-bottom: 1px solid var(--w-5);
+    box-shadow: 0 4px 24px var(--k-52);
+    border-radius: 0 0 20px 20px;
     margin-inline: 0;
     position: absolute;
     top: 0;
@@ -1325,26 +1315,6 @@
     align-items: flex-end;
   }
 
-  /* Aurora glow accent line at bottom of navbar */
-  .pager-nav-shell::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 10%;
-    right: 10%;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      var(--aurora-glow, #b266ff) 30%,
-      var(--cosmic-blue) 50%,
-      var(--aurora-glow, #b266ff) 70%,
-      transparent 100%
-    );
-    opacity: 0.5;
-    pointer-events: none;
-  }
-
   .pager-nav::-webkit-scrollbar {
     display: none;
   }
@@ -1352,27 +1322,28 @@
   .pager-tab {
     height: 36px;
     padding-inline: 0.85rem;
-    font-size: 0.88rem;
-    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 400;
+    border-radius: 8px;
     white-space: nowrap;
-    opacity: 0.7;
+    opacity: 0.5;
     flex: 0 0 auto;
     min-width: max-content;
     overflow: visible;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     border: 1px solid transparent;
     transition:
-      opacity 0.25s ease,
-      background 0.25s ease,
-      border-color 0.25s ease,
-      box-shadow 0.25s ease,
-      transform 0.2s var(--easing-smooth);
+      opacity 0.2s ease,
+      background 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease;
   }
 
   .pager-tab:hover {
-    opacity: 0.9;
-    background: var(--w-6);
-    border-color: var(--w-10);
+    opacity: 0.8;
+    background: var(--w-4);
+    border-color: var(--w-7);
   }
 
   .pager-smooth {
@@ -1410,16 +1381,9 @@
 
   .pager-tab.active {
     opacity: 1;
-    background: linear-gradient(
-      135deg,
-      var(--w-10) 0%,
-      var(--w-5) 100%
-    );
-    border-color: color-mix(in oklab, var(--aurora-core) 45%, var(--w-14));
-    box-shadow:
-      0 0 20px color-mix(in oklab, var(--cosmic-purple) 22%, transparent),
-      0 0 6px color-mix(in oklab, var(--aurora-core) 15%, transparent);
-    transform: translateY(-1px);
+    background: color-mix(in oklab, var(--aurora-core) 14%, var(--w-6));
+    border-color: color-mix(in oklab, var(--aurora-core) 35%, transparent);
+    color: var(--stellar-white);
     font-weight: 500;
   }
 
@@ -1460,19 +1424,21 @@
 
   @media (max-width: 600px) {
     .pager-nav {
-      gap: 0.25rem;
-      padding: 0 0.55rem 0.45rem 0.55rem;
+      gap: 0.2rem;
+      padding: 0 0.5rem 0.4rem 0.5rem;
       overflow-x: auto;
     }
 
     .pager-tab {
       height: 34px;
-      padding-inline: 0.65rem;
-      font-size: 0.8rem;
+      padding-inline: 0.6rem;
+      font-size: 0.75rem;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
     }
 
     .pager-smooth {
-      font-size: 0.76rem;
+      font-size: 0.72rem;
     }
   }
 
