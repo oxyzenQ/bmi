@@ -3451,9 +3451,9 @@ html[data-performance-tier="medium"] .cosmic-particles {
   max-width: 100%;
   min-width: 0;
   overflow: hidden;
-  background: var(--k-78);
-  border: none;
-  border-top: 1px solid var(--w-5);
+  background: var(--k-78) !important;
+  border: none !important;
+  border-top: 1px solid var(--w-5) !important;
   box-shadow: 0 -4px 24px var(--k-52);
   border-radius: 20px 20px 0 0;
   margin-inline: 0;
