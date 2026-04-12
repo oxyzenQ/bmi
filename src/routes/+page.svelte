@@ -1482,7 +1482,7 @@
     max-width: none;
     min-width: 0;
     overflow: hidden;
-    background: var(--k-78) !important;
+    background: rgba(0, 0, 0, 0.82) !important;
     backdrop-filter: blur(24px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
     border: none !important;
