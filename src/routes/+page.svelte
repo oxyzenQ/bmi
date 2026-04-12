@@ -181,6 +181,8 @@
   let age: string = $state('');
   let height: string = $state('');
   let weight: string = $state('');
+  let gender: 'male' | 'female' | '' = $state('');
+  let activity: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active' | '' = $state('');
   let unitSystem = $state<'metric' | 'imperial'>('metric');
   let unitSystemInitialized = $state(false);
 
@@ -841,6 +843,8 @@
     age = '';
     height = '';
     weight = '';
+    gender = '';
+    activity = '';
     bmiValue = null; // Gauge will show empty/neutral state
     category = null;
     resultsRunId += 1;
@@ -976,6 +980,8 @@
                       bind:age
                       bind:height
                       bind:weight
+                      bind:gender
+                      bind:activity
                       bind:unitSystem
                       {calculating}
                       onClear={confirmClearData}
@@ -1005,7 +1011,10 @@
                         {category}
                         {unitSystem}
                         height={height === '' ? null : parseFloat(height)}
+                        weight={weight === '' ? null : parseFloat(weight)}
                         age={age === '' ? null : parseInt(age)}
+                        gender={gender || null}
+                        activity={activity || null}
                         reducedMotion={reducedMotionEffective}
                       />
                     {/if}

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BarChart3, CircleSlash2, TrendingUp, Info, AlertCircle, CheckCircle, Activity, Target, Scale } from 'lucide-svelte';
+  import { BarChart3, CircleSlash2, TrendingUp, Info, AlertCircle, CheckCircle, Activity, Target, Scale, Flame } from 'lucide-svelte';
   import { onDestroy } from 'svelte';
   import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
@@ -9,6 +9,9 @@
     category?: string | null;
     age?: number | null;
     height?: number | null;
+    weight?: number | null;
+    gender?: 'male' | 'female' | null;
+    activity?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active' | null;
     unitSystem?: 'metric' | 'imperial';
     reducedMotion?: boolean;
   }
@@ -18,6 +21,9 @@
     category = null,
     age = null,
     height = null,
+    weight = null,
+    gender = null,
+    activity = null,
     unitSystem = 'metric',
     reducedMotion = false
   }: Props = $props();
@@ -26,11 +32,13 @@
 
   const animatedBmi = tweened(0, { duration: 0, easing: cubicOut });
   const animatedPrime = tweened(0, { duration: 0, easing: cubicOut });
+  const animatedTdee = tweened(0, { duration: 0, easing: cubicOut });
 
   // Cleanup tweened store subscriptions to prevent memory leak
   onDestroy(() => {
     animatedBmi.set(0, { duration: 0 });
     animatedPrime.set(0, { duration: 0 });
+    animatedTdee.set(0, { duration: 0 });
   });
 
   // ── BMI Prime ──
@@ -79,14 +87,73 @@
     return { amount: amt, direction: weightDelta.direction, unit: u };
   });
 
+  // ── TDEE Estimation ──
+  const ACTIVITY_FACTORS: Record<string, number> = {
+    sedentary: 1.2,
+    light: 1.375,
+    moderate: 1.55,
+    active: 1.725,
+    very_active: 1.9
+  };
+
+  const ACTIVITY_LABELS: Record<string, string> = {
+    sedentary: 'Sedentary',
+    light: 'Lightly Active',
+    moderate: 'Moderately Active',
+    active: 'Very Active',
+    very_active: 'Extremely Active'
+  };
+
+  let bmr = $derived.by(() => {
+    if (gender !== 'male' && gender !== 'female') return null;
+    if (age === null || height === null || weight === null) return null;
+    if (age <= 0 || height <= 0 || weight <= 0) return null;
+    // Mifflin-St Jeor equation (metric inputs)
+    let wKg = weight;
+    let hCm = height;
+    // Convert imperial to metric if needed
+    if (unitSystem === 'imperial') {
+      wKg = weight * 0.453592;
+      hCm = height * 2.54;
+    }
+    const base = 10 * wKg + 6.25 * hCm - 5 * age;
+    return gender === 'male' ? base + 5 : base - 161;
+  });
+
+  let tdee = $derived.by(() => {
+    if (bmr === null || activity === null) return null;
+    const factor = ACTIVITY_FACTORS[activity] ?? null;
+    if (factor === null) return null;
+    return bmr * factor;
+  });
+
+  let tdeeDisplay = $derived.by(() => {
+    if (tdee === null) return null;
+    return {
+      bmr: Math.round(bmr!),
+      tdee: Math.round(tdee),
+      activityLabel: activity ? ACTIVITY_LABELS[activity] ?? '' : '',
+      deficit500: Math.round(tdee - 500),
+      surplus500: Math.round(tdee + 500)
+    };
+  });
+
+  let showTdee = $derived(tdeeDisplay !== null);
+
   // Animate BMI value when results change
   $effect(() => {
     if (hasResults) {
       animatedBmi.set(bmiValue!, { duration: reducedMotion ? 0 : 720, easing: cubicOut });
       animatedPrime.set(bmiPrime!, { duration: reducedMotion ? 0 : 720, easing: cubicOut });
+      if (tdeeDisplay) {
+        animatedTdee.set(tdeeDisplay.tdee, { duration: reducedMotion ? 0 : 720, easing: cubicOut });
+      } else {
+        animatedTdee.set(0, { duration: 0 });
+      }
     } else {
       animatedBmi.set(0, { duration: 0 });
       animatedPrime.set(0, { duration: 0 });
+      animatedTdee.set(0, { duration: 0 });
     }
   });
 
@@ -222,6 +289,52 @@
           {/if}
         </div>
       </div>
+
+      <!-- TDEE Estimation -->
+      {#if showTdee}
+        <div class="tdee-card">
+          <div class="tdee-header">
+            <div class="stat-block-header">
+              <Flame class="stat-icon tdee-icon" />
+              <span class="stat-label">TDEE Estimator</span>
+            </div>
+          </div>
+          <div class="tdee-grid">
+            <div class="tdee-stat">
+              <span class="tdee-stat-label">BMR</span>
+              <span class="tdee-stat-value">{tdeeDisplay!.bmr}</span>
+              <span class="tdee-stat-unit">kcal/day</span>
+            </div>
+            <div class="tdee-stat tdee-highlight">
+              <span class="tdee-stat-label">TDEE</span>
+              <span class="tdee-stat-value">{$animatedTdee.toFixed(0)}</span>
+              <span class="tdee-stat-unit">kcal/day</span>
+            </div>
+          </div>
+          <div class="tdee-meta">
+            <span class="tdee-activity-badge">{tdeeDisplay!.activityLabel}</span>
+            <span class="tdee-gender-badge">{gender === 'male' ? 'Male' : 'Female'}</span>
+          </div>
+          <div class="tdee-ranges">
+            <div class="tdee-range tdee-cut">
+              <span class="tdee-range-label">Weight Loss</span>
+              <span class="tdee-range-value">{tdeeDisplay!.deficit500}</span>
+              <span class="tdee-range-unit">kcal</span>
+            </div>
+            <div class="tdee-range tdee-maintain">
+              <span class="tdee-range-label">Maintain</span>
+              <span class="tdee-range-value">{tdeeDisplay!.tdee}</span>
+              <span class="tdee-range-unit">kcal</span>
+            </div>
+            <div class="tdee-range tdee-gain">
+              <span class="tdee-range-label">Weight Gain</span>
+              <span class="tdee-range-value">{tdeeDisplay!.surplus500}</span>
+              <span class="tdee-range-unit">kcal</span>
+            </div>
+          </div>
+          <p class="tdee-disclaimer">Based on Mifflin-St Jeor equation. Estimates only; consult a professional for personalized advice.</p>
+        </div>
+      {/if}
 
       <div class="health-advice">
         <h3 class="advice-title">
