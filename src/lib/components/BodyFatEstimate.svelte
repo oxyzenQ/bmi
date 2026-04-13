@@ -53,7 +53,7 @@
   });
 </script>
 
-<div class="gauge-container body-fat-container aurora-border">
+<div class="gauge-container body-fat-container">
   <div class="gauge-header">
     <div class="gauge-title">
       <Percent class="Gauge" />

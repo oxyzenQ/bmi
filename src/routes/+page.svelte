@@ -1005,7 +1005,7 @@
             <!-- BMI Calculator Section -->
             <section class="bmi-section">
               <div class="bmi-grid">
-                <div class="form-card aurora-border">
+                <div class="form-card">
                   {#if BmiFormComponent}
                     <BmiFormComponent
                       bind:age
@@ -1041,7 +1041,7 @@
                     </div>
                   {/if}
                 </div>
-                <div class="bmi-card aurora-border">
+                <div class="bmi-card">
                   {#key resultsRunId}
                     {#if BmiResultsComponent}
                       <BmiResultsComponent
@@ -1083,7 +1083,7 @@
                   ultraSmooth={smoothModeRequested}
                 />
               {:else}
-                <div class="skeleton-card aurora-border">
+                <div class="skeleton-card">
                   <div class="skeleton-gauge">
                     <div class="skeleton skeleton-ring"></div>
                     <div class="skeleton skeleton-line w-60 h-md" style="margin:0 auto"></div>
@@ -1103,7 +1103,7 @@
                   category={category}
                 />
               {:else}
-                <div class="skeleton-card aurora-border">
+                <div class="skeleton-card">
                   <div class="skeleton skeleton-line w-40 h-md" style="margin-bottom:1rem"></div>
                   <div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.75rem"></div>
                   <div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:1.5rem"></div>
@@ -1118,7 +1118,7 @@
                   category={category}
                 />
               {:else}
-                <div class="skeleton-card aurora-border">
+                <div class="skeleton-card">
                   <div class="skeleton skeleton-line w-60 h-md" style="margin-bottom:1rem"></div>
                   <div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.75rem"></div>
                   <div class="skeleton skeleton-line w-80 h-sm"></div>
@@ -1131,7 +1131,7 @@
                   age={age === '' ? null : parseInt(age)}
                 />
               {:else}
-                <div class="skeleton-card aurora-border">
+                <div class="skeleton-card">
                   <div class="skeleton skeleton-circle"></div>
                   <div class="skeleton skeleton-line w-40 h-lg" style="margin:0 auto 1rem"></div>
                   <div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.5rem"></div>
@@ -1149,7 +1149,7 @@
             {#if ReferenceTableComponent}
               <ReferenceTableComponent />
             {:else}
-              <div class="skeleton-card aurora-border">
+              <div class="skeleton-card">
                 <div class="skeleton skeleton-line w-60 h-lg" style="margin-bottom:1.5rem"></div>
                 <div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.5rem"></div>
                 <div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.5rem"></div>

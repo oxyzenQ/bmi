@@ -167,7 +167,7 @@
   let progressEnd = $derived(appliedBmi > 0 ? lighten(appliedColor, 0.25) : 'rgba(148, 163, 184, 0.3)');
 </script>
 
-<div class="gauge-container aurora-border">
+<div class="gauge-container">
   <div class="gauge-header">
     <div class="gauge-title">
       <Gauge class="Gauge" />

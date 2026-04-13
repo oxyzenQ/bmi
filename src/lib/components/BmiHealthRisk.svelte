@@ -80,7 +80,7 @@
   let Icon = $derived(risk.icon);
 </script>
 
-<div class="gauge-container bmi-health-risk aurora-border">
+<div class="gauge-container bmi-health-risk">
   <div class="gauge-header">
     <div class="gauge-title">
       <Shield class="Gauge" />

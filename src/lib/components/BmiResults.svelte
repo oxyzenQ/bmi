@@ -206,7 +206,7 @@
   }
 </script>
 
-<div class="bmi-results-card {catClass} aurora-border">
+<div class="bmi-results-card {catClass}">
   <div class="card-header">
     <div class="icon-container">
       <CircleSlash2 class="CircleSlash2" />
