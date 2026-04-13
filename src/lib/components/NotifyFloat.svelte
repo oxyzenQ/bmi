@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, untrack } from 'svelte';
+  import { onMount, untrack, onDestroy } from 'svelte';
   import { CheckCircle, Trash2, X, ShieldAlert } from 'lucide-svelte';
 
   interface Props {
@@ -26,6 +26,69 @@
   let mounted = $state(false);
   let notifyKey = $state(0);
   let actionTimer: ReturnType<typeof setTimeout> | null = null;
+  let backdropEl: HTMLDivElement | null = $state(null);
+  let focusTrapHandler: ((e: KeyboardEvent) => void) | null = null;
+
+  // B-2: Focus trap + Escape key for accessibility
+  function getFocusableElements(): HTMLElement[] {
+    if (!backdropEl) return [];
+    return Array.from(
+      backdropEl.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => !el.hasAttribute('disabled') && el.tabIndex >= 0);
+  }
+
+  function trapFocus(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      handleClose();
+      return;
+    }
+    if (e.key !== 'Tab') return;
+
+    const focusable = getFocusableElements();
+    if (focusable.length === 0) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  $effect(() => {
+    if (visible && backdropEl) {
+      // Activate focus trap
+      focusTrapHandler = trapFocus;
+      document.addEventListener('keydown', focusTrapHandler);
+
+      // Autofocus first button
+      const focusable = getFocusableElements();
+      if (focusable.length > 0) {
+        // Slight delay to let animation start
+        setTimeout(() => focusable[0].focus(), 100);
+      }
+    } else {
+      // Deactivate focus trap
+      if (focusTrapHandler) {
+        document.removeEventListener('keydown', focusTrapHandler);
+        focusTrapHandler = null;
+      }
+    }
+  });
+
+  onDestroy(() => {
+    if (focusTrapHandler) {
+      document.removeEventListener('keydown', focusTrapHandler);
+    }
+  });
 
   // Effect handles three triggers:
   //   1. show: false → true (open)
@@ -105,6 +168,7 @@
 {#if show}
   {#key notifyKey}
   <div
+    bind:this={backdropEl}
     class="notify-backdrop"
     class:visible
     role="dialog"

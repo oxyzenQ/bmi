@@ -1280,6 +1280,16 @@
         <div class="pager-btn-spacer" aria-hidden="true"></div>
       {/if}
 
+      <button
+        type="button"
+        class="pager-btn-futuristic pager-btn-scroll-top"
+        class:fab-visible={showScrollTopFab}
+        aria-label="Scroll to top"
+        onclick={scrollToTop}
+      >
+        <ChevronUp aria-hidden="true" size={28} />
+      </button>
+
       {#if activeIndex < sections.length - 1}
         <button
           type="button"
@@ -1294,17 +1304,6 @@
       {/if}
     </div>
   </div>
-
-  <!-- Scroll-to-top FAB -->
-  <button
-    type="button"
-    class="scroll-top-fab"
-    class:visible={showScrollTopFab}
-    aria-label="Scroll to top"
-    onclick={scrollToTop}
-  >
-    <ChevronUp size={20} />
-  </button>
 </div>
 
 {#if showNotify}

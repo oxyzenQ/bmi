@@ -123,11 +123,55 @@
       }, revealDelay);
     }
 
+    // B-3: Set canonical URL from current location
+    if (browser) {
+      canonicalUrl = window.location.origin + window.location.pathname;
+      const onHashChange = () => {
+        canonicalUrl = window.location.origin + window.location.pathname + window.location.hash;
+      };
+      window.addEventListener('hashchange', onHashChange);
+      cleanupFns.push(() => window.removeEventListener('hashchange', onHashChange));
+    }
+
+    // B-1: Web Vitals observer (LCP, CLS, INP)
+    if (browser && 'PerformanceObserver' in window) {
+      try {
+        const observe = (type: string, callback: (entry: PerformanceEntry) => void) => {
+          try {
+            const po = new PerformanceObserver((list) => {
+              for (const entry of list.getEntries()) callback(entry);
+              po.disconnect();
+            });
+            po.observe({ type, buffered: true });
+          } catch { /* metric type not supported */ }
+        };
+
+        observe('largest-contentful-paint', (e) => {
+          const val = Math.round(e.startTime);
+          console.log(`[Vitals] LCP: ${val}ms${val > 2500 ? ' (slow)' : val > 1200 ? ' (needs-improvement)' : ' (good)'}`);
+        });
+
+        observe('layout-shift', (e) => {
+          const entry = e as PerformanceEntry & { value: number };
+          const val = entry.value;
+          console.log(`[Vitals] CLS: ${val.toFixed(3)}${val > 0.25 ? ' (poor)' : val > 0.1 ? ' (needs-improvement)' : ' (good)'}`);
+        });
+
+        observe('interaction-to-next-paint', (e) => {
+          const val = Math.round(e.startTime);
+          console.log(`[Vitals] INP: ${val}ms${val > 500 ? ' (poor)' : val > 200 ? ' (needs-improvement)' : ' (good)'}`);
+        });
+      } catch { /* PerformanceObserver failed */ }
+    }
+
     return () => {
       if (timer) clearTimeout(timer);
       cleanupFns.forEach((fn) => fn());
     };
   });
+
+  // B-3: Dynamic og:url
+  let canonicalUrl = $state('');
 
   function handleSplashComplete() {
     showSplash = false;
@@ -135,6 +179,13 @@
   }
 </script>
 
+<svelte:head>
+  {#if canonicalUrl}
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta name="twitter:url" content={canonicalUrl} />
+  {/if}
+</svelte:head>
 
 {#if showSplash}
   <SplashScreen
