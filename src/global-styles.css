@@ -1527,22 +1527,28 @@ button[aria-disabled="true"] {
   gap: 0.4rem;
   padding: 0.5rem 0.85rem;
   border-radius: 10px;
-  border: 1px solid var(--w-14);
-  background: linear-gradient(180deg, var(--w-7), var(--w-2-5));
-  color: var(--w-80);
+  border: 1px solid color-mix(in oklab, var(--aurora-core) 22%, var(--w-14));
+  background: var(--bg-by-rezky);
+  color: white;
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   flex: 1;
   justify-content: center;
+  box-shadow: 0 8px 20px var(--k-45),
+    inset 0 1px 0 var(--w-8),
+    0 0 16px color-mix(in oklab, var(--cosmic-purple) 24%, transparent);
 }
 
 .action-btn:hover {
-  background: linear-gradient(180deg, var(--w-13), var(--w-5));
-  border-color: var(--w-24);
+  background: var(--bg-last-by-rezky);
+  border-color: color-mix(in oklab, var(--aurora-core) 34%, var(--w-16));
   color: white;
   transform: translateY(-1px);
+  box-shadow: 0 12px 28px var(--k-55),
+    inset 0 1px 0 var(--w-10),
+    0 0 24px color-mix(in oklab, var(--cosmic-purple) 30%, transparent);
 }
 
 .action-btn:active {
@@ -3992,8 +3998,8 @@ html[data-performance-tier="medium"] .cosmic-particles {
 }
 
 .pager-btn-futuristic svg {
-  width: 36px !important;
-  height: 36px !important;
+  width: 44px !important;
+  height: 44px !important;
   stroke-width: 2 !important;
 }
 

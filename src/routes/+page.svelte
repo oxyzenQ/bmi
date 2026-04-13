@@ -1270,7 +1270,7 @@
               </div>
 
               <!-- C-4: Keyboard Shortcuts Card -->
-              <div class="about-card" style="margin-top:1.5rem">
+              <div class="about-card" style="margin-top:1.5rem; margin-bottom: clamp(80px, 10vh, 120px);">
                 <div class="about-card-header">
                   <Keyboard class="Keyboard" />
                   <h3>Keyboard Shortcuts</h3>
@@ -1345,7 +1345,7 @@
           aria-label="Previous section"
           onclick={prevSection}
         >
-          <ChevronLeft aria-hidden="true" size={36} />
+          <ChevronLeft aria-hidden="true" size={44} />
         </button>
       {:else}
         <div class="pager-btn-spacer" aria-hidden="true"></div>
@@ -1358,7 +1358,7 @@
         aria-label="Scroll to top"
         onclick={scrollToTop}
       >
-        <ChevronUp aria-hidden="true" size={28} />
+        <ChevronUp aria-hidden="true" size={36} />
       </button>
 
       {#if activeIndex < sections.length - 1}
@@ -1368,7 +1368,7 @@
           aria-label="Next section"
           onclick={nextSection}
         >
-          <ChevronRight aria-hidden="true" size={36} />
+          <ChevronRight aria-hidden="true" size={44} />
         </button>
       {:else}
         <div class="pager-arrow-spacer" aria-hidden="true"></div>

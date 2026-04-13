@@ -227,11 +227,18 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(255,255,255,0.25)';
   ctx.font = '500 22px system-ui, sans-serif';
-  ctx.fillText('A Simple BMI Calc — by Rezky Nightky', CARD_W / 2, CARD_H - 140);
+  ctx.fillText('A Simple BMI Calc — by Rezky Nightky', CARD_W / 2, CARD_H - 160);
 
   ctx.fillStyle = 'rgba(255,255,255,0.15)';
   ctx.font = '400 20px system-ui, sans-serif';
-  ctx.fillText('bmi.oxyzen.dev', CARD_W / 2, CARD_H - 100);
+  ctx.fillText('bmi-logigo.vercel.app', CARD_W / 2, CARD_H - 120);
+
+  // Timestamp
+  const now = new Date();
+  const timestamp = now.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+  ctx.fillStyle = 'rgba(255,255,255,0.12)';
+  ctx.font = '400 18px system-ui, sans-serif';
+  ctx.fillText(timestamp, CARD_W / 2, CARD_H - 80);
 
   // Convert canvas to blob
   return new Promise<Blob | null>((resolve) => {

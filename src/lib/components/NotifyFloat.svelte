@@ -236,23 +236,16 @@
 
   .notify-float-box {
     position: relative;
-    background: linear-gradient(
-      135deg,
-      var(--w-10) 0%,
-      var(--w-5) 100%
-    );
-    border: 1px solid var(--w-18);
+    background: var(--k-50);
+    border: var(--border-by-rezky);
     border-radius: 24px;
     padding: 2.5rem 2rem;
     min-width: 320px;
     max-width: 90vw;
     text-align: center;
-    backdrop-filter: blur(20px) saturate(200%);
-    -webkit-backdrop-filter: blur(20px) saturate(200%);
-    box-shadow:
-      0 25px 50px -12px var(--k-50),
-      0 0 0 1px var(--w-10) inset,
-      0 0 60px var(--neon-15);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    box-shadow: 0 25px 50px -12px var(--k-50);
     transform: scale(0.9) translateY(20px);
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }

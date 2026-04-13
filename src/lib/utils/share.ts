@@ -42,7 +42,8 @@ export function formatBmiText(data: BmiShareData): string {
   }
 
   text += `\nCalculated with A Simple BMI Calc`;
-  text += `\nhttps://bmi.oxyzen.dev`;
+  text += `\nhttps://bmi-logigo.vercel.app`;
+  text += `\n${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}`;
 
   return text;
 }
@@ -57,7 +58,7 @@ export async function shareBmiResult(data: BmiShareData): Promise<{ ok: boolean;
   const shareData: ShareData = {
     title: 'BMI Calculator Result',
     text,
-    url: 'https://bmi.oxyzen.dev'
+    url: 'https://bmi-logigo.vercel.app'
   };
 
   // Try Web Share API first (mobile)
