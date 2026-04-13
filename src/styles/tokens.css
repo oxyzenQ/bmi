@@ -1,0 +1,324 @@
+/* ── tokens.css — Design tokens: @font-face declarations, :root CSS custom properties (colors, opacity, spacing, animation, gradients) ── */
+/* Author: Rezky Nightky 2025-2026 */
+/* ==============================
+  FONTS & IMPORTS
+  ============================== */
+
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url('@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
+/* ==============================
+      CSS VARIABLES
+      ============================== */
+:root {
+  /* Primary cosmic colors */
+  --cosmic-void: #120824;
+  --cosmic-blue: #9a4dff;
+  --cosmic-purple: #8000ff;
+
+  /* Plasma theme (splash screen) */
+  --plasma-glow: var(--coreblue-15);
+  --plasma-text-primary: #e2e8f0;
+  --plasma-text-secondary: grey;
+
+  /* Aurora beam colors */
+  --aurora-bright: #8000ff;
+  --aurora-core: #8000ff;
+  --aurora-glow: #b266ff;
+
+  /* Atmospheric gradients */
+  --atmosphere-horizon: #5b2ea6;
+
+  /* Accent colors */
+  --stellar-white: #ffffff;
+  --cosmic-silver: #d6ccff;
+
+  /* Wallpaper system */
+  --wallpaper-current: url('/images/oxyzen-zenlysium.webp');
+  --wallpaper-space: url('/images/oxyzen-zenlysium.webp');
+  --wallpaper-energy: url('/images/oxyzen-cyberagent.webp');
+
+  /* Text & accents */
+  --text-primary: var(--stellar-white);
+  --text-secondary: var(--cosmic-silver);
+  --text-muted: grey;
+  --accent-blue: var(--aurora-bright);
+
+  /* Glassmorphism & branding */
+  --bg-by-rezky: linear-gradient(45deg, #1a0533, #8000ffda);
+  --bg-last-by-rezky: linear-gradient(45deg, #100a24, #8000ffda);
+  --border-by-rezky: 1px solid var(--w-14);
+  --bg-cosmic: linear-gradient(135deg,
+      #4e3383,
+      /* deep space violet */
+      #5b4ce0,
+      /* nebula core */
+      #8000ffda,
+      /* aurora violet */
+      #8000ff,
+      /* plasma purple */
+      #e2c7ff
+      /* starlight highlight */
+    );
+
+  /* Animation/transition tuning */
+  --easing-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 280ms;
+  --dur-normal: 500ms;
+  --dur-slow: 800ms;
+
+  /* ── Opacity token system ── */
+
+  /* White opacity */
+  --w-0: rgba(255, 255, 255, 0);
+  --w-1-8: rgba(255, 255, 255, 0.018);
+  --w-2: rgba(255, 255, 255, 0.02);
+  --w-2-5: rgba(255, 255, 255, 0.025);
+  --w-3: rgba(255, 255, 255, 0.03);
+  --w-3-5: rgba(255, 255, 255, 0.035);
+  --w-4: rgba(255, 255, 255, 0.04);
+  --w-5: rgba(255, 255, 255, 0.05);
+  --w-6: rgba(255, 255, 255, 0.06);
+  --w-7: rgba(255, 255, 255, 0.07);
+  --w-8: rgba(255, 255, 255, 0.08);
+  --w-9: rgba(255, 255, 255, 0.09);
+  --w-10: rgba(255, 255, 255, 0.1);
+  --w-12: rgba(255, 255, 255, 0.12);
+  --w-13: rgba(255, 255, 255, 0.13);
+  --w-14: rgba(255, 255, 255, 0.14);
+  --w-15: rgba(255, 255, 255, 0.15);
+  --w-16: rgba(255, 255, 255, 0.16);
+  --w-18: rgba(255, 255, 255, 0.18);
+  --w-20: rgba(255, 255, 255, 0.2);
+  --w-22: rgba(255, 255, 255, 0.22);
+  --w-24: rgba(255, 255, 255, 0.24);
+  --w-25: rgba(255, 255, 255, 0.25);
+  --w-30: rgba(255, 255, 255, 0.3);
+  --w-50: rgba(255, 255, 255, 0.5);
+  --w-60: rgba(255, 255, 255, 0.6);
+  --w-70: rgba(255, 255, 255, 0.7);
+  --w-80: rgba(255, 255, 255, 0.8);
+  --w-90: rgba(255, 255, 255, 0.9);
+  --w-95: rgba(255, 255, 255, 0.95);
+
+  /* Black opacity */
+  --k-0: rgba(0, 0, 0, 0);
+  --k-20: rgba(0, 0, 0, 0.2);
+  --k-25: rgba(0, 0, 0, 0.25);
+  --k-30: rgba(0, 0, 0, 0.3);
+  --k-38: rgba(0, 0, 0, 0.38);
+  --k-40: rgba(0, 0, 0, 0.4);
+  --k-42: rgba(0, 0, 0, 0.42);
+  --k-45: rgba(0, 0, 0, 0.45);
+  --k-50: rgba(0, 0, 0, 0.5);
+  --k-55: rgba(0, 0, 0, 0.55);
+  --k-65: rgba(0, 0, 0, 0.65);
+  --k-82: rgba(0, 0, 0, 0.82);
+  --k-98: rgba(0, 0, 0, 0.98);
+
+  /* Slate-dark (15,23,42) */
+  --sd-40: rgba(15, 23, 42, 0.4);
+  --sd-55: rgba(15, 23, 42, 0.55);
+  --sd-60: rgba(15, 23, 42, 0.6);
+  --sd-70: rgba(15, 23, 42, 0.7);
+  --sd-75: rgba(15, 23, 42, 0.75);
+  --sd-80: rgba(15, 23, 42, 0.8);
+  --sd-90: rgba(15, 23, 42, 0.9);
+
+  /* Slate-gray (148,163,184) */
+  --sg-5: rgba(148, 163, 184, 0.05);
+  --sg-8: rgba(148, 163, 184, 0.08);
+  --sg-10: rgba(148, 163, 184, 0.1);
+  --sg-15: rgba(148, 163, 184, 0.15);
+  --sg-16: rgba(148, 163, 184, 0.16);
+  --sg-25: rgba(148, 163, 184, 0.25);
+  --sg-30: rgba(148, 163, 184, 0.3);
+
+  /* Deep-void (2,6,23) */
+  --dv-40: rgba(2, 6, 23, 0.4);
+  --dv-58: rgba(2, 6, 23, 0.58);
+  --dv-90: rgba(2, 6, 23, 0.9);
+
+  /* Deep-void-8 (2,8,23) */
+  --dv8-25: rgba(2, 8, 23, 0.25);
+
+  /* Cosmic-base (10,8,24) */
+  --cbase-82: rgba(10, 8, 24, 0.82);
+
+  /* Core-blue (59,130,246) */
+  --coreblue-0: rgba(59, 130, 246, 0);
+  --coreblue-15: rgba(59, 130, 246, 0.15);
+  --coreblue-35: rgba(59, 130, 246, 0.35);
+  --coreblue-50: rgba(59, 130, 246, 0.5);
+
+  /* Blue (96,165,250) */
+  --blue-5: rgba(96, 165, 250, 0.05);
+  --blue-35: rgba(96, 165, 250, 0.35);
+  --blue-40: rgba(96, 165, 250, 0.4);
+  --blue-50: rgba(96, 165, 250, 0.5);
+
+  /* Sky (79,172,254) */
+  --sky-60: rgba(79, 172, 254, 0.6);
+
+  /* Cyan (6,182,212) */
+  --cyan-35: rgba(6, 182, 212, 0.35);
+
+  /* Cyan-accent (0,240,255) */
+  --cyan2-40: rgba(0, 240, 255, 0.4);
+
+  /* Indigo (99,102,241) */
+  --ink-18: rgba(99, 102, 241, 0.18);
+
+  /* Violet (139,92,246) */
+  --violet-50: rgba(139, 92, 246, 0.5);
+
+  /* Plum (147,51,234) */
+  --plum-0: rgba(147, 51, 234, 0);
+  --plum-30: rgba(147, 51, 234, 0.3);
+  --plum-40: rgba(147, 51, 234, 0.4);
+  --plum-50: rgba(147, 51, 234, 0.5);
+  --plum-80: rgba(147, 51, 234, 0.8);
+
+  /* Purple (168,85,247) */
+  --purple-5: rgba(168, 85, 247, 0.05);
+  --purple-60: rgba(168, 85, 247, 0.6);
+  --purple-80: rgba(168, 85, 247, 0.8);
+  --purple-90: rgba(168, 85, 247, 0.9);
+
+  /* Magenta (142,45,226) */
+  --magenta-80: rgba(142, 45, 226, 0.8);
+
+  /* Orchid (147,112,219) */
+  --orchid-10: rgba(147, 112, 219, 0.1);
+  --orchid-15: rgba(147, 112, 219, 0.15);
+  --orchid-25: rgba(147, 112, 219, 0.25);
+  --orchid-30: rgba(147, 112, 219, 0.3);
+
+  /* Neon-purple (128,0,255) */
+  --neon-15: rgba(128, 0, 255, 0.15);
+
+  /* Ghost-blue (120,120,255) */
+  --ghost-6: rgba(120, 120, 255, 0.06);
+  --ghost-8: rgba(120, 120, 255, 0.08);
+
+  /* Category red (213,0,0) */
+  --cat-red-8: rgba(213, 0, 0, 0.08);
+  --cat-red-15: rgba(213, 0, 0, 0.15);
+  --cat-red-30: rgba(213, 0, 0, 0.3);
+  --cat-red-32: rgba(213, 0, 0, 0.32);
+  --cat-red-40: rgba(213, 0, 0, 0.4);
+  --cat-red-90: rgba(213, 0, 0, 0.9);
+  --cat-red-95: rgba(213, 0, 0, 0.95);
+
+  /* Dark-red (183,28,28) */
+  --darkred-90: rgba(183, 28, 28, 0.9);
+  --darkred-95: rgba(183, 28, 28, 0.95);
+
+  /* Category green (0,200,83) */
+  --cat-green-8: rgba(0, 200, 83, 0.08);
+  --cat-green-10: rgba(0, 200, 83, 0.1);
+  --cat-green-15: rgba(0, 200, 83, 0.15);
+  --cat-green-20: rgba(0, 200, 83, 0.2);
+  --cat-green-30: rgba(0, 200, 83, 0.3);
+  --cat-green-32: rgba(0, 200, 83, 0.32);
+  --cat-green-40: rgba(0, 200, 83, 0.4);
+  --cat-green-90: rgba(0, 200, 83, 0.9);
+  --cat-green-95: rgba(0, 200, 83, 0.95);
+
+  /* Dark-green (0,168,71) */
+  --dkgreen-90: rgba(0, 168, 71, 0.9);
+  --dkgreen-95: rgba(0, 168, 71, 0.95);
+
+  /* Emerald (16,185,129) */
+  --emerald-40: rgba(16, 185, 129, 0.4);
+
+  /* Category amber (245,158,11) */
+  --cat-amber-30: rgba(245, 158, 11, 0.3);
+  --cat-amber-40: rgba(245, 158, 11, 0.4);
+  --cat-amber-90: rgba(245, 158, 11, 0.9);
+  --cat-amber-95: rgba(245, 158, 11, 0.95);
+
+  /* Dark-amber (217,119,6) */
+  --dkamber-90: rgba(217, 119, 6, 0.9);
+  --dkamber-95: rgba(217, 119, 6, 0.95);
+
+  /* Category yellow (255,214,0) */
+  --cat-yellow-8: rgba(255, 214, 0, 0.08);
+  --cat-yellow-30: rgba(255, 214, 0, 0.3);
+  --cat-yellow-32: rgba(255, 214, 0, 0.32);
+  --cat-yellow-40: rgba(255, 214, 0, 0.4);
+
+  /* Gold (250,204,21) */
+  --gold-35: rgba(250, 204, 21, 0.35);
+  --gold-45: rgba(250, 204, 21, 0.45);
+
+  /* Danger (239,68,68) */
+  --danger-42: rgba(239, 68, 68, 0.42);
+
+  /* Category-blue (74,144,226) */
+  --cat-blue-8: rgba(74, 144, 226, 0.08);
+  --cat-blue-15: rgba(74, 144, 226, 0.15);
+  --cat-blue-30: rgba(74, 144, 226, 0.3);
+  --cat-blue-32: rgba(74, 144, 226, 0.32);
+  --cat-blue-40: rgba(74, 144, 226, 0.4);
+
+  /* Category-slate (156,163,175) */
+  --cat-slate-32: rgba(156, 163, 175, 0.32);
+
+  /* Zinc (161,161,170) */
+  --zinc-36: rgba(161, 161, 170, 0.36);
+
+  /* Cool-gray (100,116,139) */
+  --coolgray-30: rgba(100, 116, 139, 0.3);
+  --coolgray-40: rgba(100, 116, 139, 0.4);
+  --coolgray-90: rgba(100, 116, 139, 0.9);
+  --coolgray-95: rgba(100, 116, 139, 0.95);
+
+  /* Dark-gray (71,85,105) */
+  --dkgray-90: rgba(71, 85, 105, 0.9);
+  --dkgray-95: rgba(71, 85, 105, 0.95);
+
+  /* Zinc-200 (229,231,235) */
+  --zinc2-20: rgba(229, 231, 235, 0.2);
+  --zinc2-22: rgba(229, 231, 235, 0.22);
+
+  /* ── End opacity token system ── */
+
+  /* Button system */
+  --btn-radius: 14px;
+  --btn-height: 44px;
+  --btn-padding-x: 18px;
+  --btn-font: 600 0.95rem/1 'Inter Variable', system-ui, -apple-system, sans-serif;
+  --btn-bg: color-mix(in oklab, var(--cosmic-void) 80%, transparent);
+  --btn-bg-hover: color-mix(in oklab, var(--cosmic-void) 70%, transparent);
+  --btn-bg-active: color-mix(in oklab, var(--cosmic-void) 88%, transparent);
+  --btn-surface: linear-gradient(180deg, var(--w-7), var(--w-2-5));
+  --btn-border: 1px solid var(--w-14);
+  --btn-border-hover: 1px solid var(--w-18);
+  --btn-shadow: 0 12px 28px var(--k-42),
+    inset 0 1px 0 var(--w-7),
+    0 0 18px color-mix(in oklab, var(--cosmic-purple) 18%, transparent);
+  --btn-shadow-hover: 0 18px 44px var(--k-50),
+    inset 0 1px 0 var(--w-10),
+    0 0 28px color-mix(in oklab, var(--cosmic-purple) 26%, transparent);
+}
+

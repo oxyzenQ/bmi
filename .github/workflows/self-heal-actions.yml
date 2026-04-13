@@ -7,7 +7,7 @@
 # - Update files, commit as repository owner, and push to default branch
 #
 # Security/minimality notes:
-# - Uses a fine-grained PAT (stored as WORKFLOW_UPDATER_PAT) to update workflow files.
+# - Uses the built-in GITHUB_TOKEN to update workflow files (no custom PAT needed).
 # - Runs on ubuntu-latest.
 # - Avoids infinite loops by not running on push events (schedule/manual only).
 # - Skips if there are no actual file changes.
@@ -51,13 +51,13 @@ jobs:
         uses: actions/checkout@v6.0.2
         with:
           ref: ${{ steps.branch.outputs.name }}
-          token: ${{ secrets.WORKFLOW_UPDATER_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 1
           fetch-tags: false
 
       - name: Scan and update action versions (patch/minor only)
         env:
-          GH_TOKEN: ${{ secrets.WORKFLOW_UPDATER_PAT }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail

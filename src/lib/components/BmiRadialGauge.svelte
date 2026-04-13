@@ -3,6 +3,7 @@
   import { onDestroy } from 'svelte';
   import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
+  import { browser } from '$app/environment';
   import { getPerformanceTier, prefersReducedMotion } from '$lib/utils/performance';
 
   interface Props {
@@ -186,8 +187,8 @@
     >
       <defs>
         <linearGradient id="gaugeBackground" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="rgba(148, 163, 184, 0.1)" />
-          <stop offset="100%" stop-color="rgba(148, 163, 184, 0.05)" />
+          <stop offset="0%" style="stop-color: var(--sg-10)" />
+          <stop offset="100%" style="stop-color: var(--sg-5)" />
         </linearGradient>
 
         <linearGradient id="gaugeProgressGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -272,6 +273,15 @@
         </div>
       {/each}
     </div>
+
+    {#if appliedBmi <= 0}
+      <div class="gauge-empty-cta">
+        <p>Enter your measurements to visualize your BMI</p>
+        <button type="button" class="gauge-cta-btn" onclick={() => { if (browser) window.location.hash = '#calculator'; }}>
+          Calculate BMI
+        </button>
+      </div>
+    {/if}
   </div>
 </div>
 

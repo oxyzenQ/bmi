@@ -1,0 +1,483 @@
+/* ── components.css — Glassmorphism containers, button system, hero section, bounce/pulse keyframes ── */
+/* ==============================
+      GLASSMORPHISM COMPONENTS
+      ============================== */
+/* Enhanced liquid glass effect — all container box backgrounds consolidated here */
+.bmi-card,
+.footer-disclaimer,
+.about-card,
+.gauge-container,
+.reference-table,
+.form-card,
+.github-link,
+.section-header,
+.section-header-v2 {
+  background: var(--k-50);
+  border: var(--border-by-rezky);
+  border-radius: 2rem;
+  box-shadow:
+    0 8px 32px var(--k-40),
+    inset 0 1px 0 var(--w-8),
+    0 0 20px color-mix(in oklab, var(--cosmic-purple) 16%, transparent);
+  transition: transform var(--dur-slow) var(--easing-smooth),
+    box-shadow var(--dur-slow) var(--easing-smooth),
+    border-color var(--dur-slow) var(--easing-smooth);
+}
+
+/* Hero content retains backdrop-filter for main visual impact */
+.hero-content {
+  background: var(--k-50);
+  border: var(--border-by-rezky);
+  border-radius: 2rem;
+  backdrop-filter: blur(8px) saturate(140%);
+  box-shadow:
+    0 8px 32px var(--k-40),
+    inset 0 1px 0 var(--w-8),
+    0 0 20px color-mix(in oklab, var(--cosmic-purple) 16%, transparent);
+  transition: transform var(--dur-slow) var(--easing-smooth),
+    box-shadow var(--dur-slow) var(--easing-smooth),
+    border-color var(--dur-slow) var(--easing-smooth);
+}
+
+
+
+/* ==============================
+      BUTTON SYSTEM
+      ============================== */
+
+.btn,
+button,
+a.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  height: var(--btn-height);
+  padding-inline: var(--btn-padding-x);
+  font: var(--btn-font);
+  color: var(--stellar-white);
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: visible;
+  transition: transform var(--dur-fast) var(--easing-smooth),
+    box-shadow var(--dur-fast) var(--easing-smooth),
+    background var(--dur-fast) var(--easing-smooth),
+    border-color var(--dur-fast) var(--easing-smooth);
+  background: var(--btn-surface) padding-box, var(--btn-bg);
+  border: var(--btn-border);
+  box-shadow: var(--btn-shadow);
+  border-radius: var(--btn-radius);
+}
+
+.btn:hover,
+button:hover,
+a.button:hover {
+  transform: translateY(-1px) scale(1.01);
+  background: var(--btn-surface) padding-box, var(--btn-bg-hover);
+  border: var(--btn-border-hover);
+  box-shadow: var(--btn-shadow-hover);
+}
+
+.btn:active,
+button:active,
+a.button:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 120ms;
+  background: var(--btn-surface) padding-box, var(--btn-bg-active);
+}
+
+.btn:focus-visible,
+button:focus-visible,
+a.button:focus-visible {
+  outline: 3px solid color-mix(in oklab, var(--aurora-core) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.btn:focus:not(:focus-visible),
+button:focus:not(:focus-visible),
+a.button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"],
+button:disabled,
+button[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Elegant glassmorphism variants for primary & danger */
+.btn-primary {
+  color: white;
+  background: var(--bg-by-rezky);
+  border: 1px solid color-mix(in oklab, var(--aurora-core) 22%, var(--w-14));
+  box-shadow: 0 16px 40px var(--k-45),
+    inset 0 1px 0 var(--w-8),
+    0 0 28px color-mix(in oklab, var(--cosmic-purple) 30%, transparent);
+}
+
+.btn-primary:hover {
+  background: var(--bg-last-by-rezky);
+  border-color: color-mix(in oklab, var(--aurora-core) 34%, var(--w-16));
+  box-shadow: 0 20px 52px var(--k-55),
+    inset 0 1px 0 var(--w-10),
+    0 0 40px color-mix(in oklab, var(--cosmic-purple) 36%, transparent);
+}
+
+.btn.is-calculating {
+  transform: translateY(0) scale(0.985);
+}
+
+.btn .btn-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 0.55rem;
+}
+
+.btn .btn-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0.5;
+  /* animation removed for GPU performance */
+}
+
+/* Elegant danger variant */
+.btn-danger {
+  color: white;
+  background: var(--bg-by-rezky);
+  border: 1px solid color-mix(in oklab, var(--aurora-core) 22%, var(--w-14));
+  box-shadow: 0 16px 40px var(--k-45),
+    inset 0 1px 0 var(--w-8),
+    0 0 28px color-mix(in oklab, var(--cosmic-purple) 22%, transparent);
+}
+
+.btn-danger:hover {
+  background: var(--bg-last-by-rezky);
+  border-color: color-mix(in oklab, var(--aurora-core) 32%, var(--w-16));
+  box-shadow: 0 20px 52px var(--k-55),
+    inset 0 1px 0 var(--w-10),
+    0 0 40px color-mix(in oklab, var(--cosmic-purple) 30%, transparent);
+}
+
+.btn-danger:active,
+.btn-danger:focus,
+.btn-primary:active,
+.btn-primary:focus {
+  background: var(--bg-last-by-rezky);
+  border-radius: var(--btn-radius);
+}
+
+.btn-secondary {
+  background: linear-gradient(180deg, var(--w-9), var(--w-3-5)) padding-box,
+    color-mix(in oklab, var(--cosmic-void) 52%, transparent);
+  border-color: var(--w-18);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(180deg, var(--w-13), var(--w-5)) padding-box,
+    color-mix(in oklab, var(--cosmic-void) 44%, transparent);
+  border-color: var(--w-24);
+}
+
+.btn-ghost {
+  background: linear-gradient(180deg, var(--w-6), var(--w-1-8)) padding-box,
+    color-mix(in oklab, var(--cosmic-void) 58%, transparent);
+  border-color: var(--w-12);
+}
+
+/* Button sizes */
+.btn-lg {
+  height: 52px;
+  padding-inline: 22px;
+  font-size: 1.05rem;
+  border-radius: var(--btn-radius);
+}
+
+/* Button groups */
+.button-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+
+.button-group.stack {
+  flex-direction: column;
+}
+
+.bmi-form .btn {
+  filter: brightness(1.07);
+}
+
+/* ==============================
+      HERO SECTION
+      ============================== */
+.hero-section {
+  text-align: center;
+  padding: 6rem 2rem 1rem;
+  margin: 1rem;
+  position: relative;
+  min-height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-background {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.cosmic-orbs {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  /* Reduced blur from 20px to 10px for GPU performance */
+  filter: blur(10px);
+  /* Reduced opacity for lighter GPU load */
+  opacity: 0.15;
+  /* animation removed for GPU performance */
+}
+
+.orb-1 {
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, var(--blue-35), transparent);
+  top: 20%;
+  left: 10%;
+}
+
+.orb-3 {
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, var(--cyan-35), transparent);
+  bottom: 20%;
+  left: 20%;
+}
+
+.hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+  margin-bottom: clamp(40px, 40vh, 180px) !important;
+  padding: 3rem 2rem;
+  border-radius: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-content::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: -1;
+}
+
+.hero-avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  width: 108px;
+  height: 108px;
+  border-radius: 9999px;
+  padding: 0.6rem;
+  background: none;
+  border: 2px solid var(--w-30);
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.hero-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.hero-bottom {
+  background: transparent;
+  border-top-left-radius: 2rem;
+  border-top-right-radius: 2rem;
+  border-top: var(--border-by-rezky);
+  padding: 0.5rem;
+  height: 50px;
+  margin-bottom: -50px;
+  max-width: 1200px;
+  margin-left: -30px;
+  margin-right: -30px;
+}
+
+.hero-bottom-text {
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.title-gradient {
+  background: var(--bg-cosmic);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+}
+
+.sparkle-icon {
+  /* animation removed for GPU performance */
+  will-change: auto;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  contain: layout style;
+}
+
+.Telescope {
+  color: var(--cosmic-purple) !important;
+  width: 56px !important;
+  height: 56px !important;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: white;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  font-weight: 400;
+  padding: 1rem;
+}
+
+.hero-features {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border-radius: 2rem;
+  border: var(--border-by-rezky);
+  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature:hover {
+  background: var(--w-10);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--k-20);
+}
+
+.feature span {
+  background: var(--bg-cosmic);
+  color: white;
+  background-clip: text;
+}
+
+/* button scroll for hero */
+
+.hero-scroll-btn {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(-2rem, -3vh, -2.5rem);
+  transform: translateX(-50%);
+
+  width: clamp(56px, 6vw, 72px);
+  height: clamp(56px, 6vw, 72px);
+  border-radius: 50%;
+
+  background: var(--bg-by-rezky);
+  border: var(--border-by-rezky);
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  z-index: 10;
+
+  animation: bounce 2.5s ease-in-out infinite, pulse 2.5s ease-in-out infinite;
+  transition: transform 0.25s ease;
+}
+
+.hero-scroll-btn::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: var(--bg-last-by-rezky);
+  z-index: -1;
+}
+
+.hero-scroll-btn:hover {
+  transform: translateX(-50%) scale(1.08);
+}
+
+.icon {
+  width: 64px;
+  height: 64px;
+  color: white;
+}
+
+@keyframes bounce {
+
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+
+  50% {
+    transform: translate(-50%, -10px);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    filter: drop-shadow(0 0 6px var(--sky-60));
+  }
+
+  50% {
+    filter: drop-shadow(0 0 12px var(--magenta-80));
+  }
+}
+

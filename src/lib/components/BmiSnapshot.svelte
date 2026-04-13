@@ -254,8 +254,8 @@
   }
 
   .snapshot-card {
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(148, 163, 184, 0.15);
+    background: var(--sd-60);
+    border: 1px solid var(--sg-15);
     border-radius: 16px;
     padding: 1.25rem;
     text-align: center;
@@ -264,27 +264,27 @@
 
   .snapshot-card:hover {
     transform: translateY(-4px);
-    border-color: rgba(148, 163, 184, 0.3);
+    border-color: var(--sg-30);
   }
 
   .snapshot-card.status-underweight {
-    border-color: rgba(74, 144, 226, 0.3);
-    background: rgba(74, 144, 226, 0.08);
+    border-color: var(--cat-blue-30);
+    background: var(--cat-blue-8);
   }
 
   .snapshot-card.status-normal {
-    border-color: rgba(0, 200, 83, 0.3);
-    background: rgba(0, 200, 83, 0.08);
+    border-color: var(--cat-green-30);
+    background: var(--cat-green-8);
   }
 
   .snapshot-card.status-overweight {
-    border-color: rgba(255, 214, 0, 0.3);
-    background: rgba(255, 214, 0, 0.08);
+    border-color: var(--cat-yellow-30);
+    background: var(--cat-yellow-8);
   }
 
   .snapshot-card.status-obese {
-    border-color: rgba(213, 0, 0, 0.3);
-    background: rgba(213, 0, 0, 0.08);
+    border-color: var(--cat-red-30);
+    background: var(--cat-red-8);
   }
 
   .snapshot-card.status-unknown {
@@ -292,8 +292,8 @@
   }
 
   .snapshot-card.target {
-    border-color: rgba(0, 200, 83, 0.3);
-    background: rgba(0, 200, 83, 0.08);
+    border-color: var(--cat-green-30);
+    background: var(--cat-green-8);
   }
 
   .card-label {
@@ -322,8 +322,8 @@
   }
 
   .progress-section {
-    background: rgba(15, 23, 42, 0.4);
-    border: 1px solid rgba(148, 163, 184, 0.1);
+    background: var(--sd-40);
+    border: 1px solid var(--sg-10);
     border-radius: 16px;
     padding: 1.5rem;
   }
@@ -352,7 +352,7 @@
 
   .progress-track {
     height: 12px;
-    background: rgba(148, 163, 184, 0.15);
+    background: var(--sg-15);
     border-radius: 6px;
     overflow: hidden;
     position: relative;
@@ -396,15 +396,15 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.875rem 1rem;
-    background: rgba(15, 23, 42, 0.6);
+    background: var(--sd-60);
     border-radius: 12px;
     font-size: 0.875rem;
     color: #94a3b8;
   }
 
   .insight-item.success {
-    background: rgba(0, 200, 83, 0.1);
-    border: 1px solid rgba(0, 200, 83, 0.2);
+    background: var(--cat-green-10);
+    border: 1px solid var(--cat-green-20);
     color: #00C853;
   }
 

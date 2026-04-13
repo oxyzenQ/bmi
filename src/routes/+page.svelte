@@ -17,8 +17,11 @@
     AlertTriangle,
     Scale,
     Bot,
+    Sparkles,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    ChevronUp,
+    Keyboard
   } from 'lucide-svelte';
   type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
   type BmiResultsComponentType = typeof import('$lib/components/BmiResults.svelte').default;
@@ -180,6 +183,8 @@
   let age: string = $state('');
   let height: string = $state('');
   let weight: string = $state('');
+  let gender: 'male' | 'female' | '' = $state('');
+  let activity: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active' | '' = $state('');
   let unitSystem = $state<'metric' | 'imperial'>('metric');
   let unitSystemInitialized = $state(false);
 
@@ -228,10 +233,28 @@
   let lastWheelNavAt = 0;
   let switchingTimer: ReturnType<typeof setTimeout> | null = null;
   let pageDestroyed = $state(false);
+  let showScrollTopFab = $state(false);
 
   function broadcastSmoothMode(enabled: boolean) {
     if (!browser) return;
     window.dispatchEvent(new CustomEvent('bmi:smoothMode', { detail: { enabled } }));
+  }
+
+  function triggerHaptic(pattern: number | number[] = 10) {
+    if (!browser) return;
+    try {
+      if ('vibrate' in navigator) navigator.vibrate(pattern);
+    } catch { /* vibrate not supported */ }
+  }
+
+  function scrollToTop() {
+    if (!browser) return;
+    const activeId = sections[activeIndex].id;
+    const scroller = pagerEl?.querySelector<HTMLElement>(
+      `[data-pager-scroll="true"][data-section-id="${activeId}"]`
+    );
+    if (scroller) scroller.scrollTo({ top: 0, behavior: 'smooth' });
+    triggerHaptic(5);
   }
 
   function toggleSmoothMode() {
@@ -249,6 +272,23 @@
   let reducedMotionEffective = $derived(prefersReducedMotion && !smoothModeRequested);
   let smoothModeEnhanced = $derived(smoothModeRequested && perfTier !== 'low');
   let smoothModeStatus = $derived(smoothModeRequested ? 'On' : 'Off');
+
+  // Wallpaper theme toggle
+  let currentTheme = $state<'space' | 'energy'>('space');
+  let themeLabel = $derived(currentTheme === 'space' ? 'Space' : 'Energy');
+
+  function toggleWallpaperTheme() {
+    currentTheme = currentTheme === 'space' ? 'energy' : 'space';
+    if (browser) {
+      localStorage.setItem('bmi.wallpaperTheme', currentTheme);
+      const root = document.documentElement;
+      if (currentTheme === 'energy') {
+        root.style.setProperty('--wallpaper-current', 'url("/images/oxyzen-cyberagent.webp")');
+      } else {
+        root.style.setProperty('--wallpaper-current', 'url("/images/oxyzen-zenlysium.webp")');
+      }
+    }
+  }
 
   // Persist unit system in localStorage (only after initialization from onMount)
   $effect(() => {
@@ -297,9 +337,6 @@
 
   const BMI_BAR_MIN = 12;
   const BMI_BAR_MAX = 40;
-  const BMI_UNDER_MAX = 18.5;
-  const BMI_NORMAL_MAX = 24.9;
-  const BMI_OVER_MAX = 29.9;
 
   // Animation duration constants (ms)
   const MARKER_ANIM_HIGH = 860;
@@ -430,17 +467,20 @@
 
     lastIndex = activeIndex;
     activeIndex = next;
+    showScrollTopFab = false;
     if (!opts?.skipHash) setHash(sections[activeIndex].id);
     void resetSectionScroll();
   }
 
   function prevSection() {
     if (activeIndex <= 0) return;
+    triggerHaptic(5);
     goTo(activeIndex - 1);
   }
 
   function nextSection() {
     if (activeIndex >= sections.length - 1) return;
+    triggerHaptic(5);
     goTo(activeIndex + 1);
   }
 
@@ -459,6 +499,42 @@
 
   function handleKeydown(event: KeyboardEvent) {
     if (isEditableTarget(event.target)) return;
+
+    // C-4: Number keys 1-6 for section navigation
+    const numKey = parseInt(event.key);
+    if (numKey >= 1 && numKey <= sections.length) {
+      event.preventDefault();
+      goTo(numKey - 1);
+      triggerHaptic(5);
+      return;
+    }
+
+    // C-4: T = toggle wallpaper theme
+    if (event.key === 't' || event.key === 'T') {
+      event.preventDefault();
+      toggleWallpaperTheme();
+      triggerHaptic(5);
+      return;
+    }
+
+    // C-4: R = reset/clear all data (requires shift for safety)
+    if (event.key === 'R' && event.shiftKey) {
+      event.preventDefault();
+      confirmClearData();
+      return;
+    }
+
+    // C-4: S = toggle smooth mode
+    if (event.key === 's' || event.key === 'S') {
+      if (!event.shiftKey) {
+        event.preventDefault();
+        toggleSmoothMode();
+        triggerHaptic(5);
+        return;
+      }
+    }
+
+    // Arrow key navigation (existing)
     if (event.key === 'ArrowLeft') {
       event.preventDefault();
       prevSection();
@@ -647,6 +723,19 @@
     }
     unitSystemInitialized = true;
 
+    // Read wallpaper theme preference
+    try {
+      const storedTheme = localStorage.getItem('bmi.wallpaperTheme');
+      if (storedTheme === 'energy' || storedTheme === 'space') {
+        currentTheme = storedTheme;
+        if (currentTheme === 'energy') {
+          document.documentElement.style.setProperty('--wallpaper-current', 'url("/images/oxyzen-cyberagent.webp")');
+        }
+      }
+    } catch {
+      // localStorage unavailable
+    }
+
     const idx = indexFromHash(window.location.hash);
     if (idx !== null) goTo(idx, { skipHash: true, skipSwitching: true });
     setHash(sections[activeIndex].id);
@@ -701,6 +790,9 @@
       } else if (scrollingUp) {
         pagerControlsVisible = true;
       }
+
+      // Scroll-to-top FAB: show when scrolled past 300px
+      showScrollTopFab = currentScrollY > 300;
 
       lastScrollY = currentScrollY;
 
@@ -774,6 +866,8 @@
     if (calculating) return;
     calculating = true;
 
+    triggerHaptic([15, 30, 15]);
+
     // Calculate BMI synchronously (before any await) so that
     // bmiValue / category are available for the Gauge page.
     computeBMIFromInputs(height, weight, age);
@@ -813,6 +907,8 @@
     age = '';
     height = '';
     weight = '';
+    gender = '';
+    activity = '';
     bmiValue = null; // Gauge will show empty/neutral state
     category = null;
     resultsRunId += 1;
@@ -844,8 +940,12 @@
 </script>
 
 <svelte:head>
-  <title>BMI Calculator - Calculate Your Body Mass Index</title>
-  <meta name="description" content="Calculate your BMI with our modern, accessible calculator. Get instant results, health recommendations, and learn about BMI categories." />
+  <title>A Simple BMI Calc — Stellar v10.5</title>
+  <meta name="description" content="A luxury space-themed BMI calculator. Calculate your Body Mass Index, TDEE, Body Fat %, and track your health journey with interactive charts. Built with SvelteKit by Team LOGIGO." />
+  <meta property="og:title" content="A Simple BMI Calc — Stellar v10.5" />
+  <meta property="og:description" content="A luxury space-themed BMI calculator with TDEE, Body Fat %, interactive charts, and PWA support." />
+  <meta name="twitter:title" content="A Simple BMI Calc — Stellar v10.5" />
+  <meta name="twitter:description" content="A luxury space-themed BMI calculator with TDEE, Body Fat %, interactive charts, and PWA support." />
 </svelte:head>
 
 <div
@@ -871,7 +971,7 @@
           class="btn btn-ghost pager-tab"
           class:active={idx === activeIndex}
           aria-current={idx === activeIndex ? 'page' : undefined}
-          onclick={() => goTo(idx)}
+          onclick={() => { triggerHaptic(5); goTo(idx); }}
         >
           {section.label}
         </button>
@@ -888,6 +988,20 @@
         Render :
         <span class:render-on={smoothModeRequested} class:render-off={!smoothModeRequested}>
           {smoothModeStatus}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-ghost pager-tab pager-theme"
+        aria-label="Toggle wallpaper theme"
+        aria-pressed={currentTheme === 'energy'}
+        onclick={toggleWallpaperTheme}
+      >
+        <Sparkles class="render-spark" aria-hidden="true" />
+        Theme :
+        <span class:theme-energy={currentTheme === 'energy'} class:theme-space={currentTheme === 'space'}>
+          {themeLabel}
         </span>
       </button>
     </nav>
@@ -934,6 +1048,8 @@
                       bind:age
                       bind:height
                       bind:weight
+                      bind:gender
+                      bind:activity
                       bind:unitSystem
                       {calculating}
                       onClear={confirmClearData}
@@ -953,6 +1069,13 @@
                         }
                       }}
                     />
+                  {:else}
+                    <div class="skeleton-form">
+                      <div class="skeleton skeleton-input"></div>
+                      <div class="skeleton skeleton-input"></div>
+                      <div class="skeleton skeleton-input"></div>
+                      <div class="skeleton skeleton-input" style="width:50%"></div>
+                    </div>
                   {/if}
                 </div>
                 <div class="bmi-card">
@@ -961,9 +1084,24 @@
                       <BmiResultsComponent
                         {bmiValue}
                         {category}
+                        {unitSystem}
+                        height={height === '' ? null : parseFloat(height)}
+                        weight={weight === '' ? null : parseFloat(weight)}
                         age={age === '' ? null : parseInt(age)}
+                        gender={gender || null}
+                        activity={activity || null}
                         reducedMotion={reducedMotionEffective}
                       />
+                    {:else}
+                      <div class="skeleton-card">
+                        <div class="skeleton skeleton-circle"></div>
+                        <div class="skeleton skeleton-line w-60 h-lg" style="margin:0 auto 1rem"></div>
+                        <div class="skeleton skeleton-line w-80 h-md" style="margin:0 auto 0.5rem"></div>
+                        <div class="skeleton skeleton-line w-40 h-sm" style="margin:0 auto 1.5rem"></div>
+                        <div class="skeleton skeleton-line w-full h-sm"></div>
+                        <div class="skeleton skeleton-line w-full h-sm"></div>
+                        <div class="skeleton skeleton-line w-60 h-sm"></div>
+                      </div>
                     {/if}
                   {/key}
                 </div>
@@ -981,6 +1119,19 @@
                   category={category}
                   ultraSmooth={smoothModeRequested}
                 />
+              {:else}
+                <div class="skeleton-card">
+                  <div class="skeleton-gauge">
+                    <div class="skeleton skeleton-ring"></div>
+                    <div class="skeleton skeleton-line w-60 h-md" style="margin:0 auto"></div>
+                    <div class="skeleton-bar">
+                      <span class="skeleton" style="background:var(--cyan2-40)"></span>
+                      <span class="skeleton" style="background:var(--green-50)"></span>
+                      <span class="skeleton" style="background:var(--yellow-60)"></span>
+                      <span class="skeleton" style="background:var(--red-50)"></span>
+                    </div>
+                  </div>
+                </div>
               {/if}
 
               {#if BmiHealthRiskComponent}
@@ -988,6 +1139,14 @@
                   bmi={bmiValue}
                   category={category}
                 />
+              {:else}
+                <div class="skeleton-card">
+                  <div class="skeleton skeleton-line w-40 h-md" style="margin-bottom:1rem"></div>
+                  <div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.75rem"></div>
+                  <div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:1.5rem"></div>
+                  <div class="skeleton skeleton-line w-80 h-sm"></div>
+                  <div class="skeleton skeleton-line w-60 h-sm" style="margin-top:0.75rem"></div>
+                </div>
               {/if}
 
               {#if BmiSnapshotComponent}
@@ -995,6 +1154,12 @@
                   currentBmi={bmiValue}
                   category={category}
                 />
+              {:else}
+                <div class="skeleton-card">
+                  <div class="skeleton skeleton-line w-60 h-md" style="margin-bottom:1rem"></div>
+                  <div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.75rem"></div>
+                  <div class="skeleton skeleton-line w-80 h-sm"></div>
+                </div>
               {/if}
 
               {#if BodyFatEstimateComponent}
@@ -1002,6 +1167,13 @@
                   bmi={bmiValue}
                   age={age === '' ? null : parseInt(age)}
                 />
+              {:else}
+                <div class="skeleton-card">
+                  <div class="skeleton skeleton-circle"></div>
+                  <div class="skeleton skeleton-line w-40 h-lg" style="margin:0 auto 1rem"></div>
+                  <div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.5rem"></div>
+                  <div class="skeleton skeleton-line w-full h-sm"></div>
+                </div>
               {/if}
 
             </div>
@@ -1013,6 +1185,15 @@
             <!-- Reference Table -->
             {#if ReferenceTableComponent}
               <ReferenceTableComponent />
+            {:else}
+              <div class="skeleton-card">
+                <div class="skeleton skeleton-line w-60 h-lg" style="margin-bottom:1.5rem"></div>
+                <div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.5rem"></div>
+                <div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.5rem"></div>
+                <div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.5rem"></div>
+                <div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.5rem"></div>
+                <div class="skeleton skeleton-line w-full h-sm"></div>
+              </div>
             {/if}
           </div>
         {/if}
@@ -1087,6 +1268,40 @@
                   </div>
                 </div>
               </div>
+
+              <!-- C-4: Keyboard Shortcuts Card -->
+              <div class="about-card" style="margin-top:1.5rem; margin-bottom: clamp(80px, 10vh, 120px);">
+                <div class="about-card-header">
+                  <Keyboard class="Keyboard" />
+                  <h3>Keyboard Shortcuts</h3>
+                </div>
+                <div class="about-card-content">
+                  <div class="shortcuts-grid">
+                    <div class="shortcut-row">
+                      <div class="shortcut-keys">
+                        <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd><kbd>5</kbd><kbd>6</kbd>
+                      </div>
+                      <span class="shortcut-desc">Navigate to section</span>
+                    </div>
+                    <div class="shortcut-row">
+                      <div class="shortcut-keys"><kbd>T</kbd></div>
+                      <span class="shortcut-desc">Toggle wallpaper theme</span>
+                    </div>
+                    <div class="shortcut-row">
+                      <div class="shortcut-keys"><kbd>S</kbd></div>
+                      <span class="shortcut-desc">Toggle smooth mode</span>
+                    </div>
+                    <div class="shortcut-row">
+                      <div class="shortcut-keys"><kbd>Shift</kbd>+<kbd>R</kbd></div>
+                      <span class="shortcut-desc">Reset / clear all data</span>
+                    </div>
+                    <div class="shortcut-row">
+                      <div class="shortcut-keys"><kbd>&larr;</kbd><kbd>&rarr;</kbd></div>
+                      <span class="shortcut-desc">Previous / next section</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
         {/if}
@@ -1130,11 +1345,21 @@
           aria-label="Previous section"
           onclick={prevSection}
         >
-          <ChevronLeft aria-hidden="true" size={24} />
+          <ChevronLeft aria-hidden="true" size={44} />
         </button>
       {:else}
         <div class="pager-btn-spacer" aria-hidden="true"></div>
       {/if}
+
+      <button
+        type="button"
+        class="pager-btn-futuristic pager-btn-scroll-top"
+        class:fab-visible={showScrollTopFab}
+        aria-label="Scroll to top"
+        onclick={scrollToTop}
+      >
+        <ChevronUp aria-hidden="true" size={36} />
+      </button>
 
       {#if activeIndex < sections.length - 1}
         <button
@@ -1143,7 +1368,7 @@
           aria-label="Next section"
           onclick={nextSection}
         >
-          <ChevronRight aria-hidden="true" size={24} />
+          <ChevronRight aria-hidden="true" size={44} />
         </button>
       {:else}
         <div class="pager-arrow-spacer" aria-hidden="true"></div>
@@ -1203,8 +1428,9 @@
     overflow: hidden;
     touch-action: pan-y pinch-zoom;
     position: relative;
-    --pager-top-inset: calc(0.75rem + env(safe-area-inset-top, 0px) + 56px);
-    --pager-edge-fade: 120px;
+    --pager-top-inset: calc(env(safe-area-inset-top, 0px) + 54px);
+    --pager-edge-fade: 100px;
+    --nav-bar-h: 54px;
   }
 
   .pager-shell::before,
@@ -1218,27 +1444,31 @@
   }
 
   .pager-shell::before {
-    top: 0;
-    height: calc(0.75rem + env(safe-area-inset-top, 0px) + var(--pager-edge-fade));
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.98), rgba(0, 0, 0, 0));
+    top: var(--nav-bar-h);
+    height: var(--pager-edge-fade);
+    background: linear-gradient(to bottom, var(--k-92), var(--k-0));
   }
 
   .pager-shell::after {
     bottom: 0;
-    height: calc(0.75rem + env(safe-area-inset-bottom, 0px) + var(--pager-edge-fade));
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.98), rgba(0, 0, 0, 0));
+    height: 0;
+    background: none;
+    pointer-events: none;
   }
 
   .pager-nav {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
+    gap: 0.35rem;
+    padding: 0 0.85rem 0.55rem 0.85rem;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     min-width: 0;
+    width: 100%;
+    height: var(--nav-bar-h);
+    box-sizing: border-box;
   }
 
   .pager-nav.centered {
@@ -1246,37 +1476,53 @@
   }
 
   .pager-nav-shell {
-    width: calc(100% - 1.5rem);
-    max-width: 820px;
+    width: 100%;
+    max-width: 100%;
     min-width: 0;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.82);
-    backdrop-filter: blur(14px) saturate(165%);
-    -webkit-backdrop-filter: blur(14px) saturate(165%);
-    border: var(--btn-border);
-    box-shadow: var(--btn-shadow);
-    border-radius: 9999px;
-    margin-inline: auto;
+    background: var(--k-50);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: none;
+    border-bottom: 1px solid var(--w-8);
+    box-shadow:
+      0 1px 0 0 var(--w-4),
+      0 8px 32px var(--k-48),
+      0 2px 16px var(--k-32),
+      inset 0 1px 0 var(--w-6);
+    border-radius: 0 0 22px 22px;
+    margin-inline: 0;
     position: absolute;
-    top: calc(0.75rem + env(safe-area-inset-top, 0px));
-    left: 50%;
-    transform: translateX(-50%);
+    top: 0;
+    left: 0;
+    right: 0;
+    transform: none;
     z-index: 20;
-    isolation: isolate;
+    padding-top: env(safe-area-inset-top, 0px);
+    height: calc(var(--nav-bar-h) + env(safe-area-inset-top, 0px));
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-end;
   }
 
-  .pager-nav-shell::before {
+  /* Aurora glow accent line at bottom of navbar */
+  .pager-nav-shell::after {
     content: '';
     position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.92);
+    bottom: -1px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--aurora-glow, #b266ff) 30%,
+      var(--cosmic-blue) 50%,
+      var(--aurora-glow, #b266ff) 70%,
+      transparent 100%
+    );
+    opacity: 0.5;
     pointer-events: none;
-    z-index: 0;
-  }
-
-  .pager-nav {
-    position: relative;
-    z-index: 1;
   }
 
   .pager-nav::-webkit-scrollbar {
@@ -1284,18 +1530,34 @@
   }
 
   .pager-tab {
-    height: 38px;
-    padding-inline: 0.9rem;
-    font-size: 0.9rem;
+    height: 36px;
+    padding-inline: 0.85rem;
+    font-size: 0.88rem;
     border-radius: 9999px;
     white-space: nowrap;
-    opacity: 0.86;
+    opacity: 0.7;
     flex: 0 0 auto;
     min-width: max-content;
+    overflow: visible;
+    letter-spacing: 0.02em;
+    border: 1px solid transparent;
+    transition:
+      opacity 0.25s ease,
+      background 0.25s ease,
+      border-color 0.25s ease,
+      box-shadow 0.25s ease,
+      transform 0.2s var(--easing-smooth);
+  }
+
+  .pager-tab:hover {
+    opacity: 0.9;
+    background: var(--w-6);
+    border-color: var(--w-10);
   }
 
   .pager-smooth {
     opacity: 1;
+    font-size: 0.82rem;
   }
 
   .pager-smooth :global(.render-spark) {
@@ -1310,14 +1572,35 @@
     color: #ffd600;
   }
 
+  .pager-theme :global(.render-spark) {
+    color: var(--aurora-glow, #b266ff) !important;
+    transition: color 0.3s ease, filter 0.3s ease;
+  }
+
+  .pager-theme .theme-space {
+    color: var(--cosmic-blue);
+    font-weight: 600;
+  }
+
+  .pager-theme .theme-energy {
+    color: #00f0ff;
+    font-weight: 600;
+    text-shadow: 0 0 8px var(--cyan2-40);
+  }
+
   .pager-tab.active {
     opacity: 1;
-    background: rgba(255, 255, 255, 0.07);
-    border-color: color-mix(in oklab, var(--aurora-core) 55%, rgba(255, 255, 255, 0.12));
+    background: linear-gradient(
+      135deg,
+      var(--w-10) 0%,
+      var(--w-5) 100%
+    );
+    border-color: color-mix(in oklab, var(--aurora-core) 45%, var(--w-14));
     box-shadow:
-      0 12px 32px rgba(0, 0, 0, 0.38),
-      0 0 18px color-mix(in oklab, var(--cosmic-purple) 28%, transparent);
+      0 0 20px color-mix(in oklab, var(--cosmic-purple) 22%, transparent),
+      0 0 6px color-mix(in oklab, var(--aurora-core) 15%, transparent);
     transform: translateY(-1px);
+    font-weight: 500;
   }
 
   .pager-view {
@@ -1337,11 +1620,11 @@
     overscroll-behavior: contain;
     will-change: transform, opacity;
     scrollbar-width: none;
-    contain: layout paint style;
-    padding-top: calc(1rem + var(--pager-top-inset));
-    padding-bottom: calc(0.75rem + 56px + 0.75rem + env(safe-area-inset-bottom, 0px));
-    scroll-padding-top: calc(1rem + var(--pager-top-inset));
-    scroll-padding-bottom: calc(0.75rem + 56px + 0.75rem + env(safe-area-inset-bottom, 0px));
+    contain: style;
+    padding-top: calc(var(--pager-top-inset) + 0.5rem);
+    padding-bottom: calc(1.5rem + 58px + 1.5rem + env(safe-area-inset-bottom, 0px));
+    scroll-padding-top: calc(var(--pager-top-inset) + 0.5rem);
+    scroll-padding-bottom: calc(1.5rem + 58px + 1.5rem + env(safe-area-inset-bottom, 0px));
   }
 
   .pager-section::-webkit-scrollbar {
@@ -1351,41 +1634,58 @@
   @media (min-width: 900px) {
     .pager-nav {
       justify-content: center;
+      padding-inline: 2rem;
     }
   }
 
   @media (max-width: 600px) {
     .pager-nav {
-      gap: 0.35rem;
-      padding: 0.45rem 0.6rem;
+      gap: 0.25rem;
+      padding: 0 0.55rem 0.45rem 0.55rem;
+      overflow-x: auto;
     }
 
     .pager-tab {
-      height: 36px;
-      padding-inline: 0.75rem;
-      font-size: 0.85rem;
+      height: 34px;
+      padding-inline: 0.65rem;
+      font-size: 0.8rem;
+    }
+
+    .pager-smooth {
+      font-size: 0.76rem;
     }
   }
 
   .pager-controls-shell {
-    width: calc(100% - 1.5rem);
-    max-width: 820px;
+    width: 100%;
+    max-width: none;
     min-width: 0;
-    overflow: visible;
-    background: transparent;
+    overflow: hidden;
+    background: var(--k-50) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: none !important;
+    border-top: 1px solid var(--w-8) !important;
+    box-shadow: 0 -1px 0 var(--w-6), 0 -8px 30px rgba(0,0,0,0.5), 0 -2px 8px rgba(0,0,0,0.3);
+    border-radius: 18px 18px 0 0;
     margin-inline: auto;
     position: absolute;
-    bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    bottom: 0;
     left: 50%;
     transform: translateX(-50%);
     z-index: 20;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    height: calc(58px + env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.3s ease;
   }
 
   .pager-controls-shell.pager-hidden {
-    transform: translateX(-50%) translateY(calc(100% + 1rem));
     opacity: 0;
     pointer-events: none;
+    transform: translateX(-50%) translateY(100%);
   }
 
   .pager-btn-spacer {
@@ -1395,8 +1695,8 @@
 
   @media (max-width: 480px) {
     .pager-btn-spacer {
-      width: 52px;
-      height: 52px;
+      width: 50px;
+      height: 50px;
     }
   }
 </style>

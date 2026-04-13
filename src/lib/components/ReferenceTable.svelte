@@ -114,7 +114,7 @@
     {/each}
   </div>
 
-  <div class="ref-card" style="border-top: 1px solid rgba(255,255,255,0.08);">
+  <div class="ref-card" style="border-top: 1px solid var(--w-8);">
     <Info class="Info2" />
     <p class="subtitle" style="margin: 0;">
       <strong>Note:</strong> BMI is a screening tool and should not be used as a sole diagnostic method.

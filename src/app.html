@@ -4,32 +4,54 @@
 <head>
 	<meta charset="utf-8" />
 	<link rel="icon" href="%sveltekit.assets%/assets/new_bmi_logo_2026.webp" />
+	<link rel="icon" sizes="192x192" href="/assets/icon-192.webp" />
+	<link rel="apple-touch-icon" href="/assets/apple-touch-icon.webp" />
 	<link rel="manifest" href="/manifest.json" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
-	<!-- SEO and accessibility -->
+	<!-- Primary Meta Tags -->
+	<meta name="title" content="A Simple BMI Calc — Stellar v10.5" />
 	<meta name="description"
-		content="A simple BMI calc - modern, responsive Body Mass Index calculator with space-themed design. Calculate your BMI and learn about your health status." />
-	<meta name="keywords" content="BMI calculator, body mass index, health, fitness, weight calculator" />
+		content="A luxury space-themed BMI calculator. Calculate your Body Mass Index, TDEE, Body Fat %, and track your health journey with interactive charts. Built with SvelteKit by Team LOGIGO." />
+	<meta name="keywords" content="BMI calculator, body mass index, TDEE calculator, body fat estimate, health tracker, fitness, weight calculator, BMI chart, health risk" />
 	<meta name="author" content="Rezky Nightky" />
 	<meta name="robots" content="index, follow" />
+	<meta name="theme-color" content="#7c3aed" />
+	<meta name="msapplication-TileColor" content="#070a1c" />
+	<meta name="msapplication-TileImage" content="/assets/icon-192.webp" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+	<meta name="apple-mobile-web-app-title" content="BMI Calc" />
+	<meta name="application-name" content="BMI Calc" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta name="color-scheme" content="dark" />
 
-	<!-- Open Graph -->
-	<meta property="og:title" content="A Simple BMI Calc" />
-	<meta property="og:description"
-		content="A simple BMI calc - modern, responsive Body Mass Index calculator with space-themed design." />
-	<meta property="og:image" content="/assets/new_bmi_logo_2026.webp" />
+	<!-- Open Graph / Facebook -->
 	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://bmi-oxyzenq.vercel.app/" />
+	<meta property="og:title" content="A Simple BMI Calc — Stellar v10.5" />
+	<meta property="og:description"
+		content="A luxury space-themed BMI calculator with TDEE, Body Fat %, interactive charts, and PWA support. Your health journey, beautifully calculated." />
+	<meta property="og:image" content="/assets/new_bmi_logo_2026.webp" />
+	<meta property="og:image:width" content="1024" />
+	<meta property="og:image:height" content="1024" />
+	<meta property="og:image:alt" content="BMI Calculator — Stellar Edition Logo" />
+	<meta property="og:locale" content="en_US" />
+	<meta property="og:site_name" content="BMI Calc" />
 
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content="A Simple BMI Calc" />
+	<meta name="twitter:url" content="https://bmi-oxyzenq.vercel.app/" />
+	<meta name="twitter:title" content="A Simple BMI Calc — Stellar v10.5" />
 	<meta name="twitter:description"
-		content="A simple BMI calc - modern, responsive Body Mass Index calculator with space-themed design." />
+		content="A luxury space-themed BMI calculator with TDEE, Body Fat %, interactive charts, and PWA support." />
+	<meta name="twitter:image" content="/assets/new_bmi_logo_2026.webp" />
+	<meta name="twitter:image:alt" content="BMI Calculator — Stellar Edition Logo" />
 
-	<!-- Theme color -->
-	<meta name="theme-color" content="#7c3aed" />
-	<meta name="msapplication-TileColor" content="#070a1c" />
+	<!-- Prevent wallpaper flash: set CSS var from localStorage before paint -->
+	<script>
+		(function(){try{var t=localStorage.getItem('bmi.wallpaperTheme');if(t==='energy')document.documentElement.style.setProperty('--wallpaper-current','url("/images/oxyzen-cyberagent.webp")');}catch(e){}})();
+	</script>
 
 	<!-- Security headers are set via hooks.server.ts (authoritative) -->
 

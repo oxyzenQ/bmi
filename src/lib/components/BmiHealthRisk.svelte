@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Shield, AlertTriangle, Activity, Heart } from 'lucide-svelte';
+  import { browser } from '$app/environment';
 
   interface Props {
     bmi?: number | null;
@@ -150,7 +151,10 @@
         <li>Consult healthcare provider for personalized plan</li>
       </ul>
     {:else}
-      <p class="no-data">Enter your measurements to see personalized recommendations</p>
+      <div class="empty-health-risk">
+        <Shield size={28} style="opacity:0.3; margin-bottom:0.5rem" />
+        <p class="no-data">Enter your measurements to see personalized recommendations</p>
+      </div>
     {/if}
   </div>
 </div>
@@ -170,7 +174,7 @@
     height: 12px;
     border-radius: 6px;
     overflow: hidden;
-    background: rgba(148, 163, 184, 0.1);
+    background: var(--sg-10);
   }
 
   .risk-segment {
@@ -216,29 +220,29 @@
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px var(--k-30);
     animation: pulse 2s ease-in-out infinite;
   }
 
   .risk-marker.risk-low {
     background: #00C853;
-    box-shadow: 0 0 20px rgba(0, 200, 83, 0.4);
+    box-shadow: 0 0 20px var(--cat-green-40);
   }
 
   .risk-marker.risk-moderate {
     background: #4A90E2;
-    box-shadow: 0 0 20px rgba(74, 144, 226, 0.4);
+    box-shadow: 0 0 20px var(--cat-blue-40);
   }
 
   .risk-marker.risk-elevated {
     background: #FFD600;
-    box-shadow: 0 0 20px rgba(255, 214, 0, 0.4);
+    box-shadow: 0 0 20px var(--cat-yellow-40);
     color: #1a1a2e;
   }
 
   .risk-marker.risk-high {
     background: #D50000;
-    box-shadow: 0 0 20px rgba(213, 0, 0, 0.4);
+    box-shadow: 0 0 20px var(--cat-red-40);
   }
 
   .risk-marker.risk-unknown {
@@ -275,29 +279,29 @@
     gap: 1rem;
     padding: 1.25rem;
     border-radius: 16px;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(148, 163, 184, 0.1);
+    background: var(--sd-60);
+    border: 1px solid var(--sg-10);
     margin-bottom: 1.5rem;
   }
 
   .risk-result.risk-low {
-    border-color: rgba(0, 200, 83, 0.3);
-    background: rgba(0, 200, 83, 0.08);
+    border-color: var(--cat-green-30);
+    background: var(--cat-green-8);
   }
 
   .risk-result.risk-moderate {
-    border-color: rgba(74, 144, 226, 0.3);
-    background: rgba(74, 144, 226, 0.08);
+    border-color: var(--cat-blue-30);
+    background: var(--cat-blue-8);
   }
 
   .risk-result.risk-elevated {
-    border-color: rgba(255, 214, 0, 0.3);
-    background: rgba(255, 214, 0, 0.08);
+    border-color: var(--cat-yellow-30);
+    background: var(--cat-yellow-8);
   }
 
   .risk-result.risk-high {
-    border-color: rgba(213, 0, 0, 0.3);
-    background: rgba(213, 0, 0, 0.08);
+    border-color: var(--cat-red-30);
+    background: var(--cat-red-8);
   }
 
   .risk-icon {
@@ -329,9 +333,9 @@
 
   .health-tips {
     padding: 1.25rem;
-    background: rgba(15, 23, 42, 0.4);
+    background: var(--sd-40);
     border-radius: 16px;
-    border: 1px solid rgba(148, 163, 184, 0.1);
+    border: 1px solid var(--sg-10);
   }
 
   .health-tips h4 {
@@ -364,6 +368,15 @@
     color: #64748b;
     font-size: 0.875rem;
     font-style: italic;
+  }
+
+  .empty-health-risk {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    text-align: center;
   }
 
   @keyframes pulse {

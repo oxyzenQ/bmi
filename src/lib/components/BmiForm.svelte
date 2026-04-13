@@ -1,11 +1,16 @@
 <script lang="ts">
-  import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine } from 'lucide-svelte';
+  import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame } from 'lucide-svelte';
   import { exportBmiHistory, validateBmiImport } from '$lib/utils/history-io';
+
+  type Gender = 'male' | 'female' | '';
+  type Activity = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active' | '';
 
   interface Props {
     age?: string;
     height?: string;
     weight?: string;
+    gender?: Gender;
+    activity?: Activity;
     unitSystem?: 'metric' | 'imperial';
     calculating?: boolean;
     onClear: () => void;
@@ -17,6 +22,8 @@
     age = $bindable(''),
     height = $bindable(''),
     weight = $bindable(''),
+    gender = $bindable<Gender>(''),
+    activity = $bindable<Activity>(''),
     unitSystem = $bindable<'metric' | 'imperial'>('metric'),
     calculating = false,
     onClear,
@@ -26,6 +33,15 @@
   // NOTE: Unit system persistence is managed by the parent (+page.svelte)
   // via bind:unitSystem. Do NOT read/write localStorage here — it causes
   // a race condition where child overwrites parent's value on mount.
+
+  // Activity level metadata
+  const activityLevels: { value: Activity; label: string; factor: number }[] = [
+    { value: 'sedentary', label: 'Sedentary', factor: 1.2 },
+    { value: 'light', label: 'Light', factor: 1.375 },
+    { value: 'moderate', label: 'Moderate', factor: 1.55 },
+    { value: 'active', label: 'Active', factor: 1.725 },
+    { value: 'very_active', label: 'Very Active', factor: 1.9 }
+  ];
 
   // Derived unit-specific labels, placeholders, and validation bounds
   let heightLabel = $derived(unitSystem === 'metric' ? 'Height (cm)' : 'Height (in)');
@@ -304,6 +320,59 @@
       {/if}
     </div>
 
+    <!-- Optional: Gender toggle -->
+    <div class="input-group">
+      <label class="input-label">
+        <PersonStanding size={16} />
+        Gender <span class="optional-tag">optional</span>
+      </label>
+      <div class="segmented-control" role="radiogroup" aria-label="Gender">
+        <button
+          type="button"
+          class="seg-btn"
+          class:seg-active={gender === 'male'}
+          role="radio"
+          aria-checked={gender === 'male'}
+          onclick={() => { gender = gender === 'male' ? '' : 'male'; }}
+        >
+          Male
+        </button>
+        <button
+          type="button"
+          class="seg-btn"
+          class:seg-active={gender === 'female'}
+          role="radio"
+          aria-checked={gender === 'female'}
+          onclick={() => { gender = gender === 'female' ? '' : 'female'; }}
+        >
+          Female
+        </button>
+      </div>
+    </div>
+
+    <!-- Optional: Activity level -->
+    <div class="input-group">
+      <label class="input-label">
+        <Flame size={16} />
+        Activity Level <span class="optional-tag">optional</span>
+      </label>
+      <div class="activity-grid" role="radiogroup" aria-label="Activity level">
+        {#each activityLevels as lvl (lvl.value)}
+          <button
+            type="button"
+            class="act-btn"
+            class:act-active={activity === lvl.value}
+            role="radio"
+            aria-checked={activity === lvl.value}
+            onclick={() => { activity = activity === lvl.value ? '' : lvl.value; }}
+          >
+            <span class="act-label">{lvl.label}</span>
+            <span class="act-factor">{lvl.factor}x</span>
+          </button>
+        {/each}
+      </div>
+    </div>
+
     <div class="button-group">
       <button
         type="button"
@@ -382,7 +451,7 @@
     border: none;
     border-radius: 9999px;
     background: transparent;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--w-50);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -392,12 +461,120 @@
   }
 
   .unit-toggle-segment:hover {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--w-70);
   }
 
   .unit-toggle-segment.active {
     background: var(--cosmic-purple);
     color: white;
+  }
+
+  /* Segmented control (gender) */
+  .segmented-control {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    border: var(--btn-border);
+    border-radius: 9999px;
+    padding: 2px;
+    width: fit-content;
+    max-width: 320px;
+  }
+
+  .seg-btn {
+    flex: 1;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.8rem;
+    border: none;
+    border-radius: 9999px;
+    background: transparent;
+    color: var(--w-50);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    transition: background 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+    min-width: 80px;
+  }
+
+  .seg-btn:hover {
+    color: var(--w-70);
+  }
+
+  .seg-btn.seg-active {
+    background: var(--cosmic-purple);
+    color: white;
+  }
+
+  .optional-tag {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.7;
+  }
+
+  /* Activity level grid */
+  .activity-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.35rem;
+    width: 100%;
+    max-width: 320px;
+    border: var(--btn-border);
+    border-radius: 0.75rem;
+    padding: 3px;
+    background: var(--sd-55);
+  }
+
+  @media (max-width: 380px) {
+    .activity-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .act-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    padding: 0.4rem 0.25rem;
+    border: none;
+    border-radius: 0.55rem;
+    background: transparent;
+    color: var(--w-50);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .act-btn:hover {
+    color: var(--w-70);
+    background: var(--w-4);
+  }
+
+  .act-btn.act-active {
+    background: var(--cosmic-purple);
+    color: white;
+  }
+
+  .act-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .act-factor {
+    font-size: 0.55rem;
+    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    opacity: 0.6;
+  }
+
+  .act-btn.act-active .act-factor {
+    opacity: 0.8;
   }
 
   .history-actions {

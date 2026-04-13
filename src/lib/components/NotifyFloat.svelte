@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, untrack } from 'svelte';
+  import { onMount, untrack, onDestroy } from 'svelte';
   import { CheckCircle, Trash2, X, ShieldAlert } from 'lucide-svelte';
 
   interface Props {
@@ -26,6 +26,69 @@
   let mounted = $state(false);
   let notifyKey = $state(0);
   let actionTimer: ReturnType<typeof setTimeout> | null = null;
+  let backdropEl: HTMLDivElement | null = $state(null);
+  let focusTrapHandler: ((e: KeyboardEvent) => void) | null = null;
+
+  // B-2: Focus trap + Escape key for accessibility
+  function getFocusableElements(): HTMLElement[] {
+    if (!backdropEl) return [];
+    return Array.from(
+      backdropEl.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => !el.hasAttribute('disabled') && el.tabIndex >= 0);
+  }
+
+  function trapFocus(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      handleClose();
+      return;
+    }
+    if (e.key !== 'Tab') return;
+
+    const focusable = getFocusableElements();
+    if (focusable.length === 0) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  $effect(() => {
+    if (visible && backdropEl) {
+      // Activate focus trap
+      focusTrapHandler = trapFocus;
+      document.addEventListener('keydown', focusTrapHandler);
+
+      // Autofocus first button
+      const focusable = getFocusableElements();
+      if (focusable.length > 0) {
+        // Slight delay to let animation start
+        setTimeout(() => focusable[0].focus(), 100);
+      }
+    } else {
+      // Deactivate focus trap
+      if (focusTrapHandler) {
+        document.removeEventListener('keydown', focusTrapHandler);
+        focusTrapHandler = null;
+      }
+    }
+  });
+
+  onDestroy(() => {
+    if (focusTrapHandler) {
+      document.removeEventListener('keydown', focusTrapHandler);
+    }
+  });
 
   // Effect handles three triggers:
   //   1. show: false → true (open)
@@ -105,6 +168,7 @@
 {#if show}
   {#key notifyKey}
   <div
+    bind:this={backdropEl}
     class="notify-backdrop"
     class:visible
     role="dialog"
@@ -156,7 +220,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.65);
+    background: var(--k-65);
     backdrop-filter: blur(12px) saturate(180%);
     -webkit-backdrop-filter: blur(12px) saturate(180%);
     z-index: 9999;
@@ -172,23 +236,16 @@
 
   .notify-float-box {
     position: relative;
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0.05) 100%
-    );
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: var(--k-50);
+    border: var(--border-by-rezky);
     border-radius: 24px;
     padding: 2.5rem 2rem;
     min-width: 320px;
     max-width: 90vw;
     text-align: center;
-    backdrop-filter: blur(20px) saturate(200%);
-    -webkit-backdrop-filter: blur(20px) saturate(200%);
-    box-shadow:
-      0 25px 50px -12px rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset,
-      0 0 60px rgba(128, 0, 255, 0.15);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    box-shadow: 0 25px 50px -12px var(--k-50);
     transform: scale(0.9) translateY(20px);
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -201,15 +258,15 @@
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--w-10);
+    border: 1px solid var(--w-20);
     border-radius: 50%;
     width: 36px;
     height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--w-80);
     cursor: pointer;
     transition: all 0.25s ease;
     backdrop-filter: blur(10px);
@@ -218,10 +275,10 @@
   }
 
   .notify-close:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--w-15);
     color: white;
     transform: rotate(90deg) scale(1.1);
-    border-color: rgba(255, 255, 255, 0.25);
+    border-color: var(--w-25);
   }
 
   .notify-close :global(svg) {
@@ -264,12 +321,12 @@
 
   .notify-message {
     font-size: 1.125rem;
-    color: rgba(255, 255, 255, 0.95);
+    color: var(--w-95);
     margin: 0 0 1.5rem;
     line-height: 1.5;
     font-weight: 500;
     letter-spacing: -0.01em;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 2px var(--k-20);
   }
 
   .notify-btn {
@@ -288,60 +345,60 @@
   }
 
   .btn-success {
-    background: linear-gradient(135deg, rgba(0, 200, 83, 0.9) 0%, rgba(0, 168, 71, 0.9) 100%);
+    background: linear-gradient(135deg, var(--cat-green-90) 0%, var(--dkgreen-90) 100%);
     color: white;
     box-shadow:
-      0 4px 20px rgba(0, 200, 83, 0.3),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      0 4px 20px var(--cat-green-30),
+      0 0 0 1px var(--w-10) inset;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--w-15);
   }
 
   .btn-success:hover {
     transform: translateY(-2px) scale(1.02);
     box-shadow:
-      0 8px 25px rgba(0, 200, 83, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.15) inset;
-    background: linear-gradient(135deg, rgba(0, 200, 83, 0.95) 0%, rgba(0, 168, 71, 0.95) 100%);
+      0 8px 25px var(--cat-green-40),
+      0 0 0 1px var(--w-15) inset;
+    background: linear-gradient(135deg, var(--cat-green-95) 0%, var(--dkgreen-95) 100%);
   }
 
   .btn-delete {
-    background: linear-gradient(135deg, rgba(213, 0, 0, 0.9) 0%, rgba(183, 28, 28, 0.9) 100%);
+    background: linear-gradient(135deg, var(--cat-red-90) 0%, var(--darkred-90) 100%);
     color: white;
     box-shadow:
-      0 4px 20px rgba(213, 0, 0, 0.3),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      0 4px 20px var(--cat-red-30),
+      0 0 0 1px var(--w-10) inset;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--w-15);
   }
 
   .btn-delete:hover {
     transform: translateY(-2px) scale(1.02);
     box-shadow:
-      0 8px 25px rgba(213, 0, 0, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.15) inset;
-    background: linear-gradient(135deg, rgba(213, 0, 0, 0.95) 0%, rgba(183, 28, 28, 0.95) 100%);
+      0 8px 25px var(--cat-red-40),
+      0 0 0 1px var(--w-15) inset;
+    background: linear-gradient(135deg, var(--cat-red-95) 0%, var(--darkred-95) 100%);
   }
 
   .btn-cancel {
-    background: linear-gradient(135deg, rgba(100, 116, 139, 0.9) 0%, rgba(71, 85, 105, 0.9) 100%);
+    background: linear-gradient(135deg, var(--coolgray-90) 0%, var(--dkgray-90) 100%);
     color: white;
     box-shadow:
-      0 4px 20px rgba(100, 116, 139, 0.3),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      0 4px 20px var(--coolgray-30),
+      0 0 0 1px var(--w-10) inset;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--w-15);
   }
 
   .btn-cancel:hover {
     transform: translateY(-2px) scale(1.02);
     box-shadow:
-      0 8px 25px rgba(100, 116, 139, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.15) inset;
-    background: linear-gradient(135deg, rgba(100, 116, 139, 0.95) 0%, rgba(71, 85, 105, 0.95) 100%);
+      0 8px 25px var(--coolgray-40),
+      0 0 0 1px var(--w-15) inset;
+    background: linear-gradient(135deg, var(--coolgray-95) 0%, var(--dkgray-95) 100%);
   }
 
   .notify-btn-group {
@@ -356,22 +413,22 @@
   }
 
   .btn-warn {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.9) 0%, rgba(217, 119, 6, 0.9) 100%);
+    background: linear-gradient(135deg, var(--cat-amber-90) 0%, var(--dkamber-90) 100%);
     color: white;
     box-shadow:
-      0 4px 20px rgba(245, 158, 11, 0.3),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      0 4px 20px var(--cat-amber-30),
+      0 0 0 1px var(--w-10) inset;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--w-15);
   }
 
   .btn-warn:hover {
     transform: translateY(-2px) scale(1.02);
     box-shadow:
-      0 8px 25px rgba(245, 158, 11, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.15) inset;
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.95) 0%, rgba(217, 119, 6, 0.95) 100%);
+      0 8px 25px var(--cat-amber-40),
+      0 0 0 1px var(--w-15) inset;
+    background: linear-gradient(135deg, var(--cat-amber-95) 0%, var(--dkamber-95) 100%);
   }
 
   @media (max-width: 480px) {

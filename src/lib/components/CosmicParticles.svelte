@@ -4,6 +4,7 @@
 
   let particlesContainer: HTMLDivElement;
   let particles: HTMLDivElement[] = [];
+  let shootingStars: HTMLDivElement[] = [];
   let destroyed = false;
   let particleCount = 10;
   let baseParticleCount = 10;
@@ -13,6 +14,7 @@
   let smoothModeEnabled = false;
   let smoothModeHandler: (() => void) | null = null;
   let tier: 'high' | 'medium' | 'low' = 'medium';
+  let shootingStarTimer: ReturnType<typeof setInterval> | null = null;
 
   onMount(() => {
     tier = getPerformanceTier();
@@ -34,6 +36,7 @@
 
       if (reduced) {
         stopParticles();
+        stopShootingStars();
         return;
       }
 
@@ -68,8 +71,10 @@
     if (!reduced && !document.hidden) {
       particleCount = computeParticleCount(tier, smoothModeEnabled);
       createParticles();
+      startShootingStars();
     } else {
       stopParticles();
+      stopShootingStars();
     }
 
     handleVisibility();
@@ -78,6 +83,7 @@
   onDestroy(() => {
     destroyed = true;
     stopParticles();
+    stopShootingStars();
     if (visibilityHandler) visibilityHandler();
     if (smoothModeHandler) smoothModeHandler();
   });
@@ -147,6 +153,82 @@
     particlesContainer.appendChild(frag);
   }
 
+  // ── Shooting Stars ──
+  function prng2(i: number, salt: number) {
+    const x = Math.sin((i + 1) * 777 + salt) * 10000;
+    return x - Math.floor(x);
+  }
+
+  function createShootingStar() {
+    if (destroyed || reduced || paused || !particlesContainer) return;
+    if (shootingStars.length >= 3) return; // Max 3 concurrent
+
+    const star = document.createElement('div');
+    star.className = 'shooting-star';
+
+    const top = prng2(Date.now(), 3) * 60; // Top 0-60% of screen
+    const left = prng2(Date.now(), 7) * 100; // Random horizontal start
+    const angle = 25 + prng2(Date.now(), 9) * 25; // 25-50 degree angle
+    const distance = 200 + prng2(Date.now(), 11) * 150; // 200-350px travel
+    const dx = Math.cos(angle * Math.PI / 180) * distance;
+    const dy = Math.sin(angle * Math.PI / 180) * distance;
+    const duration = 1.2 + Number(prng2(Date.now(), 13)) * 1.0;
+    const delay = 0.05 + Math.random() * 0.15;
+
+    star.style.cssText = `
+      top: ${top}%;
+      left: ${left}%;
+      --shoot-dx: ${dx.toFixed(1)}px;
+      --shoot-dy: ${dy.toFixed(1)}px;
+      --shoot-duration: ${duration.toFixed(2)}s;
+      --shoot-delay: ${delay.toFixed(2)}s;
+      --shoot-angle: ${angle.toFixed(1)}deg;
+    `;
+
+    particlesContainer.appendChild(star);
+    shootingStars.push(star);
+
+    // Auto-cleanup after animation
+    const cleanupTime = (duration + delay) * 1000 + 500;
+    setTimeout(() => {
+      if (star.parentNode) {
+        star.parentNode.removeChild(star);
+      }
+      const idx = shootingStars.indexOf(star);
+      if (idx >= 0) shootingStars.splice(idx, 1);
+    }, cleanupTime);
+  }
+
+  function startShootingStars() {
+    stopShootingStars();
+    if (destroyed || reduced) return;
+
+    // Spawn shooting stars at random intervals (4-12 seconds)
+    function scheduleNext() {
+      if (destroyed || reduced || paused) return;
+      const interval = 4000 + Math.random() * 8000;
+      shootingStarTimer = setInterval(() => {
+        createShootingStar();
+      }, interval) as unknown as ReturnType<typeof setInterval>;
+    }
+
+    // First star after 2-5 seconds
+    setTimeout(() => {
+      scheduleNext();
+    }, 2000 + Math.random() * 3000);
+  }
+
+  function stopShootingStars() {
+    if (shootingStarTimer) {
+      clearInterval(shootingStarTimer);
+      shootingStarTimer = null;
+    }
+    // Clean up existing stars gracefully
+    for (const star of shootingStars) {
+      if (star.parentNode) star.parentNode.removeChild(star);
+    }
+    shootingStars = [];
+  }
 </script>
 
 <div

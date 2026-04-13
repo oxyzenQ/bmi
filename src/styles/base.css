@@ -1,0 +1,165 @@
+/* ── base.css — Global resets, html/body typography, utility classes (.sr-only, .text-gradient, etc.) ── */
+/* ==============================
+      GLOBAL STYLES
+      ============================== */
+html {
+  height: 100%;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overscroll-behavior: none;
+  background-color: #0a0e1a;
+  max-width: 100%;
+  /* A: Prevent browser auto-zoom on small font sizes (iOS Safari) */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Fix for mobile Safari viewport height */
+@supports (-webkit-touch-callout: none) {
+  html {
+    height: -webkit-fill-available;
+  }
+
+  body {
+    min-height: -webkit-fill-available;
+  }
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  color: var(--text-primary);
+  font-family: 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: clamp(0.875rem, 0.85rem + 0.3vw, 1rem);
+  position: relative;
+  z-index: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  font-variation-settings: 'wght' 400;
+  transition: background var(--dur-normal) var(--easing-smooth);
+}
+
+.app-root {
+  display: contents;
+}
+
+/* stellar background image */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  z-index: -3;
+  background-color: transparent;
+  background-image: var(--wallpaper-current);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 1;
+  filter: brightness(1) contrast(1.25) saturate(1);
+  transform: translateZ(0);
+}
+
+@media (max-width: 480px) {
+  body::before {
+    background-size: contain;
+    background-position: center top;
+    opacity: 1;
+    filter: brightness(1) contrast(1.25) saturate(1);
+  }
+}
+
+@media (max-width: 480px) and (orientation: landscape) {
+  body::before {
+    background-size: cover;
+    background-position: center;
+  }
+}
+
+/* Gradient overlay for depth */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  z-index: -2;
+  background: linear-gradient(180deg, var(--dv-58), var(--dv-90));
+  pointer-events: none;
+}
+
+@supports (height: 100svh) {
+
+  body::before,
+  body::after {
+    height: 100svh;
+    min-height: 100svh;
+  }
+}
+
+/* ==============================
+      TYPOGRAPHY
+      ============================== */
+
+/* Monospace usage */
+code,
+pre,
+kbd,
+samp,
+input[type="number"],
+.bmi-value {
+  font-family: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+}
+
+pre {
+  background: var(--w-4);
+  border: 1px solid var(--w-8);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  overflow: auto;
+}
+
+/* ==============================
+      UTILITY CLASSES
+      ============================== */
+/* Container utilities */
+.main-container {
+  max-width: 1200px;
+  margin-inline: auto;
+  /* center */
+  padding-inline: clamp(1rem, 2vw, 2rem);
+  /* gutter fleksibel */
+  position: relative;
+  z-index: 2;
+}
+
+
+

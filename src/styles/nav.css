@@ -1,0 +1,182 @@
+/* ── nav.css — Pager navigation, bottom nav bar, reduced motion for nav ── */
+/* ==============================
+   PERFORMANCE TIER OPTIMIZATIONS
+   Reduce expensive effects on low-end devices
+   ============================== */
+
+html[data-performance-tier="low"] :is(
+  .hero-content,
+  .pager-btn-futuristic
+) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 4px 12px var(--k-30) !important;
+}
+
+html[data-performance-tier="low"] .cosmic-particles .cosmic-particle {
+  filter: none !important;
+  background: var(--w-60) !important;
+  will-change: transform;
+}
+
+html[data-performance-tier="low"] :is(
+  .plasma-star,
+  .sparkle-icon,
+  .gauge-reflection
+) {
+  filter: none !important;
+  animation: none !important;
+}
+
+html[data-performance-tier="low"] .gauge-progress.pulsing {
+  animation: none !important;
+}
+
+html[data-performance-tier="low"] :is(
+  .icon-glow,
+  .empty-glow
+) {
+  filter: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+html[data-performance-tier="medium"] .cosmic-particles .cosmic-particle {
+  filter: blur(0.2px) !important;
+  will-change: transform;
+}
+
+html[data-performance-tier="medium"] :is(
+  .plasma-star,
+  .sparkle-icon
+) {
+  filter: drop-shadow(0 0 4px currentColor) !important;
+}
+
+/* HIGH TIER: Full effects - ensure will-change hints for GPU acceleration */
+html[data-performance-tier="high"] .cosmic-particles .cosmic-particle {
+  will-change: transform, opacity;
+  contain: layout style paint;
+}
+
+html[data-performance-tier="high"] :is(
+  .hero-content,
+  .bmi-card
+) {
+  will-change: transform;
+  contain: layout style;
+}
+
+/* Ensure smooth scrolling and compositing on all tiers */
+html[data-performance-tier="low"] .cosmic-particles {
+  contain: layout;
+}
+
+html[data-performance-tier="medium"] .cosmic-particles {
+  contain: layout style;
+}
+
+/* ==============================
+   PAGER / BOTTOM NAV STYLES
+   ============================== */
+
+.pager-controls-shell {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--k-50) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border: none !important;
+  border-top: 1px solid var(--w-8) !important;
+  box-shadow: 0 -1px 0 var(--w-6), 0 -8px 30px rgba(0,0,0,0.5), 0 -2px 8px rgba(0,0,0,0.3);
+  border-radius: 18px 18px 0 0;
+  margin-inline: auto;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  height: calc(58px + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.3s ease;
+}
+
+.pager-controls-shell.pager-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(100%);
+}
+
+.pager-controls-shell::before {
+  content: none;
+  display: none;
+}
+
+.pager-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.85rem;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.pager-btn-futuristic {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--aurora-core) 50%, var(--w-20));
+  background: var(--w-6);
+  color: var(--w-85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s var(--easing-smooth);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.pager-btn-futuristic svg {
+  width: 44px !important;
+  height: 44px !important;
+  stroke-width: 2 !important;
+}
+
+.pager-btn-futuristic:hover {
+  background: color-mix(in oklab, var(--aurora-core) 18%, var(--w-10));
+  border-color: color-mix(in oklab, var(--aurora-core) 60%, transparent);
+  color: var(--stellar-white);
+  transform: translateY(-1px);
+}
+
+.pager-btn-futuristic:active {
+  transform: translateY(0) scale(0.96);
+  background: color-mix(in oklab, var(--aurora-core) 24%, var(--w-8));
+}
+
+.pager-btn-futuristic::before {
+  content: none;
+  display: none;
+}
+
+.pager-btn-spacer {
+  width: 56px;
+  height: 56px;
+}
+
+@media (max-width: 480px) {
+  .pager-btn-futuristic,
+  .pager-btn-spacer {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+  }
+}
+

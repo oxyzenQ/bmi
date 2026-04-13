@@ -1,18 +1,71 @@
 {
-	"name": "BMI Calculator",
+	"name": "BMI Calculator — Stellar Edition",
 	"short_name": "BMI Calc",
-	"description": "Calculate your BMI with our modern, accessible calculator.",
+	"description": "A luxury space-themed BMI calculator with TDEE, Body Fat %, interactive charts, and PWA support. Your health journey, beautifully calculated.",
 	"start_url": "/",
+	"scope": "/",
 	"display": "standalone",
-	"background_color": "#0a0a0f",
-	"theme_color": "#7c3aed",
 	"orientation": "portrait",
+	"background_color": "#070a1c",
+	"theme_color": "#7c3aed",
+	"dir": "ltr",
+	"lang": "en",
+	"categories": ["health", "fitness", "lifestyle", "medical"],
+	"prefer_related_applications": false,
 	"icons": [
 		{
-			"src": "/assets/new_bmi_logo_2026.webp",
+			"src": "/assets/icon-192.webp",
+			"sizes": "192x192",
+			"type": "image/webp",
+			"purpose": "any"
+		},
+		{
+			"src": "/assets/icon-512.webp",
 			"sizes": "512x512",
 			"type": "image/webp",
-			"purpose": "any maskable"
+			"purpose": "any"
+		},
+		{
+			"src": "/assets/icon-maskable-512.webp",
+			"sizes": "512x512",
+			"type": "image/webp",
+			"purpose": "maskable"
+		},
+		{
+			"src": "/assets/new_bmi_logo_2026.webp",
+			"sizes": "1024x1024",
+			"type": "image/webp",
+			"purpose": "any"
+		}
+	],
+	"screenshots": [
+		{
+			"src": "/assets/screenshot-wide.webp",
+			"sizes": "1280x720",
+			"type": "image/webp",
+			"form_factor": "wide",
+			"label": "BMI Calculator — Desktop view"
+		},
+		{
+			"src": "/assets/screenshot-narrow.webp",
+			"sizes": "828x1792",
+			"type": "image/webp",
+			"form_factor": "narrow",
+			"label": "BMI Calculator — Mobile view"
+		}
+	],
+	"shortcuts": [
+		{
+			"name": "Calculate BMI",
+			"short_name": "Calculate",
+			"description": "Go directly to the BMI calculator",
+			"url": "/#calculator"
+		},
+		{
+			"name": "View Results",
+			"short_name": "Results",
+			"description": "View your BMI gauge and health risk",
+			"url": "/#gauge"
 		}
 	]
 }

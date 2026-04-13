@@ -33,7 +33,7 @@
   const timers: Array<ReturnType<typeof setTimeout>> = [];
 
   const titleText = 'Hey...welcome';
-  const subtitleText = 'Copyright by rezky nightky 2025-2026';
+  const subtitleText = 'Copyright by Rezky Nightky 2025-2026';
 
   function clearTimers() {
     for (const t of timers) clearTimeout(t);
