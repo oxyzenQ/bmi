@@ -47,7 +47,7 @@
     "svelte": "^5.55.3",
     "svelte-check": "^4.4.6",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.58.1",
+    "typescript-eslint": "^8.58.2",
     "vite": "^7.3.2",
     "vite-plugin-purgecss": "^0.2.13",
     "vitest": "^3.2.4"
