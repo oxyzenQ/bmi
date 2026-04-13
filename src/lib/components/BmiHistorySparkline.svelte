@@ -109,15 +109,34 @@
       record: historyState[i]
     }));
 
-    // Build SVG path (smooth curve using simple lines)
+    // Build SVG path using smooth cubic bezier curves
     let pathD = '';
     let areaD = '';
     if (points.length > 1) {
       pathD = `M ${points[0].x} ${points[0].y}`;
       areaD = `M ${points[0].x} ${CHART_HEIGHT - PAD_BOTTOM} L ${points[0].x} ${points[0].y}`;
-      for (let i = 1; i < points.length; i++) {
-        pathD += ` L ${points[i].x} ${points[i].y}`;
-        areaD += ` L ${points[i].x} ${points[i].y}`;
+
+      if (points.length === 2) {
+        // Only 2 points — simple line
+        pathD += ` L ${points[1].x} ${points[1].y}`;
+        areaD += ` L ${points[1].x} ${points[1].y}`;
+      } else {
+        // Catmull-Rom → cubic bezier for smooth curves through all points
+        const tension = 0.3;
+        for (let i = 0; i < points.length - 1; i++) {
+          const p0 = points[Math.max(0, i - 1)];
+          const p1 = points[i];
+          const p2 = points[i + 1];
+          const p3 = points[Math.min(points.length - 1, i + 2)];
+
+          const cp1x = p1.x + (p2.x - p0.x) * tension;
+          const cp1y = p1.y + (p2.y - p0.y) * tension;
+          const cp2x = p2.x - (p3.x - p1.x) * tension;
+          const cp2y = p2.y - (p3.y - p1.y) * tension;
+
+          pathD += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+          areaD += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+        }
       }
       areaD += ` L ${points[points.length - 1].x} ${CHART_HEIGHT - PAD_BOTTOM} Z`;
     }
@@ -155,6 +174,20 @@
     });
     hoveredIndex = closest >= 0 ? closest : null;
   }
+
+  // Clamp tooltip position to stay within chart bounds
+  let tooltipStyle = $derived.by(() => {
+    if (!hoveredPoint) return '';
+    const pctX = (hoveredPoint.x / CHART_WIDTH) * 100;
+    const pctY = (hoveredPoint.y / CHART_HEIGHT) * 100;
+    // Clamp horizontal: keep tooltip at least 20% from edges
+    const clampedX = Math.max(22, Math.min(78, pctX));
+    // If tooltip would go above chart, flip it below the point
+    const flipBelow = pctY < 25;
+    const clampedY = flipBelow ? pctY + 8 : pctY;
+    const transform = flipBelow ? 'translate(-50%, 12px)' : 'translate(-50%, -110%)';
+    return `left: ${clampedX}%; top: ${clampedY}%; transform: ${transform};`;
+  });
 
   function handlePointerLeave() {
     hoveredIndex = null;
@@ -279,7 +312,7 @@
       {#if hoveredPoint}
         <div
           class="chart-tooltip"
-          style="left: {(hoveredPoint.x / CHART_WIDTH) * 100}%; top: {(hoveredPoint.y / CHART_HEIGHT) * 100}%"
+          style={tooltipStyle}
         >
           <div class="tooltip-bmi" style="color: {getBmiColor(hoveredPoint.bmi)}">{hoveredPoint.bmi.toFixed(1)}</div>
           <div class="tooltip-cat">{getBmiLabel(hoveredPoint.bmi)}</div>
@@ -429,7 +462,6 @@
   /* Tooltip */
   .chart-tooltip {
     position: absolute;
-    transform: translate(-50%, -110%);
     pointer-events: none;
     z-index: 10;
     background: rgba(15, 23, 42, 0.92);
@@ -444,8 +476,8 @@
   }
 
   @keyframes tooltipIn {
-    from { opacity: 0; transform: translate(-50%, -100%) scale(0.9); }
-    to { opacity: 1; transform: translate(-50%, -110%) scale(1); }
+    from { opacity: 0; scale: 0.9; }
+    to { opacity: 1; scale: 1; }
   }
 
   .tooltip-arrow {

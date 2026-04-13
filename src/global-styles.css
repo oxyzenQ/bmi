@@ -633,8 +633,6 @@ button[aria-disabled="true"] {
   /* animation removed for GPU performance */
 }
 
-/* @keyframes btnDotPulse removed for GPU performance */
-
 /* Elegant danger variant */
 .btn-danger {
   color: white;
@@ -755,8 +753,6 @@ button[aria-disabled="true"] {
   left: 20%;
 }
 
-/* @keyframes orbFloat removed for GPU performance */
-
 .hero-content {
   max-width: 800px;
   margin: 0 auto;
@@ -851,8 +847,6 @@ button[aria-disabled="true"] {
   width: 56px !important;
   height: 56px !important;
 }
-
-/* @keyframes plasmaGlow removed for GPU performance */
 
 .hero-subtitle {
   font-size: 1.25rem;
@@ -1380,8 +1374,6 @@ button[aria-disabled="true"] {
   text-shadow: 0 0 20px currentColor;
   /* animation removed for GPU performance */
 }
-
-/* @keyframes valueGlow removed for GPU performance */
 
 .bmi-category-container {
   display: flex;
@@ -2051,7 +2043,6 @@ button[aria-disabled="true"] {
   /* animation removed for GPU performance */
 }
 
-/* @keyframes gaugePulse removed for GPU performance */
 
 .gauge-reflection {
   width: min(52vw, 280px);
@@ -2517,7 +2508,6 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
   /* animation removed for GPU performance */
 }
 
-/* @keyframes plasmaStarGlow1/2/3 removed for GPU performance */
 
 /* ==============================
       FOOTER COMPONENTS
@@ -3496,7 +3486,6 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   filter: blur(15px);
 }
 
-/* @keyframes plasmaPulse removed for GPU performance */
 
 .splash-title {
   font-size: clamp(2.5rem, 8vw, 4.5rem);
