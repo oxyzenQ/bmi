@@ -61,8 +61,8 @@ jobs:
           export default config;
           EOF
 
-          # Enable prerendering for static build
-          echo "export const prerender = true;" > src/routes/+layout.js
+          # Enable prerendering for static build (append to existing +layout.ts)
+          echo "export const prerender = true;" >> src/routes/+layout.ts
 
       - name: Build project with static adapter
         run: bun run build
@@ -70,7 +70,8 @@ jobs:
       - name: Restore original config
         run: |
           mv svelte.config.js.bak svelte.config.js
-          rm -f src/routes/+layout.js
+          # Remove prerender line from +layout.ts (restore original)
+          sed -i '/^export const prerender = true;$/d' src/routes/+layout.ts
 
       - name: Generate changelog
         id: changelog
