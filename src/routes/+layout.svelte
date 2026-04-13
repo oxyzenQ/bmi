@@ -2,15 +2,16 @@
   import '../global-styles.css';
   import CosmicParticles from '$lib/components/CosmicParticles.svelte';
   import SplashScreen from '$lib/components/SplashScreen.svelte';
-  import { onMount } from 'svelte';
+  import { onMount, type Snippet } from 'svelte';
   import { browser } from '$app/environment';
   import { fade } from 'svelte/transition';
   import { Download, WifiOff } from 'lucide-svelte';
 
-  let showSplash = false; // Disabled by default
-  let showMainContent = true; // Show content immediately
+  let { children }: { children: Snippet } = $props();
+  let showSplash = $state(false); // Disabled by default
+  let showMainContent = $state(true); // Show content immediately
   const splashDuration = 10000; // 10s relaxed experience (if enabled)
-  let renderModeEnabled = true;
+  let renderModeEnabled = $state(true);
   let renderModeInitialized = false;
 
   // PWA state
@@ -53,9 +54,10 @@
   }
 
   if (browser) {
-    renderModeEnabled = readRenderMode();
+    const mode = readRenderMode();
+    renderModeEnabled = mode;
     renderModeInitialized = true;
-    document.documentElement.dataset.graphics = renderModeEnabled ? 'render' : 'basic';
+    document.documentElement.dataset.graphics = mode ? 'render' : 'basic';
   }
 
   onMount(() => {
@@ -147,7 +149,7 @@
 {/if}
 
 <div class="main-content" class:visible={showMainContent}>
-  <slot />
+  {@render children()}
 </div>
 
 <!-- PWA Install Banner -->
