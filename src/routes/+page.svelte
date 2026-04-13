@@ -876,8 +876,12 @@
 </script>
 
 <svelte:head>
-  <title>BMI Calculator - Calculate Your Body Mass Index</title>
-  <meta name="description" content="Calculate your BMI with our modern, accessible calculator. Get instant results, health recommendations, and learn about BMI categories." />
+  <title>A Simple BMI Calc — Stellar v10.0</title>
+  <meta name="description" content="A luxury space-themed BMI calculator. Calculate your Body Mass Index, TDEE, Body Fat %, and track your health journey with interactive charts. Built with SvelteKit by Team LOGIGO." />
+  <meta property="og:title" content="A Simple BMI Calc — Stellar v10.0" />
+  <meta property="og:description" content="A luxury space-themed BMI calculator with TDEE, Body Fat %, interactive charts, and PWA support." />
+  <meta name="twitter:title" content="A Simple BMI Calc — Stellar v10.0" />
+  <meta name="twitter:description" content="A luxury space-themed BMI calculator with TDEE, Body Fat %, interactive charts, and PWA support." />
 </svelte:head>
 
 <div
