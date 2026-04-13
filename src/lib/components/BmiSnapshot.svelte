@@ -237,6 +237,9 @@
     <div class="empty-snapshot">
       <Activity size={48} />
       <p>Calculate your BMI to see your health snapshot</p>
+      <button type="button" class="gauge-cta-btn" style="margin-top:0.75rem" onclick={() => { if (browser) window.location.hash = '#calculator'; }}>
+        Calculate BMI
+      </button>
     </div>
   {/if}
 </div>

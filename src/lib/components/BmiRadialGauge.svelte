@@ -3,6 +3,7 @@
   import { onDestroy } from 'svelte';
   import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
+  import { browser } from '$app/environment';
   import { getPerformanceTier, prefersReducedMotion } from '$lib/utils/performance';
 
   interface Props {
@@ -212,9 +213,10 @@
         cy={gaugeSize / 2}
         r={radius}
         fill="none"
-        stroke="url(#gaugeBackground)"
-        stroke-width={strokeWidth}
+        stroke={appliedBmi > 0 ? 'url(#gaugeBackground)' : 'rgba(148, 163, 184, 0.12)'}
+        stroke-width={appliedBmi > 0 ? strokeWidth : strokeWidth + 2}
         stroke-linecap="round"
+        class={appliedBmi <= 0 && !reducedMotion ? 'ring-idle' : ''}
       />
 
       <!-- Progress arc: controlled by applied* state -->
@@ -272,6 +274,15 @@
         </div>
       {/each}
     </div>
+
+    {#if appliedBmi <= 0}
+      <div class="gauge-empty-cta">
+        <p>Enter your measurements to visualize your BMI</p>
+        <button type="button" class="gauge-cta-btn" onclick={() => { if (browser) window.location.hash = '#calculator'; }}>
+          Calculate BMI
+        </button>
+      </div>
+    {/if}
   </div>
 </div>
 

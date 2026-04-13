@@ -19,7 +19,8 @@
     Bot,
     Sparkles,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    ChevronUp
   } from 'lucide-svelte';
   type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
   type BmiResultsComponentType = typeof import('$lib/components/BmiResults.svelte').default;
@@ -231,10 +232,28 @@
   let lastWheelNavAt = 0;
   let switchingTimer: ReturnType<typeof setTimeout> | null = null;
   let pageDestroyed = $state(false);
+  let showScrollTopFab = $state(false);
 
   function broadcastSmoothMode(enabled: boolean) {
     if (!browser) return;
     window.dispatchEvent(new CustomEvent('bmi:smoothMode', { detail: { enabled } }));
+  }
+
+  function triggerHaptic(pattern: number | number[] = 10) {
+    if (!browser) return;
+    try {
+      if ('vibrate' in navigator) navigator.vibrate(pattern);
+    } catch { /* vibrate not supported */ }
+  }
+
+  function scrollToTop() {
+    if (!browser) return;
+    const activeId = sections[activeIndex].id;
+    const scroller = pagerEl?.querySelector<HTMLElement>(
+      `[data-pager-scroll="true"][data-section-id="${activeId}"]`
+    );
+    if (scroller) scroller.scrollTo({ top: 0, behavior: 'smooth' });
+    triggerHaptic(5);
   }
 
   function toggleSmoothMode() {
@@ -447,17 +466,20 @@
 
     lastIndex = activeIndex;
     activeIndex = next;
+    showScrollTopFab = false;
     if (!opts?.skipHash) setHash(sections[activeIndex].id);
     void resetSectionScroll();
   }
 
   function prevSection() {
     if (activeIndex <= 0) return;
+    triggerHaptic(5);
     goTo(activeIndex - 1);
   }
 
   function nextSection() {
     if (activeIndex >= sections.length - 1) return;
+    triggerHaptic(5);
     goTo(activeIndex + 1);
   }
 
@@ -732,6 +754,9 @@
         pagerControlsVisible = true;
       }
 
+      // Scroll-to-top FAB: show when scrolled past 300px
+      showScrollTopFab = currentScrollY > 300;
+
       lastScrollY = currentScrollY;
 
       // Show after idle scroll
@@ -803,6 +828,8 @@
   async function handleCalculate() {
     if (calculating) return;
     calculating = true;
+
+    triggerHaptic([15, 30, 15]);
 
     // Calculate BMI synchronously (before any await) so that
     // bmiValue / category are available for the Gauge page.
@@ -907,7 +934,7 @@
           class="btn btn-ghost pager-tab"
           class:active={idx === activeIndex}
           aria-current={idx === activeIndex ? 'page' : undefined}
-          onclick={() => goTo(idx)}
+          onclick={() => { triggerHaptic(5); goTo(idx); }}
         >
           {section.label}
         </button>
@@ -1267,6 +1294,17 @@
       {/if}
     </div>
   </div>
+
+  <!-- Scroll-to-top FAB -->
+  <button
+    type="button"
+    class="scroll-top-fab"
+    class:visible={showScrollTopFab}
+    aria-label="Scroll to top"
+    onclick={scrollToTop}
+  >
+    <ChevronUp size={20} />
+  </button>
 </div>
 
 {#if showNotify}

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Shield, AlertTriangle, Activity, Heart } from 'lucide-svelte';
+  import { browser } from '$app/environment';
 
   interface Props {
     bmi?: number | null;
@@ -150,7 +151,13 @@
         <li>Consult healthcare provider for personalized plan</li>
       </ul>
     {:else}
-      <p class="no-data">Enter your measurements to see personalized recommendations</p>
+      <div class="empty-health-risk">
+        <Shield size={28} style="opacity:0.3; margin-bottom:0.5rem" />
+        <p class="no-data">Enter your measurements to see personalized recommendations</p>
+        <button type="button" class="gauge-cta-btn" onclick={() => { if (browser) window.location.hash = '#calculator'; }}>
+          Calculate BMI
+        </button>
+      </div>
     {/if}
   </div>
 </div>
@@ -364,6 +371,15 @@
     color: #64748b;
     font-size: 0.875rem;
     font-style: italic;
+  }
+
+  .empty-health-risk {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    text-align: center;
   }
 
   @keyframes pulse {
