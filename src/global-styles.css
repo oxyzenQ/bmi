@@ -4259,23 +4259,8 @@ html:not([data-graphics='render']) .shooting-star {
 }
 
 /* ==============================
-      A-1: GAUGE EMPTY STATE
+      A-1: GAUGE EMPTY STATE CTA
       ============================== */
-.ring-idle {
-  animation: ringIdle 3s ease-in-out infinite;
-  stroke-dasharray: 6 12;
-}
-
-@keyframes ringIdle {
-  0%, 100% {
-    opacity: 0.35;
-    stroke-dashoffset: 0;
-  }
-  50% {
-    opacity: 0.55;
-    stroke-dashoffset: 18;
-  }
-}
 
 .gauge-empty-cta {
   display: flex;
@@ -4318,12 +4303,6 @@ html:not([data-graphics='render']) .shooting-star {
 
 .gauge-cta-btn:active {
   transform: translateY(0) scale(0.97);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ring-idle {
-    animation: none;
-  }
 }
 
 /* ==============================

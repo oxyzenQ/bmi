@@ -143,7 +143,7 @@
               po.disconnect();
             });
             po.observe({ type, buffered: true });
-          } catch { /* metric type not supported */ }
+          } catch { /* metric type not supported in this browser */ }
         };
 
         observe('largest-contentful-paint', (e) => {
@@ -157,10 +157,13 @@
           console.log(`[Vitals] CLS: ${val.toFixed(3)}${val > 0.25 ? ' (poor)' : val > 0.1 ? ' (needs-improvement)' : ' (good)'}`);
         });
 
-        observe('interaction-to-next-paint', (e) => {
-          const val = Math.round(e.startTime);
-          console.log(`[Vitals] INP: ${val}ms${val > 500 ? ' (poor)' : val > 200 ? ' (needs-improvement)' : ' (good)'}`);
-        });
+        // INP: only supported in Chromium 123+ behind flag; skip if unsupported
+        if (PerformanceObserver.supportedEntryTypes?.includes('interaction-to-next-paint')) {
+          observe('interaction-to-next-paint', (e) => {
+            const val = Math.round(e.startTime);
+            console.log(`[Vitals] INP: ${val}ms${val > 500 ? ' (poor)' : val > 200 ? ' (needs-improvement)' : ' (good)'}`);
+          });
+        }
       } catch { /* PerformanceObserver failed */ }
     }
 

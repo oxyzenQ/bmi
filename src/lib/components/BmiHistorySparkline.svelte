@@ -112,17 +112,22 @@
     // Build SVG path using smooth cubic bezier curves
     let pathD = '';
     let areaD = '';
+    // Clamp Y to prevent bezier overshoot escaping chart bounds
+    const minY = PAD_TOP;
+    const maxY = CHART_HEIGHT - PAD_BOTTOM;
+    const clampY = (y: number) => Math.max(minY, Math.min(maxY, y));
+
     if (points.length > 1) {
-      pathD = `M ${points[0].x} ${points[0].y}`;
-      areaD = `M ${points[0].x} ${CHART_HEIGHT - PAD_BOTTOM} L ${points[0].x} ${points[0].y}`;
+      pathD = `M ${points[0].x} ${clampY(points[0].y)}`;
+      areaD = `M ${points[0].x} ${maxY} L ${points[0].x} ${clampY(points[0].y)}`;
 
       if (points.length === 2) {
         // Only 2 points — simple line
-        pathD += ` L ${points[1].x} ${points[1].y}`;
-        areaD += ` L ${points[1].x} ${points[1].y}`;
+        pathD += ` L ${points[1].x} ${clampY(points[1].y)}`;
+        areaD += ` L ${points[1].x} ${clampY(points[1].y)}`;
       } else {
         // Catmull-Rom → cubic bezier for smooth curves through all points
-        const tension = 0.3;
+        const tension = 0.25;
         for (let i = 0; i < points.length - 1; i++) {
           const p0 = points[Math.max(0, i - 1)];
           const p1 = points[i];
@@ -130,12 +135,12 @@
           const p3 = points[Math.min(points.length - 1, i + 2)];
 
           const cp1x = p1.x + (p2.x - p0.x) * tension;
-          const cp1y = p1.y + (p2.y - p0.y) * tension;
+          const cp1y = clampY(p1.y + (p2.y - p0.y) * tension);
           const cp2x = p2.x - (p3.x - p1.x) * tension;
-          const cp2y = p2.y - (p3.y - p1.y) * tension;
+          const cp2y = clampY(p2.y - (p3.y - p1.y) * tension);
 
-          pathD += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
-          areaD += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+          pathD += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${clampY(p2.y)}`;
+          areaD += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${clampY(p2.y)}`;
         }
       }
       areaD += ` L ${points[points.length - 1].x} ${CHART_HEIGHT - PAD_BOTTOM} Z`;
@@ -252,11 +257,14 @@
         <text x={PAD_LEFT - 4} y={bmiToY(25) + 3} text-anchor="end" class="axis-label">25</text>
         <text x={PAD_LEFT - 4} y={bmiToY(30) + 3} text-anchor="end" class="axis-label">30</text>
 
-        <!-- Zone labels (right side) -->
-        <text x={CHART_WIDTH - PAD_RIGHT + 2} y={bmiToY(18.5) + (bmiToY(25) - bmiToY(18.5)) / 2 + 3} text-anchor="start" class="zone-label">Normal</text>
+        <!-- Zone labels (right side, inside plot) -->
+        <text x={CHART_WIDTH - PAD_RIGHT - 2} y={bmiToY(18.5) + (bmiToY(25) - bmiToY(18.5)) / 2 + 3} text-anchor="end" class="zone-label">Normal</text>
 
-        <!-- Gradient fill -->
+        <!-- Gradient fill + clip path -->
         <defs>
+          <clipPath id="sparkClip">
+            <rect x={PAD_LEFT} y={PAD_TOP} width={plotWidth} height={plotHeight} />
+          </clipPath>
           <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stop-color={getBmiColor(chartData.last)} stop-opacity="0.25" />
             <stop offset="100%" stop-color={getBmiColor(chartData.last)} stop-opacity="0.02" />
@@ -264,11 +272,14 @@
         </defs>
 
         {#if chartData.points.length > 1}
-          <!-- Area fill -->
-          <path d={chartData.areaD} fill="url(#sparkGrad)" />
+          <!-- Clipped chart content -->
+          <g clip-path="url(#sparkClip)">
+            <!-- Area fill -->
+            <path d={chartData.areaD} fill="url(#sparkGrad)" />
 
-          <!-- Line -->
-          <path d={chartData.pathD} fill="none" stroke={getBmiColor(chartData.last)} stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+            <!-- Line -->
+            <path d={chartData.pathD} fill="none" stroke={getBmiColor(chartData.last)} stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          </g>
         {/if}
 
         <!-- Data points -->
@@ -425,7 +436,7 @@
   .sparkline-svg {
     width: 100%;
     height: 100%;
-    overflow: visible;
+    overflow: hidden;
   }
 
   .spark-point {

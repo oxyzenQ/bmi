@@ -213,10 +213,9 @@
         cy={gaugeSize / 2}
         r={radius}
         fill="none"
-        stroke={appliedBmi > 0 ? 'url(#gaugeBackground)' : 'rgba(148, 163, 184, 0.12)'}
-        stroke-width={appliedBmi > 0 ? strokeWidth : strokeWidth + 2}
+        stroke="url(#gaugeBackground)"
+        stroke-width={strokeWidth}
         stroke-linecap="round"
-        class={appliedBmi <= 0 && !reducedMotion ? 'ring-idle' : ''}
       />
 
       <!-- Progress arc: controlled by applied* state -->
