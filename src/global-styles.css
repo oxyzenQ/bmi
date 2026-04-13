@@ -331,6 +331,9 @@ html {
   overscroll-behavior: none;
   background-color: #0a0e1a;
   max-width: 100%;
+  /* A: Prevent browser auto-zoom on small font sizes (iOS Safari) */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 html::-webkit-scrollbar,
@@ -3024,6 +3027,54 @@ p,
   .gauge-container {
     width: min(96vw, 260px);
   }
+
+  /* B: Compact results card on mobile — reduce padding */
+  .bmi-results-card {
+    padding: 1.5rem;
+    border-radius: 1.25rem;
+    min-height: auto;
+  }
+
+  .card-header {
+    margin-top: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .bmi-value {
+    font-size: clamp(2.75rem, 12vw, 3.75rem);
+  }
+
+  .bmi-category {
+    font-size: 1.15rem;
+  }
+
+  .bmi-display {
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-number {
+    font-size: 1.25rem;
+  }
+
+  .stat-number.range-num {
+    font-size: 1.1rem;
+  }
+
+  .health-advice,
+  .age-advisory,
+  .bmi-explanation {
+    padding: 1.15rem;
+  }
+
+  .action-btn {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.7rem;
+    gap: 0.3rem;
+  }
+
+  .action-buttons-row {
+    gap: 0.4rem;
+  }
 }
 
 /* Media queries: compact phones (<=520px) */
@@ -3367,7 +3418,7 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   max-width: 300px;
 }
 
-/* Mobile screens (below 400px) */
+/* Mobile screens (below 400px) — C: aggressive compact breakpoint */
 @media (max-width: 399px) {
   .form-input {
     width: 100%;
@@ -3389,6 +3440,213 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   .button-group .btn {
     width: 100%;
     max-width: 220px;
+  }
+
+  /* C: Ultra-compact results card for very narrow screens */
+  .bmi-results-card {
+    padding: 1rem 0.875rem;
+    border-radius: 1rem;
+  }
+
+  .card-header {
+    margin-top: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .card-title {
+    font-size: 1.15rem;
+  }
+
+  .card-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .bmi-value {
+    font-size: clamp(2.25rem, 11vw, 3rem);
+    margin-bottom: 0.65rem;
+  }
+
+  .bmi-category {
+    font-size: 1rem;
+  }
+
+  .bmi-display {
+    margin-bottom: 1rem;
+  }
+
+  .stat-row-grid {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-block {
+    padding: 0.85rem;
+    border-radius: 0.75rem;
+  }
+
+  .stat-number {
+    font-size: 1.1rem;
+  }
+
+  .stat-number.range-num {
+    font-size: 1rem;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+  }
+
+  .stat-desc {
+    font-size: 0.72rem;
+  }
+
+  .health-advice,
+  .age-advisory,
+  .bmi-explanation {
+    padding: 0.85rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .advice-title {
+    font-size: 0.95rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .advisory-title {
+    font-size: 0.85rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .explanation-title {
+    font-size: 0.85rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .advice-text,
+  .advisory-text,
+  .explanation-text {
+    font-size: 0.78rem;
+  }
+
+  .action-buttons-row {
+    gap: 0.3rem;
+    margin: 0.65rem 0;
+  }
+
+  .action-btn {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.65rem;
+    border-radius: 8px;
+    gap: 0.2rem;
+  }
+
+  .action-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* TDEE card compact */
+  .tdee-card {
+    border-radius: 0.75rem;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .tdee-stat-value {
+    font-size: 1.1rem;
+  }
+
+  .tdee-grid {
+    gap: 0.5rem;
+  }
+
+  .tdee-range {
+    padding: 0.4rem;
+    border-radius: 0.5rem;
+  }
+
+  .tdee-disclaimer {
+    font-size: 0.7rem;
+    padding: 0 0.75rem 0.75rem;
+  }
+
+  /* Snapshot cards compact */
+  .snapshot-cards {
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+
+  .snapshot-card {
+    padding: 0.85rem 0.5rem;
+    border-radius: 0.75rem;
+  }
+
+  .card-value {
+    font-size: 1.75rem;
+  }
+
+  .progress-section {
+    padding: 1rem;
+    border-radius: 0.75rem;
+  }
+
+  /* Sparkline compact */
+  .sparkline-container {
+    padding: 0.625rem 0.4rem;
+    border-radius: 0.75rem;
+  }
+
+  .interactive-chart {
+    height: 160px;
+  }
+
+  .sparkline-footer {
+    font-size: 0.65rem;
+    gap: 0.15rem;
+  }
+
+  /* Health risk compact */
+  .health-tips {
+    padding: 0.85rem;
+    border-radius: 0.75rem;
+  }
+
+  .health-tips h4 {
+    font-size: 0.85rem;
+  }
+
+  .health-tips li {
+    font-size: 0.78rem;
+  }
+
+  /* About section compact */
+  .about-card {
+    padding: 1.25rem;
+    border-radius: 1rem;
+  }
+
+  .about-card h3 {
+    font-size: 1rem;
+  }
+
+  .shortcuts-grid {
+    gap: 0.5rem;
+  }
+
+  .shortcut-keys kbd {
+    min-width: 24px;
+    height: 24px;
+    font-size: 0.6rem;
+  }
+
+  .shortcut-desc {
+    font-size: 0.78rem;
+  }
+
+  /* Prime bar compact */
+  .prime-bar-track {
+    height: 5px;
   }
 }
 
