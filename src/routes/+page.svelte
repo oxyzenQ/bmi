@@ -1246,7 +1246,7 @@
                     <div class="app-info">
                       <p class="info-row">
                         <PackageCheck class="PackageCheck" />
-                        <strong>Version:</strong>Stellar-10.0 <span class="commit-id">({gitCommitId})</span>
+                        <strong>Version:</strong>Stellar-10.5 <span class="commit-id">({gitCommitId})</span>
                       </p>
                       <p class="info-row">
                         <GitBranch class="GitBranch" />

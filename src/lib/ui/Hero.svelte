@@ -55,7 +55,7 @@
 
     <div class="hero-bottom">
       <p class="hero-bottom-text">
-        Stellar Edition 10.0
+        Stellar Edition 10.5
       </p>
     </div>
   </div>
