@@ -1,0 +1,312 @@
+/* ── form.css — BMI section layout, input groups, select, range slider, form @media queries ── */
+/* ==============================
+       BMI SECTION LAYOUT
+       ============================== */
+
+/* About BMI app info rows */
+.app-info {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--w-8);
+}
+
+.app-info .info-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.app-info .info-row strong {
+  color: white;
+  font-weight: 600;
+}
+
+.bmi-section {
+  margin-top: clamp(40px, 5vh, 200px);
+  margin-bottom: clamp(40px, 5vh, 200px);
+}
+
+.charts-section {
+  margin-top: clamp(40px, 5vh, 200px);
+  margin-bottom: clamp(40px, 5vh, 200px);
+}
+
+/* Footer disclaimer warning icon */
+.footer-disclaimer .warn-ic {
+  color: #facc15;
+  /* yellow-400 */
+  margin-right: 0.5rem;
+  position: relative;
+  top: 2px;
+  /* slight optical alignment */
+  filter: drop-shadow(0 0 6px var(--gold-35));
+}
+
+.footer-disclaimer .disclaimer-icon {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.footer-disclaimer .warn-ic-lg {
+  margin-right: 0;
+  top: 0;
+  color: #fde047;
+  /* yellow-300 for brighter */
+  filter: drop-shadow(0 0 10px var(--gold-45));
+}
+
+.bmi-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin-top: clamp(40px, 40vh, 160px) !important;
+  margin-bottom: clamp(40px, 40vh, 160px) !important;
+  /* bottom safe spacing */
+  align-items: start;
+  /* prevents items from stretching */
+  padding: 24px;
+}
+
+@media (max-width: 899px) {
+  .bmi-card {
+    margin-bottom: clamp(40px, 40vh, 180px) !important;
+  }
+}
+
+@media (min-width: 900px) {
+  .bmi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .bmi-card {
+    margin-bottom: 0 !important;
+    margin-top: auto;
+  }
+}
+
+/* Form card (left) */
+.form-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 750px;
+  /* default minimum height */
+  max-height: none;
+  /* allow growth when filled with many fields */
+
+  border-radius: 1.5rem;
+
+  padding: clamp(1.25rem, 4vw, 2rem);
+  transition: transform var(--dur-normal) var(--easing-smooth),
+    box-shadow var(--dur-normal) var(--easing-smooth);
+}
+
+.form-card .form-inner {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* Result card (right) */
+.bmi-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.5rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  margin-top: auto;
+  min-height: 750px;
+  transition: transform var(--dur-normal) var(--easing-smooth),
+    box-shadow var(--dur-normal) var(--easing-smooth);
+}
+
+.bmi-card:hover,
+.form-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 48px var(--k-50);
+}
+
+/* ==============================
+      FORM COMPONENTS
+   ============================== */
+.bmi-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.input-label {
+  font-weight: 500;
+  color: white;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.input-error {
+  width: 100%;
+  max-width: 320px;
+  margin-left: 0;
+  margin-right: 0;
+  color: #ff6b6b;
+  font-size: 0.8rem;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.form-input {
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.25rem;
+  width: 100%;
+  max-width: 320px;
+  border-radius: 0.75rem;
+  background: var(--sd-75);
+  border-top: var(--border-by-rezky);
+  border-left: var(--border-by-rezky);
+  border-bottom: 2px solid var(--text-muted);
+  border-right: var(--border-by-rezky);
+  color: white;
+  font-size: 1rem;
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #5900e9;
+  background: var(--sd-80);
+  border-radius: 0.75rem;
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+}
+
+.form-input:hover:not(:focus) {
+  border-color: var(--w-20);
+  background: var(--sd-70);
+}
+
+/* Fix browser autofill white background */
+.form-input:-webkit-autofill,
+.form-input:-webkit-autofill:hover,
+.form-input:-webkit-autofill:focus,
+.form-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--sd-90) inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: 1px solid var(--w-10) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.status-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.25rem;
+}
+
+/* Pill indicator component */
+.pill-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 38px;
+  padding: 0 14px;
+  min-width: 140px;
+  border-radius: 9999px;
+  border: 2px solid var(--text-muted);
+  background: var(--sd-55);
+  color: #e6f0ff;
+  font-weight: 600;
+  font-size: 1rem;
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  transition: transform 0.16s ease, box-shadow 0.18s ease, background 0.2s ease;
+  cursor: default;
+  justify-content: center;
+}
+
+.pill-indicator .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #a1a1aa;
+  box-shadow: 0 0 8px var(--zinc-36);
+  flex: 0 0 auto;
+}
+
+.pill-indicator:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 10px 22px var(--dv-40);
+}
+
+.pill-indicator:active {
+  transform: scale(.98);
+}
+
+.pill-indicator:focus {
+  outline: 3px solid var(--ink-18);
+  outline-offset: 2px;
+}
+
+.pill-indicator::after {
+  content: "";
+  position: absolute;
+  left: -60%;
+  top: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--w-6), var(--w-2), var(--w-6));
+  transform: translateX(-10%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.42s cubic-bezier(.2, .9, .2, 1), opacity 0.36s ease;
+}
+
+.pill-indicator:active::after {
+  transform: translateX(110%);
+  opacity: 1;
+  transition: none;
+}
+
+/* Dynamic color variants */
+.pill-indicator[data-color="red"] .dot {
+  background: #D50000;
+  box-shadow: 0 0 8px var(--cat-red-32);
+}
+
+.pill-indicator[data-color="green"] .dot {
+  background: #00C853;
+  box-shadow: 0 0 8px var(--cat-green-32);
+}
+
+.pill-indicator[data-color="yellow"] .dot {
+  background: #FFD600;
+  box-shadow: 0 0 8px var(--cat-yellow-32);
+}
+
+.pill-indicator[data-color="blue"] .dot {
+  background: #4A90E2;
+  box-shadow: 0 0 8px var(--cat-blue-32);
+}
+
+.pill-indicator[data-color="grey"] .dot {
+  background: #9CA3AF;
+  box-shadow: 0 0 8px var(--cat-slate-32);
+}
+

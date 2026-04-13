@@ -1,0 +1,296 @@
+/* ── results.css — BMI results card, category badges, share/action buttons, empty state, toast keyframes ── */
+/* ==============================
+      BMI RESULTS COMPONENT
+      ============================== */
+.bmi-results-card {
+  padding: 2.5rem;
+  border-radius: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--dur-normal) var(--easing-smooth), box-shadow var(--dur-normal) var(--easing-smooth), border-color var(--dur-normal) var(--easing-smooth);
+}
+
+.bmi-results-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--blue-5), var(--purple-5));
+  border-radius: inherit;
+  z-index: -1;
+}
+
+.card-header {
+  text-align: center;
+  margin-top: 2.5rem;
+  margin-bottom: 3.5rem;
+}
+
+.icon-container {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.icon-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  background: var(--atmosphere-horizon);
+  border-radius: 50%;
+  /* Reduced blur from 15px to 8px for GPU performance */
+  filter: blur(8px);
+  /* animation removed for GPU performance */
+  opacity: 0.7;
+}
+
+/* Elegant gradient text utility using theme vars */
+.text-gradient-elegant {
+  background: var(--bg-cosmic);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.card-subtitle {
+  color: white;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.results-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  animation: fadeInUp 0.8s var(--easing-smooth);
+}
+
+.bmi-display {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  animation: scaleIn 0.6s var(--easing-smooth) 0.2s both;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.bmi-value {
+  font-size: 4.5rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 20px currentColor;
+  /* animation removed for GPU performance */
+}
+
+.bmi-category-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.category-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.bmi-category {
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.health-advice {
+  background: var(--sd-40);
+  border-radius: 1rem;
+  padding: 1.75rem;
+  margin-bottom: 1.75rem;
+  border: 1px solid var(--w-5);
+  animation: slideInLeft 0.6s var(--easing-smooth) 0.4s both;
+  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.health-advice:hover {
+  background: var(--sd-60);
+  border-color: var(--w-10);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--k-20);
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.advice-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--stellar-white);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.advice-text {
+  color: #d1d5db;
+  line-height: 1.6;
+}
+
+.age-advisory {
+  background: color-mix(in oklab, var(--accent-blue) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--accent-blue) 22%, transparent);
+  border-radius: 1rem;
+  padding: 1.75rem;
+  margin-bottom: 1.75rem;
+  animation: slideInRight 0.6s var(--easing-smooth) 0.6s both;
+  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.age-advisory:hover {
+  background: color-mix(in oklab, var(--accent-blue) 16%, transparent);
+  border-color: color-mix(in oklab, var(--accent-blue) 32%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px color-mix(in oklab, var(--accent-blue) 16%, transparent);
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.advisory-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent-blue);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.advisory-text {
+  color: #d1d5db;
+  line-height: 1.6;
+  font-size: 0.875rem;
+}
+
+.bmi-explanation {
+  background: var(--sd-40);
+  border-radius: 1rem;
+  padding: 1.75rem;
+  border: 1px solid var(--w-5);
+  animation: fadeInUp 0.6s var(--easing-smooth) 0.8s both;
+  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.bmi-explanation:hover {
+  background: var(--sd-60);
+  border-color: var(--w-10);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--k-20);
+}
+
+.explanation-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--stellar-white);
+  margin-bottom: 1rem;
+}
+
+.explanation-text {
+  color: #d1d5db;
+  line-height: 1.6;
+  font-size: 0.875rem;
+}
+
+/* ==============================
+      SHARE & ACTION BUTTONS (C-1/C-2/C-3)
+      ============================== */
+.action-buttons-row {
+  display: flex;
+  gap: 0.625rem;
+  margin: 1rem 0;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid color-mix(in oklab, var(--aurora-core) 22%, var(--w-14));
+  background: var(--bg-by-rezky);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  justify-content: center;
+  box-shadow: 0 8px 20px var(--k-45),
+    inset 0 1px 0 var(--w-8),
+    0 0 16px color-mix(in oklab, var(--cosmic-purple) 24%, transparent);
+}
+
+.action-btn:hover {
+  background: var(--bg-last-by-rezky);
+  border-color: color-mix(in oklab, var(--aurora-core) 34%, var(--w-16));
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px var(--k-55),
+    inset 0 1px 0 var(--w-10),
+    0 0 24px color-mix(in oklab, var(--cosmic-purple) 30%, transparent);
+}
+
+.action-btn:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+.share-toast {
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  color: #00C853;
+  font-weight: 600;
+  animation: toastFade 0.25s ease;
+}
+
+@keyframes toastFade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+

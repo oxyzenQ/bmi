@@ -1,5 +1,26 @@
 <script lang="ts">
-  import '../global-styles.css';
+  /* ── Design tokens (must load first — all CSS custom properties) ── */
+  import '../styles/tokens.css';
+  /* ── Base resets, typography, utility classes ── */
+  import '../styles/base.css';
+  /* ── Glassmorphism containers, button system, hero section ── */
+  import '../styles/components.css';
+  /* ── BMI form layout, inputs, validation ── */
+  import '../styles/form.css';
+  /* ── BMI results card, share/action buttons, empty states ── */
+  import '../styles/results.css';
+  /* ── Stat grid, TDEE, radial gauge, reference table ── */
+  import '../styles/data-cards.css';
+  /* ── Keyboard shortcuts, cosmic particles, footer ── */
+  import '../styles/layout.css';
+  /* ── Responsive breakpoints, reduced motion ── */
+  import '../styles/responsive.css';
+  /* ── Splash screen ── */
+  import '../styles/splash.css';
+  /* ── Pager / bottom navbar ── */
+  import '../styles/nav.css';
+  /* ── Skeleton loading, shooting stars, haptic feedback ── */
+  import '../styles/animation.css';
   import CosmicParticles from '$lib/components/CosmicParticles.svelte';
   import SplashScreen from '$lib/components/SplashScreen.svelte';
   import { onMount, type Snippet } from 'svelte';
