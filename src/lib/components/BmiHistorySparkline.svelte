@@ -18,11 +18,11 @@
 
   const MAX_POINTS = 20;
   const CHART_WIDTH = 380;
-  const CHART_HEIGHT = 280;
+  const CHART_HEIGHT = 300;
   const PAD_LEFT = 26;
   const PAD_RIGHT = 2;
-  const PAD_TOP = 6;
-  const PAD_BOTTOM = 6;
+  const PAD_TOP = 24;
+  const PAD_BOTTOM = 24;
 
   const BMI_MIN = 12;
   const BMI_MAX = 42;
@@ -431,12 +431,13 @@
   .interactive-chart {
     height: 260px;
     margin: 0;
+    overflow: hidden;
   }
 
   .sparkline-svg {
     width: 100%;
     height: 100%;
-    overflow: hidden;
+    display: block;
   }
 
   .spark-point {
