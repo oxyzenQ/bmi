@@ -18,11 +18,11 @@
 
   const MAX_POINTS = 20;
   const CHART_WIDTH = 380;
-  const CHART_HEIGHT = 200;
+  const CHART_HEIGHT = 280;
   const PAD_LEFT = 26;
   const PAD_RIGHT = 2;
-  const PAD_TOP = 4;
-  const PAD_BOTTOM = 4;
+  const PAD_TOP = 6;
+  const PAD_BOTTOM = 6;
 
   const BMI_MIN = 12;
   const BMI_MAX = 42;
@@ -429,7 +429,7 @@
   }
 
   .interactive-chart {
-    height: 180px;
+    height: 260px;
     margin: 0;
   }
 
@@ -556,7 +556,7 @@
     }
 
     .interactive-chart {
-      height: 140px;
+      height: 200px;
     }
   }
 </style>
