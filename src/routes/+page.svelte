@@ -20,7 +20,8 @@
     Sparkles,
     ChevronLeft,
     ChevronRight,
-    ChevronUp
+    ChevronUp,
+    Keyboard
   } from 'lucide-svelte';
   type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
   type BmiResultsComponentType = typeof import('$lib/components/BmiResults.svelte').default;
@@ -498,6 +499,42 @@
 
   function handleKeydown(event: KeyboardEvent) {
     if (isEditableTarget(event.target)) return;
+
+    // C-4: Number keys 1-6 for section navigation
+    const numKey = parseInt(event.key);
+    if (numKey >= 1 && numKey <= sections.length) {
+      event.preventDefault();
+      goTo(numKey - 1);
+      triggerHaptic(5);
+      return;
+    }
+
+    // C-4: T = toggle wallpaper theme
+    if (event.key === 't' || event.key === 'T') {
+      event.preventDefault();
+      toggleWallpaperTheme();
+      triggerHaptic(5);
+      return;
+    }
+
+    // C-4: R = reset/clear all data (requires shift for safety)
+    if (event.key === 'R' && event.shiftKey) {
+      event.preventDefault();
+      confirmClearData();
+      return;
+    }
+
+    // C-4: S = toggle smooth mode
+    if (event.key === 's' || event.key === 'S') {
+      if (!event.shiftKey) {
+        event.preventDefault();
+        toggleSmoothMode();
+        triggerHaptic(5);
+        return;
+      }
+    }
+
+    // Arrow key navigation (existing)
     if (event.key === 'ArrowLeft') {
       event.preventDefault();
       prevSection();
@@ -1227,6 +1264,40 @@
                         <Scale class="Scale" />
                         <strong>License:</strong>GPL v3
                       </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- C-4: Keyboard Shortcuts Card -->
+              <div class="about-card" style="margin-top:1.5rem">
+                <div class="about-card-header">
+                  <Keyboard class="Keyboard" />
+                  <h3>Keyboard Shortcuts</h3>
+                </div>
+                <div class="about-card-content">
+                  <div class="shortcuts-grid">
+                    <div class="shortcut-row">
+                      <div class="shortcut-keys">
+                        <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd><kbd>5</kbd><kbd>6</kbd>
+                      </div>
+                      <span class="shortcut-desc">Navigate to section</span>
+                    </div>
+                    <div class="shortcut-row">
+                      <div class="shortcut-keys"><kbd>T</kbd></div>
+                      <span class="shortcut-desc">Toggle wallpaper theme</span>
+                    </div>
+                    <div class="shortcut-row">
+                      <div class="shortcut-keys"><kbd>S</kbd></div>
+                      <span class="shortcut-desc">Toggle smooth mode</span>
+                    </div>
+                    <div class="shortcut-row">
+                      <div class="shortcut-keys"><kbd>Shift</kbd>+<kbd>R</kbd></div>
+                      <span class="shortcut-desc">Reset / clear all data</span>
+                    </div>
+                    <div class="shortcut-row">
+                      <div class="shortcut-keys"><kbd>&larr;</kbd><kbd>&rarr;</kbd></div>
+                      <span class="shortcut-desc">Previous / next section</span>
                     </div>
                   </div>
                 </div>

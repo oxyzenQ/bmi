@@ -1,8 +1,11 @@
 <script lang="ts">
-  import { BarChart3, CircleSlash2, TrendingUp, Info, AlertCircle, CheckCircle, Activity, Target, Scale, Flame } from 'lucide-svelte';
+  import { BarChart3, CircleSlash2, TrendingUp, Info, AlertCircle, CheckCircle, Activity, Target, Scale, Flame, Share2, Copy, ImageDown } from 'lucide-svelte';
   import { onDestroy } from 'svelte';
   import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
+  import { browser } from '$app/environment';
+  import { shareBmiResult, copyToClipboard, formatBmiText } from '$lib/utils/share';
+  import { shareBmiCard, downloadBmiCard } from '$lib/utils/share-image';
 
   interface Props {
     bmiValue?: number | null;
@@ -156,6 +159,67 @@
       animatedTdee.set(0, { duration: 0 });
     }
   });
+
+  // ── C-1/C-2/C-3: Share & Clipboard state ──
+  let shareToast = $state('');
+  let shareTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function flashToast(msg: string) {
+    shareToast = msg;
+    if (shareTimer) clearTimeout(shareTimer);
+    shareTimer = setTimeout(() => { shareToast = ''; }, 2000);
+  }
+
+  function getShareData() {
+    return {
+      bmi: bmiValue!,
+      category: category!,
+      height,
+      weight,
+      unitSystem,
+      bmiPrime,
+      tdee
+    };
+  }
+
+  function getCardData() {
+    return {
+      bmi: bmiValue!,
+      category: category!,
+      bmiPrime,
+      tdee,
+      idealMin: idealMinDisplay,
+      idealMax: idealMaxDisplay,
+      weightUnit
+    };
+  }
+
+  async function handleShare() {
+    if (!browser) return;
+    const result = await shareBmiResult(getShareData());
+    if (result.method === 'share') return; // native share sheet handled it
+    if (result.ok) flashToast('Copied to clipboard!');
+  }
+
+  async function handleCopy() {
+    if (!browser) return;
+    const text = formatBmiText(getShareData());
+    const ok = await copyToClipboard(text);
+    flashToast(ok ? 'Copied!' : 'Failed to copy');
+  }
+
+  async function handleDownloadCard() {
+    if (!browser) return;
+    const ok = await downloadBmiCard(getCardData());
+    flashToast(ok ? 'Image saved!' : 'Failed to generate image');
+  }
+
+  async function handleShareCard() {
+    if (!browser) return;
+    const result = await shareBmiCard(getCardData());
+    if (result.method === 'share') return;
+    if (result.ok) flashToast('Image downloaded!');
+  }
 
   let catClass = $derived(
     category
@@ -352,6 +416,26 @@
           </h4>
           <p class="advisory-text">{getAgeAdvisory(age)}</p>
         </div>
+      {/if}
+
+      <!-- C-1/C-2/C-3: Share & Action Buttons -->
+      <div class="action-buttons-row">
+        <button type="button" class="action-btn" onclick={handleShare} aria-label="Share result">
+          <Share2 size={16} />
+          <span>Share</span>
+        </button>
+        <button type="button" class="action-btn" onclick={handleCopy} aria-label="Copy to clipboard">
+          <Copy size={16} />
+          <span>Copy</span>
+        </button>
+        <button type="button" class="action-btn" onclick={handleDownloadCard} aria-label="Download result card">
+          <ImageDown size={16} />
+          <span>Save Image</span>
+        </button>
+      </div>
+
+      {#if shareToast}
+        <div class="share-toast">{shareToast}</div>
       {/if}
 
       <div class="bmi-explanation">

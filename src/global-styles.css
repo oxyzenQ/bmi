@@ -1512,6 +1512,61 @@ button[aria-disabled="true"] {
   font-size: 0.875rem;
 }
 
+/* ==============================
+      SHARE & ACTION BUTTONS (C-1/C-2/C-3)
+      ============================== */
+.action-buttons-row {
+  display: flex;
+  gap: 0.625rem;
+  margin: 1rem 0;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid var(--w-14);
+  background: linear-gradient(180deg, var(--w-7), var(--w-2-5));
+  color: var(--w-80);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  justify-content: center;
+}
+
+.action-btn:hover {
+  background: linear-gradient(180deg, var(--w-13), var(--w-5));
+  border-color: var(--w-24);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.action-btn:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+.share-toast {
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  color: #00C853;
+  font-weight: 600;
+  animation: toastFade 0.25s ease;
+}
+
+@keyframes toastFade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==============================
+      EMPTY STATE
+      ============================== */
 .empty-state {
   text-align: center;
   color: #9ca3af;
@@ -2382,6 +2437,51 @@ button[aria-disabled="true"] {
 
 .about-card p:last-child {
   margin-bottom: 0;
+}
+
+/* ==============================
+      KEYBOARD SHORTCUTS (C-4)
+      ============================== */
+.shortcuts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.shortcut-keys {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.shortcut-keys kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  border-radius: 6px;
+  border: 1px solid var(--w-18);
+  background: linear-gradient(180deg, var(--w-10), var(--w-4));
+  color: var(--w-90);
+  font-family: 'JetBrains Mono Variable', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1;
+  box-shadow: 0 2px 0 var(--k-30);
+}
+
+.shortcut-desc {
+  color: var(--w-70);
+  font-size: 0.875rem;
 }
 
 /* ==============================
