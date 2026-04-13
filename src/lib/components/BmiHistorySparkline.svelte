@@ -17,12 +17,12 @@
   }
 
   const MAX_POINTS = 20;
-  const CHART_WIDTH = 400;
-  const CHART_HEIGHT = 140;
-  const PAD_LEFT = 32;
-  const PAD_RIGHT = 8;
-  const PAD_TOP = 8;
-  const PAD_BOTTOM = 22;
+  const CHART_WIDTH = 380;
+  const CHART_HEIGHT = 200;
+  const PAD_LEFT = 26;
+  const PAD_RIGHT = 2;
+  const PAD_TOP = 4;
+  const PAD_BOTTOM = 4;
 
   const BMI_MIN = 12;
   const BMI_MAX = 42;
@@ -373,7 +373,7 @@
     background: var(--sd-40);
     border: 1px solid var(--sg-10);
     border-radius: 16px;
-    padding: 1.25rem;
+    padding: 0.875rem 0.75rem;
     margin-top: 1rem;
   }
 
@@ -425,11 +425,11 @@
   .sparkline-chart {
     position: relative;
     height: 60px;
-    margin: 0 -0.25rem;
+    margin: 0;
   }
 
   .interactive-chart {
-    height: 140px;
+    height: 180px;
     margin: 0;
   }
 
@@ -444,7 +444,7 @@
   }
 
   .axis-label {
-    font-size: 8px;
+    font-size: 9px;
     fill: #475569;
     font-family: 'JetBrains Mono Variable', monospace;
     dominant-baseline: middle;
@@ -460,8 +460,8 @@
   .x-axis-labels {
     display: flex;
     justify-content: space-between;
-    padding: 0.15rem 0.25rem 0;
-    margin: 0 0.25rem;
+    padding: 0.15rem 0 0;
+    margin: 0;
   }
 
   .x-label {
@@ -556,7 +556,7 @@
     }
 
     .interactive-chart {
-      height: 110px;
+      height: 140px;
     }
   }
 </style>
