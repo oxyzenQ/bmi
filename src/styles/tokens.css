@@ -301,6 +301,24 @@
   --zinc2-20: rgba(229, 231, 235, 0.2);
   --zinc2-22: rgba(229, 231, 235, 0.22);
 
+  /* Category colors for BMI ranges */
+  --cat-blue-6: rgba(96, 165, 250, 0.06);
+  --cat-green-6: rgba(74, 222, 128, 0.06);
+  --cat-amber-6: rgba(251, 191, 36, 0.06);
+  --cat-red-6: rgba(248, 113, 113, 0.06);
+  --cat-blue-20: rgba(96, 165, 250, 0.2);
+  --cat-green-20: rgba(74, 222, 128, 0.2);
+  --cat-amber-20: rgba(251, 191, 36, 0.2);
+  --cat-slate-30: rgba(148, 163, 184, 0.3);
+  --cat-slate-30-light: rgba(148, 163, 184, 0.45);
+  --white-15: rgba(255, 255, 255, 0.15);
+  --white-10: rgba(255, 255, 255, 0.1);
+  --cat-green-40: rgba(74, 222, 128, 0.4);
+  --sd-92: rgba(15, 23, 42, 0.92);
+  --shadow-heavy: rgba(0, 0, 0, 0.5);
+  --cosmic-base-95: rgba(10, 8, 24, 0.95);
+  --darkred-85: rgba(183, 28, 28, 0.85);
+
   /* ── End opacity token system ── */
 
   /* Button system */

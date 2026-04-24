@@ -148,10 +148,10 @@
 
     // BMI zone bands
     const zones = [
-      { min: BMI_MIN, max: 18.5, color: 'rgba(96,165,250,0.06)', label: '' },
-      { min: 18.5, max: 25, color: 'rgba(74,222,128,0.06)', label: 'Normal' },
-      { min: 25, max: 30, color: 'rgba(251,191,36,0.06)', label: '' },
-      { min: 30, max: BMI_MAX, color: 'rgba(248,113,113,0.06)', label: '' }
+      { min: BMI_MIN, max: 18.5, color: 'var(--cat-blue-6)', label: '' },
+      { min: 18.5, max: 25, color: 'var(--cat-green-6)', label: 'Normal' },
+      { min: 25, max: 30, color: 'var(--cat-amber-6)', label: '' },
+      { min: 30, max: BMI_MAX, color: 'var(--cat-red-6)', label: '' }
     ];
 
     return { points, pathD, areaD, trend, diff, first, last, count: values.length, zones };
@@ -248,9 +248,9 @@
         {/each}
 
         <!-- BMI zone boundary lines -->
-        <line x1={PAD_LEFT} y1={bmiToY(18.5)} x2={CHART_WIDTH - PAD_RIGHT} y2={bmiToY(18.5)} stroke="rgba(96,165,250,0.2)" stroke-width="1" stroke-dasharray="4 3" />
-        <line x1={PAD_LEFT} y1={bmiToY(25)} x2={CHART_WIDTH - PAD_RIGHT} y2={bmiToY(25)} stroke="rgba(74,222,128,0.2)" stroke-width="1" stroke-dasharray="4 3" />
-        <line x1={PAD_LEFT} y1={bmiToY(30)} x2={CHART_WIDTH - PAD_RIGHT} y2={bmiToY(30)} stroke="rgba(251,191,36,0.2)" stroke-width="1" stroke-dasharray="4 3" />
+        <line x1={PAD_LEFT} y1={bmiToY(18.5)} x2={CHART_WIDTH - PAD_RIGHT} y2={bmiToY(18.5)} stroke="var(--cat-blue-20)" stroke-width="1" stroke-dasharray="4 3" />
+        <line x1={PAD_LEFT} y1={bmiToY(25)} x2={CHART_WIDTH - PAD_RIGHT} y2={bmiToY(25)} stroke="var(--cat-green-20)" stroke-width="1" stroke-dasharray="4 3" />
+        <line x1={PAD_LEFT} y1={bmiToY(30)} x2={CHART_WIDTH - PAD_RIGHT} y2={bmiToY(30)} stroke="var(--cat-amber-20)" stroke-width="1" stroke-dasharray="4 3" />
 
         <!-- Y-axis labels -->
         <text x={PAD_LEFT - 4} y={bmiToY(18.5) + 3} text-anchor="end" class="axis-label">18.5</text>
@@ -303,7 +303,7 @@
             y1={PAD_TOP}
             x2={hoveredPoint.x}
             y2={CHART_HEIGHT - PAD_BOTTOM}
-            stroke="rgba(255,255,255,0.15)"
+            stroke="var(--white-15)"
             stroke-width="1"
             stroke-dasharray="3 3"
           />
@@ -312,7 +312,7 @@
             y1={hoveredPoint.y}
             x2={CHART_WIDTH - PAD_RIGHT}
             y2={hoveredPoint.y}
-            stroke="rgba(255,255,255,0.1)"
+            stroke="var(--white-10)"
             stroke-width="1"
             stroke-dasharray="3 3"
           />
@@ -453,7 +453,7 @@
 
   .zone-label {
     font-size: 7px;
-    fill: rgba(74, 222, 128, 0.4);
+    fill: var(--cat-green-40);
     font-family: 'JetBrains Mono Variable', monospace;
     dominant-baseline: middle;
   }
@@ -476,14 +476,14 @@
     position: absolute;
     pointer-events: none;
     z-index: 10;
-    background: rgba(15, 23, 42, 0.92);
+    background: var(--sd-92);
     backdrop-filter: blur(8px);
     border: 1px solid var(--w-10);
     border-radius: 10px;
     padding: 0.5rem 0.65rem;
     text-align: center;
     white-space: nowrap;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 24px var(--shadow-heavy);
     animation: tooltipIn 0.15s ease-out;
   }
 
@@ -499,7 +499,7 @@
     transform: translateX(-50%) rotate(45deg);
     width: 8px;
     height: 8px;
-    background: rgba(15, 23, 42, 0.92);
+    background: var(--sd-92);
     border-right: 1px solid var(--w-10);
     border-bottom: 1px solid var(--w-10);
   }

@@ -20,7 +20,7 @@
 
   // Persisted dataset-like state (visual)
   let appliedBmi = $state(0);
-  let appliedColor = $state('rgba(148, 163, 184, 0.3)');
+  let appliedColor = $state('var(--cat-slate-30)');
   let appliedCategory = $state<string | null>(null);
   let prevAppliedBmi = $state(0);
   let isFilling = $state(false);
@@ -100,7 +100,7 @@
     } else {
       prevAppliedBmi = appliedBmi;
       appliedBmi = 0;
-      appliedColor = 'rgba(148, 163, 184, 0.3)';
+      appliedColor = 'var(--cat-slate-30)';
       appliedCategory = null;
     }
   });
@@ -163,8 +163,8 @@
     return `#${toHex(lr)}${toHex(lg)}${toHex(lb)}`;
   }
 
-  let progressStart = $derived(appliedBmi > 0 ? appliedColor : 'rgba(148, 163, 184, 0.3)');
-  let progressEnd = $derived(appliedBmi > 0 ? lighten(appliedColor, 0.25) : 'rgba(148, 163, 184, 0.3)');
+  let progressStart = $derived(appliedBmi > 0 ? appliedColor : 'var(--cat-slate-30)');
+  let progressEnd = $derived(appliedBmi > 0 ? lighten(appliedColor, 0.25) : 'var(--cat-slate-30-light)');
 </script>
 
 <div class="gauge-container">

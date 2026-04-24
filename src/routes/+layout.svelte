@@ -238,7 +238,7 @@
     right: 0;
     z-index: 1000;
     padding: 0.5rem;
-    background: rgba(10, 8, 24, 0.95);
+    background: var(--cosmic-base-95);
     backdrop-filter: blur(16px) saturate(180%);
     border-top: 1px solid var(--w-10);
   }
@@ -305,7 +305,7 @@
     gap: 0.3rem;
     padding: 0.25rem 0.6rem;
     border-radius: 9999px;
-    background: rgba(183, 28, 28, 0.85);
+    background: var(--darkred-85);
     backdrop-filter: blur(8px);
     color: white;
     font-size: 0.65rem;
