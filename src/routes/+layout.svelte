@@ -15,23 +15,18 @@
   import '../styles/layout.css';
   /* ── Responsive breakpoints, reduced motion ── */
   import '../styles/responsive.css';
-  /* ── Splash screen ── */
-  import '../styles/splash.css';
   /* ── Pager / bottom navbar ── */
   import '../styles/nav.css';
   /* ── Skeleton loading, shooting stars, haptic feedback ── */
   import '../styles/animation.css';
   import CosmicParticles from '$lib/components/CosmicParticles.svelte';
-  import SplashScreen from '$lib/components/SplashScreen.svelte';
   import { onMount, type Snippet } from 'svelte';
   import { browser } from '$app/environment';
   import { fade } from 'svelte/transition';
   import { Download, WifiOff } from 'lucide-svelte';
 
   let { children }: { children: Snippet } = $props();
-  let showSplash = $state(false); // Disabled by default
   let showMainContent = $state(true); // Show content immediately
-  const splashDuration = 10000; // 10s relaxed experience (if enabled)
   let renderModeEnabled = $state(true);
   let renderModeInitialized = false;
 
@@ -136,14 +131,6 @@
 
     let timer: ReturnType<typeof setTimeout> | null = null;
 
-    if (showSplash) {
-      const exitPhaseRatio = 5.5 / 6;
-      const revealDelay = Math.round(splashDuration * exitPhaseRatio);
-      timer = setTimeout(() => {
-        showMainContent = true;
-      }, revealDelay);
-    }
-
     // B-3: Set canonical URL from current location
     if (browser) {
       canonicalUrl = window.location.origin + window.location.pathname;
@@ -197,10 +184,6 @@
   // B-3: Dynamic og:url
   let canonicalUrl = $state('');
 
-  function handleSplashComplete() {
-    showSplash = false;
-    showMainContent = true;
-  }
 </script>
 
 <svelte:head>
@@ -210,18 +193,6 @@
     <meta name="twitter:url" content={canonicalUrl} />
   {/if}
 </svelte:head>
-
-{#if showSplash}
-  <SplashScreen
-    bind:show={showSplash}
-    duration={splashDuration}
-    onComplete={handleSplashComplete}
-  />
-{/if}
-
-{#if renderModeEnabled}
-  <CosmicParticles />
-{/if}
 
 <div class="main-content" class:visible={showMainContent}>
   {@render children()}
