@@ -343,7 +343,7 @@
             </div>
             {#if deltaDisplay && deltaDisplay.direction !== 'within'}
               <p class="stat-desc delta-desc" class:delta-above={deltaDisplay.direction === 'above'} class:delta-below={deltaDisplay.direction === 'below'}>
-                {deltaDisplay.direction === 'above' ? '+' : '&minus;'}{deltaDisplay.amount} {deltaDisplay.unit} from range
+                {deltaDisplay.direction === 'above' ? '+' : '−'}{deltaDisplay.amount} {deltaDisplay.unit} from range
               </p>
             {:else if deltaDisplay}
               <p class="stat-desc delta-within">You are within range</p>
