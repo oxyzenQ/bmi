@@ -30,6 +30,34 @@
   let renderModeEnabled = $state(true);
   let renderModeInitialized = false;
 
+  // ── Button ripple effect (delegated on document) ──
+  function initButtonRipple() {
+    if (!browser) return () => {};
+    function handleClick(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      const btn = target.closest('button, .btn, a.button, .action-btn, .gauge-cta-btn, .sex-btn') as HTMLElement | null;
+      if (!btn) return;
+      // Don't ripple on disabled buttons
+      if (btn.hasAttribute('disabled') || btn.hasAttribute('aria-disabled')) return;
+
+      const rect = btn.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height) * 2;
+      const x = e.clientX - rect.left - size / 2;
+      const y = e.clientY - rect.top - size / 2;
+
+      const ripple = document.createElement('span');
+      ripple.className = 'btn-ripple';
+      ripple.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;`;
+      btn.appendChild(ripple);
+
+      ripple.addEventListener('animationend', () => {
+        ripple.remove();
+      });
+    }
+    document.addEventListener('click', handleClick, { passive: true });
+    return () => document.removeEventListener('click', handleClick);
+  }
+
   // PWA state
   let deferredPrompt: BeforeInstallPromptEvent | null = null;
   let canInstall = $state(false);
@@ -84,6 +112,9 @@
         renderModeEnabled = readRenderMode();
         renderModeInitialized = true;
       }
+
+      // Button ripple micro-interaction
+      cleanupFns.push(initButtonRipple());
 
       const handleRenderMode = (event: Event) => {
         const ce = event as CustomEvent<{ enabled?: boolean; requested?: boolean; status?: string }>;

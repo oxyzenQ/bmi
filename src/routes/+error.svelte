@@ -124,7 +124,7 @@
 
         .error-desc {
                 font-size: 1rem;
-                color: #94a3b8;
+                color: var(--sg-30, #94a3b8);
                 line-height: 1.6;
                 margin-bottom: 2rem;
         }
@@ -135,12 +135,12 @@
 
         .error-hint {
                 font-size: 0.85rem;
-                color: #64748b;
+                color: var(--coolgray-40, #64748b);
         }
 
         .error-link {
                 font-size: 0.85rem;
-                color: #a78bfa;
+                color: var(--violet-50, #a78bfa);
                 text-decoration: underline;
                 text-underline-offset: 2px;
                 background: none;
@@ -148,10 +148,11 @@
                 cursor: pointer;
                 font-family: inherit;
                 padding: 0;
+                transition: color 0.2s ease;
         }
 
         .error-link:hover {
-                color: #c4b5fd;
+                color: var(--purple-80, #c4b5fd);
         }
 
         @media (prefers-reduced-motion: reduce) {

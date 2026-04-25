@@ -5,10 +5,11 @@
   import { browser } from '$app/environment';
   import { getPerformanceTier } from '$lib/utils/performance';
   import { importBmiHistory } from '$lib/utils/history-io';
+  import { createLazyLoader, createPairedLazyLoader } from '$lib/utils/lazy-load';
   import { STORAGE_KEYS, storageGet, storageSet, storageSetJSON, storageRemove, storageGetJSON, storageInvalidate } from '$lib/utils/storage';
-  import { BMI_THRESHOLDS, classifyBmi, bmiToPercent } from '$lib/utils/bmi-category';
+  import { BMI_THRESHOLDS } from '$lib/utils/bmi-category';
   import { calculateBmi, isBmiResult } from '$lib/utils/bmi-calculator';
-  import { MARKER_ANIM, PAGER, SPRING, SCROLL, HAPTIC, SECTIONS, RESULTS_TWEEN_DURATION } from '$lib/utils/animation-config';
+  import { MARKER_ANIM, PAGER, SPRING, SCROLL, HAPTIC, SECTIONS } from '$lib/utils/animation-config';
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
   import {
@@ -33,18 +34,42 @@
   type BmiHealthRiskComponentType = typeof import('$lib/components/BmiHealthRisk.svelte').default;
   type BmiSnapshotComponentType = typeof import('$lib/components/BmiSnapshot.svelte').default;
   type BodyFatEstimateComponentType = typeof import('$lib/components/BodyFatEstimate.svelte').default;
+  // ── Lazy-loaded component state (Svelte 5 $state) ──
   let BmiFormComponent: BmiFormComponentType | null = $state(null);
   let BmiResultsComponent: BmiResultsComponentType | null = $state(null);
   let BmiRadialGaugeComponent: BmiRadialGaugeComponentType | null = $state(null);
   let BmiHealthRiskComponent: BmiHealthRiskComponentType | null = $state(null);
   let BmiSnapshotComponent: BmiSnapshotComponentType | null = $state(null);
   let BodyFatEstimateComponent: BodyFatEstimateComponentType | null = $state(null);
-  let calculatorLoad: Promise<void> | null = null;
-  let gaugeLoad: Promise<void> | null = null;
-  let healthRiskLoad: Promise<void> | null = null;
-  let snapshotLoad: Promise<void> | null = null;
-  let bodyFatLoad: Promise<void> | null = null;
+  let ReferenceTableComponent: ReferenceTableComponentType | null = $state(null);
 
+  // ── Lazy loaders (deduplicate imports, bridge to $state via onLoad) ──
+  const calculatorLoader = createPairedLazyLoader(
+    () => import('$lib/components/BmiForm.svelte'),
+    () => import('$lib/components/BmiResults.svelte'),
+    (comp) => { BmiFormComponent = comp; },
+    (comp) => { BmiResultsComponent = comp; }
+  );
+  const gaugeLoader = createLazyLoader({
+    importer: () => import('$lib/components/BmiRadialGauge.svelte'),
+    onLoad: (comp) => { BmiRadialGaugeComponent = comp; }
+  });
+  const healthRiskLoader = createLazyLoader({
+    importer: () => import('$lib/components/BmiHealthRisk.svelte'),
+    onLoad: (comp) => { BmiHealthRiskComponent = comp; }
+  });
+  const snapshotLoader = createLazyLoader({
+    importer: () => import('$lib/components/BmiSnapshot.svelte'),
+    onLoad: (comp) => { BmiSnapshotComponent = comp; }
+  });
+  const bodyFatLoader = createLazyLoader({
+    importer: () => import('$lib/components/BodyFatEstimate.svelte'),
+    onLoad: (comp) => { BodyFatEstimateComponent = comp; }
+  });
+  const referenceLoader = createLazyLoader({
+    importer: () => import('$lib/components/ReferenceTable.svelte'),
+    onLoad: (comp) => { ReferenceTableComponent = comp; }
+  });
   // Track if BMI was already saved to prevent duplicates
   let lastSavedBmi: number | null = null;
 
@@ -80,104 +105,6 @@
     lastSavedBmi = bmi;
   }
 
-  function ensureHealthRisk() {
-    if (!browser) return Promise.resolve();
-    if (BmiHealthRiskComponent) return Promise.resolve();
-    if (!healthRiskLoad) {
-      healthRiskLoad = import('$lib/components/BmiHealthRisk.svelte')
-        .then((mod) => {
-          BmiHealthRiskComponent = mod.default;
-        })
-        .finally(() => {
-          healthRiskLoad = null;
-        });
-    }
-    return healthRiskLoad;
-  }
-
-  function ensureSnapshot() {
-    if (!browser) return Promise.resolve();
-    if (BmiSnapshotComponent) return Promise.resolve();
-    if (!snapshotLoad) {
-      snapshotLoad = import('$lib/components/BmiSnapshot.svelte')
-        .then((mod) => {
-          BmiSnapshotComponent = mod.default;
-        })
-        .finally(() => {
-          snapshotLoad = null;
-        });
-    }
-    return snapshotLoad;
-  }
-
-  function ensureBodyFat() {
-    if (!browser) return Promise.resolve();
-    if (BodyFatEstimateComponent) return Promise.resolve();
-    if (!bodyFatLoad) {
-      bodyFatLoad = import('$lib/components/BodyFatEstimate.svelte')
-        .then((mod) => {
-          BodyFatEstimateComponent = mod.default;
-        })
-        .finally(() => {
-          bodyFatLoad = null;
-        });
-    }
-    return bodyFatLoad;
-  }
-
-  type ReferenceTableComponentType = typeof import('$lib/components/ReferenceTable.svelte').default;
-  let ReferenceTableComponent: ReferenceTableComponentType | null = $state(null);
-
-  let referenceLoad: Promise<void> | null = null;
-
-  function ensureCalculatorComponents() {
-    if (!browser) return Promise.resolve();
-    if (BmiFormComponent && BmiResultsComponent) return Promise.resolve();
-    if (!calculatorLoad) {
-      calculatorLoad = Promise.all([
-        import('$lib/components/BmiForm.svelte'),
-        import('$lib/components/BmiResults.svelte')
-      ])
-        .then(([form, results]) => {
-          BmiFormComponent = form.default;
-          BmiResultsComponent = results.default;
-        })
-        .finally(() => {
-          calculatorLoad = null;
-        });
-    }
-    return calculatorLoad;
-  }
-
-  function ensureGaugeComponents() {
-    if (!browser) return Promise.resolve();
-    if (BmiRadialGaugeComponent) return Promise.resolve();
-    if (!gaugeLoad) {
-      gaugeLoad = import('$lib/components/BmiRadialGauge.svelte')
-        .then((mod) => {
-          BmiRadialGaugeComponent = mod.default;
-        })
-        .finally(() => {
-          gaugeLoad = null;
-        });
-    }
-    return gaugeLoad;
-  }
-
-  function ensureReferenceTable() {
-    if (!browser) return Promise.resolve();
-    if (ReferenceTableComponent) return Promise.resolve();
-    if (!referenceLoad) {
-      referenceLoad = import('$lib/components/ReferenceTable.svelte')
-        .then((mod) => {
-          ReferenceTableComponent = mod.default;
-        })
-        .finally(() => {
-          referenceLoad = null;
-        });
-    }
-    return referenceLoad;
-  }
   let bmiValue: number | null = $state(null);
   let category: string | null = $state(null);
 
@@ -684,15 +611,15 @@
   $effect(() => {
     if (!browser) return;
     if (activeIndex === 1) {
-      void ensureCalculatorComponents();
+      void calculatorLoader.ensure();
     }
     if (activeIndex === 2) {
-      void ensureGaugeComponents();
-      void ensureHealthRisk();
-      void ensureSnapshot();
-      void ensureBodyFat();
+      void gaugeLoader.ensure();
+      void healthRiskLoader.ensure();
+      void snapshotLoader.ensure();
+      void bodyFatLoader.ensure();
     }
-    if (activeIndex === 3) void ensureReferenceTable();
+    if (activeIndex === 3) void referenceLoader.ensure();
   });
 
   onMount(() => {

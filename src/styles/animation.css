@@ -1,4 +1,4 @@
-/* ── animation.css — Skeleton loading, shooting stars, gauge empty-state CTA, scroll-to-top, haptic feedback ── */
+/* ── animation.css — Skeleton loading, micro-interactions, shooting stars, gauge CTA, scroll-to-top, haptic feedback ── */
 /* ==============================
    REDUCED MOTION
    Disable backdrop-filter for accessibility
@@ -12,45 +12,90 @@
 
 /* ==============================
       SKELETON LOADING STATES
+      Premium animated shimmer with staggered delays
       ============================== */
 .skeleton {
   position: relative;
   overflow: hidden;
-  background: var(--sd-55);
+  background: linear-gradient(
+    180deg,
+    var(--sd-40) 0%,
+    var(--sd-55) 50%,
+    var(--sd-40) 100%
+  );
+  background-size: 100% 200%;
   border-radius: 0.75rem;
+  animation: skeleton-breathe 2s ease-in-out infinite;
 }
 
+/* Shimmer sweep overlay */
 .skeleton::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    90deg,
+    105deg,
     transparent 0%,
-    var(--w-5) 20%,
-    var(--w-10) 40%,
-    var(--w-5) 60%,
-    transparent 100%
+    rgba(255, 255, 255, 0.03) 15%,
+    rgba(255, 255, 255, 0.08) 30%,
+    rgba(255, 255, 255, 0.03) 45%,
+    transparent 60%
   );
-  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+  animation: skeleton-shimmer 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   will-change: transform;
+}
+
+/* Gentle breathing pulse for depth */
+@keyframes skeleton-breathe {
+  0%, 100% {
+    background-position: 100% 0%;
+    opacity: 1;
+  }
+  50% {
+    background-position: 100% 100%;
+    opacity: 0.85;
+  }
 }
 
 @keyframes skeleton-shimmer {
   0% {
-    transform: translateX(-100%);
+    transform: translateX(-120%);
   }
   100% {
-    transform: translateX(100%);
+    transform: translateX(120%);
   }
 }
 
-/* Skeleton card container */
+/* Staggered delays for sequential skeleton lines */
+.skeleton-card > :nth-child(2) { animation-delay: 0.05s; }
+.skeleton-card > :nth-child(3) { animation-delay: 0.1s; }
+.skeleton-card > :nth-child(4) { animation-delay: 0.15s; }
+.skeleton-card > :nth-child(5) { animation-delay: 0.2s; }
+.skeleton-card > :nth-child(6) { animation-delay: 0.25s; }
+.skeleton-card > :nth-child(7) { animation-delay: 0.3s; }
+
+.skeleton-form > :nth-child(2) .skeleton::after { animation-delay: 0.05s; }
+.skeleton-form > :nth-child(3) .skeleton::after { animation-delay: 0.1s; }
+.skeleton-form > :nth-child(4) .skeleton::after { animation-delay: 0.15s; }
+
+/* Skeleton card container with subtle entrance */
 .skeleton-card {
   background: var(--k-50);
   border: var(--border-by-rezky);
   border-radius: 2rem;
   padding: clamp(1.5rem, 4vw, 2rem);
+  animation: skeleton-card-enter 0.4s ease-out;
+}
+
+@keyframes skeleton-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .skeleton-card .skeleton-line {
@@ -100,6 +145,16 @@
   height: 80px;
   border-radius: 50%;
   margin: 0 auto 1rem;
+  animation: skeleton-ring-pulse 2s ease-in-out infinite;
+}
+
+@keyframes skeleton-ring-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--w-5);
+  }
+  50% {
+    box-shadow: 0 0 12px 2px var(--w-8);
+  }
 }
 
 /* Skeleton form skeleton */
@@ -132,6 +187,22 @@
   height: 200px;
   border-radius: 50%;
   border: 4px solid var(--w-8);
+  animation: skeleton-ring-spin 3s linear infinite;
+}
+
+@keyframes skeleton-ring-spin {
+  0% {
+    border-color: var(--w-8);
+    box-shadow: inset 0 0 20px var(--w-5);
+  }
+  50% {
+    border-color: var(--w-14);
+    box-shadow: inset 0 0 20px var(--w-8);
+  }
+  100% {
+    border-color: var(--w-8);
+    box-shadow: inset 0 0 20px var(--w-5);
+  }
 }
 
 .skeleton-gauge .skeleton-bar {
@@ -146,6 +217,11 @@
   height: 0.75rem;
   border-radius: 0.375rem;
 }
+
+.skeleton-gauge .skeleton-bar span:nth-child(1)::after { animation-delay: 0s; }
+.skeleton-gauge .skeleton-bar span:nth-child(2)::after { animation-delay: 0.15s; }
+.skeleton-gauge .skeleton-bar span:nth-child(3)::after { animation-delay: 0.3s; }
+.skeleton-gauge .skeleton-bar span:nth-child(4)::after { animation-delay: 0.45s; }
 
 /* Skeleton results skeleton */
 .skeleton-results {
@@ -167,8 +243,155 @@
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .skeleton::after {
+  .skeleton::after,
+  .skeleton,
+  .skeleton-card,
+  .skeleton-card .skeleton-circle,
+  .skeleton-gauge .skeleton-ring {
     animation: none;
+  }
+}
+
+/* ==============================
+      MICRO-INTERACTIONS
+      Button ripple, input glow, card shine
+      ============================== */
+
+/* ── Button Ripple Effect ── */
+.btn,
+button,
+a.button {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--w-15) 0%,
+    var(--w-5) 40%,
+    transparent 70%
+  );
+  transform: scale(0);
+  animation: btn-ripple-expand 0.6s ease-out forwards;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes btn-ripple-expand {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* ── Input Focus Glow ── */
+.form-input {
+  transition: border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.form-input:focus {
+  border-color: color-mix(in oklab, var(--cosmic-purple) 50%, var(--w-20)) !important;
+  box-shadow:
+    0 0 0 3px color-mix(in oklab, var(--cosmic-purple) 15%, transparent),
+    0 0 16px color-mix(in oklab, var(--cosmic-purple) 20%, transparent),
+    inset 0 1px 2px var(--w-5);
+  background-color: color-mix(in oklab, var(--cosmic-void) 85%, var(--w-5));
+}
+
+.form-input:focus-visible {
+  outline: none;
+}
+
+/* ── Glass Card Shine Sweep on Hover ── */
+.bmi-card,
+.footer-disclaimer,
+.about-card,
+.gauge-container,
+.reference-table,
+.form-card {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Aurora shine sweep effect */
+.bmi-card::before,
+.footer-disclaimer::before,
+.about-card::before,
+.gauge-container::before,
+.reference-table::before,
+.form-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.02) 45%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0.02) 55%,
+    transparent 60%
+  );
+  transform: translateX(-100%) rotate(15deg);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bmi-card:hover::before,
+.footer-disclaimer:hover::before,
+.about-card:hover::before,
+.gauge-container:hover::before,
+.reference-table:hover::before,
+.form-card:hover::before {
+  transform: translateX(50%) rotate(15deg);
+}
+
+/* ── Pager Tab Active Glow Indicator ── */
+.pager-tab.active {
+  box-shadow:
+    0 0 20px color-mix(in oklab, var(--cosmic-purple) 22%, transparent),
+    0 0 6px color-mix(in oklab, var(--aurora-core) 15%, transparent),
+    inset 0 -2px 0 color-mix(in oklab, var(--aurora-core) 25%, transparent);
+}
+
+/* ── NotifyFloat Button Hover Lift ── */
+.notify-btn:hover {
+  box-shadow:
+    0 8px 25px var(--k-50),
+    inset 0 1px 0 var(--w-10) !important;
+}
+
+/* ── Action Button Subtle Glow ── */
+.action-btn:hover {
+  box-shadow: 0 0 12px color-mix(in oklab, var(--cosmic-purple) 15%, transparent);
+}
+
+/* Reduced motion: disable all micro-interactions */
+@media (prefers-reduced-motion: reduce) {
+  .btn-ripple {
+    animation: none;
+    display: none;
+  }
+  .bmi-card::before,
+  .footer-disclaimer::before,
+  .about-card::before,
+  .gauge-container::before,
+  .reference-table::before,
+  .form-card::before {
+    transition: none;
+    display: none;
   }
 }
 

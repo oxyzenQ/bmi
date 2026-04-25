@@ -132,53 +132,53 @@
       {#if sex === 'male'}
         <div class="range-row">
           <span class="range-label">Essential</span>
-          <div class="range-bar"><div class="range-fill" style="width: 24%; background: #4A90E2;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 24%; background: var(--cat-blue-40);"></div></div>
           <span class="range-val">2-5%</span>
         </div>
         <div class="range-row">
           <span class="range-label">Athletic</span>
-          <div class="range-bar"><div class="range-fill" style="width: 32%; background: #00C853;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 32%; background: var(--cat-green-40);"></div></div>
           <span class="range-val">6-13%</span>
         </div>
         <div class="range-row">
           <span class="range-label">Fitness</span>
-          <div class="range-bar"><div class="range-fill" style="width: 36%; background: #00C853;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 36%; background: var(--cat-green-40);"></div></div>
           <span class="range-val">14-17%</span>
         </div>
         <div class="range-row">
           <span class="range-label">Average</span>
-          <div class="range-bar"><div class="range-fill" style="width: 56%; background: #FFD600;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 56%; background: var(--cat-amber-40);"></div></div>
           <span class="range-val">18-24%</span>
         </div>
         <div class="range-row">
           <span class="range-label">Obese</span>
-          <div class="range-bar"><div class="range-fill" style="width: 75%; background: #D50000;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 75%; background: var(--cat-red-40);"></div></div>
           <span class="range-val">25%+</span>
         </div>
       {:else}
         <div class="range-row">
           <span class="range-label">Essential</span>
-          <div class="range-bar"><div class="range-fill" style="width: 28%; background: #4A90E2;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 28%; background: var(--cat-blue-40);"></div></div>
           <span class="range-val">10-13%</span>
         </div>
         <div class="range-row">
           <span class="range-label">Athletic</span>
-          <div class="range-bar"><div class="range-fill" style="width: 42%; background: #00C853;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 42%; background: var(--cat-green-40);"></div></div>
           <span class="range-val">14-20%</span>
         </div>
         <div class="range-row">
           <span class="range-label">Fitness</span>
-          <div class="range-bar"><div class="range-fill" style="width: 42%; background: #00C853;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 42%; background: var(--cat-green-40);"></div></div>
           <span class="range-val">21-24%</span>
         </div>
         <div class="range-row">
           <span class="range-label">Average</span>
-          <div class="range-bar"><div class="range-fill" style="width: 56%; background: #FFD600;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 56%; background: var(--cat-amber-40);"></div></div>
           <span class="range-val">25-31%</span>
         </div>
         <div class="range-row">
           <span class="range-label">Obese</span>
-          <div class="range-bar"><div class="range-fill" style="width: 75%; background: #D50000;"></div></div>
+          <div class="range-bar"><div class="range-fill" style="width: 75%; background: var(--cat-red-40);"></div></div>
           <span class="range-val">32%+</span>
         </div>
       {/if}
