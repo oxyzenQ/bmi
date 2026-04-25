@@ -7,6 +7,7 @@
   import { importBmiHistory } from '$lib/utils/history-io';
   import { STORAGE_KEYS, storageGet, storageSet, storageSetJSON, storageRemove, storageGetJSON, storageInvalidate } from '$lib/utils/storage';
   import { BMI_THRESHOLDS, classifyBmi, bmiToPercent } from '$lib/utils/bmi-category';
+  import { calculateBmi, isBmiResult } from '$lib/utils/bmi-calculator';
   import { MARKER_ANIM, PAGER, SPRING, SCROLL, HAPTIC, SECTIONS, RESULTS_TWEEN_DURATION } from '$lib/utils/animation-config';
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
@@ -228,6 +229,13 @@
   let switchingTimer: ReturnType<typeof setTimeout> | null = null;
   let pageDestroyed = $state(false);
   let showScrollTopFab = $state(false);
+
+  // Keyboard shortcut help overlay
+  let showShortcutHelp = $state(false);
+
+  function stopPanelPropagation(e: MouseEvent) {
+    e.stopPropagation();
+  }
 
   function broadcastSmoothMode(enabled: boolean) {
     if (!browser) return;
@@ -511,6 +519,14 @@
       return;
     }
 
+    // C-4: ? = toggle keyboard shortcut help
+    if (event.key === '?') {
+      event.preventDefault();
+      showShortcutHelp = !showShortcutHelp;
+      triggerHaptic(5);
+      return;
+    }
+
     // C-4: R = reset/clear all data (requires shift for safety)
     if (event.key === 'R' && event.shiftKey) {
       event.preventDefault();
@@ -684,6 +700,15 @@
     perfTier = getPerformanceTier();
     prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    // Enhancement #12: Live listener for prefers-reduced-motion changes
+    // If user toggles reduced-motion in OS settings while app is open,
+    // animations update immediately without page reload.
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onMotionChange = (e: MediaQueryListEvent) => {
+      prefersReducedMotion = e.matches;
+    };
+    motionQuery.addEventListener('change', onMotionChange);
+
     const storedRenderMode = storageGet(STORAGE_KEYS.RENDER_MODE);
     if (storedRenderMode === null) {
       const storedSmooth = storageGet(STORAGE_KEYS.SMOOTH_MODE);
@@ -800,6 +825,7 @@
     void tick().then(schedulePagerNavAlignment);
 
     return () => {
+      motionQuery.removeEventListener('change', onMotionChange);
       window.removeEventListener('hashchange', onHashChange);
       window.removeEventListener('keydown', handleKeydown);
       window.removeEventListener('resize', onResize);
@@ -813,32 +839,13 @@
   });
 
   function computeBMIFromInputs(h: string, w: string, _a: string) {
-    let parsedHeight = parseFloat(h);
-    let parsedWeight = parseFloat(w);
+    const result = calculateBmi(h, w, unitSystem);
 
-    // Convert imperial to metric before calculation
-    if (unitSystem === 'imperial') {
-      parsedHeight = parsedHeight * 2.54; // inches to cm
-      parsedWeight = parsedWeight * 0.453592; // lbs to kg
-    }
-
-    if (
-      Number.isFinite(parsedHeight) &&
-      Number.isFinite(parsedWeight) &&
-      parsedHeight > 0 &&
-      parsedHeight <= 310 &&
-      parsedWeight > 0 &&
-      parsedWeight <= 1000
-    ) {
-      const heightInM = parsedHeight / 100;
-      const bmi = parsedWeight / (heightInM * heightInM);
-      bmiValue = parseFloat(bmi.toFixed(2));
-
-      // Save to history
-      saveBmiToHistory(bmiValue, parsedHeight, parsedWeight, _a);
-
-      // Determine category with improved accuracy
-      category = classifyBmi(bmi);
+    if (isBmiResult(result)) {
+      bmiValue = result.bmi;
+      category = result.category;
+      // Save to history (uses metric-converted values)
+      saveBmiToHistory(result.bmi, result.heightCm, result.weightKg, _a);
     } else {
       bmiValue = null;
       category = null;
@@ -1335,6 +1342,15 @@
 
       <button
         type="button"
+        class="pager-btn-futuristic pager-btn-help"
+        aria-label="Keyboard shortcuts"
+        onclick={() => { showShortcutHelp = !showShortcutHelp; triggerHaptic(5); }}
+      >
+        <Keyboard aria-hidden="true" size={24} />
+      </button>
+
+      <button
+        type="button"
         class="pager-btn-futuristic pager-btn-scroll-top"
         class:fab-visible={showScrollTopFab}
         aria-label="Scroll to top"
@@ -1357,6 +1373,52 @@
       {/if}
     </div>
   </div>
+
+  <!-- Keyboard Shortcut Help Overlay -->
+  {#if showShortcutHelp}
+    <div class="shortcut-help-backdrop" onclick={() => { showShortcutHelp = false; }}>
+      <div class="shortcut-help-panel" role="dialog" aria-label="Keyboard shortcuts" onclick={stopPanelPropagation}>
+        <button class="shortcut-help-close" onclick={() => { showShortcutHelp = false; }} aria-label="Close shortcuts">
+          &times;
+        </button>
+        <h3 class="shortcut-help-title">Keyboard Shortcuts</h3>
+        <div class="shortcut-help-list">
+          {#each sections as section, idx}
+            <div class="shortcut-help-row">
+              <kbd>{idx + 1}</kbd>
+              <span>{section.label}</span>
+            </div>
+          {/each}
+          <div class="shortcut-help-divider" aria-hidden="true"></div>
+          <div class="shortcut-help-row">
+            <kbd>&larr;</kbd><kbd>&rarr;</kbd>
+            <span>Prev / Next section</span>
+          </div>
+          <div class="shortcut-help-row">
+            <kbd>S</kbd>
+            <span>Toggle render mode</span>
+          </div>
+          <div class="shortcut-help-row">
+            <kbd>T</kbd>
+            <span>Toggle wallpaper theme</span>
+          </div>
+          <div class="shortcut-help-row">
+            <kbd>Shift</kbd>+<kbd>R</kbd>
+            <span>Reset / clear all data</span>
+          </div>
+          <div class="shortcut-help-row">
+            <kbd>?</kbd>
+            <span>Toggle this help</span>
+          </div>
+          <div class="shortcut-help-row">
+            <kbd>Esc</kbd>
+            <span>Close dialogs</span>
+          </div>
+        </div>
+        <p class="shortcut-help-note">Shortcuts are disabled when typing in form fields.</p>
+      </div>
+    </div>
+  {/if}
 </div>
 
 {#if showNotify}
@@ -1679,6 +1741,143 @@
     .pager-btn-spacer {
       width: 50px;
       height: 50px;
+    }
+  }
+  /* ── Keyboard Shortcut Help Overlay ── */
+  .pager-btn-help {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--w-15);
+    background: var(--w-8);
+    color: var(--w-70);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .pager-btn-help:hover {
+    background: var(--w-15);
+    color: var(--w-95);
+    transform: scale(1.1);
+  }
+  .pager-btn-help:focus-visible {
+    outline: 2px solid var(--cosmic-purple);
+    outline-offset: 2px;
+  }
+
+  .shortcut-help-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    animation: fadeIn 0.15s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .shortcut-help-panel {
+    background: var(--k-50);
+    border: 1px solid var(--w-15);
+    border-radius: 20px;
+    padding: 1.75rem 2rem;
+    min-width: 320px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    position: relative;
+  }
+
+  .shortcut-help-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: var(--w-10);
+    border: 1px solid var(--w-15);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--w-80);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1;
+  }
+  .shortcut-help-close:hover {
+    background: var(--w-15);
+    color: var(--w-95);
+  }
+
+  .shortcut-help-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--w-95);
+    margin: 0 0 1rem;
+    text-align: center;
+    letter-spacing: -0.01em;
+  }
+
+  .shortcut-help-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .shortcut-help-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--w-80);
+    font-size: 0.875rem;
+  }
+
+  .shortcut-help-row kbd {
+    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.45rem;
+    border-radius: 6px;
+    background: var(--w-10);
+    border: 1px solid var(--w-20);
+    color: var(--w-95);
+    white-space: nowrap;
+  }
+
+  .shortcut-help-row span {
+    color: var(--w-60);
+    font-size: 0.8rem;
+  }
+
+  .shortcut-help-divider {
+    height: 1px;
+    background: var(--w-10);
+    margin: 0.35rem 0;
+  }
+
+  .shortcut-help-note {
+    font-size: 0.7rem;
+    color: var(--w-40);
+    margin: 0.75rem 0 0;
+    text-align: center;
+  }
+
+  @media (max-width: 480px) {
+    .shortcut-help-panel {
+      min-width: 280px;
+      padding: 1.5rem;
     }
   }
 </style>
