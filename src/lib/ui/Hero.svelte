@@ -1,6 +1,8 @@
 <script lang="ts">
   import { BookOpenCheck, SquareSigma, Sparkles, Telescope } from 'lucide-svelte';
   import { onMount, onDestroy } from 'svelte';
+  import { t, localeVersion } from '$lib/i18n';
+  let _rv = $derived(localeVersion);
 
   let animate = false;
   let rafId: number | null = null;
@@ -30,32 +32,32 @@
     </div>
 
     <h1 class="hero-title">
-      <span class="title-gradient">BMI Calculator</span>
+      <span class="title-gradient">{t('hero.title')}</span>
       <Telescope class="Telescope sparkle-icon" />
     </h1>
 
     <p class="hero-subtitle">
-      Explore the cosmos of your body — discover your balance under the stars.
+      {t('hero.subtitle')}
     </p>
 
     <div class="hero-features">
       <div class="feature">
         <SquareSigma class="SquareSigma" />
-        <span>Accurate Calculations</span>
+        <span>{t('hero.feature1')}</span>
       </div>
       <div class="feature">
         <BookOpenCheck class="BookOpenCheck" />
-        <span>Health Insights</span>
+        <span>{t('hero.feature2')}</span>
       </div>
       <div class="feature">
         <Sparkles class="Sparkles" />
-        <span>Modern Design</span>
+        <span>{t('hero.feature3')}</span>
       </div>
     </div>
 
     <div class="hero-bottom">
       <p class="hero-bottom-text">
-        Stellar Edition 10.5
+        {t('hero.edition')}
       </p>
     </div>
   </div>

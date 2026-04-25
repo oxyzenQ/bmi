@@ -1,6 +1,8 @@
 <script lang="ts">
   import { Percent, Info, AlertCircle } from 'lucide-svelte';
   import { COLORS } from '$lib/utils/bmi-category';
+  import { t, localeVersion } from '$lib/i18n';
+  let _rv = $derived(localeVersion);
 
   interface Props {
     bmi?: number | null;
@@ -22,17 +24,17 @@
 
   function getCategory(bf: number, isMale: boolean): { label: string; color: string; desc: string } {
     if (isMale) {
-      if (bf < 6) return { label: 'Essential Fat', color: COLORS.BLUE, desc: 'Minimum fat required for physiological health' };
-      if (bf < 14) return { label: 'Athletic', color: COLORS.GREEN, desc: 'Typical of trained athletes and fitness enthusiasts' };
-      if (bf < 18) return { label: 'Fitness', color: COLORS.GREEN, desc: 'Healthy range associated with good physical condition' };
-      if (bf < 25) return { label: 'Average', color: COLORS.YELLOW, desc: 'Most common range in the general population' };
-      return { label: 'Above Average', color: COLORS.RED, desc: 'Higher than typical — consult a healthcare provider' };
+      if (bf < 6) return { label: t('fat.essential'), color: COLORS.BLUE, desc: t('fat.essential_desc') };
+      if (bf < 14) return { label: t('fat.athletic'), color: COLORS.GREEN, desc: t('fat.athletic_desc') };
+      if (bf < 18) return { label: t('fat.fitness'), color: COLORS.GREEN, desc: t('fat.fitness_desc') };
+      if (bf < 25) return { label: t('fat.average'), color: COLORS.YELLOW, desc: t('fat.average_desc') };
+      return { label: t('fat.above_average'), color: COLORS.RED, desc: t('fat.above_average_desc') };
     } else {
-      if (bf < 14) return { label: 'Essential Fat', color: COLORS.BLUE, desc: 'Minimum fat required for physiological health' };
-      if (bf < 21) return { label: 'Athletic', color: COLORS.GREEN, desc: 'Typical of trained athletes and fitness enthusiasts' };
-      if (bf < 25) return { label: 'Fitness', color: COLORS.GREEN, desc: 'Healthy range associated with good physical condition' };
-      if (bf < 32) return { label: 'Average', color: COLORS.YELLOW, desc: 'Most common range in the general population' };
-      return { label: 'Above Average', color: COLORS.RED, desc: 'Higher than typical — consult a healthcare provider' };
+      if (bf < 14) return { label: t('fat.essential'), color: COLORS.BLUE, desc: t('fat.essential_desc') };
+      if (bf < 21) return { label: t('fat.athletic'), color: COLORS.GREEN, desc: t('fat.athletic_desc') };
+      if (bf < 25) return { label: t('fat.fitness'), color: COLORS.GREEN, desc: t('fat.fitness_desc') };
+      if (bf < 32) return { label: t('fat.average'), color: COLORS.YELLOW, desc: t('fat.average_desc') };
+      return { label: t('fat.above_average'), color: COLORS.RED, desc: t('fat.above_average_desc') };
     }
   }
 
@@ -58,13 +60,13 @@
   <div class="gauge-header">
     <div class="gauge-title">
       <Percent class="Gauge" />
-      <h3>Body Fat Estimate</h3>
+      <h3>{t('fat.title')}</h3>
     </div>
-    <div class="gauge-subtitle">BMI-based body fat percentage estimation</div>
+    <div class="gauge-subtitle">{t('fat.subtitle')}</div>
   </div>
 
   <!-- Sex toggle -->
-  <div class="sex-toggle" role="radiogroup" aria-label="Biological sex">
+  <div class="sex-toggle" role="radiogroup" aria-label={t('fat.sex_aria')}>
     <button
       type="button"
       class="sex-btn"
@@ -73,7 +75,7 @@
       aria-checked={sex === 'male'}
       onclick={() => (sex = 'male')}
     >
-      Male
+      {t('fat.male')}
     </button>
     <button
       type="button"
@@ -83,7 +85,7 @@
       aria-checked={sex === 'female'}
       onclick={() => (sex = 'female')}
     >
-      Female
+      {t('fat.female')}
     </button>
   </div>
 
@@ -100,7 +102,7 @@
     <!-- Body composition bar -->
     <div class="composition-bar">
       <div class="comp-header">
-        <span>Body Composition</span>
+        <span>{t('fat.composition')}</span>
       </div>
       <div class="comp-track">
         <div class="comp-fill fat" style="width: {bodyFat}%"></div>
@@ -109,11 +111,11 @@
       <div class="comp-legend">
         <span class="legend-item">
           <span class="legend-dot fat-dot"></span>
-          Fat: {bodyFat}%
+          {t('fat.fat_pct', { n: bodyFat })}
         </span>
         <span class="legend-item">
           <span class="legend-dot lean-dot"></span>
-          Lean: {leanMass}%
+          {t('fat.lean_pct', { n: leanMass })}
         </span>
       </div>
     </div>
@@ -123,12 +125,12 @@
     <!-- Info box -->
     <div class="bf-info-box">
       <Info size={14} />
-      <p>Estimation uses the Deurenberg formula (BMI + Age + Sex). For accurate body fat measurement, consider DEXA scan or caliper testing.</p>
+      <p>{t('fat.disclaimer')}</p>
     </div>
 
     <!-- Category ranges -->
     <div class="bf-ranges">
-      <h4>{sex === 'male' ? 'Men' : 'Women'}'s Body Fat Ranges</h4>
+      <h4>{sex === 'male' ? t('fat.men_ranges') : t('fat.women_ranges')}</h4>
       {#if sex === 'male'}
         <div class="range-row">
           <span class="range-label">Essential</span>
@@ -186,12 +188,12 @@
   {:else if bmi !== null}
     <div class="bf-empty">
       <AlertCircle size={32} />
-      <p>Enter your age to see body fat estimation</p>
+      <p>{t('fat.empty_age')}</p>
     </div>
   {:else}
     <div class="bf-empty">
       <Percent size={32} />
-      <p>Calculate your BMI to see body fat estimation</p>
+      <p>{t('fat.empty_bmi')}</p>
     </div>
   {/if}
 </div>

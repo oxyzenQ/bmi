@@ -7,6 +7,8 @@
   import { getPerformanceTier, prefersReducedMotion } from '$lib/utils/performance';
   import { CATEGORY_COLORS, COLORS, BMI_THRESHOLDS, classifyBmi, getCategoryColor, clampBmiForDisplay, bmiToPercent } from '$lib/utils/bmi-category';
   import { GAUGE } from '$lib/utils/animation-config';
+  import { t, localeVersion } from '$lib/i18n';
+  let _rv = $derived(localeVersion);
 
   interface Props {
     bmi?: number;
@@ -48,10 +50,10 @@
   const categoryColors = CATEGORY_COLORS;
 
   const categoryScale = [
-    { label: 'Underweight', color: categoryColors['Underweight'], min: 0, max: 18.5 },
-    { label: 'Normal Weight', color: categoryColors['Normal Weight'], min: 18.5, max: 25.0 },
-    { label: 'Overweight', color: categoryColors['Overweight'], min: 25.0, max: 30.0 },
-    { label: 'Obese', color: categoryColors['Obese'], min: 30.0, max: 40.0 }
+    { label: t('gauge.underweight'), color: categoryColors['Underweight'], min: 0, max: 18.5 },
+    { label: t('gauge.normal'), color: categoryColors['Normal Weight'], min: 18.5, max: 25.0 },
+    { label: t('gauge.overweight'), color: categoryColors['Overweight'], min: 25.0, max: 30.0 },
+    { label: t('gauge.obese'), color: categoryColors['Obese'], min: 30.0, max: 40.0 }
   ];
 
   function getScaleClass(label: string): string {
@@ -176,9 +178,9 @@
   <div class="gauge-header">
     <div class="gauge-title">
       <Gauge class="Gauge" />
-      <h3>BMI Gauge</h3>
+      <h3>{t('gauge.title')}</h3>
     </div>
-    <div class="gauge-subtitle">Real-time BMI visualization</div>
+    <div class="gauge-subtitle">{t('gauge.subtitle')}</div>
   </div>
 
   <div class="gauge-wrapper">
@@ -251,7 +253,7 @@
         </text>
 
         <text x={gaugeSize / 2} y={gaugeSize / 2 + 20} text-anchor="middle" class="bmi-label">
-          BMI
+          {t('gauge.bmi')}
         </text>
 
         <text
@@ -281,9 +283,9 @@
 
     {#if appliedBmi <= 0}
       <div class="gauge-empty-cta">
-        <p>Enter your measurements to visualize your BMI</p>
+        <p>{t('gauge.empty')}</p>
         <button type="button" class="gauge-cta-btn" onclick={() => { if (browser) window.location.hash = '#calculator'; }}>
-          Calculate BMI
+          {t('gauge.calculate')}
         </button>
       </div>
     {/if}

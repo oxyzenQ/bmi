@@ -13,6 +13,8 @@
  * All three formats are still accepted on import for backward compatibility.
  */
 
+import { t } from '$lib/i18n';
+
 interface BmiRecord {
   timestamp: number;
   bmi: number;
@@ -204,7 +206,7 @@ export async function validateBmiImport(json: string): Promise<ValidationResult>
   try {
     incoming = JSON.parse(json);
   } catch {
-    return { valid: false, error: 'Invalid JSON format.' };
+    return { valid: false, error: t('history.invalid_json') };
   }
 
   // ---- Envelope format (v0/v1/v2) ----
@@ -219,7 +221,7 @@ export async function validateBmiImport(json: string): Promise<ValidationResult>
     const records = env.records.filter(isValidRecord).map(toRecord);
 
     if (records.length === 0) {
-      return { valid: false, error: 'No valid BMI records found in the file.' };
+      return { valid: false, error: t('history.no_records') };
     }
 
     const recordsJson = JSON.stringify(records);
@@ -229,7 +231,7 @@ export async function validateBmiImport(json: string): Promise<ValidationResult>
       return {
         valid: false,
         error:
-          'Checksum verification failed — the file has been modified and is not safe to import.'
+          t('history.checksum_failed')
       };
     }
 
@@ -239,7 +241,7 @@ export async function validateBmiImport(json: string): Promise<ValidationResult>
   // No legacy fallback — only envelope format with checksum is accepted
   return {
     valid: false,
-    error: 'Invalid file format. This file was not exported by BMI Calculator or has been modified. Please export a new file and try again.'
+    error: t('history.invalid_format')
   };
 }
 
@@ -269,7 +271,7 @@ export async function importBmiHistory(json: string): Promise<ImportResult> {
   const records = incoming.records.filter(isValidRecord).map(toRecord);
 
   if (records.length === 0) {
-    return { success: false, count: 0, error: 'No valid BMI records found.' };
+    return { success: false, count: 0, error: t('history.no_valid_records') };
   }
 
   // Sort by timestamp
@@ -279,7 +281,7 @@ export async function importBmiHistory(json: string): Promise<ImportResult> {
   try {
     localStorage.setItem('bmi.history', JSON.stringify(records));
   } catch {
-    return { success: false, count: 0, error: 'Failed to save history to storage.' };
+    return { success: false, count: 0, error: t('history.save_failed') };
   }
 
   return {
@@ -287,4 +289,51 @@ export async function importBmiHistory(json: string): Promise<ImportResult> {
     count: records.length,
     checksumVerified: validation.checksumVerified
   };
+}
+
+// ---------------------------------------------------------------------------
+// CSV Export — lightweight, no checksum
+// ---------------------------------------------------------------------------
+
+/**
+ * Export BMI history as a CSV string suitable for spreadsheet apps.
+ * Columns: Date, Time, BMI, Height (cm), Weight (kg), Age, Category
+ * Returns `null` if no history exists.
+ */
+export function exportBmiHistoryCsv(): string | null {
+  try {
+    const stored = localStorage.getItem('bmi.history');
+    if (!stored) return null;
+
+    const parsed: unknown = JSON.parse(stored);
+    if (!Array.isArray(parsed) || parsed.length === 0) return null;
+
+    const records = parsed.filter(isValidRecord).map(toRecord);
+    if (records.length === 0) return null;
+
+    const rows: string[][] = [
+      ['Date', 'Time', 'BMI', 'Height (cm)', 'Weight (kg)', 'Age', 'Category']
+    ];
+
+    for (const r of records) {
+      const d = new Date(r.timestamp);
+      const date = d.toISOString().split('T')[0];
+      const time = d.toTimeString().split(' ')[0].slice(0, 5);
+      const bmi = r.bmi.toFixed(1);
+      const category = getBmiCategoryName(r.bmi);
+
+      rows.push([date, time, bmi, String(r.height), String(r.weight), r.age ? String(r.age) : '', category]);
+    }
+
+    return rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+  } catch {
+    return null;
+  }
+}
+
+function getBmiCategoryName(bmi: number): string {
+  if (bmi < 18.5) return t('category.underweight');
+  if (bmi < 25) return t('category.normal');
+  if (bmi < 30) return t('category.overweight');
+  return t('category.obese');
 }

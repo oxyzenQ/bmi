@@ -3,6 +3,8 @@
   import { browser } from '$app/environment';
   import BmiHistorySparkline from './BmiHistorySparkline.svelte';
   import { COLORS, BMI_THRESHOLDS } from '$lib/utils/bmi-category';
+  import { t, localeVersion } from '$lib/i18n';
+  let _rv = $derived(localeVersion);
 
   interface Props {
     currentBmi?: number | null;
@@ -121,9 +123,9 @@
   <div class="gauge-header">
     <div class="gauge-title">
       <Target class="Gauge" />
-      <h3>BMI Snapshot</h3>
+      <h3>{t('snapshot.title')}</h3>
     </div>
-    <div class="gauge-subtitle">Your progress toward optimal health</div>
+    <div class="gauge-subtitle">{t('snapshot.subtitle')}</div>
   </div>
 
   <div class="snapshot-cards">
@@ -131,19 +133,19 @@
     <div class="snapshot-card current {currentBmi !== null ? getStatusBg(currentBmi) : 'status-unknown'}">
       <div class="card-label">
         <Scale size={16} />
-        <span>Current</span>
+        <span>{t('snapshot.current')}</span>
       </div>
       <div class="card-value" style={currentBmi !== null ? `color: ${getStatusColor(currentBmi)}` : ''}>
         {currentBmi !== null ? currentBmi.toFixed(2) : '—'}
       </div>
-      <div class="card-category">{category ?? 'N/A'}</div>
+      <div class="card-category">{category ?? t('snapshot.na')}</div>
     </div>
 
     <!-- Best BMI Card -->
     <div class="snapshot-card best {bestBmi !== null ? getStatusBg(bestBmi) : 'status-unknown'}">
       <div class="card-label">
         <Award size={16} />
-        <span>Your Best</span>
+        <span>{t('snapshot.best')}</span>
       </div>
       <div class="card-value" style={bestBmi !== null ? `color: ${getStatusColor(bestBmi)}` : ''}>
         {bestBmi !== null ? bestBmi.toFixed(2) : '—'}
@@ -151,16 +153,16 @@
       <div class="card-category">
         {#if bestBmi !== null}
           {#if bestBmi < 18.5}
-            Underweight
+            {t('category.underweight')}
           {:else if bestBmi < 25}
-            Normal Weight
+            {t('category.normal')}
           {:else if bestBmi < 30}
-            Overweight
+            {t('category.overweight')}
           {:else}
-            Obese
+            {t('category.obese')}
           {/if}
         {:else}
-          N/A
+          {t('snapshot.na')}
         {/if}
       </div>
     </div>
@@ -169,19 +171,19 @@
     <div class="snapshot-card target {currentBmi !== null ? '' : 'status-unknown'}">
       <div class="card-label">
         <Activity size={16} />
-        <span>Target</span>
+        <span>{t('snapshot.target')}</span>
       </div>
       <div class="card-value" style={currentBmi !== null ? 'color: #00C853' : ''}>
         {currentBmi !== null ? IDEAL_BMI.toFixed(2) : '—'}
       </div>
-      <div class="card-category">{currentBmi !== null ? 'Optimal BMI' : 'N/A'}</div>
+      <div class="card-category">{currentBmi !== null ? t('snapshot.optimal') : t('snapshot.na')}</div>
     </div>
   </div>
 
   {#if currentBmi !== null}
     <div class="progress-section">
       <div class="progress-header">
-        <span class="progress-label">Progress to Target</span>
+        <span class="progress-label">{t('snapshot.progress')}</span>
         <span class="progress-value">{stats.progressPercent}%</span>
       </div>
 
@@ -195,7 +197,7 @@
         <!-- Markers for reference -->
         <div class="progress-markers">
           <span class="marker">0%</span>
-          <span class="marker ideal">Ideal</span>
+          <span class="marker ideal">{t('snapshot.ideal')}</span>
           <span class="marker">100%</span>
         </div>
       </div>
@@ -204,17 +206,17 @@
         {#if currentBmi > IDEAL_BMI}
           <div class="insight-item">
             <TrendingDown size={16} />
-            <span>Need to lose <strong>{(currentBmi - IDEAL_BMI).toFixed(2)} BMI points</strong> to reach optimal</span>
+            <span>{t('snapshot.need_lose', { n: (currentBmi - IDEAL_BMI).toFixed(2) })}</span>
           </div>
         {:else if currentBmi < IDEAL_BMI}
           <div class="insight-item">
             <TrendingUp size={16} />
-            <span>Need to gain <strong>{(IDEAL_BMI - currentBmi).toFixed(2)} BMI points</strong> to reach optimal</span>
+            <span>{t('snapshot.need_gain', { n: (IDEAL_BMI - currentBmi).toFixed(2) })}</span>
           </div>
         {:else}
           <div class="insight-item success">
             <Award size={16} />
-            <span>You're at your optimal BMI! Great job maintaining your health.</span>
+            <span>{t('snapshot.at_optimal')}</span>
           </div>
         {/if}
 
@@ -222,10 +224,10 @@
           <div class="insight-item comparison">
             {#if stats.isImprovement}
               <TrendingDown size={16} class="trend-good" />
-              <span>Better than your best recorded BMI by <strong class="trend-good">{Math.abs(stats.diffFromBest).toFixed(2)}</strong></span>
+              <span>{t('snapshot.improvement', { n: Math.abs(stats.diffFromBest).toFixed(2) })}</span>
             {:else}
               <TrendingUp size={16} class="trend-bad" />
-              <span>Above your best recorded BMI by <strong class="trend-bad">{Math.abs(stats.diffFromBest).toFixed(2)}</strong></span>
+              <span>{t('snapshot.regression', { n: Math.abs(stats.diffFromBest).toFixed(2) })}</span>
             {/if}
           </div>
         {/if}
@@ -237,7 +239,7 @@
   {:else}
     <div class="empty-snapshot">
       <Activity size={48} />
-      <p>Calculate your BMI to see your health snapshot</p>
+      <p>{t('snapshot.empty')}</p>
     </div>
   {/if}
 </div>

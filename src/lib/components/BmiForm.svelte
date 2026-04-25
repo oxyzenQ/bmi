@@ -1,6 +1,8 @@
 <script lang="ts">
-  import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame } from 'lucide-svelte';
-  import { exportBmiHistory, validateBmiImport } from '$lib/utils/history-io';
+  import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame, FileSpreadsheet } from 'lucide-svelte';
+  import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport } from '$lib/utils/history-io';
+  import { t, localeVersion } from '$lib/i18n';
+  let _rv = $derived(localeVersion);
 
   type Gender = 'male' | 'female' | '';
   type Activity = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active' | '';
@@ -36,25 +38,25 @@
 
   // Activity level metadata
   const activityLevels: { value: Activity; label: string; factor: number }[] = [
-    { value: 'sedentary', label: 'Sedentary', factor: 1.2 },
-    { value: 'light', label: 'Light', factor: 1.375 },
-    { value: 'moderate', label: 'Moderate', factor: 1.55 },
-    { value: 'active', label: 'Active', factor: 1.725 },
-    { value: 'very_active', label: 'Very Active', factor: 1.9 }
+    { value: 'sedentary', label: t('form.sedentary'), factor: 1.2 },
+    { value: 'light', label: t('form.light'), factor: 1.375 },
+    { value: 'moderate', label: t('form.moderate'), factor: 1.55 },
+    { value: 'active', label: t('form.active'), factor: 1.725 },
+    { value: 'very_active', label: t('form.very_active'), factor: 1.9 }
   ];
 
   // Derived unit-specific labels, placeholders, and validation bounds
-  let heightLabel = $derived(unitSystem === 'metric' ? 'Height (cm)' : 'Height (in)');
-  let weightLabel = $derived(unitSystem === 'metric' ? 'Weight (kg)' : 'Weight (lbs)');
-  let heightExample = $derived(unitSystem === 'metric' ? 'e.g., 170' : 'e.g., 66');
-  let weightExample = $derived(unitSystem === 'metric' ? 'e.g., 70.5' : 'e.g., 154');
-  let heightAriaLabel = $derived(unitSystem === 'metric' ? 'Height in centimeters' : 'Height in inches');
-  let weightAriaLabel = $derived(unitSystem === 'metric' ? 'Weight in kilograms' : 'Weight in pounds');
+  let heightLabel = $derived(unitSystem === 'metric' ? t('form.height_metric') : t('form.height_imperial'));
+  let weightLabel = $derived(unitSystem === 'metric' ? t('form.weight_metric') : t('form.weight_imperial'));
+  let heightExample = $derived(unitSystem === 'metric' ? t('form.height_placeholder_metric') : t('form.height_placeholder_imperial'));
+  let weightExample = $derived(unitSystem === 'metric' ? t('form.weight_placeholder_metric') : t('form.weight_placeholder_imperial'));
+  let heightAriaLabel = $derived(unitSystem === 'metric' ? t('form.height_aria_metric') : t('form.height_aria_imperial'));
+  let weightAriaLabel = $derived(unitSystem === 'metric' ? t('form.weight_aria_metric') : t('form.weight_aria_imperial'));
   let heightErrorText = $derived(
-    unitSystem === 'metric' ? 'Height must be between 1-300 cm.' : 'Height must be between 1-120 in.'
+    unitSystem === 'metric' ? t('form.height_error_metric') : t('form.height_error_imperial')
   );
   let weightErrorText = $derived(
-    unitSystem === 'metric' ? 'Weight must be between 1-1000 kg.' : 'Weight must be between 1-1500 lbs.'
+    unitSystem === 'metric' ? t('form.weight_error_metric') : t('form.weight_error_imperial')
   );
   let heightMax = $derived(unitSystem === 'metric' ? 300 : 120);
   let weightMax = $derived(unitSystem === 'metric' ? 1000 : 1500);
@@ -165,6 +167,20 @@
     URL.revokeObjectURL(url);
   }
 
+  function handleExportCsv() {
+    const csv = exportBmiHistoryCsv();
+    if (!csv) return;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bmi-history-${formatDate()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   function handleImportClick() {
     fileInputEl?.click();
   }
@@ -187,13 +203,13 @@
       } else {
         onNotify?.({
           action: 'import-error',
-          error: validation.error || 'Import failed. Please check the file format.'
+          error: validation.error || t('form.import_failed')
         });
       }
     } catch {
       onNotify?.({
         action: 'import-error',
-        error: 'Could not read the file.'
+        error: t('form.could_not_read')
       });
     }
     input.value = '';
@@ -206,23 +222,23 @@
       <Orbit class="Orbit" />
       <div class="icon-glow"></div>
     </div>
-    <h2 class="card-title">BMI Calculator</h2>
+    <h2 class="card-title">{t('form.title')}</h2>
 
     <div class="status-row">
       <span
         class="pill-indicator"
         tabindex="0"
         role="button"
-        aria-label={canCalculate ? 'Inputs valid. Ready to calculate.' : 'Incomplete inputs. Enter age, height and weight.'}
+        aria-label={canCalculate ? t('form.ready_aria') : t('form.incomplete_aria')}
         data-color={canCalculate ? 'green' : 'grey'}
       >
         <span class="dot" aria-hidden="true"></span>
-        {canCalculate ? 'Ready' : 'Enter all fields'}
+        {canCalculate ? t('form.ready') : t('form.enter_all')}
       </span>
     </div>
   </div>
 
-  <div class="unit-toggle" role="radiogroup" aria-label="Unit system">
+  <div class="unit-toggle" role="radiogroup" aria-label={t('form.unit_system_aria')}>
     <button
       type="button"
       class="unit-toggle-segment"
@@ -232,7 +248,7 @@
       onclick={() => { unitSystem = 'metric'; height = ''; weight = ''; }}
     >
       <ArrowLeftRight size={14} aria-hidden="true" />
-      Metric (kg/cm)
+      {t('form.metric')}
     </button>
     <button
       type="button"
@@ -242,7 +258,7 @@
       aria-checked={unitSystem === 'imperial'}
       onclick={() => { unitSystem = 'imperial'; height = ''; weight = ''; }}
     >
-      Imperial (lb/in)
+      {t('form.imperial')}
     </button>
   </div>
 
@@ -250,7 +266,7 @@
     <div class="input-group">
       <label for="age" class="input-label">
         <User class="User" />
-        Age (years)
+        Age ({t('form.age_label')})
       </label>
       <input
         type="text"
@@ -260,13 +276,13 @@
         class="form-input"
         inputmode="numeric"
         pattern="[0-9]*"
-        placeholder="e.g., 25"
-        aria-label="Age in years"
+        placeholder={t('form.age_placeholder')}
+        aria-label={t('form.age_aria')}
         aria-invalid={age !== '' && !ageValid}
         oninput={handleAgeInput}
       />
       {#if age !== '' && !ageValid}
-        <div class="input-error" role="alert">Please enter a valid age between 1 and 120.</div>
+        <div class="input-error" role="alert">{t('form.age_error')}</div>
       {/if}
     </div>
 
@@ -282,7 +298,7 @@
         bind:value={height}
         class="form-input"
         inputmode="decimal"
-        placeholder={ageValid ? heightExample : 'Enter age first'}
+        placeholder={ageValid ? heightExample : t('form.enter_age_first')}
         aria-label={heightAriaLabel}
         aria-invalid={height !== '' && !heightValid}
         disabled={!ageValid}
@@ -307,7 +323,7 @@
         bind:value={weight}
         class="form-input"
         inputmode="decimal"
-        placeholder={heightValid ? weightExample : 'Enter height first'}
+        placeholder={heightValid ? weightExample : t('form.enter_height_first')}
         aria-label={weightAriaLabel}
         aria-invalid={weight !== '' && !weightValid}
         disabled={!heightValid}
@@ -324,9 +340,9 @@
     <div class="input-group">
       <label class="input-label">
         <PersonStanding size={16} />
-        Gender <span class="optional-tag">optional</span>
+        Gender <span class="optional-tag">{t('form.optional')}</span>
       </label>
-      <div class="segmented-control" role="radiogroup" aria-label="Gender">
+      <div class="segmented-control" role="radiogroup" aria-label={t('form.gender_aria')}>
         <button
           type="button"
           class="seg-btn"
@@ -335,7 +351,7 @@
           aria-checked={gender === 'male'}
           onclick={() => { gender = gender === 'male' ? '' : 'male'; }}
         >
-          Male
+          {t('form.male')}
         </button>
         <button
           type="button"
@@ -345,7 +361,7 @@
           aria-checked={gender === 'female'}
           onclick={() => { gender = gender === 'female' ? '' : 'female'; }}
         >
-          Female
+          {t('form.female')}
         </button>
       </div>
     </div>
@@ -354,9 +370,9 @@
     <div class="input-group">
       <label class="input-label">
         <Flame size={16} />
-        Activity Level <span class="optional-tag">optional</span>
+        {t('form.activity')} <span class="optional-tag">{t('form.optional')}</span>
       </label>
-      <div class="activity-grid" role="radiogroup" aria-label="Activity level">
+      <div class="activity-grid" role="radiogroup" aria-label={t('form.activity_aria')}>
         {#each activityLevels as lvl (lvl.value)}
           <button
             type="button"
@@ -380,21 +396,21 @@
         onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCalculate()}
         class="btn btn-primary"
         class:is-calculating={calculating}
-        aria-label="Calculate BMI"
+        aria-label={t('form.calculate_aria')}
         aria-disabled={!canCalculate || calculating}
         aria-busy={calculating}
         disabled={!canCalculate || calculating}
       >
         <Zap class="Zap" />
         {#if calculating}
-          Calculating…
+          {t('form.calculating')}
           <span class="btn-dots" aria-hidden="true">
             <span class="btn-dot"></span>
             <span class="btn-dot"></span>
             <span class="btn-dot"></span>
           </span>
         {:else}
-          Calc BMI
+          {t('form.calc_bmi')}
         {/if}
       </button>
 
@@ -403,17 +419,21 @@
         onclick={handleClear}
         onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClear()}
         class="btn btn-danger"
-        aria-label="Clear all data"
+        aria-label={t('form.clear_aria')}
       >
         <Trash2 class="Trash2" />
-        Clear All Data
+        {t('form.clear_all')}
       </button>
     </div>
 
     <div class="history-actions">
-      <button type="button" class="btn btn-secondary" onclick={handleExport} aria-label="Export BMI history">
+      <button type="button" class="btn btn-secondary" onclick={handleExport} aria-label={t('form.export_aria')}>
         <ArrowUpFromLine size={16} aria-hidden="true" />
-        Export
+        {t('form.export')}
+      </button>
+      <button type="button" class="btn btn-secondary" onclick={handleExportCsv} aria-label="Export CSV">
+        <FileSpreadsheet size={16} aria-hidden="true" />
+        CSV
       </button>
       <input
         type="file"
@@ -424,9 +444,9 @@
         tabindex="-1"
         aria-hidden="true"
       />
-      <button type="button" class="btn btn-secondary" onclick={handleImportClick} aria-label="Import BMI history">
+      <button type="button" class="btn btn-secondary" onclick={handleImportClick} aria-label={t('form.import_aria')}>
         <ArrowDownToLine size={16} aria-hidden="true" />
-        Import
+        {t('form.import')}
       </button>
     </div>
   </div>

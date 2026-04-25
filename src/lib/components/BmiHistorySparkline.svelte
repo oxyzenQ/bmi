@@ -1,6 +1,8 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import { TrendingUp, TrendingDown, Minus } from 'lucide-svelte';
+  import { t, localeVersion } from '$lib/i18n';
+  let _rv = $derived(localeVersion);
 
   interface Props {
     currentBmi?: number | null;
@@ -61,10 +63,10 @@
   }
 
   function getBmiLabel(bmi: number): string {
-    if (bmi < 18.5) return 'Underweight';
-    if (bmi < 25) return 'Normal';
-    if (bmi < 30) return 'Overweight';
-    return 'Obese';
+    if (bmi < 18.5) return t('sparkline.underweight');
+    if (bmi < 25) return t('sparkline.normal');
+    if (bmi < 30) return t('sparkline.overweight');
+    return t('sparkline.obese');
   }
 
   function formatDate(ts: number): string {
@@ -209,7 +211,7 @@
     <div class="sparkline-header">
       <div class="sparkline-title">
         <TrendingUp size={16} />
-        <span>History Trend</span>
+        <span>{t('sparkline.title')}</span>
       </div>
       <div class="sparkline-badge" class:trend-up={chartData.trend === 'down'} class:trend-down={chartData.trend === 'up'}>
         {#if chartData.trend === 'down'}
@@ -220,7 +222,7 @@
           <span>+{chartData.diff.toFixed(1)}</span>
         {:else}
           <Minus size={14} />
-          <span>Stable</span>
+          <span>{t('sparkline.stable')}</span>
         {/if}
       </div>
     </div>
@@ -231,7 +233,7 @@
         preserveAspectRatio="xMidYMid slice"
         class="sparkline-svg"
         role="img"
-        aria-label="BMI history trend chart"
+        aria-label={t('sparkline.aria')}
         onpointermove={handlePointerMove}
         onpointerleave={handlePointerLeave}
       >
@@ -348,19 +350,19 @@
     <!-- Bottom info -->
     <div class="sparkline-footer">
       <span class="sparkline-stat">
-        First: <strong>{chartData.first.toFixed(1)}</strong>
+        {t('sparkline.first', { n: chartData.first.toFixed(1) })}
       </span>
       <span class="sparkline-stat">
-        Latest: <strong style="color: {getBmiColor(chartData.last)}">{chartData.last.toFixed(1)}</strong>
+        {t('sparkline.latest', { n: chartData.last.toFixed(1) })}
       </span>
       <span class="sparkline-stat">
-        Entries: <strong>{chartData.count}</strong>
+        {t('sparkline.entries', { n: chartData.count })}
       </span>
     </div>
   </div>
 {:else if currentBmi !== null}
   <div class="sparkline-container sparkline-empty">
-    <p>No history yet. Calculate your BMI to start tracking trends.</p>
+    <p>{t('sparkline.empty')}</p>
   </div>
 {/if}
 

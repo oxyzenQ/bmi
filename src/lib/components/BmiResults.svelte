@@ -6,6 +6,8 @@
   import { browser } from '$app/environment';
   import { shareBmiResult, copyToClipboard, formatBmiText } from '$lib/utils/share';
   import { shareBmiCard, downloadBmiCard } from '$lib/utils/share-image';
+  import { t, localeVersion } from '$lib/i18n';
+  let _rv = $derived(localeVersion);
 
   interface Props {
     bmiValue?: number | null;
@@ -50,10 +52,10 @@
   let primePercent = $derived(bmiPrime !== null ? ((bmiPrime - 1) * 100) : null);
   let primeLabel = $derived.by(() => {
     if (bmiPrime === null) return '';
-    if (bmiPrime < 0.74) return 'Significantly Underweight';
-    if (bmiPrime < 1.00) return 'Within Normal Range';
-    if (bmiPrime <= 1.20) return 'Above Normal Range';
-    return 'Significantly Above Normal';
+    if (bmiPrime < 0.74) return t('results.prime_significantly_under');
+    if (bmiPrime < 1.00) return t('results.prime_normal');
+    if (bmiPrime <= 1.20) return t('results.prime_above');
+    return t('results.prime_significantly_above');
   });
 
   // ── Ideal Weight Range ──
@@ -101,11 +103,11 @@
   };
 
   const ACTIVITY_LABELS: Record<string, string> = {
-    sedentary: 'Sedentary',
-    light: 'Lightly Active',
-    moderate: 'Moderately Active',
-    active: 'Very Active',
-    very_active: 'Extremely Active'
+    sedentary: t('results.activity_sedentary'),
+    light: t('results.activity_light'),
+    moderate: t('results.activity_moderate'),
+    active: t('results.activity_very'),
+    very_active: t('results.activity_extremely')
   };
 
   let bmr = $derived.by(() => {
@@ -199,27 +201,27 @@
     if (!browser) return;
     const result = await shareBmiResult(getShareData());
     if (result.method === 'share') return; // native share sheet handled it
-    if (result.ok) flashToast('Copied to clipboard!');
+    if (result.ok) flashToast(t('results.copied'));
   }
 
   async function handleCopy() {
     if (!browser) return;
     const text = formatBmiText(getShareData());
     const ok = await copyToClipboard(text);
-    flashToast(ok ? 'Copied!' : 'Failed to copy');
+    flashToast(ok ? t('results.copied_short') : t('results.copy_failed'));
   }
 
   async function handleDownloadCard() {
     if (!browser) return;
     const ok = await downloadBmiCard(getCardData());
-    flashToast(ok ? 'Image saved!' : 'Failed to generate image');
+    flashToast(ok ? t('results.image_saved') : t('results.image_failed'));
   }
 
   async function handleShareCard() {
     if (!browser) return;
     const result = await shareBmiCard(getCardData());
     if (result.method === 'share') return;
-    if (result.ok) flashToast('Image downloaded!');
+    if (result.ok) flashToast(t('results.image_downloaded'));
   }
 
   let catClass = $derived(
@@ -248,25 +250,25 @@
   function getHealthAdvice(cat: string): string {
     switch (cat.toLowerCase()) {
       case 'underweight':
-        return 'Consider consulting a healthcare provider about healthy weight gain strategies.';
+        return t('results.advice_underweight');
       case 'normal weight':
-        return 'Great! Maintain your healthy lifestyle with balanced nutrition and regular exercise.';
+        return t('results.advice_normal');
       case 'overweight':
-        return 'Focus on gradual weight loss through diet and exercise. Consult a healthcare provider.';
+        return t('results.advice_overweight');
       case 'obese':
-        return 'Seek professional medical advice for a comprehensive weight management plan.';
+        return t('results.advice_obese');
       default:
-        return 'Please enter valid measurements to get personalized health advice.';
+        return t('results.advice_default');
     }
   }
 
   function getAgeAdvisory(a: number): string {
     if (a < 18) {
-      return 'For users under 18, BMI interpretation differs; consult a healthcare professional for age-appropriate guidance.';
+      return t('results.age_under_18');
     } else if (a >= 65) {
-      return 'For older adults (65+), consider muscle mass and consult a healthcare professional for personalized advice.';
+      return t('results.age_over_65');
     } else {
-      return 'This BMI assessment is for adults aged 18-64. For personalized health guidance, consult a healthcare professional.';
+      return t('results.age_default');
     }
   }
 </script>
@@ -277,8 +279,8 @@
       <CircleSlash2 class="CircleSlash2" />
       <div class="icon-glow"></div>
     </div>
-    <h2 class="card-title">Your Results</h2>
-    <p class="card-subtitle">Cosmic BMI analysis and personalized recommendations.</p>
+    <h2 class="card-title">{t('results.title')}</h2>
+    <p class="card-subtitle">{t('results.subtitle')}</p>
   </div>
 
   <div class="results-content" role="status" aria-live="polite">
@@ -300,7 +302,7 @@
         <div class="stat-block prime-block">
           <div class="stat-block-header">
             <Target class="stat-icon" />
-            <span class="stat-label">BMI Prime</span>
+            <span class="stat-label">{t('results.bmi_prime')}</span>
           </div>
           <div class="stat-value-row">
             <span class="stat-number">{$animatedPrime.toFixed(2)}</span>
@@ -333,7 +335,7 @@
         <div class="stat-block ideal-block">
           <div class="stat-block-header">
             <Scale class="stat-icon" />
-            <span class="stat-label">Ideal Range</span>
+            <span class="stat-label">{t('results.ideal_range')}</span>
           </div>
           {#if idealMinDisplay !== null && idealMaxDisplay !== null}
             <div class="stat-value-row">
@@ -344,13 +346,13 @@
             </div>
             {#if deltaDisplay && deltaDisplay.direction !== 'within'}
               <p class="stat-desc delta-desc" class:delta-above={deltaDisplay.direction === 'above'} class:delta-below={deltaDisplay.direction === 'below'}>
-                {deltaDisplay.direction === 'above' ? '+' : '−'}{deltaDisplay.amount} {deltaDisplay.unit} from range
+                {deltaDisplay.direction === 'above' ? '+' : '−'}{deltaDisplay.amount} {deltaDisplay.unit} {t('results.from_range')}
               </p>
             {:else if deltaDisplay}
-              <p class="stat-desc delta-within">You are within range</p>
+              <p class="stat-desc delta-within">{t('results.within_range')}</p>
             {/if}
           {:else}
-            <p class="stat-desc">Enter height to see ideal range</p>
+            <p class="stat-desc">{t('results.enter_height')}</p>
           {/if}
         </div>
       </div>
@@ -361,50 +363,50 @@
           <div class="tdee-header">
             <div class="stat-block-header">
               <Flame class="stat-icon tdee-icon" />
-              <span class="stat-label">TDEE Estimator</span>
+              <span class="stat-label">{t('results.tdee_label')}</span>
             </div>
           </div>
           <div class="tdee-grid">
             <div class="tdee-stat">
-              <span class="tdee-stat-label">BMR</span>
+              <span class="tdee-stat-label">{t('results.bmr')}</span>
               <span class="tdee-stat-value">{tdeeDisplay!.bmr}</span>
-              <span class="tdee-stat-unit">kcal/day</span>
+              <span class="tdee-stat-unit">{t('results.kcal_day')}</span>
             </div>
             <div class="tdee-stat tdee-highlight">
-              <span class="tdee-stat-label">TDEE</span>
+              <span class="tdee-stat-label">{t('results.tdee')}</span>
               <span class="tdee-stat-value">{$animatedTdee.toFixed(0)}</span>
-              <span class="tdee-stat-unit">kcal/day</span>
+              <span class="tdee-stat-unit">{t('results.kcal_day')}</span>
             </div>
           </div>
           <div class="tdee-meta">
             <span class="tdee-activity-badge">{tdeeDisplay!.activityLabel}</span>
-            <span class="tdee-gender-badge">{gender === 'male' ? 'Male' : 'Female'}</span>
+            <span class="tdee-gender-badge">{gender === 'male' ? t('results.male') : t('results.female')}</span>
           </div>
           <div class="tdee-ranges">
             <div class="tdee-range tdee-cut">
-              <span class="tdee-range-label">Weight Loss</span>
+              <span class="tdee-range-label">{t('results.weight_loss')}</span>
               <span class="tdee-range-value">{tdeeDisplay!.deficit500}</span>
               <span class="tdee-range-unit">kcal</span>
             </div>
             <div class="tdee-range tdee-maintain">
-              <span class="tdee-range-label">Maintain</span>
+              <span class="tdee-range-label">{t('results.maintain')}</span>
               <span class="tdee-range-value">{tdeeDisplay!.tdee}</span>
               <span class="tdee-range-unit">kcal</span>
             </div>
             <div class="tdee-range tdee-gain">
-              <span class="tdee-range-label">Weight Gain</span>
+              <span class="tdee-range-label">{t('results.weight_gain')}</span>
               <span class="tdee-range-value">{tdeeDisplay!.surplus500}</span>
               <span class="tdee-range-unit">kcal</span>
             </div>
           </div>
-          <p class="tdee-disclaimer">Based on Mifflin-St Jeor equation. Estimates only; consult a professional for personalized advice.</p>
+          <p class="tdee-disclaimer">{t('results.tdee_disclaimer')}</p>
         </div>
       {/if}
 
       <div class="health-advice">
         <h3 class="advice-title">
           <Info class="Info" />
-          Health Advice
+          {t('results.health_advice_title')}
         </h3>
         <p class="advice-text">{getHealthAdvice(category!)}</p>
       </div>
@@ -413,7 +415,7 @@
         <div class="age-advisory">
           <h4 class="advisory-title">
             <AlertCircle class="AlertCircle" />
-            Age-Specific Note
+            {t('results.age_advisory_title')}
           </h4>
           <p class="advisory-text">{getAgeAdvisory(age)}</p>
         </div>
@@ -421,17 +423,17 @@
 
       <!-- C-1/C-2/C-3: Share & Action Buttons -->
       <div class="action-buttons-row">
-        <button type="button" class="action-btn" onclick={handleShare} aria-label="Share result">
+        <button type="button" class="action-btn" onclick={handleShare} aria-label={t('results.share_aria')}>
           <Share2 size={16} />
-          <span>Share</span>
+          <span>{t('results.share')}</span>
         </button>
-        <button type="button" class="action-btn" onclick={handleCopy} aria-label="Copy to clipboard">
+        <button type="button" class="action-btn" onclick={handleCopy} aria-label={t('results.copy_aria')}>
           <Copy size={16} />
-          <span>Copy</span>
+          <span>{t('results.copy')}</span>
         </button>
-        <button type="button" class="action-btn" onclick={handleDownloadCard} aria-label="Download result card">
+        <button type="button" class="action-btn" onclick={handleDownloadCard} aria-label={t('results.download_aria')}>
           <ImageDown size={16} />
-          <span>Save Image</span>
+          <span>{t('results.save_image')}</span>
         </button>
       </div>
 
@@ -440,7 +442,7 @@
       {/if}
 
       <div class="bmi-explanation">
-        <h4 class="explanation-title">What this means:</h4>
+        <h4 class="explanation-title">{t('results.what_this_means')}</h4>
         <p class="explanation-text">
           Your BMI of <strong>{$animatedBmi.toFixed(2)}</strong> falls in the <strong>{category}</strong> category.
           BMI is a screening tool that helps assess weight-related health risks.
@@ -452,7 +454,7 @@
           <BarChart3 class="BarChart3" />
           <div class="empty-glow"></div>
         </div>
-        <p class="empty-text">Enter your measurements to see your cosmic BMI results</p>
+        <p class="empty-text">{t('results.empty')}</p>
       </div>
     {/if}
   </div>

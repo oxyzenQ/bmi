@@ -2,6 +2,8 @@
   import { Shield, AlertTriangle, Activity, Heart } from 'lucide-svelte';
   import { browser } from '$app/environment';
   import { CATEGORY_COLORS, COLORS, classifyBmi, getCategoryColor } from '$lib/utils/bmi-category';
+  import { t, localeVersion } from '$lib/i18n';
+  let _rv = $derived(localeVersion);
 
   interface Props {
     bmi?: number | null;
@@ -22,11 +24,11 @@
   function getRiskLevel(bmiVal: number | null, cat: string | null): RiskLevel {
     if (bmiVal === null || cat === null) {
       return {
-        label: 'Unknown',
+        label: t('risk.unknown'),
         color: COLORS.SLATE,
         bgClass: 'risk-unknown',
         icon: Shield,
-        description: 'Calculate your BMI to assess health risk',
+        description: t('risk.calc_first'),
         position: 50
       };
     }
@@ -35,44 +37,44 @@
 
     if (lowerCat === 'underweight') {
       return {
-        label: 'Moderate Risk',
+        label: t('risk.moderate_label'),
         color: COLORS.BLUE,
         bgClass: 'risk-moderate',
         icon: AlertTriangle,
-        description: 'May indicate nutritional deficiencies or underlying conditions',
+        description: t('risk.moderate_desc'),
         position: 25
       };
     }
 
     if (lowerCat === 'normal weight') {
       return {
-        label: 'Low Risk',
+        label: t('risk.low_label'),
         color: COLORS.GREEN,
         bgClass: 'risk-low',
         icon: Heart,
-        description: 'Optimal BMI range associated with lowest health risks',
+        description: t('risk.low_desc'),
         position: ((bmiVal - 18.5) / (24.9 - 18.5)) * 25
       };
     }
 
     if (lowerCat === 'overweight') {
       return {
-        label: 'Elevated Risk',
+        label: t('risk.elevated_label'),
         color: COLORS.YELLOW,
         bgClass: 'risk-elevated',
         icon: Activity,
-        description: 'Increased risk for cardiovascular disease and diabetes',
+        description: t('risk.elevated_desc'),
         position: 62.5 + ((bmiVal - 25) / (30 - 25)) * 12.5
       };
     }
 
     // Obese
     return {
-      label: 'High Risk',
+      label: t('risk.high_label'),
       color: COLORS.RED,
       bgClass: 'risk-high',
       icon: AlertTriangle,
-      description: 'Significantly increased risk for serious health conditions',
+      description: t('risk.high_desc'),
       position: 75 + ((bmiVal - 30) / (50 - 30)) * 25
     };
   }
@@ -85,9 +87,9 @@
   <div class="gauge-header">
     <div class="gauge-title">
       <Shield class="Gauge" />
-      <h3>Health Risk Assessment</h3>
+      <h3>{t('risk.title')}</h3>
     </div>
-    <div class="gauge-subtitle">Understand your BMI-related health risks</div>
+    <div class="gauge-subtitle">{t('risk.subtitle')}</div>
   </div>
 
   <div class="risk-meter-container">
@@ -109,10 +111,10 @@
 
     <!-- Risk labels -->
     <div class="risk-labels">
-      <span class="risk-label">Low</span>
-      <span class="risk-label">Moderate</span>
-      <span class="risk-label">Elevated</span>
-      <span class="risk-label">High</span>
+      <span class="risk-label">{t('risk.low')}</span>
+      <span class="risk-label">{t('risk.moderate')}</span>
+      <span class="risk-label">{t('risk.elevated')}</span>
+      <span class="risk-label">{t('risk.high')}</span>
     </div>
   </div>
 
@@ -132,29 +134,29 @@
 
   <!-- Health tips -->
   <div class="health-tips">
-    <h4>Recommendations</h4>
+    <h4>{t('risk.recommendations')}</h4>
     {#if category?.toLowerCase() === 'normal weight'}
       <ul>
-        <li>Maintain your healthy weight with balanced diet</li>
-        <li>Regular physical activity (150 min/week)</li>
-        <li>Annual health checkups to monitor</li>
+        <li>{t('risk.rec_normal_1')}</li>
+        <li>{t('risk.rec_normal_2')}</li>
+        <li>{t('risk.rec_normal_3')}</li>
       </ul>
     {:else if category?.toLowerCase() === 'underweight'}
       <ul>
-        <li>Consult a nutritionist for healthy weight gain</li>
-        <li>Focus on nutrient-dense foods</li>
-        <li>Rule out underlying medical conditions</li>
+        <li>{t('risk.rec_under_1')}</li>
+        <li>{t('risk.rec_under_2')}</li>
+        <li>{t('risk.rec_under_3')}</li>
       </ul>
     {:else if category?.toLowerCase() === 'overweight' || category?.toLowerCase() === 'obese'}
       <ul>
-        <li>Aim for gradual weight loss (0.5-1kg/week)</li>
-        <li>Increase daily physical activity</li>
-        <li>Consult healthcare provider for personalized plan</li>
+        <li>{t('risk.rec_over_1')}</li>
+        <li>{t('risk.rec_over_2')}</li>
+        <li>{t('risk.rec_over_3')}</li>
       </ul>
     {:else}
       <div class="empty-health-risk">
         <Shield size={28} style="opacity:0.3; margin-bottom:0.5rem" />
-        <p class="no-data">Enter your measurements to see personalized recommendations</p>
+        <p class="no-data">{t('risk.empty')}</p>
       </div>
     {/if}
   </div>

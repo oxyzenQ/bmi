@@ -15,6 +15,8 @@ export const STORAGE_KEYS = {
   UNIT_SYSTEM: 'bmi.unitSystem',
   RENDER_MODE: 'bmi.renderMode',
   WALLPAPER_THEME: 'bmi.wallpaperTheme',
+  LOCALE: 'bmi.locale',
+  BMI_GOAL: 'bmi.goal',
   // Legacy keys (cleaned up on read)
   SMOOTH_MODE: 'bmi.smoothMode',
   ULTRA_SMOOTH: 'bmi.ultraSmooth',

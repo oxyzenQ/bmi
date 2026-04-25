@@ -12,6 +12,9 @@
   import { MARKER_ANIM, PAGER, SPRING, SCROLL, HAPTIC, SECTIONS } from '$lib/utils/animation-config';
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
+  import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
+  import { t, initLocale, localeVersion } from '$lib/i18n';
+  let _rv = $derived(localeVersion);
   import {
     Lightbulb,
     Users,
@@ -34,6 +37,8 @@
   type BmiHealthRiskComponentType = typeof import('$lib/components/BmiHealthRisk.svelte').default;
   type BmiSnapshotComponentType = typeof import('$lib/components/BmiSnapshot.svelte').default;
   type BodyFatEstimateComponentType = typeof import('$lib/components/BodyFatEstimate.svelte').default;
+  type ReferenceTableComponentType = typeof import('$lib/components/ReferenceTable.svelte').default;
+  type BmiGoalTrackerComponentType = typeof import('$lib/components/BmiGoalTracker.svelte').default;
   // ── Lazy-loaded component state (Svelte 5 $state) ──
   let BmiFormComponent: BmiFormComponentType | null = $state(null);
   let BmiResultsComponent: BmiResultsComponentType | null = $state(null);
@@ -42,6 +47,7 @@
   let BmiSnapshotComponent: BmiSnapshotComponentType | null = $state(null);
   let BodyFatEstimateComponent: BodyFatEstimateComponentType | null = $state(null);
   let ReferenceTableComponent: ReferenceTableComponentType | null = $state(null);
+  let BmiGoalTrackerComponent: BmiGoalTrackerComponentType | null = $state(null);
 
   // ── Lazy loaders (deduplicate imports, bridge to $state via onLoad) ──
   const calculatorLoader = createPairedLazyLoader(
@@ -69,6 +75,10 @@
   const referenceLoader = createLazyLoader({
     importer: () => import('$lib/components/ReferenceTable.svelte'),
     onLoad: (comp) => { ReferenceTableComponent = comp; }
+  });
+  const goalTrackerLoader = createLazyLoader({
+    importer: () => import('$lib/components/BmiGoalTracker.svelte'),
+    onLoad: (comp) => { BmiGoalTrackerComponent = comp; }
   });
   // Track if BMI was already saved to prevent duplicates
   let lastSavedBmi: number | null = null;
@@ -200,11 +210,11 @@
 
   let reducedMotionEffective = $derived(prefersReducedMotion && !smoothModeRequested);
   let smoothModeEnhanced = $derived(smoothModeRequested && perfTier !== 'low');
-  let smoothModeStatus = $derived(smoothModeRequested ? 'On' : 'Off');
+  let smoothModeStatus = $derived(smoothModeRequested ? t('nav.on') : t('nav.off'));
 
   // Wallpaper theme toggle
   let currentTheme = $state<'space' | 'energy'>('space');
-  let themeLabel = $derived(currentTheme === 'space' ? 'Space' : 'Energy');
+  let themeLabel = $derived(currentTheme === 'space' ? t('nav.space') : t('nav.energy'));
 
   function toggleWallpaperTheme() {
     currentTheme = currentTheme === 'space' ? 'energy' : 'space';
@@ -618,6 +628,7 @@
       void healthRiskLoader.ensure();
       void snapshotLoader.ensure();
       void bodyFatLoader.ensure();
+      void goalTrackerLoader.ensure();
     }
     if (activeIndex === 3) void referenceLoader.ensure();
   });
@@ -625,6 +636,7 @@
   onMount(() => {
     if (!browser) return;
     perfTier = getPerformanceTier();
+    initLocale();
     prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // Enhancement #12: Live listener for prefers-reduced-motion changes
@@ -806,16 +818,16 @@
 
     // Show success notification (overlaid on the Gauge page)
     notifyType = 'success';
-    notifyMessage = 'Your BMI has been calculated successfully!';
-    notifyButtonText = 'Continue to see';
+    notifyMessage = t('notify.success_msg');
+    notifyButtonText = t('notify.continue_btn');
     showNotify = true;
   }
 
   function confirmClearData() {
     // Show confirmation dialog first - don't clear anything yet
     notifyType = 'delete';
-    notifyMessage = 'Are you sure you want to delete all data? This action cannot be undone.';
-    notifyButtonText = 'Delete';
+    notifyMessage = t('notify.delete_confirm');
+    notifyButtonText = t('notify.delete');
     showNotify = true;
   }
 
@@ -856,18 +868,18 @@
 </script>
 
 <svelte:head>
-  <title>A Simple BMI Calc — Stellar v10.5</title>
-  <meta name="description" content="A luxury space-themed BMI calculator. Calculate your Body Mass Index, TDEE, Body Fat %, and track your health journey with interactive charts. Built with SvelteKit by Team LOGIGO." />
-  <meta property="og:title" content="A Simple BMI Calc — Stellar v10.5" />
-  <meta property="og:description" content="A luxury space-themed BMI calculator with TDEE, Body Fat %, interactive charts, and PWA support." />
-  <meta name="twitter:title" content="A Simple BMI Calc — Stellar v10.5" />
-  <meta name="twitter:description" content="A luxury space-themed BMI calculator with TDEE, Body Fat %, interactive charts, and PWA support." />
+  <title>{t('meta.title')}</title>
+  <meta name="description" content={t('meta.description')} />
+  <meta property="og:title" content={t('meta.title')} />
+  <meta property="og:description" content={t('meta.og_description')} />
+  <meta name="twitter:title" content={t('meta.title')} />
+  <meta name="twitter:description" content={t('meta.og_description')} />
 </svelte:head>
 
 <div
   class="pager-shell"
   role="region"
-  aria-label="BMI Calculator"
+  aria-label={t('nav.aria_label')}
   bind:this={pagerEl}
   onpointerdown={handlePointerDown}
   onpointerup={handlePointerUp}
@@ -879,7 +891,7 @@
       bind:this={pagerNavEl}
       class="pager-nav"
       class:centered={pagerNavCentered}
-      aria-label="Sections"
+      aria-label={t('nav.sections_aria')}
     >
       {#each sections as section, idx (section.id)}
         <button
@@ -896,12 +908,12 @@
       <button
         type="button"
         class="btn btn-ghost pager-tab pager-smooth"
-        aria-label="Toggle render mode"
+        aria-label={t('nav.render_aria')}
         aria-pressed={smoothModeRequested}
         onclick={toggleSmoothMode}
       >
         <Bot class="render-spark" aria-hidden="true" />
-        Render :
+        {t('nav.render')}
         <span class:render-on={smoothModeRequested} class:render-off={!smoothModeRequested}>
           {smoothModeStatus}
         </span>
@@ -910,16 +922,18 @@
       <button
         type="button"
         class="btn btn-ghost pager-tab pager-theme"
-        aria-label="Toggle wallpaper theme"
+        aria-label={t('nav.theme_aria')}
         aria-pressed={currentTheme === 'energy'}
         onclick={toggleWallpaperTheme}
       >
         <Sparkles class="render-spark" aria-hidden="true" />
-        Theme :
+        {t('nav.theme')}
         <span class:theme-energy={currentTheme === 'energy'} class:theme-space={currentTheme === 'space'}>
           {themeLabel}
         </span>
       </button>
+
+      <LanguageSwitcher />
     </nav>
   </div>
 
@@ -974,13 +988,13 @@
                         if (result.action === 'import-validate' && result.text) {
                           pendingImportText = result.text;
                           notifyType = 'warn';
-                          notifyMessage = `Sure to import your data? ${result.recordCount} record${(result.recordCount ?? 0) === 1 ? '' : 's'} found. Be careful with current data because it will be overridden.`;
-                          notifyButtonText = 'Keep Import';
+                          notifyMessage = t('notify.import_confirm', { n: result.recordCount ?? 0 });
+                          notifyButtonText = t('notify.import_keep');
                           showNotify = true;
                         } else if (result.action === 'import-error') {
                           notifyType = 'delete';
-                          notifyMessage = result.error || 'Import failed. Please check the file format.';
-                          notifyButtonText = 'OK';
+                          notifyMessage = result.error || t('notify.import_error');
+                          notifyButtonText = t('notify.ok');
                           showNotify = true;
                         }
                       }}
@@ -1088,6 +1102,15 @@
                   <div class="skeleton skeleton-circle"></div>
                   <div class="skeleton skeleton-line w-40 h-lg" style="margin:0 auto 1rem"></div>
                   <div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.5rem"></div>
+                  <div class="skeleton skeleton-line w-full h-sm"></div>
+                </div>
+              {/if}
+
+              {#if BmiGoalTrackerComponent}
+                <BmiGoalTrackerComponent currentBmi={bmiValue} />
+              {:else}
+                <div class="skeleton-card">
+                  <div class="skeleton skeleton-line w-60 h-sm" style="margin-bottom:0.75rem"></div>
                   <div class="skeleton skeleton-line w-full h-sm"></div>
                 </div>
               {/if}

@@ -2,6 +2,8 @@
         import { page } from '$app/state';
         import { goto } from '$app/navigation';
         import { resolve } from '$app/paths';
+        import { t, localeVersion } from '$lib/i18n';
+        let _rv = $derived(localeVersion);
 
         interface Props {
                 data: { message: string; status: number };
@@ -12,16 +14,16 @@
         let statusCode = $derived(data.status);
         let statusText = $derived(
                 statusCode === 404
-                        ? 'Page Not Found'
+                        ? t('error.not_found')
                         : statusCode === 500
-                                ? 'Internal Error'
-                                : `Error ${statusCode}`
+                                ? t('error.internal')
+                                : t('error.generic', { n: statusCode })
         );
 
         let description = $derived(
                 statusCode === 404
-                        ? "The page you're looking for doesn't exist or has been moved."
-                        : data.message || 'Something went wrong. Please try again.'
+                        ? t('error.not_found_desc')
+                        : data.message || t('error.internal_desc')
         );
 
         function handleRetry() {
@@ -46,14 +48,14 @@
 
                 <div class="error-actions">
                         <button class="btn btn-primary btn-lg" onclick={handleRetry}>
-                                ← Back to Calculator
+                                {t('error.back')}
                         </button>
                 </div>
 
                 {#if statusCode !== 404}
                         <p class="error-hint">
-                                If this persists, try clearing your browser cache or
-                                <button class="error-link" onclick={() => goto(resolve('/'))}>reload the app</button>.
+                                {t('error.hint')}
+                                <button class="error-link" onclick={() => goto(resolve('/'))}>{t('error.reload')}</button>.
                         </p>
                 {/if}
         </div>

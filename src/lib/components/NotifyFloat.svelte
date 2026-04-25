@@ -2,6 +2,8 @@
   import { onMount, untrack, onDestroy } from 'svelte';
   import { CheckCircle, Trash2, X, ShieldAlert } from 'lucide-svelte';
   import { COLORS } from '$lib/utils/bmi-category';
+  import { t, localeVersion } from '$lib/i18n';
+  let _rv = $derived(localeVersion);
 
   interface Props {
     show?: boolean;
@@ -17,7 +19,7 @@
     show = false,
     type = 'success',
     message = '',
-    buttonText = 'Continue',
+    buttonText = t('notify.continue'),
     onContinue = () => {},
     onClose = () => {},
     onCancel = () => {}
@@ -177,7 +179,7 @@
     aria-modal="true"
   >
     <div class="notify-float-box">
-      <button class="notify-close" onclick={handleClose} aria-label="Close notification">
+      <button class="notify-close" onclick={handleClose} aria-label={t('notify.close_aria')}>
         <span class="close-icon">✕</span>
       </button>
 
@@ -193,7 +195,7 @@
             class="notify-btn btn-cancel"
             onclick={handleCancel}
           >
-            Cancel
+            {t('notify.cancel')}
           </button>
           <button
             class="notify-btn {buttonClass}"
