@@ -88,6 +88,7 @@
     if (focusTrapHandler) {
       document.removeEventListener('keydown', focusTrapHandler);
     }
+    if (actionTimer) clearTimeout(actionTimer);
   });
 
   // Effect handles three triggers:

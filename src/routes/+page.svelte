@@ -758,10 +758,10 @@
     window.addEventListener('storage', onStorage);
 
     window.addEventListener('hashchange', onHashChange);
-    window.addEventListener('keydown', handleKeydown);
+    window.addEventListener('keydown', handleKeydown, { passive: true });
 
     const onResize = () => schedulePagerNavAlignment();
-    window.addEventListener('resize', onResize);
+    window.addEventListener('resize', onResize, { passive: true });
 
     // Unified scroll listener: is-scrolling class + pager-controls auto-hide
     let isScrolling = false;

@@ -42,6 +42,7 @@
     animatedBmi.set(0, { duration: 0 });
     animatedPrime.set(0, { duration: 0 });
     animatedTdee.set(0, { duration: 0 });
+    if (shareTimer) clearTimeout(shareTimer);
   });
 
   // ── BMI Prime ──

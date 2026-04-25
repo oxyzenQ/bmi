@@ -183,22 +183,22 @@
   }
 
   .risk-low-seg {
-    background: linear-gradient(90deg, #00C853 0%, #00C853 100%);
+    background: var(--cat-green-50);
     opacity: 0.6;
   }
 
   .risk-moderate-seg {
-    background: linear-gradient(90deg, #4A90E2 0%, #4A90E2 100%);
+    background: var(--cat-blue-50);
     opacity: 0.6;
   }
 
   .risk-elevated-seg {
-    background: linear-gradient(90deg, #FFD600 0%, #FFD600 100%);
+    background: var(--cat-amber-50);
     opacity: 0.6;
   }
 
   .risk-high-seg {
-    background: linear-gradient(90deg, #D50000 0%, #D50000 100%);
+    background: var(--cat-red-50);
     opacity: 0.6;
   }
 
@@ -225,23 +225,23 @@
   }
 
   .risk-marker.risk-low {
-    background: #00C853;
+    background: var(--cat-green-90);
     box-shadow: 0 0 20px var(--cat-green-40);
   }
 
   .risk-marker.risk-moderate {
-    background: #4A90E2;
+    background: var(--cat-blue-90);
     box-shadow: 0 0 20px var(--cat-blue-40);
   }
 
   .risk-marker.risk-elevated {
-    background: #FFD600;
+    background: var(--cat-amber-90);
     box-shadow: 0 0 20px var(--cat-yellow-40);
     color: #1a1a2e;
   }
 
   .risk-marker.risk-high {
-    background: #D50000;
+    background: var(--cat-red-90);
     box-shadow: 0 0 20px var(--cat-red-40);
   }
 

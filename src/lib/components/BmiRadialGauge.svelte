@@ -35,8 +35,10 @@
   let strokeDelayFill = $state('0ms');
   let pulseDuration = $state('1s');
 
-  const perfTier = getPerformanceTier();
-  const reducedMotionPref = prefersReducedMotion();
+  // Compute performance tier and reduced motion at mount time (not module level)
+  // so lazy-loaded components get correct values
+  let perfTier = $state<'high' | 'medium' | 'low'>('medium');
+  let reducedMotionPref = $state(false);
   const displayBmi = tweened(0, { duration: 0, easing: cubicOut });
 
   let reducedMotion = $derived(reducedMotionPref && !ultraSmooth);
@@ -91,6 +93,12 @@
     if (fillTimer) clearTimeout(fillTimer);
     // Cleanup tweened store subscription
     displayBmi.set(0, { duration: 0 });
+  });
+
+  // Initialize perfTier and reducedMotion on mount (after browser is available)
+  $effect(() => {
+    perfTier = getPerformanceTier();
+    reducedMotionPref = prefersReducedMotion();
   });
 
   // Reactive entry point — syncs props to visual state (side effects: mutations)

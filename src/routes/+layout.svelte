@@ -129,8 +129,6 @@
       isOffline = !navigator.onLine;
     }
 
-    let timer: ReturnType<typeof setTimeout> | null = null;
-
     // B-3: Set canonical URL from current location
     if (browser) {
       canonicalUrl = window.location.origin + window.location.pathname;
@@ -176,7 +174,6 @@
     }
 
     return () => {
-      if (timer) clearTimeout(timer);
       cleanupFns.forEach((fn) => fn());
     };
   });

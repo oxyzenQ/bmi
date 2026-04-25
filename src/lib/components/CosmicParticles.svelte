@@ -15,6 +15,8 @@
   let smoothModeHandler: (() => void) | null = null;
   let tier: 'high' | 'medium' | 'low' = 'medium';
   let shootingStarTimer: ReturnType<typeof setInterval> | null = null;
+  let initialShootingDelay: ReturnType<typeof setTimeout> | null = null;
+  let cleanupTimers: Array<ReturnType<typeof setTimeout>> = [];
 
   onMount(() => {
     tier = getPerformanceTier();
@@ -84,6 +86,14 @@
     destroyed = true;
     stopParticles();
     stopShootingStars();
+    // Clean up initial shooting star delay
+    if (initialShootingDelay) {
+      clearTimeout(initialShootingDelay);
+      initialShootingDelay = null;
+    }
+    // Clean up any outstanding per-star cleanup timers
+    for (const t of cleanupTimers) clearTimeout(t);
+    cleanupTimers = [];
     if (visibilityHandler) visibilityHandler();
     if (smoothModeHandler) smoothModeHandler();
   });
@@ -188,15 +198,19 @@
     particlesContainer.appendChild(star);
     shootingStars.push(star);
 
-    // Auto-cleanup after animation
+    // Auto-cleanup after animation — tracked for proper destroy cleanup
     const cleanupTime = (duration + delay) * 1000 + 500;
-    setTimeout(() => {
+    const cleanupId = setTimeout(() => {
       if (star.parentNode) {
         star.parentNode.removeChild(star);
       }
       const idx = shootingStars.indexOf(star);
       if (idx >= 0) shootingStars.splice(idx, 1);
+      // Remove this timer from tracking
+      const ci = cleanupTimers.indexOf(cleanupId);
+      if (ci >= 0) cleanupTimers.splice(ci, 1);
     }, cleanupTime);
+    cleanupTimers.push(cleanupId);
   }
 
   function startShootingStars() {
@@ -208,12 +222,18 @@
       if (destroyed || reduced || paused) return;
       const interval = 4000 + Math.random() * 8000;
       shootingStarTimer = setInterval(() => {
+        // Guard inside interval callback to prevent firing after destroy
+        if (destroyed || reduced || paused) {
+          stopShootingStars();
+          return;
+        }
         createShootingStar();
       }, interval) as unknown as ReturnType<typeof setInterval>;
     }
 
-    // First star after 2-5 seconds
-    setTimeout(() => {
+    // First star after 2-5 seconds — tracked for proper cleanup
+    initialShootingDelay = setTimeout(() => {
+      if (destroyed || reduced || paused) return;
       scheduleNext();
     }, 2000 + Math.random() * 3000);
   }
@@ -223,11 +243,18 @@
       clearInterval(shootingStarTimer);
       shootingStarTimer = null;
     }
+    if (initialShootingDelay) {
+      clearTimeout(initialShootingDelay);
+      initialShootingDelay = null;
+    }
     // Clean up existing stars gracefully
     for (const star of shootingStars) {
       if (star.parentNode) star.parentNode.removeChild(star);
     }
     shootingStars = [];
+    // Clean up outstanding per-star cleanup timers
+    for (const t of cleanupTimers) clearTimeout(t);
+    cleanupTimers = [];
   }
 </script>
 
