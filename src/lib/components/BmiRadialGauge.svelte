@@ -5,6 +5,8 @@
   import { cubicOut } from 'svelte/easing';
   import { browser } from '$app/environment';
   import { getPerformanceTier, prefersReducedMotion } from '$lib/utils/performance';
+  import { CATEGORY_COLORS, COLORS, BMI_THRESHOLDS, classifyBmi, getCategoryColor, clampBmiForDisplay, bmiToPercent } from '$lib/utils/bmi-category';
+  import { GAUGE } from '$lib/utils/animation-config';
 
   interface Props {
     bmi?: number;
@@ -43,12 +45,7 @@
 
   let reducedMotion = $derived(reducedMotionPref && !ultraSmooth);
 
-  const categoryColors: Record<string, string> = {
-    'Underweight': '#4A90E2',
-    'Normal Weight': '#00C853',
-    'Overweight': '#FFD600',
-    'Obese': '#D50000'
-  };
+  const categoryColors = CATEGORY_COLORS;
 
   const categoryScale = [
     { label: 'Underweight', color: categoryColors['Underweight'], min: 0, max: 18.5 },
@@ -67,15 +64,15 @@
     }
   }
 
-  const gaugeSize = 280;
-  const strokeWidth = 20;
+  const gaugeSize = GAUGE.SIZE;
+  const strokeWidth = GAUGE.STROKE_WIDTH;
   const radius = (gaugeSize - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const maxBMI = 40;
+  const maxBMI = BMI_THRESHOLDS.MAX;
 
   // Sync visual state with inputs via a helper to avoid reactive self-dependency
   function applyInputs(nextBmi: number, nextCategory: string) {
-    const nextColor = categoryColors[nextCategory] ?? '#00C853';
+    const nextColor = getCategoryColor(nextCategory);
     if (nextBmi !== appliedBmi || nextColor !== appliedColor || nextCategory !== appliedCategory) {
       prevAppliedBmi = appliedBmi;
       appliedBmi = nextBmi;
@@ -114,7 +111,7 @@
   });
 
   // Stroke driven by appliedBmi (persistent)
-  let appliedPercentage = $derived(Math.max(0, Math.min(appliedBmi / maxBMI, 1)));
+  let appliedPercentage = $derived(clampBmiForDisplay(appliedBmi) / maxBMI);
   const strokeDasharray = circumference;
   let strokeDashoffset = $derived(circumference - (appliedPercentage * circumference));
 
@@ -127,23 +124,23 @@
     bmiTweenDuration = reducedMotion
       ? 0
       : ultraEnabled
-        ? (perfTier === 'high' ? 1200 : 900)
-        : (perfTier === 'low' ? 420 : 720);
+        ? (perfTier === 'high' ? GAUGE.TWEEN_DURATION_HIGH : GAUGE.TWEEN_DURATION_MEDIUM)
+        : (perfTier === 'low' ? GAUGE.TWEEN_DURATION_LOW : GAUGE.TWEEN_DURATION_DEFAULT);
 
     strokeDuration = reducedMotion
       ? '0ms'
       : ultraEnabled
-        ? (perfTier === 'high' ? '1600ms' : '1400ms')
-        : '1200ms';
+        ? (perfTier === 'high' ? GAUGE.STROKE_DUR_HIGH : GAUGE.STROKE_DUR_MEDIUM)
+        : GAUGE.STROKE_DUR_DEFAULT;
 
     strokeDurationFill = reducedMotion
       ? '0ms'
       : ultraEnabled
-        ? (perfTier === 'high' ? '2200ms' : '2000ms')
-        : '1800ms';
+        ? (perfTier === 'high' ? GAUGE.STROKE_FILL_DUR_HIGH : GAUGE.STROKE_FILL_DUR_MEDIUM)
+        : GAUGE.STROKE_FILL_DUR_DEFAULT;
 
-    strokeDelayFill = ultraEnabled ? '160ms' : '120ms';
-    pulseDuration = ultraEnabled ? '1.35s' : '1s';
+    strokeDelayFill = ultraEnabled ? GAUGE.STROKE_DELAY_FILL_ENHANCED : GAUGE.STROKE_DELAY_FILL_DEFAULT;
+    pulseDuration = ultraEnabled ? GAUGE.PULSE_DUR_ENHANCED : GAUGE.PULSE_DUR_DEFAULT;
 
     if (appliedBmi > 0) {
       displayBmi.set(appliedBmi, {
@@ -248,7 +245,7 @@
           y={gaugeSize / 2 - 10}
           text-anchor="middle"
           class="bmi-value"
-          fill={appliedBmi > 0 ? appliedColor : '#6b7280'}
+          fill={appliedBmi > 0 ? appliedColor : COLORS.MUTED}
         >
           {bmiDisplayValue}
         </text>
@@ -262,7 +259,7 @@
           y={gaugeSize / 2 + 40}
           text-anchor="middle"
           class="category-label"
-          fill={appliedBmi > 0 ? appliedColor : '#6b7280'}
+          fill={appliedBmi > 0 ? appliedColor : COLORS.MUTED}
         >
           {categoryDisplayText}
         </text>

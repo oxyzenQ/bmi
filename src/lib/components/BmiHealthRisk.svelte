@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Shield, AlertTriangle, Activity, Heart } from 'lucide-svelte';
   import { browser } from '$app/environment';
+  import { CATEGORY_COLORS, COLORS, classifyBmi, getCategoryColor } from '$lib/utils/bmi-category';
 
   interface Props {
     bmi?: number | null;
@@ -22,7 +23,7 @@
     if (bmiVal === null || cat === null) {
       return {
         label: 'Unknown',
-        color: '#94a3b8',
+        color: COLORS.SLATE,
         bgClass: 'risk-unknown',
         icon: Shield,
         description: 'Calculate your BMI to assess health risk',
@@ -35,7 +36,7 @@
     if (lowerCat === 'underweight') {
       return {
         label: 'Moderate Risk',
-        color: '#4A90E2',
+        color: COLORS.BLUE,
         bgClass: 'risk-moderate',
         icon: AlertTriangle,
         description: 'May indicate nutritional deficiencies or underlying conditions',
@@ -46,7 +47,7 @@
     if (lowerCat === 'normal weight') {
       return {
         label: 'Low Risk',
-        color: '#00C853',
+        color: COLORS.GREEN,
         bgClass: 'risk-low',
         icon: Heart,
         description: 'Optimal BMI range associated with lowest health risks',
@@ -57,7 +58,7 @@
     if (lowerCat === 'overweight') {
       return {
         label: 'Elevated Risk',
-        color: '#FFD600',
+        color: COLORS.YELLOW,
         bgClass: 'risk-elevated',
         icon: Activity,
         description: 'Increased risk for cardiovascular disease and diabetes',
@@ -68,7 +69,7 @@
     // Obese
     return {
       label: 'High Risk',
-      color: '#D50000',
+      color: COLORS.RED,
       bgClass: 'risk-high',
       icon: AlertTriangle,
       description: 'Significantly increased risk for serious health conditions',
@@ -268,7 +269,7 @@
 
   .risk-label {
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--cat-slate-50, #94a3b8);
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
@@ -320,7 +321,7 @@
 
   .risk-description {
     font-size: 0.875rem;
-    color: #94a3b8;
+    color: var(--cat-slate-50, #94a3b8);
     line-height: 1.4;
   }
 
@@ -365,7 +366,7 @@
 
   .no-data {
     margin: 0;
-    color: #64748b;
+    color: var(--cat-slate-50, #94a3b8);
     font-size: 0.875rem;
     font-style: italic;
   }

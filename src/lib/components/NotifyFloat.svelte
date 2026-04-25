@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, untrack, onDestroy } from 'svelte';
   import { CheckCircle, Trash2, X, ShieldAlert } from 'lucide-svelte';
+  import { COLORS } from '$lib/utils/bmi-category';
 
   interface Props {
     show?: boolean;
@@ -155,9 +156,9 @@
     Trash2
   );
   const iconColor = $derived(
-    type === 'success' ? '#00C853' :
-    type === 'warn' ? '#F59E0B' :
-    '#D50000'
+    type === 'success' ? COLORS.GREEN :
+    type === 'warn' ? COLORS.AMBER :
+    COLORS.RED
   );
   const buttonClass = $derived(
     type === 'success' ? 'btn-success' :

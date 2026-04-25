@@ -5,6 +5,9 @@
   import { browser } from '$app/environment';
   import { getPerformanceTier } from '$lib/utils/performance';
   import { importBmiHistory } from '$lib/utils/history-io';
+  import { STORAGE_KEYS, storageGet, storageSet, storageSetJSON, storageRemove, storageGetJSON, storageInvalidate } from '$lib/utils/storage';
+  import { BMI_THRESHOLDS, classifyBmi, bmiToPercent } from '$lib/utils/bmi-category';
+  import { MARKER_ANIM, PAGER, SPRING, SCROLL, HAPTIC, SECTIONS, RESULTS_TWEEN_DURATION } from '$lib/utils/animation-config';
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
   import {
@@ -46,16 +49,14 @@
 
   function saveBmiToHistory(bmi: number, h: number, w: number, a: string) {
     if (!browser) return;
-    if (!window.isSecureContext) return; // Don't store health data in insecure contexts
-    if (lastSavedBmi === bmi) return; // Prevent duplicate saves
+    if (!window.isSecureContext) return;
+    if (lastSavedBmi === bmi) return;
 
     let history: Array<{ timestamp: number; bmi: number; height: number; weight: number; age?: number }> = [];
     try {
-      const stored = localStorage.getItem('bmi.history');
-      if (stored) history = JSON.parse(stored);
+      history = storageGetJSON(STORAGE_KEYS.HISTORY, []);
     } catch {
-      // Corrupted data — reset history silently
-      localStorage.removeItem('bmi.history');
+      storageRemove(STORAGE_KEYS.HISTORY);
     }
 
     const ageNum = a !== '' ? parseInt(a) : undefined;
@@ -74,7 +75,7 @@
     filtered.push(newRecord);
     filtered.sort((a, b) => a.timestamp - b.timestamp);
 
-    localStorage.setItem('bmi.history', JSON.stringify(filtered));
+    storageSetJSON(STORAGE_KEYS.HISTORY, filtered);
     lastSavedBmi = bmi;
   }
 
@@ -205,14 +206,7 @@
   const gitCommitId = typeof __GIT_COMMIT_ID__ !== 'undefined' ? __GIT_COMMIT_ID__ : 'dev';
   const gitBranch = typeof __GIT_BRANCH__ !== 'undefined' ? __GIT_BRANCH__ : 'main';
 
-  const sections = [
-    { id: 'welcome', label: 'Welcome' },
-    { id: 'calculator', label: 'Calculator' },
-    { id: 'gauge', label: 'Gauge' },
-    { id: 'reference', label: 'Reference' },
-    { id: 'about', label: 'About' },
-    { id: 'info', label: 'Info' }
-  ] as const;
+  const sections = SECTIONS;
 
   let activeIndex = $state(0);
   let lastIndex = $state(0);
@@ -240,7 +234,7 @@
     window.dispatchEvent(new CustomEvent('bmi:smoothMode', { detail: { enabled } }));
   }
 
-  function triggerHaptic(pattern: number | number[] = 10) {
+  function triggerHaptic(pattern: number | number[] = HAPTIC.NAV) {
     if (!browser) return;
     try {
       if ('vibrate' in navigator) navigator.vibrate(pattern);
@@ -260,9 +254,9 @@
   function toggleSmoothMode() {
     smoothModeRequested = !smoothModeRequested;
     if (browser) {
-      localStorage.setItem('bmi.renderMode', smoothModeRequested ? '1' : '0');
-      localStorage.removeItem('bmi.smoothMode');
-      localStorage.removeItem('bmi.ultraSmooth');
+      storageSet(STORAGE_KEYS.RENDER_MODE, smoothModeRequested ? '1' : '0');
+      storageRemove(STORAGE_KEYS.SMOOTH_MODE);
+      storageRemove(STORAGE_KEYS.ULTRA_SMOOTH);
       document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
       broadcastSmoothMode(smoothModeRequested);
       void tick().then(schedulePagerNavAlignment);
@@ -280,7 +274,7 @@
   function toggleWallpaperTheme() {
     currentTheme = currentTheme === 'space' ? 'energy' : 'space';
     if (browser) {
-      localStorage.setItem('bmi.wallpaperTheme', currentTheme);
+      storageSet(STORAGE_KEYS.WALLPAPER_THEME, currentTheme);
       const root = document.documentElement;
       if (currentTheme === 'energy') {
         root.style.setProperty('--wallpaper-current', 'url("/images/oxyzen-cyberagent.webp")');
@@ -294,9 +288,9 @@
   $effect(() => {
     if (browser && unitSystemInitialized) {
       try {
-        localStorage.setItem('bmi.unitSystem', unitSystem);
+        storageSet(STORAGE_KEYS.UNIT_SYSTEM, unitSystem);
       } catch {
-        // localStorage unavailable
+        // storage unavailable
       }
     }
   });
@@ -335,35 +329,35 @@
     };
   }
 
-  const BMI_BAR_MIN = 12;
-  const BMI_BAR_MAX = 40;
+  const BMI_BAR_MIN = BMI_THRESHOLDS.MIN;
+  const BMI_BAR_MAX = BMI_THRESHOLDS.MAX;
 
   // Animation duration constants (ms)
-  const MARKER_ANIM_HIGH = 860;
-  const MARKER_ANIM_MEDIUM = 780;
-  const MARKER_ANIM_LOW = 680;
-  const OVERSHOOT_RATIO = 0.62;
-  const SETTLE_RATIO = 0.48;
-  const SETTLE_DELAY_OFFSET = 80;
+  const MARKER_ANIM_HIGH = MARKER_ANIM.HIGH;
+  const MARKER_ANIM_MEDIUM = MARKER_ANIM.MEDIUM;
+  const MARKER_ANIM_LOW = MARKER_ANIM.LOW;
+  const OVERSHOOT_RATIO = MARKER_ANIM.OVERSHOOT_RATIO;
+  const SETTLE_RATIO = MARKER_ANIM.SETTLE_RATIO;
+  const SETTLE_DELAY_OFFSET = MARKER_ANIM.SETTLE_DELAY_OFFSET;
 
   // Pager motion duration constants (ms)
-  const PAGER_DUR_HIGH = 620;
-  const PAGER_DUR_MEDIUM = 540;
-  const PAGER_DUR_LOW = 460;
-  const PAGER_DUR_BASIC = 260;
-  const PAGER_OUT_RATIO = 0.72;
-  const PAGER_OUT_BASIC = 210;
+  const PAGER_DUR_HIGH = PAGER.DUR_HIGH;
+  const PAGER_DUR_MEDIUM = PAGER.DUR_MEDIUM;
+  const PAGER_DUR_LOW = PAGER.DUR_LOW;
+  const PAGER_DUR_BASIC = PAGER.DUR_BASIC;
+  const PAGER_OUT_RATIO = PAGER.OUT_RATIO;
+  const PAGER_OUT_BASIC = PAGER.OUT_BASIC;
 
   // Pager motion distance constants (px)
-  const PAGER_DIST_HIGH = 220;
-  const PAGER_DIST_MEDIUM = 190;
-  const PAGER_DIST_LOW = 160;
-  const PAGER_DIST_BASIC = 120;
+  const PAGER_DIST_HIGH = PAGER.DIST_HIGH;
+  const PAGER_DIST_MEDIUM = PAGER.DIST_MEDIUM;
+  const PAGER_DIST_LOW = PAGER.DIST_LOW;
+  const PAGER_DIST_BASIC = PAGER.DIST_BASIC;
 
   // Other animation constants
-  const SWITCHING_DELAY = 140;
-  const SPRING_STRENGTH_ENHANCED = 0.14;
-  const SPRING_STRENGTH_BASIC = 0.08;
+  const SWITCHING_DELAY = PAGER.SWITCHING_DELAY;
+  const SPRING_STRENGTH_ENHANCED = SPRING.STRENGTH_ENHANCED;
+  const SPRING_STRENGTH_BASIC = SPRING.STRENGTH_BASIC;
 
   let rangeMarker =
     $derived(
@@ -579,7 +573,7 @@
     pointerStartX = null;
     pointerStartY = null;
 
-    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.2) {
+    if (Math.abs(dx) < SCROLL.SWIPE_DX_MIN || Math.abs(dx) < Math.abs(dy) * SCROLL.SWIPE_ANGLE_RATIO) {
       if (activePointerId !== null) {
         try {
           pagerEl?.releasePointerCapture(activePointerId);
@@ -610,13 +604,13 @@
     if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell')) return;
 
     const now = Date.now();
-    if (now - lastWheelNavAt < 520) return;
+    if (now - lastWheelNavAt < SCROLL.WHEEL_COOLDOWN) return;
 
     const dx = event.deltaX;
     const dy = event.deltaY;
-    if (Math.abs(dx) < 60) return;
-    if (Math.abs(dy) > 12) return;
-    if (Math.abs(dx) < Math.abs(dy) * 1.8) return;
+    if (Math.abs(dx) < SCROLL.WHEEL_DX_THRESHOLD) return;
+    if (Math.abs(dy) > SCROLL.WHEEL_DY_MAX) return;
+    if (Math.abs(dx) < Math.abs(dy) * SCROLL.WHEEL_RATIO) return;
 
     const section = pagerEl?.querySelector<HTMLElement>('.pager-section') ?? null;
     if (section && section.scrollHeight > section.clientHeight + 2) {
@@ -690,42 +684,41 @@
     perfTier = getPerformanceTier();
     prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const storedRenderMode = localStorage.getItem('bmi.renderMode');
+    const storedRenderMode = storageGet(STORAGE_KEYS.RENDER_MODE);
     if (storedRenderMode === null) {
-      const storedSmooth = localStorage.getItem('bmi.smoothMode');
-      const storedUltra = localStorage.getItem('bmi.ultraSmooth');
+      const storedSmooth = storageGet(STORAGE_KEYS.SMOOTH_MODE);
+      const storedUltra = storageGet(STORAGE_KEYS.ULTRA_SMOOTH);
       const hasLegacy = storedSmooth !== null || storedUltra !== null;
       smoothModeRequested =
         hasLegacy
           ? (storedSmooth === '1' || storedSmooth === 'true' || storedUltra === '1' || storedUltra === 'true')
           : true;
-      localStorage.setItem('bmi.renderMode', smoothModeRequested ? '1' : '0');
-      localStorage.removeItem('bmi.smoothMode');
-      localStorage.removeItem('bmi.ultraSmooth');
+      storageSet(STORAGE_KEYS.RENDER_MODE, smoothModeRequested ? '1' : '0');
+      storageRemove(STORAGE_KEYS.SMOOTH_MODE);
+      storageRemove(STORAGE_KEYS.ULTRA_SMOOTH);
     } else {
       smoothModeRequested = storedRenderMode === '1' || storedRenderMode === 'true';
-      localStorage.removeItem('bmi.smoothMode');
-      localStorage.removeItem('bmi.ultraSmooth');
+      storageRemove(STORAGE_KEYS.SMOOTH_MODE);
+      storageRemove(STORAGE_KEYS.ULTRA_SMOOTH);
     }
 
     document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
     document.documentElement.dataset.performanceTier = perfTier;
     broadcastSmoothMode(smoothModeRequested);
 
-    // Read unit system preference from localStorage
     try {
-      const storedUnit = localStorage.getItem('bmi.unitSystem');
+      const storedUnit = storageGet(STORAGE_KEYS.UNIT_SYSTEM);
       if (storedUnit === 'imperial' || storedUnit === 'metric') {
         unitSystem = storedUnit;
       }
     } catch {
-      // localStorage unavailable
+      // storage unavailable
     }
     unitSystemInitialized = true;
 
     // Read wallpaper theme preference
     try {
-      const storedTheme = localStorage.getItem('bmi.wallpaperTheme');
+      const storedTheme = storageGet(STORAGE_KEYS.WALLPAPER_THEME);
       if (storedTheme === 'energy' || storedTheme === 'space') {
         currentTheme = storedTheme;
         if (currentTheme === 'energy') {
@@ -745,14 +738,14 @@
       if (next !== null && next !== activeIndex) goTo(next, { skipHash: true });
     };
 
-    // Cross-tab sync for unit system via storage event
     const onStorage = (e: StorageEvent) => {
-      if (e.key === 'bmi.unitSystem') {
+      if (e.key === STORAGE_KEYS.UNIT_SYSTEM) {
         if (e.newValue === 'imperial' || e.newValue === 'metric') {
           unitSystem = e.newValue;
         } else if (e.newValue === null) {
           unitSystem = 'metric';
         }
+        storageInvalidate(STORAGE_KEYS.UNIT_SYSTEM);
       }
     };
     window.addEventListener('storage', onStorage);
@@ -776,7 +769,7 @@
       isScrollingTimer = setTimeout(() => {
         isScrolling = false;
         document.body.classList.remove('is-scrolling');
-      }, 150);
+      }, SCROLL.IS_SCROLLING_DELAY);
 
       // Pager-controls auto-hide: only for pager-section scroll
       const target = event.target as HTMLElement;
@@ -791,16 +784,14 @@
         pagerControlsVisible = true;
       }
 
-      // Scroll-to-top FAB: show when scrolled past 300px
-      showScrollTopFab = currentScrollY > 300;
+      showScrollTopFab = currentScrollY > SCROLL.SCROLL_TOP_THRESHOLD;
 
       lastScrollY = currentScrollY;
 
-      // Show after idle scroll
       if (scrollTimeout) clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(() => {
         pagerControlsVisible = true;
-      }, 2000);
+      }, SCROLL.SCROLL_IDLE_DELAY);
     };
 
     // Use event delegation on document for all scroll events
@@ -847,15 +838,7 @@
       saveBmiToHistory(bmiValue, parsedHeight, parsedWeight, _a);
 
       // Determine category with improved accuracy
-      if (bmi < 18.5) {
-        category = 'Underweight';
-      } else if (bmi >= 18.5 && bmi < 25.0) {
-        category = 'Normal Weight';
-      } else if (bmi >= 25.0 && bmi < 30.0) {
-        category = 'Overweight';
-      } else {
-        category = 'Obese';
-      }
+      category = classifyBmi(bmi);
     } else {
       bmiValue = null;
       category = null;
@@ -866,7 +849,7 @@
     if (calculating) return;
     calculating = true;
 
-    triggerHaptic([15, 30, 15]);
+    triggerHaptic(HAPTIC.CALCULATE);
 
     // Calculate BMI synchronously (before any await) so that
     // bmiValue / category are available for the Gauge page.
@@ -913,9 +896,8 @@
     category = null;
     resultsRunId += 1;
 
-    // Clear localStorage history to reset "Your Best"
     if (browser) {
-      localStorage.removeItem('bmi.history');
+      storageRemove(STORAGE_KEYS.HISTORY);
       lastSavedBmi = null;
     }
   }

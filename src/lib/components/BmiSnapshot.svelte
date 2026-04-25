@@ -2,6 +2,7 @@
   import { Target, TrendingDown, TrendingUp, Award, Scale, Activity } from 'lucide-svelte';
   import { browser } from '$app/environment';
   import BmiHistorySparkline from './BmiHistorySparkline.svelte';
+  import { COLORS, BMI_THRESHOLDS } from '$lib/utils/bmi-category';
 
   interface Props {
     currentBmi?: number | null;
@@ -102,10 +103,10 @@
   });
 
   function getStatusColor(bmi: number): string {
-    if (bmi < 18.5) return '#4A90E2';
-    if (bmi < 25) return '#00C853';
-    if (bmi < 30) return '#FFD600';
-    return '#D50000';
+    if (bmi < BMI_THRESHOLDS.UNDERWEIGHT_MAX) return COLORS.BLUE;
+    if (bmi < BMI_THRESHOLDS.NORMAL_MAX) return COLORS.GREEN;
+    if (bmi < BMI_THRESHOLDS.OVERWEIGHT_MAX) return COLORS.YELLOW;
+    return COLORS.RED;
   }
 
   function getStatusBg(bmi: number): string {
@@ -302,7 +303,7 @@
     justify-content: center;
     gap: 0.5rem;
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--cat-slate-50, #94a3b8);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 0.75rem;
@@ -318,7 +319,7 @@
 
   .card-category {
     font-size: 0.875rem;
-    color: #94a3b8;
+    color: var(--cat-slate-50, #94a3b8);
   }
 
   .progress-section {
@@ -337,7 +338,7 @@
 
   .progress-label {
     font-size: 0.875rem;
-    color: #94a3b8;
+    color: var(--cat-slate-50, #94a3b8);
   }
 
   .progress-value {
@@ -365,11 +366,11 @@
   }
 
   .progress-fill.progress-lose {
-    background: linear-gradient(90deg, #D50000 0%, #FFD600 50%, #00C853 100%);
+    background: linear-gradient(90deg, var(--cat-red-90) 0%, var(--cat-yellow-40) 50%, var(--cat-green-90) 100%);
   }
 
   .progress-fill.progress-gain {
-    background: linear-gradient(90deg, #4A90E2 0%, #00C853 100%);
+    background: linear-gradient(90deg, var(--cat-blue-40) 0%, var(--cat-green-90) 100%);
   }
 
   .progress-markers {
@@ -377,11 +378,11 @@
     justify-content: space-between;
     margin-top: 0.5rem;
     font-size: 0.625rem;
-    color: #64748b;
+    color: var(--cat-slate-50, #94a3b8);
   }
 
   .progress-markers .marker.ideal {
-    color: #00C853;
+    color: var(--cat-green-90);
     font-weight: 500;
   }
 
@@ -399,22 +400,22 @@
     background: var(--sd-60);
     border-radius: 12px;
     font-size: 0.875rem;
-    color: #94a3b8;
+    color: var(--cat-slate-50, #94a3b8);
   }
 
   .insight-item.success {
     background: var(--cat-green-10);
     border: 1px solid var(--cat-green-20);
-    color: #00C853;
+    color: var(--cat-green-90);
   }
 
   .insight-item :global(svg) {
     flex-shrink: 0;
-    color: #64748b;
+    color: var(--cat-slate-50, #94a3b8);
   }
 
   .insight-item.success :global(svg) {
-    color: #00C853;
+    color: var(--cat-green-90);
   }
 
   .insight-item strong {
@@ -422,11 +423,11 @@
   }
 
   .trend-good {
-    color: #00C853 !important;
+    color: var(--cat-green-90) !important;
   }
 
   .trend-bad {
-    color: #D50000 !important;
+    color: var(--cat-red-90) !important;
   }
 
   .empty-snapshot {
@@ -436,7 +437,7 @@
     justify-content: center;
     padding: 3rem;
     text-align: center;
-    color: #64748b;
+    color: var(--cat-slate-50, #94a3b8);
   }
 
   .empty-snapshot :global(svg) {

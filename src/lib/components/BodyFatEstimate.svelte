@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Percent, Info, AlertCircle } from 'lucide-svelte';
+  import { COLORS } from '$lib/utils/bmi-category';
 
   interface Props {
     bmi?: number | null;
@@ -21,17 +22,17 @@
 
   function getCategory(bf: number, isMale: boolean): { label: string; color: string; desc: string } {
     if (isMale) {
-      if (bf < 6) return { label: 'Essential Fat', color: '#4A90E2', desc: 'Minimum fat required for physiological health' };
-      if (bf < 14) return { label: 'Athletic', color: '#00C853', desc: 'Typical of trained athletes and fitness enthusiasts' };
-      if (bf < 18) return { label: 'Fitness', color: '#00C853', desc: 'Healthy range associated with good physical condition' };
-      if (bf < 25) return { label: 'Average', color: '#FFD600', desc: 'Most common range in the general population' };
-      return { label: 'Above Average', color: '#D50000', desc: 'Higher than typical — consult a healthcare provider' };
+      if (bf < 6) return { label: 'Essential Fat', color: COLORS.BLUE, desc: 'Minimum fat required for physiological health' };
+      if (bf < 14) return { label: 'Athletic', color: COLORS.GREEN, desc: 'Typical of trained athletes and fitness enthusiasts' };
+      if (bf < 18) return { label: 'Fitness', color: COLORS.GREEN, desc: 'Healthy range associated with good physical condition' };
+      if (bf < 25) return { label: 'Average', color: COLORS.YELLOW, desc: 'Most common range in the general population' };
+      return { label: 'Above Average', color: COLORS.RED, desc: 'Higher than typical — consult a healthcare provider' };
     } else {
-      if (bf < 14) return { label: 'Essential Fat', color: '#4A90E2', desc: 'Minimum fat required for physiological health' };
-      if (bf < 21) return { label: 'Athletic', color: '#00C853', desc: 'Typical of trained athletes and fitness enthusiasts' };
-      if (bf < 25) return { label: 'Fitness', color: '#00C853', desc: 'Healthy range associated with good physical condition' };
-      if (bf < 32) return { label: 'Average', color: '#FFD600', desc: 'Most common range in the general population' };
-      return { label: 'Above Average', color: '#D50000', desc: 'Higher than typical — consult a healthcare provider' };
+      if (bf < 14) return { label: 'Essential Fat', color: COLORS.BLUE, desc: 'Minimum fat required for physiological health' };
+      if (bf < 21) return { label: 'Athletic', color: COLORS.GREEN, desc: 'Typical of trained athletes and fitness enthusiasts' };
+      if (bf < 25) return { label: 'Fitness', color: COLORS.GREEN, desc: 'Healthy range associated with good physical condition' };
+      if (bf < 32) return { label: 'Average', color: COLORS.YELLOW, desc: 'Most common range in the general population' };
+      return { label: 'Above Average', color: COLORS.RED, desc: 'Higher than typical — consult a healthcare provider' };
     }
   }
 
@@ -260,7 +261,7 @@
 
   .comp-header {
     font-size: 0.8rem;
-    color: #64748b;
+    color: var(--cat-slate-50, #94a3b8);
     margin-bottom: 0.5rem;
     font-weight: 500;
   }
@@ -279,11 +280,11 @@
   }
 
   .comp-fill.fat {
-    background: linear-gradient(90deg, #FFD600, #F59E0B);
+    background: linear-gradient(90deg, var(--cat-amber-40), var(--cat-amber-90));
   }
 
   .comp-fill.lean {
-    background: linear-gradient(90deg, #00C853, #4A90E2);
+    background: linear-gradient(90deg, var(--cat-green-40), var(--cat-blue-40));
   }
 
   .comp-legend {
@@ -292,7 +293,7 @@
     gap: 1.25rem;
     margin-top: 0.5rem;
     font-size: 0.75rem;
-    color: #94a3b8;
+    color: var(--cat-slate-50, #94a3b8);
   }
 
   .legend-item {
@@ -308,17 +309,17 @@
   }
 
   .fat-dot {
-    background: #F59E0B;
+    background: var(--cat-amber-90);
   }
 
   .lean-dot {
-    background: #00C853;
+    background: var(--cat-green-90);
   }
 
   .bf-desc {
     text-align: center;
     font-size: 0.875rem;
-    color: #94a3b8;
+    color: var(--cat-slate-50, #94a3b8);
     margin-bottom: 1rem;
     line-height: 1.5;
   }
@@ -333,13 +334,13 @@
     border-radius: 12px;
     margin-bottom: 1.25rem;
     font-size: 0.78rem;
-    color: #94a3b8;
+    color: var(--cat-slate-50, #94a3b8);
     line-height: 1.5;
   }
 
   .bf-info-box :global(svg) {
     flex-shrink: 0;
-    color: #4A90E2;
+    color: var(--cat-blue-40);
     margin-top: 1px;
   }
 
@@ -374,7 +375,7 @@
 
   .range-label {
     font-size: 0.72rem;
-    color: #94a3b8;
+    color: var(--cat-slate-50, #94a3b8);
     width: 60px;
     flex-shrink: 0;
     text-align: right;
@@ -396,7 +397,7 @@
 
   .range-val {
     font-size: 0.7rem;
-    color: #64748b;
+    color: var(--cat-slate-50, #94a3b8);
     width: 40px;
     flex-shrink: 0;
     font-family: 'JetBrains Mono Variable', monospace;
@@ -409,7 +410,7 @@
     justify-content: center;
     padding: 2.5rem;
     text-align: center;
-    color: #64748b;
+    color: var(--cat-slate-50, #94a3b8);
   }
 
   .bf-empty :global(svg) {
