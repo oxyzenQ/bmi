@@ -8,6 +8,7 @@ import NotifyFloat from '$lib/components/NotifyFloat.svelte';
 
 describe('NotifyFloat', () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     vi.useFakeTimers();
   });
 
@@ -135,8 +136,9 @@ describe('NotifyFloat', () => {
     const dialog = screen.getByRole('dialog');
     const buttons = dialog.querySelectorAll('button');
 
-    // Press Tab on the last button
+    // Focus the last button first (fireEvent.keyDown doesn't auto-focus)
     const lastBtn = buttons[buttons.length - 1];
+    lastBtn.focus();
     fireEvent.keyDown(lastBtn, { key: 'Tab' });
 
     // Focus should wrap to first button (Tab trap behavior)

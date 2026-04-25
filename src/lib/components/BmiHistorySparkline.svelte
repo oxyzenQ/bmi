@@ -546,10 +546,6 @@
     color: #64748b;
   }
 
-  .sparkline-stat strong {
-    color: #e2e8f0;
-    font-weight: 600;
-  }
 
   @media (max-width: 640px) {
     .sparkline-footer {

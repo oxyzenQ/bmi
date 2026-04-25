@@ -420,9 +420,6 @@
     color: var(--cat-green-90);
   }
 
-  .insight-item strong {
-    color: white;
-  }
 
   .trend-good {
     color: var(--cat-green-90) !important;
