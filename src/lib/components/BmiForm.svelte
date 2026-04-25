@@ -2,7 +2,7 @@
   import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame, FileSpreadsheet } from 'lucide-svelte';
   import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport } from '$lib/utils/history-io';
   import { t, localeVersion } from '$lib/i18n';
-  let _rv = $derived(localeVersion);
+  let _rv = $derived($localeVersion);
 
   type Gender = 'male' | 'female' | '';
   type Activity = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active' | '';
@@ -266,7 +266,7 @@
     <div class="input-group">
       <label for="age" class="input-label">
         <User class="User" />
-        Age ({t('form.age_label')})
+        {t('form.age_label')}
       </label>
       <input
         type="text"

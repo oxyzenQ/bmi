@@ -14,7 +14,7 @@
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
   import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
   import { t, initLocale, localeVersion } from '$lib/i18n';
-  let _rv = $derived(localeVersion);
+  let _rv = $derived($localeVersion);
   import {
     Lightbulb,
     Users,
@@ -50,33 +50,33 @@
   let BmiGoalTrackerComponent: BmiGoalTrackerComponentType | null = $state(null);
 
   // ── Lazy loaders (deduplicate imports, bridge to $state via onLoad) ──
-  const calculatorLoader = createPairedLazyLoader(
+  const calculatorLoader = createPairedLazyLoader<BmiFormComponentType, BmiResultsComponentType>(
     () => import('$lib/components/BmiForm.svelte'),
     () => import('$lib/components/BmiResults.svelte'),
     (comp) => { BmiFormComponent = comp; },
     (comp) => { BmiResultsComponent = comp; }
   );
-  const gaugeLoader = createLazyLoader({
+  const gaugeLoader = createLazyLoader<BmiRadialGaugeComponentType>({
     importer: () => import('$lib/components/BmiRadialGauge.svelte'),
     onLoad: (comp) => { BmiRadialGaugeComponent = comp; }
   });
-  const healthRiskLoader = createLazyLoader({
+  const healthRiskLoader = createLazyLoader<BmiHealthRiskComponentType>({
     importer: () => import('$lib/components/BmiHealthRisk.svelte'),
     onLoad: (comp) => { BmiHealthRiskComponent = comp; }
   });
-  const snapshotLoader = createLazyLoader({
+  const snapshotLoader = createLazyLoader<BmiSnapshotComponentType>({
     importer: () => import('$lib/components/BmiSnapshot.svelte'),
     onLoad: (comp) => { BmiSnapshotComponent = comp; }
   });
-  const bodyFatLoader = createLazyLoader({
+  const bodyFatLoader = createLazyLoader<BodyFatEstimateComponentType>({
     importer: () => import('$lib/components/BodyFatEstimate.svelte'),
     onLoad: (comp) => { BodyFatEstimateComponent = comp; }
   });
-  const referenceLoader = createLazyLoader({
+  const referenceLoader = createLazyLoader<ReferenceTableComponentType>({
     importer: () => import('$lib/components/ReferenceTable.svelte'),
     onLoad: (comp) => { ReferenceTableComponent = comp; }
   });
-  const goalTrackerLoader = createLazyLoader({
+  const goalTrackerLoader = createLazyLoader<BmiGoalTrackerComponentType>({
     importer: () => import('$lib/components/BmiGoalTracker.svelte'),
     onLoad: (comp) => { BmiGoalTrackerComponent = comp; }
   });
@@ -1326,14 +1326,14 @@
 
   <!-- Keyboard Shortcut Help Overlay -->
   {#if showShortcutHelp}
-    <div class="shortcut-help-backdrop" onclick={() => { showShortcutHelp = false; }}>
-      <div class="shortcut-help-panel" role="dialog" aria-label="Keyboard shortcuts" onclick={stopPanelPropagation}>
+    <div class="shortcut-help-backdrop" role="presentation" onclick={() => { showShortcutHelp = false; }} onkeydown={(e) => { if (e.key === 'Escape') showShortcutHelp = false; }}>
+      <div class="shortcut-help-panel" role="dialog" aria-label="Keyboard shortcuts" tabindex="-1" onclick={stopPanelPropagation} onkeydown={(e) => { if (e.key === 'Escape') showShortcutHelp = false; }}>
         <button class="shortcut-help-close" onclick={() => { showShortcutHelp = false; }} aria-label="Close shortcuts">
           &times;
         </button>
         <h3 class="shortcut-help-title">Keyboard Shortcuts</h3>
         <div class="shortcut-help-list">
-          {#each sections as section, idx}
+          {#each sections as section, idx (section.id)}
             <div class="shortcut-help-row">
               <kbd>{idx + 1}</kbd>
               <span>{section.label}</span>

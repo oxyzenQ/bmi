@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import type { BmiError, BmiResult } from '../bmi-calculator';
 import {
   calculateBmi,
   isBmiResult,
@@ -148,7 +149,7 @@ describe('calculateBmi', () => {
   it('returns valid result for metric inputs', () => {
     const result = calculateBmi('170', '70', 'metric');
     expect(isBmiResult(result)).toBe(true);
-    const r = result as any;
+    const r = result as BmiResult;
     expect(r.bmi).toBeCloseTo(24.22, 2);
     expect(r.category).toBe('Normal Weight');
     expect(r.heightCm).toBe(170);
@@ -159,7 +160,7 @@ describe('calculateBmi', () => {
     // 66.93 in ≈ 170 cm, 154.32 lbs ≈ 70 kg
     const result = calculateBmi('66.93', '154.32', 'imperial');
     expect(isBmiResult(result)).toBe(true);
-    const r = result as any;
+    const r = result as BmiResult;
     expect(r.bmi).toBeCloseTo(24.22, 1);
     expect(r.heightCm).toBeCloseTo(170, 0);
     expect(r.weightKg).toBeCloseTo(70, 0);
@@ -168,13 +169,13 @@ describe('calculateBmi', () => {
   it('returns error for empty height', () => {
     const result = calculateBmi('', '70', 'metric');
     expect(isBmiResult(result)).toBe(false);
-    expect((result as any).code).toBe('missing_height');
+    expect((result as BmiError).code).toBe('missing_height');
   });
 
   it('returns error for empty weight', () => {
     const result = calculateBmi('170', '', 'metric');
     expect(isBmiResult(result)).toBe(false);
-    expect((result as any).code).toBe('missing_weight');
+    expect((result as BmiError).code).toBe('missing_weight');
   });
 
   it('returns error for non-numeric height', () => {
@@ -185,43 +186,43 @@ describe('calculateBmi', () => {
   it('returns error for out-of-range height', () => {
     const result = calculateBmi('400', '70', 'metric');
     expect(isBmiResult(result)).toBe(false);
-    expect((result as any).code).toBe('height_out_of_range');
+    expect((result as BmiError).code).toBe('height_out_of_range');
   });
 
   it('returns error for out-of-range weight', () => {
     const result = calculateBmi('170', '2000', 'metric');
     expect(isBmiResult(result)).toBe(false);
-    expect((result as any).code).toBe('weight_out_of_range');
+    expect((result as BmiError).code).toBe('weight_out_of_range');
   });
 
   it('classifies underweight BMI', () => {
     const result = calculateBmi('175', '50', 'metric');
     expect(isBmiResult(result)).toBe(true);
-    expect((result as any).category).toBe('Underweight');
+    expect((result as BmiResult).category).toBe('Underweight');
   });
 
   it('classifies overweight BMI', () => {
     const result = calculateBmi('170', '80', 'metric');
     expect(isBmiResult(result)).toBe(true);
-    expect((result as any).category).toBe('Overweight');
+    expect((result as BmiResult).category).toBe('Overweight');
   });
 
   it('classifies obese BMI', () => {
     const result = calculateBmi('170', '100', 'metric');
     expect(isBmiResult(result)).toBe(true);
-    expect((result as any).category).toBe('Obese');
+    expect((result as BmiResult).category).toBe('Obese');
   });
 
   it('handles decimal inputs', () => {
     const result = calculateBmi('170.5', '70.3', 'metric');
     expect(isBmiResult(result)).toBe(true);
-    expect((result as any).bmi).toBeGreaterThan(0);
+    expect((result as BmiResult).bmi).toBeGreaterThan(0);
   });
 
   it('handles imperial decimal inputs', () => {
     const result = calculateBmi('67.1', '155.5', 'imperial');
     expect(isBmiResult(result)).toBe(true);
-    expect((result as any).bmi).toBeGreaterThan(0);
+    expect((result as BmiResult).bmi).toBeGreaterThan(0);
   });
 });
 

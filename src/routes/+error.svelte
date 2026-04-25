@@ -3,7 +3,7 @@
         import { goto } from '$app/navigation';
         import { resolve } from '$app/paths';
         import { t, localeVersion } from '$lib/i18n';
-        let _rv = $derived(localeVersion);
+        let _rv = $derived($localeVersion);
 
         interface Props {
                 data: { message: string; status: number };

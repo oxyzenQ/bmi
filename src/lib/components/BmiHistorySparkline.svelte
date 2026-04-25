@@ -2,7 +2,7 @@
   import { browser } from '$app/environment';
   import { TrendingUp, TrendingDown, Minus } from 'lucide-svelte';
   import { t, localeVersion } from '$lib/i18n';
-  let _rv = $derived(localeVersion);
+  let _rv = $derived($localeVersion);
 
   interface Props {
     currentBmi?: number | null;

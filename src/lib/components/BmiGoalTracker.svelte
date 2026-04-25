@@ -4,7 +4,7 @@
   import { t, localeVersion } from '$lib/i18n';
   import { STORAGE_KEYS, storageGet, storageSet, storageRemove } from '$lib/utils/storage';
 
-  let _rv = $derived(localeVersion);
+  let _rv = $derived($localeVersion);
 
   interface Props {
     currentBmi: number | null;

@@ -4,7 +4,7 @@
   import BmiHistorySparkline from './BmiHistorySparkline.svelte';
   import { COLORS, BMI_THRESHOLDS } from '$lib/utils/bmi-category';
   import { t, localeVersion } from '$lib/i18n';
-  let _rv = $derived(localeVersion);
+  let _rv = $derived($localeVersion);
 
   interface Props {
     currentBmi?: number | null;

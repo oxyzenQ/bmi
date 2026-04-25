@@ -2,9 +2,9 @@
   import { BookOpenCheck, SquareSigma, Sparkles, Telescope } from 'lucide-svelte';
   import { onMount, onDestroy } from 'svelte';
   import { t, localeVersion } from '$lib/i18n';
-  let _rv = $derived(localeVersion);
+  let _rv = $derived($localeVersion);
 
-  let animate = false;
+  let animate = $state(false);
   let rafId: number | null = null;
 
   onMount(() => {

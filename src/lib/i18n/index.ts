@@ -1,13 +1,17 @@
 /**
- * Lightweight i18n system for BMI Calculator — Svelte 5 reactive
+ * Lightweight i18n system for BMI Calculator — Svelte 5 compatible
+ *
+ * Uses writable stores for reactivity (works in plain .ts files).
+ * Svelte 5 components can use $store syntax or $derived to react.
  *
  * Usage:
- *   import { locale, t, locales, initLocale, setLocale } from '$lib/i18n';
+ *   import { t, initLocale, setLocale } from '$lib/i18n';
  *   // In Svelte templates: { t('form.age_label') }
  *   // With interpolation:  { t('results.bmi_of', { n: 25.3, category: 'Normal' }) }
  *   // Change locale: setLocale('ja')
  */
 
+import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
 import { STORAGE_KEYS, storageGet, storageSet } from '$lib/utils/storage';
 import type { Locale, LocaleInfo, TranslationDict, TParams } from './types';
@@ -29,42 +33,44 @@ const dicts: Record<string, TranslationDict> = {
   en: enDict
 };
 
-/** Current locale — reactive via Svelte 5 $state */
-let _locale: Locale = $state('en');
-
-/** Trigger a Svelte reactivity tick after locale dict loads */
-let _version = $state(0);
-
-/** Exported reactive locale getter */
-export function getLocale(): Locale { return _locale; }
+/** Current locale — reactive via Svelte writable store */
+const localeStore = writable<Locale>('en');
 
 /** Version counter — increment after locale load so components re-render */
-export function getLocaleVersion(): number { return _version; }
+const localeVersionStore = writable(0);
+
+/** Exported reactive locale getter */
+export function getLocale(): Locale { return get(localeStore); }
+
+/** Get current locale version (for $derived reactivity in components) */
+export function getLocaleVersion(): number { return get(localeVersionStore); }
 
 /** Synchronize from stored preference (call in onMount) */
 export function initLocale(): void {
   if (!browser) return;
+  let detected: Locale = 'en';
   const stored = storageGet(STORAGE_KEYS.LOCALE);
   if (stored && locales.some(l => l.code === stored)) {
-    _locale = stored as Locale;
+    detected = stored as Locale;
   } else {
     // Auto-detect from browser
     const nav = navigator.language || '';
-    if (nav.startsWith('id')) _locale = 'id';
-    else if (nav.startsWith('zh')) _locale = 'zh';
-    else if (nav.startsWith('ja')) _locale = 'ja';
-    else _locale = 'en';
-    storageSet(STORAGE_KEYS.LOCALE, _locale);
+    if (nav.startsWith('id')) detected = 'id';
+    else if (nav.startsWith('zh')) detected = 'zh';
+    else if (nav.startsWith('ja')) detected = 'ja';
+    else detected = 'en';
+    storageSet(STORAGE_KEYS.LOCALE, detected);
   }
-  if (_locale !== 'en') void loadLocale(_locale);
+  localeStore.set(detected);
+  if (detected !== 'en') void loadLocale(detected);
   if (browser) {
-    document.documentElement.lang = _locale === 'zh' ? 'zh-CN' : _locale;
+    document.documentElement.lang = detected === 'zh' ? 'zh-CN' : detected;
   }
 }
 
 /** Change locale and persist */
 export async function setLocale(code: Locale): Promise<void> {
-  _locale = code;
+  localeStore.set(code);
   if (browser) storageSet(STORAGE_KEYS.LOCALE, code);
   await loadLocale(code);
   if (browser) {
@@ -86,7 +92,7 @@ async function loadLocale(code: Locale): Promise<void> {
     }
   }
   // Bump version to trigger Svelte reactivity in components that depend on it
-  _version++;
+  localeVersionStore.update(n => n + 1);
 }
 
 /**
@@ -97,7 +103,8 @@ async function loadLocale(code: Locale): Promise<void> {
  * @returns Translated string, or the key itself if not found
  */
 export function t(key: string, params?: TParams): string {
-  const dict = dicts[_locale] ?? dicts['en'];
+  const currentLocale = get(localeStore);
+  const dict = dicts[currentLocale] ?? dicts['en'];
   let value = dict?.[key] ?? dicts['en']?.[key] ?? key;
 
   // Interpolate {param} placeholders
@@ -112,5 +119,6 @@ export function t(key: string, params?: TParams): string {
   return value;
 }
 
-// ── Svelte 5 rune exports ──
-export { _locale as locale, _version as localeVersion };
+// ── Svelte 5 reactivity exports ──
+// Components use: let _rv = $derived($localeVersion);
+export { localeStore as locale, localeVersionStore as localeVersion };

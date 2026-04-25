@@ -7,7 +7,7 @@
   import { shareBmiResult, copyToClipboard, formatBmiText } from '$lib/utils/share';
   import { shareBmiCard, downloadBmiCard } from '$lib/utils/share-image';
   import { t, localeVersion } from '$lib/i18n';
-  let _rv = $derived(localeVersion);
+  let _rv = $derived($localeVersion);
 
   interface Props {
     bmiValue?: number | null;

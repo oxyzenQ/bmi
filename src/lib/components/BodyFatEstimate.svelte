@@ -2,7 +2,7 @@
   import { Percent, Info, AlertCircle } from 'lucide-svelte';
   import { COLORS } from '$lib/utils/bmi-category';
   import { t, localeVersion } from '$lib/i18n';
-  let _rv = $derived(localeVersion);
+  let _rv = $derived($localeVersion);
 
   interface Props {
     bmi?: number | null;

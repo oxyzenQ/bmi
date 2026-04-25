@@ -1,7 +1,7 @@
 <script lang="ts">
   import { FileChartColumn, Info, AlertTriangle, CheckCircle, TrendingUp, Activity } from 'lucide-svelte';
   import { t, localeVersion } from '$lib/i18n';
-  let _rv = $derived(localeVersion);
+  let _rv = $derived($localeVersion);
 
   const bmiCategories = [
     {

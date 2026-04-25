@@ -155,7 +155,7 @@ describe('NotifyFloat', () => {
   it('hides when show becomes false', async () => {
     const { rerender } = await renderVisible();
 
-    rerender({ props: { ...defaultProps, show: false } });
+    rerender({ ...defaultProps, show: false });
 
     await act(async () => {
       vi.advanceTimersByTime(100);

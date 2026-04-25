@@ -12,7 +12,7 @@ describe('createLazyLoader (unit tests)', () => {
   it('should create a lazy loader with ensure function and component ref', () => {
     // We test the pure logic pattern without actual SvelteKit imports
     // by validating the interface contract
-    let importCallCount = 0;
+    const importCallCount = 0;
     const mockComponent = { render: vi.fn() };
 
     // Simulate the lazy-load pattern
@@ -33,6 +33,7 @@ describe('createLazyLoader (unit tests)', () => {
 
     expect(typeof ensure).toBe('function');
     expect(loaded).toBeNull();
+    void importCallCount; // referenced for interface validation only
   });
 
   it('should deduplicate concurrent calls', async () => {
@@ -127,7 +128,7 @@ describe('createPairedLazyLoader (unit tests)', () => {
         pending = Promise.all([
           Promise.resolve().then(() => { loadedA = 'A'; loadCount++; }),
           Promise.resolve().then(() => { loadedB = 'B'; loadCount++; })
-        ]).finally(() => {
+        ]).then(() => { /* noop — normalize tuple to void */ }).finally(() => {
           pending = null;
         });
       }
@@ -152,7 +153,7 @@ describe('createPairedLazyLoader (unit tests)', () => {
         pending = Promise.all([
           Promise.resolve().then(() => { loadedA = 'A'; loadCount++; }),
           Promise.resolve().then(() => { loadedB = 'B'; loadCount++; })
-        ]).finally(() => {
+        ]).then(() => { /* noop */ }).finally(() => {
           pending = null;
         });
       }
@@ -175,7 +176,7 @@ describe('createPairedLazyLoader (unit tests)', () => {
         pending = Promise.all([
           Promise.resolve().then(() => { loadedA = 'A'; loadCount++; }),
           Promise.resolve().then(() => { loadedB = 'B'; loadCount++; })
-        ]).finally(() => {
+        ]).then(() => { /* noop */ }).finally(() => {
           pending = null;
         });
       }

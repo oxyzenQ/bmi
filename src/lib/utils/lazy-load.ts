@@ -17,25 +17,24 @@
  */
 
 import { browser } from '$app/environment';
-import type { ComponentType } from 'svelte';
 
 interface LazyLoaderOptions<T> {
   /** Dynamic import function returning the module */
-  importer: () => Promise<{ default: ComponentType<T> }>;
+  importer: () => Promise<{ default: T }>;
   /** Skip loading on server (default: true) */
   ssrDisabled?: boolean;
   /**
    * Callback invoked when the component is loaded.
    * Use this to bridge the loaded component into a Svelte 5 `$state` variable.
    */
-  onLoad?: (component: ComponentType<T>) => void;
+  onLoad?: (component: T) => void;
 }
 
 interface LazyLoaderResult<T> {
   /** Triggers the import if not already loaded. Returns resolved promise. */
   ensure: () => Promise<void>;
   /** The loaded component (null until ensure() resolves) */
-  component: { value: ComponentType<T> | null };
+  component: { value: T | null };
 }
 
 /**
@@ -45,15 +44,15 @@ interface LazyLoaderResult<T> {
  * @param opts.ssrDisabled - Whether to skip on server-side rendering (default true)
  * @returns Object with `ensure()` function and reactive `component` ref
  */
-export function createLazyLoader<T = Record<string, unknown>>(
+export function createLazyLoader<T>(
   opts: LazyLoaderOptions<T>
 ): LazyLoaderResult<T> {
   const { importer, ssrDisabled = true, onLoad } = opts;
 
-  let loaded: ComponentType<T> | null = null;
+  let loaded: T | null = null;
   let pending: Promise<void> | null = null;
 
-  const ref: { value: ComponentType<T> | null } = { value: null };
+  const ref: { value: T | null } = { value: null };
 
   function ensure(): Promise<void> {
     if (ssrDisabled && !browser) return Promise.resolve();
@@ -82,22 +81,22 @@ export function createLazyLoader<T = Record<string, unknown>>(
  * Creates a paired lazy-loader that loads two components together.
  * Useful when form + results, or gauge + chart are always loaded as a pair.
  */
-export function createPairedLazyLoader<A = Record<string, unknown>, B = Record<string, unknown>>(
-  importA: () => Promise<{ default: ComponentType<A> }>,
-  importB: () => Promise<{ default: ComponentType<B> }>,
-  onLoadA?: (component: ComponentType<A>) => void,
-  onLoadB?: (component: ComponentType<B>) => void
+export function createPairedLazyLoader<A, B>(
+  importA: () => Promise<{ default: A }>,
+  importB: () => Promise<{ default: B }>,
+  onLoadA?: (component: A) => void,
+  onLoadB?: (component: B) => void
 ): {
   ensure: () => Promise<void>;
-  componentA: { value: ComponentType<A> | null };
-  componentB: { value: ComponentType<B> | null };
+  componentA: { value: A | null };
+  componentB: { value: B | null };
 } {
-  let loadedA: ComponentType<A> | null = null;
-  let loadedB: ComponentType<B> | null = null;
+  let loadedA: A | null = null;
+  let loadedB: B | null = null;
   let pending: Promise<void> | null = null;
 
-  const refA: { value: ComponentType<A> | null } = { value: null };
-  const refB: { value: ComponentType<B> | null } = { value: null };
+  const refA: { value: A | null } = { value: null };
+  const refB: { value: B | null } = { value: null };
 
   function ensure(): Promise<void> {
     if (!browser) return Promise.resolve();
