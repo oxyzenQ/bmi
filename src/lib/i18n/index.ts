@@ -71,6 +71,9 @@ export function initLocale(): void {
 /** Change locale and persist */
 export async function setLocale(code: Locale): Promise<void> {
   localeStore.set(code);
+  // Always bump version so components re-render immediately,
+  // even when the dictionary is already cached in memory.
+  localeVersionStore.update(n => n + 1);
   if (browser) storageSet(STORAGE_KEYS.LOCALE, code);
   await loadLocale(code);
   if (browser) {

@@ -11,7 +11,7 @@
   import '../styles/results.css';
   /* ── Stat grid, TDEE, radial gauge, reference table ── */
   import '../styles/data-cards.css';
-  /* ── Keyboard shortcuts, cosmic particles, footer ── */
+  /* ── Cosmic particles, footer ── */
   import '../styles/layout.css';
   /* ── Responsive breakpoints, reduced motion ── */
   import '../styles/responsive.css';
