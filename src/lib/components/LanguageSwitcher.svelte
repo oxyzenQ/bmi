@@ -2,11 +2,18 @@
   import { onMount } from 'svelte';
   import { Globe, X } from 'lucide-svelte';
   import { browser } from '$app/environment';
-  import { locales, setLocale, localeVersion, locale } from '$lib/i18n';
-  import type { Locale } from '$lib/i18n';
+  import { t as _t, locales, setLocale, localeVersion, locale } from '$lib/i18n';
+  import type { Locale, TParams } from '$lib/i18n';
 
-  // Reactive dependency on locale version so component re-renders on locale change
+  // Reactive dependency on locale version so t() re-evaluates on locale change
   let _rv = $derived($localeVersion);
+
+  // Shadow t() — reading _rv creates a reactive dependency
+  // so every template {t('key')} call re-runs when locale changes
+  function t(key: string, params?: TParams): string {
+    void _rv;
+    return _t(key, params);
+  }
 
   let open = $state(false);
   let visible = $state(false);
@@ -14,9 +21,7 @@
 
   /**
    * Svelte action: portal the element to document.body.
-   * This escapes any ancestor containing-block created by
-   * backdrop-filter / transform on ancestor elements (e.g. .pager-nav-shell).
-   * Svelte's scoped CSS still works because scope attributes are on the element.
+   * Escapes ancestor containing-block created by backdrop-filter / transform.
    */
   function portal(node: HTMLElement): { destroy(): void } {
     document.body.appendChild(node);
@@ -53,19 +58,19 @@
   // Sync visibility with open state (with animation delay)
   $effect(() => {
     if (open && mounted) {
-      const t = setTimeout(() => { visible = true; }, 30);
-      return () => clearTimeout(t);
+      const tm = setTimeout(() => { visible = true; }, 30);
+      return () => clearTimeout(tm);
     } else {
       visible = false;
     }
   });
 
-  // Reactive current locale label — uses $locale (auto-subscribe) instead of getLocale()
+  // Reactive current locale label
   let currentLabel = $derived(
     locales.find(l => l.code === $locale)?.shortLabel ?? 'EN'
   );
 </script>
-{#if _rv}{/if}
+
 <svelte:window onkeydown={handleKeydown} />
 
 <button
@@ -134,8 +139,9 @@
     font-size: 0.8rem;
   }
 
-  /* ── Backdrop (portaled to body, scoped CSS still applies) ── */
-  .lang-backdrop {
+  /* ── Portaled elements: use :global() to ensure styles apply ── */
+
+  :global(.lang-backdrop) {
     position: fixed;
     inset: 0;
     z-index: 9999;
@@ -150,13 +156,12 @@
     pointer-events: none;
   }
 
-  .lang-backdrop.visible {
+  :global(.lang-backdrop.visible) {
     opacity: 1;
     pointer-events: auto;
   }
 
-  /* ── Panel (NotifyFloat-style glassmorphism) ── */
-  .lang-panel {
+  :global(.lang-panel) {
     position: relative;
     background: var(--k-50);
     border: var(--border-by-rezky);
@@ -173,12 +178,11 @@
     outline: none;
   }
 
-  .lang-backdrop.visible .lang-panel {
+  :global(.lang-backdrop.visible .lang-panel) {
     transform: scale(1) translateY(0);
   }
 
-  /* ── Close button ── */
-  .lang-close {
+  :global(.lang-close) {
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
@@ -195,15 +199,14 @@
     transition: all 0.2s ease;
   }
 
-  .lang-close:hover {
+  :global(.lang-close:hover) {
     background: var(--w-15);
     color: white;
     transform: rotate(90deg) scale(1.1);
     border-color: var(--w-25);
   }
 
-  /* ── Panel icon ── */
-  .lang-panel-icon {
+  :global(.lang-panel-icon) {
     color: var(--cosmic-purple);
     margin-bottom: 0.75rem;
     animation: langIconPop 0.4s ease;
@@ -215,8 +218,7 @@
     100% { transform: scale(1); opacity: 1; }
   }
 
-  /* ── Panel title ── */
-  .lang-panel-title {
+  :global(.lang-panel-title) {
     font-size: 1.1rem;
     font-weight: 700;
     color: var(--w-95);
@@ -224,14 +226,13 @@
     letter-spacing: -0.01em;
   }
 
-  /* ── Options list ── */
-  .lang-options {
+  :global(.lang-options) {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
   }
 
-  .lang-option {
+  :global(.lang-option) {
     display: flex;
     align-items: center;
     gap: 0.65rem;
@@ -247,30 +248,30 @@
     text-align: left;
   }
 
-  .lang-option:hover {
+  :global(.lang-option:hover) {
     background: var(--w-6);
     color: var(--w-95);
     border-color: var(--w-10);
   }
 
-  .lang-option.active {
+  :global(.lang-option.active) {
     background: linear-gradient(135deg, color-mix(in oklab, var(--cosmic-purple) 20%, transparent), color-mix(in oklab, var(--cosmic-purple) 10%, transparent));
     color: white;
     border-color: var(--cosmic-purple);
     box-shadow: 0 0 12px color-mix(in oklab, var(--cosmic-purple) 25%, transparent);
   }
 
-  .lang-flag {
+  :global(.lang-flag) {
     font-size: 1.25rem;
     line-height: 1;
   }
 
-  .lang-name {
+  :global(.lang-name) {
     flex: 1;
     font-weight: 500;
   }
 
-  .lang-code {
+  :global(.lang-code) {
     font-size: 0.7rem;
     font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
     padding: 0.15rem 0.4rem;
@@ -279,13 +280,13 @@
     opacity: 0.6;
   }
 
-  .lang-option.active .lang-code {
+  :global(.lang-option.active .lang-code) {
     background: rgba(255, 255, 255, 0.15);
     opacity: 0.9;
   }
 
   @media (max-width: 480px) {
-    .lang-panel {
+    :global(.lang-panel) {
       min-width: 260px;
       padding: 1.5rem 1.25rem;
       border-radius: 20px;

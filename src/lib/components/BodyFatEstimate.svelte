@@ -1,8 +1,10 @@
 <script lang="ts">
   import { Percent, Info, AlertCircle } from 'lucide-svelte';
   import { COLORS } from '$lib/utils/bmi-category';
-  import { t, localeVersion } from '$lib/i18n';
+  import { t as _t, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
+  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
   interface Props {
     bmi?: number | null;
@@ -55,7 +57,6 @@
     return Math.round((100 - bodyFat) * 10) / 10;
   });
 </script>
-{#if _rv}{/if}
 <div class="gauge-container body-fat-container">
   <div class="gauge-header">
     <div class="gauge-title">

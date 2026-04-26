@@ -21,6 +21,12 @@ const id: TranslationDict = {
   'nav.theme': 'Tema :',
   'nav.space': 'Ruang Angkasa',
   'nav.energy': 'Energi',
+  'nav.welcome': 'Selamat Datang',
+  'nav.calculator': 'Kalkulator',
+  'nav.gauge': 'Gauge',
+  'nav.reference': 'Referensi',
+  'nav.about': 'Tentang',
+  'nav.info': 'Info',
 
   // ── Section tabs ──
   'tab.welcome': 'Selamat Datang',

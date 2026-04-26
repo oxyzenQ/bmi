@@ -21,6 +21,12 @@ const zh: TranslationDict = {
   'nav.theme': '\u4e3b\u9898\uff1a',
   'nav.space': '\u592a\u7a7a',
   'nav.energy': '\u80fd\u91cf',
+  'nav.welcome': '\u6b22\u8fce',
+  'nav.calculator': '\u8ba1\u7b97\u5668',
+  'nav.gauge': '\u4eea\u8868\u76d8',
+  'nav.reference': '\u53c2\u8003',
+  'nav.about': '\u5173\u4e8e',
+  'nav.info': '\u4fe1\u606f',
 
   // ── Section tabs ──
   'tab.welcome': '\u6b22\u8fce',

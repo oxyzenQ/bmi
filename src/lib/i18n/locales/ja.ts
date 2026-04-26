@@ -21,6 +21,12 @@ const ja: TranslationDict = {
   'nav.theme': '\u30c6\u30fc\u30de\uff1a',
   'nav.space': '\u30b9\u30da\u30fc\u30b9',
   'nav.energy': '\u30a8\u30cd\u30eb\u30ae\u30fc',
+  'nav.welcome': '\u30a6\u30a7\u30eb\u30ab\u30e0',
+  'nav.calculator': '\u8a08\u7b97',
+  'nav.gauge': '\u30b2\u30fc\u30b8',
+  'nav.reference': '\u53c2\u8003',
+  'nav.about': '\u3064\u3044\u3066',
+  'nav.info': '\u60c5\u5831',
 
   // ── Section tabs ──
   'tab.welcome': '\u30a6\u30a7\u30eb\u30ab\u30e0',

@@ -6,8 +6,10 @@
   import { browser } from '$app/environment';
   import { shareBmiResult, copyToClipboard, formatBmiText } from '$lib/utils/share';
   import { shareBmiCard, downloadBmiCard } from '$lib/utils/share-image';
-  import { t, localeVersion } from '$lib/i18n';
+  import { t as _t, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
+  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
   interface Props {
     bmiValue?: number | null;
@@ -272,7 +274,6 @@
     }
   }
 </script>
-{#if _rv}{/if}
 <div class="bmi-results-card {catClass}">
   <div class="card-header">
     <div class="icon-container">

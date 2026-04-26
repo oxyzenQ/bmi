@@ -87,10 +87,10 @@ export const RESULTS_TWEEN_DURATION = 720;
 
 // ── Section navigation ──
 export const SECTIONS = [
-  { id: 'welcome', label: 'Welcome' },
-  { id: 'calculator', label: 'Calculator' },
-  { id: 'gauge', label: 'Gauge' },
-  { id: 'reference', label: 'Reference' },
-  { id: 'about', label: 'About' },
-  { id: 'info', label: 'Info' },
+  { id: 'welcome', label: 'Welcome', labelKey: 'nav.welcome' },
+  { id: 'calculator', label: 'Calculator', labelKey: 'nav.calculator' },
+  { id: 'gauge', label: 'Gauge', labelKey: 'nav.gauge' },
+  { id: 'reference', label: 'Reference', labelKey: 'nav.reference' },
+  { id: 'about', label: 'About', labelKey: 'nav.about' },
+  { id: 'info', label: 'Info', labelKey: 'nav.info' },
 ] as const;

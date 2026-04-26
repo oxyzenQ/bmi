@@ -1,10 +1,12 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import { Target, Plus, Pencil, Trash2, Trophy } from 'lucide-svelte';
-  import { t, localeVersion } from '$lib/i18n';
+  import { t as _t, localeVersion } from '$lib/i18n';
   import { STORAGE_KEYS, storageGet, storageSet, storageRemove } from '$lib/utils/storage';
 
   let _rv = $derived($localeVersion);
+  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
   interface Props {
     currentBmi: number | null;
@@ -116,7 +118,6 @@
 
   loadGoal();
 </script>
-{#if _rv}{/if}
 <div class="gauge-container goal-tracker">
   <div class="gauge-header">
     <div class="gauge-title">

@@ -1,7 +1,9 @@
 <script lang="ts">
   import { FileChartColumn, Info, AlertTriangle, CheckCircle, TrendingUp, Activity } from 'lucide-svelte';
-  import { t, localeVersion } from '$lib/i18n';
+  import { t as _t, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
+  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
   const bmiCategories = [
     {
@@ -60,7 +62,6 @@
     }
   ];
 </script>
-{#if _rv}{/if}
 <div class="bmi-card reference-table">
   <div class="ref-card">
     <div class="header-icon">

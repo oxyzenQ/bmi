@@ -22,6 +22,12 @@ const en: TranslationDict = {
   'nav.theme': 'Theme :',
   'nav.space': 'Space',
   'nav.energy': 'Energy',
+  'nav.welcome': 'Welcome',
+  'nav.calculator': 'Calculator',
+  'nav.gauge': 'Gauge',
+  'nav.reference': 'Reference',
+  'nav.about': 'About',
+  'nav.info': 'Info',
 
   // ── Section tabs ──
   'tab.welcome': 'Welcome',

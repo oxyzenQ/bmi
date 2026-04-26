@@ -2,8 +2,10 @@
   import { Shield, AlertTriangle, Activity, Heart } from 'lucide-svelte';
   import { browser } from '$app/environment';
   import { CATEGORY_COLORS, COLORS, classifyBmi, getCategoryColor } from '$lib/utils/bmi-category';
-  import { t, localeVersion } from '$lib/i18n';
+  import { t as _t, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
+  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
   interface Props {
     bmi?: number | null;
@@ -82,7 +84,6 @@
   let risk = $derived(getRiskLevel(bmi, category));
   let Icon = $derived(risk.icon);
 </script>
-{#if _rv}{/if}
 <div class="gauge-container bmi-health-risk">
   <div class="gauge-header">
     <div class="gauge-title">

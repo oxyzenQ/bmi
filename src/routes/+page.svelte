@@ -13,8 +13,10 @@
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
   import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
-  import { t, initLocale, localeVersion } from '$lib/i18n';
+  import { t as _t, initLocale, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
+  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
   import {
     Lightbulb,
     Users,
@@ -811,7 +813,6 @@
   <meta name="twitter:title" content={t('meta.title')} />
   <meta name="twitter:description" content={t('meta.og_description')} />
 </svelte:head>
-{#if _rv}{/if}
 <div
   class="pager-shell"
   role="region"
@@ -837,7 +838,7 @@
           aria-current={idx === activeIndex ? 'page' : undefined}
           onclick={() => { triggerHaptic(5); goTo(idx); }}
         >
-          {section.label}
+          {t(section.labelKey)}
         </button>
       {/each}
 

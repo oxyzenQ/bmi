@@ -2,8 +2,10 @@
         import { page } from '$app/state';
         import { goto } from '$app/navigation';
         import { resolve } from '$app/paths';
-        import { t, localeVersion } from '$lib/i18n';
+        import { t as _t, localeVersion } from '$lib/i18n';
         let _rv = $derived($localeVersion);
+        // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+        function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
         interface Props {
                 data: { message: string; status: number };
@@ -35,7 +37,6 @@
         <title>{statusText} — BMI Calculator</title>
         <meta name="robots" content="noindex" />
 </svelte:head>
-{#if _rv}{/if}
 <div class="error-shell">
         <div class="error-container">
                 <div class="error-visual">

@@ -7,8 +7,10 @@
   import { getPerformanceTier, prefersReducedMotion } from '$lib/utils/performance';
   import { CATEGORY_COLORS, COLORS, BMI_THRESHOLDS, classifyBmi, getCategoryColor, clampBmiForDisplay, bmiToPercent } from '$lib/utils/bmi-category';
   import { GAUGE } from '$lib/utils/animation-config';
-  import { t, localeVersion } from '$lib/i18n';
+  import { t as _t, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
+  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
   interface Props {
     bmi?: number;
@@ -187,7 +189,6 @@
   let progressStart = $derived(appliedBmi > 0 ? appliedColor : 'var(--cat-slate-30)');
   let progressEnd = $derived(appliedBmi > 0 ? lighten(appliedColor, 0.25) : 'var(--cat-slate-30-light)');
 </script>
-{#if _rv}{/if}
 <div class="gauge-container">
   <div class="gauge-header">
     <div class="gauge-title">
