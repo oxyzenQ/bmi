@@ -26,8 +26,11 @@
     setTimeout(() => { open = false; }, 200);
   }
 
-  function handleBackdropClick() {
-    closePanel();
+  function handleBackdropClick(e: MouseEvent) {
+    // Only close if clicking the backdrop itself, not the panel
+    if (e.target === e.currentTarget) {
+      closePanel();
+    }
   }
 
   function handleKeydown(e: KeyboardEvent) {

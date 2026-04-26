@@ -430,54 +430,6 @@
     );
   }
 
-  function handleKeydown(event: KeyboardEvent) {
-    if (isEditableTarget(event.target)) return;
-
-    // C-4: Number keys 1-6 for section navigation
-    const numKey = parseInt(event.key);
-    if (numKey >= 1 && numKey <= sections.length) {
-      event.preventDefault();
-      goTo(numKey - 1);
-      triggerHaptic(5);
-      return;
-    }
-
-    // C-4: T = toggle wallpaper theme
-    if (event.key === 't' || event.key === 'T') {
-      event.preventDefault();
-      toggleWallpaperTheme();
-      triggerHaptic(5);
-      return;
-    }
-
-    // C-4: R = reset/clear all data (requires shift for safety)
-    if (event.key === 'R' && event.shiftKey) {
-      event.preventDefault();
-      confirmClearData();
-      return;
-    }
-
-    // C-4: S = toggle smooth mode
-    if (event.key === 's' || event.key === 'S') {
-      if (!event.shiftKey) {
-        event.preventDefault();
-        toggleSmoothMode();
-        triggerHaptic(5);
-        return;
-      }
-    }
-
-    // Arrow key navigation (existing)
-    if (event.key === 'ArrowLeft') {
-      event.preventDefault();
-      prevSection();
-    }
-    if (event.key === 'ArrowRight') {
-      event.preventDefault();
-      nextSection();
-    }
-  }
-
   function handlePointerDown(event: PointerEvent) {
     if (event.pointerType === 'touch') return;
     const target = event.target as HTMLElement | null;
@@ -701,7 +653,6 @@
     window.addEventListener('storage', onStorage);
 
     window.addEventListener('hashchange', onHashChange);
-    window.addEventListener('keydown', handleKeydown, { passive: true });
 
     const onResize = () => schedulePagerNavAlignment();
     window.addEventListener('resize', onResize, { passive: true });
@@ -752,7 +703,6 @@
     return () => {
       motionQuery.removeEventListener('change', onMotionChange);
       window.removeEventListener('hashchange', onHashChange);
-      window.removeEventListener('keydown', handleKeydown);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('storage', onStorage);
       document.removeEventListener('scroll', onScroll, { capture: true });

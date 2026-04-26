@@ -347,6 +347,7 @@
 
   .goal-actions {
     display: flex;
+    justify-content: center;
     gap: 0.5rem;
   }
 
@@ -370,6 +371,7 @@
   .goal-set {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 0.4rem;
   }
 
@@ -384,6 +386,7 @@
 
   .goal-input-row {
     display: flex;
+    justify-content: center;
     gap: 0.5rem;
   }
 
