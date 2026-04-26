@@ -168,7 +168,7 @@
     'btn-delete'
   );
 </script>
-
+{#if _rv}{/if}
 {#if show}
   {#key notifyKey}
   <div

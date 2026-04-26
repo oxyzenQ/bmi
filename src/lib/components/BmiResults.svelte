@@ -272,7 +272,7 @@
     }
   }
 </script>
-
+{#if _rv}{/if}
 <div class="bmi-results-card {catClass}">
   <div class="card-header">
     <div class="icon-container">

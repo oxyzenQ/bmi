@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { Globe, X } from 'lucide-svelte';
   import { browser } from '$app/environment';
-  import { locales, getLocale, setLocale, localeVersion } from '$lib/i18n';
+  import { locales, setLocale, localeVersion, locale } from '$lib/i18n';
   import type { Locale } from '$lib/i18n';
 
   // Reactive dependency on locale version so component re-renders on locale change
@@ -15,9 +15,8 @@
   /**
    * Svelte action: portal the element to document.body.
    * This escapes any ancestor containing-block created by
-   * backdrop-filter / transform (e.g. .pager-nav-shell).
-   * Scoped CSS still applies because Svelte adds scope
-   * attributes directly on the element.
+   * backdrop-filter / transform on ancestor elements (e.g. .pager-nav-shell).
+   * Svelte's scoped CSS still works because scope attributes are on the element.
    */
   function portal(node: HTMLElement): { destroy(): void } {
     document.body.appendChild(node);
@@ -42,12 +41,6 @@
     setTimeout(() => { open = false; }, 200);
   }
 
-  function handleBackdropClick(e: MouseEvent) {
-    if (e.target === e.currentTarget) {
-      closePanel();
-    }
-  }
-
   function handleKeydown(e: KeyboardEvent) {
     if (e.key === 'Escape') {
       e.preventDefault();
@@ -67,12 +60,12 @@
     }
   });
 
-  // Get the current locale label for the button
+  // Reactive current locale label — uses $locale (auto-subscribe) instead of getLocale()
   let currentLabel = $derived(
-    locales.find(l => l.code === getLocale())?.shortLabel ?? 'EN'
+    locales.find(l => l.code === $locale)?.shortLabel ?? 'EN'
   );
 </script>
-
+{#if _rv}{/if}
 <svelte:window onkeydown={handleKeydown} />
 
 <button
@@ -92,7 +85,6 @@
     class="lang-backdrop"
     class:visible={visible}
     role="presentation"
-    onclick={handleBackdropClick}
   >
     <div
       class="lang-panel"
@@ -120,7 +112,7 @@
           <button
             type="button"
             class="lang-option"
-            class:active={getLocale() === loc.code}
+            class:active={$locale === loc.code}
             role="menuitem"
             onclick={() => handleSelect(loc.code)}
           >
@@ -142,8 +134,8 @@
     font-size: 0.8rem;
   }
 
-  /* ── Backdrop (positioned relative to viewport via portal) ── */
-  :global(.lang-backdrop) {
+  /* ── Backdrop (portaled to body, scoped CSS still applies) ── */
+  .lang-backdrop {
     position: fixed;
     inset: 0;
     z-index: 9999;
@@ -158,13 +150,13 @@
     pointer-events: none;
   }
 
-  :global(.lang-backdrop.visible) {
+  .lang-backdrop.visible {
     opacity: 1;
     pointer-events: auto;
   }
 
   /* ── Panel (NotifyFloat-style glassmorphism) ── */
-  :global(.lang-panel) {
+  .lang-panel {
     position: relative;
     background: var(--k-50);
     border: var(--border-by-rezky);
@@ -181,12 +173,12 @@
     outline: none;
   }
 
-  :global(.lang-backdrop.visible .lang-panel) {
+  .lang-backdrop.visible .lang-panel {
     transform: scale(1) translateY(0);
   }
 
   /* ── Close button ── */
-  :global(.lang-close) {
+  .lang-close {
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
@@ -203,7 +195,7 @@
     transition: all 0.2s ease;
   }
 
-  :global(.lang-close:hover) {
+  .lang-close:hover {
     background: var(--w-15);
     color: white;
     transform: rotate(90deg) scale(1.1);
@@ -211,7 +203,7 @@
   }
 
   /* ── Panel icon ── */
-  :global(.lang-panel-icon) {
+  .lang-panel-icon {
     color: var(--cosmic-purple);
     margin-bottom: 0.75rem;
     animation: langIconPop 0.4s ease;
@@ -224,7 +216,7 @@
   }
 
   /* ── Panel title ── */
-  :global(.lang-panel-title) {
+  .lang-panel-title {
     font-size: 1.1rem;
     font-weight: 700;
     color: var(--w-95);
@@ -233,13 +225,13 @@
   }
 
   /* ── Options list ── */
-  :global(.lang-options) {
+  .lang-options {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
   }
 
-  :global(.lang-option) {
+  .lang-option {
     display: flex;
     align-items: center;
     gap: 0.65rem;
@@ -255,30 +247,30 @@
     text-align: left;
   }
 
-  :global(.lang-option:hover) {
+  .lang-option:hover {
     background: var(--w-6);
     color: var(--w-95);
     border-color: var(--w-10);
   }
 
-  :global(.lang-option.active) {
+  .lang-option.active {
     background: linear-gradient(135deg, color-mix(in oklab, var(--cosmic-purple) 20%, transparent), color-mix(in oklab, var(--cosmic-purple) 10%, transparent));
     color: white;
     border-color: var(--cosmic-purple);
     box-shadow: 0 0 12px color-mix(in oklab, var(--cosmic-purple) 25%, transparent);
   }
 
-  :global(.lang-flag) {
+  .lang-flag {
     font-size: 1.25rem;
     line-height: 1;
   }
 
-  :global(.lang-name) {
+  .lang-name {
     flex: 1;
     font-weight: 500;
   }
 
-  :global(.lang-code) {
+  .lang-code {
     font-size: 0.7rem;
     font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
     padding: 0.15rem 0.4rem;
@@ -287,13 +279,13 @@
     opacity: 0.6;
   }
 
-  :global(.lang-option.active .lang-code) {
+  .lang-option.active .lang-code {
     background: rgba(255, 255, 255, 0.15);
     opacity: 0.9;
   }
 
   @media (max-width: 480px) {
-    :global(.lang-panel) {
+    .lang-panel {
       min-width: 260px;
       padding: 1.5rem 1.25rem;
       border-radius: 20px;

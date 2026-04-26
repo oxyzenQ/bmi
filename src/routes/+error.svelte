@@ -35,7 +35,7 @@
         <title>{statusText} — BMI Calculator</title>
         <meta name="robots" content="noindex" />
 </svelte:head>
-
+{#if _rv}{/if}
 <div class="error-shell">
         <div class="error-container">
                 <div class="error-visual">

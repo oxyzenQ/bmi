@@ -205,7 +205,7 @@
     return chartData.points[hoveredIndex] ?? null;
   });
 </script>
-
+{#if _rv}{/if}
 {#if chartData}
   <div class="sparkline-container interactive">
     <div class="sparkline-header">

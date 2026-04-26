@@ -811,7 +811,7 @@
   <meta name="twitter:title" content={t('meta.title')} />
   <meta name="twitter:description" content={t('meta.og_description')} />
 </svelte:head>
-
+{#if _rv}{/if}
 <div
   class="pager-shell"
   role="region"

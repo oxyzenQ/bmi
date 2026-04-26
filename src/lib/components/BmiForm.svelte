@@ -215,7 +215,7 @@
     input.value = '';
   }
 </script>
-
+{#if _rv}{/if}
 <div class="form-inner">
   <div class="card-header">
     <div class="icon-container">

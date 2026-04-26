@@ -118,7 +118,7 @@
     return 'status-obese';
   }
 </script>
-
+{#if _rv}{/if}
 <div class="gauge-container bmi-snapshot">
   <div class="gauge-header">
     <div class="gauge-title">

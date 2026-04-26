@@ -82,7 +82,7 @@
   let risk = $derived(getRiskLevel(bmi, category));
   let Icon = $derived(risk.icon);
 </script>
-
+{#if _rv}{/if}
 <div class="gauge-container bmi-health-risk">
   <div class="gauge-header">
     <div class="gauge-title">

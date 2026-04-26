@@ -116,7 +116,7 @@
 
   loadGoal();
 </script>
-
+{#if _rv}{/if}
 <div class="gauge-container goal-tracker">
   <div class="gauge-header">
     <div class="gauge-title">

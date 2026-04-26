@@ -49,15 +49,16 @@
 
   const categoryColors = CATEGORY_COLORS;
 
-  const categoryScale = [
-    { label: t('gauge.underweight'), color: categoryColors['Underweight'], min: 0, max: 18.5 },
-    { label: t('gauge.normal'), color: categoryColors['Normal Weight'], min: 18.5, max: 25.0 },
-    { label: t('gauge.overweight'), color: categoryColors['Overweight'], min: 25.0, max: 30.0 },
-    { label: t('gauge.obese'), color: categoryColors['Obese'], min: 30.0, max: 40.0 }
-  ];
+  // Reactive scale — re-evaluates t() when locale changes (via _rv)
+  let categoryScale = $derived([
+    { key: 'Underweight', label: t('gauge.underweight'), color: categoryColors['Underweight'], min: 0, max: 18.5 },
+    { key: 'Normal Weight', label: t('gauge.normal'), color: categoryColors['Normal Weight'], min: 18.5, max: 25.0 },
+    { key: 'Overweight', label: t('gauge.overweight'), color: categoryColors['Overweight'], min: 25.0, max: 30.0 },
+    { key: 'Obese', label: t('gauge.obese'), color: categoryColors['Obese'], min: 30.0, max: 40.0 }
+  ]);
 
-  function getScaleClass(label: string): string {
-    switch (label) {
+  function getScaleClass(key: string): string {
+    switch (key) {
       case 'Underweight': return 'sc-underweight';
       case 'Normal Weight': return 'sc-normal';
       case 'Overweight': return 'sc-overweight';
@@ -155,7 +156,20 @@
   });
 
   let bmiDisplayValue = $derived(appliedBmi > 0 ? $displayBmi.toFixed(2) : '—');
-  let categoryDisplayText = $derived(appliedCategory ?? 'N/A');
+  // Map English category → i18n key for display translation
+  const CATEGORY_I18N_KEYS: Record<string, string> = {
+    'Underweight': 'gauge.underweight',
+    'Normal Weight': 'gauge.normal',
+    'Overweight': 'gauge.overweight',
+    'Obese': 'gauge.obese',
+  };
+
+  // Translate category for display (appliedCategory is always English)
+  let categoryDisplayText = $derived(
+    appliedCategory
+      ? t(CATEGORY_I18N_KEYS[appliedCategory] ?? 'gauge.normal')
+      : 'N/A'
+  );
 
   // Gradient helpers
   function lighten(hex: string, amount = 0.35) {
@@ -173,7 +187,7 @@
   let progressStart = $derived(appliedBmi > 0 ? appliedColor : 'var(--cat-slate-30)');
   let progressEnd = $derived(appliedBmi > 0 ? lighten(appliedColor, 0.25) : 'var(--cat-slate-30-light)');
 </script>
-
+{#if _rv}{/if}
 <div class="gauge-container">
   <div class="gauge-header">
     <div class="gauge-title">
@@ -272,8 +286,8 @@
     <div class="gauge-reflection" aria-hidden="true"></div>
 
     <div class="scale-indicators">
-      {#each categoryScale as sc (sc.label)}
-        <div class="scale-item {getScaleClass(sc.label)}">
+      {#each categoryScale as sc (sc.key)}
+        <div class="scale-item {getScaleClass(sc.key)}">
           <div class="scale-dot"></div>
           <span class="scale-label">{sc.label}</span>
           <span class="scale-range">{sc.min} - {sc.max}</span>

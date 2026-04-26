@@ -60,7 +60,7 @@
     }
   ];
 </script>
-
+{#if _rv}{/if}
 <div class="bmi-card reference-table">
   <div class="ref-card">
     <div class="header-icon">

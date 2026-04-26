@@ -9,14 +9,13 @@
  * defined in tokens.css (e.g., --cat-green-30).
  */
 
-import { t } from '$lib/i18n';
-
-// ── BMI Categories ──
+// ── BMI Categories (English keys — language-independent)
+// Display translation is handled at the component level via t('gauge.*')
 export const BMI_CATEGORIES = {
-  UNDERWEIGHT: t('category.underweight'),
-  NORMAL_WEIGHT: t('category.normal'),
-  OVERWEIGHT: t('category.overweight'),
-  OBESE: t('category.obese'),
+  UNDERWEIGHT: 'Underweight',
+  NORMAL_WEIGHT: 'Normal Weight',
+  OVERWEIGHT: 'Overweight',
+  OBESE: 'Obese',
 } as const;
 
 export type BmiCategory = (typeof BMI_CATEGORIES)[keyof typeof BMI_CATEGORIES];

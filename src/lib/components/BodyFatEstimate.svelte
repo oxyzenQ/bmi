@@ -55,7 +55,7 @@
     return Math.round((100 - bodyFat) * 10) / 10;
   });
 </script>
-
+{#if _rv}{/if}
 <div class="gauge-container body-fat-container">
   <div class="gauge-header">
     <div class="gauge-title">
