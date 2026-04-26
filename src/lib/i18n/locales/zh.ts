@@ -352,16 +352,6 @@ const zh: TranslationDict = {
 
   // ── Language Switcher ──
   'lang.aria': '\u5207\u6362\u8bed\u8a00',
-
-  // ── Keyboard Shortcuts Help ──
-  'shortcuts.title': '\u952e\u76d8\u5feb\u6377\u952e',
-  'shortcuts.sections': '\u5bfc\u822a\u5230\u5206\u9875 (1-6)',
-  'shortcuts.arrows': '\u4e0a\u4e00\u9875 / \u4e0b\u4e00\u9875',
-  'shortcuts.s': '\u5207\u6362\u6e32\u67d3\u6a21\u5f0f',
-  'shortcuts.t': '\u5207\u6362\u58c1\u7eb8\u4e3b\u9898',
-  'shortcuts.shift_r': '\u91cd\u7f6e / \u6e05\u9664\u6240\u6709\u6570\u636e',
-  'shortcuts.question': '\u5207\u6362\u6b64\u5e2e\u52a9',
-  'shortcuts.esc': '\u5173\u95ed\u5f39\u7a97',
 };
 
 export default zh;

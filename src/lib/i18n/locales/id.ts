@@ -352,16 +352,6 @@ const id: TranslationDict = {
 
   // ── Language Switcher ──
   'lang.aria': 'Ganti bahasa',
-
-  // ── Keyboard Shortcuts Help ──
-  'shortcuts.title': 'Pintasan Keyboard',
-  'shortcuts.sections': 'Navigasi ke bagian (1-6)',
-  'shortcuts.arrows': 'Bagian sebelumnya / selanjutnya',
-  'shortcuts.s': 'Toggle mode render',
-  'shortcuts.t': 'Toggle tema wallpaper',
-  'shortcuts.shift_r': 'Reset / Hapus semua data',
-  'shortcuts.question': 'Toggle bantuan ini',
-  'shortcuts.esc': 'Tutup overlay',
 };
 
 export default id;

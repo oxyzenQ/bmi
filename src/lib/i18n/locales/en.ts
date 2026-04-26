@@ -353,16 +353,6 @@ const en: TranslationDict = {
 
   // ── Language Switcher ──
   'lang.aria': 'Switch language',
-
-  // ── Keyboard Shortcuts Help ──
-  'shortcuts.title': 'Keyboard Shortcuts',
-  'shortcuts.sections': 'Navigate to section (1-6)',
-  'shortcuts.arrows': 'Previous / Next section',
-  'shortcuts.s': 'Toggle render mode',
-  'shortcuts.t': 'Toggle wallpaper theme',
-  'shortcuts.shift_r': 'Reset / Clear all data',
-  'shortcuts.question': 'Toggle this help',
-  'shortcuts.esc': 'Close overlay',
 };
 
 export default en;

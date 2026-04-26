@@ -437,6 +437,7 @@
   isolation: isolate;
   width: min(92vw, 420px);
   margin-inline: auto;
+  margin-top: clamp(24px, 3vh, 48px);
   margin-bottom: 100px;
 }
 

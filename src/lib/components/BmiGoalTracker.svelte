@@ -117,16 +117,13 @@
   loadGoal();
 </script>
 
-<div class="goal-tracker">
-  <div class="goal-header">
-    <div class="goal-icon-wrap">
-      <Target size={18} aria-hidden="true" />
-      <div class="icon-glow"></div>
-    </div>
-    <div>
+<div class="gauge-container goal-tracker">
+  <div class="gauge-header">
+    <div class="gauge-title">
+      <Target class="Gauge" aria-hidden="true" />
       <h3>{t('goal.title')}</h3>
-      <p class="goal-subtitle">{t('goal.subtitle')}</p>
     </div>
+    <div class="gauge-subtitle">{t('goal.subtitle')}</div>
   </div>
 
   {#if hasGoal}
@@ -252,60 +249,8 @@
 
 <style>
   .goal-tracker {
-    background: var(--k-50);
-    border: var(--border-by-rezky);
-    border-radius: 2rem;
-    padding: 1.25rem;
-    box-shadow:
-      0 8px 32px var(--k-40),
-      inset 0 1px 0 var(--w-8),
-      0 0 20px color-mix(in oklab, var(--cosmic-purple) 16%, transparent);
-    transition: transform var(--dur-slow) var(--easing-smooth),
-    box-shadow var(--dur-slow) var(--easing-smooth),
-    border-color var(--dur-slow) var(--easing-smooth);
-  }
-
-  .goal-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  }
-
-  .goal-icon-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--cosmic-purple), #8b5cf6);
-    color: white;
-    flex-shrink: 0;
-  }
-
-  .icon-glow {
-    position: absolute;
-    inset: -3px;
-    border-radius: 50%;
-    background: var(--cosmic-purple);
-    opacity: 0.25;
-    filter: blur(6px);
-    z-index: -1;
-  }
-
-  .goal-header h3 {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--w-90);
-  }
-
-  .goal-subtitle {
-    margin: 0.15rem 0 0;
-    font-size: 0.75rem;
-    color: var(--text-muted);
+    padding: 1rem 1rem 1.5rem;
+    margin-bottom: clamp(60px, 30vh, 180px) !important;
   }
 
   .goal-content {
