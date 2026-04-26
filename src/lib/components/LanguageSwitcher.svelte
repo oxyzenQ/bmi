@@ -197,6 +197,7 @@
     color: var(--w-80);
     cursor: pointer;
     transition: all 0.2s ease;
+    z-index: 10;
   }
 
   :global(.lang-close:hover) {
@@ -207,6 +208,9 @@
   }
 
   :global(.lang-panel-icon) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     color: var(--cosmic-purple);
     margin-bottom: 0.75rem;
     animation: langIconPop 0.4s ease;

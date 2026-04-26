@@ -358,6 +358,27 @@ const id: TranslationDict = {
 
   // ── Language Switcher ──
   'lang.aria': 'Ganti bahasa',
+
+  // ── About Section ──
+  'about.title': 'Tentang BMI',
+  'about.subtitle': 'Memahami Indeks Massa Tubuh dan aplikasi kami',
+  'about.what_is_title': 'Apa itu BMI?',
+  'about.what_is_p1': 'Indeks Massa Tubuh (BMI) adalah indeks sederhana berat\u2011terhadap\u2011tinggi: berat (kg) dibagi kuadrat tinggi (m). Ini adalah alat skrining cepat tingkat populasi untuk mengukur potensi risiko kesehatan.',
+  'about.what_is_p2': 'Rentang dewasa: <em>Kurus</em> (< 18,5), <em>Normal</em> (18,5\u201324,9), <em>Gemuk</em> (25,0\u201329,9), <em>Obesitas</em> (\u2265 30).',
+  'about.what_is_p3': 'Keterbatasan: BMI tidak membedakan lemak vs otot atau distribusi lemak. Gunakan bersama lingkar pinggang, persentase lemak tubuh, faktor gaya hidup, dan penilaian klinis.',
+  'about.app_title': 'Tentang Aplikasi BMI Kami',
+  'about.app_desc': 'Aplikasi BMI kami memiliki desain modern dan bersih, dikembangkan oleh <strong>Team LOGIGO</strong>. Tim ini termasuk Rezky (Project Lead), Fiqih (Menu Design), Agus (Competitor Research), Virlan (Login Functionality), Andre (Graph dan BMI Calculation Functions), dan Ferdian (Website Testing). Terima kasih atas dukungannya!',
+  'about.version': 'Versi',
+  'about.branch': 'Cabang',
+  'about.type_apps': 'Tipe Aplikasi',
+  'about.status': 'Status',
+  'about.license': 'Lisensi',
+  'about.open_source': 'Proyek Open Source',
+  'about.maintenance': 'Pemeliharaan',
+
+  // ── Info Section ──
+  'info.disclaimer': 'BMI adalah alat skrining dan tidak boleh digunakan sebagai satu-satunya metode diagnostik. Silakan berkonsultasi dengan profesional kesehatan untuk penilaian kesehatan yang komprehensif.',
+  'info.copyright': '\u00a9 2025-{n} Rezky Nightky. Semua hak dilindungi.',
 };
 
 export default id;

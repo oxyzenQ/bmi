@@ -830,45 +830,47 @@
       class:centered={pagerNavCentered}
       aria-label={t('nav.sections_aria')}
     >
-      {#each sections as section, idx (section.id)}
+      {#key $localeVersion}
+        {#each sections as section, idx (section.id)}
+          <button
+            type="button"
+            class="btn btn-ghost pager-tab"
+            class:active={idx === activeIndex}
+            aria-current={idx === activeIndex ? 'page' : undefined}
+            onclick={() => { triggerHaptic(5); goTo(idx); }}
+          >
+            {t(section.labelKey)}
+          </button>
+        {/each}
+
         <button
           type="button"
-          class="btn btn-ghost pager-tab"
-          class:active={idx === activeIndex}
-          aria-current={idx === activeIndex ? 'page' : undefined}
-          onclick={() => { triggerHaptic(5); goTo(idx); }}
+          class="btn btn-ghost pager-tab pager-smooth"
+          aria-label={t('nav.render_aria')}
+          aria-pressed={smoothModeRequested}
+          onclick={toggleSmoothMode}
         >
-          {t(section.labelKey)}
+          <Bot class="render-spark" aria-hidden="true" />
+          {t('nav.render')}
+          <span class:render-on={smoothModeRequested} class:render-off={!smoothModeRequested}>
+            {smoothModeStatus}
+          </span>
         </button>
-      {/each}
 
-      <button
-        type="button"
-        class="btn btn-ghost pager-tab pager-smooth"
-        aria-label={t('nav.render_aria')}
-        aria-pressed={smoothModeRequested}
-        onclick={toggleSmoothMode}
-      >
-        <Bot class="render-spark" aria-hidden="true" />
-        {t('nav.render')}
-        <span class:render-on={smoothModeRequested} class:render-off={!smoothModeRequested}>
-          {smoothModeStatus}
-        </span>
-      </button>
-
-      <button
-        type="button"
-        class="btn btn-ghost pager-tab pager-theme"
-        aria-label={t('nav.theme_aria')}
-        aria-pressed={currentTheme === 'energy'}
-        onclick={toggleWallpaperTheme}
-      >
-        <Sparkles class="render-spark" aria-hidden="true" />
-        {t('nav.theme')}
-        <span class:theme-energy={currentTheme === 'energy'} class:theme-space={currentTheme === 'space'}>
-          {themeLabel}
-        </span>
-      </button>
+        <button
+          type="button"
+          class="btn btn-ghost pager-tab pager-theme"
+          aria-label={t('nav.theme_aria')}
+          aria-pressed={currentTheme === 'energy'}
+          onclick={toggleWallpaperTheme}
+        >
+          <Sparkles class="render-spark" aria-hidden="true" />
+          {t('nav.theme')}
+          <span class:theme-energy={currentTheme === 'energy'} class:theme-space={currentTheme === 'space'}>
+            {themeLabel}
+          </span>
+        </button>
+      {/key}
 
       <LanguageSwitcher />
     </nav>
@@ -1075,12 +1077,13 @@
         {/if}
 
         {#if activeIndex === 4}
+          {#key $localeVersion}
           <!-- About BMI Section -->
           <section class="about-bmi-section">
             <div class="main-container">
               <div class="section-header-v2">
-                <h2 class="title">About BMI</h2>
-                <p class="subtitle">Understanding Body Mass Index and our application</p>
+                <h2 class="title">{t('about.title')}</h2>
+                <p class="subtitle">{t('about.subtitle')}</p>
               </div>
 
               <div class="about-bmi-grid">
@@ -1088,20 +1091,17 @@
                 <div class="about-card">
                   <div class="about-card-header">
                     <Lightbulb class="Lightbulb" />
-                    <h3>What is BMI?</h3>
+                    <h3>{t('about.what_is_title')}</h3>
                   </div>
                   <div class="about-card-content">
                     <p>
-                      Body Mass Index (BMI) is a simple weight‑for‑height index: weight (kg) divided by height (m) squared.
-                      It’s a quick population‑level screening tool to gauge potential health risk.
+                      {@html t('about.what_is_p1')}
                     </p>
                     <p>
-                      Adult ranges: <em>Underweight</em> (&lt; 18.5), <em>Normal</em> (18.5–24.9), <em>Overweight</em> (25.0–29.9),
-                      <em>Obese</em> (≥ 30).
+                      {@html t('about.what_is_p2')}
                     </p>
                     <p>
-                      Limitations: BMI doesn’t distinguish fat vs muscle or fat distribution. Use it alongside waist circumference,
-                      body‑fat %, lifestyle factors, and clinical assessment.
+                      {@html t('about.what_is_p3')}
                     </p>
                   </div>
                 </div>
@@ -1110,35 +1110,32 @@
                 <div class="about-card">
                   <div class="about-card-header">
                     <Users class="Users" />
-                    <h3>About Our BMI App</h3>
+                    <h3>{t('about.app_title')}</h3>
                   </div>
                   <div class="about-card-content">
                     <p>
-                      Our BMI app features a modern and clean design, developed by <strong>Team LOGIGO</strong>.
-                      The team includes Rezky (Project Lead), Fiqih (Menu Design), Agus (Competitor Research),
-                      Virlan (Login Functionality), Andre (Graph and BMI Calculation Functions), and Ferdian (Website Testing).
-                      Thank you for your support!
+                      {@html t('about.app_desc')}
                     </p>
                     <div class="app-info">
                       <p class="info-row">
                         <PackageCheck class="PackageCheck" />
-                        <strong>Version:</strong>Stellar-10.5 <span class="commit-id">({gitCommitId})</span>
+                        <strong>{t('about.version')}:</strong>Stellar-10.5 <span class="commit-id">({gitCommitId})</span>
                       </p>
                       <p class="info-row">
                         <GitBranch class="GitBranch" />
-                        <strong>Branch:</strong>{gitBranch}
+                        <strong>{t('about.branch')}:</strong>{gitBranch}
                       </p>
                       <p class="info-row">
                         <GitCompare class="GitCompare" />
-                        <strong>Type Apps:</strong><span class="text-gradient-elegant">Open Source Project</span>
+                        <strong>{t('about.type_apps')}:</strong><span class="text-gradient-elegant">{t('about.open_source')}</span>
                       </p>
                       <p class="info-row">
                         <Wrench class="Wrench" />
-                        <strong>Status:</strong>Maintenance
+                        <strong>{t('about.status')}:</strong>{t('about.maintenance')}
                       </p>
                       <p class="info-row">
                         <Scale class="Scale" />
-                        <strong>License:</strong>GPL v3
+                        <strong>{t('about.license')}:</strong>GPL v3
                       </p>
                     </div>
                   </div>
@@ -1147,17 +1144,18 @@
 
             </div>
           </section>
+          {/key}
         {/if}
 
         {#if activeIndex === 5}
+          {#key $localeVersion}
           <div class="main-container">
             <footer class="footer-disclaimer">
               <div class="disclaimer-icon">
                 <AlertTriangle class="AlertTriangle" />
               </div>
               <p>
-                BMI is a screening tool and should not be used as a sole diagnostic method.
-                Please consult healthcare professionals for comprehensive health assessment.
+                {t('info.disclaimer')}
               </p>
             </footer>
 
@@ -1169,11 +1167,12 @@
                 class="github-link"
               >
                 <span>
-                  &copy; 2025-{currentYear} Rezky Nightky. All rights reserved.
+                  {t('info.copyright', { n: currentYear })}
                 </span>
               </a>
             </div>
           </div>
+          {/key}
         {/if}
       </section>
     {/key}

@@ -359,6 +359,27 @@ const en: TranslationDict = {
 
   // ── Language Switcher ──
   'lang.aria': 'Switch language',
+
+  // ── About Section ──
+  'about.title': 'About BMI',
+  'about.subtitle': 'Understanding Body Mass Index and our application',
+  'about.what_is_title': 'What is BMI?',
+  'about.what_is_p1': 'Body Mass Index (BMI) is a simple weight\u2011for\u2011height index: weight (kg) divided by height (m) squared. It\u2019s a quick population\u2011level screening tool to gauge potential health risk.',
+  'about.what_is_p2': 'Adult ranges: <em>Underweight</em> (< 18.5), <em>Normal</em> (18.5\u201324.9), <em>Overweight</em> (25.0\u201329.9), <em>Obese</em> (\u2265 30).',
+  'about.what_is_p3': 'Limitations: BMI doesn\u2019t distinguish fat vs muscle or fat distribution. Use it alongside waist circumference, body\u2011fat %, lifestyle factors, and clinical assessment.',
+  'about.app_title': 'About Our BMI App',
+  'about.app_desc': 'Our BMI app features a modern and clean design, developed by <strong>Team LOGIGO</strong>. The team includes Rezky (Project Lead), Fiqih (Menu Design), Agus (Competitor Research), Virlan (Login Functionality), Andre (Graph and BMI Calculation Functions), and Ferdian (Website Testing). Thank you for your support!',
+  'about.version': 'Version',
+  'about.branch': 'Branch',
+  'about.type_apps': 'Type Apps',
+  'about.status': 'Status',
+  'about.license': 'License',
+  'about.open_source': 'Open Source Project',
+  'about.maintenance': 'Maintenance',
+
+  // ── Info Section ──
+  'info.disclaimer': 'BMI is a screening tool and should not be used as a sole diagnostic method. Please consult healthcare professionals for comprehensive health assessment.',
+  'info.copyright': '\u00a9 2025-{n} Rezky Nightky. All rights reserved.',
 };
 
 export default en;
