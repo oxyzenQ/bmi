@@ -28,8 +28,7 @@
     Sparkles,
     ChevronLeft,
     ChevronRight,
-    ChevronUp,
-    Keyboard
+    ChevronUp
   } from 'lucide-svelte';
   type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
   type BmiResultsComponentType = typeof import('$lib/components/BmiResults.svelte').default;
@@ -167,12 +166,7 @@
   let pageDestroyed = $state(false);
   let showScrollTopFab = $state(false);
 
-  // Keyboard shortcut help overlay
-  let showShortcutHelp = $state(false);
 
-  function stopPanelPropagation(e: MouseEvent) {
-    e.stopPropagation();
-  }
 
   function broadcastSmoothMode(enabled: boolean) {
     if (!browser) return;
@@ -452,14 +446,6 @@
     if (event.key === 't' || event.key === 'T') {
       event.preventDefault();
       toggleWallpaperTheme();
-      triggerHaptic(5);
-      return;
-    }
-
-    // C-4: ? = toggle keyboard shortcut help
-    if (event.key === '?') {
-      event.preventDefault();
-      showShortcutHelp = !showShortcutHelp;
       triggerHaptic(5);
       return;
     }
@@ -1208,39 +1194,6 @@
                 </div>
               </div>
 
-              <!-- C-4: Keyboard Shortcuts Card -->
-              <div class="about-card" style="margin-top:1.5rem; margin-bottom: clamp(80px, 10vh, 120px);">
-                <div class="about-card-header">
-                  <Keyboard class="Keyboard" />
-                  <h3>Keyboard Shortcuts</h3>
-                </div>
-                <div class="about-card-content">
-                  <div class="shortcuts-grid">
-                    <div class="shortcut-row">
-                      <div class="shortcut-keys">
-                        <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd><kbd>5</kbd><kbd>6</kbd>
-                      </div>
-                      <span class="shortcut-desc">Navigate to section</span>
-                    </div>
-                    <div class="shortcut-row">
-                      <div class="shortcut-keys"><kbd>T</kbd></div>
-                      <span class="shortcut-desc">Toggle wallpaper theme</span>
-                    </div>
-                    <div class="shortcut-row">
-                      <div class="shortcut-keys"><kbd>S</kbd></div>
-                      <span class="shortcut-desc">Toggle smooth mode</span>
-                    </div>
-                    <div class="shortcut-row">
-                      <div class="shortcut-keys"><kbd>Shift</kbd>+<kbd>R</kbd></div>
-                      <span class="shortcut-desc">Reset / clear all data</span>
-                    </div>
-                    <div class="shortcut-row">
-                      <div class="shortcut-keys"><kbd>&larr;</kbd><kbd>&rarr;</kbd></div>
-                      <span class="shortcut-desc">Previous / next section</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </section>
         {/if}
@@ -1292,15 +1245,6 @@
 
       <button
         type="button"
-        class="pager-btn-futuristic pager-btn-help"
-        aria-label="Keyboard shortcuts"
-        onclick={() => { showShortcutHelp = !showShortcutHelp; triggerHaptic(5); }}
-      >
-        <Keyboard aria-hidden="true" size={24} />
-      </button>
-
-      <button
-        type="button"
         class="pager-btn-futuristic pager-btn-scroll-top"
         class:fab-visible={showScrollTopFab}
         aria-label="Scroll to top"
@@ -1324,51 +1268,6 @@
     </div>
   </div>
 
-  <!-- Keyboard Shortcut Help Overlay -->
-  {#if showShortcutHelp}
-    <div class="shortcut-help-backdrop" role="presentation" onclick={() => { showShortcutHelp = false; }} onkeydown={(e) => { if (e.key === 'Escape') showShortcutHelp = false; }}>
-      <div class="shortcut-help-panel" role="dialog" aria-label="Keyboard shortcuts" tabindex="-1" onclick={stopPanelPropagation} onkeydown={(e) => { if (e.key === 'Escape') showShortcutHelp = false; }}>
-        <button class="shortcut-help-close" onclick={() => { showShortcutHelp = false; }} aria-label="Close shortcuts">
-          &times;
-        </button>
-        <h3 class="shortcut-help-title">Keyboard Shortcuts</h3>
-        <div class="shortcut-help-list">
-          {#each sections as section, idx (section.id)}
-            <div class="shortcut-help-row">
-              <kbd>{idx + 1}</kbd>
-              <span>{section.label}</span>
-            </div>
-          {/each}
-          <div class="shortcut-help-divider" aria-hidden="true"></div>
-          <div class="shortcut-help-row">
-            <kbd>&larr;</kbd><kbd>&rarr;</kbd>
-            <span>Prev / Next section</span>
-          </div>
-          <div class="shortcut-help-row">
-            <kbd>S</kbd>
-            <span>Toggle render mode</span>
-          </div>
-          <div class="shortcut-help-row">
-            <kbd>T</kbd>
-            <span>Toggle wallpaper theme</span>
-          </div>
-          <div class="shortcut-help-row">
-            <kbd>Shift</kbd>+<kbd>R</kbd>
-            <span>Reset / clear all data</span>
-          </div>
-          <div class="shortcut-help-row">
-            <kbd>?</kbd>
-            <span>Toggle this help</span>
-          </div>
-          <div class="shortcut-help-row">
-            <kbd>Esc</kbd>
-            <span>Close dialogs</span>
-          </div>
-        </div>
-        <p class="shortcut-help-note">Shortcuts are disabled when typing in form fields.</p>
-      </div>
-    </div>
-  {/if}
 </div>
 
 {#if showNotify}
@@ -1691,143 +1590,6 @@
     .pager-btn-spacer {
       width: 50px;
       height: 50px;
-    }
-  }
-  /* ── Keyboard Shortcut Help Overlay ── */
-  .pager-btn-help {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--w-15);
-    background: var(--w-8);
-    color: var(--w-70);
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  .pager-btn-help:hover {
-    background: var(--w-15);
-    color: var(--w-95);
-    transform: scale(1.1);
-  }
-  .pager-btn-help:focus-visible {
-    outline: 2px solid var(--cosmic-purple);
-    outline-offset: 2px;
-  }
-
-  .shortcut-help-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    animation: fadeIn 0.15s ease;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  .shortcut-help-panel {
-    background: var(--k-50);
-    border: 1px solid var(--w-15);
-    border-radius: 20px;
-    padding: 1.75rem 2rem;
-    min-width: 320px;
-    max-width: 90vw;
-    max-height: 80vh;
-    overflow-y: auto;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-    position: relative;
-  }
-
-  .shortcut-help-close {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background: var(--w-10);
-    border: 1px solid var(--w-15);
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--w-80);
-    font-size: 1.25rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    line-height: 1;
-  }
-  .shortcut-help-close:hover {
-    background: var(--w-15);
-    color: var(--w-95);
-  }
-
-  .shortcut-help-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--w-95);
-    margin: 0 0 1rem;
-    text-align: center;
-    letter-spacing: -0.01em;
-  }
-
-  .shortcut-help-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .shortcut-help-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    color: var(--w-80);
-    font-size: 0.875rem;
-  }
-
-  .shortcut-help-row kbd {
-    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 0.2rem 0.45rem;
-    border-radius: 6px;
-    background: var(--w-10);
-    border: 1px solid var(--w-20);
-    color: var(--w-95);
-    white-space: nowrap;
-  }
-
-  .shortcut-help-row span {
-    color: var(--w-60);
-    font-size: 0.8rem;
-  }
-
-  .shortcut-help-divider {
-    height: 1px;
-    background: var(--w-10);
-    margin: 0.35rem 0;
-  }
-
-  .shortcut-help-note {
-    font-size: 0.7rem;
-    color: var(--w-40);
-    margin: 0.75rem 0 0;
-    text-align: center;
-  }
-
-  @media (max-width: 480px) {
-    .shortcut-help-panel {
-      min-width: 280px;
-      padding: 1.5rem;
     }
   }
 </style>

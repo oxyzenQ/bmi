@@ -935,20 +935,6 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
     font-size: 1rem;
   }
 
-  .shortcuts-grid {
-    gap: 0.5rem;
-  }
-
-  .shortcut-keys kbd {
-    min-width: 24px;
-    height: 24px;
-    font-size: 0.6rem;
-  }
-
-  .shortcut-desc {
-    font-size: 0.78rem;
-  }
-
   /* Prime bar compact */
   .prime-bar-track {
     height: 5px;

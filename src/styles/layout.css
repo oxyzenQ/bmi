@@ -1,4 +1,4 @@
-/* ── layout.css — Keyboard shortcuts modal, cosmic particles, footer, misc utility classes ── */
+/* ── layout.css — Cosmic particles, footer, misc utility classes ── */
 /* ==============================
       ABOUT BMI SECTION
   ============================== */
@@ -102,51 +102,6 @@
 
 .about-card p:last-child {
   margin-bottom: 0;
-}
-
-/* ==============================
-      KEYBOARD SHORTCUTS (C-4)
-      ============================== */
-.shortcuts-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.shortcut-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.shortcut-keys {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  flex-shrink: 0;
-}
-
-.shortcut-keys kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 28px;
-  height: 28px;
-  padding: 0 6px;
-  border-radius: 6px;
-  border: 1px solid var(--w-18);
-  background: linear-gradient(180deg, var(--w-10), var(--w-4));
-  color: var(--w-90);
-  font-family: 'JetBrains Mono Variable', monospace;
-  font-size: 0.7rem;
-  font-weight: 600;
-  line-height: 1;
-  box-shadow: 0 2px 0 var(--k-30);
-}
-
-.shortcut-desc {
-  color: var(--w-70);
-  font-size: 0.875rem;
 }
 
 /* ==============================

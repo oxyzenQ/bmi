@@ -230,7 +230,7 @@
     <div class="sparkline-chart interactive-chart">
       <svg
         viewBox="0 0 {CHART_WIDTH} {CHART_HEIGHT}"
-        preserveAspectRatio="xMidYMid slice"
+        preserveAspectRatio="xMidYMid meet"
         class="sparkline-svg"
         role="img"
         aria-label={t('sparkline.aria')}

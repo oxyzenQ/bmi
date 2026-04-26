@@ -1,12 +1,22 @@
 <script lang="ts">
+  import { tick } from 'svelte';
   import { Globe } from 'lucide-svelte';
+  import { browser } from '$app/environment';
   import { locales, getLocale, setLocale } from '$lib/i18n';
   import type { Locale } from '$lib/i18n';
 
   let open = $state(false);
+  let dropdownEl: HTMLDivElement | null = $state(null);
+  let btnEl: HTMLButtonElement | null = $state(null);
+  let dropdownStyle = $state('');
 
-  function handleToggle() {
+  async function handleToggle() {
     open = !open;
+    if (open) {
+      await tick();
+      positionDropdown();
+      dropdownEl?.focus();
+    }
   }
 
   async function handleSelect(code: Locale) {
@@ -14,52 +24,80 @@
     open = false;
   }
 
-  function handleClickOutside(e: MouseEvent) {
-    const target = e.target as HTMLElement;
-    if (!target.closest('.lang-switcher')) {
+  function positionDropdown() {
+    if (!browser || !btnEl || !dropdownEl) return;
+    const rect = btnEl.getBoundingClientRect();
+    const ddWidth = 170;
+    let top = rect.bottom + 8;
+    let left = rect.right - ddWidth;
+
+    // Keep within viewport
+    if (left < 8) left = 8;
+    if (left + ddWidth > window.innerWidth - 8) {
+      left = window.innerWidth - ddWidth - 8;
+    }
+    // If dropdown would go below viewport, show above the button
+    if (top + 200 > window.innerHeight) {
+      top = rect.top - 200 - 8;
+      if (top < 8) top = 8;
+    }
+    dropdownStyle = `top:${top}px;left:${left}px;`;
+  }
+
+  function handleBackdropClick(e: MouseEvent) {
+    if (!open) return;
+    if (!dropdownEl?.contains(e.target as Node) && !btnEl?.contains(e.target as Node)) {
       open = false;
+    }
+  }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      open = false;
+      btnEl?.focus();
     }
   }
 </script>
 
-<svelte:window onclick={handleClickOutside} />
+<button
+  type="button"
+  bind:this={btnEl}
+  class="btn btn-ghost pager-tab lang-btn"
+  aria-label="Switch language"
+  aria-expanded={open}
+  onclick={handleToggle}
+>
+  <Globe size={14} aria-hidden="true" />
+  {locales.find(l => l.code === getLocale())?.shortLabel ?? 'EN'}
+</button>
 
-<div class="lang-switcher">
-  <button
-    type="button"
-    class="btn btn-ghost pager-tab lang-btn"
-    aria-label="Switch language"
-    onclick={handleToggle}
+{#if open}
+  <div
+    bind:this={dropdownEl}
+    class="lang-dropdown"
+    role="menu"
+    tabindex="-1"
+    style={dropdownStyle}
+    onkeydown={handleKeydown}
   >
-    <Globe size={14} aria-hidden="true" />
-    {locales.find(l => l.code === getLocale())?.shortLabel ?? 'EN'}
-  </button>
-
-  {#if open}
-    <div class="lang-dropdown" role="menu">
-      {#each locales as loc (loc.code)}
-        <button
-          type="button"
-          class="lang-option"
-          class:active={getLocale() === loc.code}
-          role="menuitem"
-          onclick={() => handleSelect(loc.code)}
-        >
-          <span class="lang-flag">{loc.flag}</span>
-          <span class="lang-name">{loc.label}</span>
-          <span class="lang-code">{loc.shortLabel}</span>
-        </button>
-      {/each}
-    </div>
-  {/if}
-</div>
+    {#each locales as loc (loc.code)}
+      <button
+        type="button"
+        class="lang-option"
+        class:active={getLocale() === loc.code}
+        role="menuitem"
+        onclick={() => handleSelect(loc.code)}
+      >
+        <span class="lang-flag">{loc.flag}</span>
+        <span class="lang-name">{loc.label}</span>
+        <span class="lang-code">{loc.shortLabel}</span>
+      </button>
+    {/each}
+  </div>
+{/if}
+<svelte:window onclick={handleBackdropClick} />
 
 <style>
-  .lang-switcher {
-    position: relative;
-    display: inline-flex;
-  }
-
   .lang-btn {
     display: inline-flex;
     align-items: center;
@@ -68,10 +106,8 @@
   }
 
   .lang-dropdown {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    right: 0;
-    z-index: 100;
+    position: fixed;
+    z-index: 10000;
     min-width: 160px;
     background: var(--sd-80);
     backdrop-filter: blur(16px);
@@ -81,6 +117,7 @@
     padding: 0.35rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     animation: langFadeIn 0.15s ease-out;
+    outline: none;
   }
 
   @keyframes langFadeIn {

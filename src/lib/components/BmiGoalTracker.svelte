@@ -252,11 +252,17 @@
 
 <style>
   .goal-tracker {
-    background: var(--sd-55);
-    border: 1px solid var(--w-8);
-    border-radius: 1rem;
+    background: var(--k-50);
+    border: var(--border-by-rezky);
+    border-radius: 2rem;
     padding: 1.25rem;
-    backdrop-filter: blur(12px);
+    box-shadow:
+      0 8px 32px var(--k-40),
+      inset 0 1px 0 var(--w-8),
+      0 0 20px color-mix(in oklab, var(--cosmic-purple) 16%, transparent);
+    transition: transform var(--dur-slow) var(--easing-smooth),
+    box-shadow var(--dur-slow) var(--easing-smooth),
+    border-color var(--dur-slow) var(--easing-smooth);
   }
 
   .goal-header {

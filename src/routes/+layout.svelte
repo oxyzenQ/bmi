@@ -226,6 +226,10 @@
   {@render children()}
 </div>
 
+{#if renderModeEnabled}
+  <CosmicParticles />
+{/if}
+
 <!-- PWA Install Banner -->
 {#if showInstallBanner && canInstall && !isInstalled}
   <div class="pwa-install-bar" transition:fade={{ duration: 250 }}>
