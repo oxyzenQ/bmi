@@ -1086,14 +1086,17 @@ p,
    Touch: optimizations are PERMANENTLY applied (no per-frame class toggling)
    ============================== */
 
-/* ── Universal: pause particles during scroll (all modes) ──
+/* ── Pause particles during scroll ONLY in render OFF mode ──
    Cosmic particles are the #1 GPU bottleneck (10-20 particles × filter + animation).
-   Pause them during scroll regardless of render mode. */
-body.is-scrolling :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star) {
+   In render ON mode, particles must keep animating — user explicitly wants
+   the rain effect to run continuously, including during page swipes. */
+html:not([data-graphics='render']) body.is-scrolling :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star) {
   animation-play-state: paused !important;
 }
 
-body.is-switching :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star) {
+/* Pause particles during page transition ONLY in render OFF mode.
+   In render ON mode, rain continues seamlessly during swipe. */
+html:not([data-graphics='render']) body.is-switching :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star) {
   animation-play-state: paused !important;
 }
 
@@ -1392,12 +1395,12 @@ body:not(.is-scrolling) .cosmic-particle {
      backdrop-filter blur(24px) is too expensive on mobile GPUs.
      On touch devices, is-scrolling class is NEVER toggled (see +page.svelte),
      so we must set navbar bg permanently rather than toggling it.
-     Luxury void-tinted background for cohesive glassmorphism. */
+     Elegant purple-tinted background for cohesive glassmorphism. */
   .pager-nav-shell,
   .pager-controls-shell {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
-    background: rgba(2, 6, 23, 0.92) !important;
+    background: rgba(10, 2, 28, 0.94) !important;
     box-shadow: none !important;
     contain: layout style;
   }
@@ -1423,12 +1426,12 @@ body:not(.is-scrolling) .cosmic-particle {
     -webkit-backdrop-filter: none !important;
   }
 
-  /* T-GLASS: Luxury black glassmorphism for touch devices.
+  /* T-GLASS: Elegant purple glassmorphism for touch devices.
      Since body::after gradient overlay was removed (T-1b) for perf,
      the wallpaper shows brighter, making default rgba(0,0,0,0.5) cards
-     look too transparent. Compensate with deeper void-tinted background.
-     Uses deep-void blue (2,6,23) for rich, luxurious dark glass feel
-     instead of plain black — subtle cosmic tint preserves the space aesthetic.
+     look too transparent. Compensate with deep elegant purple tint.
+     Uses (10, 2, 28) — rich dark violet that echoes the cosmic-purple
+     brand color while keeping a luxurious, premium glass feel.
      Inset top highlight maintains the glass edge light reflection. */
   .bmi-card,
   .footer-disclaimer,
@@ -1443,7 +1446,7 @@ body:not(.is-scrolling) .cosmic-particle {
   .lang-panel,
   .notify-float-box,
   .lang-backdrop {
-    background: rgba(2, 6, 23, 0.75) !important;
+    background: rgba(10, 2, 28, 0.78) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     box-shadow:
       0 4px 16px rgba(0, 0, 0, 0.4),
@@ -1473,11 +1476,15 @@ body:not(.is-scrolling) .cosmic-particle {
     text-rendering: optimizeSpeed;
   }
 
-  /* T-19: Force GPU compositing isolation on pager-shell. */
+  /* T-19: GPU compositing isolation on pager-shell.
+     Changed from contain:strict to contain:layout style —
+     strict includes 'size' containment which forces the browser
+     to compute bounds independently, causing initial-scroll lag
+     ("first touch lag then smooth") on long scrollable containers.
+     Removed translateZ(0) since contain already creates a
+     compositing context — double-layering was redundant. */
   .pager-shell {
-    contain: strict;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
+    contain: layout style;
   }
 }
 
