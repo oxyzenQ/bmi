@@ -1,0 +1,201 @@
+/* ── lang-switcher.css — Language switcher floating panel (portaled to body) ── */
+/* These styles are global because the panel is portaled to document.body
+   via use:portal action, escaping Svelte's scoped CSS. */
+
+/* ── Backdrop overlay ── */
+.lang-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.lang-backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Panel container ── */
+.lang-panel {
+  position: relative;
+  background: var(--k-50);
+  border: var(--border-by-rezky);
+  border-radius: 24px;
+  padding: 2rem 1.75rem;
+  min-width: 280px;
+  max-width: 90vw;
+  text-align: center;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: 0 25px 50px -12px var(--k-50);
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  outline: none;
+}
+
+.lang-backdrop.visible .lang-panel {
+  transform: scale(1) translateY(0);
+}
+
+/* ── Close (X) button — reset all global button styles ── */
+.lang-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 32px;
+  height: 32px;
+  padding: 0 !important;
+  margin: 0;
+  border-radius: 50%;
+  border: 1px solid var(--w-20);
+  background: var(--w-10);
+  color: var(--w-80);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.2s ease;
+  /* Reset global button styles */
+  font: inherit;
+  box-shadow: none;
+  gap: 0;
+  overflow: hidden;
+}
+
+.lang-close:hover {
+  background: var(--w-15);
+  color: white;
+  transform: rotate(90deg) scale(1.1);
+  border-color: var(--w-25);
+}
+
+.lang-close:active {
+  transform: rotate(90deg) scale(0.95);
+  transition-duration: 80ms;
+}
+
+.lang-close svg {
+  width: 16px !important;
+  height: 16px !important;
+  display: block;
+}
+
+/* ── Globe icon ── */
+.lang-panel-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--cosmic-purple);
+  margin-bottom: 0.75rem;
+  animation: langIconPop 0.4s ease;
+}
+
+.lang-panel-icon svg {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+@keyframes langIconPop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Panel title ── */
+.lang-panel-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--w-95);
+  margin: 0 0 1.25rem;
+  letter-spacing: -0.01em;
+}
+
+/* ── Options list ── */
+.lang-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+/* ── Individual option button — reset global button styles ── */
+.lang-option {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--w-60);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  /* Reset global button styles */
+  height: auto;
+  padding-inline: 0.75rem;
+  font: inherit;
+  box-shadow: none;
+}
+
+.lang-option:hover {
+  background: var(--w-6);
+  color: var(--w-95);
+  border-color: var(--w-10);
+}
+
+.lang-option.active {
+  background: linear-gradient(135deg, color-mix(in oklab, var(--cosmic-purple) 20%, transparent), color-mix(in oklab, var(--cosmic-purple) 10%, transparent));
+  color: white;
+  border-color: var(--cosmic-purple);
+  box-shadow: 0 0 12px color-mix(in oklab, var(--cosmic-purple) 25%, transparent);
+}
+
+.lang-option:active {
+  transform: scale(0.98);
+  transition-duration: 80ms;
+}
+
+/* ── Option inner elements ── */
+.lang-flag {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.lang-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.lang-code {
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  background: var(--w-6);
+  opacity: 0.6;
+}
+
+.lang-option.active .lang-code {
+  background: rgba(255, 255, 255, 0.15);
+  opacity: 0.9;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .lang-panel {
+    min-width: 260px;
+    padding: 1.5rem 1.25rem;
+    border-radius: 20px;
+  }
+}

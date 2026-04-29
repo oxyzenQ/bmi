@@ -250,7 +250,7 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 0.85rem;
-  border-radius: 10px;
+  border-radius: var(--btn-radius);
   border: 1px solid color-mix(in oklab, var(--aurora-core) 22%, var(--w-14));
   background: var(--bg-by-rezky);
   color: white;

@@ -17,6 +17,8 @@
   import '../styles/responsive.css';
   /* ── Pager / bottom navbar ── */
   import '../styles/nav.css';
+  /* ── Language switcher floating panel (portaled to body) ── */
+  import '../styles/lang-switcher.css';
   /* ── Skeleton loading, shooting stars, haptic feedback ── */
   import '../styles/animation.css';
   import CosmicParticles from '$lib/components/CosmicParticles.svelte';

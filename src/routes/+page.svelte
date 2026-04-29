@@ -1376,7 +1376,7 @@
     height: 36px;
     padding-inline: 0.85rem;
     font-size: 0.88rem;
-    border-radius: 9999px;
+    border-radius: var(--btn-radius);
     white-space: nowrap;
     opacity: 0.7;
     flex: 0 0 auto;
