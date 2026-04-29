@@ -163,7 +163,6 @@
 *:focus {
   outline: 2px solid color-mix(in oklab, var(--aurora-core) 42%, transparent);
   outline-offset: 2px;
-  border-radius: 0.25rem;
 }
 
 /* ==============================
