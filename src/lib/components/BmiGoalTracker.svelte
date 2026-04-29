@@ -15,11 +15,10 @@
   let { currentBmi }: Props = $props();
 
   let goalBmi = $state<number | null>(null);
+  let startBmi = $state<number | null>(null);
   let editMode = $state(false);
   let inputValue = $state('');
 
-  const BMI_IDEAL_MIN = 18.5;
-  const BMI_IDEAL_MAX = 24.9;
   const BMI_LIMIT_MIN = 10;
   const BMI_LIMIT_MAX = 50;
 
@@ -31,26 +30,43 @@
       if (!isNaN(parsed) && parsed >= BMI_LIMIT_MIN && parsed <= BMI_LIMIT_MAX) {
         goalBmi = parsed;
         inputValue = String(parsed);
+        // Load start BMI
+        const startStored = storageGet(STORAGE_KEYS.BMI_GOAL_START);
+        if (startStored) {
+          const startParsed = parseFloat(startStored);
+          if (!isNaN(startParsed) && startParsed >= BMI_LIMIT_MIN && startParsed <= BMI_LIMIT_MAX) {
+            startBmi = startParsed;
+          }
+        }
         return;
       }
     }
     goalBmi = null;
+    startBmi = null;
     inputValue = '';
   }
 
   function saveGoal(value: number): void {
     if (!browser) return;
+    const isNewGoal = goalBmi === null;
     goalBmi = value;
     inputValue = String(value);
     storageSet(STORAGE_KEYS.BMI_GOAL, String(value));
+    // Set start BMI only on first goal creation (not on updates)
+    if (isNewGoal && currentBmi !== null && currentBmi > 0) {
+      startBmi = currentBmi;
+      storageSet(STORAGE_KEYS.BMI_GOAL_START, String(currentBmi));
+    }
     editMode = false;
   }
 
   function removeGoal(): void {
     if (!browser) return;
     goalBmi = null;
+    startBmi = null;
     inputValue = '';
     storageRemove(STORAGE_KEYS.BMI_GOAL);
+    storageRemove(STORAGE_KEYS.BMI_GOAL_START);
     editMode = false;
   }
 
@@ -101,20 +117,43 @@
   let needToLose = $derived(
     hasGoal && hasBmi && (currentBmi ?? 0) > (goalBmi ?? 0)
   );
+
+  // Progress: measured from startBmi toward goalBmi
+  // Formula: |currentBmi - startBmi| / |goalBmi - startBmi| * 100
+  // This gives 0% when currentBmi == startBmi (no progress yet)
+  // and 100% when currentBmi == goalBmi (goal reached)
   let progressPercent = $derived(() => {
     if (!hasGoal || !hasBmi || goalBmi === null || currentBmi === null) return 0;
     if (isAchieved) return 100;
-    const startRange = 40; // Max possible distance
-    const clamped = Math.min(diff ?? 0, startRange);
-    return Math.max(0, Math.min(100, Math.round((1 - clamped / startRange) * 100)));
+    if (startBmi === null || startBmi === 0) return 0;
+
+    const totalDistance = Math.abs(startBmi - goalBmi);
+    if (totalDistance <= 0) return 100; // start == goal, already there
+
+    const traveledDistance = Math.abs(startBmi - currentBmi);
+    // Progress: how far we've come from start toward goal
+    let progress: number;
+    if (needToLose) {
+      // Losing weight: start > goal, progress increases as current decreases
+      progress = (startBmi - currentBmi) / (startBmi - goalBmi);
+    } else {
+      // Gaining weight: start < goal, progress increases as current increases
+      progress = (currentBmi - startBmi) / (goalBmi - startBmi);
+    }
+    // If user overshot the goal (went past it), cap at a minimum showing over-achievement
+    return Math.max(0, Math.min(100, Math.round(progress * 100)));
   });
+
   let progressColor = $derived(() => {
-    if (isAchieved) return 'var(--green-50)';
+    if (isAchieved) return 'var(--cat-green-90)';
     const p = progressPercent();
-    if (p >= 70) return 'var(--green-50)';
-    if (p >= 40) return 'var(--yellow-50)';
-    return 'var(--red-50)';
+    if (p >= 70) return 'var(--cat-green-90)';
+    if (p >= 40) return 'var(--cat-yellow-40)';
+    return 'var(--cat-red-90)';
   });
+
+  // Whether we have meaningful progress data (startBmi exists and differs from currentBmi)
+  let hasProgressData = $derived(startBmi !== null && startBmi !== 0 && hasBmi);
 
   loadGoal();
 </script>
@@ -139,6 +178,10 @@
 
       <div class="goal-stats">
         <div class="goal-stat">
+          <span class="stat-label">{t('goal.start_bmi')}</span>
+          <span class="stat-value">{startBmi !== null ? startBmi.toFixed(1) : '—'}</span>
+        </div>
+        <div class="goal-stat">
           <span class="stat-label">{t('goal.current_bmi')}</span>
           <span class="stat-value">{hasBmi ? currentBmi?.toFixed(1) : '—'}</span>
         </div>
@@ -157,7 +200,7 @@
       {#if !isAchieved && diff !== null}
         <div class="goal-progress">
           <div class="progress-header">
-            <span>{t('goal.progress')}</span>
+            <span>{t('goal.progress_from_start')}</span>
             <span>{progressPercent()}%</span>
           </div>
           <div class="progress-bar">
@@ -268,14 +311,14 @@
     border-radius: 0.6rem;
     background: rgba(34, 197, 94, 0.1);
     border: 1px solid rgba(34, 197, 94, 0.2);
-    color: var(--green-40);
+    color: var(--cat-green-40);
     font-size: 0.85rem;
     font-weight: 600;
   }
 
   .goal-stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
   }
 
@@ -336,6 +379,7 @@
   .progress-fill {
     height: 100%;
     border-radius: 9999px;
+    min-width: 0;
     transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s;
   }
 
