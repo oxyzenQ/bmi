@@ -90,3 +90,19 @@ Stage Summary:
 - Committed as e00a8ca on dev branch
 - Pushed to origin/dev
 - Key files: lang-switcher.css (new), LanguageSwitcher.svelte, +layout.svelte, +page.svelte, results.css
+---
+Task ID: 4
+Agent: Main Agent
+Task: Fix bug 9 — round button corners, lang switcher navbar style match
+
+Work Log:
+- Changed `--btn-radius` token from 14px to 10px for softer rounded corners on all standard buttons
+- Restored `.pager-tab` border-radius to `9999px` (pill shape) — correct for compact navbar tab buttons
+- Confirmed lang switcher button already uses identical classes as other navbar buttons (btn btn-ghost pager-tab)
+- Action buttons (copy/save/share) now inherit 10px radius via `var(--btn-radius)`
+- All verification passed: check (0 errors, 0 warnings), lint, test:run (162 tests), build
+
+Stage Summary:
+- Committed as d3aa8bc on dev branch
+- Pushed to origin/dev
+- Key files: tokens.css, +page.svelte
