@@ -183,9 +183,9 @@ html[data-performance-tier="medium"] .cosmic-particles {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  border: 1px solid color-mix(in oklab, var(--aurora-core) 50%, var(--w-20));
+  border: 1px solid var(--w-14);
   background: var(--w-6);
-  color: var(--w-85);
+  color: var(--w-55);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -202,15 +202,15 @@ html[data-performance-tier="medium"] .cosmic-particles {
 }
 
 .pager-btn-futuristic:hover {
-  background: color-mix(in oklab, var(--aurora-core) 18%, var(--w-10));
-  border-color: color-mix(in oklab, var(--aurora-core) 60%, transparent);
-  color: var(--stellar-white);
+  background: var(--w-10);
+  border-color: var(--w-20);
+  color: var(--w-75);
   transform: translateY(-1px);
 }
 
 .pager-btn-futuristic:active {
   transform: translateY(0) scale(0.96);
-  background: color-mix(in oklab, var(--aurora-core) 24%, var(--w-8));
+  background: var(--w-8);
 }
 
 .pager-btn-futuristic::before {
