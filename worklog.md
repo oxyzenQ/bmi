@@ -70,3 +70,23 @@ Stage Summary:
 - Committed as 8445f6e on dev branch
 - Pushed to origin/dev
 - Key files: LanguageSwitcher.svelte, +page.svelte, en.ts, id.ts, zh.ts, ja.ts
+---
+Task ID: 3
+Agent: Main Agent
+Task: Fix bug 8 — X icon, button corners, lang switcher style alignment
+
+Work Log:
+- Diagnosed X icon invisible root cause (4th attempt): global `button` styles set `padding-inline: 18px` which `.lang-close` never reset, squeezing the SVG out of view
+- Also identified that `:global()` CSS in Svelte 5 scoped `<style>` blocks may not reliably apply to portaled elements (3 prior attempts all failed)
+- Solution: moved ALL portaled panel styles from `:global()` in LanguageSwitcher.svelte to new global CSS file `src/styles/lang-switcher.css`, imported in +layout.svelte
+- Added `padding: 0 !important` and full reset of global button styles on `.lang-close` (font, box-shadow, gap, overflow)
+- Added explicit SVG sizing `.lang-close svg { width: 16px !important; height: 16px !important; }` for guaranteed icon rendering
+- Removed `.lang-btn` class from LanguageSwitcher trigger button — now uses same `btn btn-ghost pager-tab` as all other navbar buttons
+- Changed `.pager-tab` border-radius from `9999px` (pill) to `var(--btn-radius)` (14px cornered)
+- Changed `.action-btn` border-radius from `10px` to `var(--btn-radius)` (14px cornered)
+- All verification passed: check (0 errors, 0 warnings), lint, test:run (162 tests), build
+
+Stage Summary:
+- Committed as e00a8ca on dev branch
+- Pushed to origin/dev
+- Key files: lang-switcher.css (new), LanguageSwitcher.svelte, +layout.svelte, +page.svelte, results.css
