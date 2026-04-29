@@ -148,3 +148,26 @@ Stage Summary:
 - Committed as 9a5258e on dev branch
 - Pushed to origin/dev
 - Key files: nav.css, responsive.css, +page.svelte, NotifyFloat.svelte
+---
+Task ID: 7
+Agent: Main Agent
+Task: Enhancements 2, clean BMI logic, deep responsive design improvements
+
+Work Log:
+- Analyzed BMI calculation logic across all components (bmi-calculator.ts, bmi-category.ts, BmiResults.svelte, BmiSnapshot.svelte)
+- Identified ideal weight range inconsistency: idealMax used 24.9 but classification threshold was < 25.0, causing BMI 24.95 to show 'Normal Weight' but 'above ideal range'
+- Fixed idealMax from 24.9 to 25.0 in BmiResults.svelte for consistency
+- Identified BmiSnapshot progress calculation used absolute extremes (BMI 1-50), making ideal BMI (22) show only ~57% progress instead of 100%
+- Fixed progress calculation to use meaningful category bounds (12-45), now ideal BMI correctly shows ~100%
+- Comprehensive responsive design audit across all components
+- Converted 5 icon groups from fixed pixel sizes to fluid clamp() sizing
+- Added responsive scaling for: body fat value (3rem → 1.25rem), snapshot card values (2.5rem → 1rem), risk marker (40px → 20px)
+- Added 360px breakpoint overrides for: composition bars, bf-ranges, goal tracker stats
+- Added comprehensive 300px breakpoint for: all gauge components, sparkline, reference table, TDEE, scale indicators
+- Added new 250px extreme-narrow breakpoint for: form/results cards, gauge, about card
+- All verification passed: check (0 errors, 0 warnings), lint, test:run (162 tests), build
+
+Stage Summary:
+- Committed as 409219d on dev branch
+- Pushed to origin/dev
+- Key files: BmiResults.svelte, BmiSnapshot.svelte, responsive.css
