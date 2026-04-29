@@ -150,13 +150,22 @@
   height: 24px !important;
 }
 
-/* icon about */
+/* icon about — brand accent */
 .GitBranch,
 .PackageCheck,
 .GitCompare,
-.Wrench,
 .Scale {
   color: var(--cosmic-purple);
+}
+
+/* Status: trust signal → green (semantic) */
+.ShieldCheck {
+  color: var(--cat-green-90);
+}
+
+/* Maintenance: activity signal → grey */
+.Activity {
+  color: var(--text-muted);
 }
 
 /* Focus styles for accessibility */
