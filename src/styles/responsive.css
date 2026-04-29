@@ -1314,13 +1314,21 @@ body:not(.is-scrolling) .cosmic-particle {
 
   /* T-3: Permanently simplify box-shadow on glass cards.
      color-mix() in box-shadow is expensive on low-end GPUs.
-     Replace with a simpler, cheaper shadow. */
+     Replace with a simpler, cheaper shadow.
+     Note: contain: layout is NOT applied to form-card and bmi-card
+     because they hold dynamic content (results appear after calculate).
+     Layout containment forces independent layout recalculation per
+     containment boundary, causing jank when scrolling between the
+     two tall calculator cards. Style+paint isolation is sufficient. */
   .bmi-card,
+  .form-card {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+    contain: style paint;
+  }
   .footer-disclaimer,
   .about-card,
   .gauge-container,
   .reference-table,
-  .form-card,
   .github-link,
   .section-header,
   .section-header-v2 {

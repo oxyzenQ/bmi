@@ -55,7 +55,7 @@ const zh: TranslationDict = {
   'hero.subtitle': '\u63a2\u7d22\u60a8\u8eab\u4f53\u7684\u661f\u7a7a \u2014 \u5728\u661f\u5149\u4e0b\u53d1\u73b0\u60a8\u7684\u5e73\u8861\u3002',
   'hero.feature1': '\u7cbe\u786e\u8ba1\u7b97',
   'hero.feature2': '\u5065\u5eb7\u6d1e\u5bdf',
-  'hero.feature3': '\u73b0\u4ee3\u8bbe\u8ba1',
+  'hero.feature3': '\u5962\u534e\u8bbe\u8ba1',
   'hero.edition': 'Stellar \u7248 10.5',
 
   // ── Form ──

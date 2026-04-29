@@ -22,24 +22,26 @@ export const MARKER_ANIM = {
 } as const;
 
 // ── Pager transition durations (ms) ──
+// Fast elegant: shorter durations, shorter distances, tighter spring.
 export const PAGER = {
-  DUR_HIGH: 620,
-  DUR_MEDIUM: 540,
-  DUR_LOW: 460,
-  DUR_BASIC: 260,
-  OUT_RATIO: 0.72,
-  OUT_BASIC: 210,
-  DIST_HIGH: 220,
-  DIST_MEDIUM: 190,
-  DIST_LOW: 160,
-  DIST_BASIC: 120,
-  SWITCHING_DELAY: 140,
+  DUR_HIGH: 380,
+  DUR_MEDIUM: 320,
+  DUR_LOW: 260,
+  DUR_BASIC: 180,
+  OUT_RATIO: 0.65,
+  OUT_BASIC: 140,
+  DIST_HIGH: 140,
+  DIST_MEDIUM: 120,
+  DIST_LOW: 100,
+  DIST_BASIC: 70,
+  SWITCHING_DELAY: 80,
 } as const;
 
 // ── Spring animation strengths ──
+// Lower = less overshoot/bounce for elegant feel.
 export const SPRING = {
-  STRENGTH_ENHANCED: 0.14,
-  STRENGTH_BASIC: 0.08,
+  STRENGTH_ENHANCED: 0.06,
+  STRENGTH_BASIC: 0.03,
 } as const;
 
 // ── Scroll behavior ──

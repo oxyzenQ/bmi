@@ -56,7 +56,7 @@ const en: TranslationDict = {
   'hero.subtitle': 'Explore the cosmos of your body \u2014 discover your balance under the stars.',
   'hero.feature1': 'Accurate Calculations',
   'hero.feature2': 'Health Insights',
-  'hero.feature3': 'Modern Design',
+  'hero.feature3': 'Luxury Design',
   'hero.edition': 'Stellar Edition 10.5',
 
   // ── Form ──

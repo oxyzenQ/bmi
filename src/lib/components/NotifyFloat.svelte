@@ -231,7 +231,7 @@
     isolation: isolate;
     z-index: 9999;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.15s ease;
     pointer-events: none;
   }
 
@@ -252,8 +252,8 @@
     -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
     backdrop-filter: blur(24px) saturate(180%) !important;
     box-shadow: 0 25px 50px -12px var(--k-50);
-    transform: scale(0.9) translateY(20px);
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: scale(0.92) translateY(14px);
+    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .notify-backdrop.visible .notify-float-box {
@@ -274,7 +274,7 @@
     justify-content: center;
     color: var(--w-80);
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.15s ease;
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     z-index: 10;
