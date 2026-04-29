@@ -134,53 +134,53 @@
       <h4>{sex === 'male' ? t('fat.men_ranges') : t('fat.women_ranges')}</h4>
       {#if sex === 'male'}
         <div class="range-row">
-          <span class="range-label">Essential</span>
+          <span class="range-label">{t('fat.range_essential')}</span>
           <div class="range-bar"><div class="range-fill" style="width: 24%; background: var(--cat-blue-40);"></div></div>
           <span class="range-val">2-5%</span>
         </div>
         <div class="range-row">
-          <span class="range-label">Athletic</span>
+          <span class="range-label">{t('fat.range_athletic')}</span>
           <div class="range-bar"><div class="range-fill" style="width: 32%; background: var(--cat-green-40);"></div></div>
           <span class="range-val">6-13%</span>
         </div>
         <div class="range-row">
-          <span class="range-label">Fitness</span>
+          <span class="range-label">{t('fat.range_fitness')}</span>
           <div class="range-bar"><div class="range-fill" style="width: 36%; background: var(--cat-green-40);"></div></div>
           <span class="range-val">14-17%</span>
         </div>
         <div class="range-row">
-          <span class="range-label">Average</span>
+          <span class="range-label">{t('fat.range_average')}</span>
           <div class="range-bar"><div class="range-fill" style="width: 56%; background: var(--cat-amber-40);"></div></div>
           <span class="range-val">18-24%</span>
         </div>
         <div class="range-row">
-          <span class="range-label">Obese</span>
+          <span class="range-label">{t('fat.range_obese')}</span>
           <div class="range-bar"><div class="range-fill" style="width: 75%; background: var(--cat-red-40);"></div></div>
           <span class="range-val">25%+</span>
         </div>
       {:else}
         <div class="range-row">
-          <span class="range-label">Essential</span>
+          <span class="range-label">{t('fat.range_essential')}</span>
           <div class="range-bar"><div class="range-fill" style="width: 28%; background: var(--cat-blue-40);"></div></div>
           <span class="range-val">10-13%</span>
         </div>
         <div class="range-row">
-          <span class="range-label">Athletic</span>
+          <span class="range-label">{t('fat.range_athletic')}</span>
           <div class="range-bar"><div class="range-fill" style="width: 42%; background: var(--cat-green-40);"></div></div>
           <span class="range-val">14-20%</span>
         </div>
         <div class="range-row">
-          <span class="range-label">Fitness</span>
+          <span class="range-label">{t('fat.range_fitness')}</span>
           <div class="range-bar"><div class="range-fill" style="width: 42%; background: var(--cat-green-40);"></div></div>
           <span class="range-val">21-24%</span>
         </div>
         <div class="range-row">
-          <span class="range-label">Average</span>
+          <span class="range-label">{t('fat.range_average')}</span>
           <div class="range-bar"><div class="range-fill" style="width: 56%; background: var(--cat-amber-40);"></div></div>
           <span class="range-val">25-31%</span>
         </div>
         <div class="range-row">
-          <span class="range-label">Obese</span>
+          <span class="range-label">{t('fat.range_obese')}</span>
           <div class="range-bar"><div class="range-fill" style="width: 75%; background: var(--cat-red-40);"></div></div>
           <span class="range-val">32%+</span>
         </div>

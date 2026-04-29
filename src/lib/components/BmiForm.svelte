@@ -38,14 +38,14 @@
   // via bind:unitSystem. Do NOT read/write localStorage here — it causes
   // a race condition where child overwrites parent's value on mount.
 
-  // Activity level metadata
-  const activityLevels: { value: Activity; label: string; factor: number }[] = [
-    { value: 'sedentary', label: t('form.sedentary'), factor: 1.2 },
-    { value: 'light', label: t('form.light'), factor: 1.375 },
-    { value: 'moderate', label: t('form.moderate'), factor: 1.55 },
-    { value: 'active', label: t('form.active'), factor: 1.725 },
-    { value: 'very_active', label: t('form.very_active'), factor: 1.9 }
-  ];
+  // Activity level metadata — reactive so labels update on locale change
+  let activityLevels = $derived([
+    { value: 'sedentary' as Activity, label: t('form.sedentary'), factor: 1.2 },
+    { value: 'light' as Activity, label: t('form.light'), factor: 1.375 },
+    { value: 'moderate' as Activity, label: t('form.moderate'), factor: 1.55 },
+    { value: 'active' as Activity, label: t('form.active'), factor: 1.725 },
+    { value: 'very_active' as Activity, label: t('form.very_active'), factor: 1.9 }
+  ]);
 
   // Derived unit-specific labels, placeholders, and validation bounds
   let heightLabel = $derived(unitSystem === 'metric' ? t('form.height_metric') : t('form.height_imperial'));

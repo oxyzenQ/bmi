@@ -37,6 +37,17 @@
 
   let hasResults = $derived(bmiValue !== null && category !== null);
 
+  // Map English category → i18n key (same pattern as BmiRadialGauge)
+  const CATEGORY_I18N_KEYS: Record<string, string> = {
+    'Underweight': 'category.underweight',
+    'Normal Weight': 'category.normal',
+    'Overweight': 'category.overweight',
+    'Obese': 'category.obese',
+  };
+  let translatedCategory = $derived(
+    category ? t(CATEGORY_I18N_KEYS[category] ?? 'category.normal') : null
+  );
+
   const animatedBmi = tweened(0, { duration: 0, easing: cubicOut });
   const animatedPrime = tweened(0, { duration: 0, easing: cubicOut });
   const animatedTdee = tweened(0, { duration: 0, easing: cubicOut });
@@ -293,7 +304,7 @@
         <div class="bmi-category-container">
           <CategoryIcon class="category-icon" />
           <span class="bmi-category">
-            {category}
+            {translatedCategory}
           </span>
         </div>
       </div>
@@ -445,8 +456,7 @@
       <div class="bmi-explanation">
         <h4 class="explanation-title">{t('results.what_this_means')}</h4>
         <p class="explanation-text">
-          Your BMI of <strong>{$animatedBmi.toFixed(2)}</strong> falls in the <strong>{category}</strong> category.
-          BMI is a screening tool that helps assess weight-related health risks.
+          {t('results.explanation', { n: $animatedBmi.toFixed(2), category: translatedCategory ?? '' })}
         </p>
       </div>
     {:else}

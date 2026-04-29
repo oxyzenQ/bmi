@@ -153,7 +153,7 @@
     // BMI zone bands
     const zones = [
       { min: BMI_MIN, max: 18.5, color: 'var(--cat-blue-6)', label: '' },
-      { min: 18.5, max: 25, color: 'var(--cat-green-6)', label: 'Normal' },
+      { min: 18.5, max: 25, color: 'var(--cat-green-6)', label: t('sparkline.normal') },
       { min: 25, max: 30, color: 'var(--cat-amber-6)', label: '' },
       { min: 30, max: BMI_MAX, color: 'var(--cat-red-6)', label: '' }
     ];
@@ -261,7 +261,7 @@
         <text x={PAD_LEFT - 4} y={bmiToY(30) + 3} text-anchor="end" class="axis-label">30</text>
 
         <!-- Zone labels (right side, inside plot) -->
-        <text x={CHART_WIDTH - PAD_RIGHT - 2} y={bmiToY(18.5) + (bmiToY(25) - bmiToY(18.5)) / 2 + 3} text-anchor="end" class="zone-label">Normal</text>
+        <text x={CHART_WIDTH - PAD_RIGHT - 2} y={bmiToY(18.5) + (bmiToY(25) - bmiToY(18.5)) / 2 + 3} text-anchor="end" class="zone-label">{t('sparkline.normal')}</text>
 
         <!-- Gradient fill + clip path -->
         <defs>
