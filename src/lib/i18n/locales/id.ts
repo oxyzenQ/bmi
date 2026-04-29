@@ -389,7 +389,9 @@ const id: TranslationDict = {
   'about.status': 'Status',
   'about.license': 'Lisensi',
   'about.open_source': 'Proyek Open Source',
+  'about.status_stable': 'Stabil',
   'about.maintenance': 'Pemeliharaan',
+  'about.maintenance_active': 'Aktif Dipelihara',
 
   // ── Info Section ──
   'info.disclaimer': 'BMI adalah alat skrining dan tidak boleh digunakan sebagai satu-satunya metode diagnostik. Silakan berkonsultasi dengan profesional kesehatan untuk penilaian kesehatan yang komprehensif.',

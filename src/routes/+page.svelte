@@ -1137,7 +1137,11 @@
                       </p>
                       <p class="info-row">
                         <Wrench class="Wrench" />
-                        <strong>{t('about.status')}:</strong>{t('about.maintenance')}
+                        <strong>{t('about.status')}:</strong>{t('about.status_stable')}
+                      </p>
+                      <p class="info-row">
+                        <Wrench class="Wrench" />
+                        <strong>{t('about.maintenance')}:</strong>{t('about.maintenance_active')}
                       </p>
                       <p class="info-row">
                         <Scale class="Scale" />

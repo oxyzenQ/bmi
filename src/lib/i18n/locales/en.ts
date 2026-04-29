@@ -390,7 +390,9 @@ const en: TranslationDict = {
   'about.status': 'Status',
   'about.license': 'License',
   'about.open_source': 'Open Source Project',
+  'about.status_stable': 'Stable',
   'about.maintenance': 'Maintenance',
+  'about.maintenance_active': 'Actively Maintained',
 
   // ── Info Section ──
   'info.disclaimer': 'BMI is a screening tool and should not be used as a sole diagnostic method. Please consult healthcare professionals for comprehensive health assessment.',

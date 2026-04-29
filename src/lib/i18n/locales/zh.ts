@@ -389,7 +389,9 @@ const zh: TranslationDict = {
   'about.status': '\u72b6\u6001',
   'about.license': '\u8bb8\u53ef\u8bc1',
   'about.open_source': '\u5f00\u6e90\u9879\u76ee',
-  'about.maintenance': '\u7ef4\u62a4\u4e2d',
+  'about.status_stable': '\u7a33\u5b9a',
+  'about.maintenance': '\u7ef4\u62a4',
+  'about.maintenance_active': '\u79ef\u6781\u7ef4\u62a4\u4e2d',
 
   // ── Info Section ──
   'info.disclaimer': 'BMI \u662f\u7b5b\u67e5\u5de5\u5177\uff0c\u4e0d\u5e94\u4f5c\u4e3a\u552f\u4e00\u7684\u8bca\u65ad\u65b9\u6cd5\u3002\u8bf7\u54a8\u8be2\u533b\u7597\u4e13\u4e1a\u4eba\u58eb\u8fdb\u884c\u5168\u9762\u7684\u5065\u5eb7\u8bc4\u4f30\u3002',
