@@ -1082,8 +1082,11 @@ p,
 
 /* ==============================
    SCROLL PERFORMANCE OPTIMIZATION
-   Pause animations during scroll
+   Desktop: pause animations during scroll (is-scrolling/is-switching toggles)
+   Touch: optimizations are PERMANENTLY applied (no per-frame class toggling)
    ============================== */
+
+/* ── Desktop only: toggle animations/shadows during scroll ── */
 html:not([data-graphics='render']) body.is-scrolling :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star) {
   animation-play-state: paused !important;
 }
@@ -1092,11 +1095,12 @@ html:not([data-graphics='render']) body.is-switching :is(.particle, .cosmic-part
   animation-play-state: paused !important;
 }
 
-/* Reduce compositing layers during scroll */
+/* Desktop: reduce compositing layers during scroll */
 html:not([data-graphics='render']) body.is-scrolling :is(.bmi-card) {
   will-change: auto;
 }
 
+/* Desktop: remove box-shadow during scroll */
 html:not([data-graphics='render']) body.is-scrolling :is(.hero-content,
   .bmi-card,
   .footer-disclaimer,
@@ -1113,6 +1117,7 @@ html:not([data-graphics='render']) body.is-scrolling :is(.hero-content,
   box-shadow: none !important;
 }
 
+/* Desktop: remove filter/shadow during scroll */
 html:not([data-graphics='render']) body.is-scrolling :is(.form-input,
   .icon-glow,
   .empty-glow,
@@ -1129,6 +1134,7 @@ html:not([data-graphics='render']) body.is-scrolling :is(.form-input,
   text-shadow: none !important;
 }
 
+/* Desktop: is-switching shadows */
 html:not([data-graphics='render']) body.is-switching :is(.hero-content,
   .bmi-card,
   .footer-disclaimer,
@@ -1165,21 +1171,142 @@ html:not([data-graphics='render']) body.is-scrolling :is(.pager-nav-shell, .page
   box-shadow: none !important;
 }
 
-/* Remove backdrop-filter from navbars during scroll on touch devices to reduce jank */
-@media (hover: none) and (pointer: coarse) {
-  body.is-scrolling .pager-nav-shell,
-  body.is-scrolling .pager-controls-shell {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-    background: rgba(0, 0, 0, 0.85) !important;
-  }
-}
-
 html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .pager-controls-shell) {
   box-shadow: none !important;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE SCROLL PERFORMANCE (Bug 13)
+   ─────────────────────────────────────────────────────────────
+   Strategy: Apply heavy optimizations PERMANENTLY on touch devices
+   instead of toggling via is-scrolling class. This eliminates the
+   massive per-frame style recalculation that caused scroll jank.
+
+   On touch devices, is-scrolling ONLY toggles navbar backdrop-filter
+   (2 elements) instead of 15+ selectors affecting hundreds of elements.
+   ═══════════════════════════════════════════════════════════════ */
 @media (hover: none) and (pointer: coarse) {
+
+  /* T-1: Simplify body::before filter permanently on touch.
+     filter: brightness(1) contrast(1.25) saturate(1) still costs
+     GPU cycles even though values look "neutral". */
+  body::before {
+    filter: none !important;
+  }
+
+  /* T-2: Promote .pager-section to its own compositor layer
+     so the browser can scroll it independently of fixed navbars.
+     Override the base will-change: transform, opacity from +page.svelte
+     to avoid conflicting compositor layers. */
+  .pager-section {
+    will-change: scroll-position !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* T-3: Permanently simplify box-shadow on glass cards.
+     color-mix() in box-shadow is expensive on low-end GPUs.
+     Replace with a simpler, cheaper shadow. */
+  .bmi-card,
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table,
+  .form-card,
+  .github-link,
+  .section-header,
+  .section-header-v2 {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  /* T-4: Permanently disable transitions on glass cards.
+     Touch devices don't benefit from hover transitions anyway. */
+  .bmi-card,
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table,
+  .form-card {
+    transition: none !important;
+  }
+
+  /* T-5: Permanently hide card pseudo-elements (shine sweep).
+     The 200%×200% positioned ::before is expensive to composite. */
+  .bmi-card::before,
+  .footer-disclaimer::before,
+  .about-card::before,
+  .gauge-container::before,
+  .reference-table::before,
+  .form-card::before {
+    display: none !important;
+  }
+
+  /* T-6: Permanently disable transitions on buttons.
+     Prevents the browser from maintaining transition state. */
+  .btn,
+  button,
+  a.button {
+    transition: none !important;
+  }
+
+  /* T-7: Permanently simplify filters on inputs and gauge elements. */
+  .form-input,
+  .icon-glow,
+  .empty-glow,
+  .gauge-reflection,
+  .gauge-title .Gauge,
+  .gauge-progress,
+  .scale-item,
+  .scale-dot,
+  .reference-table .icon-col,
+  .reference-table .ref-row,
+  .bmi-value {
+    filter: none !important;
+    text-shadow: none !important;
+  }
+
+  /* T-8: Permanently simplify button shadows. */
+  .btn,
+  button,
+  a.button {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  /* T-9: Permanently remove pager-shell::before gradient.
+     Fixed overlay gradient is recalculated per frame. */
+  .pager-shell::before {
+    opacity: 0 !important;
+  }
+
+  /* T-10: content-visibility for heavy off-screen cards.
+     Use 0px intrinsic size to prevent layout jumps.
+     The browser will measure actual size on first render
+     and cache it for subsequent hide/show cycles. */
+  .bmi-card,
+  .about-card,
+  .gauge-container,
+  .reference-table,
+  .footer-disclaimer {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 0px;
+  }
+
+  /* T-11: Permanently use solid background on navbars for touch.
+     backdrop-filter blur(24px) is too expensive on mobile GPUs.
+     On touch devices, is-scrolling class is NEVER toggled (see +page.svelte),
+     so we must set navbar bg permanently rather than toggling it. */
+  .pager-nav-shell,
+  .pager-controls-shell {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: rgba(0, 0, 0, 0.85) !important;
+  }
+
+  /* T-12: will-change: auto on cards — avoid unnecessary compositor layers */
+  .bmi-card {
+    will-change: auto !important;
+  }
+
+  /* T-13: Background and wallpaper optimizations */
   body {
     background-attachment: scroll;
   }
@@ -1191,10 +1318,12 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
     min-height: 0 !important;
   }
 
+  /* T-14: Disable hover transforms on touch devices */
   :is(.btn, button, a.button):hover {
     transform: none;
   }
 
+  /* T-15: Remove backdrop-filter from hero and futuristic buttons permanently */
   :is(.hero-content, .pager-btn-futuristic) {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;

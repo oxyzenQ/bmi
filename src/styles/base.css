@@ -48,13 +48,11 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
   overscroll-behavior-y: none;
-  -webkit-overflow-scrolling: touch;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   font-variation-settings: 'wght' 400;
-  transition: background var(--dur-normal) var(--easing-smooth);
 }
 
 .app-root {

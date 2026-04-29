@@ -524,14 +524,18 @@
   }
 
   function handleTouchMove(e: TouchEvent) {
+    // NOTE: This listener uses { passive: true } — we do NOT call preventDefault().
+    // Horizontal swipe detection is handled purely via touchstart/touchend.
+    // This ensures the browser can process vertical scrolling on its own
+    // compositor thread (60 fps) without waiting for JS — critical for
+    // Bug-13 scroll jank fix on mobile/low-end devices.
     if (touchStartX === null || touchStartY === null) return;
     const touch = e.touches[0];
     if (!touch) return;
     const dx = Math.abs(touch.clientX - touchStartX);
     const dy = Math.abs(touch.clientY - touchStartY);
-    // If horizontal movement dominates and exceeds threshold, prevent vertical scroll
-    if (dx > dy * 1.2 && dx > 15) {
-      e.preventDefault();
+    // Track whether horizontal swipe is dominant (used in handleTouchEnd)
+    if (dx > dy * SCROLL.SWIPE_ANGLE_RATIO && dx > 15) {
       touchHandled = true;
     }
   }
@@ -733,48 +737,75 @@
     window.addEventListener('resize', onResize, { passive: true });
 
     // Mobile touch swipe listeners for horizontal page navigation.
-    // touchmove uses { passive: false } so we can preventDefault() to block
-    // vertical scroll when a horizontal swipe is detected.
+    // All listeners use { passive: true } — Bug-13 fix.
+    // Vertical scrolling is handled natively by the browser via
+    // CSS touch-action on .pager-shell. We detect horizontal swipes
+    // purely in touchstart/touchend without blocking the scroll thread.
     pagerEl?.addEventListener('touchstart', handleTouchStart, { passive: true });
-    pagerEl?.addEventListener('touchmove', handleTouchMove, { passive: false });
+    pagerEl?.addEventListener('touchmove', handleTouchMove, { passive: true });
     pagerEl?.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     // Unified scroll listener: is-scrolling class + pager-controls auto-hide
+    // Bug-13: On touch devices, SKIP is-scrolling class toggling entirely.
+    // All heavy CSS optimizations are now PERMANENTLY applied via
+    // @media (hover: none) and (pointer: coarse) in responsive.css.
+    // This eliminates massive per-frame style recalculation on mobile.
+    const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
     let isScrolling = false;
     let isScrollingTimer: ReturnType<typeof setTimeout> | null = null;
-    const onScroll = (event: Event) => {
-      // Scroll optimizer: add is-scrolling class during active scroll
-      if (!isScrolling) {
-        isScrolling = true;
-        document.body.classList.add('is-scrolling');
+    let scrollRafId: number | null = null;
+    let pendingScrollTarget: HTMLElement | null = null;
+    let pendingScrollY = 0;
+
+    const flushScrollState = () => {
+      scrollRafId = null;
+      if (pendingScrollTarget) {
+        const currentScrollY = pendingScrollY;
+        const scrollingUp = currentScrollY < lastScrollY;
+
+        if (!scrollingUp && currentScrollY > 50) {
+          pagerControlsVisible = false;
+        } else if (scrollingUp) {
+          pagerControlsVisible = true;
+        }
+
+        showScrollTopFab = currentScrollY > SCROLL.SCROLL_TOP_THRESHOLD;
+
+        lastScrollY = currentScrollY;
+        pendingScrollTarget = null;
+
+        if (scrollTimeout) clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          pagerControlsVisible = true;
+        }, SCROLL.SCROLL_IDLE_DELAY);
       }
-      if (isScrollingTimer) clearTimeout(isScrollingTimer);
-      isScrollingTimer = setTimeout(() => {
-        isScrolling = false;
-        document.body.classList.remove('is-scrolling');
-      }, SCROLL.IS_SCROLLING_DELAY);
+    };
+
+    const onScroll = (event: Event) => {
+      // Bug-13: Skip is-scrolling class toggling on touch devices.
+      // All optimizations are permanently applied via CSS media query.
+      if (!isTouchDevice) {
+        if (!isScrolling) {
+          isScrolling = true;
+          document.body.classList.add('is-scrolling');
+        }
+        if (isScrollingTimer) clearTimeout(isScrollingTimer);
+        isScrollingTimer = setTimeout(() => {
+          isScrolling = false;
+          document.body.classList.remove('is-scrolling');
+        }, SCROLL.IS_SCROLLING_DELAY);
+      }
 
       // Pager-controls auto-hide: only for pager-section scroll
+      // Debounce state updates via rAF to avoid triggering Svelte re-renders every frame
       const target = event.target as HTMLElement;
       if (!target.classList.contains('pager-section')) return;
 
-      const currentScrollY = target.scrollTop;
-      const scrollingUp = currentScrollY < lastScrollY;
-
-      if (!scrollingUp && currentScrollY > 50) {
-        pagerControlsVisible = false;
-      } else if (scrollingUp) {
-        pagerControlsVisible = true;
+      pendingScrollTarget = target;
+      pendingScrollY = target.scrollTop;
+      if (scrollRafId === null) {
+        scrollRafId = requestAnimationFrame(flushScrollState);
       }
-
-      showScrollTopFab = currentScrollY > SCROLL.SCROLL_TOP_THRESHOLD;
-
-      lastScrollY = currentScrollY;
-
-      if (scrollTimeout) clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        pagerControlsVisible = true;
-      }, SCROLL.SCROLL_IDLE_DELAY);
     };
 
     // Use event delegation on document for all scroll events
@@ -792,6 +823,7 @@
       pagerEl?.removeEventListener('touchmove', handleTouchMove);
       pagerEl?.removeEventListener('touchend', handleTouchEnd);
       if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
+      if (scrollRafId !== null) cancelAnimationFrame(scrollRafId);
       if (scrollTimeout !== null) clearTimeout(scrollTimeout);
       if (isScrollingTimer) clearTimeout(isScrollingTimer);
       document.body.classList.remove('is-scrolling');
@@ -1393,7 +1425,6 @@
     gap: 0.35rem;
     padding: 0 0.85rem 0.55rem 0.85rem;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     min-width: 0;
     width: 100%;
@@ -1592,6 +1623,26 @@
     .pager-btn-spacer {
       width: 50px;
       height: 50px;
+    }
+  }
+
+  /* Bug-13: Touch device navbar overrides.
+     Scoped styles required to match specificity of scoped backdrop-filter
+     rules above. On touch devices, backdrop-filter blur(24px) is too
+     expensive for mobile GPUs — use solid background instead. */
+  @media (hover: none) and (pointer: coarse) {
+    .pager-nav-shell {
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+      background: rgba(0, 0, 0, 0.85) !important;
+      box-shadow: none !important;
+    }
+
+    .pager-controls-shell {
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+      background: rgba(0, 0, 0, 0.85) !important;
+      box-shadow: none !important;
     }
   }
 </style>

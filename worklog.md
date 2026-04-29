@@ -171,3 +171,46 @@ Stage Summary:
 - Committed as 409219d on dev branch
 - Pushed to origin/dev
 - Key files: BmiResults.svelte, BmiSnapshot.svelte, responsive.css
+---
+Task ID: 8
+Agent: Main Agent
+Task: Bug-13 — Fix scroll jank/stuttering on mobile/low-end devices
+
+Work Log:
+- Deep investigation: read all CSS (11 files), +page.svelte scroll/touch handlers, animation-config.ts
+- Identified 4 root causes of scroll jank on mobile:
+  1. PRIMARY: touchmove listener with { passive: false } blocks browser's compositor thread
+  2. PRIMARY: is-scrolling class triggers 15+ CSS selectors affecting hundreds of elements per frame
+  3. CONTRIBUTING: Conflicting will-change values on .pager-section (transform,opacity vs scroll-position)
+  4. CONTRIBUTING: content-visibility with inaccurate contain-intrinsic-size causing layout jumps
+
+- Fix-1 (+page.svelte): Changed touchmove from { passive: false } to { passive: true }, removed e.preventDefault()
+  - Vertical scrolling now handled natively by browser via CSS touch-action on .pager-shell
+  - Horizontal swipe detection remains via touchstart/touchend (already passive)
+  - This alone eliminates the #1 cause of delayed response on mobile
+
+- Fix-2 (responsive.css): Restructured entire scroll performance section
+  - Desktop: Keep is-scrolling/is-switching toggle behavior (works fine)
+  - Touch: Apply ALL heavy optimizations PERMANENTLY via @media (hover:none) and (pointer:coarse)
+  - On touch, is-scrolling class is NEVER toggled (see Fix-3)
+  - New T-1 through T-15 rules: permanent box-shadow simplification, transition removal, pseudo-element hiding, filter simplification, content-visibility with 0px intrinsic size
+
+- Fix-3 (+page.svelte + responsive.css): Skip is-scrolling class toggling on touch devices
+  - Added isTouchDevice detection via matchMedia('(hover: none) and (pointer: coarse)')
+  - On touch devices, onScroll handler only updates pager-controls visibility via rAF (no DOM class changes)
+  - Eliminates ALL per-frame style recalculation from scroll on touch devices
+  - Navbar backdrop-filter replaced with solid dark background permanently on touch
+
+- Fix-4 (+page.svelte): Added scoped touch overrides for navbar backdrop-filter
+  - Scoped styles needed to match specificity of existing scoped backdrop-filter rules
+  - @media (hover:none) and (pointer:coarse) inside <style> block for .pager-nav-shell and .pager-controls-shell
+  - Ensures touch overrides win over base scoped rules with !important
+
+- Build passed: `bun run build` ✓ (9.88s)
+- Pre-existing test failures (BmiForm, NotifyFloat, BodyFatEstimate) unrelated to changes
+
+Stage Summary:
+- Changed files: src/routes/+page.svelte, src/styles/responsive.css
+- Key architectural change: Touch devices no longer use is-scrolling class toggle — all optimizations are permanent
+- Expected result: Dramatically reduced scroll jank on mobile/low-end devices
+- NOT yet committed/pushed (user requested)
