@@ -106,3 +106,19 @@ Stage Summary:
 - Committed as d3aa8bc on dev branch
 - Pushed to origin/dev
 - Key files: tokens.css, +page.svelte
+---
+Task ID: 5
+Agent: Main Agent
+Task: Fix bug 9 (real fix) — sharp button corners on hover/click
+
+Work Log:
+- User reported button corners still sharp on click/hover despite previous --btn-radius change
+- Found root cause: `responsive.css` line 163-167 had `*:focus { border-radius: 0.25rem }` — a global accessibility focus style that forced ALL focused elements to 4px sharp corners
+- When user clicks/taps any button, it receives `:focus`, which triggered this override, replacing the intended border-radius (10px for action buttons, 9999px for navbar tabs)
+- Fix: removed `border-radius: 0.25rem` from `*:focus` rule — modern browsers automatically make outline follow the element's own border-radius
+- All verification passed: check (0 errors, 0 warnings), lint, test:run (162 tests), build
+
+Stage Summary:
+- Committed as c593a5d on dev branch
+- Pushed to origin/dev
+- Key file: responsive.css (1 line removed)
