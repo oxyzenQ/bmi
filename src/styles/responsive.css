@@ -1314,17 +1314,8 @@ body:not(.is-scrolling) .cosmic-particle {
 
   /* T-3: Permanently simplify box-shadow on glass cards.
      color-mix() in box-shadow is expensive on low-end GPUs.
-     Replace with a simpler, cheaper shadow.
-     Note: contain: layout is NOT applied to form-card and bmi-card
-     because they hold dynamic content (results appear after calculate).
-     Layout containment forces independent layout recalculation per
-     containment boundary, causing jank when scrolling between the
-     two tall calculator cards. Style+paint isolation is sufficient. */
-  .bmi-card,
-  .form-card {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
-    contain: style paint;
-  }
+     Note: NO contain on form-card/bmi-card (dynamic content).
+     Static cards get full layout style paint isolation. */
   .footer-disclaimer,
   .about-card,
   .gauge-container,
@@ -1336,14 +1327,74 @@ body:not(.is-scrolling) .cosmic-particle {
     contain: layout style paint;
   }
 
+  /* T-3b: Calculator cards — no contain, simplified shadow.
+     form-card and bmi-card hold dynamic content (results
+     change height after calculate). Layout containment causes
+     jank when scrolling between the two tall cards.
+     Also kill the expensive color-mix glow shadow permanently. */
+  .bmi-card,
+  .form-card {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+    contain: style paint;
+  }
+
+  /* T-3c: Kill ALL transitions on calculator cards permanently.
+     The base CSS sets 800ms transitions on these cards.
+     Even though they don't visually animate during scroll,
+     the browser still maintains transition state computation,
+     which adds to per-frame cost when many elements are involved.
+     Touch devices don't benefit from hover transitions anyway. */
+  .form-card,
+  .bmi-card,
+  .bmi-card:hover,
+  .form-card:hover {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  /* T-3d: Kill results card transitions and overflow layer.
+     bmi-results-card has 500ms transitions + ::before gradient
+     overlay (another compositing layer). Remove all of them. */
+  .bmi-results-card {
+    transition: none !important;
+  }
+  .bmi-results-card::before {
+    display: none !important;
+  }
+
+  /* T-3e: Kill form-input double transition.
+     form.css sets 0.3s transitions, animation.css adds another.
+     Remove all permanently on touch. */
+  .form-input {
+    transition: none !important;
+  }
+
+  /* T-3f: Kill transitions on health-advice, age-advisory, bmi-explanation.
+     Each has 0.3s transitions + hover transforms that add
+     compositor cost during scroll inside the tall bmi-card. */
+  .health-advice,
+  .age-advisory,
+  .bmi-explanation {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  /* T-3g: Kill action-btn transitions permanently. */
+  .action-btn {
+    transition: none !important;
+  }
+
+  /* T-3h: Kill pill-indicator transitions. */
+  .pill-indicator {
+    transition: none !important;
+  }
+
   /* T-4: Permanently disable transitions on glass cards.
      Touch devices don't benefit from hover transitions anyway. */
-  .bmi-card,
   .footer-disclaimer,
   .about-card,
   .gauge-container,
-  .reference-table,
-  .form-card {
+  .reference-table {
     transition: none !important;
   }
 
@@ -1440,13 +1491,13 @@ body:not(.is-scrolling) .cosmic-particle {
      look too transparent. Compensate with deep elegant purple tint.
      Uses (10, 2, 28) — rich dark violet that echoes the cosmic-purple
      brand color while keeping a luxurious, premium glass feel.
+     Calculator cards (form-card, bmi-card) handled by T-3b/T-3c
+     so they are excluded from this rule to avoid cascade conflicts.
      Inset top highlight maintains the glass edge light reflection. */
-  .bmi-card,
   .footer-disclaimer,
   .about-card,
   .gauge-container,
   .reference-table,
-  .form-card,
   .github-link,
   .section-header,
   .section-header-v2,
@@ -1459,6 +1510,20 @@ body:not(.is-scrolling) .cosmic-particle {
     box-shadow:
       0 4px 16px rgba(0, 0, 0, 0.4),
       inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  }
+
+  /* T-GLASS-CALC: Calculator cards get slightly more opaque glass
+     since they are the primary scroll target and need to feel solid. */
+  .bmi-card,
+  .form-card {
+    background: rgba(10, 2, 28, 0.82) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* T-GLASS-RESULTS: Results inner card — inherits parent bg,
+     but ensure it doesn't add its own background layer. */
+  .bmi-results-card {
+    background: transparent !important;
   }
 
   /* T-16: Remove ALL pseudo-element shine sweeps permanently on touch.
