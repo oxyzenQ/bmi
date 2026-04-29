@@ -1086,14 +1086,18 @@ p,
    Touch: optimizations are PERMANENTLY applied (no per-frame class toggling)
    ============================== */
 
-/* ── Desktop only: toggle animations/shadows during scroll ── */
-html:not([data-graphics='render']) body.is-scrolling :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star) {
+/* ── Universal: pause particles during scroll (all modes) ──
+   Cosmic particles are the #1 GPU bottleneck (10-20 particles × filter + animation).
+   Pause them during scroll regardless of render mode. */
+body.is-scrolling :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star) {
   animation-play-state: paused !important;
 }
 
-html:not([data-graphics='render']) body.is-switching :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star) {
+body.is-switching :is(.particle, .cosmic-particle, .sparkle-icon, .plasma-star) {
   animation-play-state: paused !important;
 }
+
+/* ── Render OFF: full optimization during scroll ── */
 
 /* Desktop: reduce compositing layers during scroll */
 html:not([data-graphics='render']) body.is-scrolling :is(.bmi-card) {
@@ -1119,7 +1123,6 @@ html:not([data-graphics='render']) body.is-scrolling :is(.hero-content,
 
 /* Desktop: remove filter/shadow during scroll */
 html:not([data-graphics='render']) body.is-scrolling :is(.form-input,
-  .icon-glow,
   .empty-glow,
   .gauge-reflection,
   .gauge-title .Gauge,
@@ -1152,7 +1155,6 @@ html:not([data-graphics='render']) body.is-switching :is(.hero-content,
 }
 
 html:not([data-graphics='render']) body.is-switching :is(.form-input,
-  .icon-glow,
   .empty-glow,
   .gauge-reflection,
   .gauge-title .Gauge,
@@ -1173,6 +1175,101 @@ html:not([data-graphics='render']) body.is-scrolling :is(.pager-nav-shell, .page
 
 html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .pager-controls-shell) {
   box-shadow: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RENDER ON SCROLL OPTIMIZATION (Bug-13 follow-up)
+   ─────────────────────────────────────────────────────────────
+   Even in render mode, strip the most expensive properties
+   during active scroll while keeping visual effects alive
+   when the user is NOT scrolling. This bridges the gap
+   between render OFF (very smooth) and render ON.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* R-1: Simplify glass card box-shadow during scroll in render mode.
+   color-mix() in box-shadow is recalculated per frame on every card.
+   Replace with cheaper plain shadow during scroll only. */
+html[data-graphics='render'] body.is-scrolling :is(
+  .bmi-card,
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table,
+  .form-card,
+  .github-link,
+  .section-header,
+  .section-header-v2
+) {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* R-2: Remove expensive filters on gauge/input elements during scroll. */
+html[data-graphics='render'] body.is-scrolling :is(
+  .form-input,
+  .empty-glow,
+  .gauge-reflection,
+  .gauge-title .Gauge,
+  .gauge-progress,
+  .scale-item,
+  .scale-dot,
+  .reference-table .icon-col,
+  .reference-table .ref-row,
+  .bmi-value
+) {
+  filter: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* R-3: Strip enhanced particle glow during scroll (3-layer → none).
+   This is the #1 render-mode GPU cost: 10-20 particles × 3 shadows. */
+html[data-graphics='render'] body.is-scrolling .cosmic-particle {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* R-4: Reduce navbar blur during scroll on desktop.
+   blur(24px) saturate(180%) is very expensive on fixed elements. */
+body.is-scrolling .pager-nav-shell,
+body.is-scrolling .pager-controls-shell {
+  -webkit-backdrop-filter: blur(4px) saturate(120%) !important;
+  backdrop-filter: blur(4px) saturate(120%) !important;
+  box-shadow: none !important;
+}
+
+/* R-5: Suppress button hover transitions during scroll. */
+html[data-graphics='render'] body.is-scrolling :is(.btn, button, a.button) {
+  transition: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* R-6: Suppress card transitions during scroll. */
+html[data-graphics='render'] body.is-scrolling :is(
+  .bmi-card,
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table,
+  .form-card
+) {
+  transition: none !important;
+}
+
+/* R-7: Pause hero button animations during scroll (off-screen but still composited). */
+body.is-scrolling .hero-scroll-btn {
+  animation: none !important;
+}
+
+/* R-8: Reduce body::before filter during scroll (full-viewport compositing layer).
+   contrast(1.25) is the expensive part — tone it down while scrolling. */
+body.is-scrolling body::before {
+  filter: none !important;
+}
+
+/* R-9: Enable will-change on particles only when NOT scrolling.
+   Prevents 10-20 permanent GPU compositor layers during scroll. */
+body:not(.is-scrolling) .cosmic-particle {
+  will-change: transform, opacity;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1250,7 +1347,6 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
 
   /* T-7: Permanently simplify filters on inputs and gauge elements. */
   .form-input,
-  .icon-glow,
   .empty-glow,
   .gauge-reflection,
   .gauge-title .Gauge,

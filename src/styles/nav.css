@@ -16,7 +16,7 @@ html[data-performance-tier="low"] :is(
 html[data-performance-tier="low"] .cosmic-particles .cosmic-particle {
   filter: none !important;
   background: var(--w-60) !important;
-  will-change: transform;
+  will-change: auto;
 }
 
 html[data-performance-tier="low"] :is(
@@ -33,7 +33,6 @@ html[data-performance-tier="low"] .gauge-progress.pulsing {
 }
 
 html[data-performance-tier="low"] :is(
-  .icon-glow,
   .empty-glow
 ) {
   filter: none !important;
@@ -43,7 +42,7 @@ html[data-performance-tier="low"] :is(
 
 html[data-performance-tier="medium"] .cosmic-particles .cosmic-particle {
   filter: blur(0.2px) !important;
-  will-change: transform;
+  will-change: auto;
 }
 
 html[data-performance-tier="medium"] :is(
@@ -53,9 +52,9 @@ html[data-performance-tier="medium"] :is(
   filter: drop-shadow(0 0 4px currentColor) !important;
 }
 
-/* HIGH TIER: Full effects - ensure will-change hints for GPU acceleration */
+/* HIGH TIER: Full effects — will-change now managed by scroll state
+   (body:not(.is-scrolling) in responsive.css) instead of per-tier. */
 html[data-performance-tier="high"] .cosmic-particles .cosmic-particle {
-  will-change: transform, opacity;
   contain: layout style paint;
 }
 

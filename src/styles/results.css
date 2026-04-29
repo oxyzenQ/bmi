@@ -34,20 +34,6 @@
   margin-bottom: 1rem;
 }
 
-.icon-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60px;
-  height: 60px;
-  background: var(--atmosphere-horizon);
-  border-radius: 50%;
-  /* Reduced blur from 15px to 8px for GPU performance */
-  filter: blur(8px);
-  /* animation removed for GPU performance */
-  opacity: 0.7;
-}
 
 /* Elegant gradient text utility using theme vars */
 .text-gradient-elegant {

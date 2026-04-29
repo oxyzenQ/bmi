@@ -168,7 +168,8 @@ html:not([data-graphics='render']) body.is-switching .cosmic-particles .cosmic-p
   animation-delay: var(--delay, 0s);
   animation-timing-function: ease-out;
   animation-iteration-count: infinite;
-  will-change: transform, opacity;
+  /* will-change applied only when NOT scrolling — see responsive.css R-9 */
+  will-change: auto;
   /* Rain drop shape - thin and tall */
   width: 2px !important;
   height: 24px !important;

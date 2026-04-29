@@ -221,7 +221,6 @@
   <div class="card-header">
     <div class="icon-container">
       <Orbit class="Orbit" />
-      <div class="icon-glow"></div>
     </div>
     <h2 class="card-title">{t('form.title')}</h2>
 
