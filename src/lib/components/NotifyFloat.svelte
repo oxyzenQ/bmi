@@ -225,9 +225,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--k-65);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    backdrop-filter: blur(12px) saturate(180%);
+    background: var(--k-50) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    isolation: isolate;
     z-index: 9999;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -241,15 +242,15 @@
 
   .notify-float-box {
     position: relative;
-    background: var(--k-50);
+    background: var(--k-50) !important;
     border: var(--border-by-rezky);
     border-radius: 24px;
     padding: 2.5rem 2rem;
     min-width: 320px;
     max-width: 90vw;
     text-align: center;
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
     box-shadow: 0 25px 50px -12px var(--k-50);
     transform: scale(0.9) translateY(20px);
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
