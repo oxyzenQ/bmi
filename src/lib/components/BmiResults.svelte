@@ -80,7 +80,7 @@
   let idealMax = $derived.by(() => {
     if (height === null || height <= 0) return null;
     const hM = height / 100;
-    return 24.9 * hM * hM;
+    return 25.0 * hM * hM;
   });
 
   // Convert for display based on unit system

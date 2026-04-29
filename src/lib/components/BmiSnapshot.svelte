@@ -75,23 +75,21 @@
     const diffFromIdeal = currentBmi - IDEAL_BMI;
     const diffFromBest = bestBmi !== null ? currentBmi - bestBmi : 0;
 
-    // Calculate progress to ideal (for overweight) or from underweight
+    // Calculate progress toward ideal BMI (22) — 100% when at ideal
     let progressPercent = 0;
-    // Use fixed reference bounds for consistent progress calculation
-    const BMI_MIN_REF = 1;   // Extreme underweight reference (absolute minimum)
-    const BMI_MAX_REF = 50;  // Extreme obese reference (absolute maximum)
+    // Use category thresholds as meaningful reference bounds
+    const BMI_EXTREME_LOW = 12;   // Severe underweight reference
+    const BMI_EXTREME_HIGH = 45;  // Extreme obese reference
 
     if (currentBmi > IDEAL_BMI) {
-      // Overweight - progress is reducing toward ideal
-      // Progress = how far from max reference we've come toward ideal
-      const totalRange = BMI_MAX_REF - IDEAL_BMI;
+      // Overweight — progress is how close to ideal (22) from extreme high (45)
+      const totalRange = BMI_EXTREME_HIGH - IDEAL_BMI;
       const currentDistance = currentBmi - IDEAL_BMI;
       progressPercent = Math.round(((totalRange - currentDistance) / totalRange) * 100);
     } else if (currentBmi < IDEAL_BMI) {
-      // Underweight - progress is gaining toward ideal
-      // Progress = how far from min reference we've come toward ideal
-      const totalRange = IDEAL_BMI - BMI_MIN_REF;
-      const currentDistance = currentBmi - BMI_MIN_REF;
+      // Underweight — progress is how close to ideal (22) from extreme low (12)
+      const totalRange = IDEAL_BMI - BMI_EXTREME_LOW;
+      const currentDistance = currentBmi - BMI_EXTREME_LOW;
       progressPercent = Math.round((currentDistance / totalRange) * 100);
     } else {
       progressPercent = 100;

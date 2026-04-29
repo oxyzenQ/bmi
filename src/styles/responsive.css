@@ -19,29 +19,29 @@
 
 /* Icon sizing */
 
-/* Bmi form icons and other biggest icons over 50px */
+/* Bmi form icons and other biggest icons — fluid sizing for responsiveness */
 .Orbit,
 .CircleSlash2,
 .FileChartColumn,
 .Gauge {
   color: var(--cosmic-purple) !important;
-  width: 74px !important;
-  height: 74px !important;
+  width: clamp(40px, 8vw, 74px) !important;
+  height: clamp(40px, 8vw, 74px) !important;
 }
 
-/* footer icons */
+/* footer icons — fluid sizing */
 .AlertTriangle {
   color: yellow !important;
-  width: 48px !important;
-  height: 48px !important;
+  width: clamp(30px, 6vw, 48px) !important;
+  height: clamp(30px, 6vw, 48px) !important;
 }
 
-/* about icons */
+/* about icons — fluid sizing */
 .Lightbulb,
 .Users {
   color: var(--cosmic-purple) !important;
-  width: 48px !important;
-  height: 48px !important;
+  width: clamp(30px, 6vw, 48px) !important;
+  height: clamp(30px, 6vw, 48px) !important;
 }
 
 /* Hero icons */
@@ -70,8 +70,8 @@
 .BarChart3,
 .X {
   color: var(--cosmic-purple) !important;
-  width: 74px !important;
-  height: 74px !important;
+  width: clamp(40px, 8vw, 74px) !important;
+  height: clamp(40px, 8vw, 74px) !important;
 }
 
 /* Bmi form icons */
@@ -118,12 +118,12 @@
   height: 24px !important;
 }
 
-/* BMI reference icon */
+/* BMI reference icon — fluid sizing */
 .Info2 {
   padding: 2.5rem;
   color: #ffff00 !important;
-  width: 48px !important;
-  height: 48px !important;
+  width: clamp(28px, 6vw, 48px) !important;
+  height: clamp(28px, 6vw, 48px) !important;
 }
 
 .AlertTriangle2 {
@@ -332,6 +332,48 @@ p,
     width: min(96vw, 260px);
   }
 
+  /* Scale down large card header icons on mobile */
+  .Orbit,
+  .CircleSlash2,
+  .FileChartColumn,
+  .BarChart3,
+  .X,
+  .Gauge {
+    width: 52px !important;
+    height: 52px !important;
+  }
+
+  /* Body fat value responsive */
+  .bf-value {
+    font-size: 2.25rem;
+  }
+
+  /* Snapshot card values */
+  .card-value {
+    font-size: 2rem;
+  }
+
+  /* Risk marker compact */
+  .risk-marker {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Footer / about icons compact */
+  .AlertTriangle,
+  .Lightbulb,
+  .Users {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  /* Reference disclaimer icon compact */
+  .Info2 {
+    padding: 1.5rem;
+    width: 36px !important;
+    height: 36px !important;
+  }
+
   /* B: Compact results card on mobile — reduce padding */
   .bmi-results-card {
     padding: 1.5rem;
@@ -483,6 +525,105 @@ p,
 
   .gauge-container {
     width: min(96vw, 220px);
+  }
+
+  /* Even smaller card header icons at 360px */
+  .Orbit,
+  .CircleSlash2,
+  .FileChartColumn,
+  .BarChart3,
+  .X,
+  .Gauge {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  /* Body fat value further reduced */
+  .bf-value {
+    font-size: 1.75rem;
+  }
+
+  .bf-category {
+    font-size: 0.9rem;
+  }
+
+  /* Snapshot card values further reduced */
+  .card-value {
+    font-size: 1.5rem;
+  }
+
+  .card-label {
+    font-size: 0.65rem;
+  }
+
+  /* Risk marker further reduced */
+  .risk-marker {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Risk labels compact */
+  .risk-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.3px;
+  }
+
+  /* Footer / about icons further reduced */
+  .AlertTriangle,
+  .Lightbulb,
+  .Users {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  /* Reference disclaimer icon further reduced */
+  .Info2 {
+    padding: 1rem;
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* Ref title smaller */
+  .ref-card .title {
+    font-size: 1.75rem;
+  }
+
+  /* About card h3 smaller */
+  .about-card h3 {
+    font-size: 1.25rem;
+  }
+
+  /* Composition bar compact */
+  .comp-track {
+    height: 12px;
+  }
+
+  /* Bf ranges compact */
+  .bf-ranges {
+    padding: 0.75rem;
+  }
+
+  .range-row {
+    gap: 0.35rem;
+  }
+
+  .range-label {
+    width: 50px;
+    font-size: 0.65rem;
+  }
+
+  .range-val {
+    width: 36px;
+    font-size: 0.6rem;
+  }
+
+  /* Goal tracker compact */
+  .goal-stat .stat-value {
+    font-size: 0.95rem;
+  }
+
+  .goal-input-row .form-input {
+    max-width: 90px;
   }
 }
 
@@ -646,6 +787,197 @@ p,
 
   .button-group .btn {
     max-width: 100%;
+  }
+
+  /* Body fat extreme compact at 300px */
+  .bf-value {
+    font-size: 1.5rem;
+  }
+
+  .bf-category {
+    font-size: 0.75rem;
+  }
+
+  .comp-track {
+    height: 10px;
+  }
+
+  .bf-info-box {
+    padding: 0.5rem 0.65rem;
+    font-size: 0.7rem;
+    border-radius: 8px;
+  }
+
+  .bf-ranges {
+    padding: 0.5rem;
+    border-radius: 8px;
+  }
+
+  .bf-ranges h4 {
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .range-row {
+    gap: 0.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .range-label {
+    width: 44px;
+    font-size: 0.6rem;
+  }
+
+  .range-val {
+    width: 32px;
+    font-size: 0.55rem;
+  }
+
+  /* Snapshot extreme compact at 300px */
+  .card-value {
+    font-size: 1.25rem;
+  }
+
+  .card-category {
+    font-size: 0.75rem;
+  }
+
+  .card-label {
+    font-size: 0.6rem;
+    gap: 0.3rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .snapshot-card {
+    padding: 0.65rem 0.4rem;
+    border-radius: 10px;
+  }
+
+  .progress-section {
+    padding: 0.75rem;
+    border-radius: 10px;
+  }
+
+  .progress-label {
+    font-size: 0.75rem;
+  }
+
+  .progress-value {
+    font-size: 1rem;
+  }
+
+  .insight-item {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.78rem;
+    border-radius: 8px;
+  }
+
+  /* Risk extreme compact at 300px */
+  .risk-marker {
+    width: 24px;
+    height: 24px;
+  }
+
+  .risk-result {
+    padding: 0.85rem;
+    gap: 0.5rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+  }
+
+  .risk-level {
+    font-size: 0.95rem;
+  }
+
+  .risk-description {
+    font-size: 0.78rem;
+  }
+
+  .risk-bmi {
+    font-size: 1.15rem;
+  }
+
+  .risk-label {
+    font-size: 0.5rem;
+    letter-spacing: 0.2px;
+  }
+
+  .health-tips {
+    padding: 0.65rem;
+    border-radius: 10px;
+  }
+
+  .health-tips h4 {
+    font-size: 0.78rem;
+  }
+
+  .health-tips li {
+    font-size: 0.72rem;
+  }
+
+  /* Goal tracker extreme compact at 300px */
+  .goal-stats {
+    gap: 0.35rem;
+  }
+
+  .goal-stat {
+    padding: 0.35rem;
+    border-radius: 0.5rem;
+  }
+
+  .goal-stat .stat-label {
+    font-size: 0.58rem;
+  }
+
+  .goal-stat .stat-value {
+    font-size: 0.85rem;
+  }
+
+  .goal-actions .btn {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  /* Sparkline compact */
+  .interactive-chart {
+    height: 140px;
+  }
+
+  /* Scale indicators compact */
+  .scale-item {
+    padding: 6px 8px;
+    gap: 6px;
+    border-radius: 8px;
+  }
+
+  .scale-label {
+    font-size: 0.65rem;
+  }
+
+  .scale-range {
+    font-size: 0.65rem;
+  }
+
+  /* Ref title extreme compact */
+  .ref-card .title {
+    font-size: 1.4rem;
+  }
+
+  .ref-card .subtitle {
+    font-size: 0.85rem;
+  }
+
+  /* TDEE compact */
+  .tdee-card {
+    border-radius: 0.6rem;
+  }
+
+  .tdee-stat-value {
+    font-size: 0.95rem;
+  }
+
+  .tdee-range-value {
+    font-size: 0.8rem;
   }
 }
 
@@ -1127,6 +1459,92 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
   .button-group .btn {
     width: 100%;
     max-width: 220px;
+  }
+}
+
+/* Media queries: very extreme narrow (<=250px) */
+@media (max-width: 250px) {
+  .form-card,
+  .bmi-card,
+  .bmi-results-card {
+    padding: 0.5rem;
+    border-radius: 0.625rem;
+  }
+
+  .card-header {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-title {
+    font-size: 0.95rem;
+  }
+
+  .card-subtitle {
+    font-size: 0.7rem;
+  }
+
+  .bmi-value {
+    font-size: clamp(1.75rem, 8vw, 2.5rem);
+  }
+
+  .bmi-category {
+    font-size: 0.8rem;
+  }
+
+  .stat-number {
+    font-size: 0.95rem;
+  }
+
+  .stat-label {
+    font-size: 0.58rem;
+  }
+
+  .stat-desc {
+    font-size: 0.65rem;
+  }
+
+  .bf-value {
+    font-size: 1.25rem;
+  }
+
+  .card-value {
+    font-size: 1rem;
+  }
+
+  .risk-marker {
+    width: 20px;
+    height: 20px;
+  }
+
+  .goal-stat .stat-value {
+    font-size: 0.75rem;
+  }
+
+  .scale-item {
+    padding: 4px 6px;
+    gap: 4px;
+  }
+
+  .gauge-container {
+    width: min(96vw, 170px);
+  }
+
+  .ref-card .title {
+    font-size: 1.1rem;
+  }
+
+  .ref-card .subtitle {
+    font-size: 0.75rem;
+  }
+
+  .about-card {
+    padding: 0.65rem;
+    border-radius: 0.625rem;
+  }
+
+  .about-card h3 {
+    font-size: 0.78rem;
   }
 }
 
