@@ -122,3 +122,29 @@ Stage Summary:
 - Committed as c593a5d on dev branch
 - Pushed to origin/dev
 - Key file: responsive.css (1 line removed)
+---
+Task ID: 6
+Agent: Main Agent
+Task: Enhancements 1 — 300px responsive + lang switcher style match
+
+Work Log:
+- Moved .pager-tab base/hover/active/responsive styles from scoped +page.svelte to global nav.css
+- Lang switcher button now inherits identical pager-tab styles as all other navbar buttons
+- Conducted thorough responsive audit identifying all breakpoints and issues at 300px
+- Added @media (max-width: 300px) breakpoint with aggressive compact styles
+- Fixed .form-input max-width: 120px → 100% at ≤399px (was absurdly narrow)
+- Fixed .form-card/.bmi-card min-height: 750px → auto at ≤300px
+- Fixed .action-buttons-row → flex-direction: column at 300px (3 buttons stacked)
+- Fixed .tdee-grid → single column at 300px (was 2-col with no override)
+- Fixed .scale-indicators → single column at 300px (was 2-col with no override)
+- Fixed .pill-indicator min-width: 140px → auto at 300px
+- Fixed .lang-panel min-width → auto + width: calc(100vw - 2rem) at 300px
+- Fixed NotifyFloat min-width: 300px → auto + width: calc(100vw - 2rem)
+- Improved 360px breakpoint: tighter padding, stacked hero features, reduced hero-bottom negative margins
+- Reduced hero element sizes progressively at 360px and 300px
+- All verification passed: check (0 errors, 0 warnings), lint, test:run (162 tests), build
+
+Stage Summary:
+- Committed as 9a5258e on dev branch
+- Pushed to origin/dev
+- Key files: nav.css, responsive.css, +page.svelte, NotifyFloat.svelte
