@@ -47,3 +47,26 @@ Stage Summary:
 - Created src/styles/ with 11 files: tokens, base, components, form, results, data-cards, layout, responsive, splash, nav, animation
 - Zero CSS changes — byte-identical output
 - Commit: 0627e88
+---
+Task ID: 2
+Agent: Main Agent
+Task: Fix bug 7 — language switcher X icon, globe icon centering, About/Info i18n reactivity
+
+Work Log:
+- Read and analyzed LanguageSwitcher.svelte, i18n/index.ts, +page.svelte, all locale files
+- Identified root cause of X icon issue: Svelte 5 only allows one `<style>` block per component; tried `<style:global>` and `<style global>` which both failed
+- Final fix: kept single `<style>` block with `:global()` selectors (original approach was correct, CSS IS being generated)
+- Added z-index:10 to .lang-close for guaranteed visibility
+- Centered globe icon with `display: flex; justify-content: center; align-items: center;`
+- Added About/Info i18n translation keys to all 4 locale files (en, id, zh, ja)
+- Replaced all hardcoded English text in About and Info sections with t() calls
+- Used `{@html}` for paragraphs containing `<em>`/`<strong>` HTML tags
+- Added `{#key $localeVersion}` wrapping navbar labels, About section, and Info section to guarantee reactivity on locale change
+- Author name 'Rezky Nightky' kept unchanged across all languages
+- info.copyright uses interpolation: t('info.copyright', { n: currentYear })
+- All verification passed: check (0 errors, 0 warnings), lint, test:run (162 tests), build
+
+Stage Summary:
+- Committed as 8445f6e on dev branch
+- Pushed to origin/dev
+- Key files: LanguageSwitcher.svelte, +page.svelte, en.ts, id.ts, zh.ts, ja.ts
