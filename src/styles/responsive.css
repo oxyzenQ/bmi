@@ -1384,28 +1384,20 @@ body:not(.is-scrolling) .cosmic-particle {
     display: none !important;
   }
 
-  /* T-10: content-visibility for heavy off-screen cards.
-     Use 0px intrinsic size to prevent layout jumps.
-     The browser will measure actual size on first render
-     and cache it for subsequent hide/show cycles. */
-  .bmi-card,
-  .about-card,
-  .gauge-container,
-  .reference-table,
-  .footer-disclaimer {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 0px;
-  }
+  /* T-10: REMOVED — content-visibility: auto caused small layout jumps
+     when scrolling slowly (elements at viewport edge toggling skip/render
+     state). The contain rules in T-2/T-3 already isolate layout cost. */
 
   /* T-11: Permanently use solid background on navbars for touch.
      backdrop-filter blur(24px) is too expensive on mobile GPUs.
      On touch devices, is-scrolling class is NEVER toggled (see +page.svelte),
-     so we must set navbar bg permanently rather than toggling it. */
+     so we must set navbar bg permanently rather than toggling it.
+     Luxury void-tinted background for cohesive glassmorphism. */
   .pager-nav-shell,
   .pager-controls-shell {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
-    background: rgba(0, 0, 0, 0.85) !important;
+    background: rgba(2, 6, 23, 0.92) !important;
     box-shadow: none !important;
     contain: layout style;
   }
@@ -1429,6 +1421,33 @@ body:not(.is-scrolling) .cosmic-particle {
   :is(.hero-content, .pager-btn-futuristic) {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+  }
+
+  /* T-GLASS: Luxury black glassmorphism for touch devices.
+     Since body::after gradient overlay was removed (T-1b) for perf,
+     the wallpaper shows brighter, making default rgba(0,0,0,0.5) cards
+     look too transparent. Compensate with deeper void-tinted background.
+     Uses deep-void blue (2,6,23) for rich, luxurious dark glass feel
+     instead of plain black — subtle cosmic tint preserves the space aesthetic.
+     Inset top highlight maintains the glass edge light reflection. */
+  .bmi-card,
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table,
+  .form-card,
+  .github-link,
+  .section-header,
+  .section-header-v2,
+  .hero-content,
+  .lang-panel,
+  .notify-float-box,
+  .lang-backdrop {
+    background: rgba(2, 6, 23, 0.75) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
   }
 
   /* T-16: Remove ALL pseudo-element shine sweeps permanently on touch.
