@@ -112,6 +112,8 @@ const id: TranslationDict = {
   'form.import': 'Impor',
   'form.import_failed': 'Impor gagal. Periksa format file.',
   'form.could_not_read': 'Tidak dapat membaca file.',
+  'form.export_csv_aria': 'Ekspor CSV',
+  'form.export_csv': 'CSV',
 
   // ── Results ──
   'results.title': 'Hasil Anda',
@@ -129,6 +131,7 @@ const id: TranslationDict = {
   'results.bmr': 'BMR',
   'results.tdee': 'TDEE',
   'results.kcal_day': 'kkal/hari',
+  'results.kcal': 'kkal',
   'results.weight_loss': 'Penurunan Berat',
   'results.maintain': 'Pertahankan',
   'results.weight_gain': 'Peningkatan Berat',
@@ -361,6 +364,15 @@ const id: TranslationDict = {
 
   // ── Language Switcher ──
   'lang.aria': 'Ganti bahasa',
+  'lang.select': 'Pilih bahasa',
+  'lang.close': 'Tutup pemilih bahasa',
+  'lang.title': 'Bahasa',
+
+  // ── PWA ──
+  'pwa.install_text': 'Instal aplikasi ini untuk akses cepat',
+  'pwa.install_btn': 'Instal',
+  'pwa.dismiss': 'Tutup',
+  'pwa.offline': 'Luring',
 
   // ── About Section ──
   'about.title': 'Tentang BMI',

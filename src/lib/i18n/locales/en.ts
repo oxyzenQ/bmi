@@ -113,6 +113,8 @@ const en: TranslationDict = {
   'form.import': 'Import',
   'form.import_failed': 'Import failed. Please check the file format.',
   'form.could_not_read': 'Could not read the file.',
+  'form.export_csv_aria': 'Export CSV',
+  'form.export_csv': 'CSV',
 
   // ── Results ──
   'results.title': 'Your Results',
@@ -130,6 +132,7 @@ const en: TranslationDict = {
   'results.bmr': 'BMR',
   'results.tdee': 'TDEE',
   'results.kcal_day': 'kcal/day',
+  'results.kcal': 'kcal',
   'results.weight_loss': 'Weight Loss',
   'results.maintain': 'Maintain',
   'results.weight_gain': 'Weight Gain',
@@ -362,6 +365,15 @@ const en: TranslationDict = {
 
   // ── Language Switcher ──
   'lang.aria': 'Switch language',
+  'lang.select': 'Select language',
+  'lang.close': 'Close language picker',
+  'lang.title': 'Language',
+
+  // ── PWA ──
+  'pwa.install_text': 'Install this app for quick access',
+  'pwa.install_btn': 'Install',
+  'pwa.dismiss': 'Dismiss',
+  'pwa.offline': 'Offline',
 
   // ── About Section ──
   'about.title': 'About BMI',

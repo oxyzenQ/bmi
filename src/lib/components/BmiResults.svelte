@@ -115,13 +115,14 @@
     very_active: 1.9
   };
 
-  const ACTIVITY_LABELS: Record<string, string> = {
+  // Reactive activity labels — re-evaluates when locale changes via _rv dependency
+  let activityLabels = $derived({
     sedentary: t('results.activity_sedentary'),
     light: t('results.activity_light'),
     moderate: t('results.activity_moderate'),
     active: t('results.activity_very'),
     very_active: t('results.activity_extremely')
-  };
+  });
 
   let bmr = $derived.by(() => {
     if (gender !== 'male' && gender !== 'female') return null;
@@ -151,7 +152,7 @@
     return {
       bmr: Math.round(bmr!),
       tdee: Math.round(tdee),
-      activityLabel: activity ? ACTIVITY_LABELS[activity] ?? '' : '',
+      activityLabel: activity ? activityLabels[activity] ?? '' : '',
       deficit500: Math.round(tdee - 500),
       surplus500: Math.round(tdee + 500)
     };
@@ -398,17 +399,17 @@
             <div class="tdee-range tdee-cut">
               <span class="tdee-range-label">{t('results.weight_loss')}</span>
               <span class="tdee-range-value">{tdeeDisplay!.deficit500}</span>
-              <span class="tdee-range-unit">kcal</span>
+              <span class="tdee-range-unit">{t('results.kcal')}</span>
             </div>
             <div class="tdee-range tdee-maintain">
               <span class="tdee-range-label">{t('results.maintain')}</span>
               <span class="tdee-range-value">{tdeeDisplay!.tdee}</span>
-              <span class="tdee-range-unit">kcal</span>
+              <span class="tdee-range-unit">{t('results.kcal')}</span>
             </div>
             <div class="tdee-range tdee-gain">
               <span class="tdee-range-label">{t('results.weight_gain')}</span>
               <span class="tdee-range-value">{tdeeDisplay!.surplus500}</span>
-              <span class="tdee-range-unit">kcal</span>
+              <span class="tdee-range-unit">{t('results.kcal')}</span>
             </div>
           </div>
           <p class="tdee-disclaimer">{t('results.tdee_disclaimer')}</p>

@@ -341,7 +341,7 @@
     <div class="input-group">
       <label class="input-label">
         <PersonStanding size={16} />
-        Gender <span class="optional-tag">{t('form.optional')}</span>
+        {t('form.gender')} <span class="optional-tag">{t('form.optional')}</span>
       </label>
       <div class="segmented-control" role="radiogroup" aria-label={t('form.gender_aria')}>
         <button
@@ -432,9 +432,9 @@
         <ArrowUpFromLine size={16} aria-hidden="true" />
         {t('form.export')}
       </button>
-      <button type="button" class="btn btn-secondary" onclick={handleExportCsv} aria-label="Export CSV">
+      <button type="button" class="btn btn-secondary" onclick={handleExportCsv} aria-label={t('form.export_csv_aria')}>
         <FileSpreadsheet size={16} aria-hidden="true" />
-        CSV
+        {t('form.export_csv')}
       </button>
       <input
         type="file"

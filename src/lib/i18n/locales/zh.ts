@@ -112,6 +112,8 @@ const zh: TranslationDict = {
   'form.import': '\u5bfc\u5165',
   'form.import_failed': '\u5bfc\u5165\u5931\u8d25\uff0c\u8bf7\u68c0\u67e5\u6587\u4ef6\u683c\u5f0f\u3002',
   'form.could_not_read': '\u65e0\u6cd5\u8bfb\u53d6\u6587\u4ef6\u3002',
+  'form.export_csv_aria': '\u5bfc\u51fa CSV',
+  'form.export_csv': 'CSV',
 
   // ── Results ──
   'results.title': '\u60a8\u7684\u7ed3\u679c',
@@ -129,6 +131,7 @@ const zh: TranslationDict = {
   'results.bmr': 'BMR',
   'results.tdee': 'TDEE',
   'results.kcal_day': '\u5343\u5361/\u5929',
+  'results.kcal': '\u5343\u5361',
   'results.weight_loss': '\u51cf\u91cd',
   'results.maintain': '\u7ef4\u6301',
   'results.weight_gain': '\u589e\u91cd',
@@ -361,6 +364,15 @@ const zh: TranslationDict = {
 
   // ── Language Switcher ──
   'lang.aria': '\u5207\u6362\u8bed\u8a00',
+  'lang.select': '\u9009\u62e9\u8bed\u8a00',
+  'lang.close': '\u5173\u95ed\u8bed\u8a00\u9009\u62e9\u5668',
+  'lang.title': '\u8bed\u8a00',
+
+  // ── PWA ──
+  'pwa.install_text': '\u5b89\u88c5\u6b64\u5e94\u7528\u4ee5\u4fbf\u5feb\u901f\u8bbf\u95ee',
+  'pwa.install_btn': '\u5b89\u88c5',
+  'pwa.dismiss': '\u5173\u95ed',
+  'pwa.offline': '\u79bb\u7ebf',
 
   // ── About Section ──
   'about.title': '\u5173\u4e8e BMI',

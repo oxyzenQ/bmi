@@ -112,6 +112,8 @@ const ja: TranslationDict = {
   'form.import': '\u30a4\u30f3\u30dd\u30fc\u30c8',
   'form.import_failed': '\u30a4\u30f3\u30dd\u30fc\u30c8\u5931\u6557\u3002\u30d5\u30a1\u30a4\u30eb\u5f62\u5f0f\u3092\u78ba\u8a8d\u3057\u3066\u304f\u3060\u3055\u3044\u3002',
   'form.could_not_read': '\u30d5\u30a1\u30a4\u30eb\u3092\u8aad\u307f\u8fbc\u3081\u307e\u305b\u3093\u3002',
+  'form.export_csv_aria': 'CSV\u30a8\u30af\u30b9\u30dd\u30fc\u30c8',
+  'form.export_csv': 'CSV',
 
   // ── Results ──
   'results.title': '\u8a08\u7b97\u7d50\u679c',
@@ -129,6 +131,7 @@ const ja: TranslationDict = {
   'results.bmr': 'BMR',
   'results.tdee': 'TDEE',
   'results.kcal_day': 'kcal/\u65e5',
+  'results.kcal': 'kcal',
   'results.weight_loss': '\u6e1b\u91cf',
   'results.maintain': '\u7d99\u7d9a',
   'results.weight_gain': '\u5897\u91cf',
@@ -361,6 +364,15 @@ const ja: TranslationDict = {
 
   // ── Language Switcher ──
   'lang.aria': '\u8a00\u8a9e\u3092\u5207\u308a\u66ff\u3048',
+  'lang.select': '\u8a00\u8a9e\u3092\u9078\u629e',
+  'lang.close': '\u8a00\u8a9e\u9078\u629e\u3092\u9589\u3058\u308b',
+  'lang.title': '\u8a00\u8a9e',
+
+  // ── PWA ──
+  'pwa.install_text': '\u30a2\u30d7\u30ea\u3092\u30a4\u30f3\u30b9\u30c8\u30fc\u30eb\u3057\u3066\u7c21\u5358\u30a2\u30af\u30bb\u30b9',
+  'pwa.install_btn': '\u30a4\u30f3\u30b9\u30c8\u30fc\u30eb',
+  'pwa.dismiss': '\u9589\u3058\u308b',
+  'pwa.offline': '\u30aa\u30d5\u30e9\u30a4\u30f3',
 
   // ── About Section ──
   'about.title': 'BMI \u306b\u3064\u3044\u3066',

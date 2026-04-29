@@ -76,7 +76,7 @@
 <button
   type="button"
   class="btn btn-ghost pager-tab"
-  aria-label="Switch language"
+  aria-label={t('lang.aria')}
   aria-expanded={open}
   onclick={handleToggle}
 >
@@ -94,14 +94,14 @@
     <div
       class="lang-panel"
       role="dialog"
-      aria-label="Select language"
+      aria-label={t('lang.select')}
       tabindex="-1"
     >
       <button
         type="button"
         class="lang-close"
         onclick={closePanel}
-        aria-label="Close language picker"
+        aria-label={t('lang.close')}
       >
         <X size={16} />
       </button>
@@ -110,7 +110,7 @@
         <Globe size={32} aria-hidden="true" />
       </div>
 
-      <h3 class="lang-panel-title">Language</h3>
+      <h3 class="lang-panel-title">{t('lang.title')}</h3>
 
       <div class="lang-options">
         {#each locales as loc (loc.code)}

@@ -26,6 +26,9 @@
   import { browser } from '$app/environment';
   import { fade } from 'svelte/transition';
   import { Download, WifiOff } from 'lucide-svelte';
+  import { t as _t, localeVersion } from '$lib/i18n';
+  let _rv = $derived($localeVersion);
+  function t(key: string): string { void _rv; return _t(key); }
 
   let { children }: { children: Snippet } = $props();
   let showMainContent = $state(true); // Show content immediately
@@ -237,9 +240,9 @@
   <div class="pwa-install-bar" transition:fade={{ duration: 250 }}>
     <div class="pwa-install-content">
       <Download size={18} aria-hidden="true" />
-      <span class="pwa-install-text">Install this app for quick access</span>
-      <button class="pwa-install-btn" onclick={handleInstallClick}>Install</button>
-      <button class="pwa-dismiss-btn" onclick={dismissInstallBanner} aria-label="Dismiss">✕</button>
+      <span class="pwa-install-text">{t('pwa.install_text')}</span>
+      <button class="pwa-install-btn" onclick={handleInstallClick}>{t('pwa.install_btn')}</button>
+      <button class="pwa-dismiss-btn" onclick={dismissInstallBanner} aria-label={t('pwa.dismiss')}>✕</button>
     </div>
   </div>
 {/if}
@@ -248,7 +251,7 @@
 {#if isOffline}
   <div class="pwa-offline-badge" transition:fade={{ duration: 250 }}>
     <WifiOff size={14} aria-hidden="true" />
-    <span>Offline</span>
+    <span>{t('pwa.offline')}</span>
   </div>
 {/if}
 

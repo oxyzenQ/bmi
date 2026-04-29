@@ -5,8 +5,11 @@
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
-  const bmiCategories = [
+  // Reactive bmiCategories — $derived.by() reads _rv so it re-evaluates on locale change.
+  // Uses stable `key` for identity/comparisons (not translated text which would break class: bindings).
+  let bmiCategories = $derived.by(() => [
     {
+      key: 'underweight' as const,
       category: t('ref.underweight'),
       range: t('ref.underweight_range'),
       status: t('ref.underweight_status'),
@@ -21,6 +24,7 @@
       recommendation: t('ref.underweight_action')
     },
     {
+      key: 'normal' as const,
       category: t('ref.normal'),
       range: t('ref.normal_range'),
       status: t('ref.normal_status'),
@@ -34,6 +38,7 @@
       recommendation: t('ref.normal_action')
     },
     {
+      key: 'overweight' as const,
       category: t('ref.overweight'),
       range: t('ref.overweight_range'),
       status: t('ref.overweight_status'),
@@ -47,6 +52,7 @@
       recommendation: t('ref.overweight_action')
     },
     {
+      key: 'obese' as const,
       category: t('ref.obese'),
       range: t('ref.obese_range'),
       status: t('ref.obese_status'),
@@ -60,7 +66,7 @@
       ],
       recommendation: t('ref.obese_action')
     }
-  ];
+  ]);
 </script>
 <div class="bmi-card reference-table">
   <div class="ref-card">
@@ -81,16 +87,16 @@
   </div>
 
   <div class="ref-body">
-    {#each bmiCategories as category (category.category)}
+    {#each bmiCategories as category (category.key)}
       {@const Icon = category.icon}
       <div
         class="ref-row"
-        class:ref-row-underweight={category.category === t('ref.underweight')}
-        class:ref-row-normal={category.category === t('ref.normal')}
-        class:ref-row-overweight={category.category === t('ref.overweight')}
-        class:ref-row-obese={category.category === t('ref.obese')}
+        class:ref-row-underweight={category.key === 'underweight'}
+        class:ref-row-normal={category.key === 'normal'}
+        class:ref-row-overweight={category.key === 'overweight'}
+        class:ref-row-obese={category.key === 'obese'}
       >
-        <div class="ref-col" data-label="Category">
+        <div class="ref-col" data-label={t('ref.col_category')}>
           <div class="icon-col">
             <Icon class={category.iconClass} style={`color: ${category.statusColor}`} />
             <strong>{category.category}</strong>
@@ -104,13 +110,13 @@
             {/each}
           </div>
         </div>
-        <div class="ref-col" data-label="BMI Range">
+        <div class="ref-col" data-label={t('ref.col_range')}>
           <strong>{category.range}</strong>
         </div>
-        <div class="ref-col" data-label="Health Status">
+        <div class="ref-col" data-label={t('ref.col_status')}>
           <span class="status-text" style={`color: ${category.statusColor}`}>{category.status}</span>
         </div>
-        <div class="ref-col" data-label="Recommended Action">
+        <div class="ref-col" data-label={t('ref.col_action')}>
           <span>{category.recommendation}</span>
         </div>
       </div>
