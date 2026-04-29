@@ -55,7 +55,7 @@ const id: TranslationDict = {
   'hero.subtitle': 'Jelajahi kosmos tubuh Anda \u2014 temukan keseimbangan Anda di bawah bintang-bintang.',
   'hero.feature1': 'Perhitungan Akurat',
   'hero.feature2': 'Insight Kesehatan',
-  'hero.feature3': 'Desain Luxury',
+  'hero.feature3': 'Desain Mewah',
   'hero.edition': 'Edisi Stellar 10.5',
 
   // ── Form ──
