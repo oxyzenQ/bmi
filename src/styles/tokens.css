@@ -322,7 +322,7 @@
   /* ── End opacity token system ── */
 
   /* Button system */
-  --btn-radius: 14px;
+  --btn-radius: 10px;
   --btn-height: 44px;
   --btn-padding-x: 18px;
   --btn-font: 600 0.95rem/1 'Inter Variable', system-ui, -apple-system, sans-serif;
