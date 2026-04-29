@@ -23,7 +23,8 @@
     GitBranch,
     GitCompare,
     PackageCheck,
-    Wrench,
+    ShieldCheck,
+    Activity,
     AlertTriangle,
     Scale,
     Bot,
@@ -1136,11 +1137,11 @@
                         <strong>{t('about.type_apps')}:</strong><span class="text-gradient-elegant">{t('about.open_source')}</span>
                       </p>
                       <p class="info-row">
-                        <Wrench class="Wrench" />
+                        <ShieldCheck class="ShieldCheck" />
                         <strong>{t('about.status')}:</strong>{t('about.status_stable')}
                       </p>
                       <p class="info-row">
-                        <Wrench class="Wrench" />
+                        <Activity class="Activity" />
                         <strong>{t('about.maintenance')}:</strong>{t('about.maintenance_active')}
                       </p>
                       <p class="info-row">
