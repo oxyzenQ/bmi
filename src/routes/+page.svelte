@@ -209,19 +209,27 @@
   let smoothModeStatus = $derived(smoothModeRequested ? t('nav.on') : t('nav.off'));
 
   // Wallpaper theme toggle
-  let currentTheme = $state<'space' | 'energy'>('space');
-  let themeLabel = $derived(currentTheme === 'space' ? t('nav.space') : t('nav.energy'));
+  type ThemeKey = 'blackhole' | 'spaceship' | 'space';
+  const THEMES: ThemeKey[] = ['blackhole', 'spaceship', 'space'];
+  const THEME_URLS: Record<ThemeKey, string> = {
+    blackhole: 'url("/images/blackhole.webp")',
+    spaceship: 'url("/images/spaceshipx.webp")',
+    space: 'url("/images/oxyzen-zenlysium.webp")',
+  };
+  const THEME_LABELS: Record<ThemeKey, () => string> = {
+    blackhole: () => t('nav.blackhole'),
+    spaceship: () => t('nav.spaceship'),
+    space: () => t('nav.space'),
+  };
+  let currentTheme = $state<ThemeKey>('blackhole');
+  let themeLabel = $derived(THEME_LABELS[currentTheme]());
 
   function toggleWallpaperTheme() {
-    currentTheme = currentTheme === 'space' ? 'energy' : 'space';
+    const idx = THEMES.indexOf(currentTheme);
+    currentTheme = THEMES[(idx + 1) % THEMES.length];
     if (browser) {
       storageSet(STORAGE_KEYS.WALLPAPER_THEME, currentTheme);
-      const root = document.documentElement;
-      if (currentTheme === 'energy') {
-        root.style.setProperty('--wallpaper-current', 'url("/images/oxyzen-cyberagent.webp")');
-      } else {
-        root.style.setProperty('--wallpaper-current', 'url("/images/oxyzen-zenlysium.webp")');
-      }
+      document.documentElement.style.setProperty('--wallpaper-current', THEME_URLS[currentTheme]);
     }
   }
 
@@ -623,11 +631,9 @@
     // Read wallpaper theme preference
     try {
       const storedTheme = storageGet(STORAGE_KEYS.WALLPAPER_THEME);
-      if (storedTheme === 'energy' || storedTheme === 'space') {
-        currentTheme = storedTheme;
-        if (currentTheme === 'energy') {
-          document.documentElement.style.setProperty('--wallpaper-current', 'url("/images/oxyzen-cyberagent.webp")');
-        }
+      if (storedTheme && THEMES.includes(storedTheme as ThemeKey)) {
+        currentTheme = storedTheme as ThemeKey;
+        document.documentElement.style.setProperty('--wallpaper-current', THEME_URLS[currentTheme]);
       }
     } catch {
       // localStorage unavailable
@@ -861,12 +867,12 @@
           type="button"
           class="btn btn-ghost pager-tab pager-theme"
           aria-label={t('nav.theme_aria')}
-          aria-pressed={currentTheme === 'energy'}
+          aria-pressed={currentTheme !== 'blackhole'}
           onclick={toggleWallpaperTheme}
         >
           <Sparkles class="render-spark" aria-hidden="true" />
           {t('nav.theme')}
-          <span class:theme-energy={currentTheme === 'energy'} class:theme-space={currentTheme === 'space'}>
+          <span class:theme-blackhole={currentTheme === 'blackhole'} class:theme-spaceship={currentTheme === 'spaceship'} class:theme-space={currentTheme === 'space'}>
             {themeLabel}
           </span>
         </button>
@@ -1396,15 +1402,21 @@
     transition: color 0.3s ease, filter 0.3s ease;
   }
 
-  .pager-theme .theme-space {
-    color: var(--cosmic-blue);
+  .pager-theme .theme-blackhole {
+    color: #b266ff;
     font-weight: 600;
+    text-shadow: 0 0 8px var(--purple2-40, rgba(178, 102, 255, 0.4));
   }
 
-  .pager-theme .theme-energy {
+  .pager-theme .theme-spaceship {
     color: #00f0ff;
     font-weight: 600;
     text-shadow: 0 0 8px var(--cyan2-40);
+  }
+
+  .pager-theme .theme-space {
+    color: var(--cosmic-blue);
+    font-weight: 600;
   }
 
   /* .pager-tab.active moved to global nav.css */

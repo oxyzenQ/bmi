@@ -53,9 +53,10 @@
   --cosmic-silver: #d6ccff;
 
   /* Wallpaper system */
-  --wallpaper-current: url('/images/oxyzen-zenlysium.webp');
+  --wallpaper-current: url('/images/blackhole.webp');
+  --wallpaper-blackhole: url('/images/blackhole.webp');
+  --wallpaper-spaceship: url('/images/spaceshipx.webp');
   --wallpaper-space: url('/images/oxyzen-zenlysium.webp');
-  --wallpaper-energy: url('/images/oxyzen-cyberagent.webp');
 
   /* Text & accents */
   --text-primary: var(--stellar-white);
