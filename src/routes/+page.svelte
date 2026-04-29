@@ -163,6 +163,11 @@
   let pagerControlsVisible = $state(true);
   let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
+  // Touch swipe state for mobile horizontal navigation
+  let touchStartX: number | null = null;
+  let touchStartY: number | null = null;
+  let touchStartTime: number = 0;
+  let touchHandled = false;
   let activePointerId: number | null = null;
   let lastWheelNavAt = 0;
   let switchingTimer: ReturnType<typeof setTimeout> | null = null;
@@ -442,6 +447,8 @@
   }
 
   function handlePointerDown(event: PointerEvent) {
+    // Touch is handled by dedicated touch handlers below;
+    // pointer events only manage mouse/stylus input.
     if (event.pointerType === 'touch') return;
     const target = event.target as HTMLElement | null;
     if (target?.closest('button, a, input, textarea, select, label')) return;
@@ -498,6 +505,65 @@
       }
     }
     activePointerId = null;
+  }
+
+  // ── Mobile touch swipe handlers ──
+  // Detects horizontal swipes on touch devices to navigate between sections.
+  // Uses touchstart/touchmove/touchend because pointer events for touch are
+  // intentionally kept separate (pointer handles mouse/stylus only).
+  function handleTouchStart(e: TouchEvent) {
+    const touch = e.touches[0];
+    if (!touch) return;
+    const target = e.target as HTMLElement | null;
+    if (target?.closest('button, a, input, textarea, select, label')) return;
+    if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell')) return;
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    touchStartTime = Date.now();
+    touchHandled = false;
+  }
+
+  function handleTouchMove(e: TouchEvent) {
+    if (touchStartX === null || touchStartY === null) return;
+    const touch = e.touches[0];
+    if (!touch) return;
+    const dx = Math.abs(touch.clientX - touchStartX);
+    const dy = Math.abs(touch.clientY - touchStartY);
+    // If horizontal movement dominates and exceeds threshold, prevent vertical scroll
+    if (dx > dy * 1.2 && dx > 15) {
+      e.preventDefault();
+      touchHandled = true;
+    }
+  }
+
+  function handleTouchEnd(e: TouchEvent) {
+    if (touchStartX === null || touchStartY === null) {
+      touchStartX = null;
+      touchStartY = null;
+      return;
+    }
+    const touch = e.changedTouches[0];
+    if (!touch) {
+      touchStartX = null;
+      touchStartY = null;
+      return;
+    }
+    const dx = touch.clientX - touchStartX;
+    const dy = touch.clientY - touchStartY;
+    const elapsed = Date.now() - touchStartTime;
+    touchStartX = null;
+    touchStartY = null;
+
+    // Swipe must be horizontal enough, exceed minimum distance, and be fast enough
+    const isHorizontal = Math.abs(dx) > Math.abs(dy) * SCROLL.SWIPE_ANGLE_RATIO;
+    const isLongEnough = Math.abs(dx) >= SCROLL.SWIPE_DX_MIN;
+    const isFastEnough = elapsed < 500;
+
+    if (isHorizontal && isLongEnough && isFastEnough) {
+      triggerHaptic(HAPTIC.NAV);
+      if (dx < 0) nextSection();
+      else prevSection();
+    }
   }
 
   function handleWheel(event: WheelEvent) {
@@ -666,6 +732,13 @@
     const onResize = () => schedulePagerNavAlignment();
     window.addEventListener('resize', onResize, { passive: true });
 
+    // Mobile touch swipe listeners for horizontal page navigation.
+    // touchmove uses { passive: false } so we can preventDefault() to block
+    // vertical scroll when a horizontal swipe is detected.
+    pagerEl?.addEventListener('touchstart', handleTouchStart, { passive: true });
+    pagerEl?.addEventListener('touchmove', handleTouchMove, { passive: false });
+    pagerEl?.addEventListener('touchend', handleTouchEnd, { passive: true });
+
     // Unified scroll listener: is-scrolling class + pager-controls auto-hide
     let isScrolling = false;
     let isScrollingTimer: ReturnType<typeof setTimeout> | null = null;
@@ -715,6 +788,9 @@
       window.removeEventListener('resize', onResize);
       window.removeEventListener('storage', onStorage);
       document.removeEventListener('scroll', onScroll, { capture: true });
+      pagerEl?.removeEventListener('touchstart', handleTouchStart);
+      pagerEl?.removeEventListener('touchmove', handleTouchMove);
+      pagerEl?.removeEventListener('touchend', handleTouchEnd);
       if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
       if (scrollTimeout !== null) clearTimeout(scrollTimeout);
       if (isScrollingTimer) clearTimeout(isScrollingTimer);
@@ -1280,7 +1356,7 @@
     gap: 0;
     padding-top: 0;
     overflow: hidden;
-    touch-action: pan-y pinch-zoom;
+    touch-action: pan-y pan-x pinch-zoom;
     position: relative;
     --pager-top-inset: calc(env(safe-area-inset-top, 0px) + 54px);
     --pager-edge-fade: 100px;
@@ -1335,13 +1411,13 @@
     min-width: 0;
     overflow: hidden;
     background: var(--k-50);
-    backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
     border: none;
     border-bottom: 1px solid var(--w-8);
     box-shadow:
       0 1px 0 0 var(--w-4),
-      0 8px 32px var(--k-48),
+      0 8px 32px var(--k-50),
       0 2px 16px var(--k-32),
       inset 0 1px 0 var(--w-6);
     border-radius: 0 0 22px 22px;

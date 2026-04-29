@@ -1165,6 +1165,16 @@ html:not([data-graphics='render']) body.is-scrolling :is(.pager-nav-shell, .page
   box-shadow: none !important;
 }
 
+/* Remove backdrop-filter from navbars during scroll on touch devices to reduce jank */
+@media (hover: none) and (pointer: coarse) {
+  body.is-scrolling .pager-nav-shell,
+  body.is-scrolling .pager-controls-shell {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: rgba(0, 0, 0, 0.85) !important;
+  }
+}
+
 html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .pager-controls-shell) {
   box-shadow: none !important;
 }

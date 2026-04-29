@@ -129,17 +129,27 @@ html[data-performance-tier="medium"] .cosmic-particles {
 }
 
 /* ==============================
-   PAGER / BOTTOM NAV STYLES
+   PAGER / NAV BAR STYLES (top + bottom)
    ============================== */
 
+/* Top navbar — ensures backdrop-filter renders consistently
+   across mobile browsers (especially WebKit/Safari).
+   -webkit- prefix must come before unprefixed for reliable fallback. */
+.pager-nav-shell {
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  background: var(--k-50) !important;
+}
+
+/* Bottom navbar */
 .pager-controls-shell {
   width: 100%;
   max-width: none;
   min-width: 0;
   overflow: hidden;
   background: var(--k-50) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
   border: none !important;
   border-top: 1px solid var(--w-8) !important;
   box-shadow: 0 -1px 0 var(--w-6), 0 -8px 30px rgba(0,0,0,0.5), 0 -2px 8px rgba(0,0,0,0.3);
