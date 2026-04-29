@@ -40,18 +40,6 @@ html[data-performance-tier="low"] :is(
   text-shadow: none !important;
 }
 
-html[data-performance-tier="medium"] .cosmic-particles .cosmic-particle {
-  filter: blur(0.2px) !important;
-  will-change: auto;
-}
-
-html[data-performance-tier="medium"] :is(
-  .plasma-star,
-  .sparkle-icon
-) {
-  filter: drop-shadow(0 0 4px currentColor) !important;
-}
-
 /* HIGH TIER: Full effects — will-change now managed by scroll state
    (body:not(.is-scrolling) in responsive.css) instead of per-tier. */
 html[data-performance-tier="high"] .cosmic-particles .cosmic-particle {

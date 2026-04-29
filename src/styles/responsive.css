@@ -1286,18 +1286,27 @@ body:not(.is-scrolling) .cosmic-particle {
 
   /* T-1: Simplify body::before filter permanently on touch.
      filter: brightness(1) contrast(1.25) saturate(1) still costs
-     GPU cycles even though values look "neutral". */
+     GPU cycles even though values look "neutral".
+     Also remove translateZ(0) compositor layer promotion. */
   body::before {
     filter: none !important;
+    transform: none !important;
+  }
+
+  /* T-1b: Remove body::after gradient overlay on touch.
+     Fixed full-viewport gradient recalculated per frame —
+     the dark wallpaper already provides sufficient background depth. */
+  body::after {
+    display: none !important;
   }
 
   /* T-2: Promote .pager-section to its own compositor layer
      so the browser can scroll it independently of fixed navbars.
-     Override the base will-change: transform, opacity from +page.svelte
-     to avoid conflicting compositor layers. */
+     Also add contain to isolate layout recalculations. */
   .pager-section {
     will-change: scroll-position !important;
     -webkit-overflow-scrolling: touch;
+    contain: layout style paint;
   }
 
   /* T-3: Permanently simplify box-shadow on glass cards.
@@ -1313,6 +1322,7 @@ body:not(.is-scrolling) .cosmic-particle {
   .section-header,
   .section-header-v2 {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+    contain: layout style paint;
   }
 
   /* T-4: Permanently disable transitions on glass cards.
@@ -1367,10 +1377,11 @@ body:not(.is-scrolling) .cosmic-particle {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
   }
 
-  /* T-9: Permanently remove pager-shell::before gradient.
-     Fixed overlay gradient is recalculated per frame. */
-  .pager-shell::before {
-    opacity: 0 !important;
+  /* T-9: Permanently remove pager-shell::before and ::after.
+     Fixed overlay elements cause compositing cost per frame. */
+  .pager-shell::before,
+  .pager-shell::after {
+    display: none !important;
   }
 
   /* T-10: content-visibility for heavy off-screen cards.
@@ -1395,6 +1406,8 @@ body:not(.is-scrolling) .cosmic-particle {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
     background: rgba(0, 0, 0, 0.85) !important;
+    box-shadow: none !important;
+    contain: layout style;
   }
 
   /* T-12: will-change: auto on cards — avoid unnecessary compositor layers */
@@ -1407,13 +1420,6 @@ body:not(.is-scrolling) .cosmic-particle {
     background-attachment: scroll;
   }
 
-  body::before,
-  body::after {
-    position: fixed;
-    height: auto !important;
-    min-height: 0 !important;
-  }
-
   /* T-14: Disable hover transforms on touch devices */
   :is(.btn, button, a.button):hover {
     transform: none;
@@ -1423,6 +1429,36 @@ body:not(.is-scrolling) .cosmic-particle {
   :is(.hero-content, .pager-btn-futuristic) {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+  }
+
+  /* T-16: Remove ALL pseudo-element shine sweeps permanently on touch.
+     Even when not scrolling, these oversized elements waste memory. */
+  .bmi-card::after,
+  .footer-disclaimer::after,
+  .about-card::after,
+  .gauge-container::after,
+  .reference-table::after,
+  .form-card::after {
+    display: none !important;
+  }
+
+  /* T-17: Simplify .orb blur on touch — reduce from 10px to 4px. */
+  .orb {
+    filter: blur(4px) !important;
+  }
+
+  /* T-18: Disable font-feature-settings on touch for faster text rendering. */
+  body {
+    font-feature-settings: none;
+    -webkit-font-smoothing: subpixel-antialiased;
+    text-rendering: optimizeSpeed;
+  }
+
+  /* T-19: Force GPU compositing isolation on pager-shell. */
+  .pager-shell {
+    contain: strict;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
 }
 
