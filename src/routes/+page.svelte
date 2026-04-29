@@ -1372,31 +1372,7 @@
     display: none;
   }
 
-  .pager-tab {
-    height: 36px;
-    padding-inline: 0.85rem;
-    font-size: 0.88rem;
-    border-radius: 9999px;
-    white-space: nowrap;
-    opacity: 0.7;
-    flex: 0 0 auto;
-    min-width: max-content;
-    overflow: visible;
-    letter-spacing: 0.02em;
-    border: 1px solid transparent;
-    transition:
-      opacity 0.25s ease,
-      background 0.25s ease,
-      border-color 0.25s ease,
-      box-shadow 0.25s ease,
-      transform 0.2s var(--easing-smooth);
-  }
-
-  .pager-tab:hover {
-    opacity: 0.9;
-    background: var(--w-6);
-    border-color: var(--w-10);
-  }
+  /* .pager-tab styles moved to global nav.css for cross-component use (LanguageSwitcher) */
 
   .pager-smooth {
     opacity: 1;
@@ -1431,20 +1407,7 @@
     text-shadow: 0 0 8px var(--cyan2-40);
   }
 
-  .pager-tab.active {
-    opacity: 1;
-    background: linear-gradient(
-      135deg,
-      var(--w-10) 0%,
-      var(--w-5) 100%
-    );
-    border-color: color-mix(in oklab, var(--aurora-core) 45%, var(--w-14));
-    box-shadow:
-      0 0 20px color-mix(in oklab, var(--cosmic-purple) 22%, transparent),
-      0 0 6px color-mix(in oklab, var(--aurora-core) 15%, transparent);
-    transform: translateY(-1px);
-    font-weight: 500;
-  }
+  /* .pager-tab.active moved to global nav.css */
 
   .pager-view {
     flex: 1;
@@ -1488,11 +1451,7 @@
       overflow-x: auto;
     }
 
-    .pager-tab {
-      height: 34px;
-      padding-inline: 0.65rem;
-      font-size: 0.8rem;
-    }
+    /* .pager-tab responsive moved to global nav.css */
 
     .pager-smooth {
       font-size: 0.76rem;

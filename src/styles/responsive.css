@@ -418,69 +418,234 @@ p,
   .hero-content {
     margin-top: clamp(20px, 12vh, 48px) !important;
     margin-bottom: clamp(28px, 16vh, 90px) !important;
-    padding: 2rem 1.25rem;
+    padding: 2rem 1rem;
   }
 
   .hero-avatar {
-    width: 88px;
-    height: 88px;
-    padding: 0.5rem;
+    width: 80px;
+    height: 80px;
+    padding: 0.4rem;
   }
 
   .hero-title {
-    font-size: clamp(1.35rem, 7vw, 1.9rem);
-    gap: 0.5rem;
+    font-size: clamp(1.25rem, 7vw, 1.75rem);
+    gap: 0.4rem;
   }
 
   .Telescope {
-    width: 40px !important;
-    height: 40px !important;
+    width: 36px !important;
+    height: 36px !important;
   }
 
   .hero-subtitle {
-    font-size: 1rem;
-    padding: 0.5rem;
-    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
+    padding: 0.4rem;
+    margin-bottom: 1rem;
   }
 
   .hero-features {
-    gap: 0.75rem;
-    margin-bottom: 1.25rem;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .feature {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.8rem;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
   }
 
   .hero-bottom {
-    margin-left: -12px;
-    margin-right: -12px;
-    height: 44px;
-    margin-bottom: -44px;
+    margin-left: -8px;
+    margin-right: -8px;
+    height: 40px;
+    margin-bottom: -40px;
   }
 
   .hero-bottom-text {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
 
   .bmi-section {
-    margin-top: clamp(20px, 8vh, 60px);
-    margin-bottom: clamp(20px, 8vh, 60px);
+    margin-top: clamp(16px, 6vh, 50px);
+    margin-bottom: clamp(16px, 6vh, 50px);
   }
 
   .charts-section {
-    margin-top: clamp(20px, 8vh, 60px);
-    margin-bottom: clamp(20px, 8vh, 60px);
+    margin-top: clamp(16px, 6vh, 50px);
+    margin-bottom: clamp(16px, 6vh, 50px);
   }
 
   .bmi-grid {
-    padding: 12px;
-    gap: 0.75rem;
+    padding: 8px;
+    gap: 0.6rem;
   }
 
   .gauge-container {
-    width: min(96vw, 240px);
+    width: min(96vw, 220px);
+  }
+}
+
+/* Media queries: extreme-narrow (<=300px) */
+@media (max-width: 300px) {
+  .main-container,
+  .container,
+  .section-container {
+    padding-inline: clamp(0.5rem, 3vw, 0.75rem);
+  }
+
+  .hero-content {
+    padding: 1.5rem 0.75rem;
+    margin: 0.5rem !important;
+  }
+
+  .hero-avatar {
+    width: 64px;
+    height: 64px;
+    padding: 0.35rem;
+  }
+
+  .hero-title {
+    font-size: clamp(1.1rem, 6.5vw, 1.5rem);
+    gap: 0.35rem;
+  }
+
+  .Telescope {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .hero-subtitle {
+    font-size: 0.8rem;
+    padding: 0.3rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .hero-features {
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .feature {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .hero-bottom {
+    margin-left: -6px;
+    margin-right: -6px;
+    height: 36px;
+    margin-bottom: -36px;
+  }
+
+  .hero-bottom-text {
+    font-size: 0.7rem;
+  }
+
+  .bmi-grid {
+    padding: 6px;
+    gap: 0.5rem;
+  }
+
+  .form-card,
+  .bmi-card {
+    min-height: auto;
+    padding: clamp(0.75rem, 3vw, 1rem);
+    border-radius: 1rem;
+  }
+
+  .form-input {
+    max-width: 100%;
+  }
+
+  .input-error {
+    max-width: 100%;
+  }
+
+  .pill-indicator {
+    min-width: auto;
+    padding: 0 10px;
+    font-size: 0.75rem;
+  }
+
+  .bmi-results-card {
+    padding: 0.75rem 0.625rem;
+    border-radius: 0.875rem;
+  }
+
+  .card-header {
+    margin-top: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .bmi-value {
+    font-size: clamp(2rem, 10vw, 2.75rem);
+    margin-bottom: 0.5rem;
+  }
+
+  .bmi-category {
+    font-size: 0.9rem;
+  }
+
+  .action-buttons-row {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .action-btn {
+    font-size: 0.6rem;
+    padding: 0.3rem 0.4rem;
+    gap: 0.15rem;
+  }
+
+  .action-btn svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .stat-block {
+    padding: 0.6rem;
+    border-radius: 0.5rem;
+  }
+
+  .health-advice,
+  .age-advisory,
+  .bmi-explanation {
+    padding: 0.6rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .gauge-container {
+    width: min(96vw, 200px);
+  }
+
+  .tdee-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .scale-indicators {
+    grid-template-columns: 1fr;
+  }
+
+  .lang-panel {
+    min-width: auto;
+    width: calc(100vw - 2rem);
+    padding: 1.25rem 1rem;
+    border-radius: 1rem;
+  }
+
+  .about-card {
+    padding: 0.875rem;
+    border-radius: 0.875rem;
+  }
+
+  .about-card h3 {
+    font-size: 0.9rem;
+  }
+
+  .button-group .btn {
+    max-width: 100%;
   }
 }
 
@@ -726,12 +891,12 @@ html:not([data-graphics='render']) body.is-switching :is(.pager-nav-shell, .page
 @media (max-width: 399px) {
   .form-input {
     width: 100%;
-    max-width: 120px;
+    max-width: 100%;
   }
 
   .input-error {
     width: 100%;
-    max-width: 120px;
+    max-width: 100%;
     margin-left: 0;
     margin-right: 0;
   }

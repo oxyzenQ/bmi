@@ -439,7 +439,8 @@
   @media (max-width: 480px) {
     .notify-float-box {
       padding: 2rem 1.5rem;
-      min-width: 300px;
+      min-width: auto;
+      width: calc(100vw - 2rem);
       margin: 0 1rem;
       border-radius: 20px;
     }
