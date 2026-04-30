@@ -115,8 +115,18 @@ const en: TranslationDict = {
   'form.could_not_read': 'Could not read the file.',
   'form.export_csv_aria': 'Export CSV',
   'form.export_csv': 'CSV',
-  'form.toggle_encryption': 'Toggle encryption',
-  'form.passphrase_placeholder': 'Enter passphrase (optional)',
+
+  // ── Crypto / Encryption Modal ──
+  'crypto.export_title': 'Secure Export',
+  'crypto.import_title': 'Enter Passphrase',
+  'crypto.passphrase_label': 'Passphrase',
+  'crypto.confirm_label': 'Confirm Passphrase',
+  'crypto.passphrase_placeholder': 'Enter passphrase',
+  'crypto.confirm_placeholder': 'Confirm passphrase',
+  'crypto.unlock_import': 'Unlock & Import',
+  'crypto.error_empty': 'Passphrase is required',
+  'crypto.error_mismatch': 'Passphrases do not match',
+  'crypto.export_failed': 'Export failed',
 
   // ── Results ──
   'results.title': 'Your Results',

@@ -114,8 +114,18 @@ const zh: TranslationDict = {
   'form.could_not_read': '\u65e0\u6cd5\u8bfb\u53d6\u6587\u4ef6\u3002',
   'form.export_csv_aria': '\u5bfc\u51fa CSV',
   'form.export_csv': 'CSV',
-  'form.toggle_encryption': '\u542f\u7528\u52a0\u5bc6',
-  'form.passphrase_placeholder': '\u8f93\u5165\u5bc6\u7801\uff08\u53ef\u9009\uff09',
+
+  // ── Crypto / Encryption Modal ──
+  'crypto.export_title': '\u5b89\u5168\u5bfc\u51fa',
+  'crypto.import_title': '\u8f93\u5165\u5bc6\u7801',
+  'crypto.passphrase_label': '\u5bc6\u7801',
+  'crypto.confirm_label': '\u786e\u8ba4\u5bc6\u7801',
+  'crypto.passphrase_placeholder': '\u8f93\u5165\u5bc6\u7801',
+  'crypto.confirm_placeholder': '\u786e\u8ba4\u5bc6\u7801',
+  'crypto.unlock_import': '\u89e3\u9501\u548c\u5bfc\u5165',
+  'crypto.error_empty': '\u5bc6\u7801\u4e0d\u80fd\u4e3a\u7a7a',
+  'crypto.error_mismatch': '\u5bc6\u7801\u4e0d\u4e00\u81f4',
+  'crypto.export_failed': '\u5bfc\u51fa\u5931\u8d25',
 
   // ── Results ──
   'results.title': '\u60a8\u7684\u7ed3\u679c',

@@ -114,8 +114,18 @@ const id: TranslationDict = {
   'form.could_not_read': 'Tidak dapat membaca file.',
   'form.export_csv_aria': 'Ekspor CSV',
   'form.export_csv': 'CSV',
-  'form.toggle_encryption': 'Aktifkan enkripsi',
-  'form.passphrase_placeholder': 'Masukkan passphrase (opsional)',
+
+  // ── Crypto / Encryption Modal ──
+  'crypto.export_title': 'Ekspor Aman',
+  'crypto.import_title': 'Masukkan Passphrase',
+  'crypto.passphrase_label': 'Passphrase',
+  'crypto.confirm_label': 'Konfirmasi Passphrase',
+  'crypto.passphrase_placeholder': 'Masukkan passphrase',
+  'crypto.confirm_placeholder': 'Konfirmasi passphrase',
+  'crypto.unlock_import': 'Buka Kunci & Impor',
+  'crypto.error_empty': 'Passphrase wajib diisi',
+  'crypto.error_mismatch': 'Passphrase tidak cocok',
+  'crypto.export_failed': 'Ekspor gagal',
 
   // ── Results ──
   'results.title': 'Hasil Anda',

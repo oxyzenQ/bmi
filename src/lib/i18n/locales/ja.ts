@@ -114,8 +114,18 @@ const ja: TranslationDict = {
   'form.could_not_read': '\u30d5\u30a1\u30a4\u30eb\u3092\u8aad\u307f\u8fbc\u3081\u307e\u305b\u3093\u3002',
   'form.export_csv_aria': 'CSV\u30a8\u30af\u30b9\u30dd\u30fc\u30c8',
   'form.export_csv': 'CSV',
-  'form.toggle_encryption': '\u6697\u8a3c\u3092\u5224\u7528\u3059\u308b',
-  'form.passphrase_placeholder': '\u30d1\u30b9\u30d5\u30e9\u30fc\u30ba\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\uff08\u4efb\u610f\uff09',
+
+  // ── Crypto / Encryption Modal ──
+  'crypto.export_title': '\u30bb\u30ad\u30e5\u30a2\u30a8\u30af\u30b9\u30dd\u30fc\u30c8',
+  'crypto.import_title': '\u30d1\u30b9\u30d5\u30e9\u30fc\u30ba\u3092\u5165\u529b',
+  'crypto.passphrase_label': '\u30d1\u30b9\u30d5\u30e9\u30fc\u30ba',
+  'crypto.confirm_label': '\u30d1\u30b9\u30d5\u30e9\u30fc\u30ba\u78ba\u8a8d',
+  'crypto.passphrase_placeholder': '\u30d1\u30b9\u30d5\u30e9\u30fc\u30ba\u3092\u5165\u529b',
+  'crypto.confirm_placeholder': '\u30d1\u30b9\u30d5\u30e9\u30fc\u30ba\u3092\u78ba\u8a8d',
+  'crypto.unlock_import': '\u89e3\u9396\u3057\u3066\u30a4\u30f3\u30dd\u30fc\u30c8',
+  'crypto.error_empty': '\u30d1\u30b9\u30d5\u30e9\u30fc\u30ba\u304c\u5fc5\u8981\u3067\u3059',
+  'crypto.error_mismatch': '\u30d1\u30b9\u30d5\u30e9\u30fc\u30ba\u304c\u4e00\u81f4\u3057\u307e\u305b\u3093',
+  'crypto.export_failed': '\u30a8\u30af\u30b9\u30dd\u30fc\u30c8\u306b\u5931\u6557\u3057\u307e\u3057\u305f',
 
   // ── Results ──
   'results.title': '\u8a08\u7b97\u7d50\u679c',

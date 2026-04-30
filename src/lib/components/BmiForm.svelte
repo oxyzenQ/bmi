@@ -1,7 +1,8 @@
 <script lang="ts">
   import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame, FileSpreadsheet } from 'lucide-svelte';
-  import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport } from '$lib/utils/history-io';
+  import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport, importBmiHistory } from '$lib/utils/history-io';
   import { t as _t, localeVersion } from '$lib/i18n';
+  import EncryptionModal from './EncryptionModal.svelte';
   let _rv = $derived($localeVersion);
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
@@ -138,8 +139,12 @@
 
   // Export / Import history
   let fileInputEl: HTMLInputElement | undefined = $state();
-  let exportPassphrase = $state('');
-  let showPassphraseInput = $state(false);
+
+  // Encryption modal state
+  let showEncryptModal = $state(false);
+  let encryptModalMode = $state<'export' | 'import'>('export');
+  let encryptError = $state('');
+  let pendingImportText = $state('');
 
   interface ImportNotifyResult {
     action: 'import-validate' | 'import-error';
@@ -157,10 +162,19 @@
     return `${y}-${m}-${d}`;
   }
 
-  async function handleExport() {
-    const passphrase = exportPassphrase.trim() || undefined;
+  function handleExportClick() {
+    encryptModalMode = 'export';
+    encryptError = '';
+    showEncryptModal = true;
+  }
+
+  async function handleExportConfirm(passphrase: string) {
     const json = await exportBmiHistory(passphrase);
-    if (!json) return;
+    if (!json) {
+      encryptError = t('crypto.export_failed');
+      return;
+    }
+    showEncryptModal = false;
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -196,6 +210,19 @@
     if (!file) return;
     try {
       const text = await file.text();
+
+      // Check if file is encrypted
+      const { isEncrypted } = await import('$lib/utils/crypto');
+      if (isEncrypted(text)) {
+        pendingImportText = text;
+        encryptModalMode = 'import';
+        encryptError = '';
+        showEncryptModal = true;
+        input.value = '';
+        return;
+      }
+
+      // Normal unencrypted validation
       const validation = await validateBmiImport(text);
 
       if (validation.valid && validation.recordCount) {
@@ -218,6 +245,36 @@
       });
     }
     input.value = '';
+  }
+
+  async function handleImportConfirm(passphrase: string) {
+    const validation = await validateBmiImport(pendingImportText, passphrase);
+
+    if (!validation.valid) {
+      encryptError = validation.error || t('form.import_failed');
+      return;
+    }
+
+    // Proceed with import
+    const result = await importBmiHistory(pendingImportText);
+    if (result.success) {
+      showEncryptModal = false;
+      pendingImportText = '';
+      onNotify?.({
+        action: 'import-validate',
+        text: pendingImportText,
+        recordCount: result.count,
+        integrityVerified: result.integrityVerified ?? false
+      });
+    } else {
+      encryptError = result.error || t('form.import_failed');
+    }
+  }
+
+  function handleModalCancel() {
+    showEncryptModal = false;
+    pendingImportText = '';
+    encryptError = '';
   }
 </script>
 <div class="form-inner">
@@ -444,30 +501,10 @@
     </div>
 
     <div class="history-actions">
-      <div class="export-group">
-        <button type="button" class="btn btn-secondary" onclick={handleExport} aria-label={t('form.export_aria')}>
-          <ArrowUpFromLine size={16} aria-hidden="true" />
-          {t('form.export')}
-        </button>
-        <button
-          type="button"
-          class="btn btn-icon"
-          onclick={() => showPassphraseInput = !showPassphraseInput}
-          aria-label={t('form.toggle_encryption')}
-          title={t('form.toggle_encryption')}
-          class:active={showPassphraseInput}
-        >
-          <Zap size={14} aria-hidden="true" />
-        </button>
-        {#if showPassphraseInput}
-          <input
-            type="password"
-            bind:value={exportPassphrase}
-            placeholder={t('form.passphrase_placeholder')}
-            class="passphrase-input"
-          />
-        {/if}
-      </div>
+      <button type="button" class="btn btn-secondary" onclick={handleExportClick} aria-label={t('form.export_aria')}>
+        <ArrowUpFromLine size={16} aria-hidden="true" />
+        {t('form.export')}
+      </button>
       <button type="button" class="btn btn-secondary" onclick={handleExportCsv} aria-label={t('form.export_csv_aria')}>
         <FileSpreadsheet size={16} aria-hidden="true" />
         {t('form.export_csv')}
@@ -486,6 +523,15 @@
         {t('form.import')}
       </button>
     </div>
+
+    <!-- Encryption Modal -->
+    <EncryptionModal
+      show={showEncryptModal}
+      mode={encryptModalMode}
+      error={encryptError}
+      onConfirm={encryptModalMode === 'export' ? handleExportConfirm : handleImportConfirm}
+      onCancel={handleModalCancel}
+    />
   </div>
 </div>
 
@@ -648,59 +694,6 @@
     gap: 0.4rem;
     font-size: 0.85rem;
     border-radius: 9999px;
-  }
-
-  .export-group {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .btn-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
-    border-radius: 50%;
-    background: var(--w-6);
-    border: 1px solid var(--w-12);
-    color: var(--w-50);
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .btn-icon:hover {
-    background: var(--w-10);
-    color: var(--w-70);
-  }
-
-  .btn-icon.active {
-    background: var(--cosmic-purple);
-    color: white;
-    border-color: var(--cosmic-purple);
-  }
-
-  .passphrase-input {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.8rem;
-    border: 1px solid var(--w-20);
-    border-radius: 0.5rem;
-    background: var(--w-4);
-    color: var(--w-90);
-    width: 140px;
-  }
-
-  .passphrase-input::placeholder {
-    color: var(--w-40);
-  }
-
-  .passphrase-input:focus {
-    outline: none;
-    border-color: var(--cosmic-purple);
   }
 
   .sr-only {
