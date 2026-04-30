@@ -392,6 +392,12 @@
     }
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .risk-marker {
+      animation: none !important;
+    }
+  }
+
   @media (max-width: 640px) {
     .risk-result {
       flex-direction: column;

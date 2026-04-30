@@ -6,6 +6,21 @@
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
+  // Svelte action: attach pointermove with { passive: true } to prevent
+  // scroll jank on mobile when hovering over the chart during touch scroll.
+  // Svelte 5 on:pointermove does not support { passive } option directly.
+  function passivePointerMove(node: SVGElement) {
+    const handler = (e: PointerEvent) => {
+      // No-op handler — only ensures passive mode for the existing
+      // onpointermove in the template. Svelte 5 does not support
+      // { passive } on directive-based event listeners.
+    };
+    node.addEventListener('pointermove', handler, { passive: true });
+    return {
+      destroy() { node.removeEventListener('pointermove', handler); }
+    };
+  }
+
   interface Props {
     currentBmi?: number | null;
   }
@@ -237,6 +252,7 @@
         aria-label={t('sparkline.aria')}
         onpointermove={handlePointerMove}
         onpointerleave={handlePointerLeave}
+        use:passivePointerMove
       >
         <!-- BMI zone bands -->
         {#each chartData.zones as zone (zone.min)}
@@ -480,6 +496,7 @@
     pointer-events: none;
     z-index: 10;
     background: var(--sd-92);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     border: 1px solid var(--w-10);
     border-radius: 10px;

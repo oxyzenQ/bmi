@@ -97,10 +97,18 @@
     displayBmi.set(0, { duration: 0 });
   });
 
-  // Initialize perfTier and reducedMotion on mount (after browser is available)
+  // Cache isMobileTouch outside effects to avoid window.matchMedia reads
+  // in the hot animation path (Bug-2 mobile perf).
+  // Touch detection only needs to run once at mount.
+  let isMobileTouchCached = $state(false);
+
+  // Initialize perfTier, reducedMotion, and touch detection on mount
   $effect(() => {
     perfTier = getPerformanceTier();
     reducedMotionPref = prefersReducedMotion();
+    if (browser) {
+      isMobileTouchCached = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    }
   });
 
   // Reactive entry point — syncs props to visual state (side effects: mutations)
@@ -123,9 +131,7 @@
   // Center display + animation config — side effects (displayBmi.set) + state mutations
   $effect(() => {
     const ultraEnabled = ultraSmooth && !reducedMotion && perfTier !== 'low';
-    const isMobileTouch = typeof window !== 'undefined' &&
-      window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-    useGlow = ultraEnabled && perfTier === 'high' && !isMobileTouch;
+    useGlow = ultraEnabled && perfTier === 'high' && !isMobileTouchCached;
     usePulse = ultraEnabled;
 
     bmiTweenDuration = reducedMotion

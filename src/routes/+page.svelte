@@ -1444,8 +1444,7 @@
     min-width: 0;
     overflow: hidden;
     background: var(--k-50);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    backdrop-filter: blur(24px) saturate(180%);
+    /* backdrop-filter owned by nav.css (with -webkit- prefix + !important) */
     border: none;
     border-bottom: 1px solid var(--w-8);
     box-shadow:

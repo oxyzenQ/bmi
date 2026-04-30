@@ -15,6 +15,7 @@
   background: var(--k-50);
   border: var(--border-by-rezky);
   border-radius: 2rem;
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
   backdrop-filter: blur(8px) saturate(140%);
   transition: transform var(--dur-slow) var(--easing-smooth),
     box-shadow var(--dur-slow) var(--easing-smooth),
@@ -26,6 +27,7 @@
   background: var(--k-50);
   border: var(--border-by-rezky);
   border-radius: 2rem;
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
   backdrop-filter: blur(8px) saturate(140%);
   transition: transform var(--dur-slow) var(--easing-smooth),
     box-shadow var(--dur-slow) var(--easing-smooth),

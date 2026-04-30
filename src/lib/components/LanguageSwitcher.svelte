@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { Globe, X } from 'lucide-svelte';
   import { browser } from '$app/environment';
   import { t as _t, locales, setLocale, localeVersion, locale } from '$lib/i18n';
@@ -41,9 +41,12 @@
     closePanel();
   }
 
+  let closePanelTimer: ReturnType<typeof setTimeout> | null = null;
+
   function closePanel() {
     visible = false;
-    setTimeout(() => { open = false; }, 200);
+    if (closePanelTimer) clearTimeout(closePanelTimer);
+    closePanelTimer = setTimeout(() => { open = false; }, 200);
   }
 
   function handleKeydown(e: KeyboardEvent) {
@@ -54,6 +57,11 @@
   }
 
   onMount(() => { mounted = true; });
+
+  onDestroy(() => {
+    // Clean up the closePanel timeout to prevent state updates after unmount
+    if (closePanelTimer) clearTimeout(closePanelTimer);
+  });
 
   // Sync visibility with open state (with animation delay)
   $effect(() => {
