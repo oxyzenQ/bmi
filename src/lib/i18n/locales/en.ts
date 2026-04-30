@@ -7,7 +7,7 @@ import type { TranslationDict } from '../types';
 
 const en: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': 'A Simple BMI Calc \u2014 Stellar v10.5',
+  'meta.title': 'A Simple BMI Calc \u2014 Stellar v12.0',
   'meta.description': 'A luxury space-themed BMI calculator. Calculate your Body Mass Index, TDEE, Body Fat %, and track your health journey with interactive charts. Built with SvelteKit by Team LOGIGO.',
   'meta.og_description': 'A luxury space-themed BMI calculator with TDEE, Body Fat %, interactive charts, and PWA support.',
 
@@ -53,11 +53,11 @@ const en: TranslationDict = {
 
   // ── Hero ──
   'hero.title': 'BMI Calculator',
-  'hero.subtitle': 'Explore the cosmos of your body \u2014 discover your balance under the stars.',
+  'hero.subtitle': 'Explore your body \u2014 discover balance under the stars.',
   'hero.feature1': 'Accurate Calculations',
   'hero.feature2': 'Health Insights',
   'hero.feature3': 'Luxury Design',
-  'hero.edition': 'Stellar Edition 10.5',
+  'hero.edition': 'Stellar v12.0',
 
   // ── Form ──
   'form.title': 'BMI Calculator',

@@ -13,6 +13,9 @@
  *   - package.json        → top-level "version" field
  *   - README.md           → title "Stellar v{major}.{minor}" + version line
  *   - src/routes/+page.svelte → about section "Stellar-{major}.{minor}"
+ *   - src/app.html        → 3 meta tags (title, og:title, twitter:title)
+ *   - src/lib/i18n/locales/{en,id,ja,zh}.ts → meta.title + hero.edition
+ *   - LICENSE.md           → title line
  *   - bun.lock            → regenerated via `bun install`
  *   - package-lock.json   → regenerated via `bun install`
  *
@@ -112,7 +115,25 @@ function main(): void {
   updatePageSvelte(shortOld, short);
   console.log('    \x1b[32m✓\x1b[0m about section updated');
 
-  // ── 4. Regenerate lock files ──
+  // ── 4. Update app.html meta tags ──
+  console.log('  \x1b[33m→\x1b[0m src/app.html');
+  updateAppHtml(shortOld, short);
+  console.log('    \x1b[32m✓\x1b[0m 3 meta tags updated');
+
+  // ── 5. Update i18n locale files ──
+  const locales = ['en', 'id', 'ja', 'zh'];
+  for (const locale of locales) {
+    console.log(`  \x1b[33m→\x1b[0m src/lib/i18n/locales/${locale}.ts`);
+    updateI18nLocale(locale, shortOld, short);
+    console.log('    \x1b[32m✓\x1b[0m meta.title + hero.edition updated');
+  }
+
+  // ── 6. Update LICENSE.md ──
+  console.log('  \x1b[33m→\x1b[0m LICENSE.md');
+  updateLicense(shortOld, short);
+  console.log('    \x1b[32m✓\x1b[0m title updated');
+
+  // ── 7. Regenerate lock files ──
   console.log('  \x1b[33m→\x1b[0m Regenerating lock files');
   try {
     execSync('bun install', { cwd: ROOT, stdio: 'pipe' });
@@ -185,6 +206,40 @@ function updatePageSvelte(oldShort: string, newShort: string): void {
   }
 
   writeFile('src/routes/+page.svelte', updated);
+}
+
+function updateAppHtml(oldShort: string, newShort: string): void {
+  let content = readFile('src/app.html');
+  // Replace all occurrences of "Stellar v{oldShort}" in meta tags
+  const pattern = new RegExp(`Stellar v${escapeRegex(oldShort)}`, 'g');
+  content = content.replace(pattern, `Stellar v${newShort}`);
+  writeFile('src/app.html', content);
+}
+
+function updateI18nLocale(locale: string, oldShort: string, newShort: string): void {
+  const filePath = `src/lib/i18n/locales/${locale}.ts`;
+  let content = readFile(filePath);
+
+  // Replace "Stellar v{oldShort}" in meta.title
+  const vPattern = new RegExp(`Stellar v${escapeRegex(oldShort)}`, 'g');
+  content = content.replace(vPattern, `Stellar v${newShort}`);
+
+  // Replace locale-specific edition strings:
+  // en: "Stellar Edition X.Y" → "Stellar v{newShort}"
+  // id: "Edisi Stellar X.Y" → "Stellar v{newShort}"
+  // ja/zh: "Stellar 版 X.Y" → "Stellar v{newShort}"
+ content = content.replace(/Stellar Edition \d+\.\d+/g, `Stellar v${newShort}`);
+  content = content.replace(/Edisi Stellar \d+\.\d+/g, `Stellar v${newShort}`);
+  content = content.replace(/Stellar 版 \d+\.\d+/g, `Stellar v${newShort}`);
+
+  writeFile(filePath, content);
+}
+
+function updateLicense(oldShort: string, newShort: string): void {
+  let content = readFile('LICENSE.md');
+  content = content.replace(/Stellar v\d+\.\d+/g, `Stellar v${newShort}`);
+  content = content.replace(/Stellar Edition \d+\.\d+/g, `Stellar v${newShort}`);
+  writeFile('LICENSE.md', content);
 }
 
 function escapeRegex(str: string): string {
