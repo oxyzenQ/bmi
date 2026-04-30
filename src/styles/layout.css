@@ -300,9 +300,9 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 
 .github-link:hover {
   color: var(--accent-blue);
-  background: rgba(59, 130, 246, 0.12);
-  border-color: rgba(59, 130, 246, 0.30);
+  background: var(--coreblue-12);
+  border-color: var(--coreblue-30);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 8px 24px var(--coreblue-15);
 }
 

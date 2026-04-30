@@ -36,9 +36,9 @@
   background: linear-gradient(
     105deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.03) 15%,
-    rgba(255, 255, 255, 0.08) 30%,
-    rgba(255, 255, 255, 0.03) 45%,
+    var(--w-3) 15%,
+    var(--w-8) 30%,
+    var(--w-3) 45%,
     transparent 60%
   );
   animation: skeleton-shimmer 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
@@ -299,12 +299,12 @@ a.button {
 }
 
 .form-input:focus {
-  border-color: rgba(139, 92, 246, 0.50) !important;
+  border-color: var(--violet-50) !important;
   box-shadow:
-    0 0 0 3px rgba(139, 92, 246, 0.15),
-    0 0 16px rgba(139, 92, 246, 0.20),
+    0 0 0 3px var(--violet-15),
+    0 0 16px var(--violet-20),
     inset 0 1px 2px var(--w-5);
-  background-color: rgba(12, 4, 30, 0.85);
+  background-color: var(--void-85);
 }
 
 .form-input:focus-visible {
@@ -338,9 +338,9 @@ a.button {
   background: linear-gradient(
     105deg,
     transparent 40%,
-    rgba(255, 255, 255, 0.02) 45%,
-    rgba(255, 255, 255, 0.05) 50%,
-    rgba(255, 255, 255, 0.02) 55%,
+    var(--w-2) 45%,
+    var(--w-5) 50%,
+    var(--w-2) 55%,
     transparent 60%
   );
   transform: translateX(-100%) rotate(15deg);
@@ -361,9 +361,9 @@ a.button {
 /* ── Pager Tab Active Glow Indicator ── */
 .pager-tab.active {
   box-shadow:
-    0 0 20px rgba(139, 92, 246, 0.22),
-    0 0 6px rgba(139, 92, 246, 0.15),
-    inset 0 -2px 0 rgba(139, 92, 246, 0.25);
+    0 0 20px var(--violet-22),
+    0 0 6px var(--violet-15),
+    inset 0 -2px 0 var(--violet-25);
 }
 
 /* ── NotifyFloat Button Hover Lift ── */
@@ -375,7 +375,7 @@ a.button {
 
 /* ── Action Button Subtle Glow ── */
 .action-btn:hover {
-  box-shadow: 0 0 12px rgba(139, 92, 246, 0.15);
+  box-shadow: 0 0 12px var(--violet-15);
 }
 
 /* Reduced motion: disable all micro-interactions */
@@ -489,7 +489,7 @@ html:not([data-graphics='render']) .shooting-star {
   padding: 0.5rem 1.25rem;
   border: 1px solid var(--cosmic-purple);
   border-radius: 9999px;
-  background: rgba(139, 92, 246, 0.12);
+  background: var(--violet-12);
   color: var(--aurora-core);
   font-size: 0.82rem;
   font-weight: 600;
@@ -499,7 +499,7 @@ html:not([data-graphics='render']) .shooting-star {
 }
 
 .gauge-cta-btn:hover {
-  background: rgba(139, 92, 246, 0.25);
+  background: var(--violet-25);
   border-color: var(--aurora-glow);
   box-shadow: 0 0 16px var(--purple-30);
   transform: translateY(-1px);
@@ -526,13 +526,13 @@ html:not([data-graphics='render']) .shooting-star {
   pointer-events: auto;
   color: var(--w-55) !important;
   border-color: var(--w-20) !important;
-  background: rgba(255, 255, 255, 0.05) !important;
-  box-shadow: 0 0 14px rgba(255, 255, 255, 0.06) !important;
+  background: var(--w-5) !important;
+  box-shadow: 0 0 14px var(--w-6) !important;
 }
 
 .pager-btn-scroll-top.fab-visible:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.08) !important;
+  background: var(--w-10) !important;
+  box-shadow: 0 0 20px var(--w-8) !important;
   color: var(--w-75) !important;
 }
 

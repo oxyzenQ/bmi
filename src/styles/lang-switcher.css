@@ -156,10 +156,10 @@
 }
 
 .lang-option.active {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.20), rgba(139, 92, 246, 0.10));
+  background: linear-gradient(135deg, var(--violet-20), var(--violet-10));
   color: white;
   border-color: var(--cosmic-purple);
-  box-shadow: 0 0 12px rgba(139, 92, 246, 0.25);
+  box-shadow: 0 0 12px var(--violet-25);
 }
 
 .lang-option:active {
@@ -188,7 +188,7 @@
 }
 
 .lang-option.active .lang-code {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--w-15);
   opacity: 0.9;
 }
 

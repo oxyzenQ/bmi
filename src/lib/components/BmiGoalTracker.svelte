@@ -309,8 +309,8 @@
     gap: 0.5rem;
     padding: 0.6rem 0.8rem;
     border-radius: 0.6rem;
-    background: rgba(34, 197, 94, 0.1);
-    border: 1px solid rgba(34, 197, 94, 0.2);
+    background: var(--goal-green-10);
+    border: 1px solid var(--goal-green-20);
     color: var(--cat-green-40);
     font-size: 0.85rem;
     font-weight: 600;

@@ -85,7 +85,7 @@ a.button:active {
 .btn:focus-visible,
 button:focus-visible,
 a.button:focus-visible {
-  outline: 3px solid rgba(139, 92, 246, 0.35);
+  outline: 3px solid var(--violet-35);
   outline-offset: 2px;
 }
 
@@ -109,18 +109,18 @@ button[aria-disabled="true"] {
 .btn-primary {
   color: white;
   background: var(--bg-by-rezky);
-  border: 1px solid rgba(139, 92, 246, 0.22);
+  border: 1px solid var(--violet-22);
   box-shadow: 0 16px 40px var(--k-45),
     inset 0 1px 0 var(--w-8),
-    0 0 28px rgba(139, 92, 246, 0.30);
+    0 0 28px var(--violet-30);
 }
 
 .btn-primary:hover {
   background: var(--bg-last-by-rezky);
-  border-color: rgba(139, 92, 246, 0.34);
+  border-color: var(--violet-34);
   box-shadow: 0 20px 52px var(--k-55),
     inset 0 1px 0 var(--w-10),
-    0 0 40px rgba(139, 92, 246, 0.36);
+    0 0 40px var(--violet-36);
 }
 
 .btn.is-calculating {
@@ -147,18 +147,18 @@ button[aria-disabled="true"] {
 .btn-danger {
   color: white;
   background: var(--bg-by-rezky);
-  border: 1px solid rgba(139, 92, 246, 0.22);
+  border: 1px solid var(--violet-22);
   box-shadow: 0 16px 40px var(--k-45),
     inset 0 1px 0 var(--w-8),
-    0 0 28px rgba(139, 92, 246, 0.22);
+    0 0 28px var(--violet-22);
 }
 
 .btn-danger:hover {
   background: var(--bg-last-by-rezky);
-  border-color: rgba(139, 92, 246, 0.32);
+  border-color: var(--violet-32);
   box-shadow: 0 20px 52px var(--k-55),
     inset 0 1px 0 var(--w-10),
-    0 0 40px rgba(139, 92, 246, 0.30);
+    0 0 40px var(--violet-30);
 }
 
 .btn-danger:active,
@@ -171,19 +171,19 @@ button[aria-disabled="true"] {
 
 .btn-secondary {
   background: linear-gradient(180deg, var(--w-9), var(--w-3-5)) padding-box,
-    rgba(12, 4, 30, 0.52);
+    var(--void-52);
   border-color: var(--w-18);
 }
 
 .btn-secondary:hover {
   background: linear-gradient(180deg, var(--w-13), var(--w-5)) padding-box,
-    rgba(12, 4, 30, 0.44);
+    var(--void-44);
   border-color: var(--w-24);
 }
 
 .btn-ghost {
   background: linear-gradient(180deg, var(--w-6), var(--w-1-8)) padding-box,
-    rgba(12, 4, 30, 0.58);
+    var(--void-58);
   border-color: var(--w-12);
 }
 

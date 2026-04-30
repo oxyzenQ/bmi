@@ -165,14 +165,22 @@
   /* Cosmic-base (10,8,24) */
   --cbase-82: rgba(10, 8, 24, 0.82);
 
-  /* Core-blue (59,130,246) */
+  /* Core-blue (59,130,246) — accent blue */
   --coreblue-0: rgba(59, 130, 246, 0);
+  --coreblue-12: rgba(59, 130, 246, 0.12);
   --coreblue-15: rgba(59, 130, 246, 0.15);
+  --coreblue-16: rgba(59, 130, 246, 0.16);
+  --coreblue-22: rgba(59, 130, 246, 0.22);
+  --coreblue-30: rgba(59, 130, 246, 0.30);
+  --coreblue-32: rgba(59, 130, 246, 0.32);
   --coreblue-35: rgba(59, 130, 246, 0.35);
+  --coreblue-40: rgba(59, 130, 246, 0.40);
   --coreblue-50: rgba(59, 130, 246, 0.5);
 
   /* Blue (96,165,250) */
   --blue-5: rgba(96, 165, 250, 0.05);
+  --blue-18: rgba(96, 165, 250, 0.18);
+  --blue-20: rgba(96, 165, 250, 0.20);
   --blue-35: rgba(96, 165, 250, 0.35);
   --blue-40: rgba(96, 165, 250, 0.4);
   --blue-50: rgba(96, 165, 250, 0.5);
@@ -189,8 +197,24 @@
   /* Indigo (99,102,241) */
   --ink-18: rgba(99, 102, 241, 0.18);
 
-  /* Violet (139,92,246) */
-  --violet-50: rgba(139, 92, 246, 0.5);
+  /* Violet (139,92,246) — primary purple glow */
+  --violet-10: rgba(139, 92, 246, 0.10);
+  --violet-12: rgba(139, 92, 246, 0.12);
+  --violet-15: rgba(139, 92, 246, 0.15);
+  --violet-18: rgba(139, 92, 246, 0.18);
+  --violet-20: rgba(139, 92, 246, 0.20);
+  --violet-22: rgba(139, 92, 246, 0.22);
+  --violet-24: rgba(139, 92, 246, 0.24);
+  --violet-25: rgba(139, 92, 246, 0.25);
+  --violet-26: rgba(139, 92, 246, 0.26);
+  --violet-30: rgba(139, 92, 246, 0.30);
+  --violet-32: rgba(139, 92, 246, 0.32);
+  --violet-34: rgba(139, 92, 246, 0.34);
+  --violet-35: rgba(139, 92, 246, 0.35);
+  --violet-36: rgba(139, 92, 246, 0.36);
+  --violet-42: rgba(139, 92, 246, 0.42);
+  --violet-45: rgba(139, 92, 246, 0.45);
+  --violet-50: rgba(139, 92, 246, 0.50);
 
   /* Plum (147,51,234) */
   --plum-0: rgba(147, 51, 234, 0);
@@ -201,6 +225,8 @@
 
   /* Purple (168,85,247) */
   --purple-5: rgba(168, 85, 247, 0.05);
+  --purple-15: rgba(168, 85, 247, 0.15);
+  --purple-25: rgba(168, 85, 247, 0.25);
   --purple-60: rgba(168, 85, 247, 0.6);
   --purple-80: rgba(168, 85, 247, 0.8);
   --purple-90: rgba(168, 85, 247, 0.9);
@@ -322,6 +348,30 @@
 
   /* ── End opacity token system ── */
 
+  /* Cosmic-void (12,4,30) — deep purple-black for overlays */
+  --void-44: rgba(12, 4, 30, 0.44);
+  --void-52: rgba(12, 4, 30, 0.52);
+  --void-58: rgba(12, 4, 30, 0.58);
+  --void-85: rgba(12, 4, 30, 0.85);
+
+  /* Cosmic-dark (10,2,28) — dialog/backdrop backgrounds */
+  --cosmic-dark-78: rgba(10, 2, 28, 0.78);
+  --cosmic-dark-82: rgba(10, 2, 28, 0.82);
+  --cosmic-dark-92: rgba(10, 2, 28, 0.92);
+  --cosmic-dark-94: rgba(10, 2, 28, 0.94);
+
+  /* Cosmic-dk (15,3,25) — button gradient backgrounds */
+  --cosmic-dk-52: rgba(15, 3, 25, 0.52);
+  --cosmic-dk-58: rgba(15, 3, 25, 0.58);
+
+  /* Amber-gold (251,191,36) — golden amber for badges */
+  --amber-gold-30: rgba(251, 191, 36, 0.30);
+  --amber-gold-40: rgba(251, 191, 36, 0.40);
+
+  /* Goal-green (34,197,94) — goal tracker accent */
+  --goal-green-10: rgba(34, 197, 94, 0.10);
+  --goal-green-20: rgba(34, 197, 94, 0.20);
+
   /* Button system */
   --btn-radius: 10px;
   --btn-height: 44px;
@@ -335,9 +385,9 @@
   --btn-border-hover: 1px solid var(--w-18);
   --btn-shadow: 0 12px 28px var(--k-42),
     inset 0 1px 0 var(--w-7),
-    0 0 18px rgba(139, 92, 246, 0.18);
+    0 0 18px var(--violet-18);
   --btn-shadow-hover: 0 18px 44px var(--k-50),
     inset 0 1px 0 var(--w-10),
-    0 0 28px rgba(139, 92, 246, 0.26);
+    0 0 28px var(--violet-26);
 }
 
