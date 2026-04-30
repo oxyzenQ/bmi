@@ -335,7 +335,7 @@ const en: TranslationDict = {
   // ── History IO ──
   'history.invalid_json': 'Invalid JSON format.',
   'history.no_records': 'No valid BMI records found in the file.',
-  'history.checksum_failed': 'Checksum verification failed \u2014 the file has been modified and is not safe to import.',
+  'history.checksum_failed': 'Integrity verification failed \u2014 the file has been tampered with and is not safe to import.',
   'history.invalid_format': 'Invalid file format. This file was not exported by BMI Calculator or has been modified. Please export a new file and try again.',
   'history.no_valid_records': 'No valid BMI records found.',
   'history.save_failed': 'Failed to save history to storage.',

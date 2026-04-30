@@ -167,7 +167,7 @@ function updateReadme(newVersion: string, short: string): void {
 }
 
 function updatePageSvelte(oldShort: string, newShort: string): void {
-  let content = readFile('src/routes/+page.svelte');
+  const content = readFile('src/routes/+page.svelte');
 
   // Precise match: "Stellar-10.5" followed by space, <, or }
   const pattern = new RegExp(`Stellar-${escapeRegex(oldShort)}(?=[\\s<}])`, 'g');

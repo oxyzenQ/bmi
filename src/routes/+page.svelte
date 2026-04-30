@@ -1351,7 +1351,8 @@
         const result = await importBmiHistory(pendingImportText);
         pendingImportText = null;
         if (result.success) {
-          const checksumMsg = result.checksumVerified ? ' ✓ Checksum verified' : '';
+          const integrityLabel = result.integrityVersion === 3 ? 'HMAC' : 'Checksum';
+          const checksumMsg = result.checksumVerified ? ` ✓ ${integrityLabel} verified` : '';
           notifyType = 'success';
           notifyMessage = `Successfully imported ${result.count} record${result.count === 1 ? '' : 's'}!${checksumMsg}`;
           notifyButtonText = 'OK';

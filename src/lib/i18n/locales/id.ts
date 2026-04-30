@@ -334,7 +334,7 @@ const id: TranslationDict = {
   // ── History IO ──
   'history.invalid_json': 'Format JSON tidak valid.',
   'history.no_records': 'Tidak ditemukan catatan BMI yang valid dalam file.',
-  'history.checksum_failed': 'Verifikasi checksum gagal \u2014 file telah dimodifikasi dan tidak aman untuk diimpor.',
+  'history.checksum_failed': 'Verifikasi integritas gagal \u2014 file telah dimodifikasi dan tidak aman untuk diimpor.',
   'history.invalid_format': 'Format file tidak valid. File ini tidak diekspor oleh Kalkulator BMI atau telah dimodifikasi.',
   'history.no_valid_records': 'Tidak ditemukan catatan BMI yang valid.',
   'history.save_failed': 'Gagal menyimpan riwayat ke penyimpanan.',
