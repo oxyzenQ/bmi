@@ -123,6 +123,7 @@ const id: TranslationDict = {
   'crypto.passphrase_placeholder': 'Masukkan passphrase',
   'crypto.confirm_placeholder': 'Konfirmasi passphrase',
   'crypto.unlock_import': 'Buka Kunci & Impor',
+  'crypto.processing': 'Memproses...',
   'crypto.error_empty': 'Passphrase wajib diisi',
   'crypto.error_mismatch': 'Passphrase tidak cocok',
   'crypto.export_failed': 'Ekspor gagal',

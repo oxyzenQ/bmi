@@ -248,25 +248,22 @@
   }
 
   async function handleImportConfirm(passphrase: string) {
-    const validation = await validateBmiImport(pendingImportText, passphrase);
+    // Import with passphrase - will decrypt if needed
+    const result = await importBmiHistory(pendingImportText, passphrase);
 
-    if (!validation.valid) {
-      encryptError = validation.error || t('form.import_failed');
-      return;
-    }
-
-    // Proceed with import
-    const result = await importBmiHistory(pendingImportText);
     if (result.success) {
       showEncryptModal = false;
+      const count = result.count;
       pendingImportText = '';
+      encryptError = '';
       onNotify?.({
         action: 'import-validate',
-        text: pendingImportText,
-        recordCount: result.count,
+        text: '',
+        recordCount: count,
         integrityVerified: result.integrityVerified ?? false
       });
     } else {
+      // Show error in modal (wrong passphrase or other error)
       encryptError = result.error || t('form.import_failed');
     }
   }

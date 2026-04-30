@@ -430,10 +430,27 @@ export interface ImportResult {
  * Import BMI history from a JSON string, **replacing** all existing data.
  * The caller is responsible for having already validated and confirmed with the user.
  *
+ * If a passphrase is provided and the content is encrypted, it will be decrypted.
+ *
  * Performance: JSON is parsed exactly once (shared between validation and extraction).
  */
-export async function importBmiHistory(json: string): Promise<ImportResult> {
-        const result = await parseAndValidate(json);
+export async function importBmiHistory(json: string, passphrase?: string): Promise<ImportResult> {
+        // Auto-detect and decrypt if encrypted and passphrase provided
+        let content = json;
+        const { isEncrypted } = await import('./crypto');
+        if (isEncrypted(json)) {
+                if (!passphrase) {
+                        return { success: false, count: 0, error: t('history.encrypted_no_passphrase') };
+                }
+                const { decrypt } = await import('./crypto');
+                const decrypted = await decrypt(json, passphrase);
+                if (decrypted === null) {
+                        return { success: false, count: 0, error: t('history.wrong_passphrase') };
+                }
+                content = decrypted;
+        }
+
+        const result = await parseAndValidate(content);
 
         if (!result.valid) {
                 return { success: false, count: 0, error: result.validation.error };

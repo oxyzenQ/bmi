@@ -32,8 +32,12 @@
   let visible = $state(false);
   let modalKey = $state(0);
   let backdropEl: HTMLDivElement | null = $state(null);
-  let errorMsg = $state('');
+  let localError = $state('');
+  let loading = $state(false);
   let focusTrapHandler: ((e: KeyboardEvent) => void) | null = null;
+
+  // Combine local error with parent error prop (reactive)
+  let errorMsg = $derived(localError || error);
 
   // Track previous show value to detect changes without causing reactive loops
   let prevShow = $state(false);
@@ -48,7 +52,8 @@
       untrack(() => {
         passphrase = '';
         confirmPassphrase = '';
-        errorMsg = error;
+        localError = '';
+        loading = false;
         modalKey += 1;
       });
       // Trigger animation
@@ -121,27 +126,38 @@
 
   function validate(): boolean {
     if (!passphrase.trim()) {
-      errorMsg = t('crypto.error_empty');
+      localError = t('crypto.error_empty');
       return false;
     }
     if (mode === 'export' && passphrase !== confirmPassphrase) {
-      errorMsg = t('crypto.error_mismatch');
+      localError = t('crypto.error_mismatch');
       return false;
     }
-    errorMsg = '';
+    localError = '';
     return true;
   }
 
-  function handleSubmit(e: SubmitEvent) {
+  async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
     if (!validate()) return;
-    onConfirm(passphrase);
+
+    loading = true;
+    localError = '';
+
+    try {
+      await onConfirm(passphrase);
+    } catch (err) {
+      localError = err instanceof Error ? err.message : t('form.import_failed');
+    } finally {
+      loading = false;
+    }
   }
 
   function handleCancel() {
     passphrase = '';
     confirmPassphrase = '';
-    errorMsg = '';
+    localError = '';
+    loading = false;
     onCancel();
   }
 
@@ -177,6 +193,8 @@
               bind:value={passphrase}
               placeholder={t('crypto.passphrase_placeholder')}
               class="encrypt-input"
+              autocomplete="new-password"
+              disabled={loading}
             />
           </div>
 
@@ -189,6 +207,8 @@
                 bind:value={confirmPassphrase}
                 placeholder={t('crypto.confirm_placeholder')}
                 class="encrypt-input"
+                autocomplete="new-password"
+                disabled={loading}
               />
             </div>
           {/if}
@@ -202,11 +222,16 @@
         {/if}
 
         <div class="encrypt-actions">
-          <button type="button" class="encrypt-btn btn-cancel" onclick={handleCancel}>
+          <button type="button" class="encrypt-btn btn-cancel" onclick={handleCancel} disabled={loading}>
             {t('notify.cancel')}
           </button>
-          <button type="submit" class="encrypt-btn btn-confirm">
-            {mode === 'export' ? t('form.export') : t('crypto.unlock_import')}
+          <button type="submit" class="encrypt-btn btn-confirm" disabled={loading}>
+            {#if loading}
+              <span class="btn-spinner"></span>
+              {t('crypto.processing')}
+            {:else}
+              {mode === 'export' ? t('form.export') : t('crypto.unlock_import')}
+            {/if}
           </button>
         </div>
       </form>
@@ -366,6 +391,32 @@
   .btn-confirm:hover {
     filter: brightness(1.15);
     transform: translateY(-1px);
+  }
+
+  .btn-confirm:disabled,
+  .btn-cancel:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .encrypt-input:disabled {
+    opacity: 0.5;
+    background: var(--w-8);
+  }
+
+  .btn-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 6px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 
   @media (max-width: 480px) {
