@@ -41,7 +41,8 @@ html[data-performance-tier="low"] :is(
 }
 
 /* HIGH TIER: Full effects — will-change now managed by scroll state
-   (body:not(.is-scrolling) in responsive.css) instead of per-tier. */
+   (body:not(.is-scrolling) in responsive.css) instead of per-tier.
+   .hero-content and .bmi-card get scroll-aware will-change via R-10. */
 html[data-performance-tier="high"] .cosmic-particles .cosmic-particle {
   contain: layout style paint;
 }
@@ -50,7 +51,6 @@ html[data-performance-tier="high"] :is(
   .hero-content,
   .bmi-card
 ) {
-  will-change: transform;
   contain: layout style;
 }
 

@@ -1278,6 +1278,21 @@ body:not(.is-scrolling) .cosmic-particle {
   will-change: transform, opacity;
 }
 
+/* R-10: Enable will-change on hero-content and bmi-card only when NOT scrolling.
+   Prevents permanent GPU compositor layer promotion on high-tier devices.
+   contain: layout style is always applied (nav.css) for layout isolation;
+   will-change: transform is the expensive GPU part — toggle it with scroll. */
+body:not(.is-scrolling) :is(.hero-content, .bmi-card) {
+  will-change: transform;
+}
+
+/* R-10b: Explicitly disable will-change during scroll for the same elements.
+   Belt-and-suspenders with the nav.css removal — ensures no residual
+   will-change from inherited or cascaded rules. */
+body.is-scrolling :is(.hero-content, .bmi-card) {
+  will-change: auto;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    MOBILE SCROLL PERFORMANCE (Bug 13)
    ─────────────────────────────────────────────────────────────
@@ -1314,11 +1329,15 @@ body:not(.is-scrolling) .cosmic-particle {
      browser to maintain separate isolation boundaries, causing measurable
      interaction lag on mobile. Style containment alone prevents outside
      CSS changes from triggering recalc inside the scroll container.
-     will-change: scroll-position hints the browser to optimize scrolling. */
+     will-change: scroll-position hints the browser to optimize scrolling.
+     touch-action: pan-y pan-x pinch-zoom declares intent to the browser
+     so it can begin scrolling immediately without waiting for JS handlers
+     (Eliminates 100ms+ touch delay on some mobile browsers). */
   .pager-section {
     will-change: scroll-position !important;
     -webkit-overflow-scrolling: touch;
     contain: style;
+    touch-action: pan-y pan-x pinch-zoom;
   }
 
   /* T-3: Permanently simplify box-shadow on glass cards.
@@ -1565,15 +1584,16 @@ body:not(.is-scrolling) .cosmic-particle {
      when scrolling slowly (elements at viewport edge toggling skip/render
      state). The contain rules in T-2/T-3 already isolate layout cost. */
 
-  /* T-11: Permanently use solid background on navbars for touch.
-     backdrop-filter blur(24px) is too expensive on mobile GPUs.
-     On touch devices, is-scrolling class is NEVER toggled (see +page.svelte),
-     so we must set navbar bg permanently rather than toggling it.
-     Elegant purple-tinted background for cohesive glassmorphism. */
+  /* T-11: Lightweight blur on navbars for touch devices.
+     Full blur(24px) is too expensive, but zero blur makes the app
+     look flat/transparent on mobile (Bug: Enhancement 4 #1).
+     Compromise: blur(6px) saturate(120%) — subtle glassmorphism
+     that's ~4x cheaper than desktop blur while preserving the
+     premium glass aesthetic. Dialogs/buttons stay solid (T-23). */
   .pager-nav-shell,
   .pager-controls-shell {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
+    -webkit-backdrop-filter: blur(6px) saturate(120%) !important;
+    backdrop-filter: blur(6px) saturate(120%) !important;
     background: var(--cosmic-dark-94) !important;
     box-shadow: none !important;
     contain: layout style;
@@ -1594,8 +1614,14 @@ body:not(.is-scrolling) .cosmic-particle {
     transform: none;
   }
 
-  /* T-15: Remove backdrop-filter from hero and futuristic buttons permanently */
-  :is(.hero-content, .pager-btn-futuristic) {
+  /* T-15: Lightweight blur on hero for touch devices.
+     Same compromise as T-11: blur(6px) instead of none.
+     Buttons (.pager-btn-futuristic) stay solid for tap responsiveness. */
+  .hero-content {
+    -webkit-backdrop-filter: blur(6px) saturate(120%) !important;
+    backdrop-filter: blur(6px) saturate(120%) !important;
+  }
+  .pager-btn-futuristic {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }

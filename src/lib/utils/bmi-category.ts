@@ -70,9 +70,17 @@ export function classifyBmi(bmi: number): BmiCategory {
   return BMI_CATEGORIES.OBESE;
 }
 
+/**
+ * Runtime type guard — narrows arbitrary string to BmiCategory.
+ * Eliminates the unsafe `as BmiCategory` escape hatch.
+ */
+export function isBmiCategory(x: string): x is BmiCategory {
+  return x in CATEGORY_COLORS;
+}
+
 export function getCategoryColor(category: string | null): string {
-  if (!category) return COLORS.MUTED;
-  return CATEGORY_COLORS[category as BmiCategory] ?? COLORS.MUTED;
+  if (!category || !isBmiCategory(category)) return COLORS.MUTED;
+  return CATEGORY_COLORS[category];
 }
 
 /**

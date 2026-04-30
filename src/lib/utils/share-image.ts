@@ -4,7 +4,7 @@
  */
 
 import { t } from '$lib/i18n';
-import { CATEGORY_COLORS, COLORS } from './bmi-category';
+import { CATEGORY_COLORS, COLORS, isBmiCategory } from './bmi-category';
 
 export interface BmiCardData {
   bmi: number;
@@ -21,7 +21,7 @@ const CARD_H = 1920;
 const RADIUS = 64;
 
 function getCategoryColor(cat: string): string {
-  return CATEGORY_COLORS[cat as keyof typeof CATEGORY_COLORS] ?? COLORS.SLATE;
+  return isBmiCategory(cat) ? CATEGORY_COLORS[cat] : COLORS.SLATE;
 }
 
 function roundRect(

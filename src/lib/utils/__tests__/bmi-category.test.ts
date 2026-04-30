@@ -9,6 +9,7 @@ import {
   COLORS,
   classifyBmi,
   getCategoryColor,
+  isBmiCategory,
   clampBmiForDisplay,
   bmiToPercent,
 } from '$lib/utils/bmi-category';
@@ -124,6 +125,33 @@ describe('bmiToPercent', () => {
   it('calculates correct percentage for known BMI values', () => {
     const expected = ((22 - BMI_THRESHOLDS.MIN) / (BMI_THRESHOLDS.MAX - BMI_THRESHOLDS.MIN)) * 100;
     expect(bmiToPercent(22)).toBeCloseTo(expected, 5);
+  });
+});
+
+describe('isBmiCategory', () => {
+  it('returns true for valid categories', () => {
+    expect(isBmiCategory('Underweight')).toBe(true);
+    expect(isBmiCategory('Normal Weight')).toBe(true);
+    expect(isBmiCategory('Overweight')).toBe(true);
+    expect(isBmiCategory('Obese')).toBe(true);
+  });
+
+  it('returns false for invalid strings', () => {
+    expect(isBmiCategory('Unknown')).toBe(false);
+    expect(isBmiCategory('')).toBe(false);
+    expect(isBmiCategory('underweight')).toBe(false);
+    expect(isBmiCategory('NORMAL WEIGHT')).toBe(false);
+  });
+
+  it('narrows type correctly for CATEGORY_COLORS access', () => {
+    const cat: string = 'Normal Weight';
+    if (isBmiCategory(cat)) {
+      // TypeScript should infer cat as BmiCategory here
+      const color = CATEGORY_COLORS[cat];
+      expect(color).toBe(COLORS.GREEN);
+    } else {
+      expect.unreachable('should not reach here');
+    }
   });
 });
 
