@@ -214,3 +214,51 @@ Stage Summary:
 - Key architectural change: Touch devices no longer use is-scrolling class toggle — all optimizations are permanent
 - Expected result: Dramatically reduced scroll jank on mobile/low-end devices
 - NOT yet committed/pushed (user requested)
+---
+Task ID: 9
+Agent: Main Agent
+Task: Bug-17 follow-up — calculator scroll jank fix + bloat cleanup
+
+Work Log:
+- Cloned repo from github.com/oxyzenQ/bmi branch dev (commit 13fea92)
+- Read previous session context from worklog and commit history
+- User reported: calculator page janks ONLY after values are inputted (not when blank)
+- Previous session identified fix but couldn't push due to corrupt git state
+- Applied all planned fixes:
+
+1. responsive.css T-3b: Removed `contain: style paint` from .bmi-card/.form-card
+   - This CSS containment forced browser to maintain separate paint isolation
+     boundaries on the PRIMARY scroll targets. Negligible when cards small (empty),
+     costly when tall (results showing — exact condition user reported)
+
+2. responsive.css T-3i (new): Kill transitions on .stat-block/.tdee-card
+   - These inner result elements had 0.3s transitions NOT killed by earlier T-rules
+   - Only exist inside bmi-card when results are showing
+
+3. responsive.css T-20 (new): Neutralize :hover on 9 calculator inner elements
+   - During slow touch scroll, mobile browsers fire :hover on elements under finger
+   - stat-block, tdee-card, bmi-results-card, bmi-value, bmi-category, bmi-display,
+     health-advice, age-advisory, bmi-explanation
+
+4. responsive.css T-21 (new): Simplify .action-btn box-shadow
+   - Replaced 3-layer color-mix() box-shadow with simple rgba() shadow
+   - color-mix() is expensive on low-end GPUs
+
+5. animation-config.ts: Removed unused RESULTS_TWEEN_DURATION export
+   - Confirmed no file imports it
+
+6. +page.svelte: Removed 51 lines duplicate scoped .pager-controls-shell CSS
+   - Base block (26 lines) duplicated global nav.css styles
+   - .pager-hidden block (5 lines) also duplicated globally
+   - Touch override (20 lines) was overriding elegant purple glassmorphism
+     rgba(10,2,28,0.94) with plain black rgba(0,0,0,0.85) due to scoped specificity
+   - Bonus fix: Nav shells now correctly show elegant purple glassmorphism on mobile
+
+- All verification passed: check (0 errors, 0 warnings), lint, test (162/162), build
+- Committed as c358a7a and pushed to origin/dev
+
+Stage Summary:
+- Commit: c358a7a on dev branch
+- Net: -17 lines bloat, +43 lines targeted perf rules
+- 3 files changed: responsive.css, animation-config.ts, +page.svelte
+- Calculator page scroll jank root cause: contain:style paint on dynamic-height cards
