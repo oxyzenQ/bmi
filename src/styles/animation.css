@@ -299,12 +299,12 @@ a.button {
 }
 
 .form-input:focus {
-  border-color: color-mix(in oklab, var(--cosmic-purple) 50%, var(--w-20)) !important;
+  border-color: rgba(139, 92, 246, 0.50) !important;
   box-shadow:
-    0 0 0 3px color-mix(in oklab, var(--cosmic-purple) 15%, transparent),
-    0 0 16px color-mix(in oklab, var(--cosmic-purple) 20%, transparent),
+    0 0 0 3px rgba(139, 92, 246, 0.15),
+    0 0 16px rgba(139, 92, 246, 0.20),
     inset 0 1px 2px var(--w-5);
-  background-color: color-mix(in oklab, var(--cosmic-void) 85%, var(--w-5));
+  background-color: rgba(12, 4, 30, 0.85);
 }
 
 .form-input:focus-visible {
@@ -361,9 +361,9 @@ a.button {
 /* ── Pager Tab Active Glow Indicator ── */
 .pager-tab.active {
   box-shadow:
-    0 0 20px color-mix(in oklab, var(--cosmic-purple) 22%, transparent),
-    0 0 6px color-mix(in oklab, var(--aurora-core) 15%, transparent),
-    inset 0 -2px 0 color-mix(in oklab, var(--aurora-core) 25%, transparent);
+    0 0 20px rgba(139, 92, 246, 0.22),
+    0 0 6px rgba(139, 92, 246, 0.15),
+    inset 0 -2px 0 rgba(139, 92, 246, 0.25);
 }
 
 /* ── NotifyFloat Button Hover Lift ── */
@@ -375,7 +375,7 @@ a.button {
 
 /* ── Action Button Subtle Glow ── */
 .action-btn:hover {
-  box-shadow: 0 0 12px color-mix(in oklab, var(--cosmic-purple) 15%, transparent);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.15);
 }
 
 /* Reduced motion: disable all micro-interactions */

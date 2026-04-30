@@ -50,8 +50,8 @@ body {
   overscroll-behavior-y: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  text-rendering: optimizeSpeed;
+  font-feature-settings: none;
   font-variation-settings: 'wght' 400;
 }
 

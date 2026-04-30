@@ -1548,7 +1548,9 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    will-change: transform, opacity;
+    /* will-change removed: touch devices get will-change: scroll-position
+       via T-2 in responsive.css; desktop doesn't need compositor promotion.
+       Permanent will-change wastes GPU memory on both platforms. */
     scrollbar-width: none;
     contain: style;
     padding-top: calc(var(--pager-top-inset) + 0.5rem);

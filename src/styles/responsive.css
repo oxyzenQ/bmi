@@ -162,9 +162,12 @@
   color: var(--text-muted);
 }
 
-/* Focus styles for accessibility */
+/* Focus styles for accessibility
+   T-22-pre: Replaced color-mix() with static rgba for mobile perf.
+   color-mix() on * selector means every tap triggers expensive
+   color computation on low-end mobile GPUs. */
 *:focus {
-  outline: 2px solid color-mix(in oklab, var(--aurora-core) 42%, transparent);
+  outline: 2px solid rgba(139, 92, 246, 0.42);
   outline-offset: 2px;
 }
 
@@ -1305,11 +1308,17 @@ body:not(.is-scrolling) .cosmic-particle {
 
   /* T-2: Promote .pager-section to its own compositor layer
      so the browser can scroll it independently of fixed navbars.
-     Also add contain to isolate layout recalculations. */
+     Bug-17 follow-up: downgraded from contain: layout style paint to
+     contain: style only. Layout+paint containment on the PRIMARY scroll
+     target with dynamic content (BMI results change height) forces the
+     browser to maintain separate isolation boundaries, causing measurable
+     interaction lag on mobile. Style containment alone prevents outside
+     CSS changes from triggering recalc inside the scroll container.
+     will-change: scroll-position hints the browser to optimize scrolling. */
   .pager-section {
     will-change: scroll-position !important;
     -webkit-overflow-scrolling: touch;
-    contain: layout style paint;
+    contain: style;
   }
 
   /* T-3: Permanently simplify box-shadow on glass cards.
@@ -1425,6 +1434,74 @@ body:not(.is-scrolling) .cosmic-particle {
      expensive on low-end GPUs. Replace with simple shadow. */
   .action-btn {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+    border-color: rgba(139, 92, 246, 0.22) !important;
+  }
+
+  /* T-22: Neutralize remaining color-mix() in borders/backgrounds
+     on key interactive elements. color-mix() forces GPU color
+     interpolation on every style recalc. Replace with static rgba. */
+  .tdee-activity-badge {
+    border-color: rgba(251, 191, 36, 0.4) !important;
+  }
+
+  .age-advisory {
+    background: rgba(59, 130, 246, 0.12) !important;
+    border-color: rgba(59, 130, 246, 0.22) !important;
+  }
+
+  .age-advisory:hover {
+    background: rgba(59, 130, 246, 0.16) !important;
+    border-color: rgba(59, 130, 246, 0.32) !important;
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.16) !important;
+  }
+
+  .btn-primary {
+    border-color: rgba(139, 92, 246, 0.22) !important;
+  }
+
+  .btn-danger {
+    border-color: rgba(139, 92, 246, 0.22) !important;
+  }
+
+  .btn-primary:hover {
+    border-color: rgba(139, 92, 246, 0.34) !important;
+  }
+
+  .btn-danger:hover {
+    border-color: rgba(139, 92, 246, 0.32) !important;
+  }
+
+  .btn-secondary {
+    background: linear-gradient(180deg, var(--w-9), var(--w-3-5)) padding-box,
+      rgba(15, 3, 25, 0.52) !important;
+  }
+
+  .btn-ghost {
+    background: linear-gradient(180deg, var(--w-6), var(--w-1-8)) padding-box,
+      rgba(15, 3, 25, 0.58) !important;
+  }
+
+  .pager-tab.active {
+    box-shadow:
+      0 0 20px rgba(139, 92, 246, 0.22),
+      0 0 6px rgba(168, 85, 247, 0.15),
+      inset 0 -2px 0 rgba(168, 85, 247, 0.25) !important;
+  }
+
+  .scale-dot {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .notify-btn:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .action-btn:hover {
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.15) !important;
+  }
+
+  .gauge-cta-btn:hover {
+    box-shadow: 0 0 16px rgba(139, 92, 246, 0.2) !important;
   }
 
   /* T-4: Permanently disable transitions on glass cards.
@@ -1580,12 +1657,10 @@ body:not(.is-scrolling) .cosmic-particle {
     filter: blur(4px) !important;
   }
 
-  /* T-18: Disable font-feature-settings on touch for faster text rendering. */
-  body {
-    font-feature-settings: none;
-    -webkit-font-smoothing: subpixel-antialiased;
-    text-rendering: optimizeSpeed;
-  }
+  /* T-18: Moved to base.css — font-feature-settings: none and
+     text-rendering: optimizeSpeed are now applied globally for
+     all devices, not just touch. This improves text rendering
+     performance across all platforms without visual regression. */
 
   /* T-19: GPU compositing isolation on pager-shell.
      Changed from contain:strict to contain:layout style —
@@ -1596,6 +1671,33 @@ body:not(.is-scrolling) .cosmic-particle {
      compositing context — double-layering was redundant. */
   .pager-shell {
     contain: layout style;
+  }
+
+  /* T-23: Remove backdrop-filter from dialogs on touch.
+     NotifyFloat has 7 instances (backdrop + panel + 5 buttons),
+     LangSwitcher has 2 instances (backdrop + panel) —
+     all extremely expensive on mobile GPUs (24px blur).
+     Replace with solid semi-transparent background. */
+  .lang-backdrop,
+  .notify-backdrop {
+    background: rgba(10, 2, 28, 0.92) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .lang-panel,
+  .notify-float-box {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .notify-close,
+  .btn-success,
+  .btn-delete,
+  .btn-cancel,
+  .btn-warn {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
   }
 }
 

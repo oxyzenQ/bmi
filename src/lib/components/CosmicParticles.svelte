@@ -20,8 +20,10 @@
 
   onMount(() => {
     tier = getPerformanceTier();
-    // Base rain: low = 10, medium = 10, high = 10
-    baseParticleCount = 10;
+    // Base rain: reduce on mobile/touch for GPU perf
+    const isMobileTouch = typeof window !== 'undefined' &&
+      window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    baseParticleCount = isMobileTouch ? 5 : 10;
     smoothModeEnabled = true;
     updateReduced();
 
@@ -100,7 +102,15 @@
 
   function computeParticleCount(tier: 'high' | 'medium' | 'low', smoothEnabled: boolean) {
     if (!smoothEnabled) return baseParticleCount;
-    // Smooth limits: high=20, medium=15, low=10
+    const isMobile = typeof window !== 'undefined' &&
+      window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    if (isMobile) {
+      // Mobile smooth: low=5, medium=6, high=8 (vs desktop 10/15/20)
+      if (tier === 'high') return Math.min(baseParticleCount + 3, 8);
+      if (tier === 'medium') return Math.min(baseParticleCount + 1, 6);
+      return baseParticleCount; // 5
+    }
+    // Desktop smooth limits: high=20, medium=15, low=10
     if (tier === 'high') return Math.min(baseParticleCount + 10, 20);
     if (tier === 'medium') return Math.min(baseParticleCount + 5, 15);
     return Math.min(baseParticleCount + 0, 10);
@@ -115,8 +125,8 @@
     particles = [];
   }
 
-  function prng(i: number, salt: number) {
-    const x = Math.sin((i + 1) * 999 + salt) * 10000;
+  function prng(i: number, salt: number, seed = 999) {
+    const x = Math.sin((i + 1) * seed + salt) * 10000;
     return x - Math.floor(x);
   }
 
@@ -163,11 +173,7 @@
     particlesContainer.appendChild(frag);
   }
 
-  // ── Shooting Stars ──
-  function prng2(i: number, salt: number) {
-    const x = Math.sin((i + 1) * 777 + salt) * 10000;
-    return x - Math.floor(x);
-  }
+  // ── Shooting Stars ── (reuses prng with seed=777)
 
   function createShootingStar() {
     if (destroyed || reduced || paused || !particlesContainer) return;
@@ -176,13 +182,13 @@
     const star = document.createElement('div');
     star.className = 'shooting-star';
 
-    const top = prng2(Date.now(), 3) * 60; // Top 0-60% of screen
-    const left = prng2(Date.now(), 7) * 100; // Random horizontal start
-    const angle = 25 + prng2(Date.now(), 9) * 25; // 25-50 degree angle
-    const distance = 200 + prng2(Date.now(), 11) * 150; // 200-350px travel
+    const top = prng(Date.now(), 3, 777) * 60; // Top 0-60% of screen
+    const left = prng(Date.now(), 7, 777) * 100; // Random horizontal start
+    const angle = 25 + prng(Date.now(), 9, 777) * 25; // 25-50 degree angle
+    const distance = 200 + prng(Date.now(), 11, 777) * 150; // 200-350px travel
     const dx = Math.cos(angle * Math.PI / 180) * distance;
     const dy = Math.sin(angle * Math.PI / 180) * distance;
-    const duration = 1.2 + Number(prng2(Date.now(), 13)) * 1.0;
+    const duration = 1.2 + Number(prng(Date.now(), 13, 777)) * 1.0;
     const delay = 0.05 + Math.random() * 0.15;
 
     star.style.cssText = `

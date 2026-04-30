@@ -18,7 +18,7 @@
   box-shadow:
     0 8px 32px var(--k-40),
     inset 0 1px 0 var(--w-8),
-    0 0 20px color-mix(in oklab, var(--cosmic-purple) 16%, transparent);
+    0 0 20px rgba(139, 92, 246, 0.16);
   transition: transform var(--dur-slow) var(--easing-smooth),
     box-shadow var(--dur-slow) var(--easing-smooth),
     border-color var(--dur-slow) var(--easing-smooth);
@@ -33,7 +33,7 @@
   box-shadow:
     0 8px 32px var(--k-40),
     inset 0 1px 0 var(--w-8),
-    0 0 20px color-mix(in oklab, var(--cosmic-purple) 16%, transparent);
+    0 0 20px rgba(139, 92, 246, 0.16);
   transition: transform var(--dur-slow) var(--easing-smooth),
     box-shadow var(--dur-slow) var(--easing-smooth),
     border-color var(--dur-slow) var(--easing-smooth);
@@ -92,7 +92,7 @@ a.button:active {
 .btn:focus-visible,
 button:focus-visible,
 a.button:focus-visible {
-  outline: 3px solid color-mix(in oklab, var(--aurora-core) 35%, transparent);
+  outline: 3px solid rgba(139, 92, 246, 0.35);
   outline-offset: 2px;
 }
 
@@ -116,18 +116,18 @@ button[aria-disabled="true"] {
 .btn-primary {
   color: white;
   background: var(--bg-by-rezky);
-  border: 1px solid color-mix(in oklab, var(--aurora-core) 22%, var(--w-14));
+  border: 1px solid rgba(139, 92, 246, 0.22);
   box-shadow: 0 16px 40px var(--k-45),
     inset 0 1px 0 var(--w-8),
-    0 0 28px color-mix(in oklab, var(--cosmic-purple) 30%, transparent);
+    0 0 28px rgba(139, 92, 246, 0.30);
 }
 
 .btn-primary:hover {
   background: var(--bg-last-by-rezky);
-  border-color: color-mix(in oklab, var(--aurora-core) 34%, var(--w-16));
+  border-color: rgba(139, 92, 246, 0.34);
   box-shadow: 0 20px 52px var(--k-55),
     inset 0 1px 0 var(--w-10),
-    0 0 40px color-mix(in oklab, var(--cosmic-purple) 36%, transparent);
+    0 0 40px rgba(139, 92, 246, 0.36);
 }
 
 .btn.is-calculating {
@@ -154,18 +154,18 @@ button[aria-disabled="true"] {
 .btn-danger {
   color: white;
   background: var(--bg-by-rezky);
-  border: 1px solid color-mix(in oklab, var(--aurora-core) 22%, var(--w-14));
+  border: 1px solid rgba(139, 92, 246, 0.22);
   box-shadow: 0 16px 40px var(--k-45),
     inset 0 1px 0 var(--w-8),
-    0 0 28px color-mix(in oklab, var(--cosmic-purple) 22%, transparent);
+    0 0 28px rgba(139, 92, 246, 0.22);
 }
 
 .btn-danger:hover {
   background: var(--bg-last-by-rezky);
-  border-color: color-mix(in oklab, var(--aurora-core) 32%, var(--w-16));
+  border-color: rgba(139, 92, 246, 0.32);
   box-shadow: 0 20px 52px var(--k-55),
     inset 0 1px 0 var(--w-10),
-    0 0 40px color-mix(in oklab, var(--cosmic-purple) 30%, transparent);
+    0 0 40px rgba(139, 92, 246, 0.30);
 }
 
 .btn-danger:active,
@@ -178,19 +178,19 @@ button[aria-disabled="true"] {
 
 .btn-secondary {
   background: linear-gradient(180deg, var(--w-9), var(--w-3-5)) padding-box,
-    color-mix(in oklab, var(--cosmic-void) 52%, transparent);
+    rgba(12, 4, 30, 0.52);
   border-color: var(--w-18);
 }
 
 .btn-secondary:hover {
   background: linear-gradient(180deg, var(--w-13), var(--w-5)) padding-box,
-    color-mix(in oklab, var(--cosmic-void) 44%, transparent);
+    rgba(12, 4, 30, 0.44);
   border-color: var(--w-24);
 }
 
 .btn-ghost {
   background: linear-gradient(180deg, var(--w-6), var(--w-1-8)) padding-box,
-    color-mix(in oklab, var(--cosmic-void) 58%, transparent);
+    rgba(12, 4, 30, 0.58);
   border-color: var(--w-12);
 }
 

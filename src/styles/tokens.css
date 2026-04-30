@@ -327,17 +327,17 @@
   --btn-height: 44px;
   --btn-padding-x: 18px;
   --btn-font: 600 0.95rem/1 'Inter Variable', system-ui, -apple-system, sans-serif;
-  --btn-bg: color-mix(in oklab, var(--cosmic-void) 80%, transparent);
-  --btn-bg-hover: color-mix(in oklab, var(--cosmic-void) 70%, transparent);
-  --btn-bg-active: color-mix(in oklab, var(--cosmic-void) 88%, transparent);
+  --btn-bg: rgba(18, 8, 36, 0.80);
+  --btn-bg-hover: rgba(18, 8, 36, 0.70);
+  --btn-bg-active: rgba(18, 8, 36, 0.88);
   --btn-surface: linear-gradient(180deg, var(--w-7), var(--w-2-5));
   --btn-border: 1px solid var(--w-14);
   --btn-border-hover: 1px solid var(--w-18);
   --btn-shadow: 0 12px 28px var(--k-42),
     inset 0 1px 0 var(--w-7),
-    0 0 18px color-mix(in oklab, var(--cosmic-purple) 18%, transparent);
+    0 0 18px rgba(139, 92, 246, 0.18);
   --btn-shadow-hover: 0 18px 44px var(--k-50),
     inset 0 1px 0 var(--w-10),
-    0 0 28px color-mix(in oklab, var(--cosmic-purple) 26%, transparent);
+    0 0 28px rgba(139, 92, 246, 0.26);
 }
 

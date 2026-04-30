@@ -303,7 +303,15 @@
         aria-invalid={height !== '' && !heightValid}
         disabled={!ageValid}
         aria-disabled={!ageValid}
-        onfocus={() => { if (!ageValid) ageInputEl?.focus(); }}
+        onfocus={() => {
+          if (!ageValid) {
+            // On touch devices, don't steal focus — just show the disabled state
+            // to avoid keyboard flash/jank from focus redirect
+            if (!window.matchMedia('(hover: none)').matches) {
+              ageInputEl?.focus();
+            }
+          }
+        }}
         oninput={handleHeightInput}
       />
       {#if height !== '' && !heightValid}
@@ -328,7 +336,13 @@
         aria-invalid={weight !== '' && !weightValid}
         disabled={!heightValid}
         aria-disabled={!heightValid}
-        onfocus={() => { if (!heightValid) heightInputEl?.focus(); }}
+        onfocus={() => {
+          if (!heightValid) {
+            if (!window.matchMedia('(hover: none)').matches) {
+              heightInputEl?.focus();
+            }
+          }
+        }}
         oninput={handleWeightInput}
       />
       {#if weight !== '' && !weightValid}

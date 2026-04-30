@@ -72,7 +72,7 @@
     transform: translateY(20px);
     transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
                 transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: opacity, transform;
+    /* will-change removed — browser auto-promotes during transition */
   }
 
   .hero-content.animate {

@@ -64,7 +64,7 @@
   align-items: center;
   justify-content: center;
   z-index: 10;
-  transition: all 0.2s ease;
+  transition: background 0.15s ease, color 0.15s ease;
   /* Reset global button styles */
   font: inherit;
   box-shadow: none;
@@ -140,7 +140,7 @@
   color: var(--w-60);
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   text-align: left;
   /* Reset global button styles */
   height: auto;
@@ -156,10 +156,10 @@
 }
 
 .lang-option.active {
-  background: linear-gradient(135deg, color-mix(in oklab, var(--cosmic-purple) 20%, transparent), color-mix(in oklab, var(--cosmic-purple) 10%, transparent));
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.20), rgba(139, 92, 246, 0.10));
   color: white;
   border-color: var(--cosmic-purple);
-  box-shadow: 0 0 12px color-mix(in oklab, var(--cosmic-purple) 25%, transparent);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.25);
 }
 
 .lang-option:active {

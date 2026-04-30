@@ -123,7 +123,9 @@
   // Center display + animation config — side effects (displayBmi.set) + state mutations
   $effect(() => {
     const ultraEnabled = ultraSmooth && !reducedMotion && perfTier !== 'low';
-    useGlow = ultraEnabled && perfTier === 'high';
+    const isMobileTouch = typeof window !== 'undefined' &&
+      window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    useGlow = ultraEnabled && perfTier === 'high' && !isMobileTouch;
     usePulse = ultraEnabled;
 
     bmiTweenDuration = reducedMotion

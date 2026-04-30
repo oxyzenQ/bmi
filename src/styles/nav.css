@@ -99,10 +99,10 @@ html[data-performance-tier="medium"] .cosmic-particles {
     var(--w-10) 0%,
     var(--w-5) 100%
   );
-  border-color: color-mix(in oklab, var(--aurora-core) 45%, var(--w-14));
+  border-color: rgba(139, 92, 246, 0.45);
   box-shadow:
-    0 0 20px color-mix(in oklab, var(--cosmic-purple) 22%, transparent),
-    0 0 6px color-mix(in oklab, var(--aurora-core) 15%, transparent);
+    0 0 20px rgba(139, 92, 246, 0.22),
+    0 0 6px rgba(139, 92, 246, 0.15);
   transform: translateY(-1px);
   font-weight: 500;
 }

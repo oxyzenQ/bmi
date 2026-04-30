@@ -149,8 +149,8 @@
 }
 
 .age-advisory {
-  background: color-mix(in oklab, var(--accent-blue) 12%, transparent);
-  border: 1px solid color-mix(in oklab, var(--accent-blue) 22%, transparent);
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.22);
   border-radius: 1rem;
   padding: 1.75rem;
   margin-bottom: 1.75rem;
@@ -159,10 +159,10 @@
 }
 
 .age-advisory:hover {
-  background: color-mix(in oklab, var(--accent-blue) 16%, transparent);
-  border-color: color-mix(in oklab, var(--accent-blue) 32%, transparent);
+  background: rgba(59, 130, 246, 0.16);
+  border-color: rgba(59, 130, 246, 0.32);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px color-mix(in oklab, var(--accent-blue) 16%, transparent);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.16);
 }
 
 @keyframes slideInRight {
@@ -237,28 +237,28 @@
   gap: 0.4rem;
   padding: 0.5rem 0.85rem;
   border-radius: var(--btn-radius);
-  border: 1px solid color-mix(in oklab, var(--aurora-core) 22%, var(--w-14));
+  border: 1px solid rgba(139, 92, 246, 0.22);
   background: var(--bg-by-rezky);
   color: white;
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   flex: 1;
   justify-content: center;
   box-shadow: 0 8px 20px var(--k-45),
     inset 0 1px 0 var(--w-8),
-    0 0 16px color-mix(in oklab, var(--cosmic-purple) 24%, transparent);
+    0 0 16px rgba(139, 92, 246, 0.24);
 }
 
 .action-btn:hover {
   background: var(--bg-last-by-rezky);
-  border-color: color-mix(in oklab, var(--aurora-core) 34%, var(--w-16));
+  border-color: rgba(139, 92, 246, 0.34);
   color: white;
   transform: translateY(-1px);
   box-shadow: 0 12px 28px var(--k-55),
     inset 0 1px 0 var(--w-10),
-    0 0 24px color-mix(in oklab, var(--cosmic-purple) 30%, transparent);
+    0 0 24px rgba(139, 92, 246, 0.30);
 }
 
 .action-btn:active {

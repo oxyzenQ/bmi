@@ -274,7 +274,7 @@
     justify-content: center;
     color: var(--w-80);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background 0.15s ease, color 0.15s ease;
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     z-index: 10;
@@ -346,7 +346,7 @@
     border: none;
     border-radius: 12px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform 0.15s ease, background 0.15s ease;
     min-width: 160px;
   }
 
