@@ -1,18 +1,17 @@
 /**
- * Unit tests for the centralized localStorage utility.
+ * Unit tests for the centralized storage utility with IndexedDB.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
-  STORAGE_KEYS,
-  storageGet,
-  storageSet,
-  storageRemove,
-  storageGetJSON,
-  storageSetJSON,
-  storageInvalidate,
-  storageInvalidateAll,
-  isStorageAvailable,
+    STORAGE_KEYS,
+    storageGet,
+    storageGetJSON,
+    storageInvalidate,
+    storageInvalidateAll,
+    storageRemove,
+    storageSet,
+    storageSetJSON
 } from '$lib/utils/storage';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock localStorage
 const store: Record<string, string> = {};
@@ -23,7 +22,37 @@ const mockLocalStorage = {
   clear: vi.fn(() => { for (const k of Object.keys(store)) delete store[k]; }),
 };
 
+// Mock IndexedDB
+const mockIndexedDb = {
+  open: vi.fn().mockReturnValue({
+    onupgradeneeded: null as unknown,
+    onsuccess: null as unknown,
+    onerror: null as unknown,
+    result: {
+      transaction: vi.fn().mockReturnValue({
+        objectStore: vi.fn().mockReturnValue({
+          get: vi.fn().mockReturnValue({ onsuccess: null, onerror: null, result: null }),
+          put: vi.fn().mockReturnValue({ onsuccess: null, onerror: null }),
+          delete: vi.fn().mockReturnValue({ onsuccess: null, onerror: null }),
+          getAll: vi.fn().mockReturnValue({ onsuccess: null, onerror: null, result: [] }),
+          getAllKeys: vi.fn().mockReturnValue({ onsuccess: null, onerror: null, result: [] }),
+        }),
+        complete: null,
+        onerror: null,
+      }),
+      createObjectStore: vi.fn().mockReturnValue({
+        createIndex: vi.fn(),
+      }),
+      objectStoreNames: {
+        contains: vi.fn().mockReturnValue(false),
+      },
+      close: vi.fn(),
+    },
+  }),
+};
+
 Object.defineProperty(globalThis, 'localStorage', { value: mockLocalStorage, writable: true });
+Object.defineProperty(globalThis, 'indexedDB', { value: mockIndexedDb, writable: true });
 
 beforeEach(() => {
   mockLocalStorage.clear();

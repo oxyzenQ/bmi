@@ -26,9 +26,9 @@
 
 import { t } from '$lib/i18n';
 import {
-        storageGet,
-        storageSet,
-        STORAGE_KEYS
+    STORAGE_KEYS,
+    storageGet,
+    storageSet
 } from './storage';
 
 // ---------------------------------------------------------------------------
@@ -268,8 +268,11 @@ interface InvalidResult {
  *
  * Each export includes a unique random salt so that re-exporting the
  * same records produces a different (but still valid) signature.
+ *
+ * If a passphrase is provided, the envelope is additionally encrypted
+ * with AES-256-GCM before being returned.
  */
-export async function exportBmiHistory(): Promise<string | null> {
+export async function exportBmiHistory(passphrase?: string): Promise<string | null> {
         try {
                 const stored = storageGet(STORAGE_KEYS.HISTORY);
                 if (!stored) return null;
@@ -298,7 +301,15 @@ export async function exportBmiHistory(): Promise<string | null> {
                         records
                 };
 
-                return JSON.stringify(envelope, null, 2);
+                const envelopeJson = JSON.stringify(envelope, null, 2);
+
+                // Optional encryption
+                if (passphrase) {
+                        const { encrypt } = await import('./crypto');
+                        return await encrypt(envelopeJson, passphrase);
+                }
+
+                return envelopeJson;
         } catch {
                 return null;
         }
@@ -382,8 +393,23 @@ async function verifyIntegrity(
  * Validate an imported JSON string without touching storage.
  * Use this to pre-check a file before asking the user for confirmation.
  */
-export async function validateBmiImport(json: string): Promise<ValidationResult> {
-        const result = await parseAndValidate(json);
+export async function validateBmiImport(json: string, passphrase?: string): Promise<ValidationResult> {
+        // Auto-detect encrypted payload
+        let content = json;
+        const { isEncrypted } = await import('./crypto');
+        if (isEncrypted(json)) {
+                if (!passphrase) {
+                        return { valid: false, error: t('history.encrypted_no_passphrase') };
+                }
+                const { decrypt } = await import('./crypto');
+                const decrypted = await decrypt(json, passphrase);
+                if (decrypted === null) {
+                        return { valid: false, error: t('history.wrong_passphrase') };
+                }
+                content = decrypted;
+        }
+
+        const result = await parseAndValidate(content);
         return result.validation;
 }
 
@@ -421,6 +447,13 @@ export async function importBmiHistory(json: string): Promise<ImportResult> {
 
         // Sort by timestamp
         records.sort((a, b) => a.timestamp - b.timestamp);
+
+        // Create backup before overwriting existing data (fire-and-forget, don't block)
+        try {
+                import('./backup').then(({ createBackup }) => {
+                        void createBackup('before_import');
+                }).catch(() => {});
+        } catch { /* backup failure should not block import */ }
 
         // Override (replace) existing data via centralized storage
         const ok = storageSet(STORAGE_KEYS.HISTORY, JSON.stringify(records));

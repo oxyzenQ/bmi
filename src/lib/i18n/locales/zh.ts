@@ -114,6 +114,8 @@ const zh: TranslationDict = {
   'form.could_not_read': '\u65e0\u6cd5\u8bfb\u53d6\u6587\u4ef6\u3002',
   'form.export_csv_aria': '\u5bfc\u51fa CSV',
   'form.export_csv': 'CSV',
+  'form.toggle_encryption': '\u542f\u7528\u52a0\u5bc6',
+  'form.passphrase_placeholder': '\u8f93\u5165\u5bc6\u7801\uff08\u53ef\u9009\uff09',
 
   // ── Results ──
   'results.title': '\u60a8\u7684\u7ed3\u679c',
@@ -338,6 +340,8 @@ const zh: TranslationDict = {
   'history.invalid_format': '\u6587\u4ef6\u683c\u5f0f\u65e0\u6548\u3002\u6b64\u6587\u4ef6\u4e0d\u662f BMI \u8ba1\u7b97\u5668\u5bfc\u51fa\u7684\u6216\u5df2\u88ab\u4fee\u6539\u3002',
   'history.no_valid_records': '\u672a\u627e\u5230\u6709\u6548\u7684 BMI \u8bb0\u5f55\u3002',
   'history.save_failed': '\u4fdd\u5b58\u5386\u53f2\u8bb0\u5f55\u5931\u8d25\u3002',
+  'history.encrypted_no_passphrase': '\u6b64\u6587\u4ef6\u5df2\u52a0\u5bc6\u3002\u8bf7\u8f93\u5165\u60a8\u7684\u5bc6\u7801\u3002',
+  'history.wrong_passphrase': '\u5bc6\u7801\u9519\u8bef\u2014\u65e0\u6cd5\u89e3\u5bc6\u3002',
 
   // ── BMI Categories (shared) ──
   'category.underweight': '\u504f\u7626',
@@ -396,6 +400,16 @@ const zh: TranslationDict = {
   // ── Info Section ──
   'info.disclaimer': 'BMI \u662f\u7b5b\u67e5\u5de5\u5177\uff0c\u4e0d\u5e94\u4f5c\u4e3a\u552f\u4e00\u7684\u8bca\u65ad\u65b9\u6cd5\u3002\u8bf7\u54a8\u8be2\u533b\u7597\u4e13\u4e1a\u4eba\u58eb\u8fdb\u884c\u5168\u9762\u7684\u5065\u5eb7\u8bc4\u4f30\u3002',
   'info.copyright': '\u00a9 2025-{n} Rezky Nightky \u3002\u4fdd\u7559\u6240\u6709\u6743\u5229\u3002',
+
+  // ── Backup Status ──
+  'backup.last': '\u4e0a\u6b21\u5907\u4efd\uff1a{time}',
+  'backup.stored_locally': '\u6570\u636e\u672c\u5730\u5b58\u50a8',
+  'backup.none': '\u6682\u65e0\u5907\u4efd',
+  'backup.restore': '\u6062\u590d\u4e0a\u6b21\u5907\u4efd',
+  'backup.restore_confirm': '\u7528\u4e0a\u6b21\u5907\u4efd\u66ff\u6362\u5f53\u524d\u6570\u636e\uff1f\u5f53\u524d\u6570\u636e\u5c06\u88ab\u8986\u76d6\u3002',
+  'backup.restore_success': '\u5907\u4efd\u6062\u590d\u6210\u529f',
+  'backup.restore_failed': '\u5907\u4efd\u6062\u590d\u5931\u8d25',
+  'backup.records': '{n} \u6761\u8bb0\u5f55',
 };
 
 export default zh;

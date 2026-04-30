@@ -11,11 +11,11 @@
  *   // Change locale: setLocale('ja')
  */
 
-import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
 import { STORAGE_KEYS, storageGet, storageSet } from '$lib/utils/storage';
-import type { Locale, LocaleInfo, TranslationDict, TParams } from './types';
-export type { Locale, LocaleInfo, TranslationDict, TParams } from './types';
+import { get, writable } from 'svelte/store';
+import type { Locale, LocaleInfo, TParams, TranslationDict } from './types';
+export type { Locale, LocaleInfo, TParams, TranslationDict } from './types';
 
 // Pre-import English synchronously — always available as fallback
 import enDict from './locales/en';
@@ -85,14 +85,32 @@ export async function setLocale(code: Locale): Promise<void> {
 async function loadLocale(code: Locale): Promise<void> {
   if (dicts[code]) return; // already loaded
 
+  // 'en' is statically imported - no dynamic import needed
+  if (code === 'en') {
+    dicts['en'] = enDict;
+    localeVersionStore.update(n => n + 1);
+    return;
+  }
+
+  // Other locales loaded dynamically (excluding 'en' from pattern to avoid vite warning)
+  await loadNonEnglishLocale(code);
+}
+
+/** Dynamic import for non-English locales (explicit imports to avoid vite warning) */
+async function loadNonEnglishLocale(code: Locale): Promise<void> {
+  let mod: { default: TranslationDict } | undefined;
   try {
-    const mod = await import(`./locales/${code}.ts`);
-    dicts[code] = mod.default as TranslationDict;
+    // Explicit switch ensures vite doesn't pattern-match en.ts
+    switch (code) {
+      case 'id': mod = await import('./locales/id'); break;
+      case 'zh': mod = await import('./locales/zh'); break;
+      case 'ja': mod = await import('./locales/ja'); break;
+      default: throw new Error(`Unknown locale: ${code}`);
+    }
+    dicts[code] = mod.default;
   } catch {
     console.warn(`[i18n] Failed to load locale "${code}", falling back to en`);
-    if (code !== 'en') {
-      dicts[code] = enDict;
-    }
+    dicts[code] = enDict;
   }
   // Bump version to trigger Svelte reactivity in components that depend on it
   localeVersionStore.update(n => n + 1);

@@ -26,6 +26,7 @@
   import { browser } from '$app/environment';
   import { fade } from 'svelte/transition';
   import { Download, WifiOff } from 'lucide-svelte';
+  import { initStorage } from '$lib/utils/storage';
   import { t as _t, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
   function t(key: string): string { void _rv; return _t(key); }
@@ -112,7 +113,9 @@
   onMount(() => {
     let cleanupFns: Array<() => void> = [];
 
+    // Initialize IndexedDB storage layer + run localStorage migration if needed
     if (browser) {
+      void initStorage();
       if (!renderModeInitialized) {
         renderModeEnabled = readRenderMode();
         renderModeInitialized = true;

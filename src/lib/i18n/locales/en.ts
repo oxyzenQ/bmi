@@ -115,6 +115,8 @@ const en: TranslationDict = {
   'form.could_not_read': 'Could not read the file.',
   'form.export_csv_aria': 'Export CSV',
   'form.export_csv': 'CSV',
+  'form.toggle_encryption': 'Toggle encryption',
+  'form.passphrase_placeholder': 'Enter passphrase (optional)',
 
   // ── Results ──
   'results.title': 'Your Results',
@@ -339,6 +341,8 @@ const en: TranslationDict = {
   'history.invalid_format': 'Invalid file format. This file was not exported by BMI Calculator or has been modified. Please export a new file and try again.',
   'history.no_valid_records': 'No valid BMI records found.',
   'history.save_failed': 'Failed to save history to storage.',
+  'history.encrypted_no_passphrase': 'This file is encrypted. Please enter your passphrase.',
+  'history.wrong_passphrase': 'Wrong passphrase — unable to decrypt.',
 
   // ── BMI Categories (shared) ──
   'category.underweight': 'Underweight',
@@ -397,6 +401,16 @@ const en: TranslationDict = {
   // ── Info Section ──
   'info.disclaimer': 'BMI is a screening tool and should not be used as a sole diagnostic method. Please consult healthcare professionals for comprehensive health assessment.',
   'info.copyright': '\u00a9 2025-{n} Rezky Nightky. All rights reserved.',
+
+  // ── Backup Status ──
+  'backup.last': 'Last backup: {time}',
+  'backup.stored_locally': 'Data stored locally',
+  'backup.none': 'No backup yet',
+  'backup.restore': 'Restore last backup',
+  'backup.restore_confirm': 'Replace current data with the last backup? Current data will be overwritten.',
+  'backup.restore_success': 'Backup restored successfully',
+  'backup.restore_failed': 'Failed to restore backup',
+  'backup.records': '{n} record(s)',
 };
 
 export default en;

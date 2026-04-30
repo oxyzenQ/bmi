@@ -114,6 +114,8 @@ const id: TranslationDict = {
   'form.could_not_read': 'Tidak dapat membaca file.',
   'form.export_csv_aria': 'Ekspor CSV',
   'form.export_csv': 'CSV',
+  'form.toggle_encryption': 'Aktifkan enkripsi',
+  'form.passphrase_placeholder': 'Masukkan passphrase (opsional)',
 
   // ── Results ──
   'results.title': 'Hasil Anda',
@@ -338,6 +340,8 @@ const id: TranslationDict = {
   'history.invalid_format': 'Format file tidak valid. File ini tidak diekspor oleh Kalkulator BMI atau telah dimodifikasi.',
   'history.no_valid_records': 'Tidak ditemukan catatan BMI yang valid.',
   'history.save_failed': 'Gagal menyimpan riwayat ke penyimpanan.',
+  'history.encrypted_no_passphrase': 'File ini dienkripsi. Silakan masukkan kata sandi Anda.',
+  'history.wrong_passphrase': 'Kata sandi salah — tidak dapat mendekripsi.',
 
   // ── BMI Categories (shared) ──
   'category.underweight': 'Kurus',
@@ -396,6 +400,16 @@ const id: TranslationDict = {
   // ── Info Section ──
   'info.disclaimer': 'BMI adalah alat skrining dan tidak boleh digunakan sebagai satu-satunya metode diagnostik. Silakan berkonsultasi dengan profesional kesehatan untuk penilaian kesehatan yang komprehensif.',
   'info.copyright': '\u00a9 2025-{n} Rezky Nightky. Semua hak dilindungi.',
+
+  // ── Backup Status ──
+  'backup.last': 'Cadangan terakhir: {time}',
+  'backup.stored_locally': 'Data disimpan secara lokal',
+  'backup.none': 'Belum ada cadangan',
+  'backup.restore': 'Pulihkan cadangan terakhir',
+  'backup.restore_confirm': 'Ganti data saat ini dengan cadangan terakhir? Data saat ini akan ditimpa.',
+  'backup.restore_success': 'Cadangan berhasil dipulihkan',
+  'backup.restore_failed': 'Gagal memulihkan cadangan',
+  'backup.records': '{n} catatan',
 };
 
 export default id;
