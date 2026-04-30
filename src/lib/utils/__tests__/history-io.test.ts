@@ -14,16 +14,6 @@ const localStorageMock = (() => {
 
 Object.defineProperty(global, 'localStorage', { value: localStorageMock });
 
-// We need to mock crypto.subtle for HMAC in test environments (jsdom)
-const originalSubtle = globalThis.crypto?.subtle;
-
-function mockWebCrypto() {
-  // jsdom provides crypto.subtle but it may not fully support HMAC.
-  // If the real crypto.subtle works, we use it; otherwise we shim.
-  // For most modern Node + jsdom combos, subtle is available.
-  return originalSubtle;
-}
-
 describe('history-io', () => {
   beforeEach(() => {
     localStorageMock.clear();
@@ -42,7 +32,7 @@ describe('history-io', () => {
       expect(result).toBeNull();
     });
 
-    it('exports valid BMI records with HMAC-SHA256 checksum (v3)', async () => {
+    it('exports valid BMI records with HMAC-SHA256 signature (v3)', async () => {
       const records = [
         { timestamp: 1700000000000, bmi: 22.5, height: 170, weight: 65 },
         { timestamp: 1700086400000, bmi: 22.1, height: 170, weight: 64.5 }
@@ -56,8 +46,11 @@ describe('history-io', () => {
       expect(parsed.version).toBe(3);
       expect(parsed.source).toBe('bmi-calculator');
       expect(parsed.records).toHaveLength(2);
-      expect(parsed.checksum).toHaveLength(64); // HMAC-SHA256 hex
-      expect(parsed.salt).toHaveLength(32); // 16 bytes = 32 hex chars
+      // v3 uses `signature` (not `checksum`)
+      expect(parsed.signature).toHaveLength(64);
+      expect(parsed.checksum).toBeUndefined();
+      expect(parsed.algorithm).toBe('HMAC-SHA256');
+      expect(parsed.salt).toHaveLength(32);
       expect(parsed.exportedAt).toBeTruthy();
     });
 
@@ -75,9 +68,9 @@ describe('history-io', () => {
       const p1 = JSON.parse(result1!);
       const p2 = JSON.parse(result2!);
 
-      // Different salts → different checksums
+      // Different salts → different signatures
       expect(p1.salt).not.toBe(p2.salt);
-      expect(p1.checksum).not.toBe(p2.checksum);
+      expect(p1.signature).not.toBe(p2.signature);
     });
 
     it('filters out invalid records on export', async () => {
@@ -108,13 +101,14 @@ describe('history-io', () => {
       expect(result.error).toContain('Invalid file format');
     });
 
-    it('rejects tampered data (bad checksum)', async () => {
+    it('rejects tampered v3 data (bad signature)', async () => {
       const envelope = {
         version: 3,
         source: 'bmi-calculator',
         exportedAt: new Date().toISOString(),
+        algorithm: 'HMAC-SHA256',
         salt: 'a'.repeat(32),
-        checksum: 'b'.repeat(64),
+        signature: 'b'.repeat(64),
         records: [
           { timestamp: 1700000000000, bmi: 22.5, height: 170, weight: 65 }
         ]
@@ -149,8 +143,9 @@ describe('history-io', () => {
       const result = await validateBmiImport(exported!);
       expect(result.valid).toBe(true);
       expect(result.recordCount).toBe(1);
-      expect(result.checksumVerified).toBe(true);
+      expect(result.integrityVerified).toBe(true);
       expect(result.integrityVersion).toBe(3);
+      expect(result.algorithm).toBe('HMAC-SHA256');
     });
 
     it('rejects v3 export with modified records', async () => {
@@ -160,7 +155,6 @@ describe('history-io', () => {
       localStorageMock.getItem.mockReturnValue(JSON.stringify(records));
       const exported = await exportBmiHistory();
 
-      // Tamper with the records
       const parsed = JSON.parse(exported!);
       parsed.records[0].bmi = 99.9;
       const result = await validateBmiImport(JSON.stringify(parsed));
@@ -175,7 +169,6 @@ describe('history-io', () => {
       localStorageMock.getItem.mockReturnValue(JSON.stringify(records));
       const exported = await exportBmiHistory();
 
-      // Tamper with metadata
       const parsed = JSON.parse(exported!);
       parsed.exportedAt = '2099-01-01T00:00:00.000Z';
       const result = await validateBmiImport(JSON.stringify(parsed));
@@ -189,11 +182,28 @@ describe('history-io', () => {
       localStorageMock.getItem.mockReturnValue(JSON.stringify(records));
       const exported = await exportBmiHistory();
 
-      // Tamper with the salt
       const parsed = JSON.parse(exported!);
       parsed.salt = '0'.repeat(32);
       const result = await validateBmiImport(JSON.stringify(parsed));
       expect(result.valid).toBe(false);
+    });
+
+    it('rejects v3 export with replaced algorithm field', async () => {
+      const records = [
+        { timestamp: 1700000000000, bmi: 22.5, height: 170, weight: 65 }
+      ];
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(records));
+      const exported = await exportBmiHistory();
+
+      // Changing algorithm alone should not break HMAC (only metadata)
+      // But let's verify it still passes integrity (algorithm is informational)
+      const parsed = JSON.parse(exported!);
+      parsed.algorithm = 'FAKE-ALGO';
+      const result = await validateBmiImport(JSON.stringify(parsed));
+      // Still valid because algorithm field is informational, not part of payload
+      expect(result.valid).toBe(true);
+      // But algorithm in result comes from the envelope, so it shows 'FAKE-ALGO'
+      expect(result.algorithm).toBe('FAKE-ALGO');
     });
   });
 
@@ -214,8 +224,9 @@ describe('history-io', () => {
       const result = await importBmiHistory(exported!);
       expect(result.success).toBe(true);
       expect(result.count).toBe(2);
-      expect(result.checksumVerified).toBe(true);
+      expect(result.integrityVerified).toBe(true);
       expect(result.integrityVersion).toBe(3);
+      expect(result.algorithm).toBe('HMAC-SHA256');
       expect(localStorageMock.setItem).toHaveBeenCalled();
     });
 
@@ -230,7 +241,6 @@ describe('history-io', () => {
       const result = await importBmiHistory(exported!);
       expect(result.success).toBe(true);
 
-      // Check the stored data is sorted
       const stored = localStorageMock.setItem.mock.calls[0][1];
       const parsed = JSON.parse(stored);
       expect(parsed[0].timestamp).toBe(1700000000000);

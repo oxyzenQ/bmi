@@ -1351,10 +1351,11 @@
         const result = await importBmiHistory(pendingImportText);
         pendingImportText = null;
         if (result.success) {
-          const integrityLabel = result.integrityVersion === 3 ? 'HMAC' : 'Checksum';
-          const checksumMsg = result.checksumVerified ? ` ✓ ${integrityLabel} verified` : '';
+          const integrityMsg = result.integrityVerified
+            ? (result.integrityVersion === 3 ? ' \u2713 Integrity verified (HMAC-SHA256)' : ' \u2713 Integrity verified (legacy)')
+            : '';
           notifyType = 'success';
-          notifyMessage = `Successfully imported ${result.count} record${result.count === 1 ? '' : 's'}!${checksumMsg}`;
+          notifyMessage = `Successfully imported ${result.count} record${result.count === 1 ? '' : 's'}!${integrityMsg}`;
           notifyButtonText = 'OK';
         } else {
           notifyType = 'delete';

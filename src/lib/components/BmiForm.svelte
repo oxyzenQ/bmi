@@ -143,7 +143,7 @@
     action: 'import-validate' | 'import-error';
     text?: string;
     recordCount?: number;
-    checksumVerified?: boolean;
+    integrityVerified?: boolean;
     error?: string;
   }
 
@@ -200,7 +200,7 @@
           action: 'import-validate',
           text,
           recordCount: validation.recordCount,
-          checksumVerified: validation.checksumVerified ?? false
+          integrityVerified: validation.integrityVerified ?? false
         });
       } else {
         onNotify?.({

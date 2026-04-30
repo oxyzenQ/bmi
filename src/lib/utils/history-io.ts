@@ -3,19 +3,20 @@
  *
  * Export wraps records in a versioned envelope signed with HMAC-SHA256.
  * A per-export random salt is mixed into the MAC computation so that even
- * identical records produce different signatures every time — preventing
- * replay and pre-computation attacks.
+ * identical records produce different signatures every time.
  *
- * The HMAC secret is embedded in the client bundle (base64-obfuscated).
- * This provides strong tamper-resistance for casual manipulation; a
- * determined attacker with JS inspection can still extract the key. For
- * the BMI calculator use-case this trade-off is acceptable.
+ * The HMAC secret is split into two fragments and XOR-assembled at runtime
+ * to raise the effort required for casual extraction from the JS bundle.
+ * This is obfuscation, not true protection — a determined attacker with
+ * JS inspection can still recover the key. For the BMI calculator use-case
+ * this trade-off is acceptable: it provides tamper-resistance against
+ * casual manipulation while keeping the system fully client-side.
  *
- * Integrity evolution:
- *   v0 (8-char)   — FNV-1a 32-bit on records only       [legacy import only]
- *   v1 (16-char)  — FNV-1a+DJB2 64-bit on envelope      [legacy import only]
- *   v2 (64-char)  — SHA-256 256-bit on envelope          [legacy import only]
- *   v3 (64-char)  — HMAC-SHA256 + random salt on envelope [current export]
+ * Envelope format:
+ *   v0 (checksum 8-ch)  — FNV-1a 32-bit on records only        [legacy import only]
+ *   v1 (checksum 16-ch) — FNV-1a+DJB2 64-bit on envelope       [legacy import only]
+ *   v2 (checksum 64-ch) — SHA-256 256-bit on envelope           [legacy import only]
+ *   v3 (signature 64-ch)— HMAC-SHA256 + salt + algorithm field  [current export]
  *
  * All four formats are accepted on import for backward compatibility.
  */
@@ -34,13 +35,22 @@ interface BmiRecord {
   age?: number;
 }
 
-/** Shape of the exported JSON file */
+/** Shape of the exported JSON file.
+ *  v0–v2 use `checksum`; v3 uses `signature` + `algorithm` + `salt`.
+ *  Legacy fields (`checksum`) are still read on import for backward compat.
+ */
 interface ExportedEnvelope {
   version: number;
   source: string;
   exportedAt: string;
-  checksum: string;
-  salt?: string; // v3 only — random 32-char hex nonce
+  /** v0–v2 only: hash/checksum string */
+  checksum?: string;
+  /** v3: HMAC-SHA256 hex signature */
+  signature?: string;
+  /** v3: algorithm identifier (e.g. "HMAC-SHA256") */
+  algorithm?: string;
+  /** v3: random 32-char hex nonce */
+  salt?: string;
   records: BmiRecord[];
 }
 
@@ -48,19 +58,36 @@ interface ExportedEnvelope {
 // HMAC-SHA256 — primary integrity mechanism (v3+)
 // ---------------------------------------------------------------------------
 //
-// Secret key is stored base64-encoded and decoded at runtime.
-// This is obfuscation, not true protection — the key exists in the JS
-// bundle. The goal is to raise the effort required for tampering far
-// above what a casual user would attempt.
+// Secret key is split into two base64 fragments and XOR-assembled at runtime.
+// Neither fragment alone is the real key. This is obfuscation, not security —
+// the assembled key still exists in memory at runtime.
 
-const HMAC_SECRET_B64 = '3ehXl3JvdAkz6oy6QK9FPq8vU7LJxuQpPTj7ZsPMccY=';
+const _FRAG_A = 'MEKV+5tbi5OA8YWGUdNl3FTLQ0tw1SyStvC1tnRvQkE=';
+const _FRAG_B = '7arCbOk0/5qzGwk8EXwg4vvkEPm5E8i7i8hO0LejM4c=';
+// Neither fragment alone is the real HMAC key.
+// At runtime the two are XOR-assembled: key = FRAG_A ^ FRAG_B.
+// This raises the effort for casual bundle inspection without adding dependencies.
+
+function assembleKey(): Uint8Array {
+  const a = Uint8Array.from(atob(_FRAG_A), (c) => c.charCodeAt(0));
+  const b = Uint8Array.from(atob(_FRAG_B), (c) => c.charCodeAt(0));
+  const raw = new Uint8Array(a.length);
+  for (let i = 0; i < a.length; i++) raw[i] = a[i] ^ b[i];
+  return raw;
+}
 
 let _hmacKey: CryptoKey | null = null;
 
 async function getHmacKey(): Promise<CryptoKey> {
   if (_hmacKey) return _hmacKey;
-  const raw = Uint8Array.from(atob(HMAC_SECRET_B64), (c) => c.charCodeAt(0));
-  _hmacKey = await crypto.subtle.importKey('raw', raw, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
+  const raw = assembleKey();
+  _hmacKey = await crypto.subtle.importKey(
+    'raw',
+    raw.buffer as ArrayBuffer,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign', 'verify']
+  );
   return _hmacKey;
 }
 
@@ -80,12 +107,12 @@ async function computeHmac(payload: string, salt: string): Promise<string> {
 }
 
 /** Verify an HMAC-SHA256 signature. Uses crypto.subtle.verify for constant-time comparison. */
-async function verifyHmac(checksum: string, payload: string, salt: string): Promise<boolean> {
+async function verifyHmac(signature: string, payload: string, salt: string): Promise<boolean> {
   try {
     const key = await getHmacKey();
     const data = new TextEncoder().encode(salt + payload);
     const sigBytes = new Uint8Array(
-      checksum.match(/.{2}/g)?.map((h) => parseInt(h, 16)) ?? []
+      signature.match(/.{2}/g)?.map((h) => parseInt(h, 16)) ?? []
     );
     return await crypto.subtle.verify('HMAC', key, sigBytes, data);
   } catch {
@@ -181,14 +208,15 @@ export async function exportBmiHistory(): Promise<string | null> {
     // v3: HMAC-SHA256 with random salt
     const salt = generateSalt();
     const payload = JSON.stringify({ version: 3, source: 'bmi-calculator', exportedAt, records: recordsJson });
-    const checksum = await computeHmac(payload, salt);
+    const signature = await computeHmac(payload, salt);
 
     const envelope: ExportedEnvelope = {
       version: 3,
       source: 'bmi-calculator',
       exportedAt,
+      algorithm: 'HMAC-SHA256',
       salt,
-      checksum,
+      signature,
       records
     };
 
@@ -205,13 +233,14 @@ export async function exportBmiHistory(): Promise<string | null> {
 export interface ValidationResult {
   valid: boolean;
   recordCount?: number;
-  checksumVerified?: boolean;
+  integrityVerified?: boolean;
   integrityVersion?: number; // 0, 1, 2, or 3
+  algorithm?: string;
   error?: string;
 }
 
 /**
- * Build the envelope payload string for checksum verification.
+ * Build the envelope payload string for integrity verification.
  * For v0 (FNV-1a, 8-char): records only (legacy).
  * For v1/v2/v3: full envelope with JSON-stringified records.
  */
@@ -226,25 +255,27 @@ function buildPayload(version: number, source: string, exportedAt: string, recor
 
 /**
  * Verify integrity with backward compatibility for all four formats:
- *   v3 + salt  → HMAC-SHA256 with random salt  (current)
- *   v2 (64-ch) → SHA-256 on full envelope       (legacy)
- *   v1 (16-ch) → FNV-1a + DJB2 on full envelope (legacy)
- *   v0  (8-ch) → FNV-1a on records only         (legacy)
+ *   v3 + salt          → HMAC-SHA256 with random salt  (current)
+ *   v2 (checksum 64-ch)→ SHA-256 on full envelope       (legacy)
+ *   v1 (checksum 16-ch)→ FNV-1a + DJB2 on full envelope (legacy)
+ *   v0 (checksum  8-ch)→ FNV-1a on records only         (legacy)
  */
-async function verifyChecksum(
-  checksum: string,
-  version: number,
-  source: string,
-  exportedAt: string,
-  recordsJson: string,
-  salt?: string
-): Promise<{ valid: boolean; integrityVersion: number }> {
+async function verifyIntegrity(
+  env: ExportedEnvelope,
+  recordsJson: string
+): Promise<{ valid: boolean; integrityVersion: number; algorithm?: string }> {
+  const { version, source, exportedAt } = env;
+
   // v3: HMAC-SHA256 with per-export salt
-  if (version === 3 && salt && checksum.length === 64) {
+  if (version === 3 && env.salt && env.signature && env.signature.length === 64) {
     const payload = buildPayload(version, source, exportedAt, recordsJson);
-    const ok = await verifyHmac(checksum, payload, salt);
-    return { valid: ok, integrityVersion: 3 };
+    const ok = await verifyHmac(env.signature, payload, env.salt);
+    return { valid: ok, integrityVersion: 3, algorithm: env.algorithm };
   }
+
+  // Legacy v0/v1/v2: fall back to `checksum` field
+  const checksum = env.checksum ?? '';
+  if (!checksum) return { valid: false, integrityVersion: -1 };
 
   // v2: SHA-256 on full envelope (no salt)
   if (checksum.length === 64) {
@@ -297,24 +328,25 @@ export async function validateBmiImport(json: string): Promise<ValidationResult>
     }
 
     const recordsJson = JSON.stringify(records);
-    const result = await verifyChecksum(env.checksum, env.version, env.source, env.exportedAt, recordsJson, env.salt);
+    const result = await verifyIntegrity(env, recordsJson);
 
     if (!result.valid) {
       return {
         valid: false,
-        error: t('history.checksum_failed')
+        error: t('history.integrity_failed')
       };
     }
 
     return {
       valid: true,
       recordCount: records.length,
-      checksumVerified: true,
-      integrityVersion: result.integrityVersion
+      integrityVerified: true,
+      integrityVersion: result.integrityVersion,
+      algorithm: result.algorithm
     };
   }
 
-  // No legacy fallback — only envelope format with checksum is accepted
+  // No legacy fallback — only envelope format is accepted
   return {
     valid: false,
     error: t('history.invalid_format')
@@ -328,8 +360,9 @@ export async function validateBmiImport(json: string): Promise<ValidationResult>
 export interface ImportResult {
   success: boolean;
   count: number;
-  checksumVerified?: boolean;
+  integrityVerified?: boolean;
   integrityVersion?: number;
+  algorithm?: string;
   error?: string;
 }
 
@@ -364,8 +397,9 @@ export async function importBmiHistory(json: string): Promise<ImportResult> {
   return {
     success: true,
     count: records.length,
-    checksumVerified: validation.checksumVerified,
-    integrityVersion: validation.integrityVersion
+    integrityVerified: validation.integrityVerified,
+    integrityVersion: validation.integrityVersion,
+    algorithm: validation.algorithm
   };
 }
 
