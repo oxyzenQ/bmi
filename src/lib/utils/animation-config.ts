@@ -84,9 +84,6 @@ export const GAUGE = {
   FILL_STATE_DURATION: 1400,
 } as const;
 
-// ── BmiResults tween ──
-export const RESULTS_TWEEN_DURATION = 720;
-
 // ── Section navigation ──
 export const SECTIONS = [
   { id: 'welcome', label: 'Welcome', labelKey: 'nav.welcome' },

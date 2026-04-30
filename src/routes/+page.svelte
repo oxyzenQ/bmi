@@ -1582,38 +1582,6 @@
     }
   }
 
-  .pager-controls-shell {
-    width: 100%;
-    max-width: none;
-    min-width: 0;
-    overflow: hidden;
-    background: var(--k-50) !important;
-    backdrop-filter: blur(24px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-    border: none !important;
-    border-top: 1px solid var(--w-8) !important;
-    box-shadow: 0 -1px 0 var(--w-6), 0 -8px 30px rgba(0,0,0,0.5), 0 -2px 8px rgba(0,0,0,0.3);
-    border-radius: 18px 18px 0 0;
-    margin-inline: auto;
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 20;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    height: calc(58px + env(safe-area-inset-bottom, 0px));
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    transition: opacity 0.3s ease;
-  }
-
-  .pager-controls-shell.pager-hidden {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateX(-50%) translateY(100%);
-  }
-
   .pager-btn-spacer {
     width: 56px;
     height: 56px;
@@ -1623,26 +1591,6 @@
     .pager-btn-spacer {
       width: 50px;
       height: 50px;
-    }
-  }
-
-  /* Bug-13: Touch device navbar overrides.
-     Scoped styles required to match specificity of scoped backdrop-filter
-     rules above. On touch devices, backdrop-filter blur(24px) is too
-     expensive for mobile GPUs — use solid background instead. */
-  @media (hover: none) and (pointer: coarse) {
-    .pager-nav-shell {
-      -webkit-backdrop-filter: none !important;
-      backdrop-filter: none !important;
-      background: rgba(0, 0, 0, 0.85) !important;
-      box-shadow: none !important;
-    }
-
-    .pager-controls-shell {
-      -webkit-backdrop-filter: none !important;
-      backdrop-filter: none !important;
-      background: rgba(0, 0, 0, 0.85) !important;
-      box-shadow: none !important;
     }
   }
 </style>
