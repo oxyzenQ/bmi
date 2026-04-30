@@ -15,10 +15,7 @@
   background: var(--k-50);
   border: var(--border-by-rezky);
   border-radius: 2rem;
-  box-shadow:
-    0 8px 32px var(--k-40),
-    inset 0 1px 0 var(--w-8),
-    0 0 20px rgba(139, 92, 246, 0.16);
+  backdrop-filter: blur(8px) saturate(140%);
   transition: transform var(--dur-slow) var(--easing-smooth),
     box-shadow var(--dur-slow) var(--easing-smooth),
     border-color var(--dur-slow) var(--easing-smooth);
@@ -30,10 +27,6 @@
   border: var(--border-by-rezky);
   border-radius: 2rem;
   backdrop-filter: blur(8px) saturate(140%);
-  box-shadow:
-    0 8px 32px var(--k-40),
-    inset 0 1px 0 var(--w-8),
-    0 0 20px rgba(139, 92, 246, 0.16);
   transition: transform var(--dur-slow) var(--easing-smooth),
     box-shadow var(--dur-slow) var(--easing-smooth),
     border-color var(--dur-slow) var(--easing-smooth);
@@ -480,4 +473,3 @@ button[aria-disabled="true"] {
     filter: drop-shadow(0 0 12px var(--magenta-80));
   }
 }
-

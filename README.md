@@ -1,7 +1,5 @@
 # BMI Calculator — Stellar v10.5
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/oxyzenQ/bmi)
-
 A luxury, space-themed **Body Mass Index (BMI)** calculator built with **SvelteKit 2 + Svelte 5 (Runes) + TypeScript**, designed for an accessible, privacy-first user experience with production-grade polish.
 
 - **Live**: <https://bmi-logigo.vercel.app>
