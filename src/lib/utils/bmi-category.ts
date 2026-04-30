@@ -21,7 +21,7 @@ export const BMI_CATEGORIES = {
 export type BmiCategory = (typeof BMI_CATEGORIES)[keyof typeof BMI_CATEGORIES];
 
 // ── BMI category color palette (hex) ──
-export const CATEGORY_COLORS: Record<string, string> = {
+export const CATEGORY_COLORS: Record<BmiCategory, string> = {
   [BMI_CATEGORIES.UNDERWEIGHT]: '#4A90E2',
   [BMI_CATEGORIES.NORMAL_WEIGHT]: '#00C853',
   [BMI_CATEGORIES.OVERWEIGHT]: '#FFD600',
@@ -72,7 +72,7 @@ export function classifyBmi(bmi: number): BmiCategory {
 
 export function getCategoryColor(category: string | null): string {
   if (!category) return COLORS.MUTED;
-  return CATEGORY_COLORS[category] ?? COLORS.MUTED;
+  return CATEGORY_COLORS[category as BmiCategory] ?? COLORS.MUTED;
 }
 
 /**

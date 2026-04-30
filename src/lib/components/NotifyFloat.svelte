@@ -78,7 +78,10 @@
       const focusable = getFocusableElements();
       if (focusable.length > 0) {
         // Slight delay to let animation start
-        setTimeout(() => focusable[0].focus(), 100);
+        const focusTimer = setTimeout(() => {
+          if (backdropEl) focusable[0].focus();
+        }, 100);
+        return () => clearTimeout(focusTimer);
       }
     } else {
       // Deactivate focus trap

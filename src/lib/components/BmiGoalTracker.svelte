@@ -122,7 +122,7 @@
   // Formula: |currentBmi - startBmi| / |goalBmi - startBmi| * 100
   // This gives 0% when currentBmi == startBmi (no progress yet)
   // and 100% when currentBmi == goalBmi (goal reached)
-  let progressPercent = $derived(() => {
+  let progressPercent = $derived.by(() => {
     if (!hasGoal || !hasBmi || goalBmi === null || currentBmi === null) return 0;
     if (isAchieved) return 100;
     if (startBmi === null || startBmi === 0) return 0;
@@ -144,9 +144,9 @@
     return Math.max(0, Math.min(100, Math.round(progress * 100)));
   });
 
-  let progressColor = $derived(() => {
+  let progressColor = $derived.by(() => {
     if (isAchieved) return 'var(--cat-green-90)';
-    const p = progressPercent();
+    const p = progressPercent;
     if (p >= 70) return 'var(--cat-green-90)';
     if (p >= 40) return 'var(--cat-yellow-40)';
     return 'var(--cat-red-90)';
@@ -201,12 +201,12 @@
         <div class="goal-progress">
           <div class="progress-header">
             <span>{t('goal.progress_from_start')}</span>
-            <span>{progressPercent()}%</span>
+            <span>{progressPercent}%</span>
           </div>
           <div class="progress-bar">
             <div
               class="progress-fill"
-              style="width: {progressPercent()}%; background: {progressColor()};"
+              style="width: {progressPercent}%; background: {progressColor};"
             ></div>
           </div>
           <p class="goal-insight">

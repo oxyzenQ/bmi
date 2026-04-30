@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { exportBmiHistory, validateBmiImport, importBmiHistory } from '../history-io';
+import { storageInvalidateAll } from '../storage';
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -18,6 +19,8 @@ describe('history-io', () => {
   beforeEach(() => {
     localStorageMock.clear();
     vi.clearAllMocks();
+    // Clear storage.ts in-memory cache to prevent cross-test contamination
+    storageInvalidateAll();
   });
 
   describe('exportBmiHistory', () => {

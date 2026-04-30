@@ -516,7 +516,6 @@
   width: auto;
   height: auto;
   contain: layout paint style;
-  will-change: transform;
   backface-visibility: hidden;
   margin-bottom: 2rem;
   margin-top: 2.5rem;

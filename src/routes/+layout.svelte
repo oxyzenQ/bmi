@@ -139,16 +139,20 @@
 
     // PWA: install prompt handler
     if (browser) {
+      let installTimer: ReturnType<typeof setTimeout> | undefined;
       const handleBeforeInstall = (e: Event) => {
         e.preventDefault();
         deferredPrompt = e as BeforeInstallPromptEvent;
         canInstall = true;
         if (!installDismissed) {
-          setTimeout(() => { showInstallBanner = true; }, 3000);
+          installTimer = setTimeout(() => { showInstallBanner = true; }, 3000);
         }
       };
       window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-      cleanupFns.push(() => window.removeEventListener('beforeinstallprompt', handleBeforeInstall));
+      cleanupFns.push(() => {
+        window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+        if (installTimer) clearTimeout(installTimer);
+      });
 
       // Check if already installed (standalone mode)
       if (window.matchMedia('(display-mode: standalone)').matches || ('standalone' in navigator)) {

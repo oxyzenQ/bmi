@@ -4,6 +4,7 @@
  */
 
 import { t } from '$lib/i18n';
+import { CATEGORY_COLORS, COLORS } from './bmi-category';
 
 export interface BmiCardData {
   bmi: number;
@@ -20,13 +21,7 @@ const CARD_H = 1920;
 const RADIUS = 64;
 
 function getCategoryColor(cat: string): string {
-  switch (cat.toLowerCase()) {
-    case 'underweight': return '#4A90E2';
-    case 'normal weight': return '#00C853';
-    case 'overweight': return '#FFD600';
-    case 'obese': return '#D50000';
-    default: return '#9a4dff';
-  }
+  return CATEGORY_COLORS[cat as keyof typeof CATEGORY_COLORS] ?? COLORS.SLATE;
 }
 
 function roundRect(

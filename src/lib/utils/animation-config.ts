@@ -5,12 +5,6 @@
  * performance-tuning adjustments in one place.
  */
 
-// ── BMI bar gauge ──
-export const BMI_BAR = {
-  MIN: 12,
-  MAX: 40,
-} as const;
-
 // ── Marker animation durations (ms) ──
 export const MARKER_ANIM = {
   HIGH: 860,

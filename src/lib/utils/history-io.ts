@@ -19,20 +19,28 @@
  *   v3 (signature 64-ch)— HMAC-SHA256 + salt + algorithm field  [current export]
  *
  * All four formats are accepted on import for backward compatibility.
+ *
+ * NOTE: All localStorage reads/writes go through the centralized storage.ts
+ * module to ensure the in-memory cache stays consistent across the app.
  */
 
 import { t } from '$lib/i18n';
+import {
+        storageGet,
+        storageSet,
+        STORAGE_KEYS
+} from './storage';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 interface BmiRecord {
-  timestamp: number;
-  bmi: number;
-  height: number;
-  weight: number;
-  age?: number;
+        timestamp: number;
+        bmi: number;
+        height: number;
+        weight: number;
+        age?: number;
 }
 
 /** Shape of the exported JSON file.
@@ -40,18 +48,18 @@ interface BmiRecord {
  *  Legacy fields (`checksum`) are still read on import for backward compat.
  */
 interface ExportedEnvelope {
-  version: number;
-  source: string;
-  exportedAt: string;
-  /** v0–v2 only: hash/checksum string */
-  checksum?: string;
-  /** v3: HMAC-SHA256 hex signature */
-  signature?: string;
-  /** v3: algorithm identifier (e.g. "HMAC-SHA256") */
-  algorithm?: string;
-  /** v3: random 32-char hex nonce */
-  salt?: string;
-  records: BmiRecord[];
+        version: number;
+        source: string;
+        exportedAt: string;
+        /** v0–v2 only: hash/checksum string */
+        checksum?: string;
+        /** v3: HMAC-SHA256 hex signature */
+        signature?: string;
+        /** v3: algorithm identifier (e.g. "HMAC-SHA256") */
+        algorithm?: string;
+        /** v3: random 32-char hex nonce */
+        salt?: string;
+        records: BmiRecord[];
 }
 
 // ---------------------------------------------------------------------------
@@ -69,66 +77,66 @@ const _FRAG_B = '7arCbOk0/5qzGwk8EXwg4vvkEPm5E8i7i8hO0LejM4c=';
 // This raises the effort for casual bundle inspection without adding dependencies.
 
 function assembleKey(): Uint8Array {
-  const a = Uint8Array.from(atob(_FRAG_A), (c) => c.charCodeAt(0));
-  const b = Uint8Array.from(atob(_FRAG_B), (c) => c.charCodeAt(0));
-  const raw = new Uint8Array(a.length);
-  for (let i = 0; i < a.length; i++) raw[i] = a[i] ^ b[i];
-  return raw;
+        const a = Uint8Array.from(atob(_FRAG_A), (c) => c.charCodeAt(0));
+        const b = Uint8Array.from(atob(_FRAG_B), (c) => c.charCodeAt(0));
+        const raw = new Uint8Array(a.length);
+        for (let i = 0; i < a.length; i++) raw[i] = a[i] ^ b[i];
+        return raw;
 }
 
 let _hmacKey: CryptoKey | null = null;
 
 async function getHmacKey(): Promise<CryptoKey> {
-  if (_hmacKey) return _hmacKey;
-  const raw = assembleKey();
-  _hmacKey = await crypto.subtle.importKey(
-    'raw',
-    raw.buffer as ArrayBuffer,
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign', 'verify']
-  );
-  return _hmacKey;
+        if (_hmacKey) return _hmacKey;
+        const raw = assembleKey();
+        _hmacKey = await crypto.subtle.importKey(
+                'raw',
+                raw.buffer as ArrayBuffer,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['sign', 'verify']
+        );
+        return _hmacKey;
 }
 
 /** Generate a cryptographically random 16-byte salt (32 hex chars). */
 function generateSalt(): string {
-  const bytes = new Uint8Array(16);
-  crypto.getRandomValues(bytes);
-  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+        const bytes = new Uint8Array(16);
+        crypto.getRandomValues(bytes);
+        return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 /** Compute HMAC-SHA256(salt || payload). Returns 64-char hex. */
 async function computeHmac(payload: string, salt: string): Promise<string> {
-  const key = await getHmacKey();
-  const data = new TextEncoder().encode(salt + payload);
-  const sig = await crypto.subtle.sign('HMAC', key, data);
-  return Array.from(new Uint8Array(sig), (b) => b.toString(16).padStart(2, '0')).join('');
+        const key = await getHmacKey();
+        const data = new TextEncoder().encode(salt + payload);
+        const sig = await crypto.subtle.sign('HMAC', key, data);
+        return Array.from(new Uint8Array(sig), (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 /** Verify an HMAC-SHA256 signature. Uses crypto.subtle.verify for constant-time comparison. */
 async function verifyHmac(signature: string, payload: string, salt: string): Promise<boolean> {
-  try {
-    const key = await getHmacKey();
-    const data = new TextEncoder().encode(salt + payload);
-    const sigBytes = new Uint8Array(
-      signature.match(/.{2}/g)?.map((h) => parseInt(h, 16)) ?? []
-    );
-    return await crypto.subtle.verify('HMAC', key, sigBytes, data);
-  } catch {
-    return false;
-  }
+        try {
+                const key = await getHmacKey();
+                const data = new TextEncoder().encode(salt + payload);
+                const sigBytes = new Uint8Array(
+                        signature.match(/.{2}/g)?.map((h) => parseInt(h, 16)) ?? []
+                );
+                return await crypto.subtle.verify('HMAC', key, sigBytes, data);
+        } catch {
+                return false;
+        }
 }
 
 // ---------------------------------------------------------------------------
 // SHA-256 hash — legacy v2 verification (no secret key)
 // ---------------------------------------------------------------------------
 async function computeHash(data: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const dataBuffer = encoder.encode(data);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
-  const hashArray = new Uint8Array(hashBuffer);
-  return Array.from(hashArray, (b) => b.toString(16).padStart(2, '0')).join('');
+        const encoder = new TextEncoder();
+        const dataBuffer = encoder.encode(data);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+        const hashArray = new Uint8Array(hashBuffer);
+        return Array.from(hashArray, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 // ---------------------------------------------------------------------------
@@ -136,48 +144,118 @@ async function computeHash(data: string): Promise<string> {
 // old exports with 8-char or 16-char checksums)
 // ---------------------------------------------------------------------------
 function fnv1a(data: string): string {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < data.length; i++) {
-    h ^= data.charCodeAt(i);
-    h = Math.imul(h, 0x01000193);
-  }
-  return (h >>> 0).toString(16).padStart(8, '0');
+        let h = 0x811c9dc5;
+        for (let i = 0; i < data.length; i++) {
+                h ^= data.charCodeAt(i);
+                h = Math.imul(h, 0x01000193);
+        }
+        return (h >>> 0).toString(16).padStart(8, '0');
 }
 
 function dualHash(data: string): string {
-  let fnv = 0x811c9dc5;
-  let djb = 0x1505;
-  for (let i = 0; i < data.length; i++) {
-    const c = data.charCodeAt(i);
-    fnv = Math.imul(fnv ^ c, 0x01000193);
-    djb = ((djb << 5) + djb + c) | 0;
-  }
-  return (fnv >>> 0).toString(16).padStart(8, '0') + (djb >>> 0).toString(16).padStart(8, '0');
+        let fnv = 0x811c9dc5;
+        let djb = 0x1505;
+        for (let i = 0; i < data.length; i++) {
+                const c = data.charCodeAt(i);
+                fnv = Math.imul(fnv ^ c, 0x01000193);
+                djb = ((djb << 5) + djb + c) | 0;
+        }
+        return (fnv >>> 0).toString(16).padStart(8, '0') + (djb >>> 0).toString(16).padStart(8, '0');
 }
 
 // ---------------------------------------------------------------------------
 // Helpers to validate individual record fields
 // ---------------------------------------------------------------------------
 function isValidRecord(entry: unknown): entry is BmiRecord {
-  if (typeof entry !== 'object' || entry === null) return false;
-  const r = entry as Record<string, unknown>;
-  return (
-    typeof r.timestamp === 'number' &&
-    typeof r.bmi === 'number' &&
-    typeof r.height === 'number' &&
-    typeof r.weight === 'number'
-  );
+        if (typeof entry !== 'object' || entry === null) return false;
+        const r = entry as Record<string, unknown>;
+        return (
+                typeof r.timestamp === 'number' &&
+                typeof r.bmi === 'number' &&
+                typeof r.height === 'number' &&
+                typeof r.weight === 'number'
+        );
 }
 
 function toRecord(entry: unknown): BmiRecord {
-  const r = entry as Record<string, unknown>;
-  return {
-    timestamp: r.timestamp as number,
-    bmi: r.bmi as number,
-    height: r.height as number,
-    weight: r.weight as number,
-    age: typeof r.age === 'number' ? r.age : undefined
-  };
+        const r = entry as Record<string, unknown>;
+        return {
+                timestamp: r.timestamp as number,
+                bmi: r.bmi as number,
+                height: r.height as number,
+                weight: r.weight as number,
+                age: typeof r.age === 'number' ? r.age : undefined
+        };
+}
+
+/** Check if parsed JSON matches the envelope shape. */
+function isEnvelope(obj: unknown): obj is ExportedEnvelope {
+        if (typeof obj !== 'object' || obj === null) return false;
+        const e = obj as Record<string, unknown>;
+        return (
+                typeof e.version === 'number' &&
+                e.source === 'bmi-calculator' &&
+                Array.isArray(e.records)
+        );
+}
+
+// ---------------------------------------------------------------------------
+// Internal parse + validate (single JSON.parse, shared by public API)
+// ---------------------------------------------------------------------------
+
+interface ParsedImportResult {
+        valid: boolean;
+        envelope: ExportedEnvelope;
+        records: BmiRecord[];
+        validation: ValidationResult;
+}
+
+async function parseAndValidate(json: string): Promise<ParsedImportResult | InvalidResult> {
+        let incoming: unknown;
+        try {
+                incoming = JSON.parse(json);
+        } catch {
+                return { valid: false, validation: { valid: false, error: t('history.invalid_json') } };
+        }
+
+        if (!isEnvelope(incoming)) {
+                return { valid: false, validation: { valid: false, error: t('history.invalid_format') } };
+        }
+
+        const env = incoming;
+        const records = env.records.filter(isValidRecord).map(toRecord);
+
+        if (records.length === 0) {
+                return { valid: false, validation: { valid: false, error: t('history.no_records') } };
+        }
+
+        const recordsJson = JSON.stringify(records);
+        const result = await verifyIntegrity(env, recordsJson);
+
+        if (!result.valid) {
+                return {
+                        valid: false,
+                        validation: { valid: false, error: t('history.integrity_failed') }
+                };
+        }
+
+        return {
+                valid: true,
+                envelope: env,
+                records,
+                validation: {
+                        valid: true,
+                        recordCount: records.length,
+                        integrityVerified: true,
+                        integrityVersion: result.integrityVersion,
+                        algorithm: result.algorithm
+                }
+        };
+}
+
+interface InvalidResult {
+        valid: false;
+        validation: ValidationResult;
 }
 
 // ---------------------------------------------------------------------------
@@ -185,45 +263,45 @@ function toRecord(entry: unknown): BmiRecord {
 // ---------------------------------------------------------------------------
 
 /**
- * Export BMI history from localStorage as an HMAC-signed JSON string.
+ * Export BMI history from storage as an HMAC-signed JSON string.
  * Returns `null` if no history exists or data is invalid.
  *
  * Each export includes a unique random salt so that re-exporting the
  * same records produces a different (but still valid) signature.
  */
 export async function exportBmiHistory(): Promise<string | null> {
-  try {
-    const stored = localStorage.getItem('bmi.history');
-    if (!stored) return null;
+        try {
+                const stored = storageGet(STORAGE_KEYS.HISTORY);
+                if (!stored) return null;
 
-    const parsed: unknown = JSON.parse(stored);
-    if (!Array.isArray(parsed) || parsed.length === 0) return null;
+                const parsed: unknown = JSON.parse(stored);
+                if (!Array.isArray(parsed) || parsed.length === 0) return null;
 
-    const records = parsed.filter(isValidRecord).map(toRecord);
-    if (records.length === 0) return null;
+                const records = parsed.filter(isValidRecord).map(toRecord);
+                if (records.length === 0) return null;
 
-    const recordsJson = JSON.stringify(records);
-    const exportedAt = new Date().toISOString();
+                const recordsJson = JSON.stringify(records);
+                const exportedAt = new Date().toISOString();
 
-    // v3: HMAC-SHA256 with random salt
-    const salt = generateSalt();
-    const payload = JSON.stringify({ version: 3, source: 'bmi-calculator', exportedAt, records: recordsJson });
-    const signature = await computeHmac(payload, salt);
+                // v3: HMAC-SHA256 with random salt
+                const salt = generateSalt();
+                const payload = JSON.stringify({ version: 3, source: 'bmi-calculator', exportedAt, records: recordsJson });
+                const signature = await computeHmac(payload, salt);
 
-    const envelope: ExportedEnvelope = {
-      version: 3,
-      source: 'bmi-calculator',
-      exportedAt,
-      algorithm: 'HMAC-SHA256',
-      salt,
-      signature,
-      records
-    };
+                const envelope: ExportedEnvelope = {
+                        version: 3,
+                        source: 'bmi-calculator',
+                        exportedAt,
+                        algorithm: 'HMAC-SHA256',
+                        salt,
+                        signature,
+                        records
+                };
 
-    return JSON.stringify(envelope, null, 2);
-  } catch {
-    return null;
-  }
+                return JSON.stringify(envelope, null, 2);
+        } catch {
+                return null;
+        }
 }
 
 // ---------------------------------------------------------------------------
@@ -231,12 +309,12 @@ export async function exportBmiHistory(): Promise<string | null> {
 // ---------------------------------------------------------------------------
 
 export interface ValidationResult {
-  valid: boolean;
-  recordCount?: number;
-  integrityVerified?: boolean;
-  integrityVersion?: number; // 0, 1, 2, or 3
-  algorithm?: string;
-  error?: string;
+        valid: boolean;
+        recordCount?: number;
+        integrityVerified?: boolean;
+        integrityVersion?: number; // 0, 1, 2, or 3
+        algorithm?: string;
+        error?: string;
 }
 
 /**
@@ -245,12 +323,12 @@ export interface ValidationResult {
  * For v1/v2/v3: full envelope with JSON-stringified records.
  */
 function buildPayload(version: number, source: string, exportedAt: string, recordsJson: string): string {
-  if (version === 0) {
-    // Legacy v0: only records were hashed
-    return recordsJson;
-  }
-  // v1, v2, v3: full envelope was hashed
-  return JSON.stringify({ version, source, exportedAt, records: recordsJson });
+        if (version === 0) {
+                // Legacy v0: only records were hashed
+                return recordsJson;
+        }
+        // v1, v2, v3: full envelope was hashed
+        return JSON.stringify({ version, source, exportedAt, records: recordsJson });
 }
 
 /**
@@ -261,146 +339,102 @@ function buildPayload(version: number, source: string, exportedAt: string, recor
  *   v0 (checksum  8-ch)→ FNV-1a on records only         (legacy)
  */
 async function verifyIntegrity(
-  env: ExportedEnvelope,
-  recordsJson: string
+        env: ExportedEnvelope,
+        recordsJson: string
 ): Promise<{ valid: boolean; integrityVersion: number; algorithm?: string }> {
-  const { version, source, exportedAt } = env;
+        const { version, source, exportedAt } = env;
 
-  // v3: HMAC-SHA256 with per-export salt
-  if (version === 3 && env.salt && env.signature && env.signature.length === 64) {
-    const payload = buildPayload(version, source, exportedAt, recordsJson);
-    const ok = await verifyHmac(env.signature, payload, env.salt);
-    return { valid: ok, integrityVersion: 3, algorithm: env.algorithm };
-  }
+        // v3: HMAC-SHA256 with per-export salt
+        if (version === 3 && env.salt && env.signature && env.signature.length === 64) {
+                const payload = buildPayload(version, source, exportedAt, recordsJson);
+                const ok = await verifyHmac(env.signature, payload, env.salt);
+                return { valid: ok, integrityVersion: 3, algorithm: env.algorithm };
+        }
 
-  // Legacy v0/v1/v2: fall back to `checksum` field
-  const checksum = env.checksum ?? '';
-  if (!checksum) return { valid: false, integrityVersion: -1 };
+        // Legacy v0/v1/v2: fall back to `checksum` field
+        const checksum = env.checksum ?? '';
+        if (!checksum) return { valid: false, integrityVersion: -1 };
 
-  // v2: SHA-256 on full envelope (no salt)
-  if (checksum.length === 64) {
-    const payload = buildPayload(version, source, exportedAt, recordsJson);
-    const expected = await computeHash(payload);
-    return { valid: checksum === expected, integrityVersion: 2 };
-  }
+        // v2: SHA-256 on full envelope (no salt)
+        if (checksum.length === 64) {
+                const payload = buildPayload(version, source, exportedAt, recordsJson);
+                const expected = await computeHash(payload);
+                return { valid: checksum === expected, integrityVersion: 2 };
+        }
 
-  // v1: dual-hash on full envelope
-  if (checksum.length === 16) {
-    const payload = buildPayload(version, source, exportedAt, recordsJson);
-    const expected = dualHash(payload);
-    return { valid: checksum === expected, integrityVersion: 1 };
-  }
+        // v1: dual-hash on full envelope
+        if (checksum.length === 16) {
+                const payload = buildPayload(version, source, exportedAt, recordsJson);
+                const expected = dualHash(payload);
+                return { valid: checksum === expected, integrityVersion: 1 };
+        }
 
-  // v0: FNV-1a on records only
-  if (checksum.length === 8) {
-    const expected = fnv1a(recordsJson);
-    return { valid: checksum === expected, integrityVersion: 0 };
-  }
+        // v0: FNV-1a on records only
+        if (checksum.length === 8) {
+                const expected = fnv1a(recordsJson);
+                return { valid: checksum === expected, integrityVersion: 0 };
+        }
 
-  return { valid: false, integrityVersion: -1 };
+        return { valid: false, integrityVersion: -1 };
 }
 
 /**
- * Validate an imported JSON string without touching localStorage.
+ * Validate an imported JSON string without touching storage.
  * Use this to pre-check a file before asking the user for confirmation.
  */
 export async function validateBmiImport(json: string): Promise<ValidationResult> {
-  let incoming: unknown;
-  try {
-    incoming = JSON.parse(json);
-  } catch {
-    return { valid: false, error: t('history.invalid_json') };
-  }
-
-  // ---- Envelope format (v0/v1/v2/v3) ----
-  if (
-    typeof incoming === 'object' &&
-    incoming !== null &&
-    typeof (incoming as ExportedEnvelope).version === 'number' &&
-    (incoming as ExportedEnvelope).source === 'bmi-calculator' &&
-    Array.isArray((incoming as ExportedEnvelope).records)
-  ) {
-    const env = incoming as ExportedEnvelope;
-    const records = env.records.filter(isValidRecord).map(toRecord);
-
-    if (records.length === 0) {
-      return { valid: false, error: t('history.no_records') };
-    }
-
-    const recordsJson = JSON.stringify(records);
-    const result = await verifyIntegrity(env, recordsJson);
-
-    if (!result.valid) {
-      return {
-        valid: false,
-        error: t('history.integrity_failed')
-      };
-    }
-
-    return {
-      valid: true,
-      recordCount: records.length,
-      integrityVerified: true,
-      integrityVersion: result.integrityVersion,
-      algorithm: result.algorithm
-    };
-  }
-
-  // No legacy fallback — only envelope format is accepted
-  return {
-    valid: false,
-    error: t('history.invalid_format')
-  };
+        const result = await parseAndValidate(json);
+        return result.validation;
 }
 
 // ---------------------------------------------------------------------------
-// Import (writes to localStorage — call only after user confirmation)
+// Import (writes to storage — call only after user confirmation)
 // ---------------------------------------------------------------------------
 
 export interface ImportResult {
-  success: boolean;
-  count: number;
-  integrityVerified?: boolean;
-  integrityVersion?: number;
-  algorithm?: string;
-  error?: string;
+        success: boolean;
+        count: number;
+        integrityVerified?: boolean;
+        integrityVersion?: number;
+        algorithm?: string;
+        error?: string;
 }
 
 /**
  * Import BMI history from a JSON string, **replacing** all existing data.
  * The caller is responsible for having already validated and confirmed with the user.
+ *
+ * Performance: JSON is parsed exactly once (shared between validation and extraction).
  */
 export async function importBmiHistory(json: string): Promise<ImportResult> {
-  const validation = await validateBmiImport(json);
-  if (!validation.valid) {
-    return { success: false, count: 0, error: validation.error };
-  }
+        const result = await parseAndValidate(json);
 
-  // Extract records (only envelope format accepted)
-  const incoming = JSON.parse(json) as ExportedEnvelope;
-  const records = incoming.records.filter(isValidRecord).map(toRecord);
+        if (!result.valid) {
+                return { success: false, count: 0, error: result.validation.error };
+        }
 
-  if (records.length === 0) {
-    return { success: false, count: 0, error: t('history.no_valid_records') };
-  }
+        const { records, validation } = result;
 
-  // Sort by timestamp
-  records.sort((a, b) => a.timestamp - b.timestamp);
+        if (records.length === 0) {
+                return { success: false, count: 0, error: t('history.no_valid_records') };
+        }
 
-  // Override (replace) existing data
-  try {
-    localStorage.setItem('bmi.history', JSON.stringify(records));
-  } catch {
-    return { success: false, count: 0, error: t('history.save_failed') };
-  }
+        // Sort by timestamp
+        records.sort((a, b) => a.timestamp - b.timestamp);
 
-  return {
-    success: true,
-    count: records.length,
-    integrityVerified: validation.integrityVerified,
-    integrityVersion: validation.integrityVersion,
-    algorithm: validation.algorithm
-  };
+        // Override (replace) existing data via centralized storage
+        const ok = storageSet(STORAGE_KEYS.HISTORY, JSON.stringify(records));
+        if (!ok) {
+                return { success: false, count: 0, error: t('history.save_failed') };
+        }
+
+        return {
+                success: true,
+                count: records.length,
+                integrityVerified: validation.integrityVerified,
+                integrityVersion: validation.integrityVersion,
+                algorithm: validation.algorithm
+        };
 }
 
 // ---------------------------------------------------------------------------
@@ -413,39 +447,39 @@ export async function importBmiHistory(json: string): Promise<ImportResult> {
  * Returns `null` if no history exists.
  */
 export function exportBmiHistoryCsv(): string | null {
-  try {
-    const stored = localStorage.getItem('bmi.history');
-    if (!stored) return null;
+        try {
+                const stored = storageGet(STORAGE_KEYS.HISTORY);
+                if (!stored) return null;
 
-    const parsed: unknown = JSON.parse(stored);
-    if (!Array.isArray(parsed) || parsed.length === 0) return null;
+                const parsed: unknown = JSON.parse(stored);
+                if (!Array.isArray(parsed) || parsed.length === 0) return null;
 
-    const records = parsed.filter(isValidRecord).map(toRecord);
-    if (records.length === 0) return null;
+                const records = parsed.filter(isValidRecord).map(toRecord);
+                if (records.length === 0) return null;
 
-    const rows: string[][] = [
-      ['Date', 'Time', 'BMI', 'Height (cm)', 'Weight (kg)', 'Age', 'Category']
-    ];
+                const rows: string[][] = [
+                        ['Date', 'Time', 'BMI', 'Height (cm)', 'Weight (kg)', 'Age', 'Category']
+                ];
 
-    for (const r of records) {
-      const d = new Date(r.timestamp);
-      const date = d.toISOString().split('T')[0];
-      const time = d.toTimeString().split(' ')[0].slice(0, 5);
-      const bmi = r.bmi.toFixed(1);
-      const category = getBmiCategoryName(r.bmi);
+                for (const r of records) {
+                        const d = new Date(r.timestamp);
+                        const date = d.toISOString().split('T')[0];
+                        const time = d.toTimeString().split(' ')[0].slice(0, 5);
+                        const bmi = r.bmi.toFixed(1);
+                        const category = getBmiCategoryName(r.bmi);
 
-      rows.push([date, time, bmi, String(r.height), String(r.weight), r.age ? String(r.age) : '', category]);
-    }
+                        rows.push([date, time, bmi, String(r.height), String(r.weight), r.age ? String(r.age) : '', category]);
+                }
 
-    return rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-  } catch {
-    return null;
-  }
+                return rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+        } catch {
+                return null;
+        }
 }
 
 function getBmiCategoryName(bmi: number): string {
-  if (bmi < 18.5) return t('category.underweight');
-  if (bmi < 25) return t('category.normal');
-  if (bmi < 30) return t('category.overweight');
-  return t('category.obese');
+        if (bmi < 18.5) return t('category.underweight');
+        if (bmi < 25) return t('category.normal');
+        if (bmi < 30) return t('category.overweight');
+        return t('category.obese');
 }
