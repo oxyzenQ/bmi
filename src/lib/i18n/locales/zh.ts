@@ -116,6 +116,15 @@ const zh: TranslationDict = {
   'crypto.export_failed': '\u5bfc\u51fa\u5931\u8d25',
   'crypto.show_passphrase': '\u663e\u793a\u5bc6\u7801',
   'crypto.hide_passphrase': '\u9690\u85cf\u5bc6\u7801',
+  'crypto.strength_weak': '\u5f31',
+  'crypto.strength_medium': '\u4e2d',
+  'crypto.strength_strong': '\u5f3a',
+  'crypto.meta_status': '\u72b6\u6001',
+  'crypto.meta_encrypted': '\u5df2\u52a0\u5bc6',
+  'crypto.meta_unencrypted': '\u672a\u52a0\u5bc6',
+  'crypto.meta_date': '\u521b\u5efa\u65e5\u671f',
+  'crypto.meta_records': '\u8bb0\u5f55\u6570',
+  'crypto.meta_version': '\u683c\u5f0f',
 
   // ── Results ──
   'results.title': '\u60a8\u7684\u7ed3\u679c',
@@ -342,6 +351,7 @@ const zh: TranslationDict = {
   'history.save_failed': '\u4fdd\u5b58\u5386\u53f2\u8bb0\u5f55\u5931\u8d25\u3002',
   'history.encrypted_no_passphrase': '\u6b64\u6587\u4ef6\u5df2\u52a0\u5bc6\u3002\u8bf7\u8f93\u5165\u60a8\u7684\u5bc6\u7801\u3002',
   'history.wrong_passphrase': '\u5bc6\u7801\u9519\u8bef\u2014\u65e0\u6cd5\u89e3\u5bc6\u3002',
+  'history.corrupted_file': '\u6587\u4ef6\u635f\u574f\u2014\u52a0\u5bc6\u6570\u636e\u4e0d\u5b8c\u6574\u6216\u5df2\u635f\u574f\u3002',
 
   // ── BMI Categories (shared) ──
   'category.underweight': '\u504f\u7626',

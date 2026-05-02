@@ -131,6 +131,15 @@ const id: TranslationDict = {
   'crypto.export_failed': 'Ekspor gagal',
   'crypto.show_passphrase': 'Tampilkan passphrase',
   'crypto.hide_passphrase': 'Sembunyikan passphrase',
+  'crypto.strength_weak': 'Lemah',
+  'crypto.strength_medium': 'Sedang',
+  'crypto.strength_strong': 'Kuat',
+  'crypto.meta_status': 'Status',
+  'crypto.meta_encrypted': 'Terenkripsi',
+  'crypto.meta_unencrypted': 'Tidak terenkripsi',
+  'crypto.meta_date': 'Dibuat',
+  'crypto.meta_records': 'Data',
+  'crypto.meta_version': 'Format',
 
   // ── Results ──
   'results.title': 'Hasil Anda',
@@ -358,6 +367,7 @@ const id: TranslationDict = {
   'history.import_success': 'Berhasil mengimpor {count} catatan',
   'history.encrypted_no_passphrase': 'File ini dienkripsi. Masukkan passphrase Anda.',
   'history.wrong_passphrase': 'Passphrase salah — tidak dapat mendekripsi.',
+  'history.corrupted_file': 'File rusak — data terenkripsi tidak lengkap atau rusak.',
 
   // ── BMI Categories (shared) ──
   'category.underweight': 'Kurus',

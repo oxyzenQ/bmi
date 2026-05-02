@@ -131,6 +131,15 @@ const ja: TranslationDict = {
   'crypto.export_failed': '\u30a8\u30af\u30b9\u30dd\u30fc\u30c8\u306b\u5931\u6557',
   'crypto.show_passphrase': '\u30d1\u30b9\u30ef\u30fc\u30c9\u3092\u8868\u793a',
   'crypto.hide_passphrase': '\u30d1\u30b9\u30ef\u30fc\u30c9\u3092\u96a0\u3059',
+  'crypto.strength_weak': '\u5f31',
+  'crypto.strength_medium': '\u4e2d',
+  'crypto.strength_strong': '\u5f37',
+  'crypto.meta_status': '\u30b9\u30c6\u30fc\u30bf\u30b9',
+  'crypto.meta_encrypted': '\u6697\u53f7\u5316\u6e08\u307f',
+  'crypto.meta_unencrypted': '\u672a\u6697\u53f7\u5316',
+  'crypto.meta_date': '\u4f5c\u6210\u65e5',
+  'crypto.meta_records': '\u30ec\u30b3\u30fc\u30c9\u6570',
+  'crypto.meta_version': '\u30d5\u30a9\u30fc\u30de\u30c3\u30c8',
 
   // ── Results ──
   'results.title': '',
@@ -358,6 +367,7 @@ const ja: TranslationDict = {
   'history.import_success': '{count} \u4ef6\u306e\u8a18\u9332\u3092\u6b63\u5e38\u306b\u30a4\u30f3\u30dd\u30fc\u30c8\u3057\u307e\u3057\u305f',
   'history.encrypted_no_passphrase': '\u3053\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u6697\u53f7\u5316\u3055\u308c\u3066\u3044\u307e\u3059\u3002\u30d1\u30b9\u30d5\u30ec\u30fc\u30ba\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044\u3002',
   'history.wrong_passphrase': '\u30d1\u30b9\u30d5\u30ec\u30fc\u30ba\u304c\u9593\u9055\u3063\u3066\u3044\u307e\u3059\u2014\u5fa9\u53f7\u5316\u3067\u304d\u307e\u305b\u3093\u3002',
+  'history.corrupted_file': '\u30d5\u30a1\u30a4\u30eb\u304c\u7834\u640d\u3057\u3066\u3044\u307e\u3059\u2014\u6697\u53f7\u5316\u30c7\u30fc\u30bf\u304c\u4e0d\u5b8c\u5168\u307e\u305f\u306f\u7834\u640d\u3057\u3066\u3044\u307e\u3059\u3002',
 
   // ── BMI Categories (shared) ──
   'category.underweight': '\u4f4e\u4f53\u91cd',

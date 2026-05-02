@@ -132,6 +132,15 @@ const en: TranslationDict = {
   'crypto.export_failed': 'Export failed',
   'crypto.show_passphrase': 'Show passphrase',
   'crypto.hide_passphrase': 'Hide passphrase',
+  'crypto.strength_weak': 'Weak',
+  'crypto.strength_medium': 'Medium',
+  'crypto.strength_strong': 'Strong',
+  'crypto.meta_status': 'Status',
+  'crypto.meta_encrypted': 'Encrypted',
+  'crypto.meta_unencrypted': 'Unencrypted',
+  'crypto.meta_date': 'Created',
+  'crypto.meta_records': 'Records',
+  'crypto.meta_version': 'Format',
 
   // ── Results ──
   'results.title': 'Your Results',
@@ -358,7 +367,8 @@ const en: TranslationDict = {
   'history.save_failed': 'Failed to save history to storage.',
   'history.import_success': 'Successfully imported {count} records',
   'history.encrypted_no_passphrase': 'This file is encrypted. Please enter your passphrase.',
-  'history.wrong_passphrase': 'Wrong passphrase — unable to decrypt.',
+  'history.wrong_passphrase': 'Wrong passphrase \u2014 unable to decrypt.',
+  'history.corrupted_file': 'Corrupted file \u2014 encrypted data is incomplete or damaged.',
 
   // ── BMI Categories (shared) ──
   'category.underweight': 'Underweight',

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame, FileSpreadsheet } from 'lucide-svelte';
-  import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport, importBmiHistory } from '$lib/utils/history-io';
+  import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport, importBmiHistory, peekImportMeta, type ImportFileMeta } from '$lib/utils/history-io';
   import { t as _t, localeVersion } from '$lib/i18n';
   import EncryptionModal from './EncryptionModal.svelte';
   import FeedbackModal from './FeedbackModal.svelte';
@@ -154,6 +154,7 @@
   let encryptModalMode = $state<'export' | 'import'>('export');
   let encryptError = $state('');
   let pendingImportText = $state('');
+  let pendingImportMeta = $state<ImportFileMeta | undefined>(undefined);
 
   // Feedback modal state (blocking confirmation)
   let showFeedbackModal = $state(false);
@@ -234,6 +235,7 @@
       const { isEncrypted } = await import('$lib/utils/crypto');
       if (isEncrypted(text)) {
         pendingImportText = text;
+        pendingImportMeta = peekImportMeta(text);
         encryptModalMode = 'import';
         encryptError = '';
         showEncryptModal = true;
@@ -304,6 +306,7 @@
   function handleModalCancel() {
     showEncryptModal = false;
     pendingImportText = '';
+    pendingImportMeta = undefined;
     encryptError = '';
   }
 </script>
@@ -564,6 +567,7 @@
       show={showEncryptModal}
       mode={encryptModalMode}
       error={encryptError}
+      importMeta={encryptModalMode === 'import' ? pendingImportMeta : undefined}
       onConfirm={encryptModalMode === 'export' ? handleExportConfirm : handleImportConfirm}
       onCancel={handleModalCancel}
     />

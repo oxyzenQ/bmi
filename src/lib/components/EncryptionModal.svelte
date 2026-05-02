@@ -10,10 +10,19 @@
   let _rv = $derived($localeVersion);
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
+  interface ImportMeta {
+    encrypted: boolean;
+    format?: string;
+    exportedAt?: string;
+    recordCount?: number;
+    version?: number;
+  }
+
   interface Props {
     show?: boolean;
     mode: 'export' | 'import';
     error?: string;
+    importMeta?: ImportMeta;
     onConfirm: (passphrase: string) => void;
     onCancel: () => void;
   }
@@ -22,6 +31,7 @@
     show = false,
     mode,
     error = '',
+    importMeta,
     onConfirm,
     onCancel
   }: Props = $props();
@@ -39,6 +49,24 @@
   // Password visibility toggles (separate states for each field)
   let showPassword = $state(false);
   let showConfirmPassword = $state(false);
+
+  // Passphrase strength
+  type StrengthLevel = 'weak' | 'medium' | 'strong';
+  let strengthLevel = $derived<StrengthLevel>(computeStrength(passphrase));
+  let strengthPercent = $derived(strengthLevel === 'weak' ? 33 : strengthLevel === 'medium' ? 66 : 100);
+  let strengthColor = $derived(strengthLevel === 'weak' ? '#ef4444' : strengthLevel === 'medium' ? '#f59e0b' : '#22c55e');
+
+  function computeStrength(pw: string): StrengthLevel {
+    if (!pw) return 'weak';
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^a-zA-Z0-9]/.test(pw)) score++;
+    if (pw.length >= 12) score++;
+    if (score <= 1) return 'weak';
+    if (score <= 2) return 'medium';
+    return 'strong';
+  }
 
   // Combine local error with parent error prop (reactive)
   let errorMsg = $derived(localError || error);
@@ -145,6 +173,7 @@
 
   async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
+    if (loading) return; // prevent double submit
     if (!validate()) return;
 
     loading = true;
@@ -190,6 +219,39 @@
       </div>
 
       <form onsubmit={handleSubmit} class="encrypt-form">
+        {#if mode === 'import' && importMeta}
+          <div class="import-meta">
+            {#if importMeta.encrypted}
+              <div class="meta-row">
+                <span class="meta-key">{t('crypto.meta_status')}</span>
+                <span class="meta-val meta-encrypted">{t('crypto.meta_encrypted')}</span>
+              </div>
+            {:else}
+              <div class="meta-row">
+                <span class="meta-key">{t('crypto.meta_status')}</span>
+                <span class="meta-val">{t('crypto.meta_unencrypted')}</span>
+              </div>
+            {/if}
+            {#if importMeta.exportedAt}
+              <div class="meta-row">
+                <span class="meta-key">{t('crypto.meta_date')}</span>
+                <span class="meta-val">{importMeta.exportedAt}</span>
+              </div>
+            {/if}
+            {#if importMeta.recordCount != null}
+              <div class="meta-row">
+                <span class="meta-key">{t('crypto.meta_records')}</span>
+                <span class="meta-val">{importMeta.recordCount}</span>
+              </div>
+            {/if}
+            {#if importMeta.version != null}
+              <div class="meta-row">
+                <span class="meta-key">{t('crypto.meta_version')}</span>
+                <span class="meta-val">v{importMeta.version}</span>
+              </div>
+            {/if}
+          </div>
+        {/if}
         <div class="encrypt-fields">
           <div class="field-group">
             <label for="passphrase">{t('crypto.passphrase_label')}</label>
@@ -217,6 +279,16 @@
                 {/if}
               </button>
             </div>
+            {#if passphrase && mode === 'export'}
+              <div class="strength-bar-wrap">
+                <div class="strength-bar">
+                  <div class="strength-fill" style="width: {strengthPercent}%; background: {strengthColor};"></div>
+                </div>
+                <span class="strength-label" style="color: {strengthColor};">
+                  {strengthLevel === 'weak' ? t('crypto.strength_weak') : strengthLevel === 'medium' ? t('crypto.strength_medium') : t('crypto.strength_strong')}
+                </span>
+              </div>
+            {/if}
           </div>
 
           {#if mode === 'export'}
@@ -342,6 +414,38 @@
     margin-bottom: 1.25rem;
   }
 
+  .import-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    background: var(--w-8);
+    border: 1px solid var(--w-15);
+    border-radius: 10px;
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+  }
+
+  .meta-key {
+    color: var(--w-50);
+    font-weight: 500;
+  }
+
+  .meta-val {
+    color: var(--w-80);
+    font-weight: 600;
+  }
+
+  .meta-encrypted {
+    color: var(--cosmic-purple);
+  }
+
   .field-group {
     display: flex;
     flex-direction: column;
@@ -420,6 +524,35 @@
 
   .encrypt-input::placeholder {
     color: var(--w-40);
+  }
+
+  .strength-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  .strength-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--w-15);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .strength-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s ease, background 0.3s ease;
+  }
+
+  .strength-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
   }
 
   .encrypt-error {

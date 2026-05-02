@@ -426,6 +426,53 @@ export interface ImportResult {
         error?: string;
 }
 
+/** Lightweight metadata extracted from an import file without full parsing/decryption. */
+export interface ImportFileMeta {
+        encrypted: boolean;
+        format?: string;
+        exportedAt?: string;
+        recordCount?: number;
+        version?: number;
+}
+
+/**
+ * Peek at import file metadata without decrypting or parsing records.
+ * For encrypted files, only format and encrypted status are available.
+ * For plain files, exportedAt, version, and recordCount are also extracted.
+ */
+export function peekImportMeta(json: string): ImportFileMeta {
+        try {
+                const parsed = JSON.parse(json);
+
+                // Encrypted payload
+                if (parsed?.format === 'bmi-encrypted-v1') {
+                        return { encrypted: true, format: parsed.format };
+                }
+
+                // Plain envelope
+                if (typeof parsed?.version === 'number' && Array.isArray(parsed?.records)) {
+                        return {
+                                encrypted: false,
+                                exportedAt: parsed.exportedAt || undefined,
+                                version: parsed.version,
+                                recordCount: parsed.records.length,
+                        };
+                }
+
+                // Bare array (legacy)
+                if (Array.isArray(parsed)) {
+                        return {
+                                encrypted: false,
+                                recordCount: parsed.length,
+                        };
+                }
+
+                return { encrypted: false };
+        } catch {
+                return { encrypted: false };
+        }
+}
+
 /**
  * Import BMI history from a JSON string, **replacing** all existing data.
  * The caller is responsible for having already validated and confirmed with the user.
@@ -441,6 +488,15 @@ export async function importBmiHistory(json: string, passphrase?: string): Promi
         if (isEncrypted(json)) {
                 if (!passphrase) {
                         return { success: false, count: 0, error: t('history.encrypted_no_passphrase') };
+                }
+                // Validate encrypted payload structure before attempting decryption
+                try {
+                        const payload = JSON.parse(json);
+                        if (!payload.salt || !payload.iv || !payload.data) {
+                                return { success: false, count: 0, error: t('history.corrupted_file') };
+                        }
+                } catch {
+                        return { success: false, count: 0, error: t('history.corrupted_file') };
                 }
                 const { decrypt } = await import('./crypto');
                 const decrypted = await decrypt(json, passphrase);
