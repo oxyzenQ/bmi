@@ -369,6 +369,9 @@ const en: TranslationDict = {
   'history.encrypted_no_passphrase': 'This file is encrypted. Please enter your passphrase.',
   'history.wrong_passphrase': 'Wrong passphrase \u2014 unable to decrypt.',
   'history.corrupted_file': 'Corrupted file \u2014 encrypted data is incomplete or damaged.',
+  'history.empty_file': 'The file is empty (0 bytes).',
+  'history.file_too_large': 'File is too large (max 5 MB).',
+  'history.unsupported_version': 'Unsupported file version. Please update your app and try again.',
 
   // ── BMI Categories (shared) ──
   'category.underweight': 'Underweight',

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame, FileSpreadsheet } from 'lucide-svelte';
-  import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport, importBmiHistory, peekImportMeta, type ImportFileMeta } from '$lib/utils/history-io';
+  import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport, importBmiHistory, peekImportMeta, MAX_IMPORT_SIZE, type ImportFileMeta, type ImportError } from '$lib/utils/history-io';
   import { t as _t, localeVersion } from '$lib/i18n';
   import EncryptionModal from './EncryptionModal.svelte';
   import FeedbackModal from './FeedbackModal.svelte';
@@ -224,10 +224,45 @@
     fileInputEl?.click();
   }
 
+  /** Map ImportError code → i18n key for user-friendly FeedbackModal message */
+  function importErrorKey(code: ImportError): string {
+    const map: Record<ImportError, string> = {
+      empty_file: 'history.empty_file',
+      file_too_large: 'history.file_too_large',
+      invalid_json: 'history.invalid_json',
+      invalid_format: 'history.invalid_format',
+      unsupported_version: 'history.unsupported_version',
+      encrypted_no_passphrase: 'history.encrypted_no_passphrase',
+      wrong_passphrase: 'history.wrong_passphrase',
+      corrupted_file: 'history.corrupted_file',
+      no_valid_records: 'history.no_valid_records',
+      integrity_failed: 'history.integrity_failed',
+      save_failed: 'history.save_failed',
+    };
+    return map[code] ?? 'form.import_failed';
+  }
+
   async function handleFileChange(e: Event) {
     const input = e.currentTarget as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
+
+    // ── File size guards ──
+    if (file.size === 0) {
+      feedbackType = 'error';
+      feedbackMessage = t('history.empty_file');
+      showFeedbackModal = true;
+      input.value = '';
+      return;
+    }
+    if (file.size > MAX_IMPORT_SIZE) {
+      feedbackType = 'error';
+      feedbackMessage = t('history.file_too_large');
+      showFeedbackModal = true;
+      input.value = '';
+      return;
+    }
+
     try {
       const text = await file.text();
 
@@ -254,12 +289,20 @@
           integrityVerified: validation.integrityVerified ?? false
         });
       } else {
+        // Show FeedbackModal for all validation errors
+        const code = validation.errorCode ?? 'invalid_format';
+        feedbackType = 'error';
+        feedbackMessage = t(importErrorKey(code));
+        showFeedbackModal = true;
         onNotify?.({
           action: 'import-error',
           error: validation.error || t('form.import_failed')
         });
       }
     } catch {
+      feedbackType = 'error';
+      feedbackMessage = t('form.could_not_read');
+      showFeedbackModal = true;
       onNotify?.({
         action: 'import-error',
         error: t('form.could_not_read')
@@ -276,6 +319,7 @@
       // Close encryption modal first
       showEncryptModal = false;
       pendingImportText = '';
+      pendingImportMeta = undefined;
       encryptError = '';
 
       // Show success feedback modal (blocking)
@@ -291,9 +335,10 @@
         integrityVerified: result.integrityVerified ?? false
       });
     } else {
-      // Show error feedback modal (blocking, more explicit than inline)
+      // Use errorCode for specific message, fall back to error string
+      const code = result.errorCode ?? 'invalid_format';
       feedbackType = 'error';
-      feedbackMessage = result.error || t('form.import_failed');
+      feedbackMessage = t(importErrorKey(code));
       showFeedbackModal = true;
     }
   }

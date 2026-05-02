@@ -368,6 +368,9 @@ const id: TranslationDict = {
   'history.encrypted_no_passphrase': 'File ini dienkripsi. Masukkan passphrase Anda.',
   'history.wrong_passphrase': 'Passphrase salah — tidak dapat mendekripsi.',
   'history.corrupted_file': 'File rusak — data terenkripsi tidak lengkap atau rusak.',
+  'history.empty_file': 'File kosong (0 byte).',
+  'history.file_too_large': 'File terlalu besar (maks 5 MB).',
+  'history.unsupported_version': 'Versi file tidak didukung. Silakan perbarui aplikasi Anda.',
 
   // ── BMI Categories (shared) ──
   'category.underweight': 'Kurus',

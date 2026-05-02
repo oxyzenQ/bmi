@@ -32,6 +32,26 @@ import {
 } from './storage';
 
 // ---------------------------------------------------------------------------
+// Import error codes — structured, specific, no silent failures
+// ---------------------------------------------------------------------------
+
+export type ImportError =
+    | 'empty_file'
+    | 'file_too_large'
+    | 'invalid_json'
+    | 'invalid_format'
+    | 'unsupported_version'
+    | 'encrypted_no_passphrase'
+    | 'wrong_passphrase'
+    | 'corrupted_file'
+    | 'no_valid_records'
+    | 'integrity_failed'
+    | 'save_failed';
+
+/** Max allowed import file size (5 MB) */
+export const MAX_IMPORT_SIZE = 5 * 1024 * 1024;
+
+// ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
@@ -215,18 +235,24 @@ async function parseAndValidate(json: string): Promise<ParsedImportResult | Inva
         try {
                 incoming = JSON.parse(json);
         } catch {
-                return { valid: false, validation: { valid: false, error: t('history.invalid_json') } };
+                return { valid: false, validation: { valid: false, error: t('history.invalid_json'), errorCode: 'invalid_json' } };
         }
 
         if (!isEnvelope(incoming)) {
-                return { valid: false, validation: { valid: false, error: t('history.invalid_format') } };
+                return { valid: false, validation: { valid: false, error: t('history.invalid_format'), errorCode: 'invalid_format' } };
         }
 
         const env = incoming;
+
+        // Version guard — only v0–v3 are known formats
+        if (typeof env.version === 'number' && env.version > 3) {
+                return { valid: false, validation: { valid: false, error: t('history.unsupported_version'), errorCode: 'unsupported_version' } };
+        }
+
         const records = env.records.filter(isValidRecord).map(toRecord);
 
         if (records.length === 0) {
-                return { valid: false, validation: { valid: false, error: t('history.no_records') } };
+                return { valid: false, validation: { valid: false, error: t('history.no_records'), errorCode: 'no_valid_records' } };
         }
 
         const recordsJson = JSON.stringify(records);
@@ -235,7 +261,7 @@ async function parseAndValidate(json: string): Promise<ParsedImportResult | Inva
         if (!result.valid) {
                 return {
                         valid: false,
-                        validation: { valid: false, error: t('history.integrity_failed') }
+                        validation: { valid: false, error: t('history.integrity_failed'), errorCode: 'integrity_failed' }
                 };
         }
 
@@ -330,6 +356,8 @@ export interface ValidationResult {
         integrityVersion?: number; // 0, 1, 2, or 3
         algorithm?: string;
         error?: string;
+        /** Structured error code for UI mapping */
+        errorCode?: ImportError;
 }
 
 /**
@@ -403,12 +431,12 @@ export async function validateBmiImport(json: string, passphrase?: string): Prom
         const { isEncrypted } = await import('./crypto');
         if (isEncrypted(json)) {
                 if (!passphrase) {
-                        return { valid: false, error: t('history.encrypted_no_passphrase') };
+                        return { valid: false, error: t('history.encrypted_no_passphrase'), errorCode: 'encrypted_no_passphrase' };
                 }
                 const { decrypt } = await import('./crypto');
                 const decrypted = await decrypt(json, passphrase);
                 if (decrypted === null) {
-                        return { valid: false, error: t('history.wrong_passphrase') };
+                        return { valid: false, error: t('history.wrong_passphrase'), errorCode: 'wrong_passphrase' };
                 }
                 content = decrypted;
         }
@@ -428,6 +456,8 @@ export interface ImportResult {
         integrityVersion?: number;
         algorithm?: string;
         error?: string;
+        /** Structured error code for UI mapping */
+        errorCode?: ImportError;
 }
 
 /** Lightweight metadata extracted from an import file without full parsing/decryption. */
@@ -444,6 +474,8 @@ export interface ImportFileMeta {
  * For encrypted files with embedded meta, exportedAt/recordCount/version are available.
  * For encrypted files without meta (legacy), only format and encrypted status are available.
  * For plain files, exportedAt, version, and recordCount are also extracted.
+ *
+ * Metadata fields are sanitized — values are not trusted blindly.
  */
 export function peekImportMeta(json: string): ImportFileMeta {
         try {
@@ -454,9 +486,9 @@ export function peekImportMeta(json: string): ImportFileMeta {
                         return {
                                 encrypted: true,
                                 format: parsed.format,
-                                exportedAt: parsed.meta?.exportedAt || undefined,
-                                recordCount: parsed.meta?.recordCount ?? undefined,
-                                version: parsed.meta?.version ?? undefined,
+                                exportedAt: typeof parsed.meta?.exportedAt === 'string' ? parsed.meta.exportedAt : undefined,
+                                recordCount: typeof parsed.meta?.recordCount === 'number' && parsed.meta.recordCount >= 0 ? parsed.meta.recordCount : undefined,
+                                version: typeof parsed.meta?.version === 'number' && parsed.meta.version >= 0 ? parsed.meta.version : undefined,
                         };
                 }
 
@@ -464,8 +496,8 @@ export function peekImportMeta(json: string): ImportFileMeta {
                 if (typeof parsed?.version === 'number' && Array.isArray(parsed?.records)) {
                         return {
                                 encrypted: false,
-                                exportedAt: parsed.exportedAt || undefined,
-                                version: parsed.version,
+                                exportedAt: typeof parsed.exportedAt === 'string' ? parsed.exportedAt : undefined,
+                                version: parsed.version >= 0 ? parsed.version : undefined,
                                 recordCount: parsed.records.length,
                         };
                 }
@@ -493,26 +525,32 @@ export function peekImportMeta(json: string): ImportFileMeta {
  * Performance: JSON is parsed exactly once (shared between validation and extraction).
  */
 export async function importBmiHistory(json: string, passphrase?: string): Promise<ImportResult> {
+        // ── Pre-parse guards ──
+        if (!json || json.trim().length === 0) {
+                return { success: false, count: 0, error: t('history.empty_file'), errorCode: 'empty_file' };
+        }
+
         // Auto-detect and decrypt if encrypted and passphrase provided
         let content = json;
         const { isEncrypted } = await import('./crypto');
         if (isEncrypted(json)) {
                 if (!passphrase) {
-                        return { success: false, count: 0, error: t('history.encrypted_no_passphrase') };
+                        return { success: false, count: 0, error: t('history.encrypted_no_passphrase'), errorCode: 'encrypted_no_passphrase' };
                 }
                 // Validate encrypted payload structure before attempting decryption
+                let payload: Record<string, unknown>;
                 try {
-                        const payload = JSON.parse(json);
-                        if (!payload.salt || !payload.iv || !payload.data) {
-                                return { success: false, count: 0, error: t('history.corrupted_file') };
-                        }
+                        payload = JSON.parse(json);
                 } catch {
-                        return { success: false, count: 0, error: t('history.corrupted_file') };
+                        return { success: false, count: 0, error: t('history.corrupted_file'), errorCode: 'corrupted_file' };
+                }
+                if (!payload.salt || !payload.iv || !payload.data) {
+                        return { success: false, count: 0, error: t('history.corrupted_file'), errorCode: 'corrupted_file' };
                 }
                 const { decrypt } = await import('./crypto');
                 const decrypted = await decrypt(json, passphrase);
                 if (decrypted === null) {
-                        return { success: false, count: 0, error: t('history.wrong_passphrase') };
+                        return { success: false, count: 0, error: t('history.wrong_passphrase'), errorCode: 'wrong_passphrase' };
                 }
                 content = decrypted;
         }
@@ -520,13 +558,14 @@ export async function importBmiHistory(json: string, passphrase?: string): Promi
         const result = await parseAndValidate(content);
 
         if (!result.valid) {
-                return { success: false, count: 0, error: result.validation.error };
+                const code = result.validation.errorCode ?? 'invalid_format';
+                return { success: false, count: 0, error: result.validation.error, errorCode: code };
         }
 
         const { records, validation } = result;
 
         if (records.length === 0) {
-                return { success: false, count: 0, error: t('history.no_valid_records') };
+                return { success: false, count: 0, error: t('history.no_valid_records'), errorCode: 'no_valid_records' };
         }
 
         // Sort by timestamp
@@ -542,7 +581,7 @@ export async function importBmiHistory(json: string, passphrase?: string): Promi
         // Override (replace) existing data via centralized storage
         const ok = storageSet(STORAGE_KEYS.HISTORY, JSON.stringify(records));
         if (!ok) {
-                return { success: false, count: 0, error: t('history.save_failed') };
+                return { success: false, count: 0, error: t('history.save_failed'), errorCode: 'save_failed' };
         }
 
         return {
