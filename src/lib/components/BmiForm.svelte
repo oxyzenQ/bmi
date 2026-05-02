@@ -245,7 +245,11 @@
   async function handleFileChange(e: Event) {
     const input = e.currentTarget as HTMLInputElement;
     const file = input.files?.[0];
-    if (!file) return;
+    if (!file) {
+      // Always reset input to allow re-selecting same file
+      input.value = '';
+      return;
+    }
 
     // ── File size guards ──
     if (file.size === 0) {
@@ -276,7 +280,6 @@
         encryptModalMode = 'import';
         encryptError = '';
         showEncryptModal = true;
-        input.value = '';
         return;
       }
 
@@ -304,8 +307,11 @@
         action: 'import-error',
         error: t('form.could_not_read')
       });
+    } finally {
+      // CRITICAL: Always reset input value to allow re-selecting same file
+      // Without this, selecting the same file twice won't trigger onchange
+      input.value = '';
     }
-    input.value = '';
   }
 
   async function handleImportConfirm(passphrase: string) {
