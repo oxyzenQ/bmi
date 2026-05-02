@@ -1344,6 +1344,9 @@
         // Navigation to Gauge already happened in handleCalculate
         // (synchronous click-handler context). Just dismiss the notification.
         showNotify = false;
+      } else if (notifyType === 'error') {
+        // Error notification dismissed - just close
+        showNotify = false;
       } else if (notifyType === 'delete') {
         showNotify = false;
         clearAllData();
