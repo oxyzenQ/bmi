@@ -256,6 +256,8 @@
           </div>
         {/if}
         <div class="encrypt-fields">
+          <!-- Hidden username field to prevent browser password warning -->
+          <input type="text" name="username" autocomplete="username" class="sr-only" aria-hidden="true" tabindex="-1" />
           <div class="field-group">
             <label for="passphrase">{t('crypto.passphrase_label')}</label>
             <div class="input-wrapper">

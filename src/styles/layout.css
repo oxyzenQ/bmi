@@ -4,6 +4,7 @@
   ============================== */
 .section-header-v2 {
   margin-top: clamp(40px, 40vh, 120px) !important;
+  border-radius: var(--radius-lg);
 }
 
 .main-container .section-header-v2 {
