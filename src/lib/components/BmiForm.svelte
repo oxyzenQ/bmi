@@ -147,7 +147,6 @@
   }
 
   // Export / Import history
-  let fileInputEl: HTMLInputElement | undefined = $state();
   let fileInputKey = $state(0); // Force remount to allow re-selecting same file
 
   // Encryption modal state
@@ -222,7 +221,11 @@
   }
 
   function handleImportClick() {
-    fileInputEl?.click();
+    // Small delay to ensure DOM is updated after key change
+    setTimeout(() => {
+      const input = document.getElementById('bmi-file-input') as HTMLInputElement | null;
+      input?.click();
+    }, 0);
   }
 
   /** Map ImportError code → i18n key for user-friendly FeedbackModal message */
@@ -603,7 +606,7 @@
       {#key fileInputKey}
         <input
           type="file"
-          bind:this={fileInputEl}
+          id="bmi-file-input"
           accept=".json"
           class="sr-only"
           onchange={handleFileChange}
