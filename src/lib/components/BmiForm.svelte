@@ -249,16 +249,18 @@
 
     // ── File size guards ──
     if (file.size === 0) {
-      feedbackType = 'error';
-      feedbackMessage = t('history.empty_file');
-      showFeedbackModal = true;
+      onNotify?.({
+        action: 'import-error',
+        error: t('history.empty_file')
+      });
       input.value = '';
       return;
     }
     if (file.size > MAX_IMPORT_SIZE) {
-      feedbackType = 'error';
-      feedbackMessage = t('history.file_too_large');
-      showFeedbackModal = true;
+      onNotify?.({
+        action: 'import-error',
+        error: t('history.file_too_large')
+      });
       input.value = '';
       return;
     }
@@ -289,20 +291,15 @@
           integrityVerified: validation.integrityVerified ?? false
         });
       } else {
-        // Show FeedbackModal for all validation errors
+        // Notify parent to show error via NotifyFloat (single source of truth)
         const code = validation.errorCode ?? 'invalid_format';
-        feedbackType = 'error';
-        feedbackMessage = t(importErrorKey(code));
-        showFeedbackModal = true;
         onNotify?.({
           action: 'import-error',
-          error: validation.error || t('form.import_failed')
+          error: t(importErrorKey(code))
         });
       }
     } catch {
-      feedbackType = 'error';
-      feedbackMessage = t('form.could_not_read');
-      showFeedbackModal = true;
+      // Notify parent to show error via NotifyFloat
       onNotify?.({
         action: 'import-error',
         error: t('form.could_not_read')

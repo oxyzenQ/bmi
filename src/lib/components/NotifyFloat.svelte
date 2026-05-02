@@ -9,7 +9,7 @@
 
   interface Props {
     show?: boolean;
-    type?: 'success' | 'delete' | 'warn';
+    type?: 'success' | 'delete' | 'warn' | 'error';
     message?: string;
     buttonText?: string;
     onContinue?: () => void;
@@ -160,16 +160,19 @@
   const Icon = $derived(
     type === 'success' ? CheckCircle :
     type === 'warn' ? ShieldAlert :
+    type === 'error' ? X :
     Trash2
   );
   const iconColor = $derived(
     type === 'success' ? COLORS.GREEN :
     type === 'warn' ? COLORS.AMBER :
+    type === 'error' ? COLORS.RED :
     COLORS.RED
   );
   const buttonClass = $derived(
     type === 'success' ? 'btn-success' :
     type === 'warn' ? 'btn-warn' :
+    type === 'error' ? 'btn-error' :
     'btn-delete'
   );
 </script>
@@ -208,6 +211,13 @@
             {buttonText}
           </button>
         </div>
+      {:else if type === 'error'}
+        <button
+          class="notify-btn {buttonClass}"
+          onclick={handleContinue}
+        >
+          {buttonText || t('notify.ok')}
+        </button>
       {:else}
         <button
           class="notify-btn {buttonClass}"

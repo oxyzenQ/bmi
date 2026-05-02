@@ -134,7 +134,7 @@
 
   // Notification state
   let showNotify = $state(false);
-  let notifyType = $state<'success' | 'delete' | 'warn'>('success');
+  let notifyType = $state<'success' | 'delete' | 'warn' | 'error'>('success');
   let notifyMessage = $state('');
   let notifyButtonText = $state('');
   let pendingImportText = $state<string | null>(null);
@@ -1024,7 +1024,7 @@
                           notifyButtonText = t('notify.import_keep');
                           showNotify = true;
                         } else if (result.action === 'import-error') {
-                          notifyType = 'delete';
+                          notifyType = 'error';
                           notifyMessage = result.error || t('notify.import_error');
                           notifyButtonText = t('notify.ok');
                           showNotify = true;
