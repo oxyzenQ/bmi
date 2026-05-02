@@ -50,6 +50,8 @@ const en: TranslationDict = {
   'notify.import_keep': 'Keep Import',
   'notify.import_error': 'Import failed. Please check the file format.',
   'notify.ok': 'OK',
+  'notify.success_title': 'Success',
+  'notify.error_title': 'Error',
 
   // ── Hero ──
   'hero.title': 'BMI Calculator',
@@ -352,6 +354,7 @@ const en: TranslationDict = {
   'history.invalid_format': 'Invalid file format. This file was not exported by BMI Calculator or has been modified. Please export a new file and try again.',
   'history.no_valid_records': 'No valid BMI records found.',
   'history.save_failed': 'Failed to save history to storage.',
+  'history.import_success': 'Successfully imported {count} records',
   'history.encrypted_no_passphrase': 'This file is encrypted. Please enter your passphrase.',
   'history.wrong_passphrase': 'Wrong passphrase — unable to decrypt.',
 

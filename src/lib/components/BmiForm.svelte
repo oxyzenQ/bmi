@@ -3,6 +3,7 @@
   import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport, importBmiHistory } from '$lib/utils/history-io';
   import { t as _t, localeVersion } from '$lib/i18n';
   import EncryptionModal from './EncryptionModal.svelte';
+  import FeedbackModal from './FeedbackModal.svelte';
   let _rv = $derived($localeVersion);
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
@@ -146,6 +147,11 @@
   let encryptError = $state('');
   let pendingImportText = $state('');
 
+  // Feedback modal state (blocking confirmation)
+  let showFeedbackModal = $state(false);
+  let feedbackType = $state<'success' | 'error'>('success');
+  let feedbackMessage = $state('');
+
   interface ImportNotifyResult {
     action: 'import-validate' | 'import-error';
     text?: string;
@@ -252,20 +258,34 @@
     const result = await importBmiHistory(pendingImportText, passphrase);
 
     if (result.success) {
+      // Close encryption modal first
       showEncryptModal = false;
-      const count = result.count;
       pendingImportText = '';
       encryptError = '';
+
+      // Show success feedback modal (blocking)
+      feedbackType = 'success';
+      feedbackMessage = t('history.import_success', { count: result.count });
+      showFeedbackModal = true;
+
+      // Also notify parent for any additional UI updates
       onNotify?.({
         action: 'import-validate',
         text: '',
-        recordCount: count,
+        recordCount: result.count,
         integrityVerified: result.integrityVerified ?? false
       });
     } else {
-      // Show error in modal (wrong passphrase or other error)
-      encryptError = result.error || t('form.import_failed');
+      // Show error feedback modal (blocking, more explicit than inline)
+      feedbackType = 'error';
+      feedbackMessage = result.error || t('form.import_failed');
+      showFeedbackModal = true;
     }
+  }
+
+  function handleFeedbackClose() {
+    showFeedbackModal = false;
+    feedbackMessage = '';
   }
 
   function handleModalCancel() {
@@ -528,6 +548,14 @@
       error={encryptError}
       onConfirm={encryptModalMode === 'export' ? handleExportConfirm : handleImportConfirm}
       onCancel={handleModalCancel}
+    />
+
+    <!-- Feedback Modal (Success / Error) -->
+    <FeedbackModal
+      show={showFeedbackModal}
+      type={feedbackType}
+      message={feedbackMessage}
+      onClose={handleFeedbackClose}
     />
   </div>
 </div>

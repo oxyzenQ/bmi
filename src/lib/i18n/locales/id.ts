@@ -49,6 +49,8 @@ const id: TranslationDict = {
   'notify.import_keep': 'Lanjutkan Impor',
   'notify.import_error': 'Impor gagal. Periksa format file.',
   'notify.ok': 'OK',
+  'notify.success_title': 'Berhasil',
+  'notify.error_title': 'Error',
 
   // ── Hero ──
   'hero.title': 'Kalkulator BMI',
@@ -349,10 +351,11 @@ const id: TranslationDict = {
   'history.no_records': 'Tidak ditemukan catatan BMI yang valid dalam file.',
   'history.integrity_failed': 'Verifikasi integritas gagal \u2014 file telah dimodifikasi dan tidak aman untuk diimpor.',
   'history.invalid_format': 'Format file tidak valid. File ini tidak diekspor oleh Kalkulator BMI atau telah dimodifikasi.',
-  'history.no_valid_records': 'Tidak ditemukan catatan BMI yang valid.',
-  'history.save_failed': 'Gagal menyimpan riwayat ke penyimpanan.',
-  'history.encrypted_no_passphrase': 'File ini dienkripsi. Silakan masukkan kata sandi Anda.',
-  'history.wrong_passphrase': 'Kata sandi salah — tidak dapat mendekripsi.',
+  'history.no_valid_records': 'Tidak ada catatan BMI yang valid.',
+  'history.save_failed': 'Gagal menyimpan riwayat ke storage.',
+  'history.import_success': 'Berhasil mengimpor {count} catatan',
+  'history.encrypted_no_passphrase': 'File ini dienkripsi. Masukkan passphrase Anda.',
+  'history.wrong_passphrase': 'Passphrase salah — tidak dapat mendekripsi.',
 
   // ── BMI Categories (shared) ──
   'category.underweight': 'Kurus',
