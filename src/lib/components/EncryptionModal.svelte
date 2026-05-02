@@ -382,12 +382,26 @@
     justify-content: center;
     width: 2rem;
     height: 2rem;
-    background: none;
+    background: rgba(255, 255, 255, 0.1);
     border: none;
     border-radius: 6px;
-    color: var(--w-50);
+    color: white;
     cursor: pointer;
     transition: all 0.15s ease;
+    z-index: 10;
+  }
+
+  /* Fix: ensure SVG icons render correctly - WHITE color for dark modal */
+  .eye-btn :global(svg) {
+    width: 18px !important;
+    height: 18px !important;
+    display: block !important;
+    visibility: visible !important;
+    stroke: white !important;
+    stroke-width: 2;
+    fill: none;
+    flex-shrink: 0;
+    overflow: visible;
   }
 
   .eye-btn:hover {

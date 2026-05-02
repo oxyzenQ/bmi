@@ -179,7 +179,7 @@
 
 /* Fluid media globally */
 img,
-svg,
+svg:not(.eye-btn svg),
 canvas,
 video {
   max-width: 100%;
@@ -287,7 +287,7 @@ p,
 
   /* Ensure no overflow from wide elements */
   img,
-  svg,
+  svg:not(.eye-btn svg),
   canvas,
   video {
     max-width: 100%;
