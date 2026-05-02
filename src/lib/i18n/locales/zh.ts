@@ -125,6 +125,8 @@ const zh: TranslationDict = {
   'crypto.meta_date': '\u521b\u5efa\u65e5\u671f',
   'crypto.meta_records': '\u8bb0\u5f55\u6570',
   'crypto.meta_version': '\u683c\u5f0f',
+  'crypto.passphrase_warning': '\u8bf7\u786e\u4fdd\u60a8\u8bb0\u4f4f\u5bc6\u7801\u3002\u5bc6\u7801\u65e0\u6cd5\u6062\u590d\u3002',
+  'crypto.strength_hint': '\u4f7f\u7528 12+ \u4e2a\u5b57\u7b26\uff0c\u5305\u542b\u6570\u5b57\u548c\u7b26\u53f7\uff0c\u4ee5\u83b7\u5f97\u6700\u4f73\u5b89\u5168\u6027',
 
   // ── Results ──
   'results.title': '\u60a8\u7684\u7ed3\u679c',

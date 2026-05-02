@@ -90,8 +90,8 @@
         showConfirmPassword = false;
         modalKey += 1;
       });
-      // Trigger animation
-      setTimeout(() => { visible = true; }, 60);
+      // Trigger animation with micro-delay for smoother UX
+      setTimeout(() => { visible = true; }, 120);
     } else if (!currentShow && wasShown) {
       // Modal is closing
       visible = false;
@@ -216,6 +216,9 @@
           <Icon size={32} strokeWidth={1.5} />
         </div>
         <h2 class="encrypt-title">{title}</h2>
+        {#if mode === 'export'}
+          <p class="passphrase-warning">{t('crypto.passphrase_warning')}</p>
+        {/if}
       </div>
 
       <form onsubmit={handleSubmit} class="encrypt-form">
@@ -288,6 +291,7 @@
                   {strengthLevel === 'weak' ? t('crypto.strength_weak') : strengthLevel === 'medium' ? t('crypto.strength_medium') : t('crypto.strength_strong')}
                 </span>
               </div>
+              <p class="strength-hint">{t('crypto.strength_hint')}</p>
             {/if}
           </div>
 
@@ -560,6 +564,24 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     white-space: nowrap;
+  }
+
+  .strength-hint {
+    font-size: 0.8rem;
+    color: #fbbf24;
+    margin-top: 0.5rem;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+
+  .passphrase-warning {
+    font-size: 0.85rem;
+    color: #fbbf24;
+    text-align: center;
+    max-width: 280px;
+    margin: 0.5rem 0 0 0;
+    line-height: 1.5;
+    font-weight: 500;
   }
 
   .encrypt-error {

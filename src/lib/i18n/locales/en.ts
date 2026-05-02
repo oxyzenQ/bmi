@@ -141,6 +141,8 @@ const en: TranslationDict = {
   'crypto.meta_date': 'Created',
   'crypto.meta_records': 'Records',
   'crypto.meta_version': 'Format',
+  'crypto.passphrase_warning': 'Make sure you remember your passphrase. It cannot be recovered.',
+  'crypto.strength_hint': 'Use 12+ characters with numbers and symbols for best security',
 
   // ── Results ──
   'results.title': 'Your Results',

@@ -140,6 +140,8 @@ const id: TranslationDict = {
   'crypto.meta_date': 'Dibuat',
   'crypto.meta_records': 'Data',
   'crypto.meta_version': 'Format',
+  'crypto.passphrase_warning': 'Pastikan Anda mengingat passphrase. Tidak dapat dipulihkan.',
+  'crypto.strength_hint': 'Gunakan 12+ karakter dengan angka dan simbol untuk keamanan terbaik',
 
   // ── Results ──
   'results.title': 'Hasil Anda',
