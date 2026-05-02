@@ -148,6 +148,7 @@
 
   // Export / Import history
   let fileInputEl: HTMLInputElement | undefined = $state();
+  let fileInputKey = $state(0); // Force remount to allow re-selecting same file
 
   // Encryption modal state
   let showEncryptModal = $state(false);
@@ -313,16 +314,9 @@
 
   /** Reset file input to allow re-selecting the same file */
   function resetFileInput() {
-    if (!fileInputEl) return;
-
-    // Method 1: Try standard reset first
-    fileInputEl.value = '';
-
-    // Method 2: Clone and replace for complete reset (most reliable)
-    // This ensures the input is truly fresh and onchange will fire for same file
-    const newInput = fileInputEl.cloneNode(true) as HTMLInputElement;
-    fileInputEl.parentNode?.replaceChild(newInput, fileInputEl);
-    fileInputEl = newInput;
+    // Increment key to force Svelte to remount the input element
+    // This is the most reliable way to ensure onchange fires for same file
+    fileInputKey += 1;
   }
 
   async function handleImportConfirm(passphrase: string) {
@@ -606,15 +600,17 @@
         <FileSpreadsheet size={16} aria-hidden="true" />
         {t('form.export_csv')}
       </button>
-      <input
-        type="file"
-        bind:this={fileInputEl}
-        accept=".json"
-        class="sr-only"
-        onchange={handleFileChange}
-        tabindex="-1"
-        aria-hidden="true"
-      />
+      {#key fileInputKey}
+        <input
+          type="file"
+          bind:this={fileInputEl}
+          accept=".json"
+          class="sr-only"
+          onchange={handleFileChange}
+          tabindex="-1"
+          aria-hidden="true"
+        />
+      {/key}
       <button type="button" class="btn btn-secondary" onclick={handleImportClick} aria-label={t('form.import_aria')}>
         <ArrowDownToLine size={16} aria-hidden="true" />
         {t('form.import')}
