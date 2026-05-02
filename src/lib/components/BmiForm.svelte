@@ -146,8 +146,6 @@
     onClear();
   }
 
-  // Export / Import history
-  let fileInputKey = $state(0); // Force remount to allow re-selecting same file
 
   // Encryption modal state
   let showEncryptModal = $state(false);
@@ -221,11 +219,22 @@
   }
 
   function handleImportClick() {
-    // Small delay to ensure DOM is updated after key change
-    setTimeout(() => {
-      const input = document.getElementById('bmi-file-input') as HTMLInputElement | null;
-      input?.click();
-    }, 0);
+    // Create a fresh file input element every time to ensure onchange fires
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.style.display = 'none';
+
+    // Set up onchange handler before clicking
+    input.onchange = (e) => {
+      handleFileChange(e);
+      // Clean up after use
+      document.body.removeChild(input);
+    };
+
+    // Add to body, click, then remove after file selected
+    document.body.appendChild(input);
+    input.click();
   }
 
   /** Map ImportError code → i18n key for user-friendly FeedbackModal message */
@@ -257,7 +266,6 @@
         action: 'import-error',
         error: t('history.empty_file')
       });
-      resetFileInput();
       return;
     }
     if (file.size > MAX_IMPORT_SIZE) {
@@ -265,7 +273,6 @@
         action: 'import-error',
         error: t('history.file_too_large')
       });
-      resetFileInput();
       return;
     }
 
@@ -280,7 +287,6 @@
         encryptModalMode = 'import';
         encryptError = '';
         showEncryptModal = true;
-        resetFileInput();
         return;
       }
 
@@ -308,18 +314,7 @@
         action: 'import-error',
         error: t('form.could_not_read')
       });
-    } finally {
-      // CRITICAL: Always reset input value to allow re-selecting same file
-      // Without this, selecting the same file twice won't trigger onchange
-      resetFileInput();
     }
-  }
-
-  /** Reset file input to allow re-selecting the same file */
-  function resetFileInput() {
-    // Increment key to force Svelte to remount the input element
-    // This is the most reliable way to ensure onchange fires for same file
-    fileInputKey += 1;
   }
 
   async function handleImportConfirm(passphrase: string) {
@@ -603,17 +598,6 @@
         <FileSpreadsheet size={16} aria-hidden="true" />
         {t('form.export_csv')}
       </button>
-      {#key fileInputKey}
-        <input
-          type="file"
-          id="bmi-file-input"
-          accept=".json"
-          class="sr-only"
-          onchange={handleFileChange}
-          tabindex="-1"
-          aria-hidden="true"
-        />
-      {/key}
       <button type="button" class="btn btn-secondary" onclick={handleImportClick} aria-label={t('form.import_aria')}>
         <ArrowDownToLine size={16} aria-hidden="true" />
         {t('form.import')}
@@ -807,17 +791,5 @@
     gap: 0.4rem;
     font-size: 0.85rem;
     border-radius: 9999px;
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
   }
 </style>
