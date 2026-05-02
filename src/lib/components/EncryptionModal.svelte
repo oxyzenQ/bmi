@@ -46,9 +46,9 @@
   let loading = $state(false);
   let focusTrapHandler: ((e: KeyboardEvent) => void) | null = null;
 
-  // Password visibility toggles (separate states for each field)
-  let showPassword = $state(false);
-  let showConfirmPassword = $state(false);
+  // Passphrase visibility toggles (separate states for each field)
+  let showPassphrase = $state(false);
+  let showConfirmPassphrase = $state(false);
 
   // Passphrase strength
   type StrengthLevel = 'weak' | 'medium' | 'strong';
@@ -86,8 +86,8 @@
         confirmPassphrase = '';
         localError = '';
         loading = false;
-        showPassword = false;
-        showConfirmPassword = false;
+        showPassphrase = false;
+        showConfirmPassphrase = false;
         modalKey += 1;
       });
       // Trigger animation with micro-delay for smoother UX
@@ -261,7 +261,7 @@
             <div class="input-wrapper">
               <input
                 id="passphrase"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassphrase ? 'text' : 'password'}
                 bind:value={passphrase}
                 placeholder={t('crypto.passphrase_placeholder')}
                 class="encrypt-input"
@@ -271,11 +271,10 @@
               <button
                 type="button"
                 class="eye-btn"
-                onclick={() => showPassword = !showPassword}
-                aria-label={showPassword ? t('crypto.hide_passphrase') : t('crypto.show_passphrase')}
-                tabindex="-1"
+                onclick={() => showPassphrase = !showPassphrase}
+                aria-label={showPassphrase ? t('crypto.hide_passphrase') : t('crypto.show_passphrase')}
               >
-                {#if showPassword}
+                {#if showPassphrase}
                   <EyeOff size={18} />
                 {:else}
                   <Eye size={18} />
@@ -301,7 +300,7 @@
               <div class="input-wrapper">
                 <input
                   id="confirm-passphrase"
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirmPassphrase ? 'text' : 'password'}
                   bind:value={confirmPassphrase}
                   placeholder={t('crypto.confirm_placeholder')}
                   class="encrypt-input"
@@ -311,11 +310,10 @@
                 <button
                   type="button"
                   class="eye-btn"
-                  onclick={() => showConfirmPassword = !showConfirmPassword}
-                  aria-label={showConfirmPassword ? t('crypto.hide_passphrase') : t('crypto.show_passphrase')}
-                  tabindex="-1"
+                  onclick={() => showConfirmPassphrase = !showConfirmPassphrase}
+                  aria-label={showConfirmPassphrase ? t('crypto.hide_passphrase') : t('crypto.show_passphrase')}
                 >
-                  {#if showConfirmPassword}
+                  {#if showConfirmPassphrase}
                     <EyeOff size={18} />
                   {:else}
                     <Eye size={18} />

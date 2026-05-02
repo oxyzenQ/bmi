@@ -135,9 +135,7 @@
 
     // Register service worker for caching (only in production)
     if (browser && 'serviceWorker' in navigator && import.meta.env.PROD) {
-      navigator.serviceWorker.register('/service-worker.js', { type: 'classic' }).catch((err) => {
-        if (import.meta.env.DEV) console.warn('SW registration skipped:', err.message);
-      });
+      navigator.serviceWorker.register('/service-worker.js', { type: 'classic' }).catch(() => { /* SW registration failed silently */ });
     }
 
     // PWA: install prompt handler
@@ -195,23 +193,13 @@
           } catch { /* metric type not supported in this browser */ }
         };
 
-        observe('largest-contentful-paint', (e) => {
-          const val = Math.round(e.startTime);
-          console.log(`[Vitals] LCP: ${val}ms${val > 2500 ? ' (slow)' : val > 1200 ? ' (needs-improvement)' : ' (good)'}`);
-        });
-
-        observe('layout-shift', (e) => {
-          const entry = e as PerformanceEntry & { value: number };
-          const val = entry.value;
-          console.log(`[Vitals] CLS: ${val.toFixed(3)}${val > 0.25 ? ' (poor)' : val > 0.1 ? ' (needs-improvement)' : ' (good)'}`);
-        });
+        // Web Vitals observation (silent in production)
+        observe('largest-contentful-paint', () => { /* LCP tracked silently */ });
+        observe('layout-shift', () => { /* CLS tracked silently */ });
 
         // INP: only supported in Chromium 123+ behind flag; skip if unsupported
         if (PerformanceObserver.supportedEntryTypes?.includes('interaction-to-next-paint')) {
-          observe('interaction-to-next-paint', (e) => {
-            const val = Math.round(e.startTime);
-            console.log(`[Vitals] INP: ${val}ms${val > 500 ? ' (poor)' : val > 200 ? ' (needs-improvement)' : ' (good)'}`);
-          });
+          observe('interaction-to-next-paint', () => { /* INP tracked silently */ });
         }
       } catch { /* PerformanceObserver failed */ }
     }

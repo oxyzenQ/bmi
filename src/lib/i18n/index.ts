@@ -109,7 +109,7 @@ async function loadNonEnglishLocale(code: Locale): Promise<void> {
     }
     dicts[code] = mod.default;
   } catch {
-    console.warn(`[i18n] Failed to load locale "${code}", falling back to en`);
+    // Fallback to English silently
     dicts[code] = enDict;
   }
   // Bump version to trigger Svelte reactivity in components that depend on it
