@@ -5,7 +5,7 @@
    * - Import: Passphrase only (auto-detect encrypted file)
    */
   import { untrack } from 'svelte';
-  import { Lock, Unlock, AlertCircle } from 'lucide-svelte';
+  import { Lock, Unlock, AlertCircle, Eye, EyeOff } from 'lucide-svelte';
   import { t as _t, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
@@ -36,6 +36,10 @@
   let loading = $state(false);
   let focusTrapHandler: ((e: KeyboardEvent) => void) | null = null;
 
+  // Password visibility toggles (separate states for each field)
+  let showPassword = $state(false);
+  let showConfirmPassword = $state(false);
+
   // Combine local error with parent error prop (reactive)
   let errorMsg = $derived(localError || error);
 
@@ -54,6 +58,8 @@
         confirmPassphrase = '';
         localError = '';
         loading = false;
+        showPassword = false;
+        showConfirmPassword = false;
         modalKey += 1;
       });
       // Trigger animation
@@ -187,29 +193,59 @@
         <div class="encrypt-fields">
           <div class="field-group">
             <label for="passphrase">{t('crypto.passphrase_label')}</label>
-            <input
-              id="passphrase"
-              type="password"
-              bind:value={passphrase}
-              placeholder={t('crypto.passphrase_placeholder')}
-              class="encrypt-input"
-              autocomplete="new-password"
-              disabled={loading}
-            />
+            <div class="input-wrapper">
+              <input
+                id="passphrase"
+                type={showPassword ? 'text' : 'password'}
+                bind:value={passphrase}
+                placeholder={t('crypto.passphrase_placeholder')}
+                class="encrypt-input"
+                autocomplete="new-password"
+                disabled={loading}
+              />
+              <button
+                type="button"
+                class="eye-btn"
+                onclick={() => showPassword = !showPassword}
+                aria-label={showPassword ? t('crypto.hide_passphrase') : t('crypto.show_passphrase')}
+                tabindex="-1"
+              >
+                {#if showPassword}
+                  <EyeOff size={18} />
+                {:else}
+                  <Eye size={18} />
+                {/if}
+              </button>
+            </div>
           </div>
 
           {#if mode === 'export'}
             <div class="field-group">
               <label for="confirm-passphrase">{t('crypto.confirm_label')}</label>
-              <input
-                id="confirm-passphrase"
-                type="password"
-                bind:value={confirmPassphrase}
-                placeholder={t('crypto.confirm_placeholder')}
-                class="encrypt-input"
-                autocomplete="new-password"
-                disabled={loading}
-              />
+              <div class="input-wrapper">
+                <input
+                  id="confirm-passphrase"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  bind:value={confirmPassphrase}
+                  placeholder={t('crypto.confirm_placeholder')}
+                  class="encrypt-input"
+                  autocomplete="new-password"
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  class="eye-btn"
+                  onclick={() => showConfirmPassword = !showConfirmPassword}
+                  aria-label={showConfirmPassword ? t('crypto.hide_passphrase') : t('crypto.show_passphrase')}
+                  tabindex="-1"
+                >
+                  {#if showConfirmPassword}
+                    <EyeOff size={18} />
+                  {:else}
+                    <Eye size={18} />
+                  {/if}
+                </button>
+              </div>
             </div>
           {/if}
         </div>
@@ -318,14 +354,49 @@
     color: var(--w-70);
   }
 
+  .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
   .encrypt-input {
+    width: 100%;
     padding: 0.75rem 1rem;
+    padding-right: 2.75rem;
     font-size: 0.95rem;
     border: 1px solid var(--w-20);
     border-radius: 10px;
     background: var(--w-4);
     color: var(--w-95);
     transition: border-color 0.15s ease;
+  }
+
+  .eye-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    color: var(--w-50);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .eye-btn:hover {
+    color: var(--w-80);
+    background: var(--w-10);
+  }
+
+  .eye-btn:active {
+    transform: translateY(-50%) scale(0.95);
   }
 
   .encrypt-input:focus {

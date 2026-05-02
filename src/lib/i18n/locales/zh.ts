@@ -111,9 +111,11 @@ const zh: TranslationDict = {
   'crypto.confirm_placeholder': '\u786e\u8ba4\u5bc6\u7801',
   'crypto.unlock_import': '\u89e3\u9501\u548c\u5bfc\u5165',
   'crypto.processing': '\u5904\u7406\u4e2d...',
-  'crypto.error_empty': '\u5bc6\u7801\u4e0d\u80fd\u4e3a\u7a7a',
-  'crypto.error_mismatch': '\u5bc6\u7801\u4e0d\u4e00\u81f4',
+  'crypto.error_empty': '\u5bc6\u7801\u77ed\u8bed\u4e0d\u80fd\u4e3a\u7a7a',
+  'crypto.error_mismatch': '\u5bc6\u7801\u77ed\u8bed\u4e0d\u5339\u914d',
   'crypto.export_failed': '\u5bfc\u51fa\u5931\u8d25',
+  'crypto.show_passphrase': '\u663e\u793a\u5bc6\u7801',
+  'crypto.hide_passphrase': '\u9690\u85cf\u5bc6\u7801',
 
   // ── Results ──
   'results.title': '\u60a8\u7684\u7ed3\u679c',

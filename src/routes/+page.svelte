@@ -746,13 +746,7 @@
     pagerEl?.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     // Unified scroll listener: is-scrolling class + pager-controls auto-hide
-    // Bug-13: On touch devices, SKIP is-scrolling class toggling entirely.
-    // All heavy CSS optimizations are now PERMANENTLY applied via
-    // @media (hover: none) and (pointer: coarse) in responsive.css.
-    // This eliminates massive per-frame style recalculation on mobile.
     const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-    let isScrolling = false;
-    let isScrollingTimer: ReturnType<typeof setTimeout> | null = null;
     let scrollRafId: number | null = null;
     let pendingScrollTarget: HTMLElement | null = null;
     let pendingScrollY = 0;
@@ -782,20 +776,6 @@
     };
 
     const onScroll = (event: Event) => {
-      // Bug-13: Skip is-scrolling class toggling on touch devices.
-      // All optimizations are permanently applied via CSS media query.
-      if (!isTouchDevice) {
-        if (!isScrolling) {
-          isScrolling = true;
-          document.body.classList.add('is-scrolling');
-        }
-        if (isScrollingTimer) clearTimeout(isScrollingTimer);
-        isScrollingTimer = setTimeout(() => {
-          isScrolling = false;
-          document.body.classList.remove('is-scrolling');
-        }, SCROLL.IS_SCROLLING_DELAY);
-      }
-
       // Pager-controls auto-hide: only for pager-section scroll
       // Debounce state updates via rAF to avoid triggering Svelte re-renders every frame
       const target = event.target as HTMLElement;
@@ -825,8 +805,6 @@
       if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
       if (scrollRafId !== null) cancelAnimationFrame(scrollRafId);
       if (scrollTimeout !== null) clearTimeout(scrollTimeout);
-      if (isScrollingTimer) clearTimeout(isScrollingTimer);
-      document.body.classList.remove('is-scrolling');
     };
   });
 

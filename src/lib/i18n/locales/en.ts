@@ -130,6 +130,8 @@ const en: TranslationDict = {
   'crypto.error_empty': 'Passphrase is required',
   'crypto.error_mismatch': 'Passphrases do not match',
   'crypto.export_failed': 'Export failed',
+  'crypto.show_passphrase': 'Show passphrase',
+  'crypto.hide_passphrase': 'Hide passphrase',
 
   // ── Results ──
   'results.title': 'Your Results',

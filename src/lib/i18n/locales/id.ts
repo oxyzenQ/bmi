@@ -129,6 +129,8 @@ const id: TranslationDict = {
   'crypto.error_empty': 'Passphrase wajib diisi',
   'crypto.error_mismatch': 'Passphrase tidak cocok',
   'crypto.export_failed': 'Ekspor gagal',
+  'crypto.show_passphrase': 'Tampilkan passphrase',
+  'crypto.hide_passphrase': 'Sembunyikan passphrase',
 
   // ── Results ──
   'results.title': 'Hasil Anda',
