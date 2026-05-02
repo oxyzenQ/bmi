@@ -156,13 +156,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--k-50);
+    background: var(--cosmic-dark-82, rgba(10, 2, 28, 0.82));
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     backdrop-filter: blur(24px) saturate(180%);
     z-index: 10000;
     opacity: 0;
     transition: opacity 0.2s ease;
     pointer-events: none;
+    /* Ensure full viewport coverage on mobile */
+    min-height: 100vh;
+    min-height: 100dvh;
+    min-width: 100vw;
   }
 
   .feedback-backdrop.visible {
@@ -173,7 +177,7 @@
   .feedback-box {
     background: var(--k-50);
     border: var(--border-by-rezky);
-    border-radius: 20px;
+    border-radius: var(--radius-lg);
     padding: 2rem;
     min-width: 320px;
     max-width: 90vw;
@@ -194,6 +198,15 @@
     to {
       opacity: 1;
       transform: scale(1) translateY(0);
+    }
+  }
+
+  /* iOS Safari: stronger blur for mobile */
+  @supports (-webkit-touch-callout: none) {
+    .feedback-backdrop {
+      -webkit-backdrop-filter: blur(32px) saturate(200%);
+      backdrop-filter: blur(32px) saturate(200%);
+      background: var(--cosmic-dark-92, rgba(10, 2, 28, 0.92));
     }
   }
 

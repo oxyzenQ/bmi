@@ -312,6 +312,9 @@
   }
 
   async function handleImportConfirm(passphrase: string) {
+    // Guard: prevent duplicate modal triggers
+    if (showFeedbackModal) return;
+
     // Import with passphrase - will decrypt if needed
     const result = await importBmiHistory(pendingImportText, passphrase);
 
@@ -340,6 +343,8 @@
       feedbackType = 'error';
       feedbackMessage = t(importErrorKey(code));
       showFeedbackModal = true;
+      // Keep encrypt modal open for retry, but stop further execution
+      return;
     }
   }
 
