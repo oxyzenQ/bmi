@@ -568,10 +568,10 @@
 
   .strength-hint {
     font-size: 0.8rem;
-    color: #fbbf24;
+    color: var(--w-60);
     margin-top: 0.5rem;
     line-height: 1.5;
-    font-weight: 500;
+    font-weight: 400;
   }
 
   .passphrase-warning {
@@ -581,7 +581,16 @@
     max-width: 280px;
     margin: 0.5rem 0 0 0;
     line-height: 1.5;
-    font-weight: 500;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    justify-content: center;
+  }
+
+  .passphrase-warning::before {
+    content: "⚠";
+    font-size: 1rem;
   }
 
   .encrypt-error {
