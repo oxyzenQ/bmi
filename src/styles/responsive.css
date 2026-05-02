@@ -1079,6 +1079,19 @@ p,
    ═══════════════════════════════════════════════════════════════ */
 @media (hover: none) and (pointer: coarse) {
 
+  /* T-0: Scroll smoothness optimizations for mobile.
+     Enable momentum scrolling, prevent overscroll bounce,
+     and optimize touch response. */
+  html {
+    scroll-behavior: smooth;
+    overscroll-behavior-y: none; /* Prevent bounce on body */
+  }
+
+  body {
+    -webkit-overflow-scrolling: touch; /* Momentum scrolling on iOS */
+    touch-action: pan-y pinch-zoom; /* Optimize touch response */
+  }
+
   /* T-1: Simplify body::before filter permanently on touch.
      filter: brightness(1) contrast(1.25) saturate(1) still costs
      GPU cycles even though values look "neutral".
@@ -1404,9 +1417,19 @@ p,
   .reference-table,
   .github-link,
   .section-header,
-  .section-header-v2,
-  .hero-content {
+  .section-header-v2 {
     background: var(--cosmic-dark-78) !important;
+    -webkit-backdrop-filter: blur(6px) saturate(120%) !important;
+    backdrop-filter: blur(6px) saturate(120%) !important;
+    border: 1px solid var(--w-8) !important;
+    box-shadow:
+      0 4px 16px var(--k-40),
+      inset 0 1px 0 var(--w-6) !important;
+  }
+
+  /* T-GLASS-HERO: Hero content gets stronger background for readability */
+  .hero-content {
+    background: var(--cosmic-dark-82, rgba(10, 2, 28, 0.82)) !important;
     -webkit-backdrop-filter: blur(6px) saturate(120%) !important;
     backdrop-filter: blur(6px) saturate(120%) !important;
     border: 1px solid var(--w-8) !important;
