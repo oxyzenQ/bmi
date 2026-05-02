@@ -219,6 +219,7 @@
   }
 
   function handleImportClick() {
+    console.log('[Import] Button clicked, creating fresh input...');
     // Create a fresh file input element every time to ensure onchange fires
     const input = document.createElement('input');
     input.type = 'file';
@@ -227,14 +228,17 @@
 
     // Set up onchange handler before clicking
     input.onchange = (e) => {
+      console.log('[Import] onchange fired!');
       handleFileChange(e);
       // Clean up after use
       document.body.removeChild(input);
+      console.log('[Import] Input cleaned up');
     };
 
-    // Add to body, click, then remove after file selected
+    // Add to body, click, then auto-remove after file selected
     document.body.appendChild(input);
     input.click();
+    console.log('[Import] File dialog opened');
   }
 
   /** Map ImportError code → i18n key for user-friendly FeedbackModal message */
@@ -256,8 +260,9 @@
   }
 
   async function handleFileChange(e: Event) {
-    const input = e.currentTarget as HTMLInputElement;
+    const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
+    console.log('[Import] File selected:', file?.name || 'none');
     if (!file) return;
 
     // ── File size guards ──
