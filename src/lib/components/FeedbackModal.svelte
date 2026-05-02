@@ -182,13 +182,19 @@
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     backdrop-filter: blur(24px) saturate(180%);
     box-shadow: 0 25px 50px -12px var(--k-50);
-    transform: scale(0.95) translateY(10px);
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     text-align: center;
+    animation: feedbackIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 
-  .feedback-backdrop.visible .feedback-box {
-    transform: scale(1) translateY(0);
+  @keyframes feedbackIn {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
   }
 
   .feedback-header {
@@ -203,25 +209,28 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-bottom: 0.75rem;
   }
 
   .feedback-title {
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     font-weight: 600;
     color: var(--w-95);
-    margin: 0;
+    margin: 0 0 0.5rem 0;
   }
 
   .feedback-message {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: var(--w-70);
     line-height: 1.5;
-    margin: 0 0 1.5rem 0;
+    margin: 0 0 1.25rem 0;
+    opacity: 0.85;
   }
 
   .feedback-actions {
     display: flex;
     justify-content: center;
+    width: 100%;
   }
 
   .feedback-btn {

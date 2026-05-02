@@ -379,16 +379,23 @@
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     backdrop-filter: blur(24px) saturate(180%);
     box-shadow: 0 25px 50px -12px var(--k-50);
-    transform: scale(0.95) translateY(10px);
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: modalIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 
-  .encrypt-backdrop.visible .encrypt-box {
-    transform: scale(1) translateY(0);
+  @keyframes modalIn {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
   }
 
   .encrypt-header {
     display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 0.75rem;
     margin-bottom: 1.5rem;
@@ -571,7 +578,7 @@
   .encrypt-actions {
     display: flex;
     gap: 0.75rem;
-    justify-content: flex-end;
+    justify-content: center;
   }
 
   .encrypt-btn {

@@ -303,10 +303,14 @@ export async function exportBmiHistory(passphrase?: string): Promise<string | nu
 
                 const envelopeJson = JSON.stringify(envelope, null, 2);
 
-                // Optional encryption
+                // Optional encryption — embed metadata outside encrypted payload for preview
                 if (passphrase) {
                         const { encrypt } = await import('./crypto');
-                        return await encrypt(envelopeJson, passphrase);
+                        return await encrypt(envelopeJson, passphrase, {
+                                exportedAt,
+                                recordCount: records.length,
+                                version: 3,
+                        });
                 }
 
                 return envelopeJson;
@@ -437,16 +441,23 @@ export interface ImportFileMeta {
 
 /**
  * Peek at import file metadata without decrypting or parsing records.
- * For encrypted files, only format and encrypted status are available.
+ * For encrypted files with embedded meta, exportedAt/recordCount/version are available.
+ * For encrypted files without meta (legacy), only format and encrypted status are available.
  * For plain files, exportedAt, version, and recordCount are also extracted.
  */
 export function peekImportMeta(json: string): ImportFileMeta {
         try {
                 const parsed = JSON.parse(json);
 
-                // Encrypted payload
+                // Encrypted payload — meta is stored unencrypted for preview
                 if (parsed?.format === 'bmi-encrypted-v1') {
-                        return { encrypted: true, format: parsed.format };
+                        return {
+                                encrypted: true,
+                                format: parsed.format,
+                                exportedAt: parsed.meta?.exportedAt || undefined,
+                                recordCount: parsed.meta?.recordCount ?? undefined,
+                                version: parsed.meta?.version ?? undefined,
+                        };
                 }
 
                 // Plain envelope

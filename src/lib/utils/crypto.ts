@@ -35,6 +35,15 @@ export interface EncryptedPayload {
   iv: string;
   /** Base64-encoded ciphertext */
   data: string;
+  /** Unencrypted metadata for preview before decryption */
+  meta?: {
+    /** ISO timestamp of when the export was created */
+    exportedAt?: string;
+    /** Number of records in the encrypted payload */
+    recordCount?: number;
+    /** Envelope version (0–3) */
+    version?: number;
+  };
 }
 
 export interface EncryptionStatus {
@@ -100,8 +109,9 @@ function fromBase64(base64: string): Uint8Array {
 /**
  * Encrypt a string using AES-256-GCM with a passphrase.
  * Returns a JSON string containing the encrypted payload.
+ * Optional meta is stored unencrypted for preview before decryption.
  */
-export async function encrypt(plaintext: string, passphrase: string): Promise<string> {
+export async function encrypt(plaintext: string, passphrase: string, meta?: EncryptedPayload['meta']): Promise<string> {
   const salt = randomBytes(SALT_LENGTH);
   const iv = randomBytes(IV_LENGTH);
   const key = await deriveKey(passphrase, salt);
@@ -119,6 +129,7 @@ export async function encrypt(plaintext: string, passphrase: string): Promise<st
     salt: toBase64(salt),
     iv: toBase64(iv),
     data: toBase64(new Uint8Array(ciphertext)),
+    meta,
   };
 
   return JSON.stringify(payload);
