@@ -1427,8 +1427,11 @@ p,
       inset 0 1px 0 var(--w-6) !important;
   }
 
-  /* T-GLASS-HERO: Hero content gets stronger background for readability */
-  .hero-content {
+  /* T-GLASS-HERO: Hero content gets stronger background for readability.
+     Use double selector for higher specificity to override any conflicts. */
+  .hero-content,
+  .hero-section .hero-content,
+  main .hero-content {
     background: var(--cosmic-dark-82, rgba(10, 2, 28, 0.82)) !important;
     -webkit-backdrop-filter: blur(6px) saturate(120%) !important;
     backdrop-filter: blur(6px) saturate(120%) !important;
@@ -1438,14 +1441,14 @@ p,
       inset 0 1px 0 var(--w-6) !important;
   }
 
-  /* T-GLASS-CALC: Calculator cards use solid backgrounds on mobile
-     to eliminate scroll lag. backdrop-filter on scrollable containers
-     causes low touch response and jank. Use darker solid bg instead. */
+  /* T-GLASS-CALC: Calculator cards use semi-solid backgrounds with
+     light blur for performance + visual consistency. 4px blur is
+     lightweight but still provides glassmorphism effect. */
   .bmi-card,
   .form-card {
-    background: var(--cosmic-dark-95, rgba(10, 2, 28, 0.95)) !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
+    background: var(--cosmic-dark-92, rgba(10, 2, 28, 0.92)) !important;
+    -webkit-backdrop-filter: blur(4px) saturate(110%) !important;
+    backdrop-filter: blur(4px) saturate(110%) !important;
     border: 1px solid var(--w-8) !important;
   }
 
