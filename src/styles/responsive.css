@@ -237,11 +237,7 @@ p,
     padding-inline: clamp(0.75rem, 2vw, 1.25rem);
   }
 
-  .bmi-section {
-    margin-top: clamp(24px, 6vh, 90px);
-    margin-bottom: clamp(24px, 6vh, 90px);
-  }
-
+  .bmi-section,
   .charts-section {
     margin-top: clamp(24px, 6vh, 90px);
     margin-bottom: clamp(24px, 6vh, 90px);
@@ -383,7 +379,7 @@ p,
   /* B: Compact results card on mobile — reduce padding */
   .bmi-results-card {
     padding: 1.5rem;
-    border-radius: 1.25rem;
+    border-radius: var(--radius-md);
     min-height: auto;
   }
 
@@ -514,11 +510,7 @@ p,
     font-size: 0.8rem;
   }
 
-  .bmi-section {
-    margin-top: clamp(16px, 6vh, 50px);
-    margin-bottom: clamp(16px, 6vh, 50px);
-  }
-
+  .bmi-section,
   .charts-section {
     margin-top: clamp(16px, 6vh, 50px);
     margin-bottom: clamp(16px, 6vh, 50px);
@@ -698,7 +690,7 @@ p,
   .bmi-card {
     min-height: auto;
     padding: clamp(0.75rem, 3vw, 1rem);
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
   }
 
   .form-input {
@@ -717,7 +709,7 @@ p,
 
   .bmi-results-card {
     padding: 0.75rem 0.625rem;
-    border-radius: 0.875rem;
+    border-radius: var(--radius-sm);
   }
 
   .card-header {
@@ -752,14 +744,14 @@ p,
 
   .stat-block {
     padding: 0.6rem;
-    border-radius: 0.5rem;
+    border-radius: var(--radius-sm);
   }
 
   .health-advice,
   .age-advisory,
   .bmi-explanation {
     padding: 0.6rem;
-    border-radius: 0.5rem;
+    border-radius: var(--radius-sm);
     margin-bottom: 0.6rem;
   }
 
@@ -779,12 +771,12 @@ p,
     min-width: auto;
     width: calc(100vw - 2rem);
     padding: 1.25rem 1rem;
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
   }
 
   .about-card {
     padding: 0.875rem;
-    border-radius: 0.875rem;
+    border-radius: var(--radius-sm);
   }
 
   .about-card h3 {
@@ -928,7 +920,7 @@ p,
 
   .goal-stat {
     padding: 0.35rem;
-    border-radius: 0.5rem;
+    border-radius: var(--radius-sm);
   }
 
   .goal-stat .stat-label {
@@ -1020,11 +1012,7 @@ p,
     padding: 0.75rem;
   }
 
-  .bmi-section {
-    margin-top: clamp(20px, 8vh, 60px);
-    margin-bottom: clamp(20px, 8vh, 60px);
-  }
-
+  .bmi-section,
   .charts-section {
     margin-top: clamp(20px, 8vh, 60px);
     margin-bottom: clamp(20px, 8vh, 60px);
@@ -1571,7 +1559,7 @@ p,
   /* C: Ultra-compact results card for very narrow screens */
   .bmi-results-card {
     padding: 1rem 0.875rem;
-    border-radius: 1rem;
+    border-radius: var(--radius-sm);
   }
 
   .card-header {
@@ -1689,7 +1677,7 @@ p,
 
   .tdee-range {
     padding: 0.4rem;
-    border-radius: 0.5rem;
+    border-radius: var(--radius-sm);
   }
 
   .tdee-disclaimer {
@@ -1749,7 +1737,7 @@ p,
   /* About section compact */
   .about-card {
     padding: 1.25rem;
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
   }
 
   .about-card h3 {

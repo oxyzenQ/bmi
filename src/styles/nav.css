@@ -138,7 +138,7 @@ html[data-performance-tier="medium"] .cosmic-particles {
   border: none !important;
   border-top: 1px solid var(--w-8) !important;
   box-shadow: 0 -1px 0 var(--w-6), 0 -8px 30px var(--shadow-heavy), 0 -2px 8px var(--k-30);
-  border-radius: 18px 18px 0 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   margin-inline: auto;
   position: absolute;
   bottom: 0;

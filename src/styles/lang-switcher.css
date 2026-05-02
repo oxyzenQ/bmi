@@ -29,7 +29,7 @@
   position: relative;
   background: var(--k-50) !important;
   border: var(--border-by-rezky);
-  border-radius: 24px;
+  border-radius: var(--radius-xl);
   padding: 2rem 1.75rem;
   min-width: 280px;
   max-width: 90vw;
@@ -197,6 +197,6 @@
   .lang-panel {
     min-width: 260px;
     padding: 1.5rem 1.25rem;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
   }
 }

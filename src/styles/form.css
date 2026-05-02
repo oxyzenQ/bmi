@@ -26,13 +26,13 @@
 }
 
 .bmi-section {
-  margin-top: clamp(40px, 5vh, 200px);
-  margin-bottom: clamp(40px, 5vh, 200px);
+  margin-top: var(--section-margin-y);
+  margin-bottom: var(--section-margin-y);
 }
 
 .charts-section {
-  margin-top: clamp(40px, 5vh, 200px);
-  margin-bottom: clamp(40px, 5vh, 200px);
+  margin-top: var(--section-margin-y);
+  margin-bottom: var(--section-margin-y);
 }
 
 /* Footer disclaimer warning icon */
@@ -307,4 +307,3 @@
   background: #9CA3AF;
   box-shadow: 0 0 8px var(--cat-slate-32);
 }
-

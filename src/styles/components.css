@@ -7,14 +7,17 @@
 .footer-disclaimer,
 .about-card,
 .gauge-container,
-.reference-table,
 .form-card,
-.github-link,
-.section-header,
-.section-header-v2 {
+.info-modal,
+.range-modal,
+.snapshot-modal,
+.unit-modal,
+.lang-modal,
+.encrypt-modal,
+.feedback-modal {
   background: var(--k-50);
   border: var(--border-by-rezky);
-  border-radius: 2rem;
+  border-radius: var(--radius-lg);
   -webkit-backdrop-filter: blur(8px) saturate(140%);
   backdrop-filter: blur(8px) saturate(140%);
   transition: transform var(--dur-slow) var(--easing-smooth),

@@ -433,7 +433,7 @@
 .gauge-container {
   position: relative;
   padding: 10px 16px 12px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   isolation: isolate;
   width: min(92vw, 420px);
   margin-inline: auto;
@@ -768,4 +768,3 @@
   margin-bottom: 0.75rem;
   color: white;
 }
-
