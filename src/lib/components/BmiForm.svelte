@@ -245,11 +245,7 @@
   async function handleFileChange(e: Event) {
     const input = e.currentTarget as HTMLInputElement;
     const file = input.files?.[0];
-    if (!file) {
-      // Always reset input to allow re-selecting same file
-      input.value = '';
-      return;
-    }
+    if (!file) return;
 
     // ── File size guards ──
     if (file.size === 0) {
@@ -257,7 +253,7 @@
         action: 'import-error',
         error: t('history.empty_file')
       });
-      input.value = '';
+      resetFileInput();
       return;
     }
     if (file.size > MAX_IMPORT_SIZE) {
@@ -265,7 +261,7 @@
         action: 'import-error',
         error: t('history.file_too_large')
       });
-      input.value = '';
+      resetFileInput();
       return;
     }
 
@@ -280,6 +276,7 @@
         encryptModalMode = 'import';
         encryptError = '';
         showEncryptModal = true;
+        resetFileInput();
         return;
       }
 
@@ -310,7 +307,15 @@
     } finally {
       // CRITICAL: Always reset input value to allow re-selecting same file
       // Without this, selecting the same file twice won't trigger onchange
-      input.value = '';
+      resetFileInput();
+    }
+  }
+
+  /** Reset file input to allow re-selecting the same file */
+  function resetFileInput() {
+    // Reset using bound element reference for reliability
+    if (fileInputEl) {
+      fileInputEl.value = '';
     }
   }
 
