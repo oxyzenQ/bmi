@@ -313,10 +313,16 @@
 
   /** Reset file input to allow re-selecting the same file */
   function resetFileInput() {
-    // Reset using bound element reference for reliability
-    if (fileInputEl) {
-      fileInputEl.value = '';
-    }
+    if (!fileInputEl) return;
+
+    // Method 1: Try standard reset first
+    fileInputEl.value = '';
+
+    // Method 2: Clone and replace for complete reset (most reliable)
+    // This ensures the input is truly fresh and onchange will fire for same file
+    const newInput = fileInputEl.cloneNode(true) as HTMLInputElement;
+    fileInputEl.parentNode?.replaceChild(newInput, fileInputEl);
+    fileInputEl = newInput;
   }
 
   async function handleImportConfirm(passphrase: string) {
