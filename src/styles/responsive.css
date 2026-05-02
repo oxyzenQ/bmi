@@ -1415,14 +1415,14 @@ p,
       inset 0 1px 0 var(--w-6) !important;
   }
 
-  /* T-GLASS-CALC: Calculator cards get slightly more opaque glass
-     since they are the primary scroll target and need to feel solid.
-     Consistent blur with desktop (6px vs 8px for mobile performance). */
+  /* T-GLASS-CALC: Calculator cards use solid backgrounds on mobile
+     to eliminate scroll lag. backdrop-filter on scrollable containers
+     causes low touch response and jank. Use darker solid bg instead. */
   .bmi-card,
   .form-card {
-    background: var(--cosmic-dark-82) !important;
-    -webkit-backdrop-filter: blur(6px) saturate(120%) !important;
-    backdrop-filter: blur(6px) saturate(120%) !important;
+    background: var(--cosmic-dark-95, rgba(10, 2, 28, 0.95)) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
     border: 1px solid var(--w-8) !important;
   }
 
