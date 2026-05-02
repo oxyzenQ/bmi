@@ -1127,22 +1127,6 @@ html:not([data-graphics='render']) body.is-scrolling :is(.hero-content,
   box-shadow: none !important;
 }
 
-/* Desktop: remove filter/shadow during scroll */
-html:not([data-graphics='render']) body.is-scrolling :is(.form-input,
-  .empty-glow,
-  .gauge-reflection,
-  .gauge-title .Gauge,
-  .gauge-progress,
-  .scale-item,
-  .scale-dot,
-  .reference-table .icon-col,
-  .reference-table .ref-row,
-  .bmi-value) {
-  filter: none !important;
-  box-shadow: none !important;
-  text-shadow: none !important;
-}
-
 /* Desktop: is-switching shadows */
 html:not([data-graphics='render']) body.is-switching :is(.hero-content,
   .bmi-card,
@@ -1209,24 +1193,6 @@ html[data-graphics='render'] body.is-scrolling :is(
   box-shadow: 0 4px 16px var(--k-30) !important;
 }
 
-/* R-2: Remove expensive filters on gauge/input elements during scroll. */
-html[data-graphics='render'] body.is-scrolling :is(
-  .form-input,
-  .empty-glow,
-  .gauge-reflection,
-  .gauge-title .Gauge,
-  .gauge-progress,
-  .scale-item,
-  .scale-dot,
-  .reference-table .icon-col,
-  .reference-table .ref-row,
-  .bmi-value
-) {
-  filter: none !important;
-  box-shadow: none !important;
-  text-shadow: none !important;
-}
-
 /* R-3: Strip enhanced particle glow during scroll (3-layer → none).
    This is the #1 render-mode GPU cost: 10-20 particles × 3 shadows. */
 html[data-graphics='render'] body.is-scrolling .cosmic-particle {
@@ -1266,11 +1232,8 @@ body.is-scrolling .hero-scroll-btn {
   animation: none !important;
 }
 
-/* R-8: Reduce body::before filter during scroll (full-viewport compositing layer).
-   contrast(1.25) is the expensive part — tone it down while scrolling. */
-body.is-scrolling body::before {
-  filter: none !important;
-}
+/* R-8: Keep body::before filter consistent (removed scroll-based filter change).
+   Previously caused visual "blink" effect during scroll. */
 
 /* R-9: Enable will-change on particles only when NOT scrolling.
    Prevents 10-20 permanent GPU compositor layers during scroll. */

@@ -11,6 +11,14 @@
   type Gender = 'male' | 'female' | '';
   type Activity = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active' | '';
 
+  interface ImportNotifyResult {
+    action: 'import-validate' | 'import-error';
+    text?: string;
+    recordCount?: number;
+    integrityVerified?: boolean;
+    error?: string;
+  }
+
   interface Props {
     age?: string;
     height?: string;
@@ -152,12 +160,17 @@
   let feedbackType = $state<'success' | 'error'>('success');
   let feedbackMessage = $state('');
 
-  interface ImportNotifyResult {
-    action: 'import-validate' | 'import-error';
-    text?: string;
-    recordCount?: number;
-    integrityVerified?: boolean;
-    error?: string;
+  /**
+   * Svelte action: portal the element to document.body.
+   * Escapes ancestor containing-block created by backdrop-filter / transform.
+   */
+  function portal(node: HTMLElement): { destroy(): void } {
+    document.body.appendChild(node);
+    return {
+      destroy() {
+        node.remove();
+      }
+    };
   }
 
   function formatDate(): string {
@@ -541,7 +554,12 @@
       </button>
     </div>
 
-    <!-- Encryption Modal -->
+  </div>
+</div>
+
+<!-- Modals: Portal to body to avoid parent transform issues -->
+{#if showEncryptModal}
+  <div use:portal class="modal-portal">
     <EncryptionModal
       show={showEncryptModal}
       mode={encryptModalMode}
@@ -549,8 +567,11 @@
       onConfirm={encryptModalMode === 'export' ? handleExportConfirm : handleImportConfirm}
       onCancel={handleModalCancel}
     />
+  </div>
+{/if}
 
-    <!-- Feedback Modal (Success / Error) -->
+{#if showFeedbackModal}
+  <div use:portal class="modal-portal">
     <FeedbackModal
       show={showFeedbackModal}
       type={feedbackType}
@@ -558,7 +579,7 @@
       onClose={handleFeedbackClose}
     />
   </div>
-</div>
+{/if}
 
 <style>
   .unit-toggle {
