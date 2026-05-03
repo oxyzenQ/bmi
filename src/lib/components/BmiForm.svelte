@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame, FileSpreadsheet, UploadCloud } from 'lucide-svelte';
+  import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame, FileSpreadsheet, UploadCloud, Settings } from 'lucide-svelte';
   import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport, importBmiHistory, peekImportMeta, MAX_IMPORT_SIZE, type ImportFileMeta, type ImportError } from '$lib/utils/history-io';
   import { STORAGE_KEYS, storageGetJSON } from '$lib/utils/storage';
   import { tick } from 'svelte';
@@ -725,7 +725,7 @@
   <div use:portal class="modal-portal">
     <div class="staging-backdrop staging-visible">
       <div class="staging-spinner-wrap">
-        <div class="staging-spinner"></div>
+        <Settings class="staging-gear-icon" size={48} />
         <span class="staging-text">{t('crypto.preparing')}</span>
       </div>
     </div>

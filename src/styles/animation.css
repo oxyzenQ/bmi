@@ -898,17 +898,22 @@ html:not([data-graphics='render']) .shooting-star {
   gap: 1rem;
 }
 
-.staging-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(128, 0, 255, 0.2);
-  border-top-color: var(--cosmic-purple);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+.staging-gear-icon {
+  color: var(--w-50);
+  animation: spin 1.6s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(128, 0, 255, 0.3));
 }
 
 .staging-text {
   color: var(--w-70);
   font-size: 0.9rem;
   font-weight: 500;
+}
+
+/* Global spin keyframe — used by staging gear icon and other spinners.
+   Defined here (not scoped) so all components can reference it. */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
