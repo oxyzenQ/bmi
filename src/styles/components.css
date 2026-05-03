@@ -46,6 +46,14 @@
     background: rgba(0, 0, 0, 0.75);
     -webkit-backdrop-filter: blur(10px) saturate(140%);
     backdrop-filter: blur(10px) saturate(140%);
+    /* Desktop depth: box-shadow ensures card is visually separated
+       from the dark wallpaper. Without this, blur(10px) on an already-dark
+       background makes the card blend into the surrounding area — the
+       "container hilang di desktop" bug. Matches the mobile T-GLASS
+       treatment that uses !important box-shadow for the same reason. */
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 }
 
@@ -65,6 +73,9 @@
     background: rgba(0, 0, 0, 0.75);
     -webkit-backdrop-filter: blur(10px) saturate(140%);
     backdrop-filter: blur(10px) saturate(140%);
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 }
 
@@ -386,12 +397,6 @@ button[aria-disabled="true"] {
   backface-visibility: hidden;
   transform: translateZ(0);
   contain: layout style;
-}
-
-.Telescope {
-  color: var(--cosmic-purple) !important;
-  width: 56px !important;
-  height: 56px !important;
 }
 
 .hero-subtitle {

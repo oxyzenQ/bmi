@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BookOpenCheck, SquareSigma, Sparkles, Telescope } from 'lucide-svelte';
+  import { BookOpenCheck, SquareSigma, Sparkles } from 'lucide-svelte';
   import { onMount, onDestroy } from 'svelte';
   import { t as _t, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
@@ -34,7 +34,6 @@
 
     <h1 class="hero-title">
       <span class="title-gradient">{t('hero.title')}</span>
-      <Telescope class="Telescope sparkle-icon" />
     </h1>
 
     <p class="hero-subtitle">

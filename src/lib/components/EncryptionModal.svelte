@@ -4,7 +4,7 @@
    * - Export: Passphrase + Confirm (mandatory)
    * - Import: Passphrase only (auto-detect encrypted file)
    */
-  import { untrack } from 'svelte';
+  import { tick, untrack } from 'svelte';
   import { Lock, Unlock, AlertCircle, Eye, EyeOff, ShieldCheck } from 'lucide-svelte';
   import { t as _t, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
@@ -181,6 +181,12 @@
 
     loading = true;
     localError = '';
+
+    // Force DOM flush so the loading spinner renders before async work.
+    // Without tick(), Svelte batches the state update — the browser never
+    // paints the spinner because export/import (localStorage + Web Crypto)
+    // completes within the same microtask on fast devices.
+    await tick();
 
     try {
       await onConfirm(passphrase);
