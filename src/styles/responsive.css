@@ -45,15 +45,6 @@
 }
 
 /* Hero icons */
-.SquareSigma,
-.BookCheck,
-.BookOpenCheck,
-.Sparkles {
-  color: var(--cosmic-purple) !important;
-  width: 24px !important;
-  height: 24px !important;
-}
-
 .SquareSigma {
   color: var(--cosmic-blue) !important;
   width: 24px !important;
@@ -63,6 +54,12 @@
 .BookCheck,
 .BookOpenCheck {
   color: var(--cosmic-silver) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.Sparkles {
+  color: var(--cosmic-purple) !important;
   width: 24px !important;
   height: 24px !important;
 }
@@ -166,7 +163,7 @@
    T-22-pre: Replaced color-mix() with static rgba for mobile perf.
    color-mix() on * selector means every tap triggers expensive
    color computation on low-end mobile GPUs. */
-*:focus {
+*:focus-visible {
   outline: 2px solid var(--violet-42);
   outline-offset: 2px;
 }
@@ -1133,7 +1130,6 @@ p,
   .gauge-container,
   .reference-table,
   .github-link,
-  .section-header,
   .section-header-v2 {
     box-shadow: 0 4px 16px var(--k-30) !important;
     contain: layout style paint;
@@ -1414,7 +1410,6 @@ p,
   .gauge-container,
   .reference-table,
   .github-link,
-  .section-header,
   .section-header-v2 {
     background: rgba(0, 0, 0, 0.65) !important;
     -webkit-backdrop-filter: blur(6px) saturate(140%) !important;
@@ -1903,7 +1898,6 @@ p,
   .reference-table,
   .form-card,
   .github-link,
-  .section-header,
   .section-header-v2,
   .hero-content {
     background: rgba(0, 0, 0, 0.85) !important;

@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Shield, AlertTriangle, Activity, Heart } from 'lucide-svelte';
-  import { browser } from '$app/environment';
-  import { CATEGORY_COLORS, COLORS, classifyBmi, getCategoryColor } from '$lib/utils/bmi-category';
+  import { CATEGORY_COLORS, COLORS } from '$lib/utils/bmi-category';
   import { t as _t, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change

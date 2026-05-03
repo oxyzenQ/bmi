@@ -5,7 +5,10 @@
    */
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
-  import { t } from '$lib/i18n';
+  import { t as _t, localeVersion } from '$lib/i18n';
+  let _rv = $derived($localeVersion);
+  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
   import { getBackupStatus, restoreLatestBackup, type BackupStatus } from '$lib/utils/backup';
   import { ShieldCheck, Database, RotateCcw, AlertTriangle } from 'lucide-svelte';
 
@@ -59,7 +62,7 @@
   </div>
 
   {#if loading}
-    <div class="backup-loading">Checking backup status...</div>
+    <div class="backup-loading">{t('backup.checking')}</div>
   {:else if status?.hasBackup}
     <div class="backup-info">
       <span class="backup-icon-ok"><ShieldCheck size={16} aria-hidden="true" /></span>
@@ -101,7 +104,7 @@
       <span class="backup-time">{t('backup.none')}</span>
     </div>
     <div class="backup-hint">
-      Backups are created automatically when you save BMI calculations.
+      {t('backup.auto_hint')}
     </div>
   {/if}
 </div>

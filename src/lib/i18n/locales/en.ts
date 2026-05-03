@@ -442,6 +442,8 @@ const en: TranslationDict = {
   // ── Info Section ──
   'info.disclaimer': 'BMI is a screening tool and should not be used as a sole diagnostic method. Please consult healthcare professionals for comprehensive health assessment.',
   'info.copyright': '\u00a9 2025-{n} Rezky Nightky. All rights reserved.',
+  'backup.checking': 'Checking backup status...',
+  'backup.auto_hint': 'Backups are created automatically when you save BMI calculations.',
 
   // ── Backup Status ──
   'backup.last': 'Last backup: {time}',

@@ -441,6 +441,8 @@ const id: TranslationDict = {
   // ── Info Section ──
   'info.disclaimer': 'BMI adalah alat skrining dan tidak boleh digunakan sebagai satu-satunya metode diagnostik. Silakan berkonsultasi dengan profesional kesehatan untuk penilaian kesehatan yang komprehensif.',
   'info.copyright': '\u00a9 2025-{n} Rezky Nightky. Semua hak dilindungi.',
+  'backup.checking': 'Memeriksa status cadangan...',
+  'backup.auto_hint': 'Cadangan dibuat otomatis saat Anda menyimpan perhitungan BMI.',
 
   // ── Backup Status ──
   'backup.last': 'Cadangan terakhir: {time}',

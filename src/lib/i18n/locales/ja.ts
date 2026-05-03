@@ -154,8 +154,8 @@ const ja: TranslationDict = {
   'crypto.export_summary_version': '\u30d5\u30a9\u30fc\u30de\u30c3\u30c8',
 
   // ── Results ──
-  'results.title': '',
-  'results.subtitle': 'BMI ',
+  'results.title': 'あなたの結果',
+  'results.subtitle': 'コズミック BMI 分析とパーソナライズされたレコメンデーション。',
   'results.bmi_prime': 'BMI Prime',
   'results.ideal_range': '\u7406\u60f3\u7bc4\u56f2',
   'results.from_range': '\u7406\u60f3\u7bc4\u56f2\u304b\u3089',
@@ -440,7 +440,9 @@ const ja: TranslationDict = {
 
   // ── Info Section ──
   'info.disclaimer': 'BMI \u306f\u30b9\u30af\u30ea\u30fc\u30cb\u30f3\u30b0\u30c4\u30fc\u30eb\u3067\u3042\u308a\u3001\u552f\u4e00\u306e\u8a3a\u65ad\u65b9\u6cd5\u3068\u3057\u3066\u4f7f\u7528\u3059\u3079\u304d\u3067\u306f\u3042\u308a\u307e\u305b\u3093\u3002\u7dcf\u5408\u7684\u306a\u5065\u5eb7\u8a55\u4fa1\u306b\u306f\u533b\u7678\u306b\u76f8\u8ac7\u3057\u3066\u304f\u3060\u3055\u3044\u3002',
-  'info.copyright': '\u00a9 2025-{n} Rezky Nightky. All rights reserved.',
+  'info.copyright': '\u00a9 2025-{n} Rezky Nightky. \u8457\u4f5c\u6a29\u6240\u6709\u3002',
+  'backup.checking': '\u30d0\u30c3\u30af\u30a2\u30c3\u30d7\u72b6\u6cc1\u3092\u78ba\u8a8d\u4e2d...',
+  'backup.auto_hint': 'BMI \u8a08\u7b97\u3092\u4fdd\u5b58\u3059\u308b\u3068\u81ea\u52d5\u7684\u306b\u30d0\u30c3\u30af\u30a2\u30c3\u30d7\u304c\u4f5c\u6210\u3055\u308c\u307e\u3059\u3002',
 
   // ── Backup Status ──
   'backup.last': '\u6700\u7d42\u30d0\u30c3\u30af\u30a2\u30c3\u30d7: {time}',

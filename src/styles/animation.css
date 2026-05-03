@@ -749,8 +749,6 @@ html:not([data-graphics='render']) .shooting-star {
   transition: all var(--dur-fast) var(--easing-smooth);
   cursor: pointer;
   background: transparent;
-  pointer-events: auto;
-  z-index: 1;
 }
 
 .bmi-drop-zone:hover {

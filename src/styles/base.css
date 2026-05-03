@@ -86,8 +86,6 @@ body::before {
   body::before {
     background-size: contain;
     background-position: center top;
-    opacity: 1;
-    filter: brightness(1) contrast(1.25) saturate(1);
   }
 }
 

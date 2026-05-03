@@ -91,12 +91,12 @@
 
   // How far user is from ideal range
   let weightDelta = $derived.by(() => {
-    if (bmiValue === null || height === null || height <= 0) return null;
+    if (bmiValue === null || height === null || height <= 0 || idealMin === null || idealMax === null) return null;
     const hM = height / 100;
     // Derive current weight from BMI: w = bmi * h^2
     const currentKg = bmiValue * hM * hM;
-    if (currentKg < idealMin!) return { amount: parseFloat((idealMin! - currentKg).toFixed(1)), direction: 'below' as const, unit: 'kg' };
-    if (currentKg > idealMax!) return { amount: parseFloat((currentKg - idealMax!).toFixed(1)), direction: 'above' as const, unit: 'kg' };
+    if (currentKg < idealMin) return { amount: parseFloat((idealMin - currentKg).toFixed(1)), direction: 'below' as const, unit: 'kg' };
+    if (currentKg > idealMax) return { amount: parseFloat((currentKg - idealMax).toFixed(1)), direction: 'above' as const, unit: 'kg' };
     return { amount: 0, direction: 'within' as const, unit: 'kg' };
   });
   let deltaDisplay = $derived.by(() => {
@@ -148,9 +148,9 @@
   });
 
   let tdeeDisplay = $derived.by(() => {
-    if (tdee === null) return null;
+    if (tdee === null || bmr === null) return null;
     return {
-      bmr: Math.round(bmr!),
+      bmr: Math.round(bmr),
       tdee: Math.round(tdee),
       activityLabel: activity ? activityLabels[activity] ?? '' : '',
       deficit500: Math.round(tdee - 500),

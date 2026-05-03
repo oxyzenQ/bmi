@@ -65,8 +65,8 @@
   --accent-blue: var(--aurora-bright);
 
   /* Glassmorphism & branding */
-  --bg-by-rezky: linear-gradient(45deg, #1a0533, #8000ffda);
-  --bg-last-by-rezky: linear-gradient(45deg, #100a24, #8000ffda);
+  --bg-by-rezky: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(0,0,0,0.85));
+  --bg-last-by-rezky: linear-gradient(45deg, rgba(0,0,0,0.6), rgba(0,0,0,0.8));
   --border-by-rezky: 1px solid var(--w-14);
   --bg-cosmic: linear-gradient(135deg,
       #4e3383,
@@ -377,9 +377,9 @@
   --btn-height: 44px;
   --btn-padding-x: 18px;
   --btn-font: 600 0.95rem/1 'Inter Variable', system-ui, -apple-system, sans-serif;
-  --btn-bg: rgba(18, 8, 36, 0.80);
-  --btn-bg-hover: rgba(18, 8, 36, 0.70);
-  --btn-bg-active: rgba(18, 8, 36, 0.88);
+  --btn-bg: rgba(0, 0, 0, 0.80);
+  --btn-bg-hover: rgba(0, 0, 0, 0.70);
+  --btn-bg-active: rgba(0, 0, 0, 0.88);
   --btn-surface: linear-gradient(180deg, var(--w-7), var(--w-2-5));
   --btn-border: 1px solid var(--w-14);
   --btn-border-hover: 1px solid var(--w-18);
