@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame, FileSpreadsheet } from 'lucide-svelte';
+  import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame, FileSpreadsheet, UploadCloud } from 'lucide-svelte';
   import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport, importBmiHistory, peekImportMeta, MAX_IMPORT_SIZE, type ImportFileMeta, type ImportError } from '$lib/utils/history-io';
   import { t as _t, localeVersion } from '$lib/i18n';
   import EncryptionModal from './EncryptionModal.svelte';
@@ -365,6 +365,46 @@
     pendingImportMeta = undefined;
     encryptError = '';
   }
+
+  // ── Drag & Drop import (Phase 4: UX Upgrade) ──
+  let isDragOver = $state(false);
+
+  function handleDragOver(e: DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer?.types.includes('Files')) {
+      isDragOver = true;
+    }
+  }
+
+  function handleDragLeave(e: DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    isDragOver = false;
+  }
+
+  function handleDrop(e: DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    isDragOver = false;
+    const file = e.dataTransfer?.files?.[0];
+    if (!file) return;
+    processImportFile(file);
+  }
+
+  function processImportFile(file: File) {
+    if (file.size === 0) {
+      onNotify?.({ action: 'import-error', error: t('history.empty_file') });
+      return;
+    }
+    if (file.size > MAX_IMPORT_SIZE) {
+      onNotify?.({ action: 'import-error', error: t('history.file_too_large') });
+      return;
+    }
+    // Reuse the existing file processing logic
+    const fakeEvent = { target: { files: [file] } } as unknown as Event;
+    handleFileChange(fakeEvent);
+  }
 </script>
 <div class="form-inner">
   <div class="card-header">
@@ -589,6 +629,26 @@
       </button>
     </div>
 
+    <!-- Drag & Drop import zone (Phase 4) -->
+    <div
+      class="bmi-drop-zone"
+      class:bmi-drop-zone--active={isDragOver}
+      role="button"
+      tabindex="0"
+      ondragover={handleDragOver}
+      ondragleave={handleDragLeave}
+      ondrop={handleDrop}
+      onclick={handleImportClick}
+      onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleImportClick()}
+      aria-label={t('form.import_aria')}
+    >
+      <div class="bmi-drop-zone__icon">
+        <UploadCloud size={28} />
+      </div>
+      <div class="bmi-drop-zone__text">{isDragOver ? t('form.drop_file_here') : t('form.import')}</div>
+      <div class="bmi-drop-zone__subtext">{t('form.or_choose_file')}</div>
+    </div>
+
     <div class="history-actions">
       <button type="button" class="btn btn-secondary" onclick={handleExportClick} aria-label={t('form.export_aria')}>
         <ArrowUpFromLine size={16} aria-hidden="true" />
@@ -597,10 +657,6 @@
       <button type="button" class="btn btn-secondary" onclick={handleExportCsv} aria-label={t('form.export_csv_aria')}>
         <FileSpreadsheet size={16} aria-hidden="true" />
         {t('form.export_csv')}
-      </button>
-      <button type="button" class="btn btn-secondary" onclick={handleImportClick} aria-label={t('form.import_aria')}>
-        <ArrowDownToLine size={16} aria-hidden="true" />
-        {t('form.import')}
       </button>
     </div>
 

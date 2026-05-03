@@ -5,7 +5,7 @@
    * - Import: Passphrase only (auto-detect encrypted file)
    */
   import { untrack } from 'svelte';
-  import { Lock, Unlock, AlertCircle, Eye, EyeOff } from 'lucide-svelte';
+  import { Lock, Unlock, AlertCircle, Eye, EyeOff, ShieldCheck } from 'lucide-svelte';
   import { t as _t, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
@@ -90,8 +90,8 @@
         showConfirmPassphrase = false;
         modalKey += 1;
       });
-      // Trigger animation with micro-delay for smoother UX
-      setTimeout(() => { visible = true; }, 120);
+      // Trigger animation with micro-delay token for smoother UX
+      setTimeout(() => { visible = true; }, 120); /* --delay-open */
     } else if (!currentShow && wasShown) {
       // Modal is closing
       visible = false;
@@ -148,7 +148,7 @@
         const firstInput = backdropEl.querySelector('input');
         firstInput?.focus();
       }
-    }, 100);
+    }, 120); /* --delay-open */
 
     return () => {
       if (focusTrapHandler) {
@@ -217,7 +217,16 @@
         </div>
         <h2 class="encrypt-title">{title}</h2>
         {#if mode === 'export'}
-          <p class="passphrase-warning">{t('crypto.passphrase_warning')}</p>
+          <!-- Encryption badge: trust indicator -->
+          <div class="bmi-encryption-badge">
+            <span class="bmi-encryption-badge__icon"><ShieldCheck size={14} /></span>
+            <span class="bmi-encryption-badge__label">{t('crypto.encryption_badge')}</span>
+            <span class="bmi-encryption-badge__algo">AES-256-GCM</span>
+          </div>
+          <div class="bmi-strong-warning">
+            <span class="bmi-strong-warning__icon"><AlertCircle size={16} /></span>
+            <span class="bmi-strong-warning__text">{t('crypto.strong_warning')}</span>
+          </div>
         {/if}
       </div>
 
@@ -345,6 +354,28 @@
               {mode === 'export' ? t('form.export') : t('crypto.unlock_import')}
             {/if}
           </button>
+          {#if loading}
+            <div class="bmi-progress bmi-progress--indeterminate">
+              <div class="bmi-progress__fill" style="width: 100%;"></div>
+            </div>
+          {/if}
+          {#if mode === 'export' && !loading}
+            <!-- Export summary preview -->
+            <div class="bmi-export-summary">
+              <div class="bmi-export-summary__row">
+                <span class="bmi-export-summary__key">{t('crypto.export_summary_records')}</span>
+                <span class="bmi-export-summary__val">...</span>
+              </div>
+              <div class="bmi-export-summary__row">
+                <span class="bmi-export-summary__key">{t('crypto.export_summary_encrypted')}</span>
+                <span class="bmi-export-summary__val bmi-export-summary__val--encrypted">AES-256-GCM</span>
+              </div>
+              <div class="bmi-export-summary__row">
+                <span class="bmi-export-summary__key">{t('crypto.export_summary_version')}</span>
+                <span class="bmi-export-summary__val">v1</span>
+              </div>
+            </div>
+          {/if}
         </div>
       </form>
     </div>
@@ -585,25 +616,6 @@
     margin-top: 0.5rem;
     line-height: 1.5;
     font-weight: 400;
-  }
-
-  .passphrase-warning {
-    font-size: 0.85rem;
-    color: #fbbf24;
-    text-align: center;
-    max-width: 280px;
-    margin: 0.5rem 0 0 0;
-    line-height: 1.5;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    justify-content: center;
-  }
-
-  .passphrase-warning::before {
-    content: "⚠";
-    font-size: 1rem;
   }
 
   .encrypt-error {

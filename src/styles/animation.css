@@ -559,3 +559,302 @@ html:not([data-graphics='render']) .shooting-star {
   transform: scale(0.96);
   transition: transform 0.08s ease;
 }
+
+/* ==============================
+      A-4: PROGRESS BAR (Phase 1)
+      Determinate progress indicator for async operations
+      (export, import, encryption). Uses micro-delay tokens.
+      ============================== */
+.bmi-progress {
+  width: 100%;
+  height: 4px;
+  background: var(--w-10);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: var(--space-3) 0;
+}
+
+.bmi-progress__fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--cosmic-purple), var(--aurora-glow));
+  transition: width var(--dur-normal) var(--easing-smooth);
+  position: relative;
+}
+
+/* Shimmer overlay on the progress fill */
+.bmi-progress__fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--w-15) 50%,
+    transparent 100%
+  );
+  animation: progress-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes progress-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Indeterminate variant for unknown-duration ops */
+.bmi-progress--indeterminate .bmi-progress__fill {
+  width: 40% !important;
+  animation: progress-indeterminate 1.4s ease-in-out infinite;
+}
+
+@keyframes progress-indeterminate {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(200%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ==============================
+      A-5: ENCRYPTION BADGE (Phase 2)
+      Visual trust indicator showing encryption status
+      and algorithm details.
+      ============================== */
+.bmi-encryption-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  background: var(--violet-12);
+  border: 1px solid var(--violet-22);
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--aurora-glow);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--easing-smooth),
+    border-color var(--dur-fast) var(--easing-smooth);
+}
+
+.bmi-encryption-badge:hover {
+  background: var(--violet-20);
+  border-color: var(--violet-32);
+}
+
+.bmi-encryption-badge__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: var(--cat-green-90);
+}
+
+.bmi-encryption-badge__label {
+  color: var(--w-70);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.7rem;
+}
+
+.bmi-encryption-badge__algo {
+  color: var(--aurora-glow);
+  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+  font-size: 0.6rem;
+}
+
+/* ==============================
+      A-6: ENHANCED EMPTY STATE (Phase 2)
+      Rich empty states with icon, description,
+      and CTA button instead of plain text.
+      ============================== */
+.bmi-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+
+.bmi-empty-state__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--w-6);
+  color: var(--w-30);
+  margin-bottom: var(--space-1);
+}
+
+.bmi-empty-state__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--w-70);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.bmi-empty-state__desc {
+  font-size: 0.82rem;
+  color: var(--w-40);
+  margin: 0;
+  line-height: 1.5;
+  max-width: 260px;
+}
+
+.bmi-empty-state__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--violet-22);
+  border-radius: var(--radius-pill);
+  background: var(--violet-12);
+  color: var(--aurora-glow);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--easing-smooth);
+  margin-top: var(--space-1);
+}
+
+.bmi-empty-state__cta:hover {
+  background: var(--violet-22);
+  border-color: var(--violet-34);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--violet-15);
+}
+
+.bmi-empty-state__cta:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* ==============================
+      A-7: DRAG & DROP ZONE (Phase 4)
+      Visual feedback for file drag-and-drop import.
+      ============================== */
+.bmi-drop-zone {
+  position: relative;
+  border: 2px dashed var(--w-15);
+  border-radius: var(--radius-md);
+  padding: var(--space-5) var(--space-4);
+  text-align: center;
+  transition: all var(--dur-fast) var(--easing-smooth);
+  cursor: pointer;
+  background: transparent;
+}
+
+.bmi-drop-zone:hover {
+  border-color: var(--violet-25);
+  background: var(--violet-8);
+}
+
+.bmi-drop-zone--active {
+  border-color: var(--aurora-glow);
+  background: var(--violet-15);
+  box-shadow: 0 0 24px var(--violet-20),
+    inset 0 0 24px var(--violet-8);
+  transform: scale(1.01);
+}
+
+.bmi-drop-zone__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-2);
+  color: var(--w-30);
+}
+
+.bmi-drop-zone--active .bmi-drop-zone__icon {
+  color: var(--aurora-glow);
+}
+
+.bmi-drop-zone__text {
+  font-size: 0.85rem;
+  color: var(--w-50);
+  font-weight: 500;
+}
+
+.bmi-drop-zone--active .bmi-drop-zone__text {
+  color: var(--aurora-glow);
+}
+
+.bmi-drop-zone__subtext {
+  font-size: 0.75rem;
+  color: var(--w-30);
+  margin-top: var(--space-1);
+}
+
+/* ==============================
+      A-8: EXPORT SUMMARY (Phase 2)
+      Summary card shown after successful export
+      showing record count, encryption status, format.
+      ============================== */
+.bmi-export-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--w-6);
+  border: 1px solid var(--w-12);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-3);
+}
+
+.bmi-export-summary__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+}
+
+.bmi-export-summary__key {
+  color: var(--w-40);
+  font-weight: 500;
+}
+
+.bmi-export-summary__val {
+  color: var(--w-80);
+  font-weight: 600;
+}
+
+.bmi-export-summary__val--encrypted {
+  color: var(--cat-green-90);
+}
+
+/* ==============================
+      A-9: STRONG WARNING (Phase 2)
+      Prominent warning block for destructive actions.
+      ============================== */
+.bmi-strong-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.20);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-4);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.bmi-strong-warning__icon {
+  color: #f59e0b;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.bmi-strong-warning__text {
+  color: var(--w-70);
+}
+
+.bmi-strong-warning__text strong {
+  color: #fbbf24;
+  font-weight: 600;
+}

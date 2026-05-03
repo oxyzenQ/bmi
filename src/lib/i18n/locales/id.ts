@@ -6,7 +6,7 @@ import type { TranslationDict } from '../types';
 
 const id: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': 'Kalkulator BMI Sederhana \u2014 Stellar v12.0',
+  'meta.title': 'Kalkulator BMI Sederhana \u2014 Stellar v13.0',
   'meta.description': 'Kalkulator BMI bertema luar angkasa mewah. Hitung Indeks Massa Tubuh, TDEE, Persentase Lemak Tubuh, dan lacak perjalanan kesehatan Anda dengan grafik interaktif. Dibuat dengan SvelteKit oleh Team LOGIGO.',
   'meta.og_description': 'Kalkulator BMI bertema luar angkasa mewah dengan TDEE, Persentase Lemak Tubuh, grafik interaktif, dan dukungan PWA.',
 
@@ -58,7 +58,7 @@ const id: TranslationDict = {
   'hero.feature1': 'Perhitungan Akurat',
   'hero.feature2': 'Insight Kesehatan',
   'hero.feature3': 'Desain Mewah',
-  'hero.edition': 'Stellar v12.0',
+  'hero.edition': 'Stellar v13.0',
 
   // ── Form ──
   'form.title': 'Kalkulator BMI',
@@ -116,6 +116,8 @@ const id: TranslationDict = {
   'form.could_not_read': 'Tidak dapat membaca file.',
   'form.export_csv_aria': 'Ekspor CSV',
   'form.export_csv': 'CSV',
+  'form.drop_file_here': 'Seret file Anda ke sini',
+  'form.or_choose_file': 'atau klik untuk memilih file',
 
   // ── Crypto / Encryption Modal ──
   'crypto.export_title': 'Ekspor Aman',
@@ -142,6 +144,13 @@ const id: TranslationDict = {
   'crypto.meta_version': 'Format',
   'crypto.passphrase_warning': 'Pastikan Anda mengingat passphrase. Tidak dapat dipulihkan.',
   'crypto.strength_hint': 'Gunakan 12+ karakter dengan angka dan simbol untuk keamanan terbaik',
+
+  // ── Stellar v13: Trust & Transparency ──
+  'crypto.encryption_badge': 'Enkripsi ujung-ke-ujung',
+  'crypto.strong_warning': '<strong>Jangan sampai lupa passphrase Anda.</strong> Tidak dapat dipulihkan. Tanpa passphrase, backup terenkripsi Anda akan tidak dapat diakses secara permanen.',
+  'crypto.export_summary_records': 'Data',
+  'crypto.export_summary_encrypted': 'Enkripsi',
+  'crypto.export_summary_version': 'Format',
 
   // ── Results ──
   'results.title': 'Hasil Anda',

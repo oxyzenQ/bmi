@@ -6,7 +6,7 @@ import type { TranslationDict } from '../types';
 
 const zh: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': '\u7b80\u5355 BMI \u8ba1\u7b97\u5668 \u2014 Stellar v12.0',
+  'meta.title': '\u7b80\u5355 BMI \u8ba1\u7b97\u5668 \u2014 Stellar v13.0',
   'meta.description': '\u4e00\u6b3e\u5962\u534e\u592a\u7a7a\u4e3b\u9898\u7684 BMI \u8ba1\u7b97\u5668\u3002\u8ba1\u7b97\u4f53\u8d28\u6307\u6570\uff0cTDEE\uff0c\u4f53\u8102\u7387\uff0c\u5e76\u901a\u8fc7\u4ea4\u4e92\u5f0f\u56fe\u8868\u8ddf\u8e2a\u60a8\u7684\u5065\u5eb7\u4e4b\u65c5\u3002\u7531 Team LOGIGO \u4f7f\u7528 SvelteKit \u6784\u5efa\u3002',
   'meta.og_description': '\u4e00\u6b3e\u5962\u534e\u592a\u7a7a\u4e3b\u9898\u7684 BMI \u8ba1\u7b97\u5668\uff0c\u652f\u6301 TDEE\u3001\u4f53\u8102\u7387\u3001\u4ea4\u4e92\u5f0f\u56fe\u8868\u548c PWA\u3002',
 
@@ -58,7 +58,7 @@ const zh: TranslationDict = {
   'hero.feature1': '\u7cbe\u786e\u8ba1\u7b97',
   'hero.feature2': '\u5065\u5eb7\u6d1e\u5bdf',
   'hero.feature3': '\u5962\u534e\u8bbe\u8ba1',
-  'hero.edition': 'Stellar v12.0',
+  'hero.edition': 'Stellar v13.0',
 
   // ── Form ──
   'form.title': 'BMI \u8ba1\u7b97\u5668',
@@ -101,6 +101,8 @@ const zh: TranslationDict = {
   'form.could_not_read': '\u65e0\u6cd5\u8bfb\u53d6\u6587\u4ef6\u3002',
   'form.export_csv_aria': '\u5bfc\u51fa CSV',
   'form.export_csv': 'CSV',
+  'form.drop_file_here': '\u5c06\u6587\u4ef6\u62d6\u653e\u5230\u6b64\u5904',
+  'form.or_choose_file': '\u6216\u70b9\u51fb\u9009\u62e9\u6587\u4ef6',
 
   // ── Crypto / Encryption Modal ──
   'crypto.export_title': '\u5b89\u5168\u5bfc\u51fa',
@@ -127,6 +129,13 @@ const zh: TranslationDict = {
   'crypto.meta_version': '\u683c\u5f0f',
   'crypto.passphrase_warning': '\u8bf7\u786e\u4fdd\u60a8\u8bb0\u4f4f\u5bc6\u7801\u3002\u5bc6\u7801\u65e0\u6cd5\u6062\u590d\u3002',
   'crypto.strength_hint': '\u4f7f\u7528 12+ \u4e2a\u5b57\u7b26\uff0c\u5305\u542b\u6570\u5b57\u548c\u7b26\u53f7\uff0c\u4ee5\u83b7\u5f97\u6700\u4f73\u5b89\u5168\u6027',
+
+  // ── Stellar v13: Trust & Transparency ──
+  'crypto.encryption_badge': '\u7aef\u5230\u7aef\u52a0\u5bc6',
+  'crypto.strong_warning': '<strong>\u8bf7\u52a1\u5fc5\u8bb0\u4f4f\u60a8\u7684\u5bc6\u7801\u3002</strong>\u5bc6\u7801\u65e0\u6cd5\u6062\u590d\u3002\u6ca1\u6709\u5bc6\u7801\uff0c\u52a0\u5bc6\u5907\u4efd\u5c06\u6c38\u4e45\u65e0\u6cd5\u8bbf\u95ee\u3002',
+  'crypto.export_summary_records': '\u8bb0\u5f55\u6570',
+  'crypto.export_summary_encrypted': '\u52a0\u5bc6\u65b9\u5f0f',
+  'crypto.export_summary_version': '\u683c\u5f0f\u7248\u672c',
 
   // ── Results ──
   'results.title': '\u60a8\u7684\u7ed3\u679c',

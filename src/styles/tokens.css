@@ -401,6 +401,32 @@
   --section-margin-y: clamp(40px, 5vh, 120px);
   --container-padding-x: clamp(1rem, 3vw, 2rem);
 
+  /* ── SPACING SYSTEM (Phase 3: Design System Solidification) ──
+       Consistent spacing scale for predictable visual rhythm.
+       Usage: padding, margin, gap across all components. */
+  --space-1: 0.25rem;   /* 4px  — tight inner gaps */
+  --space-2: 0.5rem;    /* 8px  — compact spacing */
+  --space-3: 0.75rem;   /* 12px — comfortable default */
+  --space-4: 1rem;      /* 16px — section inner padding */
+  --space-5: 1.5rem;    /* 24px — card padding */
+  --space-6: 2rem;      /* 32px — section gaps */
+  --space-7: 3rem;      /* 48px — major section separation */
+
+  /* ── ELEVATION SYSTEM (Phase 3: Design System Solidification) ──
+       Layered shadow system for depth hierarchy.
+       Usage: cards, modals, floating elements. */
+  --elevation-1: 0 2px 8px var(--k-30), 0 0 0 1px var(--w-5);
+  --elevation-2: 0 8px 24px var(--k-40), 0 0 0 1px var(--w-8);
+  --elevation-3: 0 16px 48px var(--k-50), 0 0 0 1px var(--w-10);
+
+  /* ── MICRO-DELAY SYSTEM (Phase 1: Perceived Performance) ──
+       Consistent timing for modal transitions and async feedback.
+       Usage: modal open/close, success confirmation, loading staging. */
+  --delay-open: 120ms;
+  --delay-success: 150ms;
+  --delay-close: 100ms;
+  --delay-shimmer: 80ms;
+
   /* ── GLASSMORPHISM DESIGN TOKENS (Bug #19 fix) ──
      Centralized glass effect values for consistency across
      desktop, mobile, and fallback rendering contexts.

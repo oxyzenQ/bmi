@@ -1,10 +1,10 @@
-# BMI Calculator — Stellar v12.0
+# BMI Calculator — Stellar v13.0
 
 A luxury, space-themed **Body Mass Index (BMI)** calculator built with **SvelteKit 2 + Svelte 5 (Runes) + TypeScript**, designed for an accessible, privacy-first user experience with production-grade polish.
 
 - **Live**: <https://bmi-logigo.vercel.app>
 - **License**: GPL-3.0
-- **Version**: 12.0.0 (Stellar Edition)
+- **Version**: 13.0.0 (Stellar Edition)
 
 ## Highlights
 
@@ -19,6 +19,11 @@ A luxury, space-themed **Body Mass Index (BMI)** calculator built with **SvelteK
 - **Multi-language (i18n)** — English, Indonesian (Bahasa), Japanese, Chinese. Floating language switcher panel.
 - **Luxury space theme** — Glassmorphism containers with `@supports` progressive enhancement, cosmic particles, shooting stars, aurora effects, skeleton loading.
 - **Keyboard shortcuts** — Arrow keys for navigation, Enter to calculate, Escape to clear.
+- **Drag & drop import** — Drop a JSON backup file directly onto the import zone for quick restore.
+- **Encryption badge** — Visual trust indicator showing AES-256-GCM encryption status on export.
+- **Export summary** — Preview card showing record count, encryption method, and format version before export.
+- **Strong warning UX** — Prominent warning block for destructive actions (passphrase loss, data override).
+- **Progress indicators** — Indeterminate progress bar during encryption/decryption operations.
 - **Render Mode toggle** — Switch between rich visuals and basic mode for performance or battery.
 - **Reduced motion support** — Respects `prefers-reduced-motion` and `prefers-contrast` system settings (Bug #19 fix: reduced motion disables animations, not visual effects like backdrop-filter).
 - **Privacy-first** — Zero tracking (no analytics pixels). All data stays in `localStorage`. No passphrase stored for encrypted backups.
@@ -84,7 +89,7 @@ src/
     responsive.css         Responsive breakpoints, mobile performance (T-rules)
     nav.css                Pager / bottom navbar, performance tier optimizations
     lang-switcher.css      Language switcher floating panel (portaled to body)
-    animation.css          Skeleton loading, shooting stars, haptic feedback
+    animation.css          Skeleton loading, shooting stars, haptic feedback, progress bar, encryption badge, empty states, drag & drop zone
   lib/
     components/            Reusable UI components
       BmiForm.svelte         Height/weight/age/gender/activity input form
@@ -165,7 +170,7 @@ Heavy components (BmiForm, BmiResults, BmiRadialGauge, BmiHealthRisk, BmiSnapsho
 ### CSS Architecture
 Styles split into 11 focused modules under `src/styles/`, imported in cascade order in `+layout.svelte`:
 
-1. **tokens.css** — All CSS custom properties (colors, opacity tokens, spacing, glassmorphism tokens)
+1. **tokens.css** — All CSS custom properties (colors, opacity tokens, spacing, elevation, micro-delay, glassmorphism tokens)
 2. **base.css** — Global resets, typography, utility classes
 3. **components.css** — Glassmorphism containers with `@supports` progressive enhancement
 4. **form.css** — BMI form layout, inputs, validation
