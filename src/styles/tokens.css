@@ -427,29 +427,38 @@
   --delay-close: 100ms;
   --delay-shimmer: 80ms;
 
-  /* ── GLASSMORPHISM DESIGN TOKENS ──
+  /* ── GLASSMORPHISM DESIGN TOKENS (Stellar v15: Moonshot Glass) ──
      Centralized glass effect values for consistency across
      desktop, mobile, and fallback rendering contexts.
-     Usage: components use these tokens instead of hardcoded values.
-     Fallback (no blur support): --glass-bg-fallback
-     Enhanced (blur supported): --glass-bg-enhanced + --glass-blur */
+     
+     Design principle: when backdrop-filter is available, REDUCE
+     background opacity — the blur compensates for readability.
+     This lets the wallpaper bleed through for a true glass effect.
+     
+     saturate(180%) + brightness(1.15) boost subtle nebula colors
+     in dark wallpapers so they remain visible through the glass.
+     
+     Fallback (no blur support): strong solid background (0.85).
+     Enhanced (blur supported): lighter background + blur filters. */
   --glass-bg-fallback: rgba(0, 0, 0, 0.85);
-  --glass-bg-enhanced: rgba(0, 0, 0, 0.85);
-  --glass-bg-calc: rgba(0, 0, 0, 0.82);
-  --glass-bg-hero: rgba(0, 0, 0, 0.78);
-  --glass-bg-card: rgba(0, 0, 0, 0.75);
-  --glass-bg-results: rgba(0, 0, 0, 0.55);
-  --glass-bg-dialog: rgba(0, 0, 0, 0.72);
-  --glass-bg-backdrop: rgba(0, 0, 0, 0.88);
-  --glass-bg-strong: rgba(0, 0, 0, 0.90);
-  --glass-blur: 8px;
-  --glass-blur-heavy: 16px;
-  --glass-blur-light: 6px;
-  --glass-blur-subtle: 4px;
-  --glass-saturation: 140%;
-  --glass-saturation-high: 160%;
-  --glass-saturation-light: 130%;
-  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-  --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --glass-bg-enhanced: rgba(0, 0, 0, 0.55);
+  --glass-bg-calc: rgba(0, 0, 0, 0.60);
+  --glass-bg-hero: rgba(0, 0, 0, 0.50);
+  --glass-bg-card: rgba(0, 0, 0, 0.55);
+  --glass-bg-results: rgba(0, 0, 0, 0.40);
+  --glass-bg-dialog: rgba(0, 0, 0, 0.60);
+  --glass-bg-backdrop: rgba(0, 0, 0, 0.80);
+  --glass-bg-strong: rgba(0, 0, 0, 0.70);
+  --glass-blur: 16px;
+  --glass-blur-heavy: 20px;
+  --glass-blur-light: 10px;
+  --glass-blur-subtle: 6px;
+  --glass-saturation: 180%;
+  --glass-saturation-high: 200%;
+  --glass-saturation-light: 150%;
+  --glass-border: 1px solid rgba(255, 255, 255, 0.10);
+  --glass-border-strong: 1px solid rgba(255, 255, 255, 0.14);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --glass-brightness: brightness(1.15);
 }

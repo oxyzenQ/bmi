@@ -31,16 +31,18 @@
     border-color var(--dur-slow) var(--easing-smooth);
 }
 
-/* ── Glass enhancement: blur where supported ──
-     Bug fix: "Container hilang di desktop"
-     Root cause: Previously the @supports block reduced background from
-     0.85 → 0.75, making cards invisible on dark wallpapers where
-     backdrop-filter blur has nothing bright to blur through.
-     Fix: Keep 0.85 base opacity (same as fallback) so cards are ALWAYS
-     visible. The blur still adds premium glass depth — it just doesn't
-     need a lighter background to be effective. This follows the rule:
-     "Glass without solid base layer = invisible on dark background."
-     On touch devices, T-GLASS rules override with !important as before. */
+/* ── Glass enhancement: blur where supported (Stellar v15: Moonshot Glass) ──
+     Design principle: REDUCE background opacity when backdrop-filter is
+     available — the blur softens wallpaper content, compensating for
+     readability. This creates a TRUE glass effect where wallpaper colors
+     bleed through containers.
+     
+     saturate(180%) boosts subtle nebula/purple tones in dark wallpapers.
+     brightness(1.15) prevents dark-on-dark invisibility.
+     blur(16px) provides enough depth without excessive GPU cost.
+     
+     On touch devices, T-GLASS rules in responsive.css override with
+     !important using stronger opacity for varied mobile GPUs. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .bmi-card,
   .footer-disclaimer,
@@ -56,16 +58,16 @@
   .feedback-modal,
   .section-header-v2,
   .github-link {
-    background: rgba(0, 0, 0, 0.88);
-    -webkit-backdrop-filter: blur(6px) saturate(130%);
-    backdrop-filter: blur(6px) saturate(130%);
-    /* Desktop depth: stronger shadow + subtle edge ring for visual
-       separation on dark wallpapers. Reduced blur prevents dark-on-dark
-       blending that makes containers invisible ("container hilang"). */
+    background: rgba(0, 0, 0, 0.55);
+    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
+    backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
+    /* Stronger border + inset highlight compensate for lower opacity,
+       ensuring clear container edges on any wallpaper. */
+    border: 1px solid rgba(255, 255, 255, 0.10);
     box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.6),
-      0 0 0 1px rgba(255, 255, 255, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      0 10px 30px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 }
 
@@ -79,18 +81,19 @@
     border-color var(--dur-slow) var(--easing-smooth);
 }
 
-/* ── Hero content enhancement: blur where supported ──
-     Same fix as glass containers: keep 0.85 base opacity so the hero
-     card is always visible on dark wallpapers. */
+/* ── Hero content enhancement: blur where supported (Stellar v15) ──
+     Hero uses slightly lighter opacity for maximum glass impact.
+     The hero is the first visual element — make it feel premium. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .hero-content {
-    background: rgba(0, 0, 0, 0.88);
-    -webkit-backdrop-filter: blur(6px) saturate(130%);
-    backdrop-filter: blur(6px) saturate(130%);
+    background: rgba(0, 0, 0, 0.50);
+    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
+    backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
+    border: 1px solid rgba(255, 255, 255, 0.10);
     box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.6),
-      0 0 0 1px rgba(255, 255, 255, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      0 10px 30px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 }
 
