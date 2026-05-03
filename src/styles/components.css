@@ -58,7 +58,7 @@
   .feedback-modal,
   .section-header-v2,
   .github-link {
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba(0, 0, 0, 0.65);
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     /* Stronger border + inset highlight compensate for lower opacity,
@@ -86,7 +86,7 @@
      The hero is the first visual element — make it feel premium. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .hero-content {
-    background: rgba(0, 0, 0, 0.50);
+    background: rgba(0, 0, 0, 0.58);
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     border: 1px solid rgba(255, 255, 255, 0.10);

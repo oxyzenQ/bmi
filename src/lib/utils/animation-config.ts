@@ -16,26 +16,27 @@ export const MARKER_ANIM = {
 } as const;
 
 // ── Pager transition durations (ms) ──
-// Fast elegant: shorter durations, shorter distances, tighter spring.
+// Stellar v15: Smooth, cinematic page transitions.
+// Longer duration + distance = elegant sweep, not a jump.
 export const PAGER = {
-  DUR_HIGH: 380,
-  DUR_MEDIUM: 320,
-  DUR_LOW: 260,
-  DUR_BASIC: 180,
-  OUT_RATIO: 0.65,
-  OUT_BASIC: 140,
-  DIST_HIGH: 140,
-  DIST_MEDIUM: 120,
-  DIST_LOW: 100,
-  DIST_BASIC: 70,
-  SWITCHING_DELAY: 80,
+  DUR_HIGH: 480,
+  DUR_MEDIUM: 420,
+  DUR_LOW: 360,
+  DUR_BASIC: 220,
+  OUT_RATIO: 0.80,
+  OUT_BASIC: 180,
+  DIST_HIGH: 200,
+  DIST_MEDIUM: 160,
+  DIST_LOW: 130,
+  DIST_BASIC: 90,
+  SWITCHING_DELAY: 100,
 } as const;
 
 // ── Spring animation strengths ──
-// Lower = less overshoot/bounce for elegant feel.
+// Stellar v15: Slightly more overshoot for a satisfying bounce.
 export const SPRING = {
-  STRENGTH_ENHANCED: 0.06,
-  STRENGTH_BASIC: 0.03,
+  STRENGTH_ENHANCED: 0.09,
+  STRENGTH_BASIC: 0.04,
 } as const;
 
 // ── Scroll behavior ──
