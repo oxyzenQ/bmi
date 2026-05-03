@@ -135,7 +135,7 @@
 
     // Register service worker for caching (only in production)
     if (browser && 'serviceWorker' in navigator && import.meta.env.PROD) {
-      navigator.serviceWorker.register('/service-worker.js', { type: 'classic' }).catch(() => { /* SW registration failed silently */ });
+      navigator.serviceWorker.register('/service-worker.js', { type: 'module' }).catch(() => { /* SW registration failed silently */ });
     }
 
     // PWA: install prompt handler

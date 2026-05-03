@@ -7,6 +7,7 @@
   import { shareBmiResult, copyToClipboard, formatBmiText } from '$lib/utils/share';
   import { shareBmiCard, downloadBmiCard } from '$lib/utils/share-image';
   import { t as _t, localeVersion } from '$lib/i18n';
+  import { KG_TO_LBS } from '$lib/utils/bmi-calculator';
   let _rv = $derived($localeVersion);
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
@@ -84,7 +85,6 @@
   });
 
   // Convert for display based on unit system
-  const KG_TO_LBS = 2.20462;
   let idealMinDisplay = $derived(idealMin !== null ? parseFloat((unitSystem === 'imperial' ? idealMin * KG_TO_LBS : idealMin).toFixed(1)) : null);
   let idealMaxDisplay = $derived(idealMax !== null ? parseFloat((unitSystem === 'imperial' ? idealMax * KG_TO_LBS : idealMax).toFixed(1)) : null);
   let weightUnit = $derived(unitSystem === 'imperial' ? 'lbs' : 'kg');
