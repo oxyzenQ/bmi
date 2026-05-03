@@ -245,21 +245,10 @@
   }
 
   function handleImportClick() {
-    // Show staging spinner, then open file picker in the same synchronous
-    // block to preserve user gesture context (browser security requirement).
-    // The spinner will be visible after the file dialog closes during processing.
-    stagingLoading = true;
+    // Open file picker directly — browser requires synchronous call within
+    // user gesture. Spinner shows AFTER dialog closes (in handleFileInputChange
+    // → handleFileChange via await tick()).
     fileInputEl?.click();
-    // Detect file dialog cancel (no file selected) via window focus return.
-    // onchange fires before focus, so a small delay ensures we only hide
-    // the spinner if the user truly cancelled the dialog.
-    const onFocus = () => {
-      window.removeEventListener('focus', onFocus);
-      setTimeout(() => {
-        if (stagingLoading) stagingLoading = false;
-      }, 200);
-    };
-    window.addEventListener('focus', onFocus);
   }
 
   function processFile(file: File) {
@@ -269,28 +258,19 @@
   }
 
   function handleDropZoneClick() {
-    // Same staging spinner pattern as handleImportClick.
-    stagingLoading = true;
+    // Same as handleImportClick — spinner shows after dialog closes.
     fileInputEl?.click();
-    const onFocus = () => {
-      window.removeEventListener('focus', onFocus);
-      setTimeout(() => {
-        if (stagingLoading) stagingLoading = false;
-      }, 200);
-    };
-    window.addEventListener('focus', onFocus);
   }
 
   function handleFileInputChange(e: Event) {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
     if (file) {
-      // File selected — stagingLoading stays true during processing.
-      // handleFileChange will manage spinner lifecycle from here.
+      // File selected — show spinner during processing.
+      // handleFileChange will call await tick() first so the DOM
+      // actually renders the gear overlay before any heavy work.
+      stagingLoading = true;
       processFile(file);
-    } else {
-      // No file selected (edge case) — hide spinner
-      stagingLoading = false;
     }
     input.value = ''; // Reset so same file can be re-selected
   }
@@ -337,6 +317,9 @@
     }
 
     try {
+      // Let the browser render the staging spinner overlay before
+      // doing any async I/O (file.text, crypto import, validation).
+      await tick();
       const text = await file.text();
 
       // Check if file is encrypted
