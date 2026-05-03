@@ -434,7 +434,7 @@
      Fallback (no blur support): --glass-bg-fallback
      Enhanced (blur supported): --glass-bg-enhanced + --glass-blur */
   --glass-bg-fallback: rgba(0, 0, 0, 0.85);
-  --glass-bg-enhanced: rgba(0, 0, 0, 0.75);
+  --glass-bg-enhanced: rgba(0, 0, 0, 0.85);
   --glass-bg-calc: rgba(0, 0, 0, 0.82);
   --glass-bg-hero: rgba(0, 0, 0, 0.78);
   --glass-bg-card: rgba(0, 0, 0, 0.75);

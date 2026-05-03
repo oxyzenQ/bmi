@@ -29,7 +29,16 @@
     border-color var(--dur-slow) var(--easing-smooth);
 }
 
-/* ── Glass enhancement: blur where supported ── */
+/* ── Glass enhancement: blur where supported ──
+     Bug fix: "Container hilang di desktop"
+     Root cause: Previously the @supports block reduced background from
+     0.85 → 0.75, making cards invisible on dark wallpapers where
+     backdrop-filter blur has nothing bright to blur through.
+     Fix: Keep 0.85 base opacity (same as fallback) so cards are ALWAYS
+     visible. The blur still adds premium glass depth — it just doesn't
+     need a lighter background to be effective. This follows the rule:
+     "Glass without solid base layer = invisible on dark background."
+     On touch devices, T-GLASS rules override with !important as before. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .bmi-card,
   .footer-disclaimer,
@@ -43,7 +52,7 @@
   .lang-modal,
   .encrypt-modal,
   .feedback-modal {
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(0, 0, 0, 0.85);
     -webkit-backdrop-filter: blur(10px) saturate(140%);
     backdrop-filter: blur(10px) saturate(140%);
     /* Desktop depth: box-shadow ensures card is visually separated
@@ -67,10 +76,12 @@
     border-color var(--dur-slow) var(--easing-smooth);
 }
 
-/* ── Hero content enhancement: blur where supported ── */
+/* ── Hero content enhancement: blur where supported ──
+     Same fix as glass containers: keep 0.85 base opacity so the hero
+     card is always visible on dark wallpapers. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .hero-content {
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(0, 0, 0, 0.85);
     -webkit-backdrop-filter: blur(10px) saturate(140%);
     backdrop-filter: blur(10px) saturate(140%);
     box-shadow:

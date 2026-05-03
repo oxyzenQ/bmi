@@ -188,11 +188,23 @@
     // completes within the same microtask on fast devices.
     await tick();
 
+    // Minimum spinner visible time: encrypt/import can complete in <100ms
+    // on fast devices, which means the spinner never actually renders.
+    // This guarantees the user sees the loading state for at least 300ms,
+    // creating a premium "processing" feel instead of an instant glitch.
+    const MIN_SPINNER_TIME = 300;
+    const start = performance.now();
+
     try {
       await onConfirm(passphrase);
     } catch (err) {
       localError = err instanceof Error ? err.message : t('form.import_failed');
     } finally {
+      const elapsed = performance.now() - start;
+      const remaining = MIN_SPINNER_TIME - elapsed;
+      if (remaining > 0) {
+        await new Promise(r => setTimeout(r, remaining));
+      }
       loading = false;
     }
   }
@@ -436,7 +448,7 @@
   }
 
   .encrypt-box {
-    background: var(--glass-bg-enhanced, rgba(0, 0, 0, 0.75));
+    background: var(--glass-bg-enhanced, rgba(0, 0, 0, 0.85));
     border: var(--border-by-rezky);
     border-radius: var(--radius-lg);
     padding: 2rem;
