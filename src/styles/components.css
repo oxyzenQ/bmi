@@ -52,16 +52,15 @@
   .lang-modal,
   .encrypt-modal,
   .feedback-modal {
-    background: rgba(0, 0, 0, 0.85);
-    -webkit-backdrop-filter: blur(10px) saturate(140%);
-    backdrop-filter: blur(10px) saturate(140%);
-    /* Desktop depth: box-shadow ensures card is visually separated
-       from the dark wallpaper. Without this, blur(10px) on an already-dark
-       background makes the card blend into the surrounding area — the
-       "container hilang di desktop" bug. Matches the mobile T-GLASS
-       treatment that uses !important box-shadow for the same reason. */
+    background: rgba(0, 0, 0, 0.88);
+    -webkit-backdrop-filter: blur(6px) saturate(130%);
+    backdrop-filter: blur(6px) saturate(130%);
+    /* Desktop depth: stronger shadow + subtle edge ring for visual
+       separation on dark wallpapers. Reduced blur prevents dark-on-dark
+       blending that makes containers invisible ("container hilang"). */
     box-shadow:
-      0 4px 16px rgba(0, 0, 0, 0.4),
+      0 8px 32px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(255, 255, 255, 0.08),
       inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 }
@@ -81,11 +80,12 @@
      card is always visible on dark wallpapers. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .hero-content {
-    background: rgba(0, 0, 0, 0.85);
-    -webkit-backdrop-filter: blur(10px) saturate(140%);
-    backdrop-filter: blur(10px) saturate(140%);
+    background: rgba(0, 0, 0, 0.88);
+    -webkit-backdrop-filter: blur(6px) saturate(130%);
+    backdrop-filter: blur(6px) saturate(130%);
     box-shadow:
-      0 4px 16px rgba(0, 0, 0, 0.4),
+      0 8px 32px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(255, 255, 255, 0.08),
       inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 }

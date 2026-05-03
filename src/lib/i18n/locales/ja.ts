@@ -128,6 +128,7 @@ const ja: TranslationDict = {
   'crypto.confirm_placeholder': '\u30d1\u30b9\u30d5\u30ec\u30fc\u30ba\u3092\u78ba\u8a8d',
   'crypto.unlock_import': '\u89e3\u9396\u3057\u3066\u30a4\u30f3\u30dd\u30fc\u30c8',
   'crypto.processing': '\u51e6\u7406\u4e2d...',
+  'crypto.preparing': '\u6e96\u5099\u4e2d...',
   'crypto.error_empty': '\u30d1\u30b9\u30d5\u30ec\u30fc\u30ba\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044',
   'crypto.error_mismatch': '\u30d1\u30b9\u30d5\u30ec\u30fc\u30ba\u304c\u4e00\u81f4\u3057\u307e\u305b\u3093',
   'crypto.export_failed': '\u30a8\u30af\u30b9\u30dd\u30fc\u30c8\u306b\u5931\u6557',

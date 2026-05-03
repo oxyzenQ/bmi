@@ -129,6 +129,7 @@ const en: TranslationDict = {
   'crypto.confirm_placeholder': 'Confirm passphrase',
   'crypto.unlock_import': 'Unlock & Import',
   'crypto.processing': 'Processing...',
+  'crypto.preparing': 'Preparing...',
   'crypto.error_empty': 'Passphrase is required',
   'crypto.error_mismatch': 'Passphrases do not match',
   'crypto.export_failed': 'Export failed',

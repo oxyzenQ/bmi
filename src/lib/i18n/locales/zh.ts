@@ -128,6 +128,7 @@ const zh: TranslationDict = {
   'crypto.confirm_placeholder': '\u786e\u8ba4\u5bc6\u7801',
   'crypto.unlock_import': '\u89e3\u9501\u548c\u5bfc\u5165',
   'crypto.processing': '\u5904\u7406\u4e2d...',
+  'crypto.preparing': '\u51c6\u5907\u4e2d...',
   'crypto.error_empty': '\u5bc6\u7801\u77ed\u8bed\u4e0d\u80fd\u4e3a\u7a7a',
   'crypto.error_mismatch': '\u5bc6\u7801\u77ed\u8bed\u4e0d\u5339\u914d',
   'crypto.export_failed': '\u5bfc\u51fa\u5931\u8d25',

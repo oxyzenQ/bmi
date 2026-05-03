@@ -863,3 +863,52 @@ html:not([data-graphics='render']) .shooting-star {
   color: #fbbf24;
   font-weight: 600;
 }
+
+/* ==============================
+      STAGING SPINNER OVERLAY
+      Full-screen loading overlay shown before/after modals
+      ============================== */
+.staging-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  backdrop-filter: blur(24px) saturate(140%);
+  z-index: 10001;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-width: 100vw;
+}
+
+.staging-backdrop.staging-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.staging-spinner-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.staging-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(128, 0, 255, 0.2);
+  border-top-color: var(--cosmic-purple);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.staging-text {
+  color: var(--w-70);
+  font-size: 0.9rem;
+  font-weight: 500;
+}

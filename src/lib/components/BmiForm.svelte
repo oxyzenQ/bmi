@@ -2,6 +2,7 @@
   import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame, FileSpreadsheet, UploadCloud } from 'lucide-svelte';
   import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport, importBmiHistory, peekImportMeta, MAX_IMPORT_SIZE, type ImportFileMeta, type ImportError } from '$lib/utils/history-io';
   import { STORAGE_KEYS, storageGetJSON } from '$lib/utils/storage';
+  import { tick } from 'svelte';
   import { t as _t, localeVersion } from '$lib/i18n';
   import EncryptionModal from './EncryptionModal.svelte';
   import FeedbackModal from './FeedbackModal.svelte';
@@ -157,6 +158,11 @@
   let pendingImportMeta = $state<ImportFileMeta | undefined>(undefined);
   let exportRecordCount = $state(0);
 
+  // Staging spinner overlay (shown before/after modal transitions)
+  let stagingLoading = $state(false);
+  const STAGING_DELAY = 1500;
+  const STAGING_POST_DELAY = 800;
+
   // Feedback modal state (blocking confirmation)
   let showFeedbackModal = $state(false);
   let feedbackType = $state<'success' | 'error'>('success');
@@ -183,12 +189,19 @@
     return `${y}-${m}-${d}`;
   }
 
-  function handleExportClick() {
+  async function handleExportClick() {
     // Read current history count from storage for export summary
     const history = storageGetJSON<Array<unknown>>(STORAGE_KEYS.HISTORY, []);
     exportRecordCount = Array.isArray(history) ? history.length : 0;
     encryptModalMode = 'export';
     encryptError = '';
+
+    // Show staging spinner before opening modal
+    stagingLoading = true;
+    await tick();
+    await new Promise(r => setTimeout(r, STAGING_DELAY));
+    stagingLoading = false;
+
     showEncryptModal = true;
   }
 
@@ -199,6 +212,13 @@
       return;
     }
     showEncryptModal = false;
+
+    // Brief staging spinner after export completes
+    stagingLoading = true;
+    await tick();
+    await new Promise(r => setTimeout(r, STAGING_POST_DELAY));
+    stagingLoading = false;
+
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -301,6 +321,13 @@
         pendingImportMeta = peekImportMeta(text);
         encryptModalMode = 'import';
         encryptError = '';
+
+        // Show staging spinner before opening modal
+        stagingLoading = true;
+        await tick();
+        await new Promise(r => setTimeout(r, STAGING_DELAY));
+        stagingLoading = false;
+
         showEncryptModal = true;
         return;
       }
@@ -345,6 +372,12 @@
       pendingImportText = '';
       pendingImportMeta = undefined;
       encryptError = '';
+
+      // Brief staging spinner after import completes
+      stagingLoading = true;
+      await tick();
+      await new Promise(r => setTimeout(r, STAGING_POST_DELAY));
+      stagingLoading = false;
 
       // Show success feedback modal (blocking)
       feedbackType = 'success';
@@ -688,6 +721,17 @@
 </div>
 
 <!-- Modals: Portal to body to avoid parent transform issues -->
+{#if stagingLoading}
+  <div use:portal class="modal-portal">
+    <div class="staging-backdrop staging-visible">
+      <div class="staging-spinner-wrap">
+        <div class="staging-spinner"></div>
+        <span class="staging-text">{t('crypto.preparing')}</span>
+      </div>
+    </div>
+  </div>
+{/if}
+
 {#if showEncryptModal}
   <div use:portal class="modal-portal">
     <EncryptionModal
