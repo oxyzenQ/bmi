@@ -93,6 +93,7 @@
   let ageInputEl: HTMLInputElement;
   let heightInputEl: HTMLInputElement;
   let weightInputEl: HTMLInputElement;
+  let fileInputEl: HTMLInputElement | null = $state(null);
 
   let {
     parsedAge,
@@ -235,6 +236,23 @@
     // Add to body, click, then auto-remove after file selected
     document.body.appendChild(input);
     input.click();
+  }
+
+  function processFile(file: File) {
+    // Reuse the existing file processing logic
+    const fakeEvent = { target: { files: [file] } } as unknown as Event;
+    handleFileChange(fakeEvent);
+  }
+
+  function handleDropZoneClick() {
+    fileInputEl?.click();
+  }
+
+  function handleFileInputChange(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file) processFile(file);
+    input.value = ''; // Reset so same file can be re-selected
   }
 
   /** Map ImportError code → i18n key for user-friendly FeedbackModal message */
@@ -630,6 +648,15 @@
     </div>
 
     <!-- Drag & Drop import zone (Phase 4) -->
+    <input
+      type="file"
+      accept=".json"
+      bind:this={fileInputEl}
+      onchange={handleFileInputChange}
+      class="sr-only"
+      tabindex="-1"
+      aria-hidden="true"
+    />
     <div
       class="bmi-drop-zone"
       class:bmi-drop-zone--active={isDragOver}
@@ -638,8 +665,8 @@
       ondragover={handleDragOver}
       ondragleave={handleDragLeave}
       ondrop={handleDrop}
-      onclick={handleImportClick}
-      onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleImportClick()}
+      onclick={handleDropZoneClick}
+      onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleDropZoneClick()}
       aria-label={t('form.import_aria')}
     >
       <div class="bmi-drop-zone__icon">

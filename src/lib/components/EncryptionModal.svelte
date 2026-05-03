@@ -225,7 +225,7 @@
           </div>
           <div class="bmi-strong-warning">
             <span class="bmi-strong-warning__icon"><AlertCircle size={16} /></span>
-            <span class="bmi-strong-warning__text">{t('crypto.strong_warning')}</span>
+            <span class="bmi-strong-warning__text">{@html t('crypto.strong_warning')}</span>
           </div>
         {/if}
       </div>
@@ -342,6 +342,30 @@
           </div>
         {/if}
 
+        {#if loading}
+          <div class="encrypt-progress-wrap">
+            <div class="bmi-progress bmi-progress--indeterminate">
+              <div class="bmi-progress__fill" style="width: 100%;"></div>
+            </div>
+          </div>
+        {/if}
+        {#if mode === 'export' && !loading}
+          <!-- Export summary preview -->
+          <div class="bmi-export-summary">
+            <div class="bmi-export-summary__row">
+              <span class="bmi-export-summary__key">{t('crypto.export_summary_records')}</span>
+              <span class="bmi-export-summary__val">...</span>
+            </div>
+            <div class="bmi-export-summary__row">
+              <span class="bmi-export-summary__key">{t('crypto.export_summary_encrypted')}</span>
+              <span class="bmi-export-summary__val bmi-export-summary__val--encrypted">AES-256-GCM</span>
+            </div>
+            <div class="bmi-export-summary__row">
+              <span class="bmi-export-summary__key">{t('crypto.export_summary_version')}</span>
+              <span class="bmi-export-summary__val">v1</span>
+            </div>
+          </div>
+        {/if}
         <div class="encrypt-actions">
           <button type="button" class="encrypt-btn btn-cancel" onclick={handleCancel} disabled={loading}>
             {t('notify.cancel')}
@@ -354,28 +378,6 @@
               {mode === 'export' ? t('form.export') : t('crypto.unlock_import')}
             {/if}
           </button>
-          {#if loading}
-            <div class="bmi-progress bmi-progress--indeterminate">
-              <div class="bmi-progress__fill" style="width: 100%;"></div>
-            </div>
-          {/if}
-          {#if mode === 'export' && !loading}
-            <!-- Export summary preview -->
-            <div class="bmi-export-summary">
-              <div class="bmi-export-summary__row">
-                <span class="bmi-export-summary__key">{t('crypto.export_summary_records')}</span>
-                <span class="bmi-export-summary__val">...</span>
-              </div>
-              <div class="bmi-export-summary__row">
-                <span class="bmi-export-summary__key">{t('crypto.export_summary_encrypted')}</span>
-                <span class="bmi-export-summary__val bmi-export-summary__val--encrypted">AES-256-GCM</span>
-              </div>
-              <div class="bmi-export-summary__row">
-                <span class="bmi-export-summary__key">{t('crypto.export_summary_version')}</span>
-                <span class="bmi-export-summary__val">v1</span>
-              </div>
-            </div>
-          {/if}
         </div>
       </form>
     </div>
@@ -418,7 +420,7 @@
   }
 
   .encrypt-box {
-    background: var(--k-50);
+    background: var(--glass-bg-enhanced, rgba(10, 2, 28, 0.72));
     border: var(--border-by-rezky);
     border-radius: var(--radius-lg);
     padding: 2rem;
@@ -629,6 +631,10 @@
     border-radius: 8px;
     color: #ef4444;
     font-size: 0.85rem;
+  }
+
+  .encrypt-progress-wrap {
+    margin-bottom: 1rem;
   }
 
   .encrypt-actions {
