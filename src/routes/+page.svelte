@@ -4,6 +4,7 @@
   import { tweened } from 'svelte/motion';
   import { browser } from '$app/environment';
   import { getPerformanceTier } from '$lib/utils/performance';
+  import { importBmiHistory } from '$lib/utils/history-io';
   import { createLazyLoader, createPairedLazyLoader } from '$lib/utils/lazy-load';
   import { STORAGE_KEYS, storageGet, storageSet, storageSetJSON, storageRemove, storageGetJSON, storageInvalidate } from '$lib/utils/storage';
   import { BMI_THRESHOLDS } from '$lib/utils/bmi-category';
@@ -12,6 +13,23 @@
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
   import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
+  import {
+    Lightbulb,
+    Users,
+    GitBranch,
+    GitCompare,
+    PackageCheck,
+    ShieldCheck,
+    Activity,
+    AlertTriangle,
+    Scale,
+    Settings,
+    Bot,
+    Sparkles,
+    ChevronLeft,
+    ChevronRight,
+    ChevronUp
+  } from 'lucide-svelte';
   import { t as _t, initLocale, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
