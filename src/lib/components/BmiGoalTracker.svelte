@@ -243,7 +243,7 @@
               bind:value={inputValue}
               class="form-input"
               inputmode="decimal"
-              placeholder="18.5 - 24.9"
+              placeholder={t('goal.range_hint')}
               oninput={handleInputChange}
               onkeydown={handleKeydown}
             />
@@ -271,7 +271,7 @@
             bind:value={inputValue}
             class="form-input"
             inputmode="decimal"
-            placeholder="18.5 - 24.9"
+            placeholder={t('goal.range_hint')}
             oninput={handleInputChange}
             onkeydown={handleKeydown}
           />

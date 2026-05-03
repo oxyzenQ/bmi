@@ -275,6 +275,16 @@ const id: TranslationDict = {
   'fat.range_fitness': 'Kebugaran',
   'fat.range_average': 'Rata-rata',
   'fat.range_obese': 'Obesitas',
+  'fat.range_m_essential': '2-5%',
+  'fat.range_m_athletic': '6-13%',
+  'fat.range_m_fitness': '14-17%',
+  'fat.range_m_average': '18-24%',
+  'fat.range_m_obese': '25%+',
+  'fat.range_f_essential': '10-13%',
+  'fat.range_f_athletic': '14-20%',
+  'fat.range_f_fitness': '21-24%',
+  'fat.range_f_average': '25-31%',
+  'fat.range_f_obese': '32%+',
   'fat.empty_age': 'Masukkan usia Anda untuk melihat estimasi lemak tubuh',
   'fat.empty_bmi': 'Hitung BMI Anda untuk melihat estimasi lemak tubuh',
 
@@ -406,6 +416,7 @@ const id: TranslationDict = {
   'goal.no_goal': 'Belum ada target. Hitung BMI Anda dan tetapkan target untuk melacak progres.',
   'goal.set_first': 'Hitung BMI Anda terlebih dahulu untuk menetapkan target.',
   'goal.enter_target': 'Masukkan BMI target antara 10 dan 50',
+  'goal.range_hint': '18.5 - 24.9',
 
   // ── Language Switcher ──
   'lang.aria': 'Ganti bahasa',

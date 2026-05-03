@@ -274,7 +274,17 @@ const zh: TranslationDict = {
   'fat.range_athletic': '\u8fd0\u52a8\u578b',
   'fat.range_fitness': '\u5065\u5eb7\u578b',
   'fat.range_average': '\u5e73\u5747',
-  'fat.range_obese': '\u80a5\u80d6',
+  'fat.range_obese': '\u80a5\u6e80',
+  'fat.range_m_essential': '2-5%',
+  'fat.range_m_athletic': '6-13%',
+  'fat.range_m_fitness': '14-17%',
+  'fat.range_m_average': '18-24%',
+  'fat.range_m_obese': '25%+',
+  'fat.range_f_essential': '10-13%',
+  'fat.range_f_athletic': '14-20%',
+  'fat.range_f_fitness': '21-24%',
+  'fat.range_f_average': '25-31%',
+  'fat.range_f_obese': '32%+',
   'fat.empty_age': '\u8bf7\u8f93\u5165\u60a8\u7684\u5e74\u9f84\u4ee5\u67e5\u770b\u4f53\u8102\u4f30\u7b97',
   'fat.empty_bmi': '\u8bf7\u8ba1\u7b97\u60a8\u7684 BMI \u4ee5\u67e5\u770b\u4f53\u8102\u4f30\u7b97',
 
@@ -406,6 +416,7 @@ const zh: TranslationDict = {
   'goal.no_goal': '\u8fd8\u672a\u8bbe\u5b9a\u76ee\u6807\u3002\u8ba1\u7b97\u60a8\u7684 BMI \u5e76\u8bbe\u5b9a\u76ee\u6807\u6765\u8ddf\u8e2a\u8fdb\u5ea6\u3002',
   'goal.set_first': '\u8bf7\u5148\u8ba1\u7b97 BMI \u518d\u8bbe\u5b9a\u76ee\u6807\u3002',
   'goal.enter_target': '\u8bf7\u8f93\u5165 10 \u5230 50 \u4e4b\u95f4\u7684\u76ee\u6807 BMI',
+  'goal.range_hint': '18.5 - 24.9',
 
   // ── Language Switcher ──
   'lang.aria': '\u5207\u6362\u8bed\u8a00',

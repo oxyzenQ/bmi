@@ -178,7 +178,7 @@
   let categoryDisplayText = $derived(
     appliedCategory
       ? t(CATEGORY_I18N_KEYS[appliedCategory] ?? 'gauge.normal')
-      : 'N/A'
+      : t('gauge.na')
   );
 
   // Gradient helpers

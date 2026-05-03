@@ -276,6 +276,16 @@ const en: TranslationDict = {
   'fat.range_fitness': 'Fitness',
   'fat.range_average': 'Average',
   'fat.range_obese': 'Obese',
+  'fat.range_m_essential': '2-5%',
+  'fat.range_m_athletic': '6-13%',
+  'fat.range_m_fitness': '14-17%',
+  'fat.range_m_average': '18-24%',
+  'fat.range_m_obese': '25%+',
+  'fat.range_f_essential': '10-13%',
+  'fat.range_f_athletic': '14-20%',
+  'fat.range_f_fitness': '21-24%',
+  'fat.range_f_average': '25-31%',
+  'fat.range_f_obese': '32%+',
   'fat.empty_age': 'Enter your age to see body fat estimation',
   'fat.empty_bmi': 'Calculate your BMI to see body fat estimation',
 
@@ -407,6 +417,7 @@ const en: TranslationDict = {
   'goal.no_goal': 'No goal set. Calculate your BMI and set a target to track your progress.',
   'goal.set_first': 'Calculate your BMI first to set a goal.',
   'goal.enter_target': 'Enter a target BMI between 10 and 50',
+  'goal.range_hint': '18.5 - 24.9',
 
   // ── Language Switcher ──
   'lang.aria': 'Switch language',

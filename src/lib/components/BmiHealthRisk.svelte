@@ -76,7 +76,7 @@
       bgClass: 'risk-high',
       icon: AlertTriangle,
       description: t('risk.high_desc'),
-      position: 75 + ((bmiVal - 30) / (50 - 30)) * 25
+      position: Math.min(100, 75 + ((bmiVal - 30) / (50 - 30)) * 25)
     };
   }
 
