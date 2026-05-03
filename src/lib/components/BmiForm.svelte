@@ -220,22 +220,10 @@
   }
 
   function handleImportClick() {
-    // Create a fresh file input element every time to ensure onchange fires
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.style.display = 'none';
-
-    // Set up onchange handler before clicking
-    input.onchange = (e) => {
-      handleFileChange(e);
-      // Clean up after use
-      document.body.removeChild(input);
-    };
-
-    // Add to body, click, then auto-remove after file selected
-    document.body.appendChild(input);
-    input.click();
+    // Use the existing hidden file input already in the DOM.
+    // Same fix as handleDropZoneClick — avoid dynamic input creation
+    // which breaks user gesture chain in some browsers.
+    fileInputEl?.click();
   }
 
   function processFile(file: File) {
@@ -245,17 +233,11 @@
   }
 
   function handleDropZoneClick() {
-    // Create a fresh input dynamically (reliable across all browsers)
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.style.display = 'none';
-    input.onchange = (e) => {
-      handleFileChange(e);
-      document.body.removeChild(input);
-    };
-    document.body.appendChild(input);
-    input.click();
+    // Use the existing hidden file input already in the DOM.
+    // Dynamically creating inputs breaks user gesture context on some
+    // browsers — the hidden input with bind:this is always in the DOM
+    // and its onchange is wired to handleFileInputChange.
+    fileInputEl?.click();
   }
 
   function handleFileInputChange(e: Event) {

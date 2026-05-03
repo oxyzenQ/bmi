@@ -451,7 +451,7 @@
     // pointer events only manage mouse/stylus input.
     if (event.pointerType === 'touch') return;
     const target = event.target as HTMLElement | null;
-    if (target?.closest('button, a, input, textarea, select, label')) return;
+    if (target?.closest('button, a, input, textarea, select, label, [role="button"]')) return;
     if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell')) return;
     pointerStartX = event.clientX;
     pointerStartY = event.clientY;
@@ -515,7 +515,7 @@
     const touch = e.touches[0];
     if (!touch) return;
     const target = e.target as HTMLElement | null;
-    if (target?.closest('button, a, input, textarea, select, label')) return;
+    if (target?.closest('button, a, input, textarea, select, label, [role="button"]')) return;
     if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell')) return;
     touchStartX = touch.clientX;
     touchStartY = touch.clientY;

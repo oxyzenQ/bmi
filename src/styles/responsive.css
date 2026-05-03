@@ -1092,20 +1092,25 @@ p,
     touch-action: pan-y pinch-zoom; /* Optimize touch response */
   }
 
-  /* T-1: Simplify body::before filter permanently on touch.
-     filter: brightness(1) contrast(1.25) saturate(1) still costs
-     GPU cycles even though values look "neutral".
+  /* T-1: Simplify body::before filter on touch devices.
+     Full filter chain (brightness(1) contrast(1.25) saturate(1)) costs
+     GPU cycles even when values look "neutral".
+     Replace with a single brightness reduction to keep wallpaper
+     dark on mobile — removing the filter entirely made wallpaper
+     too bright (Bug: mobile wallpaper too bright).
      Also remove translateZ(0) compositor layer promotion. */
   body::before {
-    filter: none !important;
+    filter: brightness(0.7) !important;
     transform: none !important;
   }
 
-  /* T-1b: Remove body::after gradient overlay on touch.
-     Fixed full-viewport gradient recalculated per frame —
-     the dark wallpaper already provides sufficient background depth. */
+  /* T-1b: Simplify body::after overlay on touch devices.
+     Previous fix used display:none which made wallpaper too bright.
+     Replace gradient with simple solid dark overlay — cheap to
+     composite (no gradient calculation per frame) while providing
+     consistent darkening across all wallpapers on mobile. */
   body::after {
-    display: none !important;
+    background: rgba(0, 0, 0, 0.45) !important;
   }
 
   /* T-2: Promote .pager-section to its own compositor layer
