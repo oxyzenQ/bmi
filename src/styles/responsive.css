@@ -1408,9 +1408,10 @@ p,
   }
 
   /* T-GLASS: Elegant purple glassmorphism for touch devices.
-     Consistent backdrop-filter with desktop (reduced blur for performance).
-     Uses (10, 2, 28) — rich dark violet that echoes the cosmic-purple
-     brand color while keeping a luxurious, premium glass feel. */
+     Bug #19 fix: Consistent glass treatment matching desktop.
+     Uses cosmic-dark-72 (72% opacity) — lighter than before to let
+     blur be visible, matching the desktop var(--k-50) visual weight.
+     All containers now use the same glass token pattern. */
   .footer-disclaimer,
   .about-card,
   .gauge-container,
@@ -1418,44 +1419,49 @@ p,
   .github-link,
   .section-header,
   .section-header-v2 {
-    background: var(--cosmic-dark-78) !important;
-    -webkit-backdrop-filter: blur(6px) saturate(120%) !important;
-    backdrop-filter: blur(6px) saturate(120%) !important;
+    background: rgba(10, 2, 28, 0.72) !important;
+    -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+    backdrop-filter: blur(8px) saturate(140%) !important;
     border: 1px solid var(--w-8) !important;
     box-shadow:
       0 4px 16px var(--k-40),
       inset 0 1px 0 var(--w-6) !important;
   }
 
-  /* T-GLASS-HERO: Hero content gets stronger background for readability.
-     Use double selector for higher specificity to override any conflicts. */
+  /* T-GLASS-HERO: Hero content — Bug #19 fix: match desktop glass strength.
+     Use 8px blur (same as desktop) with 75% background for readability.
+     Double selector for higher specificity to override nav.css conflicts. */
   .hero-content,
   .hero-section .hero-content,
   main .hero-content {
-    background: var(--cosmic-dark-82, rgba(10, 2, 28, 0.82)) !important;
-    -webkit-backdrop-filter: blur(6px) saturate(120%) !important;
-    backdrop-filter: blur(6px) saturate(120%) !important;
+    background: rgba(10, 2, 28, 0.75) !important;
+    -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+    backdrop-filter: blur(8px) saturate(140%) !important;
     border: 1px solid var(--w-8) !important;
     box-shadow:
       0 4px 16px var(--k-40),
       inset 0 1px 0 var(--w-6) !important;
   }
 
-  /* T-GLASS-CALC: Calculator cards use semi-solid backgrounds with
-     light blur for performance + visual consistency. 4px blur is
-     lightweight but still provides glassmorphism effect. */
+  /* T-GLASS-CALC: Calculator cards — Bug #19 fix: use 80% background
+     (matching desktop visual weight) with 6px blur for glassmorphism.
+     Previously 92% opacity made blur invisible on mobile. */
   .bmi-card,
   .form-card {
-    background: var(--cosmic-dark-92, rgba(10, 2, 28, 0.92)) !important;
-    -webkit-backdrop-filter: blur(4px) saturate(110%) !important;
-    backdrop-filter: blur(4px) saturate(110%) !important;
+    background: rgba(10, 2, 28, 0.80) !important;
+    -webkit-backdrop-filter: blur(6px) saturate(130%) !important;
+    backdrop-filter: blur(6px) saturate(130%) !important;
     border: 1px solid var(--w-8) !important;
   }
 
-  /* T-GLASS-RESULTS: Results inner card — inherits parent bg,
-     but ensure it doesn't add its own background layer. */
+  /* T-GLASS-RESULTS: Results inner card — Bug #19 fix.
+     Previously set to transparent, which made the card invisible
+     on mobile. Now uses a subtle tinted background that inherits
+     the parent glass feel without adding a heavy layer. */
   .bmi-results-card {
-    background: transparent !important;
+    background: rgba(10, 2, 28, 0.45) !important;
+    -webkit-backdrop-filter: blur(4px) saturate(110%) !important;
+    backdrop-filter: blur(4px) saturate(110%) !important;
   }
 
   /* T-16: Remove ALL pseudo-element shine sweeps permanently on touch.
@@ -1490,21 +1496,21 @@ p,
     contain: layout style;
   }
 
-  /* T-23: Reduced backdrop-filter for dialogs on touch (performance + consistency).
-     Use lighter blur (12px vs 24px) with stronger background for mobile GPUs.
-     Maintains glassmorphism aesthetic while being performant. */
+  /* T-23: Dialog backdrop and panels — Bug #19 fix: use consistent
+     glass treatment. Backdrop uses 85% background, panels use 70%
+     to let blur show through, matching desktop visual weight. */
   .lang-backdrop,
   .notify-backdrop {
-    background: var(--cosmic-dark-95, rgba(10, 2, 28, 0.95)) !important;
-    -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
-    backdrop-filter: blur(12px) saturate(140%) !important;
+    background: rgba(10, 2, 28, 0.85) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+    backdrop-filter: blur(16px) saturate(160%) !important;
   }
 
   .lang-panel,
   .notify-float-box {
-    background: var(--k-50) !important;
-    -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
-    backdrop-filter: blur(12px) saturate(140%) !important;
+    background: rgba(10, 2, 28, 0.70) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+    backdrop-filter: blur(16px) saturate(160%) !important;
   }
 
   .notify-close,

@@ -2,11 +2,19 @@
 /* ==============================
    PERFORMANCE TIER OPTIMIZATIONS
    Reduce expensive effects on low-end devices
+   Bug #19 fix: Low tier keeps glass backgrounds but removes
+   backdrop-filter. Containers still look solid and premium.
    ============================== */
 
 html[data-performance-tier="low"] :is(
   .hero-content,
-  .pager-btn-futuristic
+  .pager-btn-futuristic,
+  .bmi-card,
+  .form-card,
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table
 ) {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;

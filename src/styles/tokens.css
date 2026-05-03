@@ -400,4 +400,29 @@
   /* ── CONSISTENT SECTION SPACING ── */
   --section-margin-y: clamp(40px, 5vh, 120px);
   --container-padding-x: clamp(1rem, 3vw, 2rem);
+
+  /* ── GLASSMORPHISM DESIGN TOKENS (Bug #19 fix) ──
+     Centralized glass effect values for consistency across
+     desktop, mobile, and fallback rendering contexts.
+     Usage: components use these tokens instead of hardcoded values.
+     Fallback (no blur support): --glass-bg-fallback
+     Enhanced (blur supported): --glass-bg-enhanced + --glass-blur */
+  --glass-bg-fallback: rgba(10, 2, 28, 0.82);
+  --glass-bg-enhanced: rgba(10, 2, 28, 0.55);
+  --glass-bg-calc: rgba(10, 2, 28, 0.80);
+  --glass-bg-hero: rgba(10, 2, 28, 0.75);
+  --glass-bg-card: rgba(10, 2, 28, 0.72);
+  --glass-bg-results: rgba(10, 2, 28, 0.45);
+  --glass-bg-dialog: rgba(10, 2, 28, 0.70);
+  --glass-bg-backdrop: rgba(10, 2, 28, 0.85);
+  --glass-blur: 8px;
+  --glass-blur-heavy: 16px;
+  --glass-blur-light: 6px;
+  --glass-blur-subtle: 4px;
+  --glass-saturation: 140%;
+  --glass-saturation-high: 160%;
+  --glass-saturation-light: 130%;
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }

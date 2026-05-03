@@ -1,8 +1,14 @@
 /* ── components.css — Glassmorphism containers, button system, hero section, bounce/pulse keyframes ── */
 /* ==============================
       GLASSMORPHISM COMPONENTS
+      Bug #19 fix: @supports progressive enhancement.
+      Fallback: strong semi-transparent background (no blur needed).
+      Enhancement: lighter background + backdrop-filter where supported.
+      This ensures containers NEVER look transparent, even on browsers
+      that don't support backdrop-filter (some mobile WebViews).
       ============================== */
-/* Enhanced liquid glass effect — all container box backgrounds consolidated here */
+
+/* ── Glass fallback: strong background always present ── */
 .bmi-card,
 .footer-disclaimer,
 .about-card,
@@ -15,26 +21,51 @@
 .lang-modal,
 .encrypt-modal,
 .feedback-modal {
-  background: var(--k-50);
+  background: rgba(10, 2, 28, 0.82);
   border: var(--border-by-rezky);
   border-radius: var(--radius-lg);
-  -webkit-backdrop-filter: blur(8px) saturate(140%);
-  backdrop-filter: blur(8px) saturate(140%);
   transition: transform var(--dur-slow) var(--easing-smooth),
     box-shadow var(--dur-slow) var(--easing-smooth),
     border-color var(--dur-slow) var(--easing-smooth);
 }
 
-/* Hero content retains backdrop-filter for main visual impact */
+/* ── Glass enhancement: blur where supported ── */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .bmi-card,
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .form-card,
+  .info-modal,
+  .range-modal,
+  .snapshot-modal,
+  .unit-modal,
+  .lang-modal,
+  .encrypt-modal,
+  .feedback-modal {
+    background: rgba(10, 2, 28, 0.55);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    backdrop-filter: blur(8px) saturate(140%);
+  }
+}
+
+/* ── Hero content fallback ── */
 .hero-content {
-  background: var(--k-50);
+  background: rgba(10, 2, 28, 0.82);
   border: var(--border-by-rezky);
   border-radius: 2rem;
-  -webkit-backdrop-filter: blur(8px) saturate(140%);
-  backdrop-filter: blur(8px) saturate(140%);
   transition: transform var(--dur-slow) var(--easing-smooth),
     box-shadow var(--dur-slow) var(--easing-smooth),
     border-color var(--dur-slow) var(--easing-smooth);
+}
+
+/* ── Hero content enhancement: blur where supported ── */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .hero-content {
+    background: rgba(10, 2, 28, 0.55);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    backdrop-filter: blur(8px) saturate(140%);
+  }
 }
 
 
