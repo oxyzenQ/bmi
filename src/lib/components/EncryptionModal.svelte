@@ -388,7 +388,7 @@
               </div>
               <div class="bmi-export-summary__row">
                 <span class="bmi-export-summary__key">{t('crypto.export_summary_version')}</span>
-                <span class="bmi-export-summary__val">v1</span>
+                <span class="bmi-export-summary__val">v3</span>
               </div>
             </div>
           </div>

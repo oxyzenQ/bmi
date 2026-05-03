@@ -245,10 +245,21 @@
   }
 
   function handleImportClick() {
-    // Use the existing hidden file input already in the DOM.
-    // Same fix as handleDropZoneClick — avoid dynamic input creation
-    // which breaks user gesture chain in some browsers.
+    // Show staging spinner, then open file picker in the same synchronous
+    // block to preserve user gesture context (browser security requirement).
+    // The spinner will be visible after the file dialog closes during processing.
+    stagingLoading = true;
     fileInputEl?.click();
+    // Detect file dialog cancel (no file selected) via window focus return.
+    // onchange fires before focus, so a small delay ensures we only hide
+    // the spinner if the user truly cancelled the dialog.
+    const onFocus = () => {
+      window.removeEventListener('focus', onFocus);
+      setTimeout(() => {
+        if (stagingLoading) stagingLoading = false;
+      }, 200);
+    };
+    window.addEventListener('focus', onFocus);
   }
 
   function processFile(file: File) {
@@ -258,17 +269,29 @@
   }
 
   function handleDropZoneClick() {
-    // Use the existing hidden file input already in the DOM.
-    // Dynamically creating inputs breaks user gesture context on some
-    // browsers — the hidden input with bind:this is always in the DOM
-    // and its onchange is wired to handleFileInputChange.
+    // Same staging spinner pattern as handleImportClick.
+    stagingLoading = true;
     fileInputEl?.click();
+    const onFocus = () => {
+      window.removeEventListener('focus', onFocus);
+      setTimeout(() => {
+        if (stagingLoading) stagingLoading = false;
+      }, 200);
+    };
+    window.addEventListener('focus', onFocus);
   }
 
   function handleFileInputChange(e: Event) {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
-    if (file) processFile(file);
+    if (file) {
+      // File selected — stagingLoading stays true during processing.
+      // handleFileChange will manage spinner lifecycle from here.
+      processFile(file);
+    } else {
+      // No file selected (edge case) — hide spinner
+      stagingLoading = false;
+    }
     input.value = ''; // Reset so same file can be re-selected
   }
 
@@ -297,6 +320,7 @@
 
     // ── File size guards ──
     if (file.size === 0) {
+      stagingLoading = false;
       onNotify?.({
         action: 'import-error',
         error: t('history.empty_file')
@@ -304,6 +328,7 @@
       return;
     }
     if (file.size > MAX_IMPORT_SIZE) {
+      stagingLoading = false;
       onNotify?.({
         action: 'import-error',
         error: t('history.file_too_large')
@@ -336,6 +361,7 @@
       const validation = await validateBmiImport(text);
 
       if (validation.valid && validation.recordCount) {
+        stagingLoading = false;
         onNotify?.({
           action: 'import-validate',
           text,
@@ -344,6 +370,7 @@
         });
       } else {
         // Notify parent to show error via NotifyFloat (single source of truth)
+        stagingLoading = false;
         const code = validation.errorCode ?? 'invalid_format';
         onNotify?.({
           action: 'import-error',
@@ -352,6 +379,7 @@
       }
     } catch {
       // Notify parent to show error via NotifyFloat
+      stagingLoading = false;
       onNotify?.({
         action: 'import-error',
         error: t('form.could_not_read')
