@@ -1405,10 +1405,10 @@ p,
   }
 
   /* T-GLASS: Moonshot Glass for touch devices (Stellar v15).
-     Stronger opacity than desktop (0.65 vs 0.55) for varied mobile GPUs.
-     NO brightness() — per-pixel color matrix is expensive on mobile.
-     saturate(140%) + blur(8px) = glass effect without GPU strain.
-     Kept blur at 8px (same as pre-v15) for scroll performance. */
+     Optimized for scroll performance on mobile GPUs.
+     NO brightness() — per-pixel color matrix is too expensive.
+     blur(6px) on large containers — enough for glass, saves GPU.
+     saturate(140%) kept — single-pass color operation (cheap). */
   .footer-disclaimer,
   .about-card,
   .gauge-container,
@@ -1417,8 +1417,8 @@ p,
   .section-header,
   .section-header-v2 {
     background: rgba(0, 0, 0, 0.65) !important;
-    -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
-    backdrop-filter: blur(8px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(6px) saturate(140%) !important;
+    backdrop-filter: blur(6px) saturate(140%) !important;
     border: 1px solid rgba(255, 255, 255, 0.10) !important;
     box-shadow:
       0 4px 16px var(--k-30),
@@ -1426,13 +1426,13 @@ p,
   }
 
   /* T-GLASS-HERO: Hero content (Stellar v15: Moonshot Glass).
-     NO brightness() on mobile for scroll performance. */
+     NO brightness() on mobile. blur(6px) for scroll perf. */
   .hero-content,
   .hero-section .hero-content,
   main .hero-content {
     background: rgba(0, 0, 0, 0.60) !important;
-    -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
-    backdrop-filter: blur(8px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(6px) saturate(140%) !important;
+    backdrop-filter: blur(6px) saturate(140%) !important;
     border: 1px solid rgba(255, 255, 255, 0.10) !important;
     box-shadow:
       0 4px 16px var(--k-30),

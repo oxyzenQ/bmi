@@ -13,6 +13,7 @@
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
   import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
+  import { Settings } from 'lucide-svelte';
   import { t as _t, initLocale, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
@@ -139,6 +140,10 @@
   let notifyMessage = $state('');
   let notifyButtonText = $state('');
   let pendingImportText = $state<string | null>(null);
+
+  // Staging spinner state (gear overlay before notifications)
+  let stagingLoading = $state(false);
+  const STAGING_NOTIFY_DELAY = 1200;
 
 
   const currentYear = new Date().getFullYear();
@@ -837,16 +842,14 @@
 
     // Navigate to Gauge NOW — still in the synchronous click-handler
     // context so Svelte 5's {#key activeIndex} structural re-render
-    // triggers reliably.  Previous approaches (setTimeout / tick().then)
-    // ran goTo() inside async callbacks where {#key} failed silently,
-    // leaving activeIndex desynced from the DOM.
-    // The notification will appear as an overlay on top of the Gauge page.
+    // triggers reliably.
     goTo(2);
 
-    // Brief delay so the page transition begins before the
-    // notification overlay fades in on top of Gauge.
-    const overlayDelay = reducedMotionEffective ? 30 : 180;
-    await new Promise((r) => setTimeout(r, overlayDelay));
+    // Show staging gear spinner during page transition
+    stagingLoading = true;
+    await tick();
+    await new Promise((r) => setTimeout(r, STAGING_NOTIFY_DELAY));
+    stagingLoading = false;
 
     // Show success notification (overlaid on the Gauge page)
     notifyType = 'success';
@@ -855,8 +858,14 @@
     showNotify = true;
   }
 
-  function confirmClearData() {
-    // Show confirmation dialog first - don't clear anything yet
+  async function confirmClearData() {
+    // Show staging gear spinner before confirmation dialog
+    stagingLoading = true;
+    await tick();
+    await new Promise((r) => setTimeout(r, STAGING_NOTIFY_DELAY));
+    stagingLoading = false;
+
+    // Show confirmation dialog
     notifyType = 'delete';
     notifyMessage = t('notify.delete_confirm');
     notifyButtonText = t('notify.delete');
@@ -1350,6 +1359,11 @@
         showNotify = false;
       } else if (notifyType === 'delete') {
         showNotify = false;
+        // Brief staging spinner after delete confirmation
+        stagingLoading = true;
+        await tick();
+        await new Promise((r) => setTimeout(r, 800));
+        stagingLoading = false;
         clearAllData();
       }
     }}
@@ -1362,6 +1376,15 @@
       showNotify = false;
     }}
   />
+{/if}
+
+{#if stagingLoading}
+  <div class="staging-backdrop staging-visible">
+    <div class="staging-spinner-wrap">
+      <Settings class="staging-gear-icon" size={48} />
+      <span class="staging-text">{t('crypto.preparing')}</span>
+    </div>
+  </div>
 {/if}
 
 <style>
