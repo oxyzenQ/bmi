@@ -1419,7 +1419,7 @@ p,
   .github-link,
   .section-header,
   .section-header-v2 {
-    background: rgba(10, 2, 28, 0.72) !important;
+    background: rgba(0, 0, 0, 0.72) !important;
     -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
     backdrop-filter: blur(8px) saturate(140%) !important;
     border: 1px solid var(--w-8) !important;
@@ -1434,7 +1434,7 @@ p,
   .hero-content,
   .hero-section .hero-content,
   main .hero-content {
-    background: rgba(10, 2, 28, 0.75) !important;
+    background: rgba(0, 0, 0, 0.75) !important;
     -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
     backdrop-filter: blur(8px) saturate(140%) !important;
     border: 1px solid var(--w-8) !important;
@@ -1448,7 +1448,7 @@ p,
      Previously 92% opacity made blur invisible on mobile. */
   .bmi-card,
   .form-card {
-    background: rgba(10, 2, 28, 0.80) !important;
+    background: rgba(0, 0, 0, 0.80) !important;
     -webkit-backdrop-filter: blur(6px) saturate(130%) !important;
     backdrop-filter: blur(6px) saturate(130%) !important;
     border: 1px solid var(--w-8) !important;
@@ -1459,7 +1459,7 @@ p,
      on mobile. Now uses a subtle tinted background that inherits
      the parent glass feel without adding a heavy layer. */
   .bmi-results-card {
-    background: rgba(10, 2, 28, 0.45) !important;
+    background: rgba(0, 0, 0, 0.45) !important;
     -webkit-backdrop-filter: blur(4px) saturate(110%) !important;
     backdrop-filter: blur(4px) saturate(110%) !important;
   }
@@ -1501,14 +1501,14 @@ p,
      to let blur show through, matching desktop visual weight. */
   .lang-backdrop,
   .notify-backdrop {
-    background: rgba(10, 2, 28, 0.85) !important;
+    background: rgba(0, 0, 0, 0.85) !important;
     -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
     backdrop-filter: blur(16px) saturate(160%) !important;
   }
 
   .lang-panel,
   .notify-float-box {
-    background: rgba(10, 2, 28, 0.70) !important;
+    background: rgba(0, 0, 0, 0.70) !important;
     -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
     backdrop-filter: blur(16px) saturate(160%) !important;
   }

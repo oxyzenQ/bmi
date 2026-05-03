@@ -21,7 +21,7 @@
 .lang-modal,
 .encrypt-modal,
 .feedback-modal {
-  background: rgba(10, 2, 28, 0.82);
+  background: rgba(0, 0, 0, 0.85);
   border: var(--border-by-rezky);
   border-radius: var(--radius-lg);
   transition: transform var(--dur-slow) var(--easing-smooth),
@@ -43,7 +43,7 @@
   .lang-modal,
   .encrypt-modal,
   .feedback-modal {
-    background: rgba(10, 2, 28, 0.72);
+    background: rgba(0, 0, 0, 0.75);
     -webkit-backdrop-filter: blur(10px) saturate(140%);
     backdrop-filter: blur(10px) saturate(140%);
   }
@@ -51,7 +51,7 @@
 
 /* ── Hero content fallback ── */
 .hero-content {
-  background: rgba(10, 2, 28, 0.82);
+  background: rgba(0, 0, 0, 0.85);
   border: var(--border-by-rezky);
   border-radius: 2rem;
   transition: transform var(--dur-slow) var(--easing-smooth),
@@ -62,7 +62,7 @@
 /* ── Hero content enhancement: blur where supported ── */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .hero-content {
-    background: rgba(10, 2, 28, 0.72);
+    background: rgba(0, 0, 0, 0.75);
     -webkit-backdrop-filter: blur(10px) saturate(140%);
     backdrop-filter: blur(10px) saturate(140%);
   }

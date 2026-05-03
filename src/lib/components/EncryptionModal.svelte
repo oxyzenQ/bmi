@@ -216,8 +216,11 @@
           <Icon size={32} strokeWidth={1.5} />
         </div>
         <h2 class="encrypt-title">{title}</h2>
-        {#if mode === 'export'}
-          <!-- Encryption badge: trust indicator -->
+      </div>
+
+      {#if mode === 'export'}
+        <!-- Trust indicators: separate from form actions -->
+        <div class="encrypt-meta">
           <div class="bmi-encryption-badge">
             <span class="bmi-encryption-badge__icon"><ShieldCheck size={14} /></span>
             <span class="bmi-encryption-badge__label">{t('crypto.encryption_badge')}</span>
@@ -227,8 +230,8 @@
             <span class="bmi-strong-warning__icon"><AlertCircle size={16} /></span>
             <span class="bmi-strong-warning__text">{@html t('crypto.strong_warning')}</span>
           </div>
-        {/if}
-      </div>
+        </div>
+      {/if}
 
       <form onsubmit={handleSubmit} class="encrypt-form">
         {#if mode === 'import' && importMeta}
@@ -349,23 +352,27 @@
             </div>
           </div>
         {/if}
+
         {#if mode === 'export' && !loading}
-          <!-- Export summary preview -->
-          <div class="bmi-export-summary">
-            <div class="bmi-export-summary__row">
-              <span class="bmi-export-summary__key">{t('crypto.export_summary_records')}</span>
-              <span class="bmi-export-summary__val">...</span>
-            </div>
-            <div class="bmi-export-summary__row">
-              <span class="bmi-export-summary__key">{t('crypto.export_summary_encrypted')}</span>
-              <span class="bmi-export-summary__val bmi-export-summary__val--encrypted">AES-256-GCM</span>
-            </div>
-            <div class="bmi-export-summary__row">
-              <span class="bmi-export-summary__key">{t('crypto.export_summary_version')}</span>
-              <span class="bmi-export-summary__val">v1</span>
+          <!-- Export summary: informational, separated from actions -->
+          <div class="encrypt-summary">
+            <div class="bmi-export-summary">
+              <div class="bmi-export-summary__row">
+                <span class="bmi-export-summary__key">{t('crypto.export_summary_records')}</span>
+                <span class="bmi-export-summary__val">...</span>
+              </div>
+              <div class="bmi-export-summary__row">
+                <span class="bmi-export-summary__key">{t('crypto.export_summary_encrypted')}</span>
+                <span class="bmi-export-summary__val bmi-export-summary__val--encrypted">AES-256-GCM</span>
+              </div>
+              <div class="bmi-export-summary__row">
+                <span class="bmi-export-summary__key">{t('crypto.export_summary_version')}</span>
+                <span class="bmi-export-summary__val">v1</span>
+              </div>
             </div>
           </div>
         {/if}
+
         <div class="encrypt-actions">
           <button type="button" class="encrypt-btn btn-cancel" onclick={handleCancel} disabled={loading}>
             {t('notify.cancel')}
@@ -392,9 +399,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--cosmic-dark-82, rgba(10, 2, 28, 0.82));
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    backdrop-filter: blur(24px) saturate(180%);
+    background: var(--glass-bg-backdrop, rgba(0, 0, 0, 0.88));
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    backdrop-filter: blur(24px) saturate(140%);
     z-index: 9999;
     opacity: 0;
     transition: opacity 0.2s ease;
@@ -413,22 +420,22 @@
   /* iOS Safari: stronger blur for mobile */
   @supports (-webkit-touch-callout: none) {
     .encrypt-backdrop {
-      -webkit-backdrop-filter: blur(32px) saturate(200%);
-      backdrop-filter: blur(32px) saturate(200%);
-      background: var(--cosmic-dark-92, rgba(10, 2, 28, 0.92));
+      -webkit-backdrop-filter: blur(32px) saturate(160%);
+      backdrop-filter: blur(32px) saturate(160%);
+      background: var(--glass-bg-strong, rgba(0, 0, 0, 0.92));
     }
   }
 
   .encrypt-box {
-    background: var(--glass-bg-enhanced, rgba(10, 2, 28, 0.72));
+    background: var(--glass-bg-enhanced, rgba(0, 0, 0, 0.75));
     border: var(--border-by-rezky);
     border-radius: var(--radius-lg);
     padding: 2rem;
     min-width: 340px;
     max-width: 90vw;
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    backdrop-filter: blur(24px) saturate(180%);
-    box-shadow: 0 25px 50px -12px var(--k-50);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    backdrop-filter: blur(24px) saturate(140%);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
     animation: modalIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 
@@ -448,7 +455,21 @@
     flex-direction: column;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-3);
+  }
+
+  /* ── Meta section: trust indicators separated from form ── */
+  .encrypt-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+
+  /* ── Summary section: informational, above actions ── */
+  .encrypt-summary {
+    margin-bottom: var(--space-4);
   }
 
   .encrypt-icon {
@@ -641,6 +662,7 @@
     display: flex;
     gap: 0.75rem;
     justify-content: center;
+    margin-top: var(--space-3);
   }
 
   .encrypt-btn {

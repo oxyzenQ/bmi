@@ -245,7 +245,17 @@
   }
 
   function handleDropZoneClick() {
-    fileInputEl?.click();
+    // Create a fresh input dynamically (reliable across all browsers)
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.style.display = 'none';
+    input.onchange = (e) => {
+      handleFileChange(e);
+      document.body.removeChild(input);
+    };
+    document.body.appendChild(input);
+    input.click();
   }
 
   function handleFileInputChange(e: Event) {

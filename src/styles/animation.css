@@ -747,6 +747,8 @@ html:not([data-graphics='render']) .shooting-star {
   transition: all var(--dur-fast) var(--easing-smooth);
   cursor: pointer;
   background: transparent;
+  pointer-events: auto;
+  z-index: 1;
 }
 
 .bmi-drop-zone:hover {
@@ -803,7 +805,8 @@ html:not([data-graphics='render']) .shooting-star {
   background: var(--w-6);
   border: 1px solid var(--w-12);
   border-radius: var(--radius-sm);
-  margin-top: var(--space-3);
+  margin-top: var(--space-2);
+  margin-bottom: 0;
 }
 
 .bmi-export-summary__row {

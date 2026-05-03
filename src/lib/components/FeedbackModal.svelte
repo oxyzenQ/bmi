@@ -156,9 +156,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--cosmic-dark-82, rgba(10, 2, 28, 0.82));
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    backdrop-filter: blur(24px) saturate(180%);
+    background: var(--glass-bg-backdrop, rgba(0, 0, 0, 0.88));
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    backdrop-filter: blur(24px) saturate(140%);
     z-index: 10000;
     opacity: 0;
     transition: opacity 0.2s ease;
@@ -206,7 +206,7 @@
     .feedback-backdrop {
       -webkit-backdrop-filter: blur(32px) saturate(200%);
       backdrop-filter: blur(32px) saturate(200%);
-      background: var(--cosmic-dark-92, rgba(10, 2, 28, 0.92));
+      background: var(--glass-bg-strong, rgba(0, 0, 0, 0.92));
     }
   }
 

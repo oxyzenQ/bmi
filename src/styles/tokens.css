@@ -162,8 +162,8 @@
   /* Deep-void-8 (2,8,23) */
   --dv8-25: rgba(2, 8, 23, 0.25);
 
-  /* Cosmic-base (10,8,24) */
-  --cbase-82: rgba(10, 8, 24, 0.82);
+  /* Cosmic-base — PURE BLACK */
+  --cbase-82: rgba(0, 0, 0, 0.82);
 
   /* Core-blue (59,130,246) — accent blue */
   --coreblue-0: rgba(59, 130, 246, 0);
@@ -343,26 +343,26 @@
   --cat-green-40: rgba(74, 222, 128, 0.4);
   --sd-92: rgba(15, 23, 42, 0.92);
   --shadow-heavy: rgba(0, 0, 0, 0.5);
-  --cosmic-base-95: rgba(10, 8, 24, 0.95);
+  --cosmic-base-95: rgba(0, 0, 0, 0.95);
   --darkred-85: rgba(183, 28, 28, 0.85);
 
   /* ── End opacity token system ── */
 
-  /* Cosmic-void (12,4,30) — deep purple-black for overlays */
-  --void-44: rgba(12, 4, 30, 0.44);
-  --void-52: rgba(12, 4, 30, 0.52);
-  --void-58: rgba(12, 4, 30, 0.58);
-  --void-85: rgba(12, 4, 30, 0.85);
+  /* Void — PURE BLACK overlay/button backgrounds */
+  --void-44: rgba(0, 0, 0, 0.44);
+  --void-52: rgba(0, 0, 0, 0.52);
+  --void-58: rgba(0, 0, 0, 0.58);
+  --void-85: rgba(0, 0, 0, 0.85);
 
-  /* Cosmic-dark (10,2,28) — dialog/backdrop backgrounds */
-  --cosmic-dark-78: rgba(10, 2, 28, 0.78);
-  --cosmic-dark-82: rgba(10, 2, 28, 0.82);
-  --cosmic-dark-92: rgba(10, 2, 28, 0.92);
-  --cosmic-dark-94: rgba(10, 2, 28, 0.94);
+  /* Cosmic-dark — PURE BLACK dialog/backdrop backgrounds (no purple tint) */
+  --cosmic-dark-78: rgba(0, 0, 0, 0.78);
+  --cosmic-dark-82: rgba(0, 0, 0, 0.82);
+  --cosmic-dark-92: rgba(0, 0, 0, 0.92);
+  --cosmic-dark-94: rgba(0, 0, 0, 0.94);
 
-  /* Cosmic-dk (15,3,25) — button gradient backgrounds */
-  --cosmic-dk-52: rgba(15, 3, 25, 0.52);
-  --cosmic-dk-58: rgba(15, 3, 25, 0.58);
+  /* Cosmic-dk — PURE BLACK button gradient backgrounds */
+  --cosmic-dk-52: rgba(0, 0, 0, 0.52);
+  --cosmic-dk-58: rgba(0, 0, 0, 0.58);
 
   /* Amber-gold (251,191,36) — golden amber for badges */
   --amber-gold-30: rgba(251, 191, 36, 0.30);
@@ -427,20 +427,21 @@
   --delay-close: 100ms;
   --delay-shimmer: 80ms;
 
-  /* ── GLASSMORPHISM DESIGN TOKENS (Bug #19 fix) ──
+  /* ── GLASSMORPHISM DESIGN TOKENS ──
      Centralized glass effect values for consistency across
      desktop, mobile, and fallback rendering contexts.
      Usage: components use these tokens instead of hardcoded values.
      Fallback (no blur support): --glass-bg-fallback
      Enhanced (blur supported): --glass-bg-enhanced + --glass-blur */
-  --glass-bg-fallback: rgba(10, 2, 28, 0.82);
-  --glass-bg-enhanced: rgba(10, 2, 28, 0.72);
-  --glass-bg-calc: rgba(10, 2, 28, 0.80);
-  --glass-bg-hero: rgba(10, 2, 28, 0.75);
-  --glass-bg-card: rgba(10, 2, 28, 0.72);
-  --glass-bg-results: rgba(10, 2, 28, 0.45);
-  --glass-bg-dialog: rgba(10, 2, 28, 0.70);
-  --glass-bg-backdrop: rgba(10, 2, 28, 0.85);
+  --glass-bg-fallback: rgba(0, 0, 0, 0.85);
+  --glass-bg-enhanced: rgba(0, 0, 0, 0.75);
+  --glass-bg-calc: rgba(0, 0, 0, 0.82);
+  --glass-bg-hero: rgba(0, 0, 0, 0.78);
+  --glass-bg-card: rgba(0, 0, 0, 0.75);
+  --glass-bg-results: rgba(0, 0, 0, 0.55);
+  --glass-bg-dialog: rgba(0, 0, 0, 0.72);
+  --glass-bg-backdrop: rgba(0, 0, 0, 0.88);
+  --glass-bg-strong: rgba(0, 0, 0, 0.90);
   --glass-blur: 8px;
   --glass-blur-heavy: 16px;
   --glass-blur-light: 6px;
@@ -449,6 +450,6 @@
   --glass-saturation-high: 160%;
   --glass-saturation-light: 130%;
   --glass-border: 1px solid rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
   --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
