@@ -87,7 +87,8 @@
 
   function saveBmiToHistory(bmi: number, h: number, w: number, a: string) {
     if (!browser) return;
-    if (!window.isSecureContext) return;
+    // Note: isSecureContext guard removed — localStorage is available regardless
+    // of HTTPS. Only crypto operations (export encryption) need secure context.
     if (lastSavedBmi === bmi) return;
 
     let history: Array<{ timestamp: number; bmi: number; height: number; weight: number; age?: number }> = [];

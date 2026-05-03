@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame, FileSpreadsheet, UploadCloud } from 'lucide-svelte';
   import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport, importBmiHistory, peekImportMeta, MAX_IMPORT_SIZE, type ImportFileMeta, type ImportError } from '$lib/utils/history-io';
+  import { STORAGE_KEYS, storageGetJSON } from '$lib/utils/storage';
   import { t as _t, localeVersion } from '$lib/i18n';
   import EncryptionModal from './EncryptionModal.svelte';
   import FeedbackModal from './FeedbackModal.svelte';
@@ -154,6 +155,7 @@
   let encryptError = $state('');
   let pendingImportText = $state('');
   let pendingImportMeta = $state<ImportFileMeta | undefined>(undefined);
+  let exportRecordCount = $state(0);
 
   // Feedback modal state (blocking confirmation)
   let showFeedbackModal = $state(false);
@@ -182,6 +184,9 @@
   }
 
   function handleExportClick() {
+    // Read current history count from storage for export summary
+    const history = storageGetJSON<Array<unknown>>(STORAGE_KEYS.HISTORY, []);
+    exportRecordCount = Array.isArray(history) ? history.length : 0;
     encryptModalMode = 'export';
     encryptError = '';
     showEncryptModal = true;
@@ -690,6 +695,7 @@
       mode={encryptModalMode}
       error={encryptError}
       importMeta={encryptModalMode === 'import' ? pendingImportMeta : undefined}
+      exportRecordCount={encryptModalMode === 'export' ? exportRecordCount : undefined}
       onConfirm={encryptModalMode === 'export' ? handleExportConfirm : handleImportConfirm}
       onCancel={handleModalCancel}
     />

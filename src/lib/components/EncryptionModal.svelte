@@ -23,6 +23,8 @@
     mode: 'export' | 'import';
     error?: string;
     importMeta?: ImportMeta;
+    /** Number of records that will be exported (shown in export summary) */
+    exportRecordCount?: number;
     onConfirm: (passphrase: string) => void;
     onCancel: () => void;
   }
@@ -32,6 +34,7 @@
     mode,
     error = '',
     importMeta,
+    exportRecordCount = 0,
     onConfirm,
     onCancel
   }: Props = $props();
@@ -359,7 +362,7 @@
             <div class="bmi-export-summary">
               <div class="bmi-export-summary__row">
                 <span class="bmi-export-summary__key">{t('crypto.export_summary_records')}</span>
-                <span class="bmi-export-summary__val">...</span>
+                <span class="bmi-export-summary__val">{exportRecordCount}</span>
               </div>
               <div class="bmi-export-summary__row">
                 <span class="bmi-export-summary__key">{t('crypto.export_summary_encrypted')}</span>

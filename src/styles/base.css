@@ -79,6 +79,7 @@ body::before {
   opacity: 1;
   filter: brightness(1) contrast(1.25) saturate(1);
   transform: translateZ(0);
+  pointer-events: none;
 }
 
 @media (max-width: 480px) {

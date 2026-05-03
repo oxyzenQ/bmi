@@ -1104,13 +1104,15 @@ p,
     transform: none !important;
   }
 
-  /* T-1b: Simplify body::after overlay on touch devices.
-     Previous fix used display:none which made wallpaper too bright.
-     Replace gradient with simple solid dark overlay — cheap to
-     composite (no gradient calculation per frame) while providing
-     consistent darkening across all wallpapers on mobile. */
+  /* T-1b: Strengthen body::after gradient overlay on touch.
+     Previously display:none removed ALL darkening, making wallpaper
+     too bright on mobile. Now keeps the overlay with stronger opacity
+     to compensate for smaller screens where the gradient covers less
+     visual area. The dark wallpaper needs this overlay for depth. */
   body::after {
-    background: rgba(0, 0, 0, 0.45) !important;
+    background: linear-gradient(180deg,
+      rgba(2, 6, 23, 0.70),
+      rgba(2, 6, 23, 0.92)) !important;
   }
 
   /* T-2: Promote .pager-section to its own compositor layer

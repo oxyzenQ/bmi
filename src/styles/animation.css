@@ -740,6 +740,8 @@ html:not([data-graphics='render']) .shooting-star {
       ============================== */
 .bmi-drop-zone {
   position: relative;
+  z-index: 10;
+  pointer-events: auto;
   border: 2px dashed var(--w-15);
   border-radius: var(--radius-md);
   padding: var(--space-5) var(--space-4);
