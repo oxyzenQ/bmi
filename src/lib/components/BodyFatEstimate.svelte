@@ -202,7 +202,6 @@
 <style>
   .body-fat-container {
     padding-top: 20px !important;
-    margin-bottom: clamp(60px, 30vh, 180px) !important;
   }
 
   .sex-toggle {
