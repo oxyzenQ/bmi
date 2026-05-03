@@ -911,9 +911,26 @@ html:not([data-graphics='render']) .shooting-star {
 }
 
 /* Global spin keyframe — used by staging gear icon and other spinners.
-   Defined here (not scoped) so all components can reference it. */
+   Defined here (not scoped) so all components can reference it.
+   Loading indicators are FUNCTIONAL (not decorative), so they must
+   always animate — even when prefers-reduced-motion is enabled. */
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Override reduced-motion for functional loading spinners.
+   iOS and many mobile browsers enable prefers-reduced-motion by default,
+   which would kill all animations including loading indicators.
+   The gear spinner communicates "system is working" — it must move. */
+@media (prefers-reduced-motion: reduce) {
+  .staging-gear-icon {
+    animation-duration: 1.6s !important;
+    animation-iteration-count: infinite !important;
+  }
+  .btn-spinner {
+    animation-duration: 0.8s !important;
+    animation-iteration-count: infinite !important;
   }
 }

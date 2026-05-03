@@ -1405,9 +1405,10 @@ p,
   }
 
   /* T-GLASS: Moonshot Glass for touch devices (Stellar v15).
-     Slightly stronger opacity than desktop (0.65 vs 0.55) for varied
-     mobile GPUs. Blur 10px is enough for glass without GPU strain.
-     saturate(140%) keeps wallpaper visible on mobile screens. */
+     Stronger opacity than desktop (0.65 vs 0.55) for varied mobile GPUs.
+     NO brightness() — per-pixel color matrix is expensive on mobile.
+     saturate(140%) + blur(8px) = glass effect without GPU strain.
+     Kept blur at 8px (same as pre-v15) for scroll performance. */
   .footer-disclaimer,
   .about-card,
   .gauge-container,
@@ -1416,8 +1417,8 @@ p,
   .section-header,
   .section-header-v2 {
     background: rgba(0, 0, 0, 0.65) !important;
-    -webkit-backdrop-filter: blur(10px) saturate(140%) brightness(1.10) !important;
-    backdrop-filter: blur(10px) saturate(140%) brightness(1.10) !important;
+    -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+    backdrop-filter: blur(8px) saturate(140%) !important;
     border: 1px solid rgba(255, 255, 255, 0.10) !important;
     box-shadow:
       0 4px 16px var(--k-30),
@@ -1425,14 +1426,13 @@ p,
   }
 
   /* T-GLASS-HERO: Hero content (Stellar v15: Moonshot Glass).
-     Slightly lighter than other containers for visual impact.
-     Double selector for higher specificity to override nav.css conflicts. */
+     NO brightness() on mobile for scroll performance. */
   .hero-content,
   .hero-section .hero-content,
   main .hero-content {
     background: rgba(0, 0, 0, 0.60) !important;
-    -webkit-backdrop-filter: blur(10px) saturate(140%) brightness(1.10) !important;
-    backdrop-filter: blur(10px) saturate(140%) brightness(1.10) !important;
+    -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+    backdrop-filter: blur(8px) saturate(140%) !important;
     border: 1px solid rgba(255, 255, 255, 0.10) !important;
     box-shadow:
       0 4px 16px var(--k-30),
@@ -1440,22 +1440,23 @@ p,
   }
 
   /* T-GLASS-CALC: Calculator cards (Stellar v15: Moonshot Glass).
-     Slightly stronger opacity (0.70) since these hold input fields
-     that need extra contrast for readability. 8px blur for glass effect. */
+     Stronger opacity (0.70) for input field readability.
+     NO brightness() on mobile — GPU cost too high for scroll targets. */
   .bmi-card,
   .form-card {
     background: rgba(0, 0, 0, 0.70) !important;
-    -webkit-backdrop-filter: blur(8px) saturate(130%) brightness(1.10) !important;
-    backdrop-filter: blur(8px) saturate(130%) brightness(1.10) !important;
+    -webkit-backdrop-filter: blur(6px) saturate(130%) !important;
+    backdrop-filter: blur(6px) saturate(130%) !important;
     border: 1px solid rgba(255, 255, 255, 0.10) !important;
   }
 
   /* T-GLASS-RESULTS: Results inner card (Stellar v15).
-     Lightest glass since it sits inside another glass container. */
+     Lightest glass since it sits inside another glass container.
+     Minimal blur for performance. */
   .bmi-results-card {
     background: rgba(0, 0, 0, 0.40) !important;
-    -webkit-backdrop-filter: blur(6px) saturate(120%) brightness(1.05) !important;
-    backdrop-filter: blur(6px) saturate(120%) brightness(1.05) !important;
+    -webkit-backdrop-filter: blur(4px) saturate(120%) !important;
+    backdrop-filter: blur(4px) saturate(120%) !important;
   }
 
   /* T-16: Remove ALL pseudo-element shine sweeps permanently on touch.
@@ -1491,8 +1492,7 @@ p,
   }
 
   /* T-23: Dialog backdrop and panels (Stellar v15: Moonshot Glass).
-     Backdrop uses strong opacity to dim content behind dialogs.
-     Panels use lighter glass to feel consistent with the new system. */
+     NO brightness() on mobile. */
   .lang-backdrop,
   .notify-backdrop {
     background: rgba(0, 0, 0, 0.80) !important;
