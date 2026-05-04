@@ -249,7 +249,7 @@ function updateLicense(oldShort: string, newShort: string): void {
 }
 
 function updateBackupTs(newVersion: string): void {
-  let content = readFile('src/lib/utils/backup.ts');
+  const content = readFile('src/lib/utils/backup.ts');
   const updated = content.replace(
     /APP_VERSION\s*=\s*['"`]([^'"`]+)['"`]/,
     `APP_VERSION = '${newVersion}'`

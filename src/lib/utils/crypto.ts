@@ -42,7 +42,7 @@ const ARGON2_OPTIONS = {
 
 const META_ENCRYPTION_KEY = '__encryption_enabled';
 const META_ENCRYPTION_SALT = '__encryption_salt';
-const META_PASSPHRASE_HINT = '__passphrase_hint';
+// Passphrase hint stored in localStorage (see setPassphraseHint / getPassphraseHint below)
 
 // ── Types ──
 export interface EncryptedPayload {
@@ -197,12 +197,16 @@ export async function computeChecksum(data: string): Promise<string> {
  */
 export async function verifyChecksum(data: string, checksum: string): Promise<boolean> {
   const computed = await computeChecksum(data);
-  // Constant-time comparison via crypto.subtle.timingSafeEqual
+  // Constant-time comparison (Web Crypto has no timingSafeEqual on SubtleCrypto)
   try {
     const a = Uint8Array.from(atob(computed), c => c.charCodeAt(0));
     const b = Uint8Array.from(atob(checksum), c => c.charCodeAt(0));
     if (a.length !== b.length) return false;
-    return crypto.subtle.timingSafeEqual(a, b) as unknown as boolean;
+    let result = 0;
+    for (let i = 0; i < a.length; i++) {
+      result |= a[i] ^ b[i]; // XOR — accumulates differences without early exit
+    }
+    return result === 0;
   } catch {
     return false;
   }
@@ -272,9 +276,9 @@ export async function analyzeStrength(passphrase: string): Promise<StrengthResul
     return {
       score: result.score,
       entropy: result.guesses_log10,
-      crackTimeDisplay: result.crack_times_display.offline_slow_hashing_1e4_per_second,
+      crackTimeDisplay: result.crack_times_display.offline_slow_hashing_1e5_per_second,
       warning: result.feedback.warning || undefined,
-      suggestions: result.feedback.suggestions || [],
+      suggestions: [...(result.feedback.suggestions || [])],
     };
   } catch {
     // zxcvbn load failure — fall back to basic scoring
