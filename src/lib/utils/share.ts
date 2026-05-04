@@ -5,7 +5,7 @@
  * C-2: Copy formatted BMI text to clipboard
  */
 
-import { t } from '$lib/i18n';
+import { t, getLocale } from '$lib/i18n';
 
 export interface BmiShareData {
   bmi: number;
@@ -45,7 +45,7 @@ export function formatBmiText(data: BmiShareData): string {
 
   text += `\n${t('share.footer')}`;
   text += `\nhttps://bmi-logigo.vercel.app`;
-  text += `\n${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}`;
+  text += `\n${new Date().toLocaleString(getLocale() === 'zh' ? 'zh-CN' : getLocale(), { dateStyle: 'medium', timeStyle: 'short' })}`;
 
   return text;
 }

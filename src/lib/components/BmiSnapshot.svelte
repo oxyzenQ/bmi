@@ -112,9 +112,9 @@
   }
 
   function getStatusBg(bmi: number): string {
-    if (bmi < 18.5) return 'status-underweight';
-    if (bmi < 25) return 'status-normal';
-    if (bmi < 30) return 'status-overweight';
+    if (bmi < BMI_THRESHOLDS.UNDERWEIGHT_MAX) return 'status-underweight';
+    if (bmi < BMI_THRESHOLDS.NORMAL_MAX) return 'status-normal';
+    if (bmi < BMI_THRESHOLDS.OVERWEIGHT_MAX) return 'status-overweight';
     return 'status-obese';
   }
 </script>

@@ -465,6 +465,12 @@ const en: TranslationDict = {
   'backup.restore_success': 'Backup restored successfully',
   'backup.restore_failed': 'Failed to restore backup',
   'backup.records': '{n} record(s)',
+
+  // ── Relative time ──
+  'time.just_now': 'just now',
+  'time.minutes_ago': '{n} minute(s) ago',
+  'time.hours_ago': '{n} hour(s) ago',
+  'time.days_ago': '{n} day(s) ago',
 };
 
 export default en;

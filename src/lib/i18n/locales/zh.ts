@@ -464,6 +464,12 @@ const zh: TranslationDict = {
   'backup.restore_success': '\u5907\u4efd\u6062\u590d\u6210\u529f',
   'backup.restore_failed': '\u5907\u4efd\u6062\u590d\u5931\u8d25',
   'backup.records': '{n} \u6761\u8bb0\u5f55',
+
+  // ── Relative time ──
+  'time.just_now': '\u521a\u624d',
+  'time.minutes_ago': '{n} \u5206\u949f\u524d',
+  'time.hours_ago': '{n} \u5c0f\u65f6\u524d',
+  'time.days_ago': '{n} \u5929\u524d',
 };
 
 export default zh;

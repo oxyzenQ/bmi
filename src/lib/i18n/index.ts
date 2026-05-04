@@ -77,7 +77,7 @@ export async function setLocale(code: Locale): Promise<void> {
   if (browser) storageSet(STORAGE_KEYS.LOCALE, code);
   await loadLocale(code);
   if (browser) {
-    document.documentElement.lang = code === 'zh' ? 'zh-CN' : code === 'id' ? 'id' : code === 'ja' ? 'ja' : 'en';
+    document.documentElement.lang = code === 'zh' ? 'zh-CN' : code;
   }
 }
 

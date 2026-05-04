@@ -323,10 +323,6 @@ p,
     font-size: clamp(1.15rem, 4vw, 1.5rem);
   }
 
-  .hero-bottom {
-    margin-bottom: -20px;
-  }
-
   .gauge-container {
     width: min(96vw, 260px);
   }

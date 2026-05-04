@@ -464,6 +464,12 @@ const ja: TranslationDict = {
   'backup.restore_success': '\u30d0\u30c3\u30af\u30a2\u30c3\u30d7\u306e\u5fa9\u5143\u306b\u6210\u529f\u3057\u307e\u3057\u305f',
   'backup.restore_failed': '\u30d0\u30c3\u30af\u30a2\u30c3\u30d7\u306e\u5fa9\u5143\u306b\u5931\u6557\u3057\u307e\u3057\u305f',
   'backup.records': '{n} \u4ef6\u306e\u30ec\u30b3\u30fc\u30c9',
+
+  // ── Relative time ──
+  'time.just_now': '\u305f\u3063\u3055\u3063\u4eca',
+  'time.minutes_ago': '{n} \u5206\u524d',
+  'time.hours_ago': '{n} \u6642\u9593\u524d',
+  'time.days_ago': '{n} \u65e5\u524d',
 };
 
 export default ja;

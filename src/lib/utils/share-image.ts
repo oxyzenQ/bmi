@@ -3,7 +3,7 @@
  * Produces a shareable PNG for Instagram Story / X / etc.
  */
 
-import { t } from '$lib/i18n';
+import { t, getLocale } from '$lib/i18n';
 import { CATEGORY_COLORS, COLORS, isBmiCategory } from './bmi-category';
 
 export interface BmiCardData {
@@ -232,7 +232,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 
   // Timestamp
   const now = new Date();
-  const timestamp = now.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+  const timestamp = now.toLocaleString(getLocale() === 'zh' ? 'zh-CN' : getLocale(), { dateStyle: 'medium', timeStyle: 'short' });
   ctx.fillStyle = 'rgba(255,255,255,0.12)';
   ctx.font = '400 18px system-ui, sans-serif';
   ctx.fillText(timestamp, CARD_W / 2, CARD_H - 80);

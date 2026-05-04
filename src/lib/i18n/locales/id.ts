@@ -464,6 +464,12 @@ const id: TranslationDict = {
   'backup.restore_success': 'Cadangan berhasil dipulihkan',
   'backup.restore_failed': 'Gagal memulihkan cadangan',
   'backup.records': '{n} catatan',
+
+  // ── Relative time ──
+  'time.just_now': 'baru saja',
+  'time.minutes_ago': '{n} menit yang lalu',
+  'time.hours_ago': '{n} jam yang lalu',
+  'time.days_ago': '{n} hari yang lalu',
 };
 
 export default id;

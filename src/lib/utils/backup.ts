@@ -19,11 +19,12 @@ import {
     dbBackupSave,
     isIndexedDbAvailable,
 } from './db';
+import { t } from '$lib/i18n';
 import { STORAGE_KEYS, storageGet } from './storage';
 
 // ── Constants ──
 const MAX_BACKUPS = 3;
-const APP_VERSION = '12.0.0';
+const APP_VERSION = '13.0.0';
 
 // ── Types ──
 export interface BackupStatus {
@@ -195,10 +196,10 @@ function relativeTime(timestamp: number): string {
   const diffHr = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHr / 24);
 
-  if (diffSec < 60) return 'just now';
-  if (diffMin < 60) return `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`;
-  if (diffHr < 24) return `${diffHr} hour${diffHr === 1 ? '' : 's'} ago`;
-  if (diffDay < 30) return `${diffDay} day${diffDay === 1 ? '' : 's'} ago`;
+  if (diffSec < 60) return t('time.just_now');
+  if (diffMin < 60) return t('time.minutes_ago', { n: diffMin });
+  if (diffHr < 24) return t('time.hours_ago', { n: diffHr });
+  if (diffDay < 30) return t('time.days_ago', { n: diffDay });
 
   // Fallback to date string
   return new Date(timestamp).toLocaleDateString();
