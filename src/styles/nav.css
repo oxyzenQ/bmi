@@ -186,16 +186,16 @@ html[data-performance-tier="medium"] .cosmic-particles {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  border: 1px solid var(--w-14);
-  background: var(--w-6);
-  color: var(--w-55);
+  border: 1px solid rgba(139, 92, 246, 0.18);
+  background: var(--btn-bg);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   position: relative;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s var(--easing-smooth);
-  box-shadow: 0 2px 8px var(--k-40);
+  box-shadow: none;
 }
 
 .pager-btn-futuristic svg {
@@ -205,15 +205,15 @@ html[data-performance-tier="medium"] .cosmic-particles {
 }
 
 .pager-btn-futuristic:hover {
-  background: var(--w-10);
-  border-color: var(--w-20);
-  color: var(--w-75);
+  background: var(--btn-bg-hover);
+  border-color: rgba(139, 92, 246, 0.30);
+  color: white;
   transform: translateY(-1px);
 }
 
 .pager-btn-futuristic:active {
   transform: translateY(0) scale(0.96);
-  background: var(--w-8);
+  background: var(--btn-bg-active);
 }
 
 .pager-btn-futuristic::before {

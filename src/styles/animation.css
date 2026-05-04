@@ -521,23 +521,23 @@ html:not([data-graphics='render']) .shooting-star {
   transform: scale(0.7);
   transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s ease, border-color 0.2s ease;
   pointer-events: none;
-  color: var(--w-40) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
 }
 
 .pager-btn-scroll-top.fab-visible {
   opacity: 1;
   transform: scale(1);
   pointer-events: auto;
-  color: var(--w-55) !important;
-  border-color: var(--w-20) !important;
-  background: var(--w-5) !important;
-  box-shadow: 0 0 14px var(--w-6) !important;
+  color: white !important;
+  border-color: rgba(139, 92, 246, 0.18) !important;
+  background: var(--btn-bg) !important;
+  box-shadow: none !important;
 }
 
 .pager-btn-scroll-top.fab-visible:hover {
-  background: var(--w-10) !important;
-  box-shadow: 0 0 20px var(--w-8) !important;
-  color: var(--w-75) !important;
+  background: var(--btn-bg-hover) !important;
+  box-shadow: none !important;
+  color: white !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
