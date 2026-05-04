@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BookOpenCheck, SquareSigma, Sparkles } from 'lucide-svelte';
+  import { Activity, Gem, Target } from 'lucide-svelte';
   import { onMount, onDestroy } from 'svelte';
   import { t as _t, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
@@ -42,15 +42,15 @@
 
     <div class="hero-features">
       <div class="feature">
-        <SquareSigma class="SquareSigma" />
+        <Target class="Target" />
         <span>{t('hero.feature1')}</span>
       </div>
       <div class="feature">
-        <BookOpenCheck class="BookOpenCheck" />
+        <Activity class="Activity" />
         <span>{t('hero.feature2')}</span>
       </div>
       <div class="feature">
-        <Sparkles class="Sparkles" />
+        <Gem class="Gem" />
         <span>{t('hero.feature3')}</span>
       </div>
     </div>

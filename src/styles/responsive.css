@@ -45,19 +45,19 @@
 }
 
 /* Hero icons */
-.SquareSigma {
+.Target {
   color: var(--cosmic-blue) !important;
   width: 24px !important;
   height: 24px !important;
 }
 
-.BookOpenCheck {
+.Activity {
   color: var(--cosmic-silver) !important;
   width: 24px !important;
   height: 24px !important;
 }
 
-.Sparkles {
+.Gem {
   color: var(--cosmic-purple) !important;
   width: 24px !important;
   height: 24px !important;
