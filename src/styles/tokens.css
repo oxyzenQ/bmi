@@ -478,4 +478,22 @@
   --cat-red-bright: rgba(255, 107, 107, 1);             /* #ff6b6b — form error */
   --cat-red-soft: rgba(252, 165, 165, 1);               /* #fca5a5 — TDEE gain range */
   --neon-purple: rgba(89, 0, 233, 1);                   /* #5900e9 — focus border */
+
+  /* Extended semantic colors — commonly repeated hex values */
+  --blue-300-solid: rgba(147, 197, 253, 1);              /* #93c5fd — below/underweight tint */
+  --green-300-solid: rgba(134, 239, 172, 1);             /* #86efac — delta within range */
+  --emerald-solid: rgba(16, 185, 129, 1);                /* #10b981 — normal weight category */
+  --warn-amber: rgba(245, 158, 11, 1);                   /* #f59e0b — warning/overweight icon */
+  --red-500-solid: rgba(239, 68, 68, 1);                 /* #ef4444 — obese category */
+  --slate-500-solid: rgba(100, 116, 139, 1);             /* #64748b — disclaimer text */
+  --slate-200-solid: rgba(226, 232, 240, 1);             /* #e2e8f0 — scale label text */
+  --slate-50-solid: rgba(248, 250, 252, 1);              /* #f8fafc — strong text, ref bold */
+  --slate-400-solid: rgba(148, 163, 184, 1);             /* #94a3b8 — muted description text */
+  --warn-yellow: rgba(250, 204, 21, 1);                   /* #facc15 — warning icon yellow-400 */
+  --warn-yellow-light: rgba(253, 224, 71, 1);             /* #fde047 — warning icon yellow-300 */
+  --cat-green-toast: rgba(0, 200, 83, 1);                 /* #00C853 — success toast */
+  --pill-text-blue: rgba(230, 240, 255, 1);               /* #e6f0ff — pill indicator text */
+  --pill-dot-grey: rgba(161, 161, 170, 1);                /* #a1a1aa — pill grey dot */
+  --text-on-amber: rgba(26, 26, 46, 1);                    /* #1a1a2e — text on amber background */
+  --slate-600-solid: rgba(71, 85, 105, 1);                  /* #475569 — axis label, time text */
 }

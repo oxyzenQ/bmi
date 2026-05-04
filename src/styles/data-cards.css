@@ -136,7 +136,7 @@
 
 .stat-badge.badge-below {
   background: var(--cat-blue-15);
-  color: #93c5fd;
+  color: var(--blue-300-solid);
   border: 1px solid var(--cat-blue-30);
 }
 
@@ -156,11 +156,11 @@
 }
 
 .delta-desc.delta-below {
-  color: #93c5fd;
+  color: var(--blue-300-solid);
 }
 
 .delta-desc.delta-within {
-  color: #86efac;
+  color: var(--green-300-solid);
 }
 
 /* BMI Prime progress bar */
@@ -235,19 +235,19 @@
 .bmi-results-card.cat-normal .bmi-value,
 .bmi-results-card.cat-normal .bmi-category,
 .bmi-results-card.cat-normal .category-icon {
-  color: #10b981;
+  color: var(--emerald-solid);
 }
 
 .bmi-results-card.cat-overweight .bmi-value,
 .bmi-results-card.cat-overweight .bmi-category,
 .bmi-results-card.cat-overweight .category-icon {
-  color: #f59e0b;
+  color: var(--warn-amber);
 }
 
 .bmi-results-card.cat-obese .bmi-value,
 .bmi-results-card.cat-obese .bmi-category,
 .bmi-results-card.cat-obese .category-icon {
-  color: #ef4444;
+  color: var(--red-500-solid);
 }
 
 /* ==============================
@@ -350,7 +350,7 @@
 
 .tdee-gender-badge {
   background: var(--coreblue-15);
-  color: #93c5fd;
+  color: var(--blue-300-solid);
   border: 1px solid var(--coreblue-35);
 }
 
@@ -416,7 +416,7 @@
 
 .tdee-disclaimer {
   font-size: 0.65rem;
-  color: #64748b;
+  color: var(--slate-500-solid);
   line-height: 1.4;
   text-align: center;
 }
@@ -594,7 +594,7 @@
 }
 
 .scale-label {
-  color: #e2e8f0;
+  color: var(--slate-200-solid);
   font: 600 12px/1 'Inter Variable', ui-sans-serif, system-ui;
 }
 
@@ -720,7 +720,7 @@
 }
 
 .reference-table .ref-col strong {
-  color: #f8fafc;
+  color: var(--slate-50-solid);
   font-weight: 700;
 }
 
@@ -732,7 +732,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #93c5fd;
+  color: var(--blue-300-solid);
   filter: drop-shadow(0 0 8px var(--blue-35));
 }
 

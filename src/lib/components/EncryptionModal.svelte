@@ -671,7 +671,7 @@
     background: var(--darkred-10);
     border: 1px solid var(--darkred-30);
     border-radius: 8px;
-    color: #ef4444;
+    color: var(--red-500-solid);
     font-size: 0.85rem;
   }
 

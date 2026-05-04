@@ -198,7 +198,7 @@
 
   .backup-icon-warning {
     display: inline-flex;
-    color: #f59e0b;
+    color: var(--warn-amber);
     margin-bottom: 0.25rem;
   }
 
@@ -255,7 +255,7 @@
   }
 
   .backup-result.error {
-    color: #ef4444;
+    color: var(--red-500-solid);
     background: rgba(239, 68, 68, 0.1);
   }
 

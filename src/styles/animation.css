@@ -848,7 +848,7 @@ html:not([data-graphics='render']) .shooting-star {
 }
 
 .bmi-strong-warning__icon {
-  color: #f59e0b;
+  color: var(--warn-amber);
   flex-shrink: 0;
   margin-top: 1px;
 }

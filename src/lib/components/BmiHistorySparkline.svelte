@@ -399,7 +399,7 @@
 
   .sparkline-empty {
     text-align: center;
-    color: #64748b;
+    color: var(--slate-500-solid);
     font-size: 0.875rem;
     padding: 1.5rem;
   }
@@ -416,7 +416,7 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.875rem;
-    color: #94a3b8;
+    color: var(--slate-400-solid);
     font-weight: 500;
   }
 
@@ -429,12 +429,12 @@
     padding: 0.2rem 0.6rem;
     border-radius: 9999px;
     background: var(--sg-15);
-    color: #94a3b8;
+    color: var(--slate-400-solid);
   }
 
   .sparkline-badge.trend-down {
     background: var(--cat-green-15);
-    color: #00C853;
+    color: var(--cat-green-toast);
   }
 
   .sparkline-badge.trend-up {
@@ -466,7 +466,7 @@
 
   .axis-label {
     font-size: 9px;
-    fill: #475569;
+    fill: var(--slate-600-solid);
     font-family: 'JetBrains Mono Variable', monospace;
     dominant-baseline: middle;
   }
@@ -487,7 +487,7 @@
 
   .x-label {
     font-size: 0.55rem;
-    color: #475569;
+    color: var(--slate-600-solid);
     font-family: 'JetBrains Mono Variable', monospace;
   }
 
@@ -537,18 +537,18 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #94a3b8;
+    color: var(--slate-400-solid);
   }
 
   .tooltip-date {
     font-size: 0.6rem;
-    color: #64748b;
+    color: var(--slate-500-solid);
     margin-top: 0.15rem;
   }
 
   .tooltip-time {
     font-size: 0.55rem;
-    color: #475569;
+    color: var(--slate-600-solid);
     font-family: 'JetBrains Mono Variable', monospace;
   }
 
@@ -562,7 +562,7 @@
 
   .sparkline-stat {
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--slate-500-solid);
   }
 
 

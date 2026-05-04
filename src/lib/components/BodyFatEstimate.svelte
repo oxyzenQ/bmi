@@ -360,7 +360,7 @@
   .bf-ranges h4 {
     margin: 0 0 0.75rem;
     font-size: 0.85rem;
-    color: #e2e8f0;
+    color: var(--slate-200-solid);
     text-align: center;
   }
 

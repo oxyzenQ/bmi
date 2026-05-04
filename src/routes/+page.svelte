@@ -1508,11 +1508,11 @@
   }
 
   .pager-smooth .render-on {
-    color: #00c853;
+    color: var(--cat-green-toast);
   }
 
   .pager-smooth .render-off {
-    color: #ffd600;
+    color: var(--cat-amber-95);
   }
 
   .pager-theme :global(.render-spark) {

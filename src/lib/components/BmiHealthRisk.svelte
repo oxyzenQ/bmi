@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Shield, AlertTriangle, Activity, Heart } from 'lucide-svelte';
-  import { CATEGORY_COLORS, COLORS } from '$lib/utils/bmi-category';
+  import { COLORS } from '$lib/utils/bmi-category';
   import { t as _t, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
@@ -240,7 +240,7 @@
   .risk-marker.risk-elevated {
     background: var(--cat-amber-90);
     box-shadow: 0 0 20px var(--cat-yellow-40);
-    color: #1a1a2e;
+    color: var(--text-on-amber);
   }
 
   .risk-marker.risk-high {
@@ -249,7 +249,7 @@
   }
 
   .risk-marker.risk-unknown {
-    background: #64748b;
+    background: var(--slate-500-solid);
   }
 
   .risk-arrow {
@@ -344,7 +344,7 @@
   .health-tips h4 {
     margin: 0 0 1rem;
     font-size: 1rem;
-    color: #f8fafc;
+    color: var(--slate-50-solid);
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -353,7 +353,7 @@
   .health-tips ul {
     margin: 0;
     padding-left: 1.25rem;
-    color: #94a3b8;
+    color: var(--slate-400-solid);
     font-size: 0.875rem;
     line-height: 1.6;
   }

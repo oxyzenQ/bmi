@@ -37,7 +37,7 @@
 
 /* Footer disclaimer warning icon */
 .footer-disclaimer .warn-ic {
-  color: #facc15;
+  color: var(--warn-yellow);
   /* yellow-400 */
   margin-right: 0.5rem;
   position: relative;
@@ -56,7 +56,7 @@
 .footer-disclaimer .warn-ic-lg {
   margin-right: 0;
   top: 0;
-  color: #fde047;
+  color: var(--warn-yellow-light);
   /* yellow-300 for brighter */
   filter: drop-shadow(0 0 10px var(--gold-45));
 }
@@ -205,7 +205,7 @@
 .form-input:-webkit-autofill:focus,
 .form-input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 1000px var(--sd-90) inset !important;
-  -webkit-text-fill-color: #ffffff !important;
+  -webkit-text-fill-color: var(--stellar-white) !important;
   border: 1px solid var(--w-10) !important;
   transition: background-color 5000s ease-in-out 0s;
 }
@@ -227,7 +227,7 @@
   border-radius: 9999px;
   border: 2px solid var(--text-muted);
   background: var(--sd-55);
-  color: #e6f0ff;
+  color: var(--pill-text-blue);
   font-weight: 600;
   font-size: 1rem;
   position: relative;
@@ -242,7 +242,7 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #a1a1aa;
+  background: var(--pill-dot-grey);
   box-shadow: 0 0 8px var(--zinc-36);
   flex: 0 0 auto;
 }
@@ -303,6 +303,6 @@
 }
 
 .pill-indicator[data-color="grey"] .dot {
-  background: #9CA3AF;
+  background: var(--text-muted-slate);
   box-shadow: 0 0 8px var(--cat-slate-32);
 }

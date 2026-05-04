@@ -270,7 +270,7 @@
   text-align: center;
   padding: 0.5rem;
   font-size: 0.75rem;
-  color: #00C853;
+  color: var(--cat-green-toast);
   font-weight: 600;
   animation: toastFade 0.25s ease;
 }
