@@ -135,8 +135,10 @@ const id: TranslationDict = {
   'crypto.show_passphrase': 'Tampilkan passphrase',
   'crypto.hide_passphrase': 'Sembunyikan passphrase',
   'crypto.strength_weak': 'Lemah',
+  'crypto.strength_fair': 'Cukup',
   'crypto.strength_medium': 'Sedang',
   'crypto.strength_strong': 'Kuat',
+  'crypto.strength_very_strong': 'Sangat Kuat',
   'crypto.meta_status': 'Status',
   'crypto.meta_encrypted': 'Terenkripsi',
   'crypto.meta_unencrypted': 'Tidak terenkripsi',
@@ -152,6 +154,12 @@ const id: TranslationDict = {
   'crypto.export_summary_records': 'Data',
   'crypto.export_summary_encrypted': 'Enkripsi',
   'crypto.export_summary_version': 'Format',
+  'crypto.export_summary_kdf': 'Derivasi Kunci',
+
+  // ── Passphrase hint (local only) ──
+  'crypto.hint_label': 'Petunjuk Passphrase (opsional)',
+  'crypto.hint_placeholder': 'cth. "nama hewan + tanggal lahir"',
+  'crypto.hint_import_label': 'Petunjuk Anda',
 
   // ── Results ──
   'results.title': 'Hasil Anda',
@@ -390,6 +398,7 @@ const id: TranslationDict = {
   'history.encrypted_no_passphrase': 'File ini dienkripsi. Masukkan passphrase Anda.',
   'history.wrong_passphrase': 'Passphrase salah — tidak dapat mendekripsi.',
   'history.corrupted_file': 'File rusak — data terenkripsi tidak lengkap atau rusak.',
+  'history.tampered_file': 'Terdeteksi perubahan — checksum tidak cocok. File telah dimodifikasi sejak diekspor.',
   'history.empty_file': 'File kosong (0 byte).',
   'history.file_too_large': 'File terlalu besar (maks 5 MB).',
   'history.unsupported_version': 'Versi file tidak didukung. Silakan perbarui aplikasi Anda.',

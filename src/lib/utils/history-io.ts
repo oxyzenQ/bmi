@@ -434,11 +434,14 @@ export async function validateBmiImport(json: string, passphrase?: string): Prom
                         return { valid: false, error: t('history.encrypted_no_passphrase'), errorCode: 'encrypted_no_passphrase' };
                 }
                 const { decrypt } = await import('./crypto');
-                const decrypted = await decrypt(json, passphrase);
-                if (decrypted === null) {
+                const result = await decrypt(json, passphrase);
+                if (result === null) {
                         return { valid: false, error: t('history.wrong_passphrase'), errorCode: 'wrong_passphrase' };
                 }
-                content = decrypted;
+                if (!result.integrityOk) {
+                        return { valid: false, error: t('history.tampered_file'), errorCode: 'integrity_failed' };
+                }
+                content = result.plaintext;
         }
 
         const result = await parseAndValidate(content);
@@ -548,11 +551,14 @@ export async function importBmiHistory(json: string, passphrase?: string): Promi
                         return { success: false, count: 0, error: t('history.corrupted_file'), errorCode: 'corrupted_file' };
                 }
                 const { decrypt } = await import('./crypto');
-                const decrypted = await decrypt(json, passphrase);
-                if (decrypted === null) {
+                const result = await decrypt(json, passphrase);
+                if (result === null) {
                         return { success: false, count: 0, error: t('history.wrong_passphrase'), errorCode: 'wrong_passphrase' };
                 }
-                content = decrypted;
+                if (!result.integrityOk) {
+                        return { success: false, count: 0, error: t('history.tampered_file'), errorCode: 'integrity_failed' };
+                }
+                content = result.plaintext;
         }
 
         const result = await parseAndValidate(content);

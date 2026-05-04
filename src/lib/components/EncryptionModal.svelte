@@ -1,12 +1,17 @@
 <script lang="ts">
   /**
    * Encryption Modal for Secure Export/Import
-   * - Export: Passphrase + Confirm (mandatory)
-   * - Import: Passphrase only (auto-detect encrypted file)
+   * - Export: Passphrase + Confirm (mandatory) + Hint (optional) + Strength meter
+   * - Import: Passphrase only (auto-detect encrypted file) + Hint display
+   *
+   * Strength meter uses zxcvbn (entropy-based, pattern detection).
+   * Passphrase hint stored in localStorage only (never exported).
    */
-  import { tick, untrack } from 'svelte';
-  import { Lock, Unlock, AlertCircle, Eye, EyeOff, ShieldCheck } from 'lucide-svelte';
+  import { tick, untrack, onMount } from 'svelte';
+  import { Lock, Unlock, AlertCircle, Eye, EyeOff, ShieldCheck, Lightbulb } from 'lucide-svelte';
   import { t as _t, localeVersion } from '$lib/i18n';
+  import { analyzeStrength, getPassphraseHint, setPassphraseHint } from '$lib/utils/crypto';
+  import type { StrengthResult } from '$lib/utils/crypto';
   let _rv = $derived($localeVersion);
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
@@ -42,6 +47,7 @@
   // Local state - NOT reset via $effect to avoid infinite loops
   let passphrase = $state('');
   let confirmPassphrase = $state('');
+  let passphraseHint = $state('');
   let visible = $state(false);
   let modalKey = $state(0);
   let backdropEl: HTMLDivElement | null = $state(null);
@@ -53,23 +59,61 @@
   let showPassphrase = $state(false);
   let showConfirmPassphrase = $state(false);
 
-  // Passphrase strength
-  type StrengthLevel = 'weak' | 'medium' | 'strong';
-  let strengthLevel = $derived<StrengthLevel>(computeStrength(passphrase));
-  let strengthPercent = $derived(strengthLevel === 'weak' ? 33 : strengthLevel === 'medium' ? 66 : 100);
-  let strengthColor = $derived(strengthLevel === 'weak' ? '#ef4444' : strengthLevel === 'medium' ? '#f59e0b' : '#22c55e');
+  // Real strength analysis (zxcvbn-based, async)
+  let strengthResult = $state<StrengthResult | null>(null);
+  let strengthScore = $derived(strengthResult?.score ?? 0);
+  let strengthLevel = $derived(
+    strengthScore <= 0 ? 'weak' :
+    strengthScore === 1 ? 'fair' :
+    strengthScore === 2 ? 'medium' :
+    strengthScore === 3 ? 'strong' : 'very_strong'
+  );
+  let strengthPercent = $derived(
+    strengthScore === 0 ? 0 :
+    strengthScore === 1 ? 25 :
+    strengthScore === 2 ? 50 :
+    strengthScore === 3 ? 75 : 100
+  );
+  let strengthColor = $derived(
+    strengthScore <= 0 ? '#ef4444' :
+    strengthScore === 1 ? '#f97316' :
+    strengthScore === 2 ? '#f59e0b' :
+    strengthScore === 3 ? '#22c55e' : '#10b981'
+  );
+  let strengthLabel = $derived(
+    strengthLevel === 'weak' ? t('crypto.strength_weak') :
+    strengthLevel === 'fair' ? t('crypto.strength_fair') :
+    strengthLevel === 'medium' ? t('crypto.strength_medium') :
+    strengthLevel === 'strong' ? t('crypto.strength_strong') :
+    t('crypto.strength_very_strong')
+  );
 
-  function computeStrength(pw: string): StrengthLevel {
-    if (!pw) return 'weak';
-    let score = 0;
-    if (pw.length >= 8) score++;
-    if (/[0-9]/.test(pw)) score++;
-    if (/[^a-zA-Z0-9]/.test(pw)) score++;
-    if (pw.length >= 12) score++;
-    if (score <= 1) return 'weak';
-    if (score <= 2) return 'medium';
-    return 'strong';
-  }
+  // Debounced strength analysis (avoid heavy zxcvbn on every keystroke)
+  let strengthTimer: ReturnType<typeof setTimeout> | null = null;
+  $effect(() => {
+    // Read passphrase to create dependency
+    const pw = passphrase;
+    if (strengthTimer) clearTimeout(strengthTimer);
+    if (!pw) {
+      strengthResult = null;
+      return;
+    }
+    // Debounce 200ms
+    strengthTimer = setTimeout(async () => {
+      try {
+        strengthResult = await analyzeStrength(pw);
+      } catch {
+        strengthResult = null;
+      }
+    }, 200);
+
+    return () => { if (strengthTimer) clearTimeout(strengthTimer); };
+  });
+
+  // Load hint on mount
+  onMount(() => {
+    passphraseHint = getPassphraseHint();
+  });
 
   // Combine local error with parent error prop (reactive)
   let errorMsg = $derived(localError || error);
@@ -91,6 +135,8 @@
         loading = false;
         showPassphrase = false;
         showConfirmPassphrase = false;
+        strengthResult = null;
+        passphraseHint = getPassphraseHint();
         modalKey += 1;
       });
       // Trigger animation with micro-delay token for smoother UX
@@ -182,16 +228,15 @@
     loading = true;
     localError = '';
 
+    // Save hint locally (export only)
+    if (mode === 'export') {
+      setPassphraseHint(passphraseHint);
+    }
+
     // Force DOM flush so the loading spinner renders before async work.
-    // Without tick(), Svelte batches the state update — the browser never
-    // paints the spinner because export/import (localStorage + Web Crypto)
-    // completes within the same microtask on fast devices.
     await tick();
 
-    // Minimum spinner visible time: encrypt/import can complete in <100ms
-    // on fast devices, which means the spinner never actually renders.
-    // This guarantees the user sees the loading state for at least 300ms,
-    // creating a premium "processing" feel instead of an instant glitch.
+    // Minimum spinner visible time
     const MIN_SPINNER_TIME = 300;
     const start = performance.now();
 
@@ -220,6 +265,22 @@
   const title = $derived(mode === 'export' ? t('crypto.export_title') : t('crypto.import_title'));
   const Icon = $derived(mode === 'export' ? Lock : Unlock);
   const iconColor = $derived(mode === 'export' ? 'var(--cosmic-purple)' : 'var(--cat-green-90)');
+
+  // Feedback text for strength meter
+  let strengthFeedback = $derived(() => {
+    if (!strengthResult || strengthScore === 0) return '';
+    const parts: string[] = [];
+    if (strengthResult.crackTimeDisplay) {
+      parts.push(`Crack time: ${strengthResult.crackTimeDisplay}`);
+    }
+    if (strengthResult.warning) {
+      parts.push(strengthResult.warning);
+    }
+    if (strengthResult.suggestions.length > 0) {
+      parts.push(strengthResult.suggestions[0]);
+    }
+    return parts.slice(0, 2).join('. ');
+  });
 </script>
 
 {#if show}
@@ -245,7 +306,7 @@
           <div class="bmi-encryption-badge">
             <span class="bmi-encryption-badge__icon"><ShieldCheck size={14} /></span>
             <span class="bmi-encryption-badge__label">{t('crypto.encryption_badge')}</span>
-            <span class="bmi-encryption-badge__algo">AES-256-GCM</span>
+            <span class="bmi-encryption-badge__algo">AES-256-GCM + Argon2id</span>
           </div>
           <div class="bmi-strong-warning">
             <span class="bmi-strong-warning__icon"><AlertCircle size={16} /></span>
@@ -288,6 +349,16 @@
             {/if}
           </div>
         {/if}
+
+        <!-- Import hint display (local only) -->
+        {#if mode === 'import' && passphraseHint}
+          <div class="hint-display">
+            <Lightbulb size={14} />
+            <span class="hint-display__label">{t('crypto.hint_import_label')}:</span>
+            <span class="hint-display__text">{passphraseHint}</span>
+          </div>
+        {/if}
+
         <div class="encrypt-fields">
           <!-- Hidden username field to prevent browser password warning -->
           <input type="text" name="username" autocomplete="username" class="sr-only" tabindex="-1" />
@@ -322,9 +393,12 @@
                   <div class="strength-fill" style="width: {strengthPercent}%; background: {strengthColor};"></div>
                 </div>
                 <span class="strength-label" style="color: {strengthColor};">
-                  {strengthLevel === 'weak' ? t('crypto.strength_weak') : strengthLevel === 'medium' ? t('crypto.strength_medium') : t('crypto.strength_strong')}
+                  {strengthLabel}
                 </span>
               </div>
+              {#if strengthFeedback()}
+                <p class="strength-feedback">{strengthFeedback()}</p>
+              {/if}
               <p class="strength-hint">{t('crypto.strength_hint')}</p>
             {/if}
           </div>
@@ -356,6 +430,22 @@
                 </button>
               </div>
             </div>
+
+            <!-- Passphrase hint (local only, never exported) -->
+            <div class="field-group">
+              <label for="passphrase-hint">
+                <Lightbulb size={14} style="display: inline; vertical-align: -2px; margin-right: 4px;" />
+                {t('crypto.hint_label')}
+              </label>
+              <input
+                id="passphrase-hint"
+                type="text"
+                bind:value={passphraseHint}
+                placeholder={t('crypto.hint_placeholder')}
+                class="encrypt-input encrypt-input--hint"
+                disabled={loading}
+              />
+            </div>
           {/if}
         </div>
 
@@ -385,6 +475,10 @@
               <div class="bmi-export-summary__row">
                 <span class="bmi-export-summary__key">{t('crypto.export_summary_encrypted')}</span>
                 <span class="bmi-export-summary__val bmi-export-summary__val--encrypted">AES-256-GCM</span>
+              </div>
+              <div class="bmi-export-summary__row">
+                <span class="bmi-export-summary__key">{t('crypto.export_summary_kdf')}</span>
+                <span class="bmi-export-summary__val">Argon2id</span>
               </div>
               <div class="bmi-export-summary__row">
                 <span class="bmi-export-summary__key">{t('crypto.export_summary_version')}</span>
@@ -545,6 +639,33 @@
     color: var(--cosmic-purple);
   }
 
+  /* ── Hint display (import mode) ── */
+  .hint-display {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 0.85rem;
+    margin-bottom: 0.75rem;
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.20);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    color: var(--amber-gold-60, #d4a017);
+  }
+
+  .hint-display__label {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .hint-display__text {
+    color: var(--w-80);
+    font-style: italic;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .field-group {
     display: flex;
     flex-direction: column;
@@ -573,6 +694,11 @@
     background: var(--w-4);
     color: var(--w-95);
     transition: border-color 0.15s ease;
+  }
+
+  .encrypt-input--hint {
+    padding-right: 1rem;
+    font-size: 0.85rem;
   }
 
   .eye-btn {
@@ -652,6 +778,14 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     white-space: nowrap;
+  }
+
+  .strength-feedback {
+    font-size: 0.75rem;
+    color: var(--w-60);
+    margin-top: 0.35rem;
+    line-height: 1.4;
+    font-weight: 400;
   }
 
   .strength-hint {

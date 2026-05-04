@@ -135,8 +135,10 @@ const zh: TranslationDict = {
   'crypto.show_passphrase': '\u663e\u793a\u5bc6\u7801',
   'crypto.hide_passphrase': '\u9690\u85cf\u5bc6\u7801',
   'crypto.strength_weak': '\u5f31',
+  'crypto.strength_fair': '\u8f83\u5f31',
   'crypto.strength_medium': '\u4e2d',
   'crypto.strength_strong': '\u5f3a',
+  'crypto.strength_very_strong': '\u975e\u5e38\u5f3a',
   'crypto.meta_status': '\u72b6\u6001',
   'crypto.meta_encrypted': '\u5df2\u52a0\u5bc6',
   'crypto.meta_unencrypted': '\u672a\u52a0\u5bc6',
@@ -152,6 +154,12 @@ const zh: TranslationDict = {
   'crypto.export_summary_records': '\u8bb0\u5f55\u6570',
   'crypto.export_summary_encrypted': '\u52a0\u5bc6\u65b9\u5f0f',
   'crypto.export_summary_version': '\u683c\u5f0f\u7248\u672c',
+  'crypto.export_summary_kdf': '\u5bc6\u94a5\u6d3e\u751f',
+
+  // ── Passphrase hint (local only) ──
+  'crypto.hint_label': '\u5bc6\u7801\u63d0\u793a\uff08\u53ef\u9009\uff09',
+  'crypto.hint_placeholder': '\u4f8b\uff1a\u201c\u5ba0\u7269\u540d + \u751f\u65e5\u201d',
+  'crypto.hint_import_label': '\u60a8\u7684\u63d0\u793a',
 
   // ── Results ──
   'results.title': '\u60a8\u7684\u7ed3\u679c',
@@ -389,6 +397,7 @@ const zh: TranslationDict = {
   'history.encrypted_no_passphrase': '\u6b64\u6587\u4ef6\u5df2\u52a0\u5bc6\u3002\u8bf7\u8f93\u5165\u60a8\u7684\u5bc6\u7801\u3002',
   'history.wrong_passphrase': '\u5bc6\u7801\u9519\u8bef\u2014\u65e0\u6cd5\u89e3\u5bc6\u3002',
   'history.corrupted_file': '\u6587\u4ef6\u635f\u574f\u2014\u52a0\u5bc6\u6570\u636e\u4e0d\u5b8c\u6574\u6216\u5df2\u635f\u574f\u3002',
+  'history.tampered_file': '\u68c0\u6d4b\u5230\u7be1\u6539\u2014\u6821\u9a8c\u548c\u4e0d\u5339\u914d\u3002\u6587\u4ef6\u5728\u5bfc\u51fa\u540e\u5df2\u88ab\u4fee\u6539\u3002',
   'history.empty_file': '\u6587\u4ef6\u4e3a\u7a7a\uff080 \u5b57\u8282\uff09\u3002',
   'history.file_too_large': '\u6587\u4ef6\u8fc7\u5927\uff08\u6700\u5927 5 MB\uff09\u3002',
   'history.unsupported_version': '\u4e0d\u652f\u6301\u7684\u6587\u4ef6\u7248\u672c\u3002\u8bf7\u66f4\u65b0\u60a8\u7684\u5e94\u7528\u540e\u91cd\u8bd5\u3002',

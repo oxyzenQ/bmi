@@ -296,7 +296,7 @@ describe('history-io', () => {
       const { decrypt } = await import('../crypto');
       const decrypted = await decrypt(encrypted!, 'mySecretPassword123');
       expect(decrypted).not.toBeNull();
-      const envelope = JSON.parse(decrypted!);
+      const envelope = JSON.parse(decrypted!.plaintext);
       expect(envelope.version).toBe(3);
       expect(envelope.records).toHaveLength(1);
     });

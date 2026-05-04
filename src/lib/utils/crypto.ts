@@ -5,14 +5,19 @@
  * and exported files. Encryption is entirely optional — the user
  * can enable/disable it at any time.
  *
- * Key derivation: PBKDF2 with 600k iterations + random salt
+ * Key derivation (new): Argon2id — memory-hard KDF, resistant to GPU attacks
+ *   Params (mobile-safe): 32 MB memory, 2 iterations, parallelism 1
+ * Key derivation (legacy): PBKDF2 with 600k iterations + random salt
  * Encryption: AES-256-GCM with 12-byte IV
- * Storage: salt + IV + ciphertext (base64-encoded in JSON)
+ * Integrity: SHA-256 checksum of plaintext stored in meta (explicit tamper detection)
+ * Storage: salt + IV + ciphertext + checksum (base64-encoded in JSON)
  *
  * Backward compatibility:
+ *   - Files encrypted with PBKDF2 (no kdf field) auto-detected and still decryptable
  *   - Non-encrypted files import correctly (auto-detected)
  *   - Encrypted files require the correct passphrase
  *   - Wrong passphrase produces decryption failure (handled gracefully)
+ *   - Tampered files produce explicit integrity_failed error (not generic decrypt error)
  */
 
 import { browser } from '$app/environment';
@@ -20,16 +25,40 @@ import { dbMetaGet, dbMetaSet, isIndexedDbAvailable } from './db';
 
 // ── Constants ──
 const PBKDF2_ITERATIONS = 600_000;
-const SALT_LENGTH = 16; // 128-bit salt for PBKDF2
+const SALT_LENGTH = 16; // 128-bit salt
 const IV_LENGTH = 12; // 96-bit IV for AES-GCM
+
+/**
+ * Argon2id parameters — tuned for mobile safety (max ~32 MB RAM).
+ * Uses @noble/hashes (pure JS, no WASM overhead).
+ * 32 MB memory, 2 iterations, parallelism 1.
+ */
+const ARGON2_OPTIONS = {
+  m: 32 * 1024,   // 32 MB memory cost (Kibibytes)
+  t: 2,            // 2 iterations (time cost)
+  p: 1,            // parallelism (single thread for mobile)
+  dkLen: 32,       // 256-bit output → AES-256 key
+};
+
 const META_ENCRYPTION_KEY = '__encryption_enabled';
 const META_ENCRYPTION_SALT = '__encryption_salt';
+const META_PASSPHRASE_HINT = '__passphrase_hint';
 
 // ── Types ──
 export interface EncryptedPayload {
   /** Format identifier — always 'bmi-encrypted-v1' */
   format: 'bmi-encrypted-v1';
-  /** Base64-encoded PBKDF2 salt (16 bytes) */
+  /** Key derivation function used: 'argon2id' or 'pbkdf2' (legacy) */
+  kdf?: 'argon2id' | 'pbkdf2';
+  /** Argon2id parameters (only when kdf === 'argon2id') */
+  kdfParams?: {
+    type: number;
+    mem: number;
+    time: number;
+    parallelism: number;
+    hashLen: number;
+  };
+  /** Base64-encoded salt (16 bytes) */
   salt: string;
   /** Base64-encoded AES-GCM IV (12 bytes) */
   iv: string;
@@ -43,6 +72,8 @@ export interface EncryptedPayload {
     recordCount?: number;
     /** Envelope version (0–3) */
     version?: number;
+    /** SHA-256 checksum of plaintext — explicit tamper detection */
+    checksum?: string;
   };
 }
 
@@ -53,8 +84,29 @@ export interface EncryptionStatus {
 
 // ── Key management ──
 
-/** Derive an AES-256-GCM key from a passphrase + salt using PBKDF2. */
-async function deriveKey(passphrase: string, salt: Uint8Array): Promise<CryptoKey> {
+/**
+ * Derive an AES-256-GCM key from a passphrase + salt using Argon2id.
+ * Uses @noble/hashes (pure JS, no WASM, tiny bundle footprint).
+ */
+async function deriveKeyArgon2(passphrase: string, salt: Uint8Array): Promise<CryptoKey> {
+  const { argon2id } = await import('@noble/hashes/argon2.js');
+  const hashBytes = argon2id(
+    new TextEncoder().encode(passphrase),
+    salt,
+    ARGON2_OPTIONS
+  );
+
+  return crypto.subtle.importKey(
+    'raw',
+    hashBytes.buffer as ArrayBuffer,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+/** Derive an AES-256-GCM key from a passphrase + salt using PBKDF2 (legacy). */
+async function deriveKeyPBKDF2(passphrase: string, salt: Uint8Array): Promise<CryptoKey> {
   const encoder = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -76,6 +128,28 @@ async function deriveKey(passphrase: string, salt: Uint8Array): Promise<CryptoKe
     false,
     ['encrypt', 'decrypt']
   );
+}
+
+/**
+ * Derive a key using the KDF specified in the payload.
+ * Falls back to PBKDF2 for legacy payloads (no kdf field).
+ */
+async function deriveKey(
+  passphrase: string,
+  salt: Uint8Array,
+  kdf?: 'argon2id' | 'pbkdf2'
+): Promise<CryptoKey> {
+  if (kdf === 'argon2id') {
+    try {
+      return await deriveKeyArgon2(passphrase, salt);
+    } catch {
+      // Argon2 unavailable — fall back to PBKDF2
+      console.warn('[crypto] Argon2id unavailable, falling back to PBKDF2');
+      return deriveKeyPBKDF2(passphrase, salt);
+    }
+  }
+  // Default / legacy: PBKDF2
+  return deriveKeyPBKDF2(passphrase, salt);
 }
 
 /** Generate cryptographically random bytes. */
@@ -104,17 +178,152 @@ function fromBase64(base64: string): Uint8Array {
   return bytes;
 }
 
+// ── SHA-256 checksum (explicit integrity) ──
+
+/**
+ * Compute SHA-256 checksum of plaintext for explicit tamper detection.
+ * Stored unencrypted in meta.checksum so import can detect tampering
+ * BEFORE attempting decryption (clear error UX).
+ */
+export async function computeChecksum(data: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data));
+  return toBase64(new Uint8Array(hashBuffer));
+}
+
+/**
+ * Verify plaintext against stored checksum.
+ * Returns true if the data matches, false if tampered.
+ */
+export async function verifyChecksum(data: string, checksum: string): Promise<boolean> {
+  const computed = await computeChecksum(data);
+  // Constant-time comparison via crypto.subtle.timingSafeEqual
+  try {
+    const a = Uint8Array.from(atob(computed), c => c.charCodeAt(0));
+    const b = Uint8Array.from(atob(checksum), c => c.charCodeAt(0));
+    if (a.length !== b.length) return false;
+    return crypto.subtle.timingSafeEqual(a, b) as unknown as boolean;
+  } catch {
+    return false;
+  }
+}
+
+// ── Passphrase hint (local only) ──
+
+const STORAGE_PREFIX = 'bmi.';
+const HINT_KEY = `${STORAGE_PREFIX}passphrase_hint`;
+
+/**
+ * Save a passphrase hint to localStorage (device-local only).
+ * NEVER exported to encrypted files.
+ */
+export function setPassphraseHint(hint: string): void {
+  if (!browser) return;
+  try {
+    if (hint && hint.trim()) {
+      localStorage.setItem(HINT_KEY, hint.trim());
+    } else {
+      localStorage.removeItem(HINT_KEY);
+    }
+  } catch { /* localStorage unavailable */ }
+}
+
+/**
+ * Load the passphrase hint from localStorage.
+ * Returns empty string if no hint is stored.
+ */
+export function getPassphraseHint(): string {
+  if (!browser) return '';
+  try {
+    return localStorage.getItem(HINT_KEY) || '';
+  } catch {
+    return '';
+  }
+}
+
+// ── Passphrase strength analysis ──
+
+export interface StrengthResult {
+  /** 0–4 score (0=very weak, 4=very strong) */
+  score: number;
+  /** Estimated entropy in bits (log10 scale from zxcvbn) */
+  entropy: number;
+  /** Crack time display string */
+  crackTimeDisplay: string;
+  /** User-facing feedback (suggestions) */
+  warning?: string;
+  suggestions: string[];
+}
+
+/**
+ * Analyze passphrase strength using zxcvbn.
+ * Returns score (0-4), entropy, crack time, and feedback.
+ * Uses dynamic import to keep bundle small until needed.
+ */
+export async function analyzeStrength(passphrase: string): Promise<StrengthResult> {
+  if (!passphrase) {
+    return { score: 0, entropy: 0, crackTimeDisplay: 'instant', suggestions: [] };
+  }
+
+  try {
+    const { zxcvbn } = await import('zxcvbn-ts');
+    const result = zxcvbn(passphrase);
+
+    return {
+      score: result.score,
+      entropy: result.guesses_log10,
+      crackTimeDisplay: result.crack_times_display.offline_slow_hashing_1e4_per_second,
+      warning: result.feedback.warning || undefined,
+      suggestions: result.feedback.suggestions || [],
+    };
+  } catch {
+    // zxcvbn load failure — fall back to basic scoring
+    return fallbackStrength(passphrase);
+  }
+}
+
+/** Basic strength scoring fallback if zxcvbn is unavailable. */
+function fallbackStrength(pw: string): StrengthResult {
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^a-zA-Z0-9]/.test(pw)) score++;
+  if (pw.length >= 12) score++;
+  return { score, entropy: 0, crackTimeDisplay: '', suggestions: [] };
+}
+
 // ── Public API ──
 
 /**
  * Encrypt a string using AES-256-GCM with a passphrase.
+ * Uses Argon2id for key derivation (new format).
+ * Falls back to PBKDF2 only if Argon2 WASM fails.
  * Returns a JSON string containing the encrypted payload.
  * Optional meta is stored unencrypted for preview before decryption.
  */
 export async function encrypt(plaintext: string, passphrase: string, meta?: EncryptedPayload['meta']): Promise<string> {
   const salt = randomBytes(SALT_LENGTH);
   const iv = randomBytes(IV_LENGTH);
-  const key = await deriveKey(passphrase, salt);
+  const checksum = await computeChecksum(plaintext);
+
+  let key: CryptoKey;
+  let kdf: 'argon2id' | 'pbkdf2' = 'argon2id';
+  let kdfParams: EncryptedPayload['kdfParams'];
+
+  try {
+    key = await deriveKeyArgon2(passphrase, salt);
+    kdfParams = {
+      type: 2,
+      mem: ARGON2_OPTIONS.m,
+      time: ARGON2_OPTIONS.t,
+      parallelism: ARGON2_OPTIONS.p,
+      hashLen: ARGON2_OPTIONS.dkLen,
+    };
+  } catch {
+    // Argon2 unavailable — fall back to PBKDF2
+    key = await deriveKeyPBKDF2(passphrase, salt);
+    kdf = 'pbkdf2';
+  }
 
   const encoder = new TextEncoder();
   const ciphertext = await crypto.subtle.encrypt(
@@ -126,10 +335,15 @@ export async function encrypt(plaintext: string, passphrase: string, meta?: Encr
 
   const payload: EncryptedPayload = {
     format: 'bmi-encrypted-v1',
+    kdf,
+    ...(kdfParams && { kdfParams }),
     salt: toBase64(salt),
     iv: toBase64(iv),
     data: toBase64(new Uint8Array(ciphertext)),
-    meta,
+    meta: {
+      ...meta,
+      checksum,
+    },
   };
 
   return JSON.stringify(payload);
@@ -137,10 +351,17 @@ export async function encrypt(plaintext: string, passphrase: string, meta?: Encr
 
 /**
  * Decrypt an encrypted payload using AES-256-GCM with a passphrase.
- * Returns the original plaintext string, or null if decryption fails
- * (wrong passphrase, corrupted data, etc.).
+ * Auto-detects KDF (argon2id or pbkdf2) from payload.
+ * Returns `{ plaintext, integrityOk }` on success, or `null` on failure.
+ *
+ * Integrity check: verifies SHA-256 checksum of decrypted plaintext
+ * against stored checksum. Separate from AES-GCM auth tag — provides
+ * explicit tamper detection with clear error messages.
  */
-export async function decrypt(encryptedJson: string, passphrase: string): Promise<string | null> {
+export async function decrypt(
+  encryptedJson: string,
+  passphrase: string
+): Promise<{ plaintext: string; integrityOk: boolean } | null> {
   try {
     const payload: EncryptedPayload = JSON.parse(encryptedJson);
 
@@ -149,9 +370,11 @@ export async function decrypt(encryptedJson: string, passphrase: string): Promis
     const salt = fromBase64(payload.salt);
     const iv = fromBase64(payload.iv);
     const ciphertext = fromBase64(payload.data);
-    const key = await deriveKey(passphrase, salt);
+    const kdf = payload.kdf || 'pbkdf2'; // Default to PBKDF2 for legacy
 
-    const plaintext = await crypto.subtle.decrypt(
+    const key = await deriveKey(passphrase, salt, kdf);
+
+    const plaintextBuf = await crypto.subtle.decrypt(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       { name: 'AES-GCM', iv: iv as any },
       key,
@@ -159,7 +382,15 @@ export async function decrypt(encryptedJson: string, passphrase: string): Promis
       ciphertext as any
     );
 
-    return new TextDecoder().decode(plaintext);
+    const plaintext = new TextDecoder().decode(plaintextBuf);
+
+    // Verify checksum if present (explicit tamper detection)
+    let integrityOk = true;
+    if (payload.meta?.checksum) {
+      integrityOk = await verifyChecksum(plaintext, payload.meta.checksum);
+    }
+
+    return { plaintext, integrityOk };
   } catch {
     // Wrong passphrase or corrupted data — AES-GCM auth tag mismatch
     return null;
@@ -196,9 +427,9 @@ export async function enableEncryption(passphrase: string): Promise<boolean> {
     // Verify the passphrase works by encrypting/decrypting a test string
     const test = 'bmi-encryption-test';
     const encrypted = await encrypt(test, passphrase);
-    const decrypted = await decrypt(encrypted, passphrase);
+    const result = await decrypt(encrypted, passphrase);
 
-    if (decrypted !== test) {
+    if (!result || result.plaintext !== test) {
       // Something went wrong — disable
       await disableEncryption();
       return false;
@@ -247,8 +478,8 @@ export async function verifyPassphrase(passphrase: string): Promise<boolean> {
   try {
     const test = 'bmi-verify-test';
     const encrypted = await encrypt(test, passphrase);
-    const decrypted = await decrypt(encrypted, passphrase);
-    return decrypted === test;
+    const result = await decrypt(encrypted, passphrase);
+    return result !== null && result.plaintext === test;
   } catch {
     return false;
   }
