@@ -1,7 +1,29 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { type UserConfig } from 'vite';
+import { type UserConfig, type Plugin } from 'vite';
+import path from 'path';
 import { execFileSync } from 'child_process';
+
+/**
+ * Pins resolution for packages whose exports fields fail in some
+ * Vite versions during both test and production builds.
+ * Uses enforce:'pre' resolveId hook — fires BEFORE any package.json
+ * exports lookup, so it works across all Vite versions.
+ */
+function pinCryptoDeps(): Plugin {
+  return {
+    name: 'pin-crypto-deps',
+    enforce: 'pre',
+    resolveId(id) {
+      if (id === '@noble/hashes/argon2.js') {
+        return path.resolve(__dirname, 'node_modules/@noble/hashes/argon2.js');
+      }
+      if (id === 'zxcvbn-ts') {
+        return path.resolve(__dirname, 'node_modules/zxcvbn-ts/dist/esm/index.js');
+      }
+    }
+  };
+}
 
 // Get commit info — prefer Vercel env vars (reliable in Vercel builds),
 // fall back to local git commands for local dev.
@@ -39,6 +61,7 @@ export default function config({ mode }: { mode: string }): UserConfig {
 
   return {
     plugins: [
+      pinCryptoDeps(),
       sveltekit(),
       ...(mode === 'analyze'
         ? [
