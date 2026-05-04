@@ -51,7 +51,6 @@
   height: 24px !important;
 }
 
-.BookCheck,
 .BookOpenCheck {
   color: var(--cosmic-silver) !important;
   width: 24px !important;
@@ -185,50 +184,41 @@ video {
 }
 
 /* Fluid container utility for central alignment */
-.main-container,
-.container,
-.section-container {
+.main-container {
   max-width: min(96vw, 1200px);
   margin-inline: auto;
   padding-inline: clamp(0.75rem, 2vw, 1.25rem);
 }
 
 /* Typographic scale using clamp for readability */
-h1,
-.h1 {
+h1 {
   font-size: clamp(1.75rem, 4vw, 2.75rem);
   line-height: 1.125;
 }
 
-h2,
-.h2 {
+h2 {
   font-size: clamp(1.5rem, 3.25vw, 2.25rem);
   line-height: 1.15;
 }
 
-h3,
-.h3 {
+h3 {
   font-size: clamp(1.25rem, 2.5vw, 1.75rem);
   line-height: 1.2;
 }
 
-h4,
-.h4 {
+h4 {
   font-size: clamp(1.125rem, 2vw, 1.5rem);
   line-height: 1.25;
 }
 
-p,
-.text-base {
+p {
   font-size: clamp(0.95rem, 1.25vw, 1.05rem);
 }
 
 /* Media queries: tablet - CONSOLIDATED */
 @media (max-width: 768px) {
 
-  .main-container,
-  .container,
-  .section-container {
+  .main-container {
     max-width: 660px;
     margin-inline: auto;
     padding-inline: clamp(0.75rem, 2vw, 1.25rem);
@@ -299,27 +289,22 @@ p,
 /* Media queries: mobile (incl. 1080x2340 logical CSS px density-aware) */
 @media (max-width: 480px) {
 
-  .main-container,
-  .container,
-  .section-container {
+  .main-container {
     max-width: 400px;
     margin-inline: auto;
     padding-inline: clamp(0.75rem, 4vw, 0.9rem);
   }
 
   /* Slightly reduce headings for smaller screens */
-  h1,
-  .h1 {
+  h1 {
     font-size: clamp(1.5rem, 6vw, 2.25rem);
   }
 
-  h2,
-  .h2 {
+  h2 {
     font-size: clamp(1.35rem, 5vw, 1.9rem);
   }
 
-  h3,
-  .h3 {
+  h3 {
     font-size: clamp(1.15rem, 4vw, 1.5rem);
   }
 
@@ -441,7 +426,7 @@ p,
     font-size: 0.68rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #9ca3af;
+    color: var(--text-muted-slate);
   }
 
   .reference-table .muted {
@@ -615,9 +600,7 @@ p,
 
 /* Media queries: extreme-narrow (<=300px) */
 @media (max-width: 300px) {
-  .main-container,
-  .container,
-  .section-container {
+  .main-container {
     padding-inline: clamp(0.5rem, 3vw, 0.75rem);
   }
 

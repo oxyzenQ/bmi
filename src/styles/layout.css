@@ -91,7 +91,7 @@
 }
 
 .about-card p {
-  color: #f5f5f5;
+  color: var(--text-secondary-bright);
   font-size: 1rem;
   line-height: 1.7;
   margin-bottom: 1rem;
@@ -202,19 +202,19 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 }
 
 .plasma-star.star-1 {
-  color: #60a5fa;
+  color: var(--cat-blue-solid);
   filter: drop-shadow(0 0 6px var(--blue-50));
   /* animation removed for GPU performance */
 }
 
 .plasma-star.star-2 {
-  color: #3b82f6;
+  color: var(--cat-blue-deep);
   filter: drop-shadow(0 0 6px var(--coreblue-50));
   /* animation removed for GPU performance */
 }
 
 .plasma-star.star-3 {
-  color: #8b5cf6;
+  color: var(--cosmic-purple);
   filter: drop-shadow(0 0 6px var(--violet-50));
   /* animation removed for GPU performance */
 }
@@ -236,7 +236,7 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 }
 
 .footer-disclaimer p {
-  color: #f5f5f5;
+  color: var(--text-secondary-bright);
   font-size: 1rem;
   line-height: 1.7;
   margin-bottom: 1rem;

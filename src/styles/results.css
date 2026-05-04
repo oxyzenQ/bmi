@@ -144,7 +144,7 @@
 }
 
 .advice-text {
-  color: #d1d5db;
+  color: var(--text-tertiary);
   line-height: 1.6;
 }
 
@@ -188,7 +188,7 @@
 }
 
 .advisory-text {
-  color: #d1d5db;
+  color: var(--text-tertiary);
   line-height: 1.6;
   font-size: 0.875rem;
 }
@@ -217,7 +217,7 @@
 }
 
 .explanation-text {
-  color: #d1d5db;
+  color: var(--text-tertiary);
   line-height: 1.6;
   font-size: 0.875rem;
 }

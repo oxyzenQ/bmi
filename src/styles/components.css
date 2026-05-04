@@ -14,13 +14,6 @@
 .about-card,
 .gauge-container,
 .form-card,
-.info-modal,
-.range-modal,
-.snapshot-modal,
-.unit-modal,
-.lang-modal,
-.encrypt-modal,
-.feedback-modal,
 .section-header-v2,
 .github-link {
   background: rgba(0, 0, 0, 0.85);
@@ -49,13 +42,6 @@
   .about-card,
   .gauge-container,
   .form-card,
-  .info-modal,
-  .range-modal,
-  .snapshot-modal,
-  .unit-modal,
-  .lang-modal,
-  .encrypt-modal,
-  .feedback-modal,
   .section-header-v2,
   .github-link {
     background: rgba(0, 0, 0, 0.65);
@@ -320,14 +306,6 @@ button[aria-disabled="true"] {
   left: 10%;
 }
 
-.orb-3 {
-  width: 100px;
-  height: 100px;
-  background: radial-gradient(circle, var(--cyan-35), transparent);
-  bottom: 20%;
-  left: 20%;
-}
-
 .hero-content {
   max-width: 800px;
   margin: 0 auto;
@@ -461,46 +439,6 @@ button[aria-disabled="true"] {
   background: var(--bg-cosmic);
   color: white;
   background-clip: text;
-}
-
-/* button scroll for hero */
-
-.hero-scroll-btn {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(-2rem, -3vh, -2.5rem);
-  transform: translateX(-50%);
-
-  width: clamp(56px, 6vw, 72px);
-  height: clamp(56px, 6vw, 72px);
-  border-radius: 50%;
-
-  background: var(--bg-by-rezky);
-  border: var(--border-by-rezky);
-  padding: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  cursor: pointer;
-  z-index: 10;
-
-  animation: bounce 2.5s ease-in-out infinite, pulse 2.5s ease-in-out infinite;
-  transition: transform 0.25s ease;
-}
-
-.hero-scroll-btn::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  border-radius: 50%;
-  background: var(--bg-last-by-rezky);
-  z-index: -1;
-}
-
-.hero-scroll-btn:hover {
-  transform: translateX(-50%) scale(1.08);
 }
 
 .icon {

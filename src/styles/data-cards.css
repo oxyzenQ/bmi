@@ -4,7 +4,7 @@
       ============================== */
 .empty-state {
   text-align: center;
-  color: #9ca3af;
+  color: var(--text-muted-slate);
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -130,7 +130,7 @@
 
 .stat-badge.badge-above {
   background: var(--cat-red-15);
-  color: #fca5a5;
+  color: var(--cat-red-soft);
   border: 1px solid var(--cat-red-30);
 }
 
@@ -142,7 +142,7 @@
 
 .stat-desc {
   font-size: 0.8rem;
-  color: #d1d5db;
+  color: var(--text-tertiary);
   line-height: 1.4;
 }
 
@@ -152,7 +152,7 @@
 }
 
 .delta-desc.delta-above {
-  color: #fca5a5;
+  color: var(--cat-red-soft);
 }
 
 .delta-desc.delta-below {
@@ -182,19 +182,19 @@
 }
 
 .prime-bar-fill.fill-under {
-  background: #60a5fa;
+  background: var(--cat-blue-solid);
 }
 
 .prime-bar-fill.fill-normal {
-  background: #4ade80;
+  background: var(--cat-green-solid);
 }
 
 .prime-bar-fill.fill-over {
-  background: #fbbf24;
+  background: var(--cat-amber-solid);
 }
 
 .prime-bar-fill.fill-obese {
-  background: #f87171;
+  background: var(--cat-red-solid);
 }
 
 /* 1.0 marker on the bar */
@@ -229,7 +229,7 @@
 .bmi-results-card.cat-underweight .bmi-value,
 .bmi-results-card.cat-underweight .bmi-category,
 .bmi-results-card.cat-underweight .category-icon {
-  color: #60a5fa;
+  color: var(--cat-blue-solid);
 }
 
 .bmi-results-card.cat-normal .bmi-value,
@@ -275,7 +275,7 @@
 }
 
 .tdee-icon {
-  color: #f97316;
+  color: var(--cat-orange-solid);
 }
 
 .tdee-grid {
@@ -317,7 +317,7 @@
 }
 
 .tdee-highlight .tdee-stat-value {
-  color: #f97316;
+  color: var(--cat-orange-solid);
 }
 
 .tdee-stat-unit {
@@ -344,7 +344,7 @@
 
 .tdee-activity-badge {
   background: var(--amber-gold-30);
-  color: #fbbf24;
+  color: var(--cat-amber-solid);
   border: 1px solid var(--amber-gold-40);
 }
 
@@ -402,11 +402,11 @@
 }
 
 .tdee-cut .tdee-range-value {
-  color: #4ade80;
+  color: var(--cat-green-solid);
 }
 
 .tdee-gain .tdee-range-value {
-  color: #fca5a5;
+  color: var(--cat-red-soft);
 }
 
 .tdee-range-unit {
@@ -725,7 +725,7 @@
 }
 
 .reference-table .muted {
-  color: #9ca3af;
+  color: var(--text-muted-slate);
 }
 
 .reference-table .icon-col {
@@ -752,7 +752,7 @@
 }
 
 .ref-card .subtitle {
-  color: #f5f5f5;
+  color: var(--text-secondary-bright);
   font-size: 1rem;
   line-height: 1.7;
   margin-bottom: 1rem;

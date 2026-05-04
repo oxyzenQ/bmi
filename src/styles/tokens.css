@@ -461,4 +461,21 @@
   --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --glass-brightness: brightness(1.15);
+
+  /* ── SEMANTIC COLOR TOKENS ── */
+  /* Used across components for consistent category/status colors */
+  --text-secondary-bright: rgba(245, 245, 245, 1);      /* #f5f5f5 — about card, footer text */
+  --text-tertiary: rgba(209, 213, 219, 1);              /* #d1d5db — advice/explanation text */
+  --text-muted-slate: rgba(156, 163, 175, 1);           /* #9ca3af — empty state, muted text */
+
+  /* Category/accent solid colors */
+  --cat-blue-solid: rgba(96, 165, 250, 1);              /* #60a5fa — underweight accent */
+  --cat-blue-deep: rgba(59, 130, 246, 1);               /* #3b82f6 — plasma star blue */
+  --cat-green-solid: rgba(74, 222, 128, 1);             /* #4ade80 — normal/gain accent */
+  --cat-amber-solid: rgba(251, 191, 36, 1);             /* #fbbf24 — overweight/badge accent */
+  --cat-orange-solid: rgba(249, 115, 22, 1);            /* #f97316 — TDEE accent */
+  --cat-red-solid: rgba(248, 113, 113, 1);              /* #f87171 — obese accent */
+  --cat-red-bright: rgba(255, 107, 107, 1);             /* #ff6b6b — form error */
+  --cat-red-soft: rgba(252, 165, 165, 1);               /* #fca5a5 — TDEE gain range */
+  --neon-purple: rgba(89, 0, 233, 1);                   /* #5900e9 — focus border */
 }

@@ -305,7 +305,7 @@ a.button {
 }
 
 .form-input:focus {
-  border-color: var(--violet-50) !important;
+  border-color: var(--violet-50);
   box-shadow:
     0 0 0 3px var(--violet-15),
     0 0 16px var(--violet-20),
@@ -376,7 +376,7 @@ a.button {
 .notify-btn:hover {
   box-shadow:
     0 8px 25px var(--k-50),
-    inset 0 1px 0 var(--w-10) !important;
+    inset 0 1px 0 var(--w-10);
 }
 
 /* ── Action Button Subtle Glow ── */
@@ -858,7 +858,7 @@ html:not([data-graphics='render']) .shooting-star {
 }
 
 .bmi-strong-warning__text strong {
-  color: #fbbf24;
+  color: var(--cat-amber-solid);
   font-weight: 600;
 }
 

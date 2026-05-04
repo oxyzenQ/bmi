@@ -5,7 +5,7 @@
   import { cubicOut } from 'svelte/easing';
   import { browser } from '$app/environment';
   import { shareBmiResult, copyToClipboard, formatBmiText } from '$lib/utils/share';
-  import { shareBmiCard, downloadBmiCard } from '$lib/utils/share-image';
+  import { downloadBmiCard } from '$lib/utils/share-image';
   import { t as _t, localeVersion } from '$lib/i18n';
   import { KG_TO_LBS } from '$lib/utils/bmi-calculator';
   let _rv = $derived($localeVersion);
@@ -229,13 +229,6 @@
     if (!browser) return;
     const ok = await downloadBmiCard(getCardData());
     flashToast(ok ? t('results.image_saved') : t('results.image_failed'));
-  }
-
-  async function handleShareCard() {
-    if (!browser) return;
-    const result = await shareBmiCard(getCardData());
-    if (result.method === 'share') return;
-    if (result.ok) flashToast(t('results.image_downloaded'));
   }
 
   let catClass = $derived(
