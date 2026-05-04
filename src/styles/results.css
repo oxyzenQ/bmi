@@ -237,28 +237,23 @@
   gap: 0.4rem;
   padding: 0.5rem 0.85rem;
   border-radius: var(--btn-radius);
-  border: 1px solid var(--violet-22);
+  border: 1px solid rgba(139, 92, 246, 0.22);
   background: var(--bg-by-rezky);
   color: white;
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
   flex: 1;
   justify-content: center;
-  box-shadow: 0 8px 20px var(--k-45),
-    inset 0 1px 0 var(--w-8),
-    0 0 16px var(--violet-24);
+  box-shadow: none;
 }
 
 .action-btn:hover {
   background: var(--bg-last-by-rezky);
-  border-color: var(--violet-34);
+  border-color: rgba(139, 92, 246, 0.34);
   color: white;
   transform: translateY(-1px);
-  box-shadow: 0 12px 28px var(--k-55),
-    inset 0 1px 0 var(--w-10),
-    0 0 24px var(--violet-30);
 }
 
 .action-btn:active {

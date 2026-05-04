@@ -107,12 +107,11 @@ a.button {
   position: relative;
   overflow: visible;
   transition: transform var(--dur-fast) var(--easing-smooth),
-    box-shadow var(--dur-fast) var(--easing-smooth),
     background var(--dur-fast) var(--easing-smooth),
     border-color var(--dur-fast) var(--easing-smooth);
-  background: var(--btn-surface) padding-box, var(--btn-bg);
+  background: var(--btn-bg);
   border: var(--btn-border);
-  box-shadow: var(--btn-shadow);
+  box-shadow: none;
   border-radius: var(--btn-radius);
 }
 
@@ -120,9 +119,8 @@ a.button {
 button:hover,
 a.button:hover {
   transform: translateY(-1px) scale(1.01);
-  background: var(--btn-surface) padding-box, var(--btn-bg-hover);
+  background: var(--btn-bg-hover);
   border: var(--btn-border-hover);
-  box-shadow: var(--btn-shadow-hover);
 }
 
 .btn:active,
@@ -130,7 +128,7 @@ button:active,
 a.button:active {
   transform: translateY(0) scale(0.97);
   transition-duration: 120ms;
-  background: var(--btn-surface) padding-box, var(--btn-bg-active);
+  background: var(--btn-bg-active);
 }
 
 .btn:focus-visible,
@@ -160,18 +158,13 @@ button[aria-disabled="true"] {
 .btn-primary {
   color: white;
   background: var(--bg-by-rezky);
-  border: 1px solid var(--violet-22);
-  box-shadow: 0 16px 40px var(--k-45),
-    inset 0 1px 0 var(--w-8),
-    0 0 28px var(--violet-30);
+  border: 1px solid rgba(139, 92, 246, 0.22);
+  box-shadow: none;
 }
 
 .btn-primary:hover {
   background: var(--bg-last-by-rezky);
-  border-color: var(--violet-34);
-  box-shadow: 0 20px 52px var(--k-55),
-    inset 0 1px 0 var(--w-10),
-    0 0 40px var(--violet-36);
+  border-color: rgba(139, 92, 246, 0.34);
 }
 
 .btn.is-calculating {
@@ -198,18 +191,13 @@ button[aria-disabled="true"] {
 .btn-danger {
   color: white;
   background: var(--bg-by-rezky);
-  border: 1px solid var(--violet-22);
-  box-shadow: 0 16px 40px var(--k-45),
-    inset 0 1px 0 var(--w-8),
-    0 0 28px var(--violet-22);
+  border: 1px solid rgba(139, 92, 246, 0.22);
+  box-shadow: none;
 }
 
 .btn-danger:hover {
   background: var(--bg-last-by-rezky);
-  border-color: var(--violet-32);
-  box-shadow: 0 20px 52px var(--k-55),
-    inset 0 1px 0 var(--w-10),
-    0 0 40px var(--violet-30);
+  border-color: rgba(139, 92, 246, 0.32);
 }
 
 .btn-danger:active,
@@ -221,21 +209,18 @@ button[aria-disabled="true"] {
 }
 
 .btn-secondary {
-  background: linear-gradient(180deg, var(--w-9), var(--w-3-5)) padding-box,
-    var(--void-52);
-  border-color: var(--w-18);
+  background: linear-gradient(135deg, rgba(20, 8, 38, 0.55), rgba(91, 33, 182, 0.45));
+  border-color: rgba(139, 92, 246, 0.16);
 }
 
 .btn-secondary:hover {
-  background: linear-gradient(180deg, var(--w-13), var(--w-5)) padding-box,
-    var(--void-44);
-  border-color: var(--w-24);
+  background: linear-gradient(135deg, rgba(20, 8, 38, 0.65), rgba(91, 33, 182, 0.55));
+  border-color: rgba(139, 92, 246, 0.28);
 }
 
 .btn-ghost {
-  background: linear-gradient(180deg, var(--w-6), var(--w-1-8)) padding-box,
-    var(--void-58);
-  border-color: var(--w-12);
+  background: linear-gradient(135deg, rgba(20, 8, 38, 0.40), rgba(91, 33, 182, 0.30));
+  border-color: rgba(139, 92, 246, 0.12);
 }
 
 /* Button sizes */
@@ -256,10 +241,6 @@ button[aria-disabled="true"] {
 
 .button-group.stack {
   flex-direction: column;
-}
-
-.bmi-form .btn {
-  filter: brightness(1.07);
 }
 
 /* ==============================

@@ -374,14 +374,12 @@ a.button {
 
 /* ── NotifyFloat Button Hover Lift ── */
 .notify-btn:hover {
-  box-shadow:
-    0 8px 25px var(--k-50),
-    inset 0 1px 0 var(--w-10);
+  transform: translateY(-1px);
 }
 
-/* ── Action Button Subtle Glow ── */
+/* ── Action Button Subtle Glow (shadow removed for clean glass) ── */
 .action-btn:hover {
-  box-shadow: 0 0 12px var(--violet-15);
+  transform: translateY(-1px);
 }
 
 /* Reduced motion: disable all micro-interactions */
@@ -493,21 +491,21 @@ html:not([data-graphics='render']) .shooting-star {
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 1.25rem;
-  border: 1px solid var(--cosmic-purple);
+  border: 1px solid rgba(139, 92, 246, 0.22);
   border-radius: 9999px;
-  background: var(--violet-12);
-  color: var(--aurora-core);
+  background: var(--bg-by-rezky);
+  color: white;
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
   letter-spacing: 0.02em;
+  box-shadow: none;
 }
 
 .gauge-cta-btn:hover {
   background: var(--violet-25);
   border-color: var(--aurora-glow);
-  box-shadow: 0 0 16px var(--purple-30);
   transform: translateY(-1px);
 }
 

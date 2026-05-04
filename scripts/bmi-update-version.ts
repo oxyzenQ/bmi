@@ -15,6 +15,7 @@
  *   - src/routes/+page.svelte → about section "Stellar-{major}.{minor}"
  *   - src/app.html        → 3 meta tags (title, og:title, twitter:title)
  *   - src/lib/i18n/locales/{en,id,ja,zh}.ts → meta.title + hero.edition
+ *   - src/lib/utils/backup.ts → APP_VERSION constant
  *   - LICENSE.md           → title line
  *   - bun.lock            → regenerated via `bun install`
  *   - package-lock.json   → regenerated via `bun install`
@@ -133,7 +134,12 @@ function main(): void {
   updateLicense(shortOld, short);
   console.log('    \x1b[32m✓\x1b[0m title updated');
 
-  // ── 7. Regenerate lock files ──
+  // ── 7. Update backup.ts APP_VERSION ──
+  console.log('  \x1b[33m→\x1b[0m src/lib/utils/backup.ts');
+  updateBackupTs(newVersion);
+  console.log('    \x1b[32m✓\x1b[0m APP_VERSION updated');
+
+  // ── 8. Regenerate lock files ──
   console.log('  \x1b[33m→\x1b[0m Regenerating lock files');
   try {
     execSync('bun install', { cwd: ROOT, stdio: 'pipe' });
@@ -240,6 +246,19 @@ function updateLicense(oldShort: string, newShort: string): void {
   content = content.replace(/Stellar v\d+\.\d+/g, `Stellar v${newShort}`);
   content = content.replace(/Stellar Edition \d+\.\d+/g, `Stellar v${newShort}`);
   writeFile('LICENSE.md', content);
+}
+
+function updateBackupTs(newVersion: string): void {
+  let content = readFile('src/lib/utils/backup.ts');
+  const updated = content.replace(
+    /APP_VERSION\s*=\s*['"`]([^'"`]+)['"`]/,
+    `APP_VERSION = '${newVersion}'`
+  );
+  if (updated === content) {
+    console.log('    \x1b[33m⚠ APP_VERSION not found or unchanged — skipping\x1b[0m');
+    return;
+  }
+  writeFile('src/lib/utils/backup.ts', updated);
 }
 
 function escapeRegex(str: string): string {

@@ -1207,12 +1207,10 @@ p {
     transform: none !important;
   }
 
-  /* T-21: Simplify .action-btn box-shadow permanently.
-     The base CSS uses 3-layer color-mix() box-shadow which is
-     expensive on low-end GPUs. Replace with simple shadow. */
+  /* T-21: .action-btn box-shadow removed — clean purple glass buttons. */
   .action-btn {
-    box-shadow: 0 2px 8px var(--k-30) !important;
-    border-color: var(--violet-22) !important;
+    box-shadow: none !important;
+    border-color: rgba(139, 92, 246, 0.22) !important;
   }
 
   /* T-22: Neutralize remaining color-mix() in borders/backgrounds
@@ -1234,29 +1232,27 @@ p {
   }
 
   .btn-primary {
-    border-color: var(--violet-22) !important;
+    border-color: rgba(139, 92, 246, 0.22) !important;
   }
 
   .btn-danger {
-    border-color: var(--violet-22) !important;
+    border-color: rgba(139, 92, 246, 0.22) !important;
   }
 
   .btn-primary:hover {
-    border-color: var(--violet-34) !important;
+    border-color: rgba(139, 92, 246, 0.34) !important;
   }
 
   .btn-danger:hover {
-    border-color: var(--violet-32) !important;
+    border-color: rgba(139, 92, 246, 0.32) !important;
   }
 
   .btn-secondary {
-    background: linear-gradient(180deg, var(--w-9), var(--w-3-5)) padding-box,
-      var(--cosmic-dk-52) !important;
+    background: linear-gradient(135deg, rgba(20, 8, 38, 0.55), rgba(91, 33, 182, 0.45)) !important;
   }
 
   .btn-ghost {
-    background: linear-gradient(180deg, var(--w-6), var(--w-1-8)) padding-box,
-      var(--cosmic-dk-58) !important;
+    background: linear-gradient(135deg, rgba(20, 8, 38, 0.40), rgba(91, 33, 182, 0.30)) !important;
   }
 
   .pager-tab.active {
@@ -1270,16 +1266,11 @@ p {
     box-shadow: 0 0 0 3px var(--w-8) !important;
   }
 
-  .notify-btn:hover {
-    box-shadow: 0 8px 25px var(--k-30) !important;
-  }
-
-  .action-btn:hover {
-    box-shadow: 0 0 12px var(--violet-15) !important;
-  }
-
+  /* T-8b: Button hover shadows removed — clean purple glass design. */
+  .notify-btn:hover,
+  .action-btn:hover,
   .gauge-cta-btn:hover {
-    box-shadow: 0 0 16px var(--violet-20) !important;
+    box-shadow: none !important;
   }
 
   /* T-4: Permanently disable transitions on glass cards.
@@ -1325,11 +1316,11 @@ p {
     text-shadow: none !important;
   }
 
-  /* T-8: Permanently simplify button shadows. */
+  /* T-8: Button shadows permanently removed — clean purple glass design. */
   .btn,
   button,
   a.button {
-    box-shadow: 0 2px 8px var(--k-20) !important;
+    box-shadow: none !important;
   }
 
   /* T-9: Permanently remove pager-shell::before and ::after.

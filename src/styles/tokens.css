@@ -65,8 +65,8 @@
   --accent-blue: var(--aurora-bright);
 
   /* Glassmorphism & branding */
-  --bg-by-rezky: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(0,0,0,0.85));
-  --bg-last-by-rezky: linear-gradient(45deg, rgba(0,0,0,0.6), rgba(0,0,0,0.8));
+  --bg-by-rezky: linear-gradient(135deg, #140826cc, #5b21b6cc);
+  --bg-last-by-rezky: linear-gradient(135deg, #1a0d33, #6d28d9);
   --border-by-rezky: 1px solid var(--w-14);
   --bg-cosmic: linear-gradient(135deg,
       #4e3383,
@@ -372,23 +372,19 @@
   --goal-green-10: rgba(34, 197, 94, 0.10);
   --goal-green-20: rgba(34, 197, 94, 0.20);
 
-  /* Button system */
+  /* Button system — Premium Purple Glass */
   --btn-radius: 10px;
   --btn-height: 44px;
   --btn-padding-x: 18px;
   --btn-font: 600 0.95rem/1 'Inter Variable', system-ui, -apple-system, sans-serif;
-  --btn-bg: rgba(0, 0, 0, 0.80);
-  --btn-bg-hover: rgba(0, 0, 0, 0.70);
-  --btn-bg-active: rgba(0, 0, 0, 0.88);
-  --btn-surface: linear-gradient(180deg, var(--w-7), var(--w-2-5));
-  --btn-border: 1px solid var(--w-14);
-  --btn-border-hover: 1px solid var(--w-18);
-  --btn-shadow: 0 12px 28px var(--k-42),
-    inset 0 1px 0 var(--w-7),
-    0 0 18px var(--violet-18);
-  --btn-shadow-hover: 0 18px 44px var(--k-50),
-    inset 0 1px 0 var(--w-10),
-    0 0 28px var(--violet-26);
+  --btn-bg: linear-gradient(135deg, #140826cc, #5b21b6cc);
+  --btn-bg-hover: linear-gradient(135deg, #1a0d33, #6d28d9);
+  --btn-bg-active: linear-gradient(135deg, #10061f, #4c1d95);
+  --btn-surface: linear-gradient(135deg, rgba(20, 8, 38, 0.70), rgba(91, 33, 182, 0.65));
+  --btn-border: 1px solid rgba(255, 255, 255, 0.08);
+  --btn-border-hover: 1px solid rgba(255, 255, 255, 0.14);
+  --btn-shadow: none;
+  --btn-shadow-hover: none;
 
   /* ── CONSISTENT BORDER RADIUS ── */
   --radius-sm: 8px;
