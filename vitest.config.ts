@@ -18,6 +18,9 @@ export default defineConfig({
                         '$app': path.resolve(__dirname, 'src/__mocks__/$app'),
                         '$app/*': path.resolve(__dirname, 'src/__mocks__/$app/*')
                 },
-                conditions: ['browser']
+                // 'browser' for $app mocks, 'import' + 'default' so
+                // @noble/hashes subpath exports (direct string mappings)
+                // and zxcvbn-ts ESM resolve correctly in test runs.
+                conditions: ['browser', 'import', 'default']
         }
 });
