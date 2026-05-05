@@ -7,7 +7,7 @@ import type { TranslationDict } from '../types';
 
 const en: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': 'A Simple BMI Calc \u2014 Stellar v13.0',
+  'meta.title': 'A Simple BMI Calc \u2014 Stellar v15.0',
   'meta.description': 'A luxury space-themed BMI calculator. Calculate your Body Mass Index, TDEE, Body Fat %, and track your health journey with interactive charts. Built with SvelteKit by Team LOGIGO.',
   'meta.og_description': 'A luxury space-themed BMI calculator with TDEE, Body Fat %, interactive charts, and PWA support.',
 
@@ -59,7 +59,7 @@ const en: TranslationDict = {
   'hero.feature1': 'Accurate Calculations',
   'hero.feature2': 'Health Insights',
   'hero.feature3': 'Luxury Design',
-  'hero.edition': 'Stellar v13.0',
+  'hero.edition': 'Stellar v15.0',
 
   // ── Form ──
   'form.title': 'BMI Calculator',
@@ -152,7 +152,7 @@ const en: TranslationDict = {
   'crypto.passphrase_warning': 'Make sure you remember your passphrase. It cannot be recovered.',
   'crypto.strength_hint': 'Use 12+ characters with numbers and symbols for best security',
 
-  // ── Stellar v13: Trust & Transparency ──
+  // ── Stellar v15: Trust & Transparency ──
   'crypto.encryption_badge': 'End-to-end encrypted',
   'crypto.strong_warning': '<strong>Do not lose your passphrase.</strong> It cannot be recovered. Without it, your encrypted backup is permanently inaccessible.',
   'crypto.export_summary_records': 'Records',

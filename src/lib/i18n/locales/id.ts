@@ -6,7 +6,7 @@ import type { TranslationDict } from '../types';
 
 const id: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': 'Kalkulator BMI Sederhana \u2014 Stellar v13.0',
+  'meta.title': 'Kalkulator BMI Sederhana \u2014 Stellar v15.0',
   'meta.description': 'Kalkulator BMI bertema luar angkasa mewah. Hitung Indeks Massa Tubuh, TDEE, Persentase Lemak Tubuh, dan lacak perjalanan kesehatan Anda dengan grafik interaktif. Dibuat dengan SvelteKit oleh Team LOGIGO.',
   'meta.og_description': 'Kalkulator BMI bertema luar angkasa mewah dengan TDEE, Persentase Lemak Tubuh, grafik interaktif, dan dukungan PWA.',
 
@@ -58,7 +58,7 @@ const id: TranslationDict = {
   'hero.feature1': 'Perhitungan Akurat',
   'hero.feature2': 'Insight Kesehatan',
   'hero.feature3': 'Desain Mewah',
-  'hero.edition': 'Stellar v13.0',
+  'hero.edition': 'Stellar v15.0',
 
   // ── Form ──
   'form.title': 'Kalkulator BMI',
@@ -151,7 +151,7 @@ const id: TranslationDict = {
   'crypto.passphrase_warning': 'Pastikan Anda mengingat passphrase. Tidak dapat dipulihkan.',
   'crypto.strength_hint': 'Gunakan 12+ karakter dengan angka dan simbol untuk keamanan terbaik',
 
-  // ── Stellar v13: Trust & Transparency ──
+  // ── Stellar v15: Trust & Transparency ──
   'crypto.encryption_badge': 'Enkripsi ujung-ke-ujung',
   'crypto.strong_warning': '<strong>Jangan sampai lupa passphrase Anda.</strong> Tidak dapat dipulihkan. Tanpa passphrase, backup terenkripsi Anda akan tidak dapat diakses secara permanen.',
   'crypto.export_summary_records': 'Data',

@@ -223,6 +223,12 @@ function updateAppHtml(oldShort: string, newShort: string): void {
   // Replace all occurrences of "Stellar v{oldShort}" in meta tags
   const pattern = new RegExp(`Stellar v${escapeRegex(oldShort)}`, 'g');
   content = content.replace(pattern, `Stellar v${newShort}`);
+
+  // Fallback: catch version drift in meta tags
+  if (oldShort !== newShort && new RegExp(`Stellar v(?!${escapeRegex(newShort)})\\d+\\.\\d+`).test(content)) {
+    content = content.replace(/Stellar v\d+\.\d+/g, `Stellar v${newShort}`);
+  }
+
   writeFile('src/app.html', content);
 }
 
@@ -241,6 +247,14 @@ function updateI18nLocale(locale: string, oldShort: string, newShort: string): v
  content = content.replace(/Stellar Edition \d+\.\d+/g, `Stellar v${newShort}`);
   content = content.replace(/Edisi Stellar \d+\.\d+/g, `Stellar v${newShort}`);
   content = content.replace(/Stellar 版 \d+\.\d+/g, `Stellar v${newShort}`);
+
+  // Fallback: catch any remaining "Stellar v{X.Y}" that didn't match (version drift)
+  if (oldShort !== newShort && content.includes('Stellar v')) {
+    const broadV = new RegExp(`Stellar v(?!${escapeRegex(newShort)}(?=\\.0))\\d+\\.\\d+`, 'g');
+    if (broadV.test(content)) {
+      content = content.replace(/Stellar v\d+\.\d+/g, `Stellar v${newShort}`);
+    }
+  }
 
   writeFile(filePath, content);
 }
