@@ -8,7 +8,7 @@
    * Passphrase hint stored in localStorage only (never exported).
    */
   import { tick, untrack, onMount } from 'svelte';
-  import { Lock, Unlock, AlertCircle, Eye, EyeOff, ShieldCheck, Lightbulb } from 'lucide-svelte';
+  import { Lock, Unlock, AlertCircle, AlertTriangle, ShieldX, Eye, EyeOff, ShieldCheck, Lightbulb } from 'lucide-svelte';
   import { t as _t, localeVersion } from '$lib/i18n';
   import { analyzeStrength, getPassphraseHint, setPassphraseHint } from '$lib/utils/crypto';
   import type { StrengthResult } from '$lib/utils/crypto';
@@ -23,10 +23,15 @@
     version?: number;
   }
 
+  /** Error severity levels for differentiated UX */
+  type ErrorSeverity = 'default' | 'warning' | 'danger';
+
   interface Props {
     show?: boolean;
     mode: 'export' | 'import';
     error?: string;
+    /** Structured error code for severity-based styling */
+    errorCode?: string;
     importMeta?: ImportMeta;
     /** Number of records that will be exported (shown in export summary) */
     exportRecordCount?: number;
@@ -38,6 +43,7 @@
     show = false,
     mode,
     error = '',
+    errorCode,
     importMeta,
     exportRecordCount = 0,
     onConfirm,
@@ -113,6 +119,31 @@
   // Load hint on mount
   onMount(() => {
     passphraseHint = getPassphraseHint();
+  });
+
+  // Derive error severity from errorCode for differentiated UX
+  let errorSeverity: ErrorSeverity = $derived.by(() => {
+    if (localError) return 'default' as const;
+    if (!errorCode) return 'default' as const;
+    if (errorCode === 'integrity_failed' || errorCode === 'wrong_passphrase') return 'danger' as const;
+    if (errorCode === 'corrupted_file') return 'warning' as const;
+    return 'default' as const;
+  });
+
+  // Error icon component class based on severity
+  let ErrorIcon = $derived.by(() => {
+    const sev = errorSeverity;
+    if (sev === 'danger') return ShieldX;
+    if (sev === 'warning') return AlertTriangle;
+    return AlertCircle;
+  });
+
+  let errorDescription = $derived.by(() => {
+    if (localError || !errorCode) return '';
+    if (errorCode === 'wrong_passphrase') return t('crypto.error_wrong_passphrase_desc');
+    if (errorCode === 'corrupted_file') return t('crypto.error_corrupted_desc');
+    if (errorCode === 'integrity_failed') return t('crypto.error_tampered_desc');
+    return '';
   });
 
   // Combine local error with parent error prop (reactive)
@@ -450,9 +481,20 @@
         </div>
 
         {#if errorMsg}
-          <div class="encrypt-error">
-            <AlertCircle size={16} />
-            <span>{errorMsg}</span>
+          <div class="encrypt-error encrypt-error--{errorSeverity}">
+            {#if errorSeverity === 'danger'}
+              <ShieldX size={16} />
+            {:else if errorSeverity === 'warning'}
+              <AlertTriangle size={16} />
+            {:else}
+              <AlertCircle size={16} />
+            {/if}
+            <div class="encrypt-error__content">
+              <span class="encrypt-error__msg">{errorMsg}</span>
+              {#if errorDescription}
+                <span class="encrypt-error__desc">{errorDescription}</span>
+              {/if}
+            </div>
           </div>
         {/if}
 
@@ -798,7 +840,7 @@
 
   .encrypt-error {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.5rem;
     padding: 0.75rem;
     margin-bottom: 1.25rem;
@@ -807,6 +849,38 @@
     border-radius: 8px;
     color: var(--red-500-solid);
     font-size: 0.85rem;
+  }
+
+  .encrypt-error__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .encrypt-error__msg {
+    font-weight: 600;
+  }
+
+  .encrypt-error__desc {
+    font-size: 0.78rem;
+    font-weight: 400;
+    opacity: 0.85;
+    line-height: 1.4;
+  }
+
+  /* Warning severity (corrupted file) — amber tone */
+  .encrypt-error--warning {
+    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.25);
+    color: var(--amber-gold-60, #f59e0b);
+  }
+
+  /* Danger severity (wrong passphrase / tampered) — red tone */
+  .encrypt-error--danger {
+    background: rgba(239, 68, 68, 0.10);
+    border-color: rgba(239, 68, 68, 0.30);
+    color: var(--red-500-solid, #ef4444);
   }
 
   .encrypt-progress-wrap {

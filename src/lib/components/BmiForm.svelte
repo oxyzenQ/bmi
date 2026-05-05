@@ -154,6 +154,7 @@
   let showEncryptModal = $state(false);
   let encryptModalMode = $state<'export' | 'import'>('export');
   let encryptError = $state('');
+  let encryptErrorCode = $state<string | undefined>(undefined);
   let pendingImportText = $state('');
   let pendingImportMeta = $state<ImportFileMeta | undefined>(undefined);
   let exportRecordCount = $state(0);
@@ -195,6 +196,7 @@
     exportRecordCount = Array.isArray(history) ? history.length : 0;
     encryptModalMode = 'export';
     encryptError = '';
+    encryptErrorCode = undefined;
 
     // Show staging spinner before opening modal
     stagingLoading = true;
@@ -329,6 +331,7 @@
         pendingImportMeta = peekImportMeta(text);
         encryptModalMode = 'import';
         encryptError = '';
+        encryptErrorCode = undefined;
 
         // Show staging spinner before opening modal
         stagingLoading = true;
@@ -383,6 +386,7 @@
       pendingImportText = '';
       pendingImportMeta = undefined;
       encryptError = '';
+      encryptErrorCode = undefined;
 
       // Brief staging spinner after import completes
       stagingLoading = true;
@@ -403,12 +407,10 @@
         integrityVerified: result.integrityVerified ?? false
       });
     } else {
-      // Use errorCode for specific message, fall back to error string
+      // Show error inline in EncryptionModal for immediate retry
       const code = result.errorCode ?? 'invalid_format';
-      feedbackType = 'error';
-      feedbackMessage = t(importErrorKey(code));
-      showFeedbackModal = true;
-      // Keep encrypt modal open for retry, but stop further execution
+      encryptError = t(importErrorKey(code));
+      encryptErrorCode = code;
       return;
     }
   }
@@ -423,6 +425,7 @@
     pendingImportText = '';
     pendingImportMeta = undefined;
     encryptError = '';
+    encryptErrorCode = undefined;
   }
 
   // ── Drag & Drop import (Phase 4: UX Upgrade) ──
@@ -749,6 +752,7 @@
       show={showEncryptModal}
       mode={encryptModalMode}
       error={encryptError}
+      errorCode={encryptErrorCode}
       importMeta={encryptModalMode === 'import' ? pendingImportMeta : undefined}
       exportRecordCount={encryptModalMode === 'export' ? exportRecordCount : undefined}
       onConfirm={encryptModalMode === 'export' ? handleExportConfirm : handleImportConfirm}
