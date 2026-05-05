@@ -5,6 +5,8 @@
  * C-2: Copy formatted BMI text to clipboard
  */
 
+import { t, getLocale } from '$lib/i18n';
+
 export interface BmiShareData {
   bmi: number;
   category: string;
@@ -23,7 +25,7 @@ export function formatBmiText(data: BmiShareData): string {
   const wUnit = unit === 'imperial' ? 'lbs' : 'kg';
   const hUnit = unit === 'imperial' ? 'in' : 'cm';
 
-  let text = `BMI Calculator Result\n`;
+  let text = `${t('share.title')}\n`;
   text += `BMI: ${data.bmi.toFixed(2)} (${data.category})\n`;
 
   if (data.bmiPrime !== null && data.bmiPrime !== undefined) {
@@ -41,9 +43,9 @@ export function formatBmiText(data: BmiShareData): string {
     text += `TDEE: ${Math.round(data.tdee)} kcal/day\n`;
   }
 
-  text += `\nCalculated with A Simple BMI Calc`;
+  text += `\n${t('share.footer')}`;
   text += `\nhttps://bmi-logigo.vercel.app`;
-  text += `\n${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}`;
+  text += `\n${new Date().toLocaleString(getLocale() === 'zh' ? 'zh-CN' : getLocale(), { dateStyle: 'medium', timeStyle: 'short' })}`;
 
   return text;
 }
@@ -56,7 +58,7 @@ export function formatBmiText(data: BmiShareData): string {
 export async function shareBmiResult(data: BmiShareData): Promise<{ ok: boolean; method: 'share' | 'clipboard' | 'none' }> {
   const text = formatBmiText(data);
   const shareData: ShareData = {
-    title: 'BMI Calculator Result',
+    title: t('share.title'),
     text,
     url: 'https://bmi-logigo.vercel.app'
   };

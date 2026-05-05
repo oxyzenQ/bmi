@@ -3,6 +3,9 @@
  * Produces a shareable PNG for Instagram Story / X / etc.
  */
 
+import { t, getLocale } from '$lib/i18n';
+import { CATEGORY_COLORS, COLORS, isBmiCategory } from './bmi-category';
+
 export interface BmiCardData {
   bmi: number;
   category: string;
@@ -18,13 +21,7 @@ const CARD_H = 1920;
 const RADIUS = 64;
 
 function getCategoryColor(cat: string): string {
-  switch (cat.toLowerCase()) {
-    case 'underweight': return '#4A90E2';
-    case 'normal weight': return '#00C853';
-    case 'overweight': return '#FFD600';
-    case 'obese': return '#D50000';
-    default: return '#9a4dff';
-  }
+  return isBmiCategory(cat) ? CATEGORY_COLORS[cat] : COLORS.SLATE;
 }
 
 function roundRect(
@@ -108,7 +105,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.font = '600 28px system-ui, sans-serif';
-  ctx.fillText('BMI CALCULATOR', CARD_W / 2, cardY + 100);
+  ctx.fillText(t('share.card_header'), CARD_W / 2, cardY + 100);
 
   // BMI Value — big
   ctx.fillStyle = accent;
@@ -141,7 +138,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   if (data.bmiPrime !== null && data.bmiPrime !== undefined) {
     ctx.fillStyle = 'rgba(255,255,255,0.4)';
     ctx.font = '500 24px system-ui, sans-serif';
-    ctx.fillText('BMI Prime', cardX + colW * 0.5, statsY);
+    ctx.fillText(t('share.card_prime'), cardX + colW * 0.5, statsY);
 
     ctx.fillStyle = '#ffffff';
     ctx.font = '700 40px system-ui, sans-serif';
@@ -152,7 +149,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   if (data.idealMin !== null && data.idealMax !== null && data.weightUnit) {
     ctx.fillStyle = 'rgba(255,255,255,0.4)';
     ctx.font = '500 24px system-ui, sans-serif';
-    ctx.fillText('Ideal Range', cardX + colW * 1.5, statsY);
+    ctx.fillText(t('share.card_ideal'), cardX + colW * 1.5, statsY);
 
     ctx.fillStyle = '#ffffff';
     ctx.font = '700 36px system-ui, sans-serif';
@@ -163,11 +160,11 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   if (data.tdee !== null && data.tdee !== undefined) {
     ctx.fillStyle = 'rgba(255,255,255,0.4)';
     ctx.font = '500 24px system-ui, sans-serif';
-    ctx.fillText('TDEE', cardX + colW * 2.5, statsY);
+    ctx.fillText(t('share.card_tdee'), cardX + colW * 2.5, statsY);
 
     ctx.fillStyle = '#ffffff';
     ctx.font = '700 40px system-ui, sans-serif';
-    ctx.fillText(`${Math.round(data.tdee)} kcal`, cardX + colW * 2.5, statsY + 50);
+    ctx.fillText(`${Math.round(data.tdee)} ${t('share.card_kcal')}`, cardX + colW * 2.5, statsY + 50);
   }
 
   // BMI Scale bar
@@ -227,7 +224,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(255,255,255,0.25)';
   ctx.font = '500 22px system-ui, sans-serif';
-  ctx.fillText('A Simple BMI Calc — by Rezky Nightky', CARD_W / 2, CARD_H - 160);
+  ctx.fillText(t('share.card_branding'), CARD_W / 2, CARD_H - 160);
 
   ctx.fillStyle = 'rgba(255,255,255,0.15)';
   ctx.font = '400 20px system-ui, sans-serif';
@@ -235,7 +232,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 
   // Timestamp
   const now = new Date();
-  const timestamp = now.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+  const timestamp = now.toLocaleString(getLocale() === 'zh' ? 'zh-CN' : getLocale(), { dateStyle: 'medium', timeStyle: 'short' });
   ctx.fillStyle = 'rgba(255,255,255,0.12)';
   ctx.font = '400 18px system-ui, sans-serif';
   ctx.fillText(timestamp, CARD_W / 2, CARD_H - 80);
@@ -277,7 +274,7 @@ export async function shareBmiCard(data: BmiCardData): Promise<{ ok: boolean; me
     try {
       await navigator.share({
         title: 'BMI Calculator Result',
-        text: `My BMI: ${data.bmi.toFixed(1)} (${data.category})`,
+        text: t('share.card_text', { n: data.bmi.toFixed(1), category: data.category }),
         files: [file]
       });
       return { ok: true, method: 'share' };

@@ -4,13 +4,44 @@ name: 💸 Release Publisher
 on:
   push:
     tags:
-      - '*'
+      - 'Stellar-*'
 
 permissions:
   contents: write
 
 jobs:
+  validate-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get tag name
+        id: tag
+        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate tag format
+        run: |
+          TAG="${{ steps.tag.outputs.TAG_NAME }}"
+          echo "Tag: $TAG"
+
+          # Strict format: Stellar-v<major>.<minor> (e.g., Stellar-v12.0)
+          if [[ ! "$TAG" =~ ^Stellar-v[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid tag format: $TAG"
+            echo ""
+            echo "Expected format: Stellar-v<major>.<minor>"
+            echo "Examples:"
+            echo "  ✅ Stellar-v12.0"
+            echo "  ✅ Stellar-v10.5"
+            echo ""
+            echo "Invalid examples:"
+            echo "  ❌ Stellar-12.0    (missing 'v' before version)"
+            echo "  ❌ Stellar v12.0   (space instead of hyphen)"
+            echo "  ❌ v12.0          (missing 'Stellar-' prefix)"
+            exit 1
+          fi
+
+          echo "✅ Tag format valid: $TAG"
+
   release:
+    needs: validate-tag
     runs-on: ubuntu-latest
 
     steps:

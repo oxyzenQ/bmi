@@ -53,9 +53,10 @@
   --cosmic-silver: #d6ccff;
 
   /* Wallpaper system */
-  --wallpaper-current: url('/images/oxyzen-zenlysium.webp');
+  --wallpaper-current: url('/images/blackhole.webp');
+  --wallpaper-blackhole: url('/images/blackhole.webp');
+  --wallpaper-spaceship: url('/images/spaceshipx.webp');
   --wallpaper-space: url('/images/oxyzen-zenlysium.webp');
-  --wallpaper-energy: url('/images/oxyzen-cyberagent.webp');
 
   /* Text & accents */
   --text-primary: var(--stellar-white);
@@ -64,8 +65,8 @@
   --accent-blue: var(--aurora-bright);
 
   /* Glassmorphism & branding */
-  --bg-by-rezky: linear-gradient(45deg, #1a0533, #8000ffda);
-  --bg-last-by-rezky: linear-gradient(45deg, #100a24, #8000ffda);
+  --bg-by-rezky: linear-gradient(135deg, #140826cc, #5b21b6cc);
+  --bg-last-by-rezky: linear-gradient(135deg, #1a0d33, #6d28d9);
   --border-by-rezky: 1px solid var(--w-14);
   --bg-cosmic: linear-gradient(135deg,
       #4e3383,
@@ -125,6 +126,7 @@
   --k-20: rgba(0, 0, 0, 0.2);
   --k-25: rgba(0, 0, 0, 0.25);
   --k-30: rgba(0, 0, 0, 0.3);
+  --k-32: rgba(0, 0, 0, 0.32);
   --k-38: rgba(0, 0, 0, 0.38);
   --k-40: rgba(0, 0, 0, 0.4);
   --k-42: rgba(0, 0, 0, 0.42);
@@ -161,17 +163,25 @@
   /* Deep-void-8 (2,8,23) */
   --dv8-25: rgba(2, 8, 23, 0.25);
 
-  /* Cosmic-base (10,8,24) */
-  --cbase-82: rgba(10, 8, 24, 0.82);
+  /* Cosmic-base — PURE BLACK */
+  --cbase-82: rgba(0, 0, 0, 0.82);
 
-  /* Core-blue (59,130,246) */
+  /* Core-blue (59,130,246) — accent blue */
   --coreblue-0: rgba(59, 130, 246, 0);
+  --coreblue-12: rgba(59, 130, 246, 0.12);
   --coreblue-15: rgba(59, 130, 246, 0.15);
+  --coreblue-16: rgba(59, 130, 246, 0.16);
+  --coreblue-22: rgba(59, 130, 246, 0.22);
+  --coreblue-30: rgba(59, 130, 246, 0.30);
+  --coreblue-32: rgba(59, 130, 246, 0.32);
   --coreblue-35: rgba(59, 130, 246, 0.35);
+  --coreblue-40: rgba(59, 130, 246, 0.40);
   --coreblue-50: rgba(59, 130, 246, 0.5);
 
   /* Blue (96,165,250) */
   --blue-5: rgba(96, 165, 250, 0.05);
+  --blue-18: rgba(96, 165, 250, 0.18);
+  --blue-20: rgba(96, 165, 250, 0.20);
   --blue-35: rgba(96, 165, 250, 0.35);
   --blue-40: rgba(96, 165, 250, 0.4);
   --blue-50: rgba(96, 165, 250, 0.5);
@@ -188,8 +198,24 @@
   /* Indigo (99,102,241) */
   --ink-18: rgba(99, 102, 241, 0.18);
 
-  /* Violet (139,92,246) */
-  --violet-50: rgba(139, 92, 246, 0.5);
+  /* Violet (139,92,246) — primary purple glow */
+  --violet-10: rgba(139, 92, 246, 0.10);
+  --violet-12: rgba(139, 92, 246, 0.12);
+  --violet-15: rgba(139, 92, 246, 0.15);
+  --violet-18: rgba(139, 92, 246, 0.18);
+  --violet-20: rgba(139, 92, 246, 0.20);
+  --violet-22: rgba(139, 92, 246, 0.22);
+  --violet-24: rgba(139, 92, 246, 0.24);
+  --violet-25: rgba(139, 92, 246, 0.25);
+  --violet-26: rgba(139, 92, 246, 0.26);
+  --violet-30: rgba(139, 92, 246, 0.30);
+  --violet-32: rgba(139, 92, 246, 0.32);
+  --violet-34: rgba(139, 92, 246, 0.34);
+  --violet-35: rgba(139, 92, 246, 0.35);
+  --violet-36: rgba(139, 92, 246, 0.36);
+  --violet-42: rgba(139, 92, 246, 0.42);
+  --violet-45: rgba(139, 92, 246, 0.45);
+  --violet-50: rgba(139, 92, 246, 0.50);
 
   /* Plum (147,51,234) */
   --plum-0: rgba(147, 51, 234, 0);
@@ -200,6 +226,9 @@
 
   /* Purple (168,85,247) */
   --purple-5: rgba(168, 85, 247, 0.05);
+  --purple-15: rgba(168, 85, 247, 0.15);
+  --purple-25: rgba(168, 85, 247, 0.25);
+  --purple-40: rgba(168, 85, 247, 0.4);
   --purple-60: rgba(168, 85, 247, 0.6);
   --purple-80: rgba(168, 85, 247, 0.8);
   --purple-90: rgba(168, 85, 247, 0.9);
@@ -301,24 +330,169 @@
   --zinc2-20: rgba(229, 231, 235, 0.2);
   --zinc2-22: rgba(229, 231, 235, 0.22);
 
+  /* Category colors for BMI ranges */
+  --cat-blue-6: rgba(96, 165, 250, 0.06);
+  --cat-green-6: rgba(74, 222, 128, 0.06);
+  --cat-amber-6: rgba(251, 191, 36, 0.06);
+  --cat-red-6: rgba(248, 113, 113, 0.06);
+  --cat-blue-20: rgba(96, 165, 250, 0.2);
+  --cat-green-20: rgba(74, 222, 128, 0.2);
+  --cat-amber-20: rgba(251, 191, 36, 0.2);
+  --cat-slate-30: rgba(148, 163, 184, 0.3);
+  --cat-slate-30-light: rgba(148, 163, 184, 0.45);
+  --white-15: rgba(255, 255, 255, 0.15);
+  --white-10: rgba(255, 255, 255, 0.1);
+  --cat-green-40: rgba(74, 222, 128, 0.4);
+  --sd-92: rgba(15, 23, 42, 0.92);
+  --shadow-heavy: rgba(0, 0, 0, 0.5);
+  --cosmic-base-95: rgba(0, 0, 0, 0.95);
+  --darkred-85: rgba(183, 28, 28, 0.85);
+
   /* ── End opacity token system ── */
 
-  /* Button system */
-  --btn-radius: 14px;
+  /* Void — PURE BLACK overlay/button backgrounds */
+  --void-44: rgba(0, 0, 0, 0.44);
+  --void-52: rgba(0, 0, 0, 0.52);
+  --void-58: rgba(0, 0, 0, 0.58);
+  --void-85: rgba(0, 0, 0, 0.85);
+
+  /* Cosmic-dark — PURE BLACK dialog/backdrop backgrounds (no purple tint) */
+  --cosmic-dark-78: rgba(0, 0, 0, 0.78);
+  --cosmic-dark-82: rgba(0, 0, 0, 0.82);
+  --cosmic-dark-92: rgba(0, 0, 0, 0.92);
+  --cosmic-dark-94: rgba(0, 0, 0, 0.94);
+
+  /* Cosmic-dk — PURE BLACK button gradient backgrounds */
+  --cosmic-dk-52: rgba(0, 0, 0, 0.52);
+  --cosmic-dk-58: rgba(0, 0, 0, 0.58);
+
+  /* Amber-gold (251,191,36) — golden amber for badges */
+  --amber-gold-30: rgba(251, 191, 36, 0.30);
+  --amber-gold-40: rgba(251, 191, 36, 0.40);
+  --amber-gold-60: rgba(251, 191, 36, 0.60);
+
+  /* Goal-green (34,197,94) — goal tracker accent */
+  --goal-green-10: rgba(34, 197, 94, 0.10);
+  --goal-green-20: rgba(34, 197, 94, 0.20);
+
+  /* Button system — Premium Purple Glass */
+  --btn-radius: 10px;
   --btn-height: 44px;
   --btn-padding-x: 18px;
   --btn-font: 600 0.95rem/1 'Inter Variable', system-ui, -apple-system, sans-serif;
-  --btn-bg: color-mix(in oklab, var(--cosmic-void) 80%, transparent);
-  --btn-bg-hover: color-mix(in oklab, var(--cosmic-void) 70%, transparent);
-  --btn-bg-active: color-mix(in oklab, var(--cosmic-void) 88%, transparent);
-  --btn-surface: linear-gradient(180deg, var(--w-7), var(--w-2-5));
-  --btn-border: 1px solid var(--w-14);
-  --btn-border-hover: 1px solid var(--w-18);
-  --btn-shadow: 0 12px 28px var(--k-42),
-    inset 0 1px 0 var(--w-7),
-    0 0 18px color-mix(in oklab, var(--cosmic-purple) 18%, transparent);
-  --btn-shadow-hover: 0 18px 44px var(--k-50),
-    inset 0 1px 0 var(--w-10),
-    0 0 28px color-mix(in oklab, var(--cosmic-purple) 26%, transparent);
-}
+  --btn-bg: linear-gradient(135deg, #140826cc, #5b21b6cc);
+  --btn-bg-hover: linear-gradient(135deg, #1a0d33, #6d28d9);
+  --btn-bg-active: linear-gradient(135deg, #10061f, #4c1d95);
+  --btn-surface: linear-gradient(135deg, rgba(20, 8, 38, 0.70), rgba(91, 33, 182, 0.65));
+  --btn-border: 1px solid rgba(255, 255, 255, 0.08);
+  --btn-border-hover: 1px solid rgba(255, 255, 255, 0.14);
+  --btn-shadow: none;
+  --btn-shadow-hover: none;
 
+  /* ── CONSISTENT BORDER RADIUS ── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 9999px;
+
+  /* ── CONSISTENT SECTION SPACING ── */
+  --section-margin-y: clamp(40px, 5vh, 120px);
+  --container-padding-x: clamp(1rem, 3vw, 2rem);
+
+  /* ── SPACING SYSTEM (Phase 3: Design System Solidification) ──
+       Consistent spacing scale for predictable visual rhythm.
+       Usage: padding, margin, gap across all components. */
+  --space-1: 0.25rem;   /* 4px  — tight inner gaps */
+  --space-2: 0.5rem;    /* 8px  — compact spacing */
+  --space-3: 0.75rem;   /* 12px — comfortable default */
+  --space-4: 1rem;      /* 16px — section inner padding */
+  --space-5: 1.5rem;    /* 24px — card padding */
+  --space-6: 2rem;      /* 32px — section gaps */
+  --space-7: 3rem;      /* 48px — major section separation */
+
+  /* ── ELEVATION SYSTEM (Phase 3: Design System Solidification) ──
+       Layered shadow system for depth hierarchy.
+       Usage: cards, modals, floating elements. */
+  --elevation-1: 0 2px 8px var(--k-30), 0 0 0 1px var(--w-5);
+  --elevation-2: 0 8px 24px var(--k-40), 0 0 0 1px var(--w-8);
+  --elevation-3: 0 16px 48px var(--k-50), 0 0 0 1px var(--w-10);
+
+  /* ── MICRO-DELAY SYSTEM (Phase 1: Perceived Performance) ──
+       Consistent timing for modal transitions and async feedback.
+       Usage: modal open/close, success confirmation, loading staging. */
+  --delay-open: 120ms;
+  --delay-success: 150ms;
+  --delay-close: 100ms;
+  --delay-shimmer: 80ms;
+
+  /* ── GLASSMORPHISM DESIGN TOKENS (Stellar v15: Moonshot Glass) ──
+     Centralized glass effect values for consistency across
+     desktop, mobile, and fallback rendering contexts.
+     
+     Design principle: when backdrop-filter is available, REDUCE
+     background opacity — the blur compensates for readability.
+     This lets the wallpaper bleed through for a true glass effect.
+     
+     saturate(180%) + brightness(1.15) boost subtle nebula colors
+     in dark wallpapers so they remain visible through the glass.
+     
+     Fallback (no blur support): strong solid background (0.85).
+     Enhanced (blur supported): lighter background + blur filters. */
+  --glass-bg-fallback: rgba(0, 0, 0, 0.85);
+  --glass-bg-enhanced: rgba(0, 0, 0, 0.65);
+  --glass-bg-calc: rgba(0, 0, 0, 0.68);
+  --glass-bg-hero: rgba(0, 0, 0, 0.58);
+  --glass-bg-card: rgba(0, 0, 0, 0.55);
+  --glass-bg-results: rgba(0, 0, 0, 0.40);
+  --glass-bg-dialog: rgba(0, 0, 0, 0.60);
+  --glass-bg-backdrop: rgba(0, 0, 0, 0.80);
+  --glass-bg-strong: rgba(0, 0, 0, 0.70);
+  --glass-blur: 16px;
+  --glass-blur-heavy: 20px;
+  --glass-blur-light: 10px;
+  --glass-blur-subtle: 6px;
+  --glass-saturation: 180%;
+  --glass-saturation-high: 200%;
+  --glass-saturation-light: 150%;
+  --glass-border: 1px solid rgba(255, 255, 255, 0.10);
+  --glass-border-strong: 1px solid rgba(255, 255, 255, 0.14);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --glass-brightness: brightness(1.15);
+
+  /* ── SEMANTIC COLOR TOKENS ── */
+  /* Used across components for consistent category/status colors */
+  --text-secondary-bright: rgba(245, 245, 245, 1);      /* #f5f5f5 — about card, footer text */
+  --text-tertiary: rgba(209, 213, 219, 1);              /* #d1d5db — advice/explanation text */
+  --text-muted-slate: rgba(156, 163, 175, 1);           /* #9ca3af — empty state, muted text */
+
+  /* Category/accent solid colors */
+  --cat-blue-solid: rgba(96, 165, 250, 1);              /* #60a5fa — underweight accent */
+  --cat-blue-deep: rgba(59, 130, 246, 1);               /* #3b82f6 — plasma star blue */
+  --cat-green-solid: rgba(74, 222, 128, 1);             /* #4ade80 — normal/gain accent */
+  --cat-amber-solid: rgba(251, 191, 36, 1);             /* #fbbf24 — overweight/badge accent */
+  --cat-orange-solid: rgba(249, 115, 22, 1);            /* #f97316 — TDEE accent */
+  --cat-red-solid: rgba(248, 113, 113, 1);              /* #f87171 — obese accent */
+  --cat-red-bright: rgba(255, 107, 107, 1);             /* #ff6b6b — form error */
+  --cat-red-soft: rgba(252, 165, 165, 1);               /* #fca5a5 — TDEE gain range */
+  --neon-purple: rgba(89, 0, 233, 1);                   /* #5900e9 — focus border */
+
+  /* Extended semantic colors — commonly repeated hex values */
+  --blue-300-solid: rgba(147, 197, 253, 1);              /* #93c5fd — below/underweight tint */
+  --green-300-solid: rgba(134, 239, 172, 1);             /* #86efac — delta within range */
+  --emerald-solid: rgba(16, 185, 129, 1);                /* #10b981 — normal weight category */
+  --warn-amber: rgba(245, 158, 11, 1);                   /* #f59e0b — warning/overweight icon */
+  --red-500-solid: rgba(239, 68, 68, 1);                 /* #ef4444 — obese category */
+  --slate-500-solid: rgba(100, 116, 139, 1);             /* #64748b — disclaimer text */
+  --slate-200-solid: rgba(226, 232, 240, 1);             /* #e2e8f0 — scale label text */
+  --slate-50-solid: rgba(248, 250, 252, 1);              /* #f8fafc — strong text, ref bold */
+  --slate-400-solid: rgba(148, 163, 184, 1);             /* #94a3b8 — muted description text */
+  --warn-yellow: rgba(250, 204, 21, 1);                   /* #facc15 — warning icon yellow-400 */
+  --warn-yellow-light: rgba(253, 224, 71, 1);             /* #fde047 — warning icon yellow-300 */
+  --cat-green-toast: rgba(0, 200, 83, 1);                 /* #00C853 — success toast */
+  --pill-text-blue: rgba(230, 240, 255, 1);               /* #e6f0ff — pill indicator text */
+  --pill-dot-grey: rgba(161, 161, 170, 1);                /* #a1a1aa — pill grey dot */
+  --text-on-amber: rgba(26, 26, 46, 1);                    /* #1a1a2e — text on amber background */
+  --slate-600-solid: rgba(71, 85, 105, 1);                  /* #475569 — axis label, time text */
+}

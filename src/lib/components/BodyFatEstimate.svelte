@@ -1,5 +1,10 @@
 <script lang="ts">
   import { Percent, Info, AlertCircle } from 'lucide-svelte';
+  import { COLORS } from '$lib/utils/bmi-category';
+  import { t as _t, localeVersion } from '$lib/i18n';
+  let _rv = $derived($localeVersion);
+  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
   interface Props {
     bmi?: number | null;
@@ -21,17 +26,17 @@
 
   function getCategory(bf: number, isMale: boolean): { label: string; color: string; desc: string } {
     if (isMale) {
-      if (bf < 6) return { label: 'Essential Fat', color: '#4A90E2', desc: 'Minimum fat required for physiological health' };
-      if (bf < 14) return { label: 'Athletic', color: '#00C853', desc: 'Typical of trained athletes and fitness enthusiasts' };
-      if (bf < 18) return { label: 'Fitness', color: '#00C853', desc: 'Healthy range associated with good physical condition' };
-      if (bf < 25) return { label: 'Average', color: '#FFD600', desc: 'Most common range in the general population' };
-      return { label: 'Above Average', color: '#D50000', desc: 'Higher than typical — consult a healthcare provider' };
+      if (bf < 6) return { label: t('fat.essential'), color: COLORS.BLUE, desc: t('fat.essential_desc') };
+      if (bf < 14) return { label: t('fat.athletic'), color: COLORS.GREEN, desc: t('fat.athletic_desc') };
+      if (bf < 18) return { label: t('fat.fitness'), color: COLORS.GREEN, desc: t('fat.fitness_desc') };
+      if (bf < 25) return { label: t('fat.average'), color: COLORS.YELLOW, desc: t('fat.average_desc') };
+      return { label: t('fat.above_average'), color: COLORS.RED, desc: t('fat.above_average_desc') };
     } else {
-      if (bf < 14) return { label: 'Essential Fat', color: '#4A90E2', desc: 'Minimum fat required for physiological health' };
-      if (bf < 21) return { label: 'Athletic', color: '#00C853', desc: 'Typical of trained athletes and fitness enthusiasts' };
-      if (bf < 25) return { label: 'Fitness', color: '#00C853', desc: 'Healthy range associated with good physical condition' };
-      if (bf < 32) return { label: 'Average', color: '#FFD600', desc: 'Most common range in the general population' };
-      return { label: 'Above Average', color: '#D50000', desc: 'Higher than typical — consult a healthcare provider' };
+      if (bf < 14) return { label: t('fat.essential'), color: COLORS.BLUE, desc: t('fat.essential_desc') };
+      if (bf < 21) return { label: t('fat.athletic'), color: COLORS.GREEN, desc: t('fat.athletic_desc') };
+      if (bf < 25) return { label: t('fat.fitness'), color: COLORS.GREEN, desc: t('fat.fitness_desc') };
+      if (bf < 32) return { label: t('fat.average'), color: COLORS.YELLOW, desc: t('fat.average_desc') };
+      return { label: t('fat.above_average'), color: COLORS.RED, desc: t('fat.above_average_desc') };
     }
   }
 
@@ -52,18 +57,17 @@
     return Math.round((100 - bodyFat) * 10) / 10;
   });
 </script>
-
 <div class="gauge-container body-fat-container">
   <div class="gauge-header">
     <div class="gauge-title">
       <Percent class="Gauge" />
-      <h3>Body Fat Estimate</h3>
+      <h3>{t('fat.title')}</h3>
     </div>
-    <div class="gauge-subtitle">BMI-based body fat percentage estimation</div>
+    <div class="gauge-subtitle">{t('fat.subtitle')}</div>
   </div>
 
   <!-- Sex toggle -->
-  <div class="sex-toggle" role="radiogroup" aria-label="Biological sex">
+  <div class="sex-toggle" role="radiogroup" aria-label={t('fat.sex_aria')}>
     <button
       type="button"
       class="sex-btn"
@@ -72,7 +76,7 @@
       aria-checked={sex === 'male'}
       onclick={() => (sex = 'male')}
     >
-      Male
+      {t('fat.male')}
     </button>
     <button
       type="button"
@@ -82,7 +86,7 @@
       aria-checked={sex === 'female'}
       onclick={() => (sex = 'female')}
     >
-      Female
+      {t('fat.female')}
     </button>
   </div>
 
@@ -99,7 +103,7 @@
     <!-- Body composition bar -->
     <div class="composition-bar">
       <div class="comp-header">
-        <span>Body Composition</span>
+        <span>{t('fat.composition')}</span>
       </div>
       <div class="comp-track">
         <div class="comp-fill fat" style="width: {bodyFat}%"></div>
@@ -108,11 +112,11 @@
       <div class="comp-legend">
         <span class="legend-item">
           <span class="legend-dot fat-dot"></span>
-          Fat: {bodyFat}%
+          {t('fat.fat_pct', { n: bodyFat })}
         </span>
         <span class="legend-item">
           <span class="legend-dot lean-dot"></span>
-          Lean: {leanMass}%
+          {t('fat.lean_pct', { n: leanMass })}
         </span>
       </div>
     </div>
@@ -122,75 +126,75 @@
     <!-- Info box -->
     <div class="bf-info-box">
       <Info size={14} />
-      <p>Estimation uses the Deurenberg formula (BMI + Age + Sex). For accurate body fat measurement, consider DEXA scan or caliper testing.</p>
+      <p>{t('fat.disclaimer')}</p>
     </div>
 
     <!-- Category ranges -->
     <div class="bf-ranges">
-      <h4>{sex === 'male' ? 'Men' : 'Women'}'s Body Fat Ranges</h4>
+      <h4>{sex === 'male' ? t('fat.men_ranges') : t('fat.women_ranges')}</h4>
       {#if sex === 'male'}
         <div class="range-row">
-          <span class="range-label">Essential</span>
-          <div class="range-bar"><div class="range-fill" style="width: 24%; background: #4A90E2;"></div></div>
-          <span class="range-val">2-5%</span>
+          <span class="range-label">{t('fat.range_essential')}</span>
+          <div class="range-bar"><div class="range-fill" style="width: 24%; background: var(--cat-blue-40);"></div></div>
+          <span class="range-val">{t('fat.range_m_essential')}</span>
         </div>
         <div class="range-row">
-          <span class="range-label">Athletic</span>
-          <div class="range-bar"><div class="range-fill" style="width: 32%; background: #00C853;"></div></div>
-          <span class="range-val">6-13%</span>
+          <span class="range-label">{t('fat.range_athletic')}</span>
+          <div class="range-bar"><div class="range-fill" style="width: 32%; background: var(--cat-green-40);"></div></div>
+          <span class="range-val">{t('fat.range_m_athletic')}</span>
         </div>
         <div class="range-row">
-          <span class="range-label">Fitness</span>
-          <div class="range-bar"><div class="range-fill" style="width: 36%; background: #00C853;"></div></div>
-          <span class="range-val">14-17%</span>
+          <span class="range-label">{t('fat.range_fitness')}</span>
+          <div class="range-bar"><div class="range-fill" style="width: 36%; background: var(--cat-green-40);"></div></div>
+          <span class="range-val">{t('fat.range_m_fitness')}</span>
         </div>
         <div class="range-row">
-          <span class="range-label">Average</span>
-          <div class="range-bar"><div class="range-fill" style="width: 56%; background: #FFD600;"></div></div>
-          <span class="range-val">18-24%</span>
+          <span class="range-label">{t('fat.range_average')}</span>
+          <div class="range-bar"><div class="range-fill" style="width: 56%; background: var(--cat-amber-40);"></div></div>
+          <span class="range-val">{t('fat.range_m_average')}</span>
         </div>
         <div class="range-row">
-          <span class="range-label">Obese</span>
-          <div class="range-bar"><div class="range-fill" style="width: 75%; background: #D50000;"></div></div>
-          <span class="range-val">25%+</span>
+          <span class="range-label">{t('fat.range_obese')}</span>
+          <div class="range-bar"><div class="range-fill" style="width: 75%; background: var(--cat-red-40);"></div></div>
+          <span class="range-val">{t('fat.range_m_obese')}</span>
         </div>
       {:else}
         <div class="range-row">
-          <span class="range-label">Essential</span>
-          <div class="range-bar"><div class="range-fill" style="width: 28%; background: #4A90E2;"></div></div>
-          <span class="range-val">10-13%</span>
+          <span class="range-label">{t('fat.range_essential')}</span>
+          <div class="range-bar"><div class="range-fill" style="width: 28%; background: var(--cat-blue-40);"></div></div>
+          <span class="range-val">{t('fat.range_f_essential')}</span>
         </div>
         <div class="range-row">
-          <span class="range-label">Athletic</span>
-          <div class="range-bar"><div class="range-fill" style="width: 42%; background: #00C853;"></div></div>
-          <span class="range-val">14-20%</span>
+          <span class="range-label">{t('fat.range_athletic')}</span>
+          <div class="range-bar"><div class="range-fill" style="width: 42%; background: var(--cat-green-40);"></div></div>
+          <span class="range-val">{t('fat.range_f_athletic')}</span>
         </div>
         <div class="range-row">
-          <span class="range-label">Fitness</span>
-          <div class="range-bar"><div class="range-fill" style="width: 42%; background: #00C853;"></div></div>
-          <span class="range-val">21-24%</span>
+          <span class="range-label">{t('fat.range_fitness')}</span>
+          <div class="range-bar"><div class="range-fill" style="width: 42%; background: var(--cat-green-40);"></div></div>
+          <span class="range-val">{t('fat.range_f_fitness')}</span>
         </div>
         <div class="range-row">
-          <span class="range-label">Average</span>
-          <div class="range-bar"><div class="range-fill" style="width: 56%; background: #FFD600;"></div></div>
-          <span class="range-val">25-31%</span>
+          <span class="range-label">{t('fat.range_average')}</span>
+          <div class="range-bar"><div class="range-fill" style="width: 56%; background: var(--cat-amber-40);"></div></div>
+          <span class="range-val">{t('fat.range_f_average')}</span>
         </div>
         <div class="range-row">
-          <span class="range-label">Obese</span>
-          <div class="range-bar"><div class="range-fill" style="width: 75%; background: #D50000;"></div></div>
-          <span class="range-val">32%+</span>
+          <span class="range-label">{t('fat.range_obese')}</span>
+          <div class="range-bar"><div class="range-fill" style="width: 75%; background: var(--cat-red-40);"></div></div>
+          <span class="range-val">{t('fat.range_f_obese')}</span>
         </div>
       {/if}
     </div>
   {:else if bmi !== null}
     <div class="bf-empty">
       <AlertCircle size={32} />
-      <p>Enter your age to see body fat estimation</p>
+      <p>{t('fat.empty_age')}</p>
     </div>
   {:else}
     <div class="bf-empty">
       <Percent size={32} />
-      <p>Calculate your BMI to see body fat estimation</p>
+      <p>{t('fat.empty_bmi')}</p>
     </div>
   {/if}
 </div>
@@ -198,7 +202,6 @@
 <style>
   .body-fat-container {
     padding-top: 20px !important;
-    margin-bottom: clamp(60px, 30vh, 180px) !important;
   }
 
   .sex-toggle {
@@ -260,7 +263,7 @@
 
   .comp-header {
     font-size: 0.8rem;
-    color: #64748b;
+    color: var(--slate-400-solid);
     margin-bottom: 0.5rem;
     font-weight: 500;
   }
@@ -279,11 +282,11 @@
   }
 
   .comp-fill.fat {
-    background: linear-gradient(90deg, #FFD600, #F59E0B);
+    background: linear-gradient(90deg, var(--cat-amber-40), var(--cat-amber-90));
   }
 
   .comp-fill.lean {
-    background: linear-gradient(90deg, #00C853, #4A90E2);
+    background: linear-gradient(90deg, var(--cat-green-40), var(--cat-blue-40));
   }
 
   .comp-legend {
@@ -292,7 +295,7 @@
     gap: 1.25rem;
     margin-top: 0.5rem;
     font-size: 0.75rem;
-    color: #94a3b8;
+    color: var(--slate-400-solid);
   }
 
   .legend-item {
@@ -308,17 +311,17 @@
   }
 
   .fat-dot {
-    background: #F59E0B;
+    background: var(--cat-amber-90);
   }
 
   .lean-dot {
-    background: #00C853;
+    background: var(--cat-green-90);
   }
 
   .bf-desc {
     text-align: center;
     font-size: 0.875rem;
-    color: #94a3b8;
+    color: var(--slate-400-solid);
     margin-bottom: 1rem;
     line-height: 1.5;
   }
@@ -333,13 +336,13 @@
     border-radius: 12px;
     margin-bottom: 1.25rem;
     font-size: 0.78rem;
-    color: #94a3b8;
+    color: var(--slate-400-solid);
     line-height: 1.5;
   }
 
   .bf-info-box :global(svg) {
     flex-shrink: 0;
-    color: #4A90E2;
+    color: var(--cat-blue-40);
     margin-top: 1px;
   }
 
@@ -357,7 +360,7 @@
   .bf-ranges h4 {
     margin: 0 0 0.75rem;
     font-size: 0.85rem;
-    color: #e2e8f0;
+    color: var(--slate-200-solid);
     text-align: center;
   }
 
@@ -374,7 +377,7 @@
 
   .range-label {
     font-size: 0.72rem;
-    color: #94a3b8;
+    color: var(--slate-400-solid);
     width: 60px;
     flex-shrink: 0;
     text-align: right;
@@ -396,7 +399,7 @@
 
   .range-val {
     font-size: 0.7rem;
-    color: #64748b;
+    color: var(--slate-400-solid);
     width: 40px;
     flex-shrink: 0;
     font-family: 'JetBrains Mono Variable', monospace;
@@ -409,7 +412,7 @@
     justify-content: center;
     padding: 2.5rem;
     text-align: center;
-    color: #64748b;
+    color: var(--slate-400-solid);
   }
 
   .bf-empty :global(svg) {

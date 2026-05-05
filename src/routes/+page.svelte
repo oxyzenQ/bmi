@@ -5,57 +5,98 @@
   import { browser } from '$app/environment';
   import { getPerformanceTier } from '$lib/utils/performance';
   import { importBmiHistory } from '$lib/utils/history-io';
+  import { createLazyLoader, createPairedLazyLoader } from '$lib/utils/lazy-load';
+  import { STORAGE_KEYS, storageGet, storageSet, storageSetJSON, storageRemove, storageGetJSON, storageInvalidate } from '$lib/utils/storage';
+  import { BMI_THRESHOLDS } from '$lib/utils/bmi-category';
+  import { calculateBmi, isBmiResult } from '$lib/utils/bmi-calculator';
+  import { MARKER_ANIM, PAGER, SPRING, SCROLL, HAPTIC, SECTIONS } from '$lib/utils/animation-config';
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
+  import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
   import {
     Lightbulb,
     Users,
     GitBranch,
     GitCompare,
     PackageCheck,
-    Wrench,
+    ShieldCheck,
+    Activity,
     AlertTriangle,
     Scale,
+    Settings,
     Bot,
     Sparkles,
     ChevronLeft,
     ChevronRight,
-    ChevronUp,
-    Keyboard
+    ChevronUp
   } from 'lucide-svelte';
+  import { t as _t, initLocale, localeVersion } from '$lib/i18n';
+  let _rv = $derived($localeVersion);
+  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
   type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
   type BmiResultsComponentType = typeof import('$lib/components/BmiResults.svelte').default;
   type BmiRadialGaugeComponentType = typeof import('$lib/components/BmiRadialGauge.svelte').default;
   type BmiHealthRiskComponentType = typeof import('$lib/components/BmiHealthRisk.svelte').default;
   type BmiSnapshotComponentType = typeof import('$lib/components/BmiSnapshot.svelte').default;
   type BodyFatEstimateComponentType = typeof import('$lib/components/BodyFatEstimate.svelte').default;
+  type ReferenceTableComponentType = typeof import('$lib/components/ReferenceTable.svelte').default;
+  type BmiGoalTrackerComponentType = typeof import('$lib/components/BmiGoalTracker.svelte').default;
+  // ── Lazy-loaded component state (Svelte 5 $state) ──
   let BmiFormComponent: BmiFormComponentType | null = $state(null);
   let BmiResultsComponent: BmiResultsComponentType | null = $state(null);
   let BmiRadialGaugeComponent: BmiRadialGaugeComponentType | null = $state(null);
   let BmiHealthRiskComponent: BmiHealthRiskComponentType | null = $state(null);
   let BmiSnapshotComponent: BmiSnapshotComponentType | null = $state(null);
   let BodyFatEstimateComponent: BodyFatEstimateComponentType | null = $state(null);
-  let calculatorLoad: Promise<void> | null = null;
-  let gaugeLoad: Promise<void> | null = null;
-  let healthRiskLoad: Promise<void> | null = null;
-  let snapshotLoad: Promise<void> | null = null;
-  let bodyFatLoad: Promise<void> | null = null;
+  let ReferenceTableComponent: ReferenceTableComponentType | null = $state(null);
+  let BmiGoalTrackerComponent: BmiGoalTrackerComponentType | null = $state(null);
 
+  // ── Lazy loaders (deduplicate imports, bridge to $state via onLoad) ──
+  const calculatorLoader = createPairedLazyLoader<BmiFormComponentType, BmiResultsComponentType>(
+    () => import('$lib/components/BmiForm.svelte'),
+    () => import('$lib/components/BmiResults.svelte'),
+    (comp) => { BmiFormComponent = comp; },
+    (comp) => { BmiResultsComponent = comp; }
+  );
+  const gaugeLoader = createLazyLoader<BmiRadialGaugeComponentType>({
+    importer: () => import('$lib/components/BmiRadialGauge.svelte'),
+    onLoad: (comp) => { BmiRadialGaugeComponent = comp; }
+  });
+  const healthRiskLoader = createLazyLoader<BmiHealthRiskComponentType>({
+    importer: () => import('$lib/components/BmiHealthRisk.svelte'),
+    onLoad: (comp) => { BmiHealthRiskComponent = comp; }
+  });
+  const snapshotLoader = createLazyLoader<BmiSnapshotComponentType>({
+    importer: () => import('$lib/components/BmiSnapshot.svelte'),
+    onLoad: (comp) => { BmiSnapshotComponent = comp; }
+  });
+  const bodyFatLoader = createLazyLoader<BodyFatEstimateComponentType>({
+    importer: () => import('$lib/components/BodyFatEstimate.svelte'),
+    onLoad: (comp) => { BodyFatEstimateComponent = comp; }
+  });
+  const referenceLoader = createLazyLoader<ReferenceTableComponentType>({
+    importer: () => import('$lib/components/ReferenceTable.svelte'),
+    onLoad: (comp) => { ReferenceTableComponent = comp; }
+  });
+  const goalTrackerLoader = createLazyLoader<BmiGoalTrackerComponentType>({
+    importer: () => import('$lib/components/BmiGoalTracker.svelte'),
+    onLoad: (comp) => { BmiGoalTrackerComponent = comp; }
+  });
   // Track if BMI was already saved to prevent duplicates
   let lastSavedBmi: number | null = null;
 
   function saveBmiToHistory(bmi: number, h: number, w: number, a: string) {
     if (!browser) return;
-    if (!window.isSecureContext) return; // Don't store health data in insecure contexts
-    if (lastSavedBmi === bmi) return; // Prevent duplicate saves
+    // Note: isSecureContext guard removed — localStorage is available regardless
+    // of HTTPS. Only crypto operations (export encryption) need secure context.
+    if (lastSavedBmi === bmi) return;
 
     let history: Array<{ timestamp: number; bmi: number; height: number; weight: number; age?: number }> = [];
     try {
-      const stored = localStorage.getItem('bmi.history');
-      if (stored) history = JSON.parse(stored);
+      history = storageGetJSON(STORAGE_KEYS.HISTORY, []);
     } catch {
-      // Corrupted data — reset history silently
-      localStorage.removeItem('bmi.history');
+      storageRemove(STORAGE_KEYS.HISTORY);
     }
 
     const ageNum = a !== '' ? parseInt(a) : undefined;
@@ -74,108 +115,10 @@
     filtered.push(newRecord);
     filtered.sort((a, b) => a.timestamp - b.timestamp);
 
-    localStorage.setItem('bmi.history', JSON.stringify(filtered));
+    storageSetJSON(STORAGE_KEYS.HISTORY, filtered);
     lastSavedBmi = bmi;
   }
 
-  function ensureHealthRisk() {
-    if (!browser) return Promise.resolve();
-    if (BmiHealthRiskComponent) return Promise.resolve();
-    if (!healthRiskLoad) {
-      healthRiskLoad = import('$lib/components/BmiHealthRisk.svelte')
-        .then((mod) => {
-          BmiHealthRiskComponent = mod.default;
-        })
-        .finally(() => {
-          healthRiskLoad = null;
-        });
-    }
-    return healthRiskLoad;
-  }
-
-  function ensureSnapshot() {
-    if (!browser) return Promise.resolve();
-    if (BmiSnapshotComponent) return Promise.resolve();
-    if (!snapshotLoad) {
-      snapshotLoad = import('$lib/components/BmiSnapshot.svelte')
-        .then((mod) => {
-          BmiSnapshotComponent = mod.default;
-        })
-        .finally(() => {
-          snapshotLoad = null;
-        });
-    }
-    return snapshotLoad;
-  }
-
-  function ensureBodyFat() {
-    if (!browser) return Promise.resolve();
-    if (BodyFatEstimateComponent) return Promise.resolve();
-    if (!bodyFatLoad) {
-      bodyFatLoad = import('$lib/components/BodyFatEstimate.svelte')
-        .then((mod) => {
-          BodyFatEstimateComponent = mod.default;
-        })
-        .finally(() => {
-          bodyFatLoad = null;
-        });
-    }
-    return bodyFatLoad;
-  }
-
-  type ReferenceTableComponentType = typeof import('$lib/components/ReferenceTable.svelte').default;
-  let ReferenceTableComponent: ReferenceTableComponentType | null = $state(null);
-
-  let referenceLoad: Promise<void> | null = null;
-
-  function ensureCalculatorComponents() {
-    if (!browser) return Promise.resolve();
-    if (BmiFormComponent && BmiResultsComponent) return Promise.resolve();
-    if (!calculatorLoad) {
-      calculatorLoad = Promise.all([
-        import('$lib/components/BmiForm.svelte'),
-        import('$lib/components/BmiResults.svelte')
-      ])
-        .then(([form, results]) => {
-          BmiFormComponent = form.default;
-          BmiResultsComponent = results.default;
-        })
-        .finally(() => {
-          calculatorLoad = null;
-        });
-    }
-    return calculatorLoad;
-  }
-
-  function ensureGaugeComponents() {
-    if (!browser) return Promise.resolve();
-    if (BmiRadialGaugeComponent) return Promise.resolve();
-    if (!gaugeLoad) {
-      gaugeLoad = import('$lib/components/BmiRadialGauge.svelte')
-        .then((mod) => {
-          BmiRadialGaugeComponent = mod.default;
-        })
-        .finally(() => {
-          gaugeLoad = null;
-        });
-    }
-    return gaugeLoad;
-  }
-
-  function ensureReferenceTable() {
-    if (!browser) return Promise.resolve();
-    if (ReferenceTableComponent) return Promise.resolve();
-    if (!referenceLoad) {
-      referenceLoad = import('$lib/components/ReferenceTable.svelte')
-        .then((mod) => {
-          ReferenceTableComponent = mod.default;
-        })
-        .finally(() => {
-          referenceLoad = null;
-        });
-    }
-    return referenceLoad;
-  }
   let bmiValue: number | null = $state(null);
   let category: string | null = $state(null);
 
@@ -193,10 +136,14 @@
 
   // Notification state
   let showNotify = $state(false);
-  let notifyType = $state<'success' | 'delete' | 'warn'>('success');
+  let notifyType = $state<'success' | 'delete' | 'warn' | 'error'>('success');
   let notifyMessage = $state('');
   let notifyButtonText = $state('');
   let pendingImportText = $state<string | null>(null);
+
+  // Staging spinner state (gear overlay before notifications)
+  let stagingLoading = $state(false);
+  const STAGING_NOTIFY_DELAY = 1200;
 
 
   const currentYear = new Date().getFullYear();
@@ -205,14 +152,7 @@
   const gitCommitId = typeof __GIT_COMMIT_ID__ !== 'undefined' ? __GIT_COMMIT_ID__ : 'dev';
   const gitBranch = typeof __GIT_BRANCH__ !== 'undefined' ? __GIT_BRANCH__ : 'main';
 
-  const sections = [
-    { id: 'welcome', label: 'Welcome' },
-    { id: 'calculator', label: 'Calculator' },
-    { id: 'gauge', label: 'Gauge' },
-    { id: 'reference', label: 'Reference' },
-    { id: 'about', label: 'About' },
-    { id: 'info', label: 'Info' }
-  ] as const;
+  const sections = SECTIONS;
 
   let activeIndex = $state(0);
   let lastIndex = $state(0);
@@ -229,18 +169,25 @@
   let pagerControlsVisible = $state(true);
   let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
+  // Touch swipe state for mobile horizontal navigation
+  let touchStartX: number | null = null;
+  let touchStartY: number | null = null;
+  let touchStartTime: number = 0;
+  let touchHandled = false;
   let activePointerId: number | null = null;
   let lastWheelNavAt = 0;
   let switchingTimer: ReturnType<typeof setTimeout> | null = null;
   let pageDestroyed = $state(false);
   let showScrollTopFab = $state(false);
 
+
+
   function broadcastSmoothMode(enabled: boolean) {
     if (!browser) return;
     window.dispatchEvent(new CustomEvent('bmi:smoothMode', { detail: { enabled } }));
   }
 
-  function triggerHaptic(pattern: number | number[] = 10) {
+  function triggerHaptic(pattern: number | number[] = HAPTIC.NAV) {
     if (!browser) return;
     try {
       if ('vibrate' in navigator) navigator.vibrate(pattern);
@@ -260,9 +207,9 @@
   function toggleSmoothMode() {
     smoothModeRequested = !smoothModeRequested;
     if (browser) {
-      localStorage.setItem('bmi.renderMode', smoothModeRequested ? '1' : '0');
-      localStorage.removeItem('bmi.smoothMode');
-      localStorage.removeItem('bmi.ultraSmooth');
+      storageSet(STORAGE_KEYS.RENDER_MODE, smoothModeRequested ? '1' : '0');
+      storageRemove(STORAGE_KEYS.SMOOTH_MODE);
+      storageRemove(STORAGE_KEYS.ULTRA_SMOOTH);
       document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
       broadcastSmoothMode(smoothModeRequested);
       void tick().then(schedulePagerNavAlignment);
@@ -271,22 +218,30 @@
 
   let reducedMotionEffective = $derived(prefersReducedMotion && !smoothModeRequested);
   let smoothModeEnhanced = $derived(smoothModeRequested && perfTier !== 'low');
-  let smoothModeStatus = $derived(smoothModeRequested ? 'On' : 'Off');
+  let smoothModeStatus = $derived(smoothModeRequested ? t('nav.on') : t('nav.off'));
 
   // Wallpaper theme toggle
-  let currentTheme = $state<'space' | 'energy'>('space');
-  let themeLabel = $derived(currentTheme === 'space' ? 'Space' : 'Energy');
+  type ThemeKey = 'blackhole' | 'spaceship' | 'space';
+  const THEMES: ThemeKey[] = ['blackhole', 'spaceship', 'space'];
+  const THEME_URLS: Record<ThemeKey, string> = {
+    blackhole: 'url("/images/blackhole.webp")',
+    spaceship: 'url("/images/spaceshipx.webp")',
+    space: 'url("/images/oxyzen-zenlysium.webp")',
+  };
+  const THEME_LABELS: Record<ThemeKey, () => string> = {
+    blackhole: () => t('nav.blackhole'),
+    spaceship: () => t('nav.spaceship'),
+    space: () => t('nav.space'),
+  };
+  let currentTheme = $state<ThemeKey>('blackhole');
+  let themeLabel = $derived(THEME_LABELS[currentTheme]());
 
   function toggleWallpaperTheme() {
-    currentTheme = currentTheme === 'space' ? 'energy' : 'space';
+    const idx = THEMES.indexOf(currentTheme);
+    currentTheme = THEMES[(idx + 1) % THEMES.length];
     if (browser) {
-      localStorage.setItem('bmi.wallpaperTheme', currentTheme);
-      const root = document.documentElement;
-      if (currentTheme === 'energy') {
-        root.style.setProperty('--wallpaper-current', 'url("/images/oxyzen-cyberagent.webp")');
-      } else {
-        root.style.setProperty('--wallpaper-current', 'url("/images/oxyzen-zenlysium.webp")');
-      }
+      storageSet(STORAGE_KEYS.WALLPAPER_THEME, currentTheme);
+      document.documentElement.style.setProperty('--wallpaper-current', THEME_URLS[currentTheme]);
     }
   }
 
@@ -294,9 +249,9 @@
   $effect(() => {
     if (browser && unitSystemInitialized) {
       try {
-        localStorage.setItem('bmi.unitSystem', unitSystem);
+        storageSet(STORAGE_KEYS.UNIT_SYSTEM, unitSystem);
       } catch {
-        // localStorage unavailable
+        // storage unavailable
       }
     }
   });
@@ -335,35 +290,35 @@
     };
   }
 
-  const BMI_BAR_MIN = 12;
-  const BMI_BAR_MAX = 40;
+  const BMI_BAR_MIN = BMI_THRESHOLDS.MIN;
+  const BMI_BAR_MAX = BMI_THRESHOLDS.MAX;
 
   // Animation duration constants (ms)
-  const MARKER_ANIM_HIGH = 860;
-  const MARKER_ANIM_MEDIUM = 780;
-  const MARKER_ANIM_LOW = 680;
-  const OVERSHOOT_RATIO = 0.62;
-  const SETTLE_RATIO = 0.48;
-  const SETTLE_DELAY_OFFSET = 80;
+  const MARKER_ANIM_HIGH = MARKER_ANIM.HIGH;
+  const MARKER_ANIM_MEDIUM = MARKER_ANIM.MEDIUM;
+  const MARKER_ANIM_LOW = MARKER_ANIM.LOW;
+  const OVERSHOOT_RATIO = MARKER_ANIM.OVERSHOOT_RATIO;
+  const SETTLE_RATIO = MARKER_ANIM.SETTLE_RATIO;
+  const SETTLE_DELAY_OFFSET = MARKER_ANIM.SETTLE_DELAY_OFFSET;
 
   // Pager motion duration constants (ms)
-  const PAGER_DUR_HIGH = 620;
-  const PAGER_DUR_MEDIUM = 540;
-  const PAGER_DUR_LOW = 460;
-  const PAGER_DUR_BASIC = 260;
-  const PAGER_OUT_RATIO = 0.72;
-  const PAGER_OUT_BASIC = 210;
+  const PAGER_DUR_HIGH = PAGER.DUR_HIGH;
+  const PAGER_DUR_MEDIUM = PAGER.DUR_MEDIUM;
+  const PAGER_DUR_LOW = PAGER.DUR_LOW;
+  const PAGER_DUR_BASIC = PAGER.DUR_BASIC;
+  const PAGER_OUT_RATIO = PAGER.OUT_RATIO;
+  const PAGER_OUT_BASIC = PAGER.OUT_BASIC;
 
   // Pager motion distance constants (px)
-  const PAGER_DIST_HIGH = 220;
-  const PAGER_DIST_MEDIUM = 190;
-  const PAGER_DIST_LOW = 160;
-  const PAGER_DIST_BASIC = 120;
+  const PAGER_DIST_HIGH = PAGER.DIST_HIGH;
+  const PAGER_DIST_MEDIUM = PAGER.DIST_MEDIUM;
+  const PAGER_DIST_LOW = PAGER.DIST_LOW;
+  const PAGER_DIST_BASIC = PAGER.DIST_BASIC;
 
   // Other animation constants
-  const SWITCHING_DELAY = 140;
-  const SPRING_STRENGTH_ENHANCED = 0.14;
-  const SPRING_STRENGTH_BASIC = 0.08;
+  const SWITCHING_DELAY = PAGER.SWITCHING_DELAY;
+  const SPRING_STRENGTH_ENHANCED = SPRING.STRENGTH_ENHANCED;
+  const SPRING_STRENGTH_BASIC = SPRING.STRENGTH_BASIC;
 
   let rangeMarker =
     $derived(
@@ -497,58 +452,12 @@
     );
   }
 
-  function handleKeydown(event: KeyboardEvent) {
-    if (isEditableTarget(event.target)) return;
-
-    // C-4: Number keys 1-6 for section navigation
-    const numKey = parseInt(event.key);
-    if (numKey >= 1 && numKey <= sections.length) {
-      event.preventDefault();
-      goTo(numKey - 1);
-      triggerHaptic(5);
-      return;
-    }
-
-    // C-4: T = toggle wallpaper theme
-    if (event.key === 't' || event.key === 'T') {
-      event.preventDefault();
-      toggleWallpaperTheme();
-      triggerHaptic(5);
-      return;
-    }
-
-    // C-4: R = reset/clear all data (requires shift for safety)
-    if (event.key === 'R' && event.shiftKey) {
-      event.preventDefault();
-      confirmClearData();
-      return;
-    }
-
-    // C-4: S = toggle smooth mode
-    if (event.key === 's' || event.key === 'S') {
-      if (!event.shiftKey) {
-        event.preventDefault();
-        toggleSmoothMode();
-        triggerHaptic(5);
-        return;
-      }
-    }
-
-    // Arrow key navigation (existing)
-    if (event.key === 'ArrowLeft') {
-      event.preventDefault();
-      prevSection();
-    }
-    if (event.key === 'ArrowRight') {
-      event.preventDefault();
-      nextSection();
-    }
-  }
-
   function handlePointerDown(event: PointerEvent) {
+    // Touch is handled by dedicated touch handlers below;
+    // pointer events only manage mouse/stylus input.
     if (event.pointerType === 'touch') return;
     const target = event.target as HTMLElement | null;
-    if (target?.closest('button, a, input, textarea, select, label')) return;
+    if (target?.closest('button, a, input, textarea, select, label, [role="button"]')) return;
     if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell')) return;
     pointerStartX = event.clientX;
     pointerStartY = event.clientY;
@@ -579,7 +488,7 @@
     pointerStartX = null;
     pointerStartY = null;
 
-    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.2) {
+    if (Math.abs(dx) < SCROLL.SWIPE_DX_MIN || Math.abs(dx) < Math.abs(dy) * SCROLL.SWIPE_ANGLE_RATIO) {
       if (activePointerId !== null) {
         try {
           pagerEl?.releasePointerCapture(activePointerId);
@@ -604,19 +513,82 @@
     activePointerId = null;
   }
 
+  // ── Mobile touch swipe handlers ──
+  // Detects horizontal swipes on touch devices to navigate between sections.
+  // Uses touchstart/touchmove/touchend because pointer events for touch are
+  // intentionally kept separate (pointer handles mouse/stylus only).
+  function handleTouchStart(e: TouchEvent) {
+    const touch = e.touches[0];
+    if (!touch) return;
+    const target = e.target as HTMLElement | null;
+    if (target?.closest('button, a, input, textarea, select, label, [role="button"]')) return;
+    if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell')) return;
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    touchStartTime = Date.now();
+    touchHandled = false;
+  }
+
+  function handleTouchMove(e: TouchEvent) {
+    // NOTE: This listener uses { passive: true } — we do NOT call preventDefault().
+    // Horizontal swipe detection is handled purely via touchstart/touchend.
+    // This ensures the browser can process vertical scrolling on its own
+    // compositor thread (60 fps) without waiting for JS — critical for
+    // Bug-13 scroll jank fix on mobile/low-end devices.
+    if (touchStartX === null || touchStartY === null) return;
+    const touch = e.touches[0];
+    if (!touch) return;
+    const dx = Math.abs(touch.clientX - touchStartX);
+    const dy = Math.abs(touch.clientY - touchStartY);
+    // Track whether horizontal swipe is dominant (used in handleTouchEnd)
+    if (dx > dy * SCROLL.SWIPE_ANGLE_RATIO && dx > 15) {
+      touchHandled = true;
+    }
+  }
+
+  function handleTouchEnd(e: TouchEvent) {
+    if (touchStartX === null || touchStartY === null) {
+      touchStartX = null;
+      touchStartY = null;
+      return;
+    }
+    const touch = e.changedTouches[0];
+    if (!touch) {
+      touchStartX = null;
+      touchStartY = null;
+      return;
+    }
+    const dx = touch.clientX - touchStartX;
+    const dy = touch.clientY - touchStartY;
+    const elapsed = Date.now() - touchStartTime;
+    touchStartX = null;
+    touchStartY = null;
+
+    // Swipe must be horizontal enough, exceed minimum distance, and be fast enough
+    const isHorizontal = Math.abs(dx) > Math.abs(dy) * SCROLL.SWIPE_ANGLE_RATIO;
+    const isLongEnough = Math.abs(dx) >= SCROLL.SWIPE_DX_MIN;
+    const isFastEnough = elapsed < 500;
+
+    if (isHorizontal && isLongEnough && isFastEnough) {
+      triggerHaptic(HAPTIC.NAV);
+      if (dx < 0) nextSection();
+      else prevSection();
+    }
+  }
+
   function handleWheel(event: WheelEvent) {
     if (isEditableTarget(event.target)) return;
     const target = event.target as HTMLElement | null;
     if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell')) return;
 
     const now = Date.now();
-    if (now - lastWheelNavAt < 520) return;
+    if (now - lastWheelNavAt < SCROLL.WHEEL_COOLDOWN) return;
 
     const dx = event.deltaX;
     const dy = event.deltaY;
-    if (Math.abs(dx) < 60) return;
-    if (Math.abs(dy) > 12) return;
-    if (Math.abs(dx) < Math.abs(dy) * 1.8) return;
+    if (Math.abs(dx) < SCROLL.WHEEL_DX_THRESHOLD) return;
+    if (Math.abs(dy) > SCROLL.WHEEL_DY_MAX) return;
+    if (Math.abs(dx) < Math.abs(dy) * SCROLL.WHEEL_RATIO) return;
 
     const section = pagerEl?.querySelector<HTMLElement>('.pager-section') ?? null;
     if (section && section.scrollHeight > section.clientHeight + 2) {
@@ -674,63 +646,71 @@
   $effect(() => {
     if (!browser) return;
     if (activeIndex === 1) {
-      void ensureCalculatorComponents();
+      void calculatorLoader.ensure();
     }
     if (activeIndex === 2) {
-      void ensureGaugeComponents();
-      void ensureHealthRisk();
-      void ensureSnapshot();
-      void ensureBodyFat();
+      void gaugeLoader.ensure();
+      void healthRiskLoader.ensure();
+      void snapshotLoader.ensure();
+      void bodyFatLoader.ensure();
+      void goalTrackerLoader.ensure();
     }
-    if (activeIndex === 3) void ensureReferenceTable();
+    if (activeIndex === 3) void referenceLoader.ensure();
   });
 
   onMount(() => {
     if (!browser) return;
     perfTier = getPerformanceTier();
+    initLocale();
     prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const storedRenderMode = localStorage.getItem('bmi.renderMode');
+    // Enhancement #12: Live listener for prefers-reduced-motion changes
+    // If user toggles reduced-motion in OS settings while app is open,
+    // animations update immediately without page reload.
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onMotionChange = (e: MediaQueryListEvent) => {
+      prefersReducedMotion = e.matches;
+    };
+    motionQuery.addEventListener('change', onMotionChange);
+
+    const storedRenderMode = storageGet(STORAGE_KEYS.RENDER_MODE);
     if (storedRenderMode === null) {
-      const storedSmooth = localStorage.getItem('bmi.smoothMode');
-      const storedUltra = localStorage.getItem('bmi.ultraSmooth');
+      const storedSmooth = storageGet(STORAGE_KEYS.SMOOTH_MODE);
+      const storedUltra = storageGet(STORAGE_KEYS.ULTRA_SMOOTH);
       const hasLegacy = storedSmooth !== null || storedUltra !== null;
       smoothModeRequested =
         hasLegacy
           ? (storedSmooth === '1' || storedSmooth === 'true' || storedUltra === '1' || storedUltra === 'true')
           : true;
-      localStorage.setItem('bmi.renderMode', smoothModeRequested ? '1' : '0');
-      localStorage.removeItem('bmi.smoothMode');
-      localStorage.removeItem('bmi.ultraSmooth');
+      storageSet(STORAGE_KEYS.RENDER_MODE, smoothModeRequested ? '1' : '0');
+      storageRemove(STORAGE_KEYS.SMOOTH_MODE);
+      storageRemove(STORAGE_KEYS.ULTRA_SMOOTH);
     } else {
       smoothModeRequested = storedRenderMode === '1' || storedRenderMode === 'true';
-      localStorage.removeItem('bmi.smoothMode');
-      localStorage.removeItem('bmi.ultraSmooth');
+      storageRemove(STORAGE_KEYS.SMOOTH_MODE);
+      storageRemove(STORAGE_KEYS.ULTRA_SMOOTH);
     }
 
     document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
     document.documentElement.dataset.performanceTier = perfTier;
     broadcastSmoothMode(smoothModeRequested);
 
-    // Read unit system preference from localStorage
     try {
-      const storedUnit = localStorage.getItem('bmi.unitSystem');
+      const storedUnit = storageGet(STORAGE_KEYS.UNIT_SYSTEM);
       if (storedUnit === 'imperial' || storedUnit === 'metric') {
         unitSystem = storedUnit;
       }
     } catch {
-      // localStorage unavailable
+      // storage unavailable
     }
     unitSystemInitialized = true;
 
     // Read wallpaper theme preference
     try {
-      const storedTheme = localStorage.getItem('bmi.wallpaperTheme');
-      if (storedTheme === 'energy' || storedTheme === 'space') {
-        currentTheme = storedTheme;
-        if (currentTheme === 'energy') {
-          document.documentElement.style.setProperty('--wallpaper-current', 'url("/images/oxyzen-cyberagent.webp")');
-        }
+      const storedTheme = storageGet(STORAGE_KEYS.WALLPAPER_THEME);
+      if (storedTheme && THEMES.includes(storedTheme as ThemeKey)) {
+        currentTheme = storedTheme as ThemeKey;
+        document.documentElement.style.setProperty('--wallpaper-current', THEME_URLS[currentTheme]);
       }
     } catch {
       // localStorage unavailable
@@ -745,62 +725,73 @@
       if (next !== null && next !== activeIndex) goTo(next, { skipHash: true });
     };
 
-    // Cross-tab sync for unit system via storage event
     const onStorage = (e: StorageEvent) => {
-      if (e.key === 'bmi.unitSystem') {
+      if (e.key === STORAGE_KEYS.UNIT_SYSTEM) {
         if (e.newValue === 'imperial' || e.newValue === 'metric') {
           unitSystem = e.newValue;
         } else if (e.newValue === null) {
           unitSystem = 'metric';
         }
+        storageInvalidate(STORAGE_KEYS.UNIT_SYSTEM);
       }
     };
     window.addEventListener('storage', onStorage);
 
     window.addEventListener('hashchange', onHashChange);
-    window.addEventListener('keydown', handleKeydown);
 
     const onResize = () => schedulePagerNavAlignment();
-    window.addEventListener('resize', onResize);
+    window.addEventListener('resize', onResize, { passive: true });
+
+    // Mobile touch swipe listeners for horizontal page navigation.
+    // All listeners use { passive: true } — Bug-13 fix.
+    // Vertical scrolling is handled natively by the browser via
+    // CSS touch-action on .pager-shell. We detect horizontal swipes
+    // purely in touchstart/touchend without blocking the scroll thread.
+    pagerEl?.addEventListener('touchstart', handleTouchStart, { passive: true });
+    pagerEl?.addEventListener('touchmove', handleTouchMove, { passive: true });
+    pagerEl?.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     // Unified scroll listener: is-scrolling class + pager-controls auto-hide
-    let isScrolling = false;
-    let isScrollingTimer: ReturnType<typeof setTimeout> | null = null;
-    const onScroll = (event: Event) => {
-      // Scroll optimizer: add is-scrolling class during active scroll
-      if (!isScrolling) {
-        isScrolling = true;
-        document.body.classList.add('is-scrolling');
-      }
-      if (isScrollingTimer) clearTimeout(isScrollingTimer);
-      isScrollingTimer = setTimeout(() => {
-        isScrolling = false;
-        document.body.classList.remove('is-scrolling');
-      }, 150);
+    const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    let scrollRafId: number | null = null;
+    let pendingScrollTarget: HTMLElement | null = null;
+    let pendingScrollY = 0;
 
+    const flushScrollState = () => {
+      scrollRafId = null;
+      if (pendingScrollTarget) {
+        const currentScrollY = pendingScrollY;
+        const scrollingUp = currentScrollY < lastScrollY;
+
+        if (!scrollingUp && currentScrollY > 50) {
+          pagerControlsVisible = false;
+        } else if (scrollingUp) {
+          pagerControlsVisible = true;
+        }
+
+        showScrollTopFab = currentScrollY > SCROLL.SCROLL_TOP_THRESHOLD;
+
+        lastScrollY = currentScrollY;
+        pendingScrollTarget = null;
+
+        if (scrollTimeout) clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          pagerControlsVisible = true;
+        }, SCROLL.SCROLL_IDLE_DELAY);
+      }
+    };
+
+    const onScroll = (event: Event) => {
       // Pager-controls auto-hide: only for pager-section scroll
+      // Debounce state updates via rAF to avoid triggering Svelte re-renders every frame
       const target = event.target as HTMLElement;
       if (!target.classList.contains('pager-section')) return;
 
-      const currentScrollY = target.scrollTop;
-      const scrollingUp = currentScrollY < lastScrollY;
-
-      if (!scrollingUp && currentScrollY > 50) {
-        pagerControlsVisible = false;
-      } else if (scrollingUp) {
-        pagerControlsVisible = true;
+      pendingScrollTarget = target;
+      pendingScrollY = target.scrollTop;
+      if (scrollRafId === null) {
+        scrollRafId = requestAnimationFrame(flushScrollState);
       }
-
-      // Scroll-to-top FAB: show when scrolled past 300px
-      showScrollTopFab = currentScrollY > 300;
-
-      lastScrollY = currentScrollY;
-
-      // Show after idle scroll
-      if (scrollTimeout) clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        pagerControlsVisible = true;
-      }, 2000);
     };
 
     // Use event delegation on document for all scroll events
@@ -809,53 +800,28 @@
     void tick().then(schedulePagerNavAlignment);
 
     return () => {
+      motionQuery.removeEventListener('change', onMotionChange);
       window.removeEventListener('hashchange', onHashChange);
-      window.removeEventListener('keydown', handleKeydown);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('storage', onStorage);
       document.removeEventListener('scroll', onScroll, { capture: true });
+      pagerEl?.removeEventListener('touchstart', handleTouchStart);
+      pagerEl?.removeEventListener('touchmove', handleTouchMove);
+      pagerEl?.removeEventListener('touchend', handleTouchEnd);
       if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
+      if (scrollRafId !== null) cancelAnimationFrame(scrollRafId);
       if (scrollTimeout !== null) clearTimeout(scrollTimeout);
-      if (isScrollingTimer) clearTimeout(isScrollingTimer);
-      document.body.classList.remove('is-scrolling');
     };
   });
 
   function computeBMIFromInputs(h: string, w: string, _a: string) {
-    let parsedHeight = parseFloat(h);
-    let parsedWeight = parseFloat(w);
+    const result = calculateBmi(h, w, unitSystem);
 
-    // Convert imperial to metric before calculation
-    if (unitSystem === 'imperial') {
-      parsedHeight = parsedHeight * 2.54; // inches to cm
-      parsedWeight = parsedWeight * 0.453592; // lbs to kg
-    }
-
-    if (
-      Number.isFinite(parsedHeight) &&
-      Number.isFinite(parsedWeight) &&
-      parsedHeight > 0 &&
-      parsedHeight <= 310 &&
-      parsedWeight > 0 &&
-      parsedWeight <= 1000
-    ) {
-      const heightInM = parsedHeight / 100;
-      const bmi = parsedWeight / (heightInM * heightInM);
-      bmiValue = parseFloat(bmi.toFixed(2));
-
-      // Save to history
-      saveBmiToHistory(bmiValue, parsedHeight, parsedWeight, _a);
-
-      // Determine category with improved accuracy
-      if (bmi < 18.5) {
-        category = 'Underweight';
-      } else if (bmi >= 18.5 && bmi < 25.0) {
-        category = 'Normal Weight';
-      } else if (bmi >= 25.0 && bmi < 30.0) {
-        category = 'Overweight';
-      } else {
-        category = 'Obese';
-      }
+    if (isBmiResult(result)) {
+      bmiValue = result.bmi;
+      category = result.category;
+      // Save to history (uses metric-converted values)
+      saveBmiToHistory(result.bmi, result.heightCm, result.weightKg, _a);
     } else {
       bmiValue = null;
       category = null;
@@ -866,7 +832,7 @@
     if (calculating) return;
     calculating = true;
 
-    triggerHaptic([15, 30, 15]);
+    triggerHaptic(HAPTIC.CALCULATE);
 
     // Calculate BMI synchronously (before any await) so that
     // bmiValue / category are available for the Gauge page.
@@ -876,29 +842,33 @@
 
     // Navigate to Gauge NOW — still in the synchronous click-handler
     // context so Svelte 5's {#key activeIndex} structural re-render
-    // triggers reliably.  Previous approaches (setTimeout / tick().then)
-    // ran goTo() inside async callbacks where {#key} failed silently,
-    // leaving activeIndex desynced from the DOM.
-    // The notification will appear as an overlay on top of the Gauge page.
+    // triggers reliably.
     goTo(2);
 
-    // Brief delay so the page transition begins before the
-    // notification overlay fades in on top of Gauge.
-    const overlayDelay = reducedMotionEffective ? 30 : 180;
-    await new Promise((r) => setTimeout(r, overlayDelay));
+    // Show staging gear spinner during page transition
+    stagingLoading = true;
+    await tick();
+    await new Promise((r) => setTimeout(r, STAGING_NOTIFY_DELAY));
+    stagingLoading = false;
 
     // Show success notification (overlaid on the Gauge page)
     notifyType = 'success';
-    notifyMessage = 'Your BMI has been calculated successfully!';
-    notifyButtonText = 'Continue to see';
+    notifyMessage = t('notify.success_msg');
+    notifyButtonText = t('notify.continue_btn');
     showNotify = true;
   }
 
-  function confirmClearData() {
-    // Show confirmation dialog first - don't clear anything yet
+  async function confirmClearData() {
+    // Show staging gear spinner before confirmation dialog
+    stagingLoading = true;
+    await tick();
+    await new Promise((r) => setTimeout(r, STAGING_NOTIFY_DELAY));
+    stagingLoading = false;
+
+    // Show confirmation dialog
     notifyType = 'delete';
-    notifyMessage = 'Are you sure you want to delete all data? This action cannot be undone.';
-    notifyButtonText = 'Delete';
+    notifyMessage = t('notify.delete_confirm');
+    notifyButtonText = t('notify.delete');
     showNotify = true;
   }
 
@@ -913,9 +883,8 @@
     category = null;
     resultsRunId += 1;
 
-    // Clear localStorage history to reset "Your Best"
     if (browser) {
-      localStorage.removeItem('bmi.history');
+      storageRemove(STORAGE_KEYS.HISTORY);
       lastSavedBmi = null;
     }
   }
@@ -940,18 +909,17 @@
 </script>
 
 <svelte:head>
-  <title>A Simple BMI Calc — Stellar v10.5</title>
-  <meta name="description" content="A luxury space-themed BMI calculator. Calculate your Body Mass Index, TDEE, Body Fat %, and track your health journey with interactive charts. Built with SvelteKit by Team LOGIGO." />
-  <meta property="og:title" content="A Simple BMI Calc — Stellar v10.5" />
-  <meta property="og:description" content="A luxury space-themed BMI calculator with TDEE, Body Fat %, interactive charts, and PWA support." />
-  <meta name="twitter:title" content="A Simple BMI Calc — Stellar v10.5" />
-  <meta name="twitter:description" content="A luxury space-themed BMI calculator with TDEE, Body Fat %, interactive charts, and PWA support." />
+  <title>{t('meta.title')}</title>
+  <meta name="description" content={t('meta.description')} />
+  <meta property="og:title" content={t('meta.title')} />
+  <meta property="og:description" content={t('meta.og_description')} />
+  <meta name="twitter:title" content={t('meta.title')} />
+  <meta name="twitter:description" content={t('meta.og_description')} />
 </svelte:head>
-
 <div
   class="pager-shell"
   role="region"
-  aria-label="BMI Calculator"
+  aria-label={t('nav.aria_label')}
   bind:this={pagerEl}
   onpointerdown={handlePointerDown}
   onpointerup={handlePointerUp}
@@ -963,47 +931,51 @@
       bind:this={pagerNavEl}
       class="pager-nav"
       class:centered={pagerNavCentered}
-      aria-label="Sections"
+      aria-label={t('nav.sections_aria')}
     >
-      {#each sections as section, idx (section.id)}
+      {#key $localeVersion}
+        {#each sections as section, idx (section.id)}
+          <button
+            type="button"
+            class="btn btn-ghost pager-tab"
+            class:active={idx === activeIndex}
+            aria-current={idx === activeIndex ? 'page' : undefined}
+            onclick={() => { triggerHaptic(5); goTo(idx); }}
+          >
+            {t(section.labelKey)}
+          </button>
+        {/each}
+
         <button
           type="button"
-          class="btn btn-ghost pager-tab"
-          class:active={idx === activeIndex}
-          aria-current={idx === activeIndex ? 'page' : undefined}
-          onclick={() => { triggerHaptic(5); goTo(idx); }}
+          class="btn btn-ghost pager-tab pager-smooth"
+          aria-label={t('nav.render_aria')}
+          aria-pressed={smoothModeRequested}
+          onclick={toggleSmoothMode}
         >
-          {section.label}
+          <Bot class="render-spark" aria-hidden="true" />
+          {t('nav.render')}
+          <span class:render-on={smoothModeRequested} class:render-off={!smoothModeRequested}>
+            {smoothModeStatus}
+          </span>
         </button>
-      {/each}
 
-      <button
-        type="button"
-        class="btn btn-ghost pager-tab pager-smooth"
-        aria-label="Toggle render mode"
-        aria-pressed={smoothModeRequested}
-        onclick={toggleSmoothMode}
-      >
-        <Bot class="render-spark" aria-hidden="true" />
-        Render :
-        <span class:render-on={smoothModeRequested} class:render-off={!smoothModeRequested}>
-          {smoothModeStatus}
-        </span>
-      </button>
+        <button
+          type="button"
+          class="btn btn-ghost pager-tab pager-theme"
+          aria-label={t('nav.theme_aria')}
+          aria-pressed={currentTheme !== 'blackhole'}
+          onclick={toggleWallpaperTheme}
+        >
+          <Sparkles class="render-spark" aria-hidden="true" />
+          {t('nav.theme')}
+          <span class:theme-blackhole={currentTheme === 'blackhole'} class:theme-spaceship={currentTheme === 'spaceship'} class:theme-space={currentTheme === 'space'}>
+            {themeLabel}
+          </span>
+        </button>
+      {/key}
 
-      <button
-        type="button"
-        class="btn btn-ghost pager-tab pager-theme"
-        aria-label="Toggle wallpaper theme"
-        aria-pressed={currentTheme === 'energy'}
-        onclick={toggleWallpaperTheme}
-      >
-        <Sparkles class="render-spark" aria-hidden="true" />
-        Theme :
-        <span class:theme-energy={currentTheme === 'energy'} class:theme-space={currentTheme === 'space'}>
-          {themeLabel}
-        </span>
-      </button>
+      <LanguageSwitcher />
     </nav>
   </div>
 
@@ -1058,13 +1030,13 @@
                         if (result.action === 'import-validate' && result.text) {
                           pendingImportText = result.text;
                           notifyType = 'warn';
-                          notifyMessage = `Sure to import your data? ${result.recordCount} record${(result.recordCount ?? 0) === 1 ? '' : 's'} found. Be careful with current data because it will be overridden.`;
-                          notifyButtonText = 'Keep Import';
+                          notifyMessage = t('notify.import_confirm', { n: result.recordCount ?? 0 });
+                          notifyButtonText = t('notify.import_keep');
                           showNotify = true;
                         } else if (result.action === 'import-error') {
-                          notifyType = 'delete';
-                          notifyMessage = result.error || 'Import failed. Please check the file format.';
-                          notifyButtonText = 'OK';
+                          notifyType = 'error';
+                          notifyMessage = result.error || t('notify.import_error');
+                          notifyButtonText = t('notify.ok');
                           showNotify = true;
                         }
                       }}
@@ -1176,6 +1148,15 @@
                 </div>
               {/if}
 
+              {#if BmiGoalTrackerComponent}
+                <BmiGoalTrackerComponent currentBmi={bmiValue} />
+              {:else}
+                <div class="skeleton-card">
+                  <div class="skeleton skeleton-line w-60 h-sm" style="margin-bottom:0.75rem"></div>
+                  <div class="skeleton skeleton-line w-full h-sm"></div>
+                </div>
+              {/if}
+
             </div>
           </div>
         {/if}
@@ -1199,12 +1180,13 @@
         {/if}
 
         {#if activeIndex === 4}
+          {#key $localeVersion}
           <!-- About BMI Section -->
           <section class="about-bmi-section">
             <div class="main-container">
               <div class="section-header-v2">
-                <h2 class="title">About BMI</h2>
-                <p class="subtitle">Understanding Body Mass Index and our application</p>
+                <h2 class="title">{t('about.title')}</h2>
+                <p class="subtitle">{t('about.subtitle')}</p>
               </div>
 
               <div class="about-bmi-grid">
@@ -1212,20 +1194,17 @@
                 <div class="about-card">
                   <div class="about-card-header">
                     <Lightbulb class="Lightbulb" />
-                    <h3>What is BMI?</h3>
+                    <h3>{t('about.what_is_title')}</h3>
                   </div>
                   <div class="about-card-content">
                     <p>
-                      Body Mass Index (BMI) is a simple weight‑for‑height index: weight (kg) divided by height (m) squared.
-                      It’s a quick population‑level screening tool to gauge potential health risk.
+                      {@html t('about.what_is_p1')}
                     </p>
                     <p>
-                      Adult ranges: <em>Underweight</em> (&lt; 18.5), <em>Normal</em> (18.5–24.9), <em>Overweight</em> (25.0–29.9),
-                      <em>Obese</em> (≥ 30).
+                      {@html t('about.what_is_p2')}
                     </p>
                     <p>
-                      Limitations: BMI doesn’t distinguish fat vs muscle or fat distribution. Use it alongside waist circumference,
-                      body‑fat %, lifestyle factors, and clinical assessment.
+                      {@html t('about.what_is_p3')}
                     </p>
                   </div>
                 </div>
@@ -1234,87 +1213,56 @@
                 <div class="about-card">
                   <div class="about-card-header">
                     <Users class="Users" />
-                    <h3>About Our BMI App</h3>
+                    <h3>{t('about.app_title')}</h3>
                   </div>
                   <div class="about-card-content">
                     <p>
-                      Our BMI app features a modern and clean design, developed by <strong>Team LOGIGO</strong>.
-                      The team includes Rezky (Project Lead), Fiqih (Menu Design), Agus (Competitor Research),
-                      Virlan (Login Functionality), Andre (Graph and BMI Calculation Functions), and Ferdian (Website Testing).
-                      Thank you for your support!
+                      {@html t('about.app_desc')}
                     </p>
                     <div class="app-info">
                       <p class="info-row">
                         <PackageCheck class="PackageCheck" />
-                        <strong>Version:</strong>Stellar-10.5 <span class="commit-id">({gitCommitId})</span>
+                        <strong>{t('about.version')}:</strong>Stellar v15.0 <span class="commit-id">({gitCommitId})</span>
                       </p>
                       <p class="info-row">
                         <GitBranch class="GitBranch" />
-                        <strong>Branch:</strong>{gitBranch}
+                        <strong>{t('about.branch')}:</strong>{gitBranch}
                       </p>
                       <p class="info-row">
                         <GitCompare class="GitCompare" />
-                        <strong>Type Apps:</strong><span class="text-gradient-elegant">Open Source Project</span>
+                        <strong>{t('about.type_apps')}:</strong><span class="text-gradient-elegant">{t('about.open_source')}</span>
                       </p>
                       <p class="info-row">
-                        <Wrench class="Wrench" />
-                        <strong>Status:</strong>Maintenance
+                        <ShieldCheck class="ShieldCheck" />
+                        <strong>{t('about.status')}:</strong>{t('about.status_stable')}
+                      </p>
+                      <p class="info-row">
+                        <Activity class="Activity" />
+                        <strong>{t('about.maintenance')}:</strong>{t('about.maintenance_active')}
                       </p>
                       <p class="info-row">
                         <Scale class="Scale" />
-                        <strong>License:</strong>GPL v3
+                        <strong>{t('about.license')}:</strong>GPL v3
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- C-4: Keyboard Shortcuts Card -->
-              <div class="about-card" style="margin-top:1.5rem; margin-bottom: clamp(80px, 10vh, 120px);">
-                <div class="about-card-header">
-                  <Keyboard class="Keyboard" />
-                  <h3>Keyboard Shortcuts</h3>
-                </div>
-                <div class="about-card-content">
-                  <div class="shortcuts-grid">
-                    <div class="shortcut-row">
-                      <div class="shortcut-keys">
-                        <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd><kbd>5</kbd><kbd>6</kbd>
-                      </div>
-                      <span class="shortcut-desc">Navigate to section</span>
-                    </div>
-                    <div class="shortcut-row">
-                      <div class="shortcut-keys"><kbd>T</kbd></div>
-                      <span class="shortcut-desc">Toggle wallpaper theme</span>
-                    </div>
-                    <div class="shortcut-row">
-                      <div class="shortcut-keys"><kbd>S</kbd></div>
-                      <span class="shortcut-desc">Toggle smooth mode</span>
-                    </div>
-                    <div class="shortcut-row">
-                      <div class="shortcut-keys"><kbd>Shift</kbd>+<kbd>R</kbd></div>
-                      <span class="shortcut-desc">Reset / clear all data</span>
-                    </div>
-                    <div class="shortcut-row">
-                      <div class="shortcut-keys"><kbd>&larr;</kbd><kbd>&rarr;</kbd></div>
-                      <span class="shortcut-desc">Previous / next section</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </section>
+          {/key}
         {/if}
 
         {#if activeIndex === 5}
+          {#key $localeVersion}
           <div class="main-container">
             <footer class="footer-disclaimer">
               <div class="disclaimer-icon">
                 <AlertTriangle class="AlertTriangle" />
               </div>
               <p>
-                BMI is a screening tool and should not be used as a sole diagnostic method.
-                Please consult healthcare professionals for comprehensive health assessment.
+                {t('info.disclaimer')}
               </p>
             </footer>
 
@@ -1326,11 +1274,12 @@
                 class="github-link"
               >
                 <span>
-                  &copy; 2025-{currentYear} Rezky Nightky. All rights reserved.
+                  {t('info.copyright', { n: currentYear })}
                 </span>
               </a>
             </div>
           </div>
+          {/key}
         {/if}
       </section>
     {/key}
@@ -1375,6 +1324,7 @@
       {/if}
     </div>
   </div>
+
 </div>
 
 {#if showNotify}
@@ -1389,9 +1339,11 @@
         const result = await importBmiHistory(pendingImportText);
         pendingImportText = null;
         if (result.success) {
-          const checksumMsg = result.checksumVerified ? ' ✓ Checksum verified' : '';
+          const integrityMsg = result.integrityVerified
+            ? (result.integrityVersion === 3 ? ' \u2713 Integrity verified (HMAC-SHA256)' : ' \u2713 Integrity verified (legacy)')
+            : '';
           notifyType = 'success';
-          notifyMessage = `Successfully imported ${result.count} record${result.count === 1 ? '' : 's'}!${checksumMsg}`;
+          notifyMessage = `Successfully imported ${result.count} record${result.count === 1 ? '' : 's'}!${integrityMsg}`;
           notifyButtonText = 'OK';
         } else {
           notifyType = 'delete';
@@ -1402,8 +1354,16 @@
         // Navigation to Gauge already happened in handleCalculate
         // (synchronous click-handler context). Just dismiss the notification.
         showNotify = false;
+      } else if (notifyType === 'error') {
+        // Error notification dismissed - just close
+        showNotify = false;
       } else if (notifyType === 'delete') {
         showNotify = false;
+        // Brief staging spinner after delete confirmation
+        stagingLoading = true;
+        await tick();
+        await new Promise((r) => setTimeout(r, 800));
+        stagingLoading = false;
         clearAllData();
       }
     }}
@@ -1418,6 +1378,15 @@
   />
 {/if}
 
+{#if stagingLoading}
+  <div class="staging-backdrop staging-visible">
+    <div class="staging-spinner-wrap">
+      <Settings class="staging-gear-icon" size={48} />
+      <span class="staging-text">{t('crypto.preparing')}</span>
+    </div>
+  </div>
+{/if}
+
 <style>
   .pager-shell {
     height: 100svh;
@@ -1426,7 +1395,7 @@
     gap: 0;
     padding-top: 0;
     overflow: hidden;
-    touch-action: pan-y pinch-zoom;
+    touch-action: pan-y pan-x pinch-zoom;
     position: relative;
     --pager-top-inset: calc(env(safe-area-inset-top, 0px) + 54px);
     --pager-edge-fade: 100px;
@@ -1446,7 +1415,7 @@
   .pager-shell::before {
     top: var(--nav-bar-h);
     height: var(--pager-edge-fade);
-    background: linear-gradient(to bottom, var(--k-92), var(--k-0));
+    background: linear-gradient(to bottom, var(--cosmic-dark-92), var(--k-0));
   }
 
   .pager-shell::after {
@@ -1463,7 +1432,6 @@
     gap: 0.35rem;
     padding: 0 0.85rem 0.55rem 0.85rem;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     min-width: 0;
     width: 100%;
@@ -1481,13 +1449,12 @@
     min-width: 0;
     overflow: hidden;
     background: var(--k-50);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    /* backdrop-filter owned by nav.css (with -webkit- prefix + !important) */
     border: none;
     border-bottom: 1px solid var(--w-8);
     box-shadow:
       0 1px 0 0 var(--w-4),
-      0 8px 32px var(--k-48),
+      0 8px 32px var(--k-50),
       0 2px 16px var(--k-32),
       inset 0 1px 0 var(--w-6);
     border-radius: 0 0 22px 22px;
@@ -1529,31 +1496,7 @@
     display: none;
   }
 
-  .pager-tab {
-    height: 36px;
-    padding-inline: 0.85rem;
-    font-size: 0.88rem;
-    border-radius: 9999px;
-    white-space: nowrap;
-    opacity: 0.7;
-    flex: 0 0 auto;
-    min-width: max-content;
-    overflow: visible;
-    letter-spacing: 0.02em;
-    border: 1px solid transparent;
-    transition:
-      opacity 0.25s ease,
-      background 0.25s ease,
-      border-color 0.25s ease,
-      box-shadow 0.25s ease,
-      transform 0.2s var(--easing-smooth);
-  }
-
-  .pager-tab:hover {
-    opacity: 0.9;
-    background: var(--w-6);
-    border-color: var(--w-10);
-  }
+  /* .pager-tab styles moved to global nav.css for cross-component use (LanguageSwitcher) */
 
   .pager-smooth {
     opacity: 1;
@@ -1565,11 +1508,11 @@
   }
 
   .pager-smooth .render-on {
-    color: #00c853;
+    color: var(--cat-green-toast);
   }
 
   .pager-smooth .render-off {
-    color: #ffd600;
+    color: var(--cat-amber-95);
   }
 
   .pager-theme :global(.render-spark) {
@@ -1577,31 +1520,24 @@
     transition: color 0.3s ease, filter 0.3s ease;
   }
 
-  .pager-theme .theme-space {
-    color: var(--cosmic-blue);
+  .pager-theme .theme-blackhole {
+    color: #b266ff;
     font-weight: 600;
+    text-shadow: 0 0 8px var(--purple-40, rgba(178, 102, 255, 0.4));
   }
 
-  .pager-theme .theme-energy {
+  .pager-theme .theme-spaceship {
     color: #00f0ff;
     font-weight: 600;
     text-shadow: 0 0 8px var(--cyan2-40);
   }
 
-  .pager-tab.active {
-    opacity: 1;
-    background: linear-gradient(
-      135deg,
-      var(--w-10) 0%,
-      var(--w-5) 100%
-    );
-    border-color: color-mix(in oklab, var(--aurora-core) 45%, var(--w-14));
-    box-shadow:
-      0 0 20px color-mix(in oklab, var(--cosmic-purple) 22%, transparent),
-      0 0 6px color-mix(in oklab, var(--aurora-core) 15%, transparent);
-    transform: translateY(-1px);
-    font-weight: 500;
+  .pager-theme .theme-space {
+    color: var(--cosmic-blue);
+    font-weight: 600;
   }
+
+  /* .pager-tab.active moved to global nav.css */
 
   .pager-view {
     flex: 1;
@@ -1618,7 +1554,9 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    will-change: transform, opacity;
+    /* will-change removed: touch devices get will-change: scroll-position
+       via T-2 in responsive.css; desktop doesn't need compositor promotion.
+       Permanent will-change wastes GPU memory on both platforms. */
     scrollbar-width: none;
     contain: style;
     padding-top: calc(var(--pager-top-inset) + 0.5rem);
@@ -1645,47 +1583,11 @@
       overflow-x: auto;
     }
 
-    .pager-tab {
-      height: 34px;
-      padding-inline: 0.65rem;
-      font-size: 0.8rem;
-    }
+    /* .pager-tab responsive moved to global nav.css */
 
     .pager-smooth {
       font-size: 0.76rem;
     }
-  }
-
-  .pager-controls-shell {
-    width: 100%;
-    max-width: none;
-    min-width: 0;
-    overflow: hidden;
-    background: var(--k-50) !important;
-    backdrop-filter: blur(24px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-    border: none !important;
-    border-top: 1px solid var(--w-8) !important;
-    box-shadow: 0 -1px 0 var(--w-6), 0 -8px 30px rgba(0,0,0,0.5), 0 -2px 8px rgba(0,0,0,0.3);
-    border-radius: 18px 18px 0 0;
-    margin-inline: auto;
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 20;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    height: calc(58px + env(safe-area-inset-bottom, 0px));
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    transition: opacity 0.3s ease;
-  }
-
-  .pager-controls-shell.pager-hidden {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateX(-50%) translateY(100%);
   }
 
   .pager-btn-spacer {

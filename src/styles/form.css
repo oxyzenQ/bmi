@@ -26,18 +26,18 @@
 }
 
 .bmi-section {
-  margin-top: clamp(40px, 5vh, 200px);
-  margin-bottom: clamp(40px, 5vh, 200px);
+  margin-top: var(--section-margin-y);
+  margin-bottom: var(--section-margin-y);
 }
 
 .charts-section {
-  margin-top: clamp(40px, 5vh, 200px);
-  margin-bottom: clamp(40px, 5vh, 200px);
+  margin-top: var(--section-margin-y);
+  margin-bottom: var(--section-margin-y);
 }
 
 /* Footer disclaimer warning icon */
 .footer-disclaimer .warn-ic {
-  color: #facc15;
+  color: var(--warn-yellow);
   /* yellow-400 */
   margin-right: 0.5rem;
   position: relative;
@@ -56,7 +56,7 @@
 .footer-disclaimer .warn-ic-lg {
   margin-right: 0;
   top: 0;
-  color: #fde047;
+  color: var(--warn-yellow-light);
   /* yellow-300 for brighter */
   filter: drop-shadow(0 0 10px var(--gold-45));
 }
@@ -104,8 +104,7 @@
   border-radius: 1.5rem;
 
   padding: clamp(1.25rem, 4vw, 2rem);
-  transition: transform var(--dur-normal) var(--easing-smooth),
-    box-shadow var(--dur-normal) var(--easing-smooth);
+  transition: box-shadow 0.2s ease;
 }
 
 .form-card .form-inner {
@@ -122,8 +121,7 @@
   padding: clamp(1.25rem, 4vw, 2rem);
   margin-top: auto;
   min-height: 750px;
-  transition: transform var(--dur-normal) var(--easing-smooth),
-    box-shadow var(--dur-normal) var(--easing-smooth);
+  transition: box-shadow 0.2s ease;
 }
 
 .bmi-card:hover,
@@ -163,7 +161,7 @@
   max-width: 320px;
   margin-left: 0;
   margin-right: 0;
-  color: #ff6b6b;
+  color: var(--cat-red-bright);
   font-size: 0.8rem;
   text-align: center;
   line-height: 1.3;
@@ -183,14 +181,13 @@
   border-right: var(--border-by-rezky);
   color: white;
   font-size: 1rem;
-  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #5900e9;
+  border-color: var(--neon-purple);
   background: var(--sd-80);
-  border-radius: 0.75rem;
 }
 
 .form-input::placeholder {
@@ -208,7 +205,7 @@
 .form-input:-webkit-autofill:focus,
 .form-input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 1000px var(--sd-90) inset !important;
-  -webkit-text-fill-color: #ffffff !important;
+  -webkit-text-fill-color: var(--stellar-white) !important;
   border: 1px solid var(--w-10) !important;
   transition: background-color 5000s ease-in-out 0s;
 }
@@ -230,7 +227,7 @@
   border-radius: 9999px;
   border: 2px solid var(--text-muted);
   background: var(--sd-55);
-  color: #e6f0ff;
+  color: var(--pill-text-blue);
   font-weight: 600;
   font-size: 1rem;
   position: relative;
@@ -245,7 +242,7 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #a1a1aa;
+  background: var(--pill-dot-grey);
   box-shadow: 0 0 8px var(--zinc-36);
   flex: 0 0 auto;
 }
@@ -286,27 +283,26 @@
 
 /* Dynamic color variants */
 .pill-indicator[data-color="red"] .dot {
-  background: #D50000;
+  background: var(--darkred-90);
   box-shadow: 0 0 8px var(--cat-red-32);
 }
 
 .pill-indicator[data-color="green"] .dot {
-  background: #00C853;
+  background: var(--cat-green-95);
   box-shadow: 0 0 8px var(--cat-green-32);
 }
 
 .pill-indicator[data-color="yellow"] .dot {
-  background: #FFD600;
+  background: var(--cat-amber-solid);
   box-shadow: 0 0 8px var(--cat-yellow-32);
 }
 
 .pill-indicator[data-color="blue"] .dot {
-  background: #4A90E2;
+  background: var(--cat-blue-solid);
   box-shadow: 0 0 8px var(--cat-blue-32);
 }
 
 .pill-indicator[data-color="grey"] .dot {
-  background: #9CA3AF;
+  background: var(--text-muted-slate);
   box-shadow: 0 0 8px var(--cat-slate-32);
 }
-

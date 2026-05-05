@@ -1,49 +1,55 @@
-# BMI Project Worklog
-
----
-Task ID: 1
-Agent: Main Agent
-Task: Optimize design, quality, stabilization — full execution from previous session plan
-
-Work Log:
-- Discovered commit `e5411b7` already existed from previous session with partial work done
-- Fixed git identity: amended commit to set Author: oxchin <oxchinn@gmail.com>, Committer: oxyzenQ <with.rezky@gmail.com>
-- Verified previous session completed: typo fix, splash fix, wallpaper system, theme toggle, overflow fix, unused TS constants
-- Ran deep CSS analysis via subagent — found 34 unused CSS variables, 130+ hardcoded rgba colors, orphaned keyframes, CSS typos
-- Fixed CSS typo: `greyscale` → `grayscale` (moz-osx-font-smoothing)
-- Removed invalid `font-display: swap` from element rule (only valid in @font-face)
-- Fixed `rgba(0,0,0,0.500)` → `rgba(0,0,0,0.5)` (trailing zero)
-- Fixed no-op `clamp(64px, 6vw, 64px)` → `64px`
-- Removed orphaned `@keyframes fadeIn` and `@keyframes slideUp` (never referenced)
-- Fixed invalid border shorthand: `1px solid var(--border-by-rezky)` → `var(--border-by-rezky)` (3 lines)
-- Removed 34 unused CSS variables from `:root`: cosmic-deep-space, cosmic-nebula, cosmic-primary/secondary/accent, cosmic-text-primary/secondary, plasma-deep/dark/darker/accent/blue-dim/purple-dim/text-dim, aurora-whisper, atmosphere-deep/mid/light, shadow-silhouette, accent-purple, apple-glass/border/shadow, btn-blur, btn-saturate, shine-duration, shine-easing, space-1 through space-8
-- Removed dead performance-tier overrides for removed btn-blur/btn-saturate
-- Deduplicated render mode logic in +layout.svelte (extracted `readRenderMode()`)
-- Cleaned up duplicate/empty CSS comment blocks
-- Ran `./verify.sh` — all checks passed (check, lint, test, build)
-- Committed and force-pushed to origin/dev
-
-Stage Summary:
-- 2 commits on dev branch beyond 6e6afb8 (both with correct git identity)
-- `e8964e1` — feat: optimize design, quality & stabilization (previous session)
-- `2518c1c` — refactor: deep CSS cleanup (this session)
-- 34 unused CSS variables removed, 99 lines net deleted
-- All verification passed
-- Note: ~130 hardcoded rgba colors remain for future consolidation (larger refactor)
 ---
 Task ID: 1
 Agent: main
-Task: Split global-styles.css (4624 lines) into 11 focused CSS modules
+Task: Deep engineering audit + 7 enhancements + performance fixes + version upgrade to Stellar-12.0
 
 Work Log:
-- Analyzed all 33 section headers and media query distribution
-- Mapped line boundaries for 11 logical CSS modules
-- Extracted using sed with exact line ranges (verified zero diff after concatenation)
-- Updated +layout.svelte to import all 11 files in correct cascade order
-- Deleted original global-styles.css
-- Full verify passed: type-check ✓ lint ✓ tests (25/25) ✓ build ✓
+- Pulled latest code from dev branch (already up to date)
+- Launched 3 parallel audit agents: CSS audit, Svelte component audit, TypeScript utils/config audit
+- Analyzed 11 CSS files (5,818 lines), 16 Svelte components, 9 utility files, 10 config files
+- Identified 3 HIGH, 6 MEDIUM, 12 LOW issues across CPU/Memory/GPU/Bundle categories
+- Implemented 7 enhancements (E1-E7) with concrete code fixes
+- Upgraded version from 10.5.0 to 12.0.0 via bmi-update-version-to script
+- All verification passed: 169/169 tests, 0 svelte-check errors, clean eslint, successful build
 
 Stage Summary:
-- Created src/styles/ with 11 files: tokens, base, components, form, results, data-cards, layout, responsive, splash, nav, animation
-- Zero CSS changes — byte-identical output
-- Commit: 0627e88
+- E1: Centralized storage access (history-io.ts now uses storage.ts instead of raw localStorage)
+- E2: Eliminated double JSON.parse via parseAndValidate internal function
+- E3: CATEGORY_COLORS typed as Record<BmiCategory, string> (was Record<string, string>)
+- E4: Removed dead BMI_BAR constant from animation-config.ts
+- E5: share-image.ts now imports colors from bmi-category.ts instead of duplicating switch/case
+- E6: Fixed $derived(() => {...}) to $derived.by(() => {...}) in BmiGoalTracker.svelte; added timer cleanup in NotifyFloat (autofocus) and +layout.svelte (install banner)
+- E7: Removed vite-plugin-purgecss and @testing-library/jest-dom (dead deps); removed redundant will-change:transform on .radial-gauge
+- Version: Stellar-10.5 → Stellar-12.0
+- Commit: 9cd8a4f pushed to dev branch
+
+---
+Task ID: 1
+Agent: main
+Task: Fix Bug 1 (Spinner not visible) and Bug 2 (Container invisible on desktop)
+
+Work Log:
+- Cloned repo from github.com/oxyzenQ/bmi branch dev
+- Read all relevant source files: BmiForm.svelte, EncryptionModal.svelte, components.css, animation.css, tokens.css, responsive.css, form.css, base.css, layout.css, nav.css, data-cards.css
+- Bug 1: Added stagingLoading state with STAGING_DELAY (1.5s) and STAGING_POST_DELAY (0.8s) in BmiForm.svelte
+  - handleExportClick: shows staging spinner for 1.5s before opening encryption modal
+  - handleExportConfirm: shows staging spinner for 0.8s after export completes before download
+  - handleFileChange: shows staging spinner for 1.5s before opening encryption modal for encrypted files
+  - handleImportConfirm: shows staging spinner for 0.8s after import completes before feedback modal
+  - Added staging overlay HTML (portal to body, z-index 10001)
+  - Added staging spinner CSS to animation.css
+  - Added crypto.preparing i18n key to all 4 locale files (en, id, zh, ja)
+- Bug 2: Modified components.css @supports backdrop-filter block
+  - Increased background opacity from 0.85 to 0.88
+  - Reduced blur from blur(10px) to blur(6px) to prevent dark-on-dark blending
+  - Reduced saturation from 140% to 130%
+  - Strengthened box-shadow from 0 4px 16px rgba(0,0,0,0.4) to 0 8px 32px rgba(0,0,0,0.6)
+  - Added subtle edge ring: 0 0 0 1px rgba(255,255,255,0.08)
+  - Applied same fix to hero-content block
+- Ran verify.sh: 0 errors, 177 tests passed, build successful
+- Committed and pushed to dev branch
+
+Stage Summary:
+- Bug 1 fixed: Staging spinner overlay shows before/after export/import modal transitions
+- Bug 2 fixed: Glass containers now have stronger contrast with higher opacity, reduced blur, and edge ring
+- Commit: 5f56ad4 pushed to dev

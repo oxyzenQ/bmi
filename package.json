@@ -1,7 +1,7 @@
 {
   "name": "a-simple-bmi-calc",
   "private": true,
-  "version": "10.5.0",
+  "version": "15.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite dev --host",
@@ -24,7 +24,8 @@
     "deploy": "bun run build && bun run preview",
     "build:optimized": "NODE_ENV=production vite build --mode production",
     "analyze": "vite build --mode analyze",
-    "verify": "bun run check && bun run lint && bun run test:run && bun run build"
+    "verify": "bun run check && bun run lint && bun run test:run && bun run build",
+    "bmi-update-version-to": "bun run scripts/bmi-update-version.ts"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.1",
@@ -49,7 +50,6 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.59.2",
     "vite": "^7.3.2",
-    "vite-plugin-purgecss": "^0.2.13",
     "vitest": "^3.2.4"
   },
   "keywords": [
@@ -69,8 +69,10 @@
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
+    "@noble/hashes": "^2.2.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
-    "lucide-svelte": "^0.446.0"
+    "lucide-svelte": "^0.446.0",
+    "zxcvbn-ts": "^2.0.2"
   }
 }

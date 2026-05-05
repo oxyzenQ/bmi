@@ -1,42 +1,86 @@
 /* ── components.css — Glassmorphism containers, button system, hero section, bounce/pulse keyframes ── */
 /* ==============================
       GLASSMORPHISM COMPONENTS
+      Bug #19 fix: @supports progressive enhancement.
+      Fallback: strong semi-transparent background (no blur needed).
+      Enhancement: lighter background + backdrop-filter where supported.
+      This ensures containers NEVER look transparent, even on browsers
+      that don't support backdrop-filter (some mobile WebViews).
       ============================== */
-/* Enhanced liquid glass effect — all container box backgrounds consolidated here */
+
+/* ── Glass fallback: strong background always present ── */
 .bmi-card,
 .footer-disclaimer,
 .about-card,
 .gauge-container,
-.reference-table,
 .form-card,
-.github-link,
-.section-header,
-.section-header-v2 {
-  background: var(--k-50);
+.section-header-v2,
+.github-link {
+  background: rgba(0, 0, 0, 0.85);
   border: var(--border-by-rezky);
-  border-radius: 2rem;
-  box-shadow:
-    0 8px 32px var(--k-40),
-    inset 0 1px 0 var(--w-8),
-    0 0 20px color-mix(in oklab, var(--cosmic-purple) 16%, transparent);
+  border-radius: var(--radius-lg);
   transition: transform var(--dur-slow) var(--easing-smooth),
     box-shadow var(--dur-slow) var(--easing-smooth),
     border-color var(--dur-slow) var(--easing-smooth);
 }
 
-/* Hero content retains backdrop-filter for main visual impact */
+/* ── Glass enhancement: blur where supported (Stellar v15: Moonshot Glass) ──
+     Design principle: REDUCE background opacity when backdrop-filter is
+     available — the blur softens wallpaper content, compensating for
+     readability. This creates a TRUE glass effect where wallpaper colors
+     bleed through containers.
+     
+     saturate(180%) boosts subtle nebula/purple tones in dark wallpapers.
+     brightness(1.15) prevents dark-on-dark invisibility.
+     blur(16px) provides enough depth without excessive GPU cost.
+     
+     On touch devices, T-GLASS rules in responsive.css override with
+     !important using stronger opacity for varied mobile GPUs. */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .bmi-card,
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .form-card,
+  .section-header-v2,
+  .github-link {
+    background: rgba(0, 0, 0, 0.65);
+    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
+    backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
+    /* Stronger border + inset highlight compensate for lower opacity,
+       ensuring clear container edges on any wallpaper. */
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* ── Hero content fallback ── */
 .hero-content {
-  background: var(--k-50);
+  background: rgba(0, 0, 0, 0.85);
   border: var(--border-by-rezky);
   border-radius: 2rem;
-  backdrop-filter: blur(8px) saturate(140%);
-  box-shadow:
-    0 8px 32px var(--k-40),
-    inset 0 1px 0 var(--w-8),
-    0 0 20px color-mix(in oklab, var(--cosmic-purple) 16%, transparent);
   transition: transform var(--dur-slow) var(--easing-smooth),
     box-shadow var(--dur-slow) var(--easing-smooth),
     border-color var(--dur-slow) var(--easing-smooth);
+}
+
+/* ── Hero content enhancement: blur where supported (Stellar v15) ──
+     Hero uses slightly lighter opacity for maximum glass impact.
+     The hero is the first visual element — make it feel premium. */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .hero-content {
+    background: rgba(0, 0, 0, 0.58);
+    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
+    backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
 }
 
 
@@ -63,12 +107,11 @@ a.button {
   position: relative;
   overflow: visible;
   transition: transform var(--dur-fast) var(--easing-smooth),
-    box-shadow var(--dur-fast) var(--easing-smooth),
     background var(--dur-fast) var(--easing-smooth),
     border-color var(--dur-fast) var(--easing-smooth);
-  background: var(--btn-surface) padding-box, var(--btn-bg);
+  background: var(--btn-bg);
   border: var(--btn-border);
-  box-shadow: var(--btn-shadow);
+  box-shadow: none;
   border-radius: var(--btn-radius);
 }
 
@@ -76,9 +119,8 @@ a.button {
 button:hover,
 a.button:hover {
   transform: translateY(-1px) scale(1.01);
-  background: var(--btn-surface) padding-box, var(--btn-bg-hover);
+  background: var(--btn-bg-hover);
   border: var(--btn-border-hover);
-  box-shadow: var(--btn-shadow-hover);
 }
 
 .btn:active,
@@ -86,13 +128,13 @@ button:active,
 a.button:active {
   transform: translateY(0) scale(0.97);
   transition-duration: 120ms;
-  background: var(--btn-surface) padding-box, var(--btn-bg-active);
+  background: var(--btn-bg-active);
 }
 
 .btn:focus-visible,
 button:focus-visible,
 a.button:focus-visible {
-  outline: 3px solid color-mix(in oklab, var(--aurora-core) 35%, transparent);
+  outline: 3px solid var(--violet-35);
   outline-offset: 2px;
 }
 
@@ -116,18 +158,13 @@ button[aria-disabled="true"] {
 .btn-primary {
   color: white;
   background: var(--bg-by-rezky);
-  border: 1px solid color-mix(in oklab, var(--aurora-core) 22%, var(--w-14));
-  box-shadow: 0 16px 40px var(--k-45),
-    inset 0 1px 0 var(--w-8),
-    0 0 28px color-mix(in oklab, var(--cosmic-purple) 30%, transparent);
+  border: 1px solid rgba(139, 92, 246, 0.22);
+  box-shadow: none;
 }
 
 .btn-primary:hover {
   background: var(--bg-last-by-rezky);
-  border-color: color-mix(in oklab, var(--aurora-core) 34%, var(--w-16));
-  box-shadow: 0 20px 52px var(--k-55),
-    inset 0 1px 0 var(--w-10),
-    0 0 40px color-mix(in oklab, var(--cosmic-purple) 36%, transparent);
+  border-color: rgba(139, 92, 246, 0.34);
 }
 
 .btn.is-calculating {
@@ -154,18 +191,13 @@ button[aria-disabled="true"] {
 .btn-danger {
   color: white;
   background: var(--bg-by-rezky);
-  border: 1px solid color-mix(in oklab, var(--aurora-core) 22%, var(--w-14));
-  box-shadow: 0 16px 40px var(--k-45),
-    inset 0 1px 0 var(--w-8),
-    0 0 28px color-mix(in oklab, var(--cosmic-purple) 22%, transparent);
+  border: 1px solid rgba(139, 92, 246, 0.22);
+  box-shadow: none;
 }
 
 .btn-danger:hover {
   background: var(--bg-last-by-rezky);
-  border-color: color-mix(in oklab, var(--aurora-core) 32%, var(--w-16));
-  box-shadow: 0 20px 52px var(--k-55),
-    inset 0 1px 0 var(--w-10),
-    0 0 40px color-mix(in oklab, var(--cosmic-purple) 30%, transparent);
+  border-color: rgba(139, 92, 246, 0.32);
 }
 
 .btn-danger:active,
@@ -177,21 +209,18 @@ button[aria-disabled="true"] {
 }
 
 .btn-secondary {
-  background: linear-gradient(180deg, var(--w-9), var(--w-3-5)) padding-box,
-    color-mix(in oklab, var(--cosmic-void) 52%, transparent);
-  border-color: var(--w-18);
+  background: linear-gradient(135deg, rgba(20, 8, 38, 0.55), rgba(91, 33, 182, 0.45));
+  border-color: rgba(139, 92, 246, 0.16);
 }
 
 .btn-secondary:hover {
-  background: linear-gradient(180deg, var(--w-13), var(--w-5)) padding-box,
-    color-mix(in oklab, var(--cosmic-void) 44%, transparent);
-  border-color: var(--w-24);
+  background: linear-gradient(135deg, rgba(20, 8, 38, 0.65), rgba(91, 33, 182, 0.55));
+  border-color: rgba(139, 92, 246, 0.28);
 }
 
 .btn-ghost {
-  background: linear-gradient(180deg, var(--w-6), var(--w-1-8)) padding-box,
-    color-mix(in oklab, var(--cosmic-void) 58%, transparent);
-  border-color: var(--w-12);
+  background: linear-gradient(135deg, rgba(20, 8, 38, 0.40), rgba(91, 33, 182, 0.30));
+  border-color: rgba(139, 92, 246, 0.12);
 }
 
 /* Button sizes */
@@ -212,10 +241,6 @@ button[aria-disabled="true"] {
 
 .button-group.stack {
   flex-direction: column;
-}
-
-.bmi-form .btn {
-  filter: brightness(1.07);
 }
 
 /* ==============================
@@ -260,14 +285,6 @@ button[aria-disabled="true"] {
   background: radial-gradient(circle, var(--blue-35), transparent);
   top: 20%;
   left: 10%;
-}
-
-.orb-3 {
-  width: 100px;
-  height: 100px;
-  background: radial-gradient(circle, var(--cyan-35), transparent);
-  bottom: 20%;
-  left: 20%;
 }
 
 .hero-content {
@@ -359,12 +376,6 @@ button[aria-disabled="true"] {
   contain: layout style;
 }
 
-.Telescope {
-  color: var(--cosmic-purple) !important;
-  width: 56px !important;
-  height: 56px !important;
-}
-
 .hero-subtitle {
   font-size: 1.25rem;
   color: white;
@@ -411,46 +422,6 @@ button[aria-disabled="true"] {
   background-clip: text;
 }
 
-/* button scroll for hero */
-
-.hero-scroll-btn {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(-2rem, -3vh, -2.5rem);
-  transform: translateX(-50%);
-
-  width: clamp(56px, 6vw, 72px);
-  height: clamp(56px, 6vw, 72px);
-  border-radius: 50%;
-
-  background: var(--bg-by-rezky);
-  border: var(--border-by-rezky);
-  padding: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  cursor: pointer;
-  z-index: 10;
-
-  animation: bounce 2.5s ease-in-out infinite, pulse 2.5s ease-in-out infinite;
-  transition: transform 0.25s ease;
-}
-
-.hero-scroll-btn::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  border-radius: 50%;
-  background: var(--bg-last-by-rezky);
-  z-index: -1;
-}
-
-.hero-scroll-btn:hover {
-  transform: translateX(-50%) scale(1.08);
-}
-
 .icon {
   width: 64px;
   height: 64px;
@@ -480,4 +451,3 @@ button[aria-disabled="true"] {
     filter: drop-shadow(0 0 12px var(--magenta-80));
   }
 }
-

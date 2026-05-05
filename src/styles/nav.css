@@ -2,11 +2,19 @@
 /* ==============================
    PERFORMANCE TIER OPTIMIZATIONS
    Reduce expensive effects on low-end devices
+   Bug #19 fix: Low tier keeps glass backgrounds but removes
+   backdrop-filter. Containers still look solid and premium.
    ============================== */
 
 html[data-performance-tier="low"] :is(
   .hero-content,
-  .pager-btn-futuristic
+  .pager-btn-futuristic,
+  .bmi-card,
+  .form-card,
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table
 ) {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -16,7 +24,7 @@ html[data-performance-tier="low"] :is(
 html[data-performance-tier="low"] .cosmic-particles .cosmic-particle {
   filter: none !important;
   background: var(--w-60) !important;
-  will-change: transform;
+  will-change: auto;
 }
 
 html[data-performance-tier="low"] :is(
@@ -33,7 +41,6 @@ html[data-performance-tier="low"] .gauge-progress.pulsing {
 }
 
 html[data-performance-tier="low"] :is(
-  .icon-glow,
   .empty-glow
 ) {
   filter: none !important;
@@ -41,21 +48,8 @@ html[data-performance-tier="low"] :is(
   text-shadow: none !important;
 }
 
-html[data-performance-tier="medium"] .cosmic-particles .cosmic-particle {
-  filter: blur(0.2px) !important;
-  will-change: transform;
-}
-
-html[data-performance-tier="medium"] :is(
-  .plasma-star,
-  .sparkle-icon
-) {
-  filter: drop-shadow(0 0 4px currentColor) !important;
-}
-
-/* HIGH TIER: Full effects - ensure will-change hints for GPU acceleration */
+/* HIGH TIER: Full effects — will-change applied directly for GPU optimization. */
 html[data-performance-tier="high"] .cosmic-particles .cosmic-particle {
-  will-change: transform, opacity;
   contain: layout style paint;
 }
 
@@ -63,7 +57,6 @@ html[data-performance-tier="high"] :is(
   .hero-content,
   .bmi-card
 ) {
-  will-change: transform;
   contain: layout style;
 }
 
@@ -77,21 +70,83 @@ html[data-performance-tier="medium"] .cosmic-particles {
 }
 
 /* ==============================
-   PAGER / BOTTOM NAV STYLES
+   PAGER TAB BUTTONS (top navbar)
+   ============================== */
+.pager-tab {
+  height: 36px;
+  padding-inline: 0.85rem;
+  font-size: 0.88rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+  opacity: 0.7;
+  flex: 0 0 auto;
+  min-width: max-content;
+  overflow: visible;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+  transition:
+    opacity 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.2s var(--easing-smooth);
+}
+
+.pager-tab:hover {
+  opacity: 0.9;
+  background: var(--w-6);
+  border-color: var(--w-10);
+}
+
+.pager-tab.active {
+  opacity: 1;
+  background: linear-gradient(
+    135deg,
+    var(--w-10) 0%,
+    var(--w-5) 100%
+  );
+  border-color: var(--violet-45);
+  box-shadow:
+    0 0 20px var(--violet-22),
+    0 0 6px var(--violet-15);
+  transform: translateY(-1px);
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .pager-tab {
+    height: 34px;
+    padding-inline: 0.65rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* ==============================
+   PAGER / NAV BAR STYLES (top + bottom)
    ============================== */
 
+/* Top navbar — ensures backdrop-filter renders consistently
+   across mobile browsers (especially WebKit/Safari).
+   -webkit- prefix must come before unprefixed for reliable fallback. */
+.pager-nav-shell {
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  background: var(--k-50) !important;
+}
+
+/* Bottom navbar */
 .pager-controls-shell {
   width: 100%;
   max-width: none;
   min-width: 0;
   overflow: hidden;
   background: var(--k-50) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
   border: none !important;
   border-top: 1px solid var(--w-8) !important;
-  box-shadow: 0 -1px 0 var(--w-6), 0 -8px 30px rgba(0,0,0,0.5), 0 -2px 8px rgba(0,0,0,0.3);
-  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -1px 0 var(--w-6), 0 -8px 30px var(--shadow-heavy), 0 -2px 8px var(--k-30);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   margin-inline: auto;
   position: absolute;
   bottom: 0;
@@ -131,16 +186,16 @@ html[data-performance-tier="medium"] .cosmic-particles {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  border: 1px solid color-mix(in oklab, var(--aurora-core) 50%, var(--w-20));
-  background: var(--w-6);
-  color: var(--w-85);
+  border: 1px solid rgba(139, 92, 246, 0.18);
+  background: var(--btn-bg);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   position: relative;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s var(--easing-smooth);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  box-shadow: none;
 }
 
 .pager-btn-futuristic svg {
@@ -150,15 +205,15 @@ html[data-performance-tier="medium"] .cosmic-particles {
 }
 
 .pager-btn-futuristic:hover {
-  background: color-mix(in oklab, var(--aurora-core) 18%, var(--w-10));
-  border-color: color-mix(in oklab, var(--aurora-core) 60%, transparent);
-  color: var(--stellar-white);
+  background: var(--btn-bg-hover);
+  border-color: rgba(139, 92, 246, 0.30);
+  color: white;
   transform: translateY(-1px);
 }
 
 .pager-btn-futuristic:active {
   transform: translateY(0) scale(0.96);
-  background: color-mix(in oklab, var(--aurora-core) 24%, var(--w-8));
+  background: var(--btn-bg-active);
 }
 
 .pager-btn-futuristic::before {
@@ -179,4 +234,3 @@ html[data-performance-tier="medium"] .cosmic-particles {
     border-radius: 50%;
   }
 }
-

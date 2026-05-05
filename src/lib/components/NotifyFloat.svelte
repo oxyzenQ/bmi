@@ -1,10 +1,15 @@
 <script lang="ts">
   import { onMount, untrack, onDestroy } from 'svelte';
   import { CheckCircle, Trash2, X, ShieldAlert } from 'lucide-svelte';
+  import { COLORS } from '$lib/utils/bmi-category';
+  import { t as _t, localeVersion } from '$lib/i18n';
+  let _rv = $derived($localeVersion);
+  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
   interface Props {
     show?: boolean;
-    type?: 'success' | 'delete' | 'warn';
+    type?: 'success' | 'delete' | 'warn' | 'error';
     message?: string;
     buttonText?: string;
     onContinue?: () => void;
@@ -16,7 +21,7 @@
     show = false,
     type = 'success',
     message = '',
-    buttonText = 'Continue',
+    buttonText = t('notify.continue'),
     onContinue = () => {},
     onClose = () => {},
     onCancel = () => {}
@@ -73,7 +78,10 @@
       const focusable = getFocusableElements();
       if (focusable.length > 0) {
         // Slight delay to let animation start
-        setTimeout(() => focusable[0].focus(), 100);
+        const focusTimer = setTimeout(() => {
+          if (backdropEl) focusable[0].focus();
+        }, 100);
+        return () => clearTimeout(focusTimer);
       }
     } else {
       // Deactivate focus trap
@@ -88,6 +96,7 @@
     if (focusTrapHandler) {
       document.removeEventListener('keydown', focusTrapHandler);
     }
+    if (actionTimer) clearTimeout(actionTimer);
   });
 
   // Effect handles three triggers:
@@ -151,20 +160,22 @@
   const Icon = $derived(
     type === 'success' ? CheckCircle :
     type === 'warn' ? ShieldAlert :
+    type === 'error' ? X :
     Trash2
   );
   const iconColor = $derived(
-    type === 'success' ? '#00C853' :
-    type === 'warn' ? '#F59E0B' :
-    '#D50000'
+    type === 'success' ? COLORS.GREEN :
+    type === 'warn' ? COLORS.AMBER :
+    type === 'error' ? COLORS.RED :
+    COLORS.RED
   );
   const buttonClass = $derived(
     type === 'success' ? 'btn-success' :
     type === 'warn' ? 'btn-warn' :
+    type === 'error' ? 'btn-error' :
     'btn-delete'
   );
 </script>
-
 {#if show}
   {#key notifyKey}
   <div
@@ -175,7 +186,7 @@
     aria-modal="true"
   >
     <div class="notify-float-box">
-      <button class="notify-close" onclick={handleClose} aria-label="Close notification">
+      <button class="notify-close" onclick={handleClose} aria-label={t('notify.close_aria')}>
         <span class="close-icon">✕</span>
       </button>
 
@@ -191,7 +202,7 @@
             class="notify-btn btn-cancel"
             onclick={handleCancel}
           >
-            Cancel
+            {t('notify.cancel')}
           </button>
           <button
             class="notify-btn {buttonClass}"
@@ -200,6 +211,13 @@
             {buttonText}
           </button>
         </div>
+      {:else if type === 'error'}
+        <button
+          class="notify-btn {buttonClass}"
+          onclick={handleContinue}
+        >
+          {buttonText || t('notify.ok')}
+        </button>
       {:else}
         <button
           class="notify-btn {buttonClass}"
@@ -220,12 +238,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--k-65);
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    background: var(--k-50) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    isolation: isolate;
     z-index: 9999;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.15s ease;
     pointer-events: none;
   }
 
@@ -236,18 +255,18 @@
 
   .notify-float-box {
     position: relative;
-    background: var(--k-50);
+    background: var(--k-50) !important;
     border: var(--border-by-rezky);
     border-radius: 24px;
     padding: 2.5rem 2rem;
     min-width: 320px;
     max-width: 90vw;
     text-align: center;
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
     box-shadow: 0 25px 50px -12px var(--k-50);
-    transform: scale(0.9) translateY(20px);
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: scale(0.92) translateY(14px);
+    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .notify-backdrop.visible .notify-float-box {
@@ -268,9 +287,9 @@
     justify-content: center;
     color: var(--w-80);
     cursor: pointer;
-    transition: all 0.25s ease;
-    backdrop-filter: blur(10px);
+    transition: background 0.15s ease, color 0.15s ease;
     -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     z-index: 10;
   }
 
@@ -340,7 +359,7 @@
     border: none;
     border-radius: 12px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform 0.15s ease, background 0.15s ease;
     min-width: 160px;
   }
 
@@ -350,8 +369,8 @@
     box-shadow:
       0 4px 20px var(--cat-green-30),
       0 0 0 1px var(--w-10) inset;
-    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     border: 1px solid var(--w-15);
   }
 
@@ -369,8 +388,8 @@
     box-shadow:
       0 4px 20px var(--cat-red-30),
       0 0 0 1px var(--w-10) inset;
-    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     border: 1px solid var(--w-15);
   }
 
@@ -388,8 +407,8 @@
     box-shadow:
       0 4px 20px var(--coolgray-30),
       0 0 0 1px var(--w-10) inset;
-    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     border: 1px solid var(--w-15);
   }
 
@@ -418,8 +437,8 @@
     box-shadow:
       0 4px 20px var(--cat-amber-30),
       0 0 0 1px var(--w-10) inset;
-    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     border: 1px solid var(--w-15);
   }
 
@@ -434,7 +453,8 @@
   @media (max-width: 480px) {
     .notify-float-box {
       padding: 2rem 1.5rem;
-      min-width: 300px;
+      min-width: auto;
+      width: calc(100vw - 2rem);
       margin: 0 1rem;
       border-radius: 20px;
     }

@@ -1,8 +1,14 @@
 import '@testing-library/jest-dom';
-import { vi, beforeAll, afterEach } from 'vitest';
 import { cleanup } from '@testing-library/svelte';
+import { afterEach, beforeAll, vi } from 'vitest';
+import { createRequire } from 'node:module';
+import path from 'path';
 
-// Mock SvelteKit modules
+// Detect environment: node environment has no `window`, jsdom has it.
+// history-io.test.ts uses @vitest-environment node for native crypto.subtle.
+const hasDOM = typeof window !== 'undefined';
+
+// Mock SvelteKit modules (works in both node and jsdom)
 vi.mock('$app/environment', () => ({
 	browser: true,
 	dev: false,
@@ -16,14 +22,63 @@ vi.mock('$app/stores', () => ({
 	updated: { subscribe: vi.fn() }
 }));
 
-// Setup jsdom environment
+// ---------------------------------------------------------------------------
+// Polyfill crypto.subtle for jsdom only
+// ---------------------------------------------------------------------------
+// In node environment, crypto.subtle is natively available — no polyfill needed.
+// In jsdom 27+, window.crypto exists but its subtle may be non-functional.
+// We only polyfill when jsdom is detected.
+if (hasDOM) {
+	const req = createRequire(path.resolve(process.cwd(), 'package.json'));
+
+	(function polyfillCryptoSubtle() {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const w = window as any;
+		if (!w.crypto) return;
+
+		let subtle: unknown;
+		try {
+			subtle = req('node:crypto')?.webcrypto?.subtle;
+		} catch {
+			/* not available */
+		}
+		if (!subtle) {
+			try {
+				subtle = req('crypto')?.webcrypto?.subtle;
+			} catch {
+				/* not available */
+			}
+		}
+
+		if (!subtle) return;
+
+		try {
+			w.crypto.subtle = subtle;
+		} catch {
+			try {
+				Object.defineProperty(w.crypto, 'subtle', {
+					value: subtle,
+					configurable: true,
+					writable: true
+				});
+			} catch {
+				/* non-extensible */
+			}
+		}
+	})();
+}
+
+// Verify environment setup
 beforeAll(() => {
-	if (typeof document === 'undefined') {
+	// Only check DOM in jsdom environment
+	if (hasDOM && typeof document === 'undefined') {
 		throw new Error('jsdom environment not properly configured');
 	}
 });
 
-// Cleanup after each test
+// Cleanup — only needed in DOM environment (Svelte component tests)
 afterEach(() => {
-	cleanup();
+	if (hasDOM) {
+		cleanup();
+	}
 });

@@ -11,29 +11,58 @@
   import '../styles/results.css';
   /* ── Stat grid, TDEE, radial gauge, reference table ── */
   import '../styles/data-cards.css';
-  /* ── Keyboard shortcuts, cosmic particles, footer ── */
+  /* ── Cosmic particles, footer ── */
   import '../styles/layout.css';
   /* ── Responsive breakpoints, reduced motion ── */
   import '../styles/responsive.css';
-  /* ── Splash screen ── */
-  import '../styles/splash.css';
   /* ── Pager / bottom navbar ── */
   import '../styles/nav.css';
+  /* ── Language switcher floating panel (portaled to body) ── */
+  import '../styles/lang-switcher.css';
   /* ── Skeleton loading, shooting stars, haptic feedback ── */
   import '../styles/animation.css';
   import CosmicParticles from '$lib/components/CosmicParticles.svelte';
-  import SplashScreen from '$lib/components/SplashScreen.svelte';
   import { onMount, type Snippet } from 'svelte';
   import { browser } from '$app/environment';
   import { fade } from 'svelte/transition';
   import { Download, WifiOff } from 'lucide-svelte';
+  import { initStorage } from '$lib/utils/storage';
+  import { t as _t, localeVersion } from '$lib/i18n';
+  let _rv = $derived($localeVersion);
+  function t(key: string): string { void _rv; return _t(key); }
 
   let { children }: { children: Snippet } = $props();
-  let showSplash = $state(false); // Disabled by default
   let showMainContent = $state(true); // Show content immediately
-  const splashDuration = 10000; // 10s relaxed experience (if enabled)
   let renderModeEnabled = $state(true);
   let renderModeInitialized = false;
+
+  // ── Button ripple effect (delegated on document) ──
+  function initButtonRipple() {
+    if (!browser) return () => {};
+    function handleClick(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      const btn = target.closest('button, .btn, a.button, .action-btn, .gauge-cta-btn, .sex-btn') as HTMLElement | null;
+      if (!btn) return;
+      // Don't ripple on disabled buttons
+      if (btn.hasAttribute('disabled') || btn.hasAttribute('aria-disabled')) return;
+
+      const rect = btn.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height) * 2;
+      const x = e.clientX - rect.left - size / 2;
+      const y = e.clientY - rect.top - size / 2;
+
+      const ripple = document.createElement('span');
+      ripple.className = 'btn-ripple';
+      ripple.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;`;
+      btn.appendChild(ripple);
+
+      ripple.addEventListener('animationend', () => {
+        ripple.remove();
+      });
+    }
+    document.addEventListener('click', handleClick, { passive: true });
+    return () => document.removeEventListener('click', handleClick);
+  }
 
   // PWA state
   let deferredPrompt: BeforeInstallPromptEvent | null = null;
@@ -84,11 +113,16 @@
   onMount(() => {
     let cleanupFns: Array<() => void> = [];
 
+    // Initialize IndexedDB storage layer + run localStorage migration if needed
     if (browser) {
+      void initStorage();
       if (!renderModeInitialized) {
         renderModeEnabled = readRenderMode();
         renderModeInitialized = true;
       }
+
+      // Button ripple micro-interaction
+      cleanupFns.push(initButtonRipple());
 
       const handleRenderMode = (event: Event) => {
         const ce = event as CustomEvent<{ enabled?: boolean; requested?: boolean; status?: string }>;
@@ -101,23 +135,25 @@
 
     // Register service worker for caching (only in production)
     if (browser && 'serviceWorker' in navigator && import.meta.env.PROD) {
-      navigator.serviceWorker.register('/service-worker.js', { type: 'classic' }).catch((err) => {
-        if (import.meta.env.DEV) console.warn('SW registration skipped:', err.message);
-      });
+      navigator.serviceWorker.register('/service-worker.js', { type: 'module' }).catch(() => { /* SW registration failed silently */ });
     }
 
     // PWA: install prompt handler
     if (browser) {
+      let installTimer: ReturnType<typeof setTimeout> | undefined;
       const handleBeforeInstall = (e: Event) => {
         e.preventDefault();
         deferredPrompt = e as BeforeInstallPromptEvent;
         canInstall = true;
         if (!installDismissed) {
-          setTimeout(() => { showInstallBanner = true; }, 3000);
+          installTimer = setTimeout(() => { showInstallBanner = true; }, 3000);
         }
       };
       window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-      cleanupFns.push(() => window.removeEventListener('beforeinstallprompt', handleBeforeInstall));
+      cleanupFns.push(() => {
+        window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+        if (installTimer) clearTimeout(installTimer);
+      });
 
       // Check if already installed (standalone mode)
       if (window.matchMedia('(display-mode: standalone)').matches || ('standalone' in navigator)) {
@@ -132,16 +168,6 @@
       cleanupFns.push(() => window.removeEventListener('online', handleOnline));
       cleanupFns.push(() => window.removeEventListener('offline', handleOffline));
       isOffline = !navigator.onLine;
-    }
-
-    let timer: ReturnType<typeof setTimeout> | null = null;
-
-    if (showSplash) {
-      const exitPhaseRatio = 5.5 / 6;
-      const revealDelay = Math.round(splashDuration * exitPhaseRatio);
-      timer = setTimeout(() => {
-        showMainContent = true;
-      }, revealDelay);
     }
 
     // B-3: Set canonical URL from current location
@@ -167,29 +193,18 @@
           } catch { /* metric type not supported in this browser */ }
         };
 
-        observe('largest-contentful-paint', (e) => {
-          const val = Math.round(e.startTime);
-          console.log(`[Vitals] LCP: ${val}ms${val > 2500 ? ' (slow)' : val > 1200 ? ' (needs-improvement)' : ' (good)'}`);
-        });
-
-        observe('layout-shift', (e) => {
-          const entry = e as PerformanceEntry & { value: number };
-          const val = entry.value;
-          console.log(`[Vitals] CLS: ${val.toFixed(3)}${val > 0.25 ? ' (poor)' : val > 0.1 ? ' (needs-improvement)' : ' (good)'}`);
-        });
+        // Web Vitals observation (silent in production)
+        observe('largest-contentful-paint', () => { /* LCP tracked silently */ });
+        observe('layout-shift', () => { /* CLS tracked silently */ });
 
         // INP: only supported in Chromium 123+ behind flag; skip if unsupported
         if (PerformanceObserver.supportedEntryTypes?.includes('interaction-to-next-paint')) {
-          observe('interaction-to-next-paint', (e) => {
-            const val = Math.round(e.startTime);
-            console.log(`[Vitals] INP: ${val}ms${val > 500 ? ' (poor)' : val > 200 ? ' (needs-improvement)' : ' (good)'}`);
-          });
+          observe('interaction-to-next-paint', () => { /* INP tracked silently */ });
         }
       } catch { /* PerformanceObserver failed */ }
     }
 
     return () => {
-      if (timer) clearTimeout(timer);
       cleanupFns.forEach((fn) => fn());
     };
   });
@@ -197,10 +212,6 @@
   // B-3: Dynamic og:url
   let canonicalUrl = $state('');
 
-  function handleSplashComplete() {
-    showSplash = false;
-    showMainContent = true;
-  }
 </script>
 
 <svelte:head>
@@ -211,30 +222,22 @@
   {/if}
 </svelte:head>
 
-{#if showSplash}
-  <SplashScreen
-    bind:show={showSplash}
-    duration={splashDuration}
-    onComplete={handleSplashComplete}
-  />
-{/if}
+<div class="main-content" class:visible={showMainContent}>
+  {@render children()}
+</div>
 
 {#if renderModeEnabled}
   <CosmicParticles />
 {/if}
-
-<div class="main-content" class:visible={showMainContent}>
-  {@render children()}
-</div>
 
 <!-- PWA Install Banner -->
 {#if showInstallBanner && canInstall && !isInstalled}
   <div class="pwa-install-bar" transition:fade={{ duration: 250 }}>
     <div class="pwa-install-content">
       <Download size={18} aria-hidden="true" />
-      <span class="pwa-install-text">Install this app for quick access</span>
-      <button class="pwa-install-btn" onclick={handleInstallClick}>Install</button>
-      <button class="pwa-dismiss-btn" onclick={dismissInstallBanner} aria-label="Dismiss">✕</button>
+      <span class="pwa-install-text">{t('pwa.install_text')}</span>
+      <button class="pwa-install-btn" onclick={handleInstallClick}>{t('pwa.install_btn')}</button>
+      <button class="pwa-dismiss-btn" onclick={dismissInstallBanner} aria-label={t('pwa.dismiss')}>✕</button>
     </div>
   </div>
 {/if}
@@ -243,7 +246,7 @@
 {#if isOffline}
   <div class="pwa-offline-badge" transition:fade={{ duration: 250 }}>
     <WifiOff size={14} aria-hidden="true" />
-    <span>Offline</span>
+    <span>{t('pwa.offline')}</span>
   </div>
 {/if}
 
@@ -267,7 +270,7 @@
     right: 0;
     z-index: 1000;
     padding: 0.5rem;
-    background: rgba(10, 8, 24, 0.95);
+    background: var(--cosmic-base-95);
     backdrop-filter: blur(16px) saturate(180%);
     border-top: 1px solid var(--w-10);
   }
@@ -334,7 +337,7 @@
     gap: 0.3rem;
     padding: 0.25rem 0.6rem;
     border-radius: 9999px;
-    background: rgba(183, 28, 28, 0.85);
+    background: var(--darkred-85);
     backdrop-filter: blur(8px);
     color: white;
     font-size: 0.65rem;

@@ -1,8 +1,12 @@
 <script lang="ts">
-  import { BookOpenCheck, SquareSigma, Sparkles, Telescope } from 'lucide-svelte';
+  import { Activity, Gem, Target } from 'lucide-svelte';
   import { onMount, onDestroy } from 'svelte';
+  import { t as _t, localeVersion } from '$lib/i18n';
+  let _rv = $derived($localeVersion);
+  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
-  let animate = false;
+  let animate = $state(false);
   let rafId: number | null = null;
 
   onMount(() => {
@@ -18,7 +22,6 @@
     }
   });
 </script>
-
 <header class="hero-section">
   <div class="hero-background">
     <!-- Bubbles and orbs removed for cleaner performance -->
@@ -30,32 +33,31 @@
     </div>
 
     <h1 class="hero-title">
-      <span class="title-gradient">BMI Calculator</span>
-      <Telescope class="Telescope sparkle-icon" />
+      <span class="title-gradient">{t('hero.title')}</span>
     </h1>
 
     <p class="hero-subtitle">
-      Explore the cosmos of your body — discover your balance under the stars.
+      {t('hero.subtitle')}
     </p>
 
     <div class="hero-features">
       <div class="feature">
-        <SquareSigma class="SquareSigma" />
-        <span>Accurate Calculations</span>
+        <Target class="Target" />
+        <span>{t('hero.feature1')}</span>
       </div>
       <div class="feature">
-        <BookOpenCheck class="BookOpenCheck" />
-        <span>Health Insights</span>
+        <Activity class="Activity" />
+        <span>{t('hero.feature2')}</span>
       </div>
       <div class="feature">
-        <Sparkles class="Sparkles" />
-        <span>Modern Design</span>
+        <Gem class="Gem" />
+        <span>{t('hero.feature3')}</span>
       </div>
     </div>
 
     <div class="hero-bottom">
       <p class="hero-bottom-text">
-        Stellar Edition 10.5
+        {t('hero.edition')}
       </p>
     </div>
   </div>
@@ -69,7 +71,7 @@
     transform: translateY(20px);
     transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
                 transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: opacity, transform;
+    /* will-change removed — browser auto-promotes during transition */
   }
 
   .hero-content.animate {

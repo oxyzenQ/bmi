@@ -1,56 +1,107 @@
-/* ── animation.css — Skeleton loading, shooting stars, gauge empty-state CTA, scroll-to-top, haptic feedback ── */
+/* ── animation.css — Skeleton loading, micro-interactions, shooting stars, gauge CTA, scroll-to-top, haptic feedback ── */
 /* ==============================
    REDUCED MOTION
-   Disable backdrop-filter for accessibility
+   Disable ANIMATIONS and TRANSITIONS for accessibility.
+   Bug #19 fix: Do NOT strip backdrop-filter here — visual effects
+   are not animations. Stripping backdrop-filter makes glass
+   containers fully transparent on mobile devices that have
+   prefers-reduced-motion enabled (e.g. iOS Reduce Motion).
    ============================== */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
 /* ==============================
       SKELETON LOADING STATES
+      Premium animated shimmer with staggered delays
       ============================== */
 .skeleton {
   position: relative;
   overflow: hidden;
-  background: var(--sd-55);
+  background: linear-gradient(
+    180deg,
+    var(--sd-40) 0%,
+    var(--sd-55) 50%,
+    var(--sd-40) 100%
+  );
+  background-size: 100% 200%;
   border-radius: 0.75rem;
+  animation: skeleton-breathe 2s ease-in-out infinite;
 }
 
+/* Shimmer sweep overlay */
 .skeleton::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    90deg,
+    105deg,
     transparent 0%,
-    var(--w-5) 20%,
-    var(--w-10) 40%,
-    var(--w-5) 60%,
-    transparent 100%
+    var(--w-3) 15%,
+    var(--w-8) 30%,
+    var(--w-3) 45%,
+    transparent 60%
   );
-  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+  animation: skeleton-shimmer 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   will-change: transform;
+}
+
+/* Gentle breathing pulse for depth */
+@keyframes skeleton-breathe {
+  0%, 100% {
+    background-position: 100% 0%;
+    opacity: 1;
+  }
+  50% {
+    background-position: 100% 100%;
+    opacity: 0.85;
+  }
 }
 
 @keyframes skeleton-shimmer {
   0% {
-    transform: translateX(-100%);
+    transform: translateX(-120%);
   }
   100% {
-    transform: translateX(100%);
+    transform: translateX(120%);
   }
 }
 
-/* Skeleton card container */
+/* Staggered delays for sequential skeleton lines */
+.skeleton-card > :nth-child(2) { animation-delay: 0.05s; }
+.skeleton-card > :nth-child(3) { animation-delay: 0.1s; }
+.skeleton-card > :nth-child(4) { animation-delay: 0.15s; }
+.skeleton-card > :nth-child(5) { animation-delay: 0.2s; }
+.skeleton-card > :nth-child(6) { animation-delay: 0.25s; }
+.skeleton-card > :nth-child(7) { animation-delay: 0.3s; }
+
+.skeleton-form > :nth-child(2) .skeleton::after { animation-delay: 0.05s; }
+.skeleton-form > :nth-child(3) .skeleton::after { animation-delay: 0.1s; }
+.skeleton-form > :nth-child(4) .skeleton::after { animation-delay: 0.15s; }
+
+/* Skeleton card container with subtle entrance */
 .skeleton-card {
   background: var(--k-50);
   border: var(--border-by-rezky);
   border-radius: 2rem;
   padding: clamp(1.5rem, 4vw, 2rem);
+  animation: skeleton-card-enter 0.4s ease-out;
+}
+
+@keyframes skeleton-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .skeleton-card .skeleton-line {
@@ -100,6 +151,16 @@
   height: 80px;
   border-radius: 50%;
   margin: 0 auto 1rem;
+  animation: skeleton-ring-pulse 2s ease-in-out infinite;
+}
+
+@keyframes skeleton-ring-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--w-5);
+  }
+  50% {
+    box-shadow: 0 0 12px 2px var(--w-8);
+  }
 }
 
 /* Skeleton form skeleton */
@@ -132,6 +193,22 @@
   height: 200px;
   border-radius: 50%;
   border: 4px solid var(--w-8);
+  animation: skeleton-ring-spin 3s linear infinite;
+}
+
+@keyframes skeleton-ring-spin {
+  0% {
+    border-color: var(--w-8);
+    box-shadow: inset 0 0 20px var(--w-5);
+  }
+  50% {
+    border-color: var(--w-14);
+    box-shadow: inset 0 0 20px var(--w-8);
+  }
+  100% {
+    border-color: var(--w-8);
+    box-shadow: inset 0 0 20px var(--w-5);
+  }
 }
 
 .skeleton-gauge .skeleton-bar {
@@ -146,6 +223,11 @@
   height: 0.75rem;
   border-radius: 0.375rem;
 }
+
+.skeleton-gauge .skeleton-bar span:nth-child(1)::after { animation-delay: 0s; }
+.skeleton-gauge .skeleton-bar span:nth-child(2)::after { animation-delay: 0.15s; }
+.skeleton-gauge .skeleton-bar span:nth-child(3)::after { animation-delay: 0.3s; }
+.skeleton-gauge .skeleton-bar span:nth-child(4)::after { animation-delay: 0.45s; }
 
 /* Skeleton results skeleton */
 .skeleton-results {
@@ -167,8 +249,153 @@
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .skeleton::after {
+  .skeleton::after,
+  .skeleton,
+  .skeleton-card,
+  .skeleton-card .skeleton-circle,
+  .skeleton-gauge .skeleton-ring {
     animation: none;
+  }
+}
+
+/* ==============================
+      MICRO-INTERACTIONS
+      Button ripple, input glow, card shine
+      ============================== */
+
+/* ── Button Ripple Effect ── */
+.btn,
+button,
+a.button {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--w-15) 0%,
+    var(--w-5) 40%,
+    transparent 70%
+  );
+  transform: scale(0);
+  animation: btn-ripple-expand 0.6s ease-out forwards;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes btn-ripple-expand {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* ── Input Focus Glow ── */
+.form-input {
+  transition: border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.form-input:focus {
+  border-color: var(--violet-50);
+  box-shadow:
+    0 0 0 3px var(--violet-15),
+    0 0 16px var(--violet-20),
+    inset 0 1px 2px var(--w-5);
+  background-color: var(--void-85);
+}
+
+.form-input:focus-visible {
+  outline: none;
+}
+
+/* ── Glass Card Shine Sweep on Hover ── */
+.bmi-card,
+.footer-disclaimer,
+.about-card,
+.gauge-container,
+.reference-table,
+.form-card {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Aurora shine sweep effect */
+.bmi-card::before,
+.footer-disclaimer::before,
+.about-card::before,
+.gauge-container::before,
+.reference-table::before,
+.form-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    var(--w-2) 45%,
+    var(--w-5) 50%,
+    var(--w-2) 55%,
+    transparent 60%
+  );
+  transform: translateX(-100%) rotate(15deg);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bmi-card:hover::before,
+.footer-disclaimer:hover::before,
+.about-card:hover::before,
+.gauge-container:hover::before,
+.reference-table:hover::before,
+.form-card:hover::before {
+  transform: translateX(50%) rotate(15deg);
+}
+
+/* ── Pager Tab Active Glow Indicator ── */
+.pager-tab.active {
+  box-shadow:
+    0 0 20px var(--violet-22),
+    0 0 6px var(--violet-15),
+    inset 0 -2px 0 var(--violet-25);
+}
+
+/* ── NotifyFloat Button Hover Lift ── */
+.notify-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* ── Action Button Subtle Glow (shadow removed for clean glass) ── */
+.action-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Reduced motion: disable all micro-interactions */
+@media (prefers-reduced-motion: reduce) {
+  .btn-ripple {
+    animation: none;
+    display: none;
+  }
+  .bmi-card::before,
+  .footer-disclaimer::before,
+  .about-card::before,
+  .gauge-container::before,
+  .reference-table::before,
+  .form-card::before {
+    transition: none;
+    display: none;
   }
 }
 
@@ -264,21 +491,21 @@ html:not([data-graphics='render']) .shooting-star {
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 1.25rem;
-  border: 1px solid var(--cosmic-purple);
+  border: 1px solid rgba(139, 92, 246, 0.22);
   border-radius: 9999px;
-  background: rgba(139, 92, 246, 0.12);
-  color: var(--aurora-core);
+  background: var(--bg-by-rezky);
+  color: white;
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
   letter-spacing: 0.02em;
+  box-shadow: none;
 }
 
 .gauge-cta-btn:hover {
-  background: rgba(139, 92, 246, 0.25);
+  background: var(--violet-25);
   border-color: var(--aurora-glow);
-  box-shadow: 0 0 16px var(--purple-30);
   transform: translateY(-1px);
 }
 
@@ -294,22 +521,23 @@ html:not([data-graphics='render']) .shooting-star {
   transform: scale(0.7);
   transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s ease, border-color 0.2s ease;
   pointer-events: none;
-  color: var(--w-40) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
 }
 
 .pager-btn-scroll-top.fab-visible {
   opacity: 1;
   transform: scale(1);
   pointer-events: auto;
-  color: var(--aurora-core) !important;
-  border-color: var(--cosmic-purple) !important;
-  background: rgba(139, 92, 246, 0.1) !important;
-  box-shadow: 0 0 14px var(--purple-25) !important;
+  color: white !important;
+  border-color: rgba(139, 92, 246, 0.18) !important;
+  background: var(--btn-bg) !important;
+  box-shadow: none !important;
 }
 
 .pager-btn-scroll-top.fab-visible:hover {
-  background: rgba(139, 92, 246, 0.22) !important;
-  box-shadow: 0 0 20px var(--purple-35) !important;
+  background: var(--btn-bg-hover) !important;
+  box-shadow: none !important;
+  color: white !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -328,4 +556,377 @@ html:not([data-graphics='render']) .shooting-star {
 .btn-haptic:active {
   transform: scale(0.96);
   transition: transform 0.08s ease;
+}
+
+/* ==============================
+      A-4: PROGRESS BAR (Phase 1)
+      Determinate progress indicator for async operations
+      (export, import, encryption). Uses micro-delay tokens.
+      ============================== */
+.bmi-progress {
+  width: 100%;
+  height: 4px;
+  background: var(--w-10);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: var(--space-3) 0;
+}
+
+.bmi-progress__fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--cosmic-purple), var(--aurora-glow));
+  transition: width var(--dur-normal) var(--easing-smooth);
+  position: relative;
+}
+
+/* Shimmer overlay on the progress fill */
+.bmi-progress__fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--w-15) 50%,
+    transparent 100%
+  );
+  animation: progress-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes progress-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Indeterminate variant for unknown-duration ops */
+.bmi-progress--indeterminate .bmi-progress__fill {
+  width: 40% !important;
+  animation: progress-indeterminate 1.4s ease-in-out infinite;
+}
+
+@keyframes progress-indeterminate {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(200%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ==============================
+      A-5: ENCRYPTION BADGE (Phase 2)
+      Visual trust indicator showing encryption status
+      and algorithm details.
+      ============================== */
+.bmi-encryption-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  background: var(--violet-12);
+  border: 1px solid var(--violet-22);
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--aurora-glow);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--easing-smooth),
+    border-color var(--dur-fast) var(--easing-smooth);
+}
+
+.bmi-encryption-badge:hover {
+  background: var(--violet-20);
+  border-color: var(--violet-32);
+}
+
+.bmi-encryption-badge__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: var(--cat-green-90);
+}
+
+.bmi-encryption-badge__label {
+  color: var(--w-70);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.7rem;
+}
+
+.bmi-encryption-badge__algo {
+  color: var(--aurora-glow);
+  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+  font-size: 0.6rem;
+}
+
+/* ==============================
+      A-6: ENHANCED EMPTY STATE (Phase 2)
+      Rich empty states with icon, description,
+      and CTA button instead of plain text.
+      ============================== */
+.bmi-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+
+.bmi-empty-state__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--w-6);
+  color: var(--w-30);
+  margin-bottom: var(--space-1);
+}
+
+.bmi-empty-state__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--w-70);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.bmi-empty-state__desc {
+  font-size: 0.82rem;
+  color: var(--w-40);
+  margin: 0;
+  line-height: 1.5;
+  max-width: 260px;
+}
+
+.bmi-empty-state__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--violet-22);
+  border-radius: var(--radius-pill);
+  background: var(--violet-12);
+  color: var(--aurora-glow);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--easing-smooth);
+  margin-top: var(--space-1);
+}
+
+.bmi-empty-state__cta:hover {
+  background: var(--violet-22);
+  border-color: var(--violet-34);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--violet-15);
+}
+
+.bmi-empty-state__cta:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* ==============================
+      A-7: DRAG & DROP ZONE (Phase 4)
+      Visual feedback for file drag-and-drop import.
+      ============================== */
+.bmi-drop-zone {
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+  border: 2px dashed var(--w-15);
+  border-radius: var(--radius-md);
+  padding: var(--space-5) var(--space-4);
+  text-align: center;
+  transition: all var(--dur-fast) var(--easing-smooth);
+  cursor: pointer;
+  background: transparent;
+}
+
+.bmi-drop-zone:hover {
+  border-color: var(--violet-25);
+  background: var(--violet-8);
+}
+
+.bmi-drop-zone--active {
+  border-color: var(--aurora-glow);
+  background: var(--violet-15);
+  box-shadow: 0 0 24px var(--violet-20),
+    inset 0 0 24px var(--violet-8);
+  transform: scale(1.01);
+}
+
+.bmi-drop-zone__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-2);
+  color: var(--w-30);
+}
+
+.bmi-drop-zone--active .bmi-drop-zone__icon {
+  color: var(--aurora-glow);
+}
+
+.bmi-drop-zone__text {
+  font-size: 0.85rem;
+  color: var(--w-50);
+  font-weight: 500;
+}
+
+.bmi-drop-zone--active .bmi-drop-zone__text {
+  color: var(--aurora-glow);
+}
+
+.bmi-drop-zone__subtext {
+  font-size: 0.75rem;
+  color: var(--w-30);
+  margin-top: var(--space-1);
+}
+
+/* ==============================
+      A-8: EXPORT SUMMARY (Phase 2)
+      Summary card shown after successful export
+      showing record count, encryption status, format.
+      ============================== */
+.bmi-export-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--w-6);
+  border: 1px solid var(--w-12);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-2);
+  margin-bottom: 0;
+}
+
+.bmi-export-summary__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+}
+
+.bmi-export-summary__key {
+  color: var(--w-40);
+  font-weight: 500;
+}
+
+.bmi-export-summary__val {
+  color: var(--w-80);
+  font-weight: 600;
+}
+
+.bmi-export-summary__val--encrypted {
+  color: var(--cat-green-90);
+}
+
+/* ==============================
+      A-9: STRONG WARNING (Phase 2)
+      Prominent warning block for destructive actions.
+      ============================== */
+.bmi-strong-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.20);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-4);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.bmi-strong-warning__icon {
+  color: var(--warn-amber);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.bmi-strong-warning__text {
+  color: var(--w-70);
+}
+
+.bmi-strong-warning__text strong {
+  color: var(--cat-amber-solid);
+  font-weight: 600;
+}
+
+/* ==============================
+      STAGING SPINNER OVERLAY
+      Full-screen loading overlay shown before/after modals
+      ============================== */
+.staging-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.80);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+  z-index: 10001;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-width: 100vw;
+}
+
+.staging-backdrop.staging-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.staging-spinner-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.staging-gear-icon {
+  color: var(--w-50);
+  animation: spin 1.6s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(128, 0, 255, 0.3));
+}
+
+.staging-text {
+  color: var(--w-70);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Global spin keyframe — used by staging gear icon and other spinners.
+   Defined here (not scoped) so all components can reference it.
+   Loading indicators are FUNCTIONAL (not decorative), so they must
+   always animate — even when prefers-reduced-motion is enabled. */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Override reduced-motion for functional loading spinners.
+   iOS and many mobile browsers enable prefers-reduced-motion by default,
+   which would kill all animations including loading indicators.
+   The gear spinner communicates "system is working" — it must move. */
+@media (prefers-reduced-motion: reduce) {
+  .staging-gear-icon {
+    animation-duration: 1.6s !important;
+    animation-iteration-count: infinite !important;
+  }
+  .btn-spinner {
+    animation-duration: 0.8s !important;
+    animation-iteration-count: infinite !important;
+  }
 }

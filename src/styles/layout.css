@@ -1,9 +1,10 @@
-/* ── layout.css — Keyboard shortcuts modal, cosmic particles, footer, misc utility classes ── */
+/* ── layout.css — Cosmic particles, footer, misc utility classes ── */
 /* ==============================
       ABOUT BMI SECTION
   ============================== */
 .section-header-v2 {
   margin-top: clamp(40px, 40vh, 120px) !important;
+  border-radius: var(--radius-lg);
 }
 
 .main-container .section-header-v2 {
@@ -55,7 +56,7 @@
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  will-change: transform, box-shadow;
+  will-change: auto;
   contain: layout style paint;
 }
 
@@ -90,7 +91,7 @@
 }
 
 .about-card p {
-  color: #f5f5f5;
+  color: var(--text-secondary-bright);
   font-size: 1rem;
   line-height: 1.7;
   margin-bottom: 1rem;
@@ -102,51 +103,6 @@
 
 .about-card p:last-child {
   margin-bottom: 0;
-}
-
-/* ==============================
-      KEYBOARD SHORTCUTS (C-4)
-      ============================== */
-.shortcuts-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.shortcut-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.shortcut-keys {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  flex-shrink: 0;
-}
-
-.shortcut-keys kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 28px;
-  height: 28px;
-  padding: 0 6px;
-  border-radius: 6px;
-  border: 1px solid var(--w-18);
-  background: linear-gradient(180deg, var(--w-10), var(--w-4));
-  color: var(--w-90);
-  font-family: 'JetBrains Mono Variable', monospace;
-  font-size: 0.7rem;
-  font-weight: 600;
-  line-height: 1;
-  box-shadow: 0 2px 0 var(--k-30);
-}
-
-.shortcut-desc {
-  color: var(--w-70);
-  font-size: 0.875rem;
 }
 
 /* ==============================
@@ -181,17 +137,6 @@ html:not([data-graphics='render']) .plasma-star {
   animation-play-state: paused !important;
 }
 
-html:not([data-graphics='render']) body.is-scrolling .cosmic-particles,
-html:not([data-graphics='render']) body.is-switching .cosmic-particles {
-  display: none !important;
-}
-
-html:not([data-graphics='render']) body.is-scrolling .cosmic-particles .cosmic-particle,
-html:not([data-graphics='render']) body.is-switching .cosmic-particles .cosmic-particle {
-  animation-play-state: paused !important;
-  filter: none !important;
-}
-
 .cosmic-particles .cosmic-particle {
   position: absolute;
   top: -10vh;
@@ -213,7 +158,8 @@ html:not([data-graphics='render']) body.is-switching .cosmic-particles .cosmic-p
   animation-delay: var(--delay, 0s);
   animation-timing-function: ease-out;
   animation-iteration-count: infinite;
-  will-change: transform, opacity;
+  /* will-change applied only when NOT scrolling — see responsive.css R-9 */
+  will-change: auto;
   /* Rain drop shape - thin and tall */
   width: 2px !important;
   height: 24px !important;
@@ -256,19 +202,19 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 }
 
 .plasma-star.star-1 {
-  color: #60a5fa;
+  color: var(--cat-blue-solid);
   filter: drop-shadow(0 0 6px var(--blue-50));
   /* animation removed for GPU performance */
 }
 
 .plasma-star.star-2 {
-  color: #3b82f6;
+  color: var(--cat-blue-deep);
   filter: drop-shadow(0 0 6px var(--coreblue-50));
   /* animation removed for GPU performance */
 }
 
 .plasma-star.star-3 {
-  color: #8b5cf6;
+  color: var(--cosmic-purple);
   filter: drop-shadow(0 0 6px var(--violet-50));
   /* animation removed for GPU performance */
 }
@@ -290,7 +236,7 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 }
 
 .footer-disclaimer p {
-  color: #f5f5f5;
+  color: var(--text-secondary-bright);
   font-size: 1rem;
   line-height: 1.7;
   margin-bottom: 1rem;
@@ -344,9 +290,8 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 
 .github-link:hover {
   color: var(--accent-blue);
-  background: color-mix(in oklab, var(--accent-blue) 12%, transparent);
-  border-color: color-mix(in oklab, var(--accent-blue) 30%, transparent);
+  background: var(--coreblue-12);
+  border-color: var(--coreblue-30);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px color-mix(in oklab, var(--accent-blue) 15%, transparent);
+  box-shadow: 0 8px 24px var(--coreblue-15);
 }
-

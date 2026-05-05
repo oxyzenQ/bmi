@@ -1,93 +1,102 @@
 <script lang="ts">
   import { FileChartColumn, Info, AlertTriangle, CheckCircle, TrendingUp, Activity } from 'lucide-svelte';
+  import { t as _t, localeVersion } from '$lib/i18n';
+  let _rv = $derived($localeVersion);
+  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
-  const bmiCategories = [
+  // Reactive bmiCategories — $derived.by() reads _rv so it re-evaluates on locale change.
+  // Uses stable `key` for identity/comparisons (not translated text which would break class: bindings).
+  let bmiCategories = $derived.by(() => [
     {
-      category: 'Underweight',
-      range: '< 18.5',
-      status: 'May increase health risks',
-      statusColor: '#60a5fa',
+      key: 'underweight' as const,
+      category: t('ref.underweight'),
+      range: t('ref.underweight_range'),
+      status: t('ref.underweight_status'),
+      statusColor: 'var(--cat-blue-solid)',
       icon: AlertTriangle,
       iconClass: 'AlertTriangle2',
       subcategories: [
-        { range: '< 16.0', description: 'Severely underweight' },
-        { range: '16.0 - 16.9', description: 'Moderately underweight' },
-        { range: '17.0 - 18.4', description: 'Mildly underweight' }
+        { range: '< 16.0', description: t('ref.severely_underweight') },
+        { range: '16.0 - 16.9', description: t('ref.moderately_underweight') },
+        { range: '17.0 - 18.4', description: t('ref.mildly_underweight') }
       ],
-      recommendation: 'Increase caloric intake & consult nutritionist'
+      recommendation: t('ref.underweight_action')
     },
     {
-      category: 'Normal Weight',
-      range: '18.5 - 24.9',
-      status: 'Optimal health range',
-      statusColor: '#10b981',
+      key: 'normal' as const,
+      category: t('ref.normal'),
+      range: t('ref.normal_range'),
+      status: t('ref.normal_status'),
+      statusColor: 'var(--emerald-solid)',
       icon: CheckCircle,
       iconClass: 'CheckCircle',
       subcategories: [
-        { range: '18.5 - 22.9', description: 'Lower normal range' },
-        { range: '23.0 - 24.9', description: 'Upper normal range' }
+        { range: '18.5 - 22.9', description: t('ref.lower_normal') },
+        { range: '23.0 - 24.9', description: t('ref.upper_normal') }
       ],
-      recommendation: 'Continue balanced diet & maintain activity'
+      recommendation: t('ref.normal_action')
     },
     {
-      category: 'Overweight',
-      range: '25.0 - 29.9',
-      status: 'Increased health risks',
-      statusColor: '#ffff00',
+      key: 'overweight' as const,
+      category: t('ref.overweight'),
+      range: t('ref.overweight_range'),
+      status: t('ref.overweight_status'),
+      statusColor: 'var(--warn-yellow)',
       icon: TrendingUp,
       iconClass: 'TrendingUp',
       subcategories: [
-        { range: '25.0 - 27.4', description: 'Pre-obese' },
-        { range: '27.5 - 29.9', description: 'Overweight' }
+        { range: '25.0 - 27.4', description: t('ref.pre_obese') },
+        { range: '27.5 - 29.9', description: t('ref.overweight_label') }
       ],
-      recommendation: 'Reduce caloric intake, start moderate exercise'
+      recommendation: t('ref.overweight_action')
     },
     {
-      category: 'Obese',
-      range: '≥ 30.0',
-      status: 'High health risks',
-      statusColor: '#ef4444',
+      key: 'obese' as const,
+      category: t('ref.obese'),
+      range: t('ref.obese_range'),
+      status: t('ref.obese_status'),
+      statusColor: 'var(--red-500-solid)',
       icon: Activity,
       iconClass: 'Activity',
       subcategories: [
-        { range: '30.0 - 34.9', description: 'Class I obesity' },
-        { range: '35.0 - 39.9', description: 'Class II obesity' },
-        { range: '≥ 40.0', description: 'Class III obesity' }
+        { range: '30.0 - 34.9', description: t('ref.class_i') },
+        { range: '35.0 - 39.9', description: t('ref.class_ii') },
+        { range: '≥ 40.0', description: t('ref.class_iii') }
       ],
-      recommendation: 'Seek medical advice for weight management'
+      recommendation: t('ref.obese_action')
     }
-  ];
+  ]);
 </script>
-
 <div class="bmi-card reference-table">
   <div class="ref-card">
     <div class="header-icon">
       <FileChartColumn class="FileChartColumn" />
     </div>
     <div>
-      <div class="title">BMI Reference Chart</div>
-      <div class="subtitle">Understanding BMI categories and ranges for your cosmic health journey.</div>
+      <div class="title">{t('ref.title')}</div>
+      <div class="subtitle">{t('ref.subtitle')}</div>
     </div>
   </div>
 
   <div class="ref-header">
-    <div>Category</div>
-    <div>BMI Range</div>
-    <div>Health Status</div>
-    <div>Recommended Action</div>
+    <div>{t('ref.col_category')}</div>
+    <div>{t('ref.col_range')}</div>
+    <div>{t('ref.col_status')}</div>
+    <div>{t('ref.col_action')}</div>
   </div>
 
   <div class="ref-body">
-    {#each bmiCategories as category (category.category)}
+    {#each bmiCategories as category (category.key)}
       {@const Icon = category.icon}
       <div
         class="ref-row"
-        class:ref-row-underweight={category.category === 'Underweight'}
-        class:ref-row-normal={category.category === 'Normal Weight'}
-        class:ref-row-overweight={category.category === 'Overweight'}
-        class:ref-row-obese={category.category === 'Obese'}
+        class:ref-row-underweight={category.key === 'underweight'}
+        class:ref-row-normal={category.key === 'normal'}
+        class:ref-row-overweight={category.key === 'overweight'}
+        class:ref-row-obese={category.key === 'obese'}
       >
-        <div class="ref-col" data-label="Category">
+        <div class="ref-col" data-label={t('ref.col_category')}>
           <div class="icon-col">
             <Icon class={category.iconClass} style={`color: ${category.statusColor}`} />
             <strong>{category.category}</strong>
@@ -101,13 +110,13 @@
             {/each}
           </div>
         </div>
-        <div class="ref-col" data-label="BMI Range">
+        <div class="ref-col" data-label={t('ref.col_range')}>
           <strong>{category.range}</strong>
         </div>
-        <div class="ref-col" data-label="Health Status">
+        <div class="ref-col" data-label={t('ref.col_status')}>
           <span class="status-text" style={`color: ${category.statusColor}`}>{category.status}</span>
         </div>
-        <div class="ref-col" data-label="Recommended Action">
+        <div class="ref-col" data-label={t('ref.col_action')}>
           <span>{category.recommendation}</span>
         </div>
       </div>
@@ -117,9 +126,7 @@
   <div class="ref-card" style="border-top: 1px solid var(--w-8);">
     <Info class="Info2" />
     <p class="subtitle" style="margin: 0;">
-      <strong>Note:</strong> BMI is a screening tool and should not be used as a sole diagnostic method.
-      Individual factors like muscle mass, bone density, and overall health should be considered.
-      Always consult healthcare professionals for personalized guidance.
+      {t('ref.disclaimer')}
     </p>
   </div>
 </div>

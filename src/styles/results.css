@@ -4,7 +4,7 @@
       ============================== */
 .bmi-results-card {
   padding: 2.5rem;
-  border-radius: 1.5rem;
+  border-radius: var(--radius-lg);
   position: relative;
   overflow: hidden;
   min-height: 450px;
@@ -34,20 +34,6 @@
   margin-bottom: 1rem;
 }
 
-.icon-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60px;
-  height: 60px;
-  background: var(--atmosphere-horizon);
-  border-radius: 50%;
-  /* Reduced blur from 15px to 8px for GPU performance */
-  filter: blur(8px);
-  /* animation removed for GPU performance */
-  opacity: 0.7;
-}
 
 /* Elegant gradient text utility using theme vars */
 .text-gradient-elegant {
@@ -158,13 +144,13 @@
 }
 
 .advice-text {
-  color: #d1d5db;
+  color: var(--text-tertiary);
   line-height: 1.6;
 }
 
 .age-advisory {
-  background: color-mix(in oklab, var(--accent-blue) 12%, transparent);
-  border: 1px solid color-mix(in oklab, var(--accent-blue) 22%, transparent);
+  background: var(--coreblue-12);
+  border: 1px solid var(--coreblue-22);
   border-radius: 1rem;
   padding: 1.75rem;
   margin-bottom: 1.75rem;
@@ -173,10 +159,10 @@
 }
 
 .age-advisory:hover {
-  background: color-mix(in oklab, var(--accent-blue) 16%, transparent);
-  border-color: color-mix(in oklab, var(--accent-blue) 32%, transparent);
+  background: var(--coreblue-16);
+  border-color: var(--coreblue-32);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px color-mix(in oklab, var(--accent-blue) 16%, transparent);
+  box-shadow: 0 8px 25px var(--coreblue-16);
 }
 
 @keyframes slideInRight {
@@ -202,14 +188,14 @@
 }
 
 .advisory-text {
-  color: #d1d5db;
+  color: var(--text-tertiary);
   line-height: 1.6;
   font-size: 0.875rem;
 }
 
 .bmi-explanation {
   background: var(--sd-40);
-  border-radius: 1rem;
+  border-radius: var(--radius-md);
   padding: 1.75rem;
   border: 1px solid var(--w-5);
   animation: fadeInUp 0.6s var(--easing-smooth) 0.8s both;
@@ -231,7 +217,7 @@
 }
 
 .explanation-text {
-  color: #d1d5db;
+  color: var(--text-tertiary);
   line-height: 1.6;
   font-size: 0.875rem;
 }
@@ -250,29 +236,24 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 0.85rem;
-  border-radius: 10px;
-  border: 1px solid color-mix(in oklab, var(--aurora-core) 22%, var(--w-14));
+  border-radius: var(--btn-radius);
+  border: 1px solid rgba(139, 92, 246, 0.22);
   background: var(--bg-by-rezky);
   color: white;
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
   flex: 1;
   justify-content: center;
-  box-shadow: 0 8px 20px var(--k-45),
-    inset 0 1px 0 var(--w-8),
-    0 0 16px color-mix(in oklab, var(--cosmic-purple) 24%, transparent);
+  box-shadow: none;
 }
 
 .action-btn:hover {
   background: var(--bg-last-by-rezky);
-  border-color: color-mix(in oklab, var(--aurora-core) 34%, var(--w-16));
+  border-color: rgba(139, 92, 246, 0.34);
   color: white;
   transform: translateY(-1px);
-  box-shadow: 0 12px 28px var(--k-55),
-    inset 0 1px 0 var(--w-10),
-    0 0 24px color-mix(in oklab, var(--cosmic-purple) 30%, transparent);
 }
 
 .action-btn:active {
@@ -284,7 +265,7 @@
   text-align: center;
   padding: 0.5rem;
   font-size: 0.75rem;
-  color: #00C853;
+  color: var(--cat-green-toast);
   font-weight: 600;
   animation: toastFade 0.25s ease;
 }
@@ -293,4 +274,3 @@
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
-

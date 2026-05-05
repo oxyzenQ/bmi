@@ -1,9 +1,25 @@
 <script lang="ts">
-  import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame } from 'lucide-svelte';
-  import { exportBmiHistory, validateBmiImport } from '$lib/utils/history-io';
+  import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame, FileSpreadsheet, Settings } from 'lucide-svelte';
+  import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport, importBmiHistory, peekImportMeta, MAX_IMPORT_SIZE, type ImportFileMeta, type ImportError } from '$lib/utils/history-io';
+  import { STORAGE_KEYS, storageGetJSON } from '$lib/utils/storage';
+  import { tick } from 'svelte';
+  import { t as _t, localeVersion } from '$lib/i18n';
+  import EncryptionModal from './EncryptionModal.svelte';
+  import FeedbackModal from './FeedbackModal.svelte';
+  let _rv = $derived($localeVersion);
+  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
   type Gender = 'male' | 'female' | '';
   type Activity = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active' | '';
+
+  interface ImportNotifyResult {
+    action: 'import-validate' | 'import-error';
+    text?: string;
+    recordCount?: number;
+    integrityVerified?: boolean;
+    error?: string;
+  }
 
   interface Props {
     age?: string;
@@ -34,27 +50,27 @@
   // via bind:unitSystem. Do NOT read/write localStorage here — it causes
   // a race condition where child overwrites parent's value on mount.
 
-  // Activity level metadata
-  const activityLevels: { value: Activity; label: string; factor: number }[] = [
-    { value: 'sedentary', label: 'Sedentary', factor: 1.2 },
-    { value: 'light', label: 'Light', factor: 1.375 },
-    { value: 'moderate', label: 'Moderate', factor: 1.55 },
-    { value: 'active', label: 'Active', factor: 1.725 },
-    { value: 'very_active', label: 'Very Active', factor: 1.9 }
-  ];
+  // Activity level metadata — reactive so labels update on locale change
+  let activityLevels = $derived([
+    { value: 'sedentary' as Activity, label: t('form.sedentary'), factor: 1.2 },
+    { value: 'light' as Activity, label: t('form.light'), factor: 1.375 },
+    { value: 'moderate' as Activity, label: t('form.moderate'), factor: 1.55 },
+    { value: 'active' as Activity, label: t('form.active'), factor: 1.725 },
+    { value: 'very_active' as Activity, label: t('form.very_active'), factor: 1.9 }
+  ]);
 
   // Derived unit-specific labels, placeholders, and validation bounds
-  let heightLabel = $derived(unitSystem === 'metric' ? 'Height (cm)' : 'Height (in)');
-  let weightLabel = $derived(unitSystem === 'metric' ? 'Weight (kg)' : 'Weight (lbs)');
-  let heightExample = $derived(unitSystem === 'metric' ? 'e.g., 170' : 'e.g., 66');
-  let weightExample = $derived(unitSystem === 'metric' ? 'e.g., 70.5' : 'e.g., 154');
-  let heightAriaLabel = $derived(unitSystem === 'metric' ? 'Height in centimeters' : 'Height in inches');
-  let weightAriaLabel = $derived(unitSystem === 'metric' ? 'Weight in kilograms' : 'Weight in pounds');
+  let heightLabel = $derived(unitSystem === 'metric' ? t('form.height_metric') : t('form.height_imperial'));
+  let weightLabel = $derived(unitSystem === 'metric' ? t('form.weight_metric') : t('form.weight_imperial'));
+  let heightExample = $derived(unitSystem === 'metric' ? t('form.height_placeholder_metric') : t('form.height_placeholder_imperial'));
+  let weightExample = $derived(unitSystem === 'metric' ? t('form.weight_placeholder_metric') : t('form.weight_placeholder_imperial'));
+  let heightAriaLabel = $derived(unitSystem === 'metric' ? t('form.height_aria_metric') : t('form.height_aria_imperial'));
+  let weightAriaLabel = $derived(unitSystem === 'metric' ? t('form.weight_aria_metric') : t('form.weight_aria_imperial'));
   let heightErrorText = $derived(
-    unitSystem === 'metric' ? 'Height must be between 1-300 cm.' : 'Height must be between 1-120 in.'
+    unitSystem === 'metric' ? t('form.height_error_metric') : t('form.height_error_imperial')
   );
   let weightErrorText = $derived(
-    unitSystem === 'metric' ? 'Weight must be between 1-1000 kg.' : 'Weight must be between 1-1500 lbs.'
+    unitSystem === 'metric' ? t('form.weight_error_metric') : t('form.weight_error_imperial')
   );
   let heightMax = $derived(unitSystem === 'metric' ? 300 : 120);
   let weightMax = $derived(unitSystem === 'metric' ? 1000 : 1500);
@@ -79,6 +95,7 @@
   let ageInputEl: HTMLInputElement;
   let heightInputEl: HTMLInputElement;
   let weightInputEl: HTMLInputElement;
+  let fileInputEl: HTMLInputElement | null = $state(null);
 
   let {
     parsedAge,
@@ -132,15 +149,37 @@
     onClear();
   }
 
-  // Export / Import history
-  let fileInputEl: HTMLInputElement | undefined = $state();
 
-  interface ImportNotifyResult {
-    action: 'import-validate' | 'import-error';
-    text?: string;
-    recordCount?: number;
-    checksumVerified?: boolean;
-    error?: string;
+  // Encryption modal state
+  let showEncryptModal = $state(false);
+  let encryptModalMode = $state<'export' | 'import'>('export');
+  let encryptError = $state('');
+  let encryptErrorCode = $state<string | undefined>(undefined);
+  let pendingImportText = $state('');
+  let pendingImportMeta = $state<ImportFileMeta | undefined>(undefined);
+  let exportRecordCount = $state(0);
+
+  // Staging spinner overlay (shown before/after modal transitions)
+  let stagingLoading = $state(false);
+  const STAGING_DELAY = 1500;
+  const STAGING_POST_DELAY = 800;
+
+  // Feedback modal state (blocking confirmation)
+  let showFeedbackModal = $state(false);
+  let feedbackType = $state<'success' | 'error'>('success');
+  let feedbackMessage = $state('');
+
+  /**
+   * Svelte action: portal the element to document.body.
+   * Escapes ancestor containing-block created by backdrop-filter / transform.
+   */
+  function portal(node: HTMLElement): { destroy(): void } {
+    document.body.appendChild(node);
+    return {
+      destroy() {
+        node.remove();
+      }
+    };
   }
 
   function formatDate(): string {
@@ -151,9 +190,37 @@
     return `${y}-${m}-${d}`;
   }
 
-  async function handleExport() {
-    const json = await exportBmiHistory();
-    if (!json) return;
+  async function handleExportClick() {
+    // Read current history count from storage for export summary
+    const history = storageGetJSON<Array<unknown>>(STORAGE_KEYS.HISTORY, []);
+    exportRecordCount = Array.isArray(history) ? history.length : 0;
+    encryptModalMode = 'export';
+    encryptError = '';
+    encryptErrorCode = undefined;
+
+    // Show staging spinner before opening modal
+    stagingLoading = true;
+    await tick();
+    await new Promise(r => setTimeout(r, STAGING_DELAY));
+    stagingLoading = false;
+
+    showEncryptModal = true;
+  }
+
+  async function handleExportConfirm(passphrase: string) {
+    const json = await exportBmiHistory(passphrase);
+    if (!json) {
+      encryptError = t('crypto.export_failed');
+      return;
+    }
+    showEncryptModal = false;
+
+    // Brief staging spinner after export completes
+    stagingLoading = true;
+    await tick();
+    await new Promise(r => setTimeout(r, STAGING_POST_DELAY));
+    stagingLoading = false;
+
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -165,64 +232,264 @@
     URL.revokeObjectURL(url);
   }
 
+  function handleExportCsv() {
+    const csv = exportBmiHistoryCsv();
+    if (!csv) return;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bmi-history-${formatDate()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   function handleImportClick() {
+    // Open file picker directly — browser requires synchronous call within
+    // user gesture. Spinner shows AFTER dialog closes (in handleFileInputChange
+    // → handleFileChange via await tick()).
     fileInputEl?.click();
   }
 
+  function processFile(file: File) {
+    // Reuse the existing file processing logic
+    const fakeEvent = { target: { files: [file] } } as unknown as Event;
+    handleFileChange(fakeEvent);
+  }
+
+  function handleDropZoneClick() {
+    // Same as handleImportClick — spinner shows after dialog closes.
+    fileInputEl?.click();
+  }
+
+  function handleFileInputChange(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file) {
+      // File selected — show spinner during processing.
+      // handleFileChange will call await tick() first so the DOM
+      // actually renders the gear overlay before any heavy work.
+      stagingLoading = true;
+      processFile(file);
+    }
+    input.value = ''; // Reset so same file can be re-selected
+  }
+
+  /** Map ImportError code → i18n key for user-friendly FeedbackModal message */
+  function importErrorKey(code: ImportError): string {
+    const map: Record<ImportError, string> = {
+      empty_file: 'history.empty_file',
+      file_too_large: 'history.file_too_large',
+      invalid_json: 'history.invalid_json',
+      invalid_format: 'history.invalid_format',
+      unsupported_version: 'history.unsupported_version',
+      encrypted_no_passphrase: 'history.encrypted_no_passphrase',
+      wrong_passphrase: 'history.wrong_passphrase',
+      corrupted_file: 'history.corrupted_file',
+      no_valid_records: 'history.no_valid_records',
+      integrity_failed: 'history.integrity_failed',
+      save_failed: 'history.save_failed',
+    };
+    return map[code] ?? 'form.import_failed';
+  }
+
   async function handleFileChange(e: Event) {
-    const input = e.currentTarget as HTMLInputElement;
+    const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
+
+    // ── File size guards ──
+    if (file.size === 0) {
+      stagingLoading = false;
+      onNotify?.({
+        action: 'import-error',
+        error: t('history.empty_file')
+      });
+      return;
+    }
+    if (file.size > MAX_IMPORT_SIZE) {
+      stagingLoading = false;
+      onNotify?.({
+        action: 'import-error',
+        error: t('history.file_too_large')
+      });
+      return;
+    }
+
     try {
+      // Let the browser render the staging spinner overlay before
+      // doing any async I/O (file.text, crypto import, validation).
+      await tick();
       const text = await file.text();
+
+      // Check if file is encrypted
+      const { isEncrypted } = await import('$lib/utils/crypto');
+      if (isEncrypted(text)) {
+        pendingImportText = text;
+        pendingImportMeta = peekImportMeta(text);
+        encryptModalMode = 'import';
+        encryptError = '';
+        encryptErrorCode = undefined;
+
+        // Show staging spinner before opening modal
+        stagingLoading = true;
+        await tick();
+        await new Promise(r => setTimeout(r, STAGING_DELAY));
+        stagingLoading = false;
+
+        showEncryptModal = true;
+        return;
+      }
+
+      // Normal unencrypted validation
       const validation = await validateBmiImport(text);
 
       if (validation.valid && validation.recordCount) {
+        stagingLoading = false;
         onNotify?.({
           action: 'import-validate',
           text,
           recordCount: validation.recordCount,
-          checksumVerified: validation.checksumVerified ?? false
+          integrityVerified: validation.integrityVerified ?? false
         });
       } else {
+        // Notify parent to show error via NotifyFloat (single source of truth)
+        stagingLoading = false;
+        const code = validation.errorCode ?? 'invalid_format';
         onNotify?.({
           action: 'import-error',
-          error: validation.error || 'Import failed. Please check the file format.'
+          error: t(importErrorKey(code))
         });
       }
     } catch {
+      // Notify parent to show error via NotifyFloat
+      stagingLoading = false;
       onNotify?.({
         action: 'import-error',
-        error: 'Could not read the file.'
+        error: t('form.could_not_read')
       });
     }
-    input.value = '';
+  }
+
+  async function handleImportConfirm(passphrase: string) {
+    // Guard: prevent duplicate modal triggers
+    if (showFeedbackModal) return;
+
+    // Import with passphrase - will decrypt if needed
+    const result = await importBmiHistory(pendingImportText, passphrase);
+
+    if (result.success) {
+      // Close encryption modal first
+      showEncryptModal = false;
+      pendingImportText = '';
+      pendingImportMeta = undefined;
+      encryptError = '';
+      encryptErrorCode = undefined;
+
+      // Brief staging spinner after import completes
+      stagingLoading = true;
+      await tick();
+      await new Promise(r => setTimeout(r, STAGING_POST_DELAY));
+      stagingLoading = false;
+
+      // Show success feedback modal (blocking)
+      feedbackType = 'success';
+      feedbackMessage = t('history.import_success', { count: result.count });
+      showFeedbackModal = true;
+
+      // Also notify parent for any additional UI updates
+      onNotify?.({
+        action: 'import-validate',
+        text: '',
+        recordCount: result.count,
+        integrityVerified: result.integrityVerified ?? false
+      });
+    } else {
+      // Show error inline in EncryptionModal for immediate retry
+      const code = result.errorCode ?? 'invalid_format';
+      encryptError = t(importErrorKey(code));
+      encryptErrorCode = code;
+      return;
+    }
+  }
+
+  function handleFeedbackClose() {
+    showFeedbackModal = false;
+    feedbackMessage = '';
+  }
+
+  function handleModalCancel() {
+    showEncryptModal = false;
+    pendingImportText = '';
+    pendingImportMeta = undefined;
+    encryptError = '';
+    encryptErrorCode = undefined;
+  }
+
+  // ── Drag & Drop import (Phase 4: UX Upgrade) ──
+  let isDragOver = $state(false);
+
+  function handleDragOver(e: DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer?.types.includes('Files')) {
+      isDragOver = true;
+    }
+  }
+
+  function handleDragLeave(e: DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    isDragOver = false;
+  }
+
+  function handleDrop(e: DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    isDragOver = false;
+    const file = e.dataTransfer?.files?.[0];
+    if (!file) return;
+    processImportFile(file);
+  }
+
+  function processImportFile(file: File) {
+    if (file.size === 0) {
+      onNotify?.({ action: 'import-error', error: t('history.empty_file') });
+      return;
+    }
+    if (file.size > MAX_IMPORT_SIZE) {
+      onNotify?.({ action: 'import-error', error: t('history.file_too_large') });
+      return;
+    }
+    // Reuse the existing file processing logic
+    const fakeEvent = { target: { files: [file] } } as unknown as Event;
+    handleFileChange(fakeEvent);
   }
 </script>
-
 <div class="form-inner">
   <div class="card-header">
     <div class="icon-container">
       <Orbit class="Orbit" />
-      <div class="icon-glow"></div>
     </div>
-    <h2 class="card-title">BMI Calculator</h2>
+    <h2 class="card-title">{t('form.title')}</h2>
 
     <div class="status-row">
       <span
         class="pill-indicator"
         tabindex="0"
         role="button"
-        aria-label={canCalculate ? 'Inputs valid. Ready to calculate.' : 'Incomplete inputs. Enter age, height and weight.'}
+        aria-label={canCalculate ? t('form.ready_aria') : t('form.incomplete_aria')}
         data-color={canCalculate ? 'green' : 'grey'}
       >
         <span class="dot" aria-hidden="true"></span>
-        {canCalculate ? 'Ready' : 'Enter all fields'}
+        {canCalculate ? t('form.ready') : t('form.enter_all')}
       </span>
     </div>
   </div>
 
-  <div class="unit-toggle" role="radiogroup" aria-label="Unit system">
+  <div class="unit-toggle" role="radiogroup" aria-label={t('form.unit_system_aria')}>
     <button
       type="button"
       class="unit-toggle-segment"
@@ -232,7 +499,7 @@
       onclick={() => { unitSystem = 'metric'; height = ''; weight = ''; }}
     >
       <ArrowLeftRight size={14} aria-hidden="true" />
-      Metric (kg/cm)
+      {t('form.metric')}
     </button>
     <button
       type="button"
@@ -242,7 +509,7 @@
       aria-checked={unitSystem === 'imperial'}
       onclick={() => { unitSystem = 'imperial'; height = ''; weight = ''; }}
     >
-      Imperial (lb/in)
+      {t('form.imperial')}
     </button>
   </div>
 
@@ -250,7 +517,7 @@
     <div class="input-group">
       <label for="age" class="input-label">
         <User class="User" />
-        Age (years)
+        {t('form.age_label')}
       </label>
       <input
         type="text"
@@ -260,13 +527,13 @@
         class="form-input"
         inputmode="numeric"
         pattern="[0-9]*"
-        placeholder="e.g., 25"
-        aria-label="Age in years"
+        placeholder={t('form.age_placeholder')}
+        aria-label={t('form.age_aria')}
         aria-invalid={age !== '' && !ageValid}
         oninput={handleAgeInput}
       />
       {#if age !== '' && !ageValid}
-        <div class="input-error" role="alert">Please enter a valid age between 1 and 120.</div>
+        <div class="input-error" role="alert">{t('form.age_error')}</div>
       {/if}
     </div>
 
@@ -282,12 +549,20 @@
         bind:value={height}
         class="form-input"
         inputmode="decimal"
-        placeholder={ageValid ? heightExample : 'Enter age first'}
+        placeholder={ageValid ? heightExample : t('form.enter_age_first')}
         aria-label={heightAriaLabel}
         aria-invalid={height !== '' && !heightValid}
         disabled={!ageValid}
         aria-disabled={!ageValid}
-        onfocus={() => { if (!ageValid) ageInputEl?.focus(); }}
+        onfocus={() => {
+          if (!ageValid) {
+            // On touch devices, don't steal focus — just show the disabled state
+            // to avoid keyboard flash/jank from focus redirect
+            if (!window.matchMedia('(hover: none)').matches) {
+              ageInputEl?.focus();
+            }
+          }
+        }}
         oninput={handleHeightInput}
       />
       {#if height !== '' && !heightValid}
@@ -307,12 +582,18 @@
         bind:value={weight}
         class="form-input"
         inputmode="decimal"
-        placeholder={heightValid ? weightExample : 'Enter height first'}
+        placeholder={heightValid ? weightExample : t('form.enter_height_first')}
         aria-label={weightAriaLabel}
         aria-invalid={weight !== '' && !weightValid}
         disabled={!heightValid}
         aria-disabled={!heightValid}
-        onfocus={() => { if (!heightValid) heightInputEl?.focus(); }}
+        onfocus={() => {
+          if (!heightValid) {
+            if (!window.matchMedia('(hover: none)').matches) {
+              heightInputEl?.focus();
+            }
+          }
+        }}
         oninput={handleWeightInput}
       />
       {#if weight !== '' && !weightValid}
@@ -324,9 +605,9 @@
     <div class="input-group">
       <label class="input-label">
         <PersonStanding size={16} />
-        Gender <span class="optional-tag">optional</span>
+        {t('form.gender')} <span class="optional-tag">{t('form.optional')}</span>
       </label>
-      <div class="segmented-control" role="radiogroup" aria-label="Gender">
+      <div class="segmented-control" role="radiogroup" aria-label={t('form.gender_aria')}>
         <button
           type="button"
           class="seg-btn"
@@ -335,7 +616,7 @@
           aria-checked={gender === 'male'}
           onclick={() => { gender = gender === 'male' ? '' : 'male'; }}
         >
-          Male
+          {t('form.male')}
         </button>
         <button
           type="button"
@@ -345,7 +626,7 @@
           aria-checked={gender === 'female'}
           onclick={() => { gender = gender === 'female' ? '' : 'female'; }}
         >
-          Female
+          {t('form.female')}
         </button>
       </div>
     </div>
@@ -354,9 +635,9 @@
     <div class="input-group">
       <label class="input-label">
         <Flame size={16} />
-        Activity Level <span class="optional-tag">optional</span>
+        {t('form.activity')} <span class="optional-tag">{t('form.optional')}</span>
       </label>
-      <div class="activity-grid" role="radiogroup" aria-label="Activity level">
+      <div class="activity-grid" role="radiogroup" aria-label={t('form.activity_aria')}>
         {#each activityLevels as lvl (lvl.value)}
           <button
             type="button"
@@ -380,21 +661,21 @@
         onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCalculate()}
         class="btn btn-primary"
         class:is-calculating={calculating}
-        aria-label="Calculate BMI"
+        aria-label={t('form.calculate_aria')}
         aria-disabled={!canCalculate || calculating}
         aria-busy={calculating}
         disabled={!canCalculate || calculating}
       >
         <Zap class="Zap" />
         {#if calculating}
-          Calculating…
+          {t('form.calculating')}
           <span class="btn-dots" aria-hidden="true">
             <span class="btn-dot"></span>
             <span class="btn-dot"></span>
             <span class="btn-dot"></span>
           </span>
         {:else}
-          Calc BMI
+          {t('form.calc_bmi')}
         {/if}
       </button>
 
@@ -403,34 +684,93 @@
         onclick={handleClear}
         onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClear()}
         class="btn btn-danger"
-        aria-label="Clear all data"
+        aria-label={t('form.clear_aria')}
       >
         <Trash2 class="Trash2" />
-        Clear All Data
+        {t('form.clear_all')}
       </button>
     </div>
 
+    <!-- Drag & Drop import zone (Phase 4) -->
+    <input
+      type="file"
+      accept=".json"
+      bind:this={fileInputEl}
+      onchange={handleFileInputChange}
+      class="sr-only"
+      tabindex="-1"
+      aria-hidden="true"
+    />
+    <div
+      class="bmi-drop-zone"
+      class:bmi-drop-zone--active={isDragOver}
+      role="button"
+      tabindex="0"
+      ondragover={handleDragOver}
+      ondragleave={handleDragLeave}
+      ondrop={handleDrop}
+      onclick={handleDropZoneClick}
+      onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleDropZoneClick()}
+      aria-label={t('form.import_aria')}
+    >
+      <div class="bmi-drop-zone__icon">
+        <ArrowDownToLine size={28} />
+      </div>
+      <div class="bmi-drop-zone__text">{isDragOver ? t('form.drop_file_here') : t('form.import')}</div>
+      <div class="bmi-drop-zone__subtext">{t('form.or_choose_file')}</div>
+    </div>
+
     <div class="history-actions">
-      <button type="button" class="btn btn-secondary" onclick={handleExport} aria-label="Export BMI history">
+      <button type="button" class="btn btn-secondary" onclick={handleExportClick} aria-label={t('form.export_aria')}>
         <ArrowUpFromLine size={16} aria-hidden="true" />
-        Export
+        {t('form.export')}
       </button>
-      <input
-        type="file"
-        bind:this={fileInputEl}
-        accept=".json"
-        class="sr-only"
-        onchange={handleFileChange}
-        tabindex="-1"
-        aria-hidden="true"
-      />
-      <button type="button" class="btn btn-secondary" onclick={handleImportClick} aria-label="Import BMI history">
-        <ArrowDownToLine size={16} aria-hidden="true" />
-        Import
+      <button type="button" class="btn btn-secondary" onclick={handleExportCsv} aria-label={t('form.export_csv_aria')}>
+        <FileSpreadsheet size={16} aria-hidden="true" />
+        {t('form.export_csv')}
       </button>
     </div>
+
   </div>
 </div>
+
+<!-- Modals: Portal to body to avoid parent transform issues -->
+{#if stagingLoading}
+  <div use:portal class="modal-portal">
+    <div class="staging-backdrop staging-visible">
+      <div class="staging-spinner-wrap">
+        <Settings class="staging-gear-icon" size={48} />
+        <span class="staging-text">{t('crypto.preparing')}</span>
+      </div>
+    </div>
+  </div>
+{/if}
+
+{#if showEncryptModal}
+  <div use:portal class="modal-portal">
+    <EncryptionModal
+      show={showEncryptModal}
+      mode={encryptModalMode}
+      error={encryptError}
+      errorCode={encryptErrorCode}
+      importMeta={encryptModalMode === 'import' ? pendingImportMeta : undefined}
+      exportRecordCount={encryptModalMode === 'export' ? exportRecordCount : undefined}
+      onConfirm={encryptModalMode === 'export' ? handleExportConfirm : handleImportConfirm}
+      onCancel={handleModalCancel}
+    />
+  </div>
+{/if}
+
+{#if showFeedbackModal}
+  <div use:portal class="modal-portal">
+    <FeedbackModal
+      show={showFeedbackModal}
+      type={feedbackType}
+      message={feedbackMessage}
+      onClose={handleFeedbackClose}
+    />
+  </div>
+{/if}
 
 <style>
   .unit-toggle {
@@ -591,17 +931,5 @@
     gap: 0.4rem;
     font-size: 0.85rem;
     border-radius: 9999px;
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
   }
 </style>

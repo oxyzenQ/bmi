@@ -1,6 +1,26 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import { TrendingUp, TrendingDown, Minus } from 'lucide-svelte';
+  import { STORAGE_KEYS } from '$lib/utils/storage';
+  import { t as _t, localeVersion } from '$lib/i18n';
+  let _rv = $derived($localeVersion);
+  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
+
+  // Svelte action: attach pointermove with { passive: true } to prevent
+  // scroll jank on mobile when hovering over the chart during touch scroll.
+  // Svelte 5 on:pointermove does not support { passive } option directly.
+  function passivePointerMove(node: SVGElement) {
+    const handler = (e: PointerEvent) => {
+      // No-op handler — only ensures passive mode for the existing
+      // onpointermove in the template. Svelte 5 does not support
+      // { passive } on directive-based event listeners.
+    };
+    node.addEventListener('pointermove', handler, { passive: true });
+    return {
+      destroy() { node.removeEventListener('pointermove', handler); }
+    };
+  }
 
   interface Props {
     currentBmi?: number | null;
@@ -30,7 +50,7 @@
   function loadHistory(): BMIRecord[] {
     if (!browser) return [];
     try {
-      const stored = localStorage.getItem('bmi.history');
+      const stored = localStorage.getItem(STORAGE_KEYS.HISTORY);
       if (!stored) return [];
       const history: BMIRecord[] = JSON.parse(stored);
       return history.slice(-MAX_POINTS);
@@ -54,17 +74,17 @@
   let hoveredIndex: number | null = $state(null);
 
   function getBmiColor(bmi: number): string {
-    if (bmi < 18.5) return '#60a5fa';
-    if (bmi < 25) return '#4ade80';
-    if (bmi < 30) return '#fbbf24';
-    return '#f87171';
+    if (bmi < 18.5) return 'var(--cat-blue-solid)';
+    if (bmi < 25) return 'var(--cat-green-solid)';
+    if (bmi < 30) return 'var(--cat-amber-solid)';
+    return 'var(--cat-red-solid)';
   }
 
   function getBmiLabel(bmi: number): string {
-    if (bmi < 18.5) return 'Underweight';
-    if (bmi < 25) return 'Normal';
-    if (bmi < 30) return 'Overweight';
-    return 'Obese';
+    if (bmi < 18.5) return t('sparkline.underweight');
+    if (bmi < 25) return t('sparkline.normal');
+    if (bmi < 30) return t('sparkline.overweight');
+    return t('sparkline.obese');
   }
 
   function formatDate(ts: number): string {
@@ -148,10 +168,10 @@
 
     // BMI zone bands
     const zones = [
-      { min: BMI_MIN, max: 18.5, color: 'rgba(96,165,250,0.06)', label: '' },
-      { min: 18.5, max: 25, color: 'rgba(74,222,128,0.06)', label: 'Normal' },
-      { min: 25, max: 30, color: 'rgba(251,191,36,0.06)', label: '' },
-      { min: 30, max: BMI_MAX, color: 'rgba(248,113,113,0.06)', label: '' }
+      { min: BMI_MIN, max: 18.5, color: 'var(--cat-blue-6)', label: '' },
+      { min: 18.5, max: 25, color: 'var(--cat-green-6)', label: t('sparkline.normal') },
+      { min: 25, max: 30, color: 'var(--cat-amber-6)', label: '' },
+      { min: 30, max: BMI_MAX, color: 'var(--cat-red-6)', label: '' }
     ];
 
     return { points, pathD, areaD, trend, diff, first, last, count: values.length, zones };
@@ -203,13 +223,12 @@
     return chartData.points[hoveredIndex] ?? null;
   });
 </script>
-
 {#if chartData}
   <div class="sparkline-container interactive">
     <div class="sparkline-header">
       <div class="sparkline-title">
         <TrendingUp size={16} />
-        <span>History Trend</span>
+        <span>{t('sparkline.title')}</span>
       </div>
       <div class="sparkline-badge" class:trend-up={chartData.trend === 'down'} class:trend-down={chartData.trend === 'up'}>
         {#if chartData.trend === 'down'}
@@ -220,7 +239,7 @@
           <span>+{chartData.diff.toFixed(1)}</span>
         {:else}
           <Minus size={14} />
-          <span>Stable</span>
+          <span>{t('sparkline.stable')}</span>
         {/if}
       </div>
     </div>
@@ -228,12 +247,13 @@
     <div class="sparkline-chart interactive-chart">
       <svg
         viewBox="0 0 {CHART_WIDTH} {CHART_HEIGHT}"
-        preserveAspectRatio="xMidYMid slice"
+        preserveAspectRatio="xMidYMid meet"
         class="sparkline-svg"
         role="img"
-        aria-label="BMI history trend chart"
+        aria-label={t('sparkline.aria')}
         onpointermove={handlePointerMove}
         onpointerleave={handlePointerLeave}
+        use:passivePointerMove
       >
         <!-- BMI zone bands -->
         {#each chartData.zones as zone (zone.min)}
@@ -248,9 +268,9 @@
         {/each}
 
         <!-- BMI zone boundary lines -->
-        <line x1={PAD_LEFT} y1={bmiToY(18.5)} x2={CHART_WIDTH - PAD_RIGHT} y2={bmiToY(18.5)} stroke="rgba(96,165,250,0.2)" stroke-width="1" stroke-dasharray="4 3" />
-        <line x1={PAD_LEFT} y1={bmiToY(25)} x2={CHART_WIDTH - PAD_RIGHT} y2={bmiToY(25)} stroke="rgba(74,222,128,0.2)" stroke-width="1" stroke-dasharray="4 3" />
-        <line x1={PAD_LEFT} y1={bmiToY(30)} x2={CHART_WIDTH - PAD_RIGHT} y2={bmiToY(30)} stroke="rgba(251,191,36,0.2)" stroke-width="1" stroke-dasharray="4 3" />
+        <line x1={PAD_LEFT} y1={bmiToY(18.5)} x2={CHART_WIDTH - PAD_RIGHT} y2={bmiToY(18.5)} stroke="var(--cat-blue-20)" stroke-width="1" stroke-dasharray="4 3" />
+        <line x1={PAD_LEFT} y1={bmiToY(25)} x2={CHART_WIDTH - PAD_RIGHT} y2={bmiToY(25)} stroke="var(--cat-green-20)" stroke-width="1" stroke-dasharray="4 3" />
+        <line x1={PAD_LEFT} y1={bmiToY(30)} x2={CHART_WIDTH - PAD_RIGHT} y2={bmiToY(30)} stroke="var(--cat-amber-20)" stroke-width="1" stroke-dasharray="4 3" />
 
         <!-- Y-axis labels -->
         <text x={PAD_LEFT - 4} y={bmiToY(18.5) + 3} text-anchor="end" class="axis-label">18.5</text>
@@ -258,7 +278,7 @@
         <text x={PAD_LEFT - 4} y={bmiToY(30) + 3} text-anchor="end" class="axis-label">30</text>
 
         <!-- Zone labels (right side, inside plot) -->
-        <text x={CHART_WIDTH - PAD_RIGHT - 2} y={bmiToY(18.5) + (bmiToY(25) - bmiToY(18.5)) / 2 + 3} text-anchor="end" class="zone-label">Normal</text>
+        <text x={CHART_WIDTH - PAD_RIGHT - 2} y={bmiToY(18.5) + (bmiToY(25) - bmiToY(18.5)) / 2 + 3} text-anchor="end" class="zone-label">{t('sparkline.normal')}</text>
 
         <!-- Gradient fill + clip path -->
         <defs>
@@ -303,7 +323,7 @@
             y1={PAD_TOP}
             x2={hoveredPoint.x}
             y2={CHART_HEIGHT - PAD_BOTTOM}
-            stroke="rgba(255,255,255,0.15)"
+            stroke="var(--white-15)"
             stroke-width="1"
             stroke-dasharray="3 3"
           />
@@ -312,7 +332,7 @@
             y1={hoveredPoint.y}
             x2={CHART_WIDTH - PAD_RIGHT}
             y2={hoveredPoint.y}
-            stroke="rgba(255,255,255,0.1)"
+            stroke="var(--white-10)"
             stroke-width="1"
             stroke-dasharray="3 3"
           />
@@ -348,19 +368,19 @@
     <!-- Bottom info -->
     <div class="sparkline-footer">
       <span class="sparkline-stat">
-        First: <strong>{chartData.first.toFixed(1)}</strong>
+        {t('sparkline.first', { n: chartData.first.toFixed(1) })}
       </span>
       <span class="sparkline-stat">
-        Latest: <strong style="color: {getBmiColor(chartData.last)}">{chartData.last.toFixed(1)}</strong>
+        {t('sparkline.latest', { n: chartData.last.toFixed(1) })}
       </span>
       <span class="sparkline-stat">
-        Entries: <strong>{chartData.count}</strong>
+        {t('sparkline.entries', { n: chartData.count })}
       </span>
     </div>
   </div>
 {:else if currentBmi !== null}
   <div class="sparkline-container sparkline-empty">
-    <p>No history yet. Calculate your BMI to start tracking trends.</p>
+    <p>{t('sparkline.empty')}</p>
   </div>
 {/if}
 
@@ -379,7 +399,7 @@
 
   .sparkline-empty {
     text-align: center;
-    color: #64748b;
+    color: var(--slate-500-solid);
     font-size: 0.875rem;
     padding: 1.5rem;
   }
@@ -396,7 +416,7 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.875rem;
-    color: #94a3b8;
+    color: var(--slate-400-solid);
     font-weight: 500;
   }
 
@@ -409,17 +429,17 @@
     padding: 0.2rem 0.6rem;
     border-radius: 9999px;
     background: var(--sg-15);
-    color: #94a3b8;
+    color: var(--slate-400-solid);
   }
 
   .sparkline-badge.trend-down {
     background: var(--cat-green-15);
-    color: #00C853;
+    color: var(--cat-green-toast);
   }
 
   .sparkline-badge.trend-up {
     background: var(--cat-red-15);
-    color: #D50000;
+    color: var(--darkred-90);
   }
 
   .sparkline-chart {
@@ -446,14 +466,14 @@
 
   .axis-label {
     font-size: 9px;
-    fill: #475569;
+    fill: var(--slate-600-solid);
     font-family: 'JetBrains Mono Variable', monospace;
     dominant-baseline: middle;
   }
 
   .zone-label {
     font-size: 7px;
-    fill: rgba(74, 222, 128, 0.4);
+    fill: var(--cat-green-40);
     font-family: 'JetBrains Mono Variable', monospace;
     dominant-baseline: middle;
   }
@@ -467,7 +487,7 @@
 
   .x-label {
     font-size: 0.55rem;
-    color: #475569;
+    color: var(--slate-600-solid);
     font-family: 'JetBrains Mono Variable', monospace;
   }
 
@@ -476,14 +496,15 @@
     position: absolute;
     pointer-events: none;
     z-index: 10;
-    background: rgba(15, 23, 42, 0.92);
+    background: var(--sd-92);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     border: 1px solid var(--w-10);
     border-radius: 10px;
     padding: 0.5rem 0.65rem;
     text-align: center;
     white-space: nowrap;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 24px var(--shadow-heavy);
     animation: tooltipIn 0.15s ease-out;
   }
 
@@ -499,7 +520,7 @@
     transform: translateX(-50%) rotate(45deg);
     width: 8px;
     height: 8px;
-    background: rgba(15, 23, 42, 0.92);
+    background: var(--sd-92);
     border-right: 1px solid var(--w-10);
     border-bottom: 1px solid var(--w-10);
   }
@@ -516,18 +537,18 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #94a3b8;
+    color: var(--slate-400-solid);
   }
 
   .tooltip-date {
     font-size: 0.6rem;
-    color: #64748b;
+    color: var(--slate-500-solid);
     margin-top: 0.15rem;
   }
 
   .tooltip-time {
     font-size: 0.55rem;
-    color: #475569;
+    color: var(--slate-600-solid);
     font-family: 'JetBrains Mono Variable', monospace;
   }
 
@@ -541,13 +562,9 @@
 
   .sparkline-stat {
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--slate-500-solid);
   }
 
-  .sparkline-stat strong {
-    color: #e2e8f0;
-    font-weight: 600;
-  }
 
   @media (max-width: 640px) {
     .sparkline-footer {

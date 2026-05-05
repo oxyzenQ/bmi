@@ -1,66 +1,98 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { type UserConfig } from 'vite';
+import { type UserConfig, type Plugin } from 'vite';
+import { createRequire } from 'node:module';
 import { execFileSync } from 'child_process';
+import path from 'path';
+
+/**
+ * Pins resolution for @noble/hashes/argon2.js whose exports field
+ * fails in some Vite versions during production builds.
+ *
+ * CRITICAL: createRequire MUST be scoped to the project root (process.cwd()),
+ * NOT import.meta.url. Vite may bundle/relocate the config, and bun's
+ * require won't walk up from a temp directory to find packages.
+ */
+function pinCryptoDeps(): Plugin {
+        const projectRoot = process.cwd();
+        const req = createRequire(path.resolve(projectRoot, 'package.json'));
+        return {
+                name: 'pin-crypto-deps',
+                enforce: 'pre',
+                resolveId(id) {
+                        if (id === '@noble/hashes/argon2.js') {
+                                return req.resolve('@noble/hashes/argon2.js');
+                        }
+                        if (id === 'zxcvbn-ts') {
+                                return req.resolve('zxcvbn-ts');
+                        }
+                }
+        };
+}
 
 // Get commit info — prefer Vercel env vars (reliable in Vercel builds),
 // fall back to local git commands for local dev.
 function getLocalGitInfo(): { sha: string; branch: string } {
-  // Vercel injects these during builds; they are always accurate.
-  const vercelSha = process.env.VERCEL_GIT_COMMIT_SHA;
-  const vercelRef = process.env.VERCEL_GIT_COMMIT_REF;
+        // Vercel injects these during builds; they are always accurate.
+        const vercelSha = process.env.VERCEL_GIT_COMMIT_SHA;
+        const vercelRef = process.env.VERCEL_GIT_COMMIT_REF;
 
-  const sha = vercelSha
-    ? vercelSha.slice(0, 7)
-    : (() => {
-        try {
-          return execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf-8' }).trim();
-        } catch {
-          return 'unknown';
-        }
-      })();
+        const sha = vercelSha
+                ? vercelSha.slice(0, 7)
+                : (() => {
+                                try {
+                                        return execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf-8' }).trim();
+                                } catch {
+                                        return 'unknown';
+                                }
+                        })();
 
-  const branch = vercelRef
-    ? vercelRef
-    : (() => {
-        try {
-          return execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { encoding: 'utf-8' }).trim();
-        } catch {
-          return 'main';
-        }
-      })();
+        const branch = vercelRef
+                ? vercelRef
+                : (() => {
+                                try {
+                                        return execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { encoding: 'utf-8' }).trim();
+                                } catch {
+                                        return 'main';
+                                }
+                        })();
 
-  return { sha, branch };
+        return { sha, branch };
 }
 
 // Export async config function
 export default function config({ mode }: { mode: string }): UserConfig {
-  const commitInfo = getLocalGitInfo();
+        const commitInfo = getLocalGitInfo();
 
-  return {
-    plugins: [
-      sveltekit(),
-      ...(mode === 'analyze'
-        ? [
-            visualizer({
-              filename: '.reports/stats.html',
-              template: 'treemap',
-              gzipSize: true,
-              brotliSize: true,
-              open: false
-            })
-          ]
-        : [])
-    ],
-    define: {
-      __GIT_COMMIT_ID__: JSON.stringify(commitInfo.sha),
-      __GIT_BRANCH__: JSON.stringify(commitInfo.branch),
-      __BUILD_TIME__: JSON.stringify(new Date().toISOString())
-    },
-    build: {
-      target: 'es2022',
-      minify: 'esbuild',
-      sourcemap: false
-    }
-  };
+        return {
+                plugins: [
+                        pinCryptoDeps(),
+                        sveltekit(),
+                        ...(mode === 'analyze'
+                                ? [
+                                                visualizer({
+                                                        filename: '.reports/stats.html',
+                                                        template: 'treemap',
+                                                        gzipSize: true,
+                                                        brotliSize: true,
+                                                        open: false
+                                                })
+                                        ]
+                                : [])
+                ],
+                define: {
+                        __GIT_COMMIT_ID__: JSON.stringify(commitInfo.sha),
+                        __GIT_BRANCH__: JSON.stringify(commitInfo.branch),
+                        __BUILD_TIME__: JSON.stringify(new Date().toISOString())
+                },
+                build: {
+                        target: 'es2022',
+                        minify: 'esbuild',
+                        sourcemap: false,
+                        // zxcvbn-ts bundles ~1MB of password frequency lists — already
+                        // dynamically imported so only loaded when encryption modal opens.
+                        // This limit suppresses the unavoidable size warning.
+                        chunkSizeWarningLimit: 1100
+                }
+        };
 }
