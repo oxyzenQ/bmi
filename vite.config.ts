@@ -1,25 +1,25 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { type UserConfig, type Plugin } from 'vite';
-import path from 'path';
+import { createRequire } from 'node:module';
 import { execFileSync } from 'child_process';
 
 /**
- * Pins resolution for packages whose exports fields fail in some
- * Vite versions during both test and production builds.
- * Uses enforce:'pre' resolveId hook — fires BEFORE any package.json
- * exports lookup, so it works across all Vite versions.
+ * Pins resolution for @noble/hashes/argon2.js whose exports field
+ * fails in some Vite versions during production builds.
+ *
+ * Uses Node's require.resolve (via createRequire) instead of
+ * hardcoded node_modules paths — works regardless of package manager
+ * layout (flat, hoisted, bun cache, symlinks).
  */
 function pinCryptoDeps(): Plugin {
+  const req = createRequire(import.meta.url);
   return {
     name: 'pin-crypto-deps',
     enforce: 'pre',
     resolveId(id) {
       if (id === '@noble/hashes/argon2.js') {
-        return path.resolve(__dirname, 'node_modules/@noble/hashes/argon2.js');
-      }
-      if (id === 'zxcvbn-ts') {
-        return path.resolve(__dirname, 'node_modules/zxcvbn-ts/dist/esm/index.js');
+        return req.resolve('@noble/hashes/argon2.js');
       }
     }
   };
