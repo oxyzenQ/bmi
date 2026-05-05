@@ -8,12 +8,15 @@ import { defineConfig, type Plugin } from 'vitest/config';
  * fields are ignored by vitest's bundled Vite when conditions:['browser']
  * is set.
  *
- * Uses Node's require.resolve instead of hardcoded paths so it works
- * regardless of node_modules layout (flat, hoisted, bun cache, symlinks).
+ * CRITICAL: createRequire MUST be scoped to the project root (process.cwd()),
+ * NOT import.meta.url. Vitest bundles this config to node_modules/.vite-temp/
+ * and bun's require won't walk up from there to find packages in the
+ * parent node_modules directory.
  */
 function pinCryptoDeps(): Plugin {
-	// createRequire is scoped to this config file's directory (= project root)
-	const req = createRequire(import.meta.url);
+	// Scope require to project root — process.cwd() is always the project dir
+	const projectRoot = process.cwd();
+	const req = createRequire(path.resolve(projectRoot, 'package.json'));
 
 	return {
 		name: 'pin-crypto-deps',
