@@ -43,8 +43,8 @@ const mockIndexedDb = {
   }),
 };
 
-Object.defineProperty(global, 'localStorage', { value: localStorageMock });
-Object.defineProperty(global, 'indexedDB', { value: mockIndexedDb });
+Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock, writable: true });
+Object.defineProperty(globalThis, 'indexedDB', { value: mockIndexedDb, writable: true });
 
 describe('history-io', () => {
   beforeEach(() => {
@@ -52,6 +52,10 @@ describe('history-io', () => {
     vi.clearAllMocks();
     // Clear storage.ts in-memory cache to prevent cross-test contamination
     storageInvalidateAll();
+    // Verify crypto.subtle is available (CI jsdom may not provide it)
+    if (typeof crypto.subtle !== 'object') {
+      throw new Error('crypto.subtle unavailable — HMAC/AES tests cannot run');
+    }
   });
 
   describe('exportBmiHistory', () => {

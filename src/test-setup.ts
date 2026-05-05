@@ -1,8 +1,8 @@
 import '@testing-library/jest-dom';
-import { vi, beforeAll, afterEach } from 'vitest';
 import { cleanup } from '@testing-library/svelte';
 import { createRequire } from 'node:module';
 import path from 'path';
+import { afterEach, beforeAll, vi } from 'vitest';
 
 // Vitest bundles setup files to node_modules/.vite-temp/.
 // createRequire MUST be scoped to project root (not import.meta.url)
@@ -120,19 +120,46 @@ vi.mock('$app/stores', () => ({
 	);
 })();
 
-// Verify environment setup
-beforeAll(() => {
+// Verify environment setup — including a functional crypto.subtle check
+beforeAll(async () => {
 	if (typeof document === 'undefined') {
 		throw new Error('jsdom environment not properly configured');
 	}
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	if (typeof (window as any).crypto?.subtle !== 'object') {
-		console.error(
-			'[test-setup] crypto.subtle verification FAILED.\n' +
-			`  window.crypto type: ${typeof window.crypto}\n` +
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			`  window.crypto.subtle type: ${typeof (window as any).crypto?.subtle}`
+
+	// Actively verify crypto.subtle works (not just that it exists).
+	// jsdom 27 may expose a non-functional subtle object that passes
+	// typeof checks but throws on actual WebCrypto calls.
+	try {
+		const testKey = await crypto.subtle.importKey(
+			'raw',
+			new Uint8Array(32).buffer as ArrayBuffer,
+			{ name: 'HMAC', hash: 'SHA-256' },
+			false,
+			['sign']
 		);
+		await crypto.subtle.sign('HMAC', testKey, new Uint8Array(0));
+	} catch {
+		// crypto.subtle is present but NON-FUNCTIONAL — force-replace
+		console.warn('[test-setup] crypto.subtle is NON-FUNCTIONAL, force-replacing…');
+
+		let workingSubtle: unknown;
+		try { workingSubtle = req('node:crypto')?.webcrypto?.subtle; } catch { /* */ }
+		if (!workingSubtle) {
+			try { workingSubtle = req('crypto')?.webcrypto?.subtle; } catch { /* */ }
+		}
+
+		if (workingSubtle) {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const existing: Record<string, unknown> = { ...(globalThis as any).crypto ?? {} };
+			const patched = { ...existing, subtle: workingSubtle };
+			vi.stubGlobal('crypto', patched);
+			console.warn('[test-setup] crypto.subtle force-replace succeeded');
+		} else {
+			console.error(
+				'[test-setup] CRITICAL: Cannot obtain working crypto.subtle from any source.\n' +
+				'  WebCrypto-dependent tests (HMAC, AES-GCM) WILL fail.'
+			);
+		}
 	}
 });
 
