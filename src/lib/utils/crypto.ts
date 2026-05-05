@@ -48,6 +48,8 @@ const META_ENCRYPTION_SALT = '__encryption_salt';
 export interface EncryptedPayload {
   /** Format identifier — always 'bmi-encrypted-v1' */
   format: 'bmi-encrypted-v1';
+  /** Cipher algorithm used: always 'aes-256-gcm' */
+  cipher?: 'aes-256-gcm';
   /** Key derivation function used: 'argon2id' or 'pbkdf2' (legacy) */
   kdf?: 'argon2id' | 'pbkdf2';
   /** Argon2id parameters (only when kdf === 'argon2id') */
@@ -339,6 +341,7 @@ export async function encrypt(plaintext: string, passphrase: string, meta?: Encr
 
   const payload: EncryptedPayload = {
     format: 'bmi-encrypted-v1',
+    cipher: 'aes-256-gcm',
     kdf,
     ...(kdfParams && { kdfParams }),
     salt: toBase64(salt),

@@ -1222,7 +1222,7 @@
                     <div class="app-info">
                       <p class="info-row">
                         <PackageCheck class="PackageCheck" />
-                        <strong>{t('about.version')}:</strong>Stellar v13.0 <span class="commit-id">({gitCommitId})</span>
+                        <strong>{t('about.version')}:</strong>Stellar v15.0 <span class="commit-id">({gitCommitId})</span>
                       </p>
                       <p class="info-row">
                         <GitBranch class="GitBranch" />
@@ -1415,7 +1415,7 @@
   .pager-shell::before {
     top: var(--nav-bar-h);
     height: var(--pager-edge-fade);
-    background: linear-gradient(to bottom, var(--k-92), var(--k-0));
+    background: linear-gradient(to bottom, var(--cosmic-dark-92), var(--k-0));
   }
 
   .pager-shell::after {
@@ -1523,7 +1523,7 @@
   .pager-theme .theme-blackhole {
     color: #b266ff;
     font-weight: 600;
-    text-shadow: 0 0 8px var(--purple2-40, rgba(178, 102, 255, 0.4));
+    text-shadow: 0 0 8px var(--purple-40, rgba(178, 102, 255, 0.4));
   }
 
   .pager-theme .theme-spaceship {

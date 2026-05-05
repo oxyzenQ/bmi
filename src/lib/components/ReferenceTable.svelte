@@ -13,7 +13,7 @@
       category: t('ref.underweight'),
       range: t('ref.underweight_range'),
       status: t('ref.underweight_status'),
-      statusColor: '#60a5fa',
+      statusColor: 'var(--cat-blue-solid)',
       icon: AlertTriangle,
       iconClass: 'AlertTriangle2',
       subcategories: [
@@ -28,7 +28,7 @@
       category: t('ref.normal'),
       range: t('ref.normal_range'),
       status: t('ref.normal_status'),
-      statusColor: '#10b981',
+      statusColor: 'var(--emerald-solid)',
       icon: CheckCircle,
       iconClass: 'CheckCircle',
       subcategories: [
@@ -42,7 +42,7 @@
       category: t('ref.overweight'),
       range: t('ref.overweight_range'),
       status: t('ref.overweight_status'),
-      statusColor: '#ffff00',
+      statusColor: 'var(--warn-yellow)',
       icon: TrendingUp,
       iconClass: 'TrendingUp',
       subcategories: [
@@ -56,7 +56,7 @@
       category: t('ref.obese'),
       range: t('ref.obese_range'),
       status: t('ref.obese_status'),
-      statusColor: '#ef4444',
+      statusColor: 'var(--red-500-solid)',
       icon: Activity,
       iconClass: 'Activity',
       subcategories: [

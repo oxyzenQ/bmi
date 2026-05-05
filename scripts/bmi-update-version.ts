@@ -196,15 +196,19 @@ function updateReadme(newVersion: string, short: string): void {
 function updatePageSvelte(oldShort: string, newShort: string): void {
   const content = readFile('src/routes/+page.svelte');
 
-  // Precise match: "Stellar-10.5" followed by space, <, or }
-  const pattern = new RegExp(`Stellar-${escapeRegex(oldShort)}(?=[\\s<}])`, 'g');
-  const updated = content.replace(pattern, `Stellar-${newShort}`);
+  // Match "Stellar-{oldShort}" (dash) or "Stellar v{oldShort}" (space+v)
+  const dashPattern = new RegExp(`Stellar-${escapeRegex(oldShort)}(?=[\\s<}])`, 'g');
+  const spaceVPattern = new RegExp(`Stellar v${escapeRegex(oldShort)}(?=[\\s<}])`, 'g');
+
+  let updated = content.replace(dashPattern, `Stellar-${newShort}`);
+  updated = updated.replace(spaceVPattern, `Stellar v${newShort}`);
 
   if (updated === content) {
-    // Fallback: broader pattern
-    const broad = content.replace(/Stellar-\d+\.\d+(?=[\s<}])/g, `Stellar-${newShort}`);
-    if (broad !== content) {
-      writeFile('src/routes/+page.svelte', broad);
+    // Fallback: broader patterns
+    updated = content.replace(/Stellar-\d+\.\d+(?=[\s<}])/g, `Stellar-${newShort}`);
+    updated = updated.replace(/Stellar v\d+\.\d+(?=[\s<}])/g, `Stellar v${newShort}`);
+    if (updated !== content) {
+      writeFile('src/routes/+page.svelte', updated);
       return;
     }
     console.log('    \x1b[33m⚠ No version reference found — skipping\x1b[0m');

@@ -1,10 +1,10 @@
-# BMI Calculator — Stellar v13.0
+# BMI Calculator — Stellar v15.0
 
 A luxury, space-themed **Body Mass Index (BMI)** calculator built with **SvelteKit 2 + Svelte 5 (Runes) + TypeScript**, designed for an accessible, privacy-first user experience with production-grade polish.
 
 - **Live**: <https://bmi-logigo.vercel.app>
 - **License**: GPL-3.0
-- **Version**: 13.0.0 (Stellar Edition)
+- **Version**: 15.0.0 (Stellar Edition)
 
 ## Highlights
 
@@ -13,7 +13,7 @@ A luxury, space-themed **Body Mass Index (BMI)** calculator built with **SvelteK
 - **Goal tracker** — Set target BMI, track progress with current/best/target comparison and sparkline chart.
 - **Interactive radial gauge** — SVG gauge with tiered animations (ultra-smooth on high-end, instant on low-end).
 - **BMI history sparkline** — Interactive SVG chart with tooltips and BMI zone highlighting; stores up to 1 year locally.
-- **Encrypted backup** — AES-GCM 256-bit encryption with PBKDF2 key derivation (600k iterations). Import/export with passphrase protection.
+- **Encrypted backup** — AES-256-GCM encryption with Argon2id key derivation (32 MB memory, 2 iterations). SHA-256 checksum for tamper detection. Import/export with passphrase protection.
 - **Social sharing** — Web Share API, copy-to-clipboard, and BMI result card image export (canvas).
 - **Import/Export history** — JSON export with SHA-256 checksum verification for data integrity.
 - **Multi-language (i18n)** — English, Indonesian (Bahasa), Japanese, Chinese. Floating language switcher panel.
@@ -124,8 +124,8 @@ src/
       storage.ts            Centralized localStorage/IndexedDB access layer
       db.ts                 IndexedDB wrapper for structured data
       history-io.ts         Export/import with SHA-256 checksum verification
-      backup.ts             Encrypted backup (AES-GCM + PBKDF2)
-      crypto.ts             Encryption utilities (AES-GCM, PBKDF2 key derivation)
+      backup.ts             Encrypted backup (AES-GCM + Argon2id/PBKDF2)
+      crypto.ts             Encryption utilities (AES-GCM, Argon2id, PBKDF2 key derivation, SHA-256 checksum)
       performance.ts        Device capability detection (tier + reduced motion)
       share.ts              Web Share API, clipboard, formatted BMI text
       share-image.ts        Canvas-based BMI result card image generation
@@ -193,12 +193,28 @@ Enhanced (backdrop-filter supported):   rgba(10, 2, 28, 0.55) + blur(8px) satura
 Glass design tokens are centralized in `tokens.css` (`--glass-bg-*`, `--glass-blur-*`, `--glass-saturation-*`). Mobile touch devices (`hover: none`) use slightly stronger backgrounds with reduced blur for GPU performance, but maintain visual consistency with desktop. The `@supports` feature query ensures containers never appear transparent, even on browsers that don't support `backdrop-filter`.
 
 ### Encryption System
-Backup data is encrypted using AES-256-GCM with PBKDF2 key derivation:
+Backup data is encrypted using a layered security architecture:
 
-- **Key derivation**: PBKDF2 with SHA-256, 600,000 iterations, random 16-byte salt
-- **Encryption**: AES-256-GCM with random 12-byte IV
-- **No passphrase storage**: The passphrase is never stored — users must remember it
-- **Format version**: `bmi-encrypted-v1` for forward compatibility
+- **Key derivation (primary)**: Argon2id (RFC 9106) — memory-hard KDF, resistant to GPU/ASIC attacks
+  - Memory: 32 MB (32,768 KiB), Time cost: 2, Parallelism: 1 (mobile-safe), Output: 256-bit key
+- **Key derivation (legacy)**: PBKDF2 with SHA-256, 600,000 iterations — still supported for older exports
+- **Encryption cipher**: AES-256-GCM with random 12-byte IV
+- **Integrity**: SHA-256 checksum of plaintext (constant-time comparison) — explicit tamper detection
+- **Hint**: Stored in `localStorage` only, never in the encrypted file
+- **No passphrase storage**: Users must remember their passphrase — no recovery mechanism
+- **Format**: `bmi-encrypted-v1` with `cipher`, `kdf`, and `kdfParams` metadata
+
+#### Encrypted Export Structure
+```json
+{
+  "format": "bmi-encrypted-v1",
+  "cipher": "aes-256-gcm",
+  "kdf": "argon2id",
+  "kdfParams": { "type": 2, "mem": 32768, "time": 2, "parallelism": 1, "hashLen": 32 },
+  "salt": "<base64>", "iv": "<base64>", "data": "<base64 ciphertext>",
+  "meta": { "exportedAt": "...", "recordCount": 42, "version": 3, "checksum": "<SHA-256>" }
+}
+```
 
 ### Performance Tiers
 Device capabilities detected at mount time via `performance.ts`:
@@ -233,8 +249,9 @@ All user data stored in `localStorage` under namespaced keys (via centralized `s
 - **COOP/CORP/COEP**: Cross-origin isolation with `credentialless`
 - **Permissions-Policy**: Disables camera, mic, geolocation, etc.
 - **isSecureContext check**: Health data only stored in secure contexts
-- **Import validation**: SHA-256 checksum verification on all data imports
-- **Encryption**: AES-256-GCM for backup exports with PBKDF2 key derivation
+- **Import validation**: HMAC-SHA256 signature + SHA-256 checksum on all data imports
+- **Tamper detection**: Explicit checksum verification distinguishes tampered files from wrong passphrases
+- **Encryption**: AES-256-GCM with Argon2id key derivation (PBKDF2 legacy support)
 
 ## Known Constraints
 

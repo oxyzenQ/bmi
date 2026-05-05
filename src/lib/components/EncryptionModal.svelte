@@ -81,10 +81,10 @@
     strengthScore === 3 ? 75 : 100
   );
   let strengthColor = $derived(
-    strengthScore <= 0 ? '#ef4444' :
-    strengthScore === 1 ? '#f97316' :
-    strengthScore === 2 ? '#f59e0b' :
-    strengthScore === 3 ? '#22c55e' : '#10b981'
+    strengthScore <= 0 ? 'var(--red-500-solid)' :
+    strengthScore === 1 ? 'var(--cat-orange-solid)' :
+    strengthScore === 2 ? 'var(--warn-amber)' :
+    strengthScore === 3 ? 'var(--cat-green-solid)' : 'var(--emerald-solid)'
   );
   let strengthLabel = $derived(
     strengthLevel === 'weak' ? t('crypto.strength_weak') :
@@ -692,7 +692,7 @@
     border: 1px solid rgba(251, 191, 36, 0.20);
     border-radius: 8px;
     font-size: 0.8rem;
-    color: var(--amber-gold-60, #d4a017);
+    color: var(--amber-gold-60);
   }
 
   .hint-display__label {
@@ -873,14 +873,14 @@
   .encrypt-error--warning {
     background: rgba(245, 158, 11, 0.08);
     border-color: rgba(245, 158, 11, 0.25);
-    color: var(--amber-gold-60, #f59e0b);
+    color: var(--amber-gold-60);
   }
 
   /* Danger severity (wrong passphrase / tampered) — red tone */
   .encrypt-error--danger {
     background: rgba(239, 68, 68, 0.10);
     border-color: rgba(239, 68, 68, 0.30);
-    color: var(--red-500-solid, #ef4444);
+    color: var(--red-500-solid);
   }
 
   .encrypt-progress-wrap {

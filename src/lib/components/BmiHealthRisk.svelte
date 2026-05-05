@@ -271,7 +271,7 @@
 
   .risk-label {
     font-size: 0.75rem;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
@@ -323,7 +323,7 @@
 
   .risk-description {
     font-size: 0.875rem;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
     line-height: 1.4;
   }
 
@@ -368,7 +368,7 @@
 
   .no-data {
     margin: 0;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
     font-size: 0.875rem;
     font-style: italic;
   }

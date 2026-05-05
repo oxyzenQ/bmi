@@ -605,19 +605,19 @@
 
 /* Scale-item color variables */
 .scale-item.sc-underweight {
-  --category-color: #4A90E2;
+  --category-color: var(--cat-blue-solid);
 }
 
 .scale-item.sc-normal {
-  --category-color: #00C853;
+  --category-color: var(--cat-green-95);
 }
 
 .scale-item.sc-overweight {
-  --category-color: #FFD600;
+  --category-color: var(--cat-amber-solid);
 }
 
 .scale-item.sc-obese {
-  --category-color: #D50000;
+  --category-color: var(--darkred-90);
 }
 
 /* ==============================

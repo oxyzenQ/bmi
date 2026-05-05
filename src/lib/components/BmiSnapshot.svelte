@@ -172,7 +172,7 @@
         <Activity size={16} />
         <span>{t('snapshot.target')}</span>
       </div>
-      <div class="card-value" style={currentBmi !== null ? 'color: #00C853' : ''}>
+      <div class="card-value" style={currentBmi !== null ? 'color: var(--cat-green-95)' : ''}>
         {currentBmi !== null ? IDEAL_BMI.toFixed(2) : '—'}
       </div>
       <div class="card-category">{currentBmi !== null ? t('snapshot.optimal') : t('snapshot.na')}</div>
@@ -304,7 +304,7 @@
     justify-content: center;
     gap: 0.5rem;
     font-size: 0.75rem;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 0.75rem;
@@ -320,7 +320,7 @@
 
   .card-category {
     font-size: 0.875rem;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
   }
 
   .progress-section {
@@ -339,7 +339,7 @@
 
   .progress-label {
     font-size: 0.875rem;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
   }
 
   .progress-value {
@@ -379,7 +379,7 @@
     justify-content: space-between;
     margin-top: 0.5rem;
     font-size: 0.625rem;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
   }
 
   .progress-markers .marker.ideal {
@@ -401,7 +401,7 @@
     background: var(--sd-60);
     border-radius: 12px;
     font-size: 0.875rem;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
   }
 
   .insight-item.success {
@@ -412,7 +412,7 @@
 
   .insight-item :global(svg) {
     flex-shrink: 0;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
   }
 
   .insight-item.success :global(svg) {
@@ -435,7 +435,7 @@
     justify-content: center;
     padding: 3rem;
     text-align: center;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
   }
 
   .empty-snapshot :global(svg) {

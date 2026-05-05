@@ -142,7 +142,7 @@
 
         .error-link {
                 font-size: 0.85rem;
-                color: var(--violet-50, #a78bfa);
+                color: var(--violet-50);
                 text-decoration: underline;
                 text-underline-offset: 2px;
                 background: none;

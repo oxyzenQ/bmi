@@ -31,7 +31,7 @@
 
 /* footer icons — fluid sizing */
 .AlertTriangle {
-  color: yellow !important;
+  color: var(--warn-yellow) !important;
   width: clamp(30px, 6vw, 48px) !important;
   height: clamp(30px, 6vw, 48px) !important;
 }
@@ -103,13 +103,13 @@
 
 /* Bmi result icons */
 .Info {
-  color: yellow !important;
+  color: var(--warn-yellow) !important;
   width: 24px !important;
   height: 24px !important;
 }
 
 .AlertCircle {
-  color: yellow !important;
+  color: var(--warn-yellow) !important;
   width: 24px !important;
   height: 24px !important;
 }
@@ -117,13 +117,13 @@
 /* BMI reference icon — fluid sizing */
 .Info2 {
   padding: 2.5rem;
-  color: #ffff00 !important;
+  color: var(--warn-yellow) !important;
   width: clamp(28px, 6vw, 48px) !important;
   height: clamp(28px, 6vw, 48px) !important;
 }
 
 .AlertTriangle2 {
-  color: yellow !important;
+  color: var(--warn-yellow) !important;
   width: 24px !important;
   height: 24px !important;
 }
@@ -135,7 +135,7 @@
 }
 
 .TrendingUp {
-  color: yellow !important;
+  color: var(--warn-yellow) !important;
   width: 24px !important;
   height: 24px !important;
 }

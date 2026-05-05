@@ -283,22 +283,22 @@
 
 /* Dynamic color variants */
 .pill-indicator[data-color="red"] .dot {
-  background: #D50000;
+  background: var(--darkred-90);
   box-shadow: 0 0 8px var(--cat-red-32);
 }
 
 .pill-indicator[data-color="green"] .dot {
-  background: #00C853;
+  background: var(--cat-green-95);
   box-shadow: 0 0 8px var(--cat-green-32);
 }
 
 .pill-indicator[data-color="yellow"] .dot {
-  background: #FFD600;
+  background: var(--cat-amber-solid);
   box-shadow: 0 0 8px var(--cat-yellow-32);
 }
 
 .pill-indicator[data-color="blue"] .dot {
-  background: #4A90E2;
+  background: var(--cat-blue-solid);
   box-shadow: 0 0 8px var(--cat-blue-32);
 }
 

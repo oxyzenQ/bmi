@@ -126,6 +126,7 @@
   --k-20: rgba(0, 0, 0, 0.2);
   --k-25: rgba(0, 0, 0, 0.25);
   --k-30: rgba(0, 0, 0, 0.3);
+  --k-32: rgba(0, 0, 0, 0.32);
   --k-38: rgba(0, 0, 0, 0.38);
   --k-40: rgba(0, 0, 0, 0.4);
   --k-42: rgba(0, 0, 0, 0.42);
@@ -227,6 +228,7 @@
   --purple-5: rgba(168, 85, 247, 0.05);
   --purple-15: rgba(168, 85, 247, 0.15);
   --purple-25: rgba(168, 85, 247, 0.25);
+  --purple-40: rgba(168, 85, 247, 0.4);
   --purple-60: rgba(168, 85, 247, 0.6);
   --purple-80: rgba(168, 85, 247, 0.8);
   --purple-90: rgba(168, 85, 247, 0.9);
@@ -367,6 +369,7 @@
   /* Amber-gold (251,191,36) — golden amber for badges */
   --amber-gold-30: rgba(251, 191, 36, 0.30);
   --amber-gold-40: rgba(251, 191, 36, 0.40);
+  --amber-gold-60: rgba(251, 191, 36, 0.60);
 
   /* Goal-green (34,197,94) — goal tracker accent */
   --goal-green-10: rgba(34, 197, 94, 0.10);

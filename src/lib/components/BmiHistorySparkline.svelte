@@ -74,10 +74,10 @@
   let hoveredIndex: number | null = $state(null);
 
   function getBmiColor(bmi: number): string {
-    if (bmi < 18.5) return '#60a5fa';
-    if (bmi < 25) return '#4ade80';
-    if (bmi < 30) return '#fbbf24';
-    return '#f87171';
+    if (bmi < 18.5) return 'var(--cat-blue-solid)';
+    if (bmi < 25) return 'var(--cat-green-solid)';
+    if (bmi < 30) return 'var(--cat-amber-solid)';
+    return 'var(--cat-red-solid)';
   }
 
   function getBmiLabel(bmi: number): string {
@@ -439,7 +439,7 @@
 
   .sparkline-badge.trend-up {
     background: var(--cat-red-15);
-    color: #D50000;
+    color: var(--darkred-90);
   }
 
   .sparkline-chart {

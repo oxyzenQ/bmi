@@ -263,7 +263,7 @@
 
   .comp-header {
     font-size: 0.8rem;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
     margin-bottom: 0.5rem;
     font-weight: 500;
   }
@@ -295,7 +295,7 @@
     gap: 1.25rem;
     margin-top: 0.5rem;
     font-size: 0.75rem;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
   }
 
   .legend-item {
@@ -321,7 +321,7 @@
   .bf-desc {
     text-align: center;
     font-size: 0.875rem;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
     margin-bottom: 1rem;
     line-height: 1.5;
   }
@@ -336,7 +336,7 @@
     border-radius: 12px;
     margin-bottom: 1.25rem;
     font-size: 0.78rem;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
     line-height: 1.5;
   }
 
@@ -377,7 +377,7 @@
 
   .range-label {
     font-size: 0.72rem;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
     width: 60px;
     flex-shrink: 0;
     text-align: right;
@@ -399,7 +399,7 @@
 
   .range-val {
     font-size: 0.7rem;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
     width: 40px;
     flex-shrink: 0;
     font-family: 'JetBrains Mono Variable', monospace;
@@ -412,7 +412,7 @@
     justify-content: center;
     padding: 2.5rem;
     text-align: center;
-    color: var(--cat-slate-50, #94a3b8);
+    color: var(--slate-400-solid);
   }
 
   .bf-empty :global(svg) {
