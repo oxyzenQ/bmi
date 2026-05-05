@@ -48,7 +48,7 @@ export function getLocaleVersion(): number { return get(localeVersionStore); }
 /** Synchronize from stored preference (call in onMount) */
 export function initLocale(): void {
   if (!browser) return;
-  let detected: Locale = 'en';
+  let detected: Locale;
   const stored = storageGet(STORAGE_KEYS.LOCALE);
   if (stored && locales.some(l => l.code === stored)) {
     detected = stored as Locale;
@@ -63,9 +63,7 @@ export function initLocale(): void {
   }
   localeStore.set(detected);
   if (detected !== 'en') void loadLocale(detected);
-  if (browser) {
-    document.documentElement.lang = detected === 'zh' ? 'zh-CN' : detected;
-  }
+  document.documentElement.lang = detected === 'zh' ? 'zh-CN' : detected;
 }
 
 /** Change locale and persist */
