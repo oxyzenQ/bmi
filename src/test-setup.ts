@@ -58,8 +58,8 @@ vi.mock('$app/stores', () => ({
 	// Source 3: globalThis (Node 20+ / newer Bun)
 	if (!subtle) {
 		try {
-			subtle = (globalThis as Record<string, unknown>)?.crypto
-				? ((globalThis as Record<string, unknown>).crypto as Record<string, unknown>)?.subtle
+			subtle = (globalThis as unknown as Record<string, unknown>)?.crypto
+				? ((globalThis as unknown as Record<string, unknown>).crypto as Record<string, unknown>)?.subtle
 				: undefined;
 		} catch { /* not available */ }
 	}
@@ -75,41 +75,43 @@ vi.mock('$app/stores', () => ({
 		return;
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const w = window as any;
+	const g = globalThis as Record<string, unknown>;
+
 	// Strategy 1: Direct property assignment on window.crypto
 	try {
-		(window.crypto as Record<string, unknown>).subtle = subtle;
-		if ((window.crypto as Record<string, unknown>).subtle === subtle) return;
+		w.crypto.subtle = subtle;
+		if (w.crypto.subtle === subtle) return;
 	} catch { /* property may be non-writable */ }
 
 	// Strategy 2: Object.defineProperty on window.crypto
 	try {
-		Object.defineProperty(window.crypto, 'subtle', {
+		Object.defineProperty(w.crypto, 'subtle', {
 			value: subtle,
 			configurable: true,
 			writable: true
 		});
-		if ((window.crypto as Record<string, unknown>).subtle === subtle) return;
+		if (w.crypto.subtle === subtle) return;
 	} catch { /* window.crypto may be sealed */ }
 
 	// Strategy 3: Replace entire window.crypto object
 	try {
-		const patched = Object.assign({}, window.crypto, { subtle });
-		Object.defineProperty(window, 'crypto', {
+		const patched = Object.assign({}, w.crypto, { subtle });
+		Object.defineProperty(w, 'crypto', {
 			value: patched,
 			configurable: true,
 			writable: true
 		});
-		if ((window as Record<string, unknown>).crypto === patched) return;
+		if (w.crypto === patched) return;
 	} catch { /* window.crypto may be non-configurable */ }
 
 	// Strategy 4: Replace via vi.stubGlobal (modifies globalThis)
 	try {
-		const patched = {
-			...(globalThis as Record<string, unknown>).crypto,
-			subtle
-		};
+		const existing = g.crypto ?? {};
+		const patched = { ...existing, subtle };
 		vi.stubGlobal('crypto', patched);
-		if ((globalThis as Record<string, unknown>).crypto === patched) return;
+		if (g.crypto === patched) return;
 	} catch { /* last resort failed */ }
 
 	console.error(
@@ -123,11 +125,13 @@ beforeAll(() => {
 	if (typeof document === 'undefined') {
 		throw new Error('jsdom environment not properly configured');
 	}
-	if (typeof (window.crypto as Record<string, unknown>)?.subtle !== 'object') {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	if (typeof (window as any).crypto?.subtle !== 'object') {
 		console.error(
 			'[test-setup] crypto.subtle verification FAILED.\n' +
 			`  window.crypto type: ${typeof window.crypto}\n` +
-			`  window.crypto.subtle type: ${typeof (window.crypto as Record<string, unknown>)?.subtle}`
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			`  window.crypto.subtle type: ${typeof (window as any).crypto?.subtle}`
 		);
 	}
 });
