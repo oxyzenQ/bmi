@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowUpFromLine, PersonStanding, Flame, FileSpreadsheet, UploadCloud, Settings } from 'lucide-svelte';
+  import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame, FileSpreadsheet, Settings } from 'lucide-svelte';
   import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport, importBmiHistory, peekImportMeta, MAX_IMPORT_SIZE, type ImportFileMeta, type ImportError } from '$lib/utils/history-io';
   import { STORAGE_KEYS, storageGetJSON } from '$lib/utils/storage';
   import { tick } from 'svelte';
@@ -714,7 +714,7 @@
       aria-label={t('form.import_aria')}
     >
       <div class="bmi-drop-zone__icon">
-        <UploadCloud size={28} />
+        <ArrowDownToLine size={28} />
       </div>
       <div class="bmi-drop-zone__text">{isDragOver ? t('form.drop_file_here') : t('form.import')}</div>
       <div class="bmi-drop-zone__subtext">{t('form.or_choose_file')}</div>
