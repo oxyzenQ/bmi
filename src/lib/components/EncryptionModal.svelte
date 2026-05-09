@@ -728,7 +728,6 @@
 
   .encrypt-input {
     width: 100%;
-    box-sizing: border-box;
     padding: 0.75rem 1rem;
     padding-right: 2.75rem;
     font-size: 0.95rem;

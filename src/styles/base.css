@@ -2,6 +2,12 @@
 /* ==============================
       GLOBAL STYLES
       ============================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html {
   height: 100%;
   scrollbar-width: none;

@@ -180,9 +180,8 @@
     border-radius: var(--radius-lg);
     padding: 2rem;
     min-width: 320px;
-    max-width: 90vw;
     width: 100%;
-    max-width: 400px;
+    max-width: min(400px, 90vw);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     backdrop-filter: blur(24px) saturate(180%);
     box-shadow: 0 25px 50px -12px var(--k-50);

@@ -257,8 +257,8 @@
     position: relative;
     background: var(--k-50) !important;
     border: var(--border-by-rezky);
-    border-radius: 24px;
-    padding: 2.5rem 2rem;
+    border-radius: var(--radius-lg);
+    padding: 2rem;
     min-width: 320px;
     max-width: 90vw;
     text-align: center;
@@ -452,11 +452,10 @@
 
   @media (max-width: 480px) {
     .notify-float-box {
-      padding: 2rem 1.5rem;
+      padding: 1.5rem;
       min-width: auto;
       width: calc(100vw - 2rem);
       margin: 0 1rem;
-      border-radius: 20px;
     }
 
     .notify-message {

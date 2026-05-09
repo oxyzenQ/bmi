@@ -24,7 +24,7 @@ import { STORAGE_KEYS, storageGet } from './storage';
 
 // ── Constants ──
 const MAX_BACKUPS = 3;
-const APP_VERSION = '15.0.0';
+const APP_VERSION = '15.1.0';
 
 // ── Types ──
 export interface BackupStatus {
