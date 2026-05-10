@@ -430,6 +430,11 @@ async function verifyIntegrity(
  * Use this to pre-check a file before asking the user for confirmation.
  */
 export async function validateBmiImport(json: string, passphrase?: string): Promise<ValidationResult> {
+        // Size guard — reject files exceeding MAX_IMPORT_SIZE before any processing
+        if (json.length > MAX_IMPORT_SIZE) {
+                return { valid: false, error: t('history.file_too_large'), errorCode: 'file_too_large' };
+        }
+
         // Auto-detect encrypted payload
         let content = json;
         const { isEncrypted } = await import('./crypto');

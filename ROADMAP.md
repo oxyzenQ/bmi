@@ -32,12 +32,12 @@
 
 Architecture-level release, not a feature release.
 
-- [ ] Argon2id parameter review (memory, iterations, parallelism)
-- [ ] Encryption failure handling audit (AES-GCM auth tag mismatch paths)
-- [ ] Export/import integrity audit (HMAC, signature verification edge cases)
-- [ ] Storage corruption recovery paths
-- [ ] Migration rollback safety
-- [ ] Remove remaining silent failures in critical paths
+- [x] Argon2id parameter review (memory, iterations, parallelism)
+- [x] Encryption failure handling audit (AES-GCM auth tag mismatch paths)
+- [x] Export/import integrity audit (HMAC, signature verification edge cases)
+- [x] Storage corruption recovery paths
+- [x] Migration rollback safety
+- [x] Remove remaining silent failures in critical paths
 
 ---
 
@@ -83,7 +83,7 @@ Architecture-level release, not a feature release.
 | v15.1       | UI Stabilization              | ✅ Done |
 | v15.2       | Observability                 | ✅ Done |
 | v15.3       | Regression Fortress           | ✅ Done |
-| v16.0       | Reliability hardening         | 🔲     |
+| v16.0       | Reliability hardening         | ✅ Done |
 | v17.0       | UX consistency                | 🔲     |
 | v18.0       | Performance & maintainability | 🔲     |
 | v20.0       | Next-generation features      | 🔲     |

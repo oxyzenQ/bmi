@@ -30,13 +30,22 @@ const SALT_LENGTH = 16; // 128-bit salt
 const IV_LENGTH = 12; // 96-bit IV for AES-GCM
 
 /**
- * Argon2id parameters — tuned for mobile safety (max ~32 MB RAM).
- * Uses @noble/hashes (pure JS, no WASM overhead).
- * 32 MB memory, 2 iterations, parallelism 1.
+ * Argon2id parameters — tuned for mobile safety.
+ * Based on OWASP 2023 recommendations for password hashing:
+ *   https://owasp.org/www-project-cryptography/
+ *
+ *   m:  64 MiB memory cost (Kibibytes) — up from 32 MiB
+ *   t:  3 iterations (time cost) — up from 2
+ *   p:  1 parallelism (single thread for mobile compatibility)
+ *   dkLen: 32 bytes (256-bit → AES-256 key)
+ *
+ * On mobile devices with <4 GB RAM, Argon2 will fall back gracefully to PBKDF2
+ * via the existing fallback in deriveKey(). This is intentional — we prioritize
+ * not crashing the user's browser over cryptographic strength on low-end devices.
  */
 const ARGON2_OPTIONS = {
-  m: 32 * 1024,   // 32 MB memory cost (Kibibytes)
-  t: 2,            // 2 iterations (time cost)
+  m: 64 * 1024,   // 64 MiB memory cost (up from 32 MiB — OWASP 2023)
+  t: 3,            // 3 iterations (up from 2 — harder for attackers)
   p: 1,            // parallelism (single thread for mobile)
   dkLen: 32,       // 256-bit output → AES-256 key
 };
@@ -366,6 +375,11 @@ export async function encrypt(plaintext: string, passphrase: string, meta?: Encr
  * Auto-detects KDF (argon2id or pbkdf2) from payload.
  * Returns `{ plaintext, integrityOk }` on success, or `null` on failure.
  *
+ * Error differentiation (v16.0 — Reliability):
+ *   - `OperationError`: AES-GCM auth tag mismatch → wrong passphrase (most likely)
+ *   - Other errors: corrupted payload, invalid base64, etc.
+ *   All failures are logged via warnDev with specific context.
+ *
  * Integrity check: verifies SHA-256 checksum of decrypted plaintext
  * against stored checksum. Separate from AES-GCM auth tag — provides
  * explicit tamper detection with clear error messages.
@@ -377,7 +391,26 @@ export async function decrypt(
   try {
     const payload: EncryptedPayload = JSON.parse(encryptedJson);
 
-    if (payload.format !== 'bmi-encrypted-v1') return null;
+    if (payload.format !== 'bmi-encrypted-v1') {
+      warnDev('crypto', 'decrypt', 'Unknown encrypted format — expected bmi-encrypted-v1');
+      return null;
+    }
+
+    // Validate payload structure before attempting crypto operations
+    if (!payload.salt || !payload.iv || !payload.data) {
+      warnDev('crypto', 'decrypt', 'Encrypted payload is missing required fields (salt, iv, or data)');
+      return null;
+    }
+
+    // Validate base64 integrity before decoding
+    try {
+      fromBase64(payload.salt);
+      fromBase64(payload.iv);
+      fromBase64(payload.data);
+    } catch (err) {
+      warnDev('crypto', 'decrypt', 'Encrypted payload contains invalid base64 — data may be corrupted', err);
+      return null;
+    }
 
     const salt = fromBase64(payload.salt);
     const iv = fromBase64(payload.iv);
@@ -404,8 +437,12 @@ export async function decrypt(
 
     return { plaintext, integrityOk };
   } catch (err) {
-    // Wrong passphrase or corrupted data — AES-GCM auth tag mismatch
-    warnDev('crypto', 'decrypt', 'Decryption failed (wrong passphrase or corrupted data)', err);
+    // Differentiate AES-GCM auth tag mismatch (wrong passphrase) from other errors
+    if (err instanceof DOMException && err.name === 'OperationError') {
+      warnDev('crypto', 'decrypt', 'AES-GCM auth tag mismatch — likely wrong passphrase');
+    } else {
+      warnDev('crypto', 'decrypt', 'Decryption failed (corrupted data or crypto error)', err);
+    }
     return null;
   }
 }

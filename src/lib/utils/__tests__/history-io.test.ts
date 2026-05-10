@@ -214,6 +214,13 @@ describe('history-io', () => {
                         expect(result.error?.toLowerCase()).toContain('integrity');
                 });
 
+                it('rejects oversized input (>5MB) via validateBmiImport', async () => {
+                        const bigData = 'x'.repeat(5 * 1024 * 1024 + 1);
+                        const result = await validateBmiImport(bigData);
+                        expect(result.valid).toBe(false);
+                        expect(result.errorCode).toBe('file_too_large');
+                });
+
                 it('accepts valid v3 HMAC export', async () => {
                         const records = [{ timestamp: 1700000000000, bmi: 22.5, height: 170, weight: 65 }];
                         localStorageMock.getItem.mockReturnValue(JSON.stringify(records));

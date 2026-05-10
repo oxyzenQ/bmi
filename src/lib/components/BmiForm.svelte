@@ -2,6 +2,7 @@
   import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame, FileSpreadsheet, Settings } from 'lucide-svelte';
   import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport, importBmiHistory, peekImportMeta, MAX_IMPORT_SIZE, type ImportFileMeta, type ImportError } from '$lib/utils/history-io';
   import { STORAGE_KEYS, storageGetJSON } from '$lib/utils/storage';
+  import { warnDev } from '$lib/utils/warn-dev';
   import { tick } from 'svelte';
   import { t as _t, localeVersion } from '$lib/i18n';
   import EncryptionModal from './EncryptionModal.svelte';
@@ -363,8 +364,9 @@
           error: t(importErrorKey(code))
         });
       }
-    } catch {
+    } catch (err) {
       // Notify parent to show error via NotifyFloat
+      warnDev('BmiForm', 'handleImport', 'Import processing failed unexpectedly', err);
       stagingLoading = false;
       onNotify?.({
         action: 'import-error',

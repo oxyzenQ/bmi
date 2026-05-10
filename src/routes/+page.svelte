@@ -96,7 +96,8 @@
     let history: Array<{ timestamp: number; bmi: number; height: number; weight: number; age?: number }> = [];
     try {
       history = storageGetJSON(STORAGE_KEYS.HISTORY, []);
-    } catch {
+    } catch (err) {
+      warnDev('page', 'saveBmi', 'Failed to read history — corrupted data removed', err);
       storageRemove(STORAGE_KEYS.HISTORY);
     }
 
@@ -1217,7 +1218,7 @@
                     <div class="app-info">
                       <p class="info-row">
                         <PackageCheck class="PackageCheck" />
-                        <strong>{t('about.version')}:</strong>Stellar v15.3 <span class="commit-id">({gitCommitId})</span>
+                        <strong>{t('about.version')}:</strong>Stellar v16.0 <span class="commit-id">({gitCommitId})</span>
                       </p>
                       <p class="info-row">
                         <GitBranch class="GitBranch" />

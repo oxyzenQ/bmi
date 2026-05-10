@@ -83,7 +83,8 @@
     try {
       const stored = localStorage.getItem('bmi.renderMode');
       return stored === null ? true : stored === '1' || stored === 'true';
-    } catch {
+    } catch (err) {
+      warnDevOnce('layout', 'readRenderMode', 'Failed to read render mode from localStorage', err);
       return true;
     }
   }

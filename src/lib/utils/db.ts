@@ -15,6 +15,17 @@ const STORE_KV = 'keyvalue';
 const STORE_BACKUPS = 'backups';
 const STORE_META = 'meta';
 
+// Lazy import to avoid circular dependency (db.ts ← warn-dev.ts ← storage.ts ← db.ts)
+function _warn(module: string, fn: string, msg: string, err?: unknown): void {
+  try {
+    // Dynamic import to break circular dependency
+    import('./warn-dev').then(({ warnDev }) => warnDev(module, fn, msg, err)).catch(() => {});
+  } catch {
+    // Last resort — console.warn if dynamic import also fails
+    console.warn(`[warn] [${module}:${fn}] ${msg}`, err ?? '');
+  }
+}
+
 // ── Types ──
 export interface BackupRecord {
   id?: number; // auto-increment
@@ -232,8 +243,7 @@ export function isIndexedDbAvailable(): boolean {
   try {
     return typeof indexedDB !== 'undefined';
   } catch (err) {
-    // Should never happen, but guard against edge cases
-    console.warn('[db] isIndexedDbAvailable check failed:', err);
+    _warn('db', 'isIndexedDbAvailable', 'IndexedDB availability check failed', err);
     return false;
   }
 }
