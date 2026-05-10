@@ -21,10 +21,10 @@
 - [x] Dev-only diagnostics panel or console helpers
 
 ### v15.3 — Regression Fortress
-- [ ] Add regression test for every bug fixed in v15.1–v15.2
-- [ ] CI hardening (pin Bun version, stabilize Vitest env)
-- [ ] Verify all export/import edge cases have test coverage
-- [ ] Lock dependency versions that affect behavior
+- [x] Add regression test for every bug fixed in v15.1–v15.2
+- [x] CI hardening (pin Bun version, stabilize Vitest env)
+- [x] Verify all export/import edge cases have test coverage
+- [x] Lock dependency versions that affect behavior
 
 ---
 
@@ -82,7 +82,7 @@ Architecture-level release, not a feature release.
 | v15.0       | Foundation reset              | ✅ Done |
 | v15.1       | UI Stabilization              | ✅ Done |
 | v15.2       | Observability                 | ✅ Done |
-| v15.3       | Regression Fortress           | 🔲     |
+| v15.3       | Regression Fortress           | ✅ Done |
 | v16.0       | Reliability hardening         | 🔲     |
 | v17.0       | UX consistency                | 🔲     |
 | v18.0       | Performance & maintainability | 🔲     |

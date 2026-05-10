@@ -6,7 +6,7 @@ import type { TranslationDict } from '../types';
 
 const ja: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': '\u7c21\u5358 BMI \u8a08\u7b97 \u2014 Stellar v15.2',
+  'meta.title': '\u7c21\u5358 BMI \u8a08\u7b97 \u2014 Stellar v15.3',
   'meta.description': '\u8c6a\u83ef\u306a\u5b87\u5b99\u30c6\u30fc\u30de\u306e BMI \u8a08\u7b97\u30c4\u30fc\u30eb\u3002BMI\u3001TDEE\u3001\u4f53\u8102\u7387\u3092\u8a08\u7b97\u3057\u3001\u30a4\u30f3\u30bf\u30e9\u30af\u30c6\u30a3\u30d6\u306a\u30c1\u30e3\u30fc\u30c8\u3067\u5065\u5eb7\u306e\u65c5\u3092\u8ffd\u8de1\u3057\u307e\u3057\u3087\u3046\u3002SvelteKit \u306b\u3088\u308b Team LOGIGO \u4f5c\u6210\u3002',
   'meta.og_description': '\u8c6a\u83ef\u306a\u5b87\u5b99\u30c6\u30fc\u30de\u306e BMI \u8a08\u7b97\u30c4\u30fc\u30eb\u3002TDEE\u3001\u4f53\u8102\u7387\u3001\u30a4\u30f3\u30bf\u30e9\u30af\u30c6\u30a3\u30d6\u30c1\u30e3\u30fc\u30c8\u3001PWA \u30b5\u30dd\u30fc\u30c8\u4ed8\u304d\u3002',
 
@@ -58,7 +58,7 @@ const ja: TranslationDict = {
   'hero.feature1': '\u9ad8\u7cbe\u5ea6\u8a08\u7b97',
   'hero.feature2': '\u5065\u5eb7\u30a4\u30f3\u30b5\u30a4\u30c8',
   'hero.feature3': '\u30e9\u30af\u30b7\u30e5\u30ea\u30fc\u30c7\u30b6\u30a4\u30f3',
-  'hero.edition': 'Stellar v15.2',
+  'hero.edition': 'Stellar v15.3',
 
   // ── Form ──
   'form.title': 'BMI \u8a08\u7b97\u30c4\u30fc\u30eb',

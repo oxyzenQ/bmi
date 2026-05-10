@@ -538,6 +538,11 @@ export async function importBmiHistory(json: string, passphrase?: string): Promi
                 return { success: false, count: 0, error: t('history.empty_file'), errorCode: 'empty_file' };
         }
 
+        // Size guard — reject files exceeding MAX_IMPORT_SIZE before parsing
+        if (json.length > MAX_IMPORT_SIZE) {
+                return { success: false, count: 0, error: t('history.file_too_large'), errorCode: 'file_too_large' };
+        }
+
         // Auto-detect and decrypt if encrypted and passphrase provided
         let content = json;
         const { isEncrypted } = await import('./crypto');

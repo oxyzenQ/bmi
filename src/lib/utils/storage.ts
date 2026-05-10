@@ -213,7 +213,10 @@ export function storageGetJSON<T>(key: string, fallback: T): T {
   const raw = storageGet(key);
   if (raw === null || raw === undefined) return fallback;
   try {
-    return JSON.parse(raw) as T;
+    const parsed = JSON.parse(raw) as T;
+    // JSON.parse('null') succeeds and returns JS null — treat as missing
+    if (parsed === null || parsed === undefined) return fallback;
+    return parsed;
   } catch (err) {
     warnDev('storage', 'storageGetJSON', `Failed to parse JSON for key: ${key}`, err);
     return fallback;
@@ -225,7 +228,12 @@ export function storageGetJSON<T>(key: string, fallback: T): T {
  * Returns true on success, false on failure.
  */
 export function storageSetJSON<T>(key: string, value: T): boolean {
-  return storageSet(key, JSON.stringify(value));
+  try {
+    return storageSet(key, JSON.stringify(value));
+  } catch (err) {
+    warnDev('storage', 'storageSetJSON', `Failed to serialize JSON for key: ${key}`, err);
+    return false;
+  }
 }
 
 /**

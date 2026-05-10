@@ -1,7 +1,7 @@
 {
   "name": "a-simple-bmi-calc",
   "private": true,
-  "version": "15.2.0",
+  "version": "15.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite dev --host",
@@ -31,8 +31,8 @@
     "@eslint/compat": "^1.4.1",
     "@eslint/js": "^9.39.4",
     "@sveltejs/adapter-vercel": "^5.10.3",
-    "@sveltejs/kit": "^2.59.1",
-    "@sveltejs/vite-plugin-svelte": "^6.2.4",
+    "@sveltejs/kit": "2.59.1",
+    "@sveltejs/vite-plugin-svelte": "6.2.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/svelte": "^5.3.1",
     "@types/bun": "latest",
@@ -41,16 +41,16 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.17.1",
     "globals": "^16.5.0",
-    "jsdom": "^27.4.0",
+    "jsdom": "27.4.0",
     "prettier": "^3.8.3",
     "prettier-plugin-svelte": "^3.5.1",
     "rollup-plugin-visualizer": "^6.0.11",
-    "svelte": "^5.55.5",
+    "svelte": "5.55.5",
     "svelte-check": "^4.4.8",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.59.2",
-    "vite": "^7.3.3",
-    "vitest": "^3.2.4"
+    "vite": "7.3.3",
+    "vitest": "3.2.4"
   },
   "keywords": [
     "bmi",
@@ -69,10 +69,10 @@
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
-    "@noble/hashes": "^2.2.0",
+    "@noble/hashes": "2.2.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "lucide-svelte": "^0.446.0",
-    "zxcvbn-ts": "^2.1.0"
+    "zxcvbn-ts": "2.1.0"
   }
 }
