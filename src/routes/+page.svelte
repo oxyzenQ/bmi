@@ -285,14 +285,14 @@
           const dx = (1 - p) * x;
           const scale = 0.98 + 0.02 * p; // 0.98 → ~1.01 → 1.0 (overshoot built into backOut)
           const opacity = 0.4 + 0.6 * p;
-          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)};`;
+          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)}; z-index: 1;`;
         } else {
           // OUT: clean decisive exit, no bounce. Fade + drift.
           const p = cubicOut(t);
           const dx = p * x;
           const scale = 1 - 0.02 * p; // 1 → 0.98
           const opacity = 1 - p;
-          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)}; pointer-events: none;`;
+          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)}; pointer-events: none; z-index: 0;`;
         }
       }
     };
