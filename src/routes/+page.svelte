@@ -181,6 +181,7 @@
   let switchingTimer: ReturnType<typeof setTimeout> | null = null;
   let pageDestroyed = $state(false);
   let showScrollTopFab = $state(false);
+  let isTransitioning = false;
 
 
 
@@ -410,6 +411,10 @@
   }
 
   function goTo(index: number, opts?: { skipHash?: boolean; skipSwitching?: boolean }) {
+    // Navigation lock: prevent rapid-fire swipes from causing ghost containers.
+    // The OUT transition must complete before allowing the next navigation.
+    if (isTransitioning && !opts?.skipSwitching) return;
+
     const next = clampIndex(index);
     if (next === activeIndex) {
       if (!opts?.skipHash) setHash(sections[activeIndex].id);
@@ -418,10 +423,17 @@
     }
 
     if (browser && !reducedMotionEffective && !opts?.skipSwitching) {
+      isTransitioning = true;
       if (switchingTimer) clearTimeout(switchingTimer);
       document.body.classList.add('is-switching');
-      const ms = Math.max(240, pagerMotionDuration) + SWITCHING_DELAY;
+      // Lock for the OUT transition duration + small buffer (40ms).
+      // OUT is shorter than IN, so this feels responsive while preventing ghosts.
+      const outDur = smoothModeRequested
+        ? Math.round(pagerMotionDuration * PAGER_OUT_RATIO) + 40
+        : PAGER_OUT_BASIC + 40;
+      const ms = Math.max(outDur, 120);
       switchingTimer = setTimeout(() => {
+        isTransitioning = false;
         document.body.classList.remove('is-switching');
         switchingTimer = null;
       }, ms);
