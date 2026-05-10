@@ -187,7 +187,7 @@ html[data-performance-tier="medium"] .cosmic-particles {
   height: 56px;
   border-radius: 50%;
   border: 1px solid var(--violet-18);
-  background: var(--btn-bg);
+  background: var(--btn-bg-hover);
   color: var(--stellar-white);
   display: flex;
   align-items: center;
@@ -205,7 +205,7 @@ html[data-performance-tier="medium"] .cosmic-particles {
 }
 
 .pager-btn-futuristic:hover {
-  background: var(--btn-bg-hover);
+  background: var(--btn-bg-active);
   border-color: var(--violet-30);
   color: var(--stellar-white);
   transform: translateY(-1px);

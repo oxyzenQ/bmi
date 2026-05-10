@@ -530,12 +530,12 @@ html:not([data-graphics='render']) .shooting-star {
   pointer-events: auto;
   color: white !important;
   border-color: var(--violet-18) !important;
-  background: var(--btn-bg) !important;
+  background: var(--btn-bg-hover) !important;
   box-shadow: none !important;
 }
 
 .pager-btn-scroll-top.fab-visible:hover {
-  background: var(--btn-bg-hover) !important;
+  background: var(--btn-bg-active) !important;
   box-shadow: none !important;
   color: white !important;
 }
