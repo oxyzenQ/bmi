@@ -3,6 +3,8 @@
   import '../styles/tokens.css';
   /* ── Base resets, typography, utility classes ── */
   import '../styles/base.css';
+  /* ── Lucide icon sizing (fluid clamp for large, fixed 24px for small) ── */
+  import '../styles/icons.css';
   /* ── Glassmorphism containers, button system, hero section ── */
   import '../styles/components.css';
   /* ── BMI form layout, inputs, validation ── */
@@ -13,14 +15,22 @@
   import '../styles/data-cards.css';
   /* ── Cosmic particles, footer ── */
   import '../styles/layout.css';
-  /* ── Responsive breakpoints, reduced motion ── */
-  import '../styles/responsive.css';
+  /* ── Responsive: base rules, form width reduction ── */
+  import '../styles/responsive-base.css';
+  /* ── Responsive: width-based breakpoints (768px → 250px, ultrawide) ── */
+  import '../styles/responsive-width.css';
+  /* ── Responsive: height-based breakpoints (640px, 520px) ── */
+  import '../styles/responsive-height.css';
+  /* ── Responsive: backdrop-filter fallback (must load after components) ── */
+  import '../styles/responsive-backdrop.css';
   /* ── Pager / bottom navbar ── */
   import '../styles/nav.css';
   /* ── Language switcher floating panel (portaled to body) ── */
   import '../styles/lang-switcher.css';
   /* ── Skeleton loading, shooting stars, haptic feedback ── */
   import '../styles/animation.css';
+  /* ── Touch device scroll performance (MUST load last — uses !important overrides) ── */
+  import '../styles/responsive-mobile-perf.css';
   import CosmicParticles from '$lib/components/CosmicParticles.svelte';
   import { onMount, type Snippet } from 'svelte';
   import { browser } from '$app/environment';

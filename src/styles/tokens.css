@@ -361,6 +361,22 @@
   --cosmic-base-95: rgba(0, 0, 0, 0.95);
   --darkred-85: rgba(183, 28, 28, 0.85);
 
+  /* ── SHARE IMAGE CANVAS COLORS (v18.0) ──
+       Used by share-image.ts canvas rendering.
+       CSS custom properties can't be read from Canvas API,
+       so these are documented here for reference only. */
+  /* Canvas background: #0a0818 (deep cosmic dark) */
+  /* Canvas mid gradient: #1a0533 (deep purple) */
+  /* Canvas white: #ffffff */
+
+  /* ── MODAL ERROR COLORS (v18.0) ── */
+  --error-bg-default: rgba(213, 0, 0, 0.08);
+  --error-border-default: rgba(213, 0, 0, 0.15);
+  --error-bg-danger: rgba(239, 68, 68, 0.10);
+  --error-border-danger: rgba(239, 68, 68, 0.30);
+  --error-bg-warning: rgba(245, 158, 11, 0.08);
+  --error-border-warning: rgba(245, 158, 11, 0.25);
+
   /* ── End opacity token system ── */
 
   /* Void — PURE BLACK overlay/button backgrounds */

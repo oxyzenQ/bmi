@@ -25,7 +25,7 @@ import { warnDev } from './warn-dev';
 
 // ── Constants ──
 const MAX_BACKUPS = 3;
-const APP_VERSION = '16.0.0';
+const APP_VERSION = '18.0.0';
 
 // ── Types ──
 export interface BackupStatus {

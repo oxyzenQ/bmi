@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { getPerformanceTier } from '$lib/utils/performance';
+  import { getPerformanceTier } from '$lib/utils/animation-config';
 
   let particlesContainer: HTMLDivElement;
   let particles: HTMLDivElement[] = [];

@@ -1,0 +1,325 @@
+/* ── responsive-base.css — Base responsive rules ── */
+/* v18.0 refactor: Extracted from responsive.css.
+   Contains: focus-visible, fluid media, .main-container,
+   fluid typography (h1-h4, p), and form width reduction section. */
+
+/* Focus styles for accessibility
+   T-22-pre: Replaced color-mix() with static rgba for mobile perf.
+   color-mix() on * selector means every tap triggers expensive
+   color computation on low-end mobile GPUs. */
+*:focus-visible {
+  outline: 2px solid var(--violet-42);
+  outline-offset: 2px;
+}
+
+/* ==============================
+      RESPONSIVE DESIGN
+      ============================== */
+/* Prevent horizontal scrollbars on narrow screens */
+
+
+/* Fluid media globally */
+img,
+svg:not(.eye-btn svg),
+canvas,
+video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Fluid container utility for central alignment */
+.main-container {
+  max-width: min(96vw, 1200px);
+  margin-inline: auto;
+  padding-inline: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+/* Typographic scale using clamp for readability */
+h1 {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  line-height: 1.125;
+}
+
+h2 {
+  font-size: clamp(1.5rem, 3.25vw, 2.25rem);
+  line-height: 1.15;
+}
+
+h3 {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  line-height: 1.2;
+}
+
+h4 {
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  line-height: 1.25;
+}
+
+p {
+  font-size: clamp(0.95rem, 1.25vw, 1.05rem);
+}
+
+/* ==============================
+      FORM WIDTH REDUCTION
+      Consolidated media queries without !important
+      ============================== */
+.form-input {
+  width: 100%;
+  max-width: 320px;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.button-group {
+  flex-direction: row;
+  justify-content: center;
+}
+
+.button-group .btn {
+  width: 50%;
+  max-width: 300px;
+}
+
+/* Mobile screens (below 400px) — C: aggressive compact breakpoint */
+@media (max-width: 399px) {
+  .form-input {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .input-error {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .button-group {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .button-group .btn {
+    width: 100%;
+    max-width: 220px;
+  }
+
+  /* C: Ultra-compact results card for very narrow screens */
+  .bmi-results-card {
+    padding: 1rem 0.875rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .card-header {
+    margin-top: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .card-title {
+    font-size: 1.15rem;
+  }
+
+  .card-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .bmi-value {
+    font-size: clamp(2.25rem, 11vw, 3rem);
+    margin-bottom: 0.65rem;
+  }
+
+  .bmi-category {
+    font-size: 1rem;
+  }
+
+  .bmi-display {
+    margin-bottom: 1rem;
+  }
+
+  .stat-row-grid {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-block {
+    padding: 0.85rem;
+    border-radius: 0.75rem;
+  }
+
+  .stat-number {
+    font-size: 1.1rem;
+  }
+
+  .stat-number.range-num {
+    font-size: 1rem;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+  }
+
+  .stat-desc {
+    font-size: 0.72rem;
+  }
+
+  .health-advice,
+  .age-advisory,
+  .bmi-explanation {
+    padding: 0.85rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .advice-title {
+    font-size: 0.95rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .advisory-title {
+    font-size: 0.85rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .explanation-title {
+    font-size: 0.85rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .advice-text,
+  .advisory-text,
+  .explanation-text {
+    font-size: 0.78rem;
+  }
+
+  .action-buttons-row {
+    gap: 0.3rem;
+    margin: 0.65rem 0;
+  }
+
+  .action-btn {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.65rem;
+    border-radius: 8px;
+    gap: 0.2rem;
+  }
+
+  .action-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* TDEE card compact */
+  .tdee-card {
+    border-radius: 0.75rem;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .tdee-stat-value {
+    font-size: 1.1rem;
+  }
+
+  .tdee-grid {
+    gap: 0.5rem;
+  }
+
+  .tdee-range {
+    padding: 0.4rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .tdee-disclaimer {
+    font-size: 0.7rem;
+    padding: 0 0.75rem 0.75rem;
+  }
+
+  /* Snapshot cards compact */
+  .snapshot-cards {
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+
+  .snapshot-card {
+    padding: 0.85rem 0.5rem;
+    border-radius: 0.75rem;
+  }
+
+  .card-value {
+    font-size: 1.75rem;
+  }
+
+  .progress-section {
+    padding: 1rem;
+    border-radius: 0.75rem;
+  }
+
+  /* Sparkline compact */
+  .sparkline-container {
+    padding: 0.625rem 0.4rem;
+    border-radius: 0.75rem;
+  }
+
+  .interactive-chart {
+    height: 160px;
+  }
+
+  .sparkline-footer {
+    font-size: 0.65rem;
+    gap: 0.15rem;
+  }
+
+  /* Health risk compact */
+  .health-tips {
+    padding: 0.85rem;
+    border-radius: 0.75rem;
+  }
+
+  .health-tips h4 {
+    font-size: 0.85rem;
+  }
+
+  .health-tips li {
+    font-size: 0.78rem;
+  }
+
+  /* About section compact */
+  .about-card {
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+  }
+
+  .about-card h3 {
+    font-size: 1rem;
+  }
+
+  /* Prime bar compact */
+  .prime-bar-track {
+    height: 5px;
+  }
+}
+
+/* Tablets and medium screens (400px - 768px) */
+@media (min-width: 400px) and (max-width: 768px) {
+  .form-input {
+    width: 100%;
+    max-width: 220px;
+  }
+
+  .input-error {
+    width: 100%;
+    max-width: 220px;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .button-group {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .button-group .btn {
+    width: 100%;
+    max-width: 220px;
+  }
+}

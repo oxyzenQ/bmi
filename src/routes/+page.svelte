@@ -3,7 +3,7 @@
   import { backOut, cubicOut } from 'svelte/easing';
   import { tweened } from 'svelte/motion';
   import { browser } from '$app/environment';
-  import { getPerformanceTier } from '$lib/utils/performance';
+  import { getPerformanceTier } from '$lib/utils/animation-config';
   import { importBmiHistory } from '$lib/utils/history-io';
   import { createLazyLoader, createPairedLazyLoader } from '$lib/utils/lazy-load';
   import { STORAGE_KEYS, storageGet, storageSet, storageSetJSON, storageRemove, storageGetJSON, storageInvalidate } from '$lib/utils/storage';

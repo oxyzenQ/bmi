@@ -191,8 +191,8 @@
   .backup-confirm {
     margin-top: 0.75rem;
     padding: 0.75rem;
-    background: var(--darkred-10);
-    border: 1px solid var(--darkred-30);
+    background: var(--error-bg-default);
+    border: 1px solid var(--error-border-default);
     border-radius: 0.5rem;
   }
 

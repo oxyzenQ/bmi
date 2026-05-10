@@ -846,8 +846,8 @@
     gap: 0.5rem;
     padding: 0.75rem;
     margin-bottom: 1.25rem;
-    background: var(--darkred-10);
-    border: 1px solid var(--darkred-30);
+    background: var(--error-bg-default);
+    border: 1px solid var(--error-border-default);
     border-radius: 8px;
     color: var(--red-500-solid);
     font-size: 0.85rem;
@@ -873,15 +873,15 @@
 
   /* Warning severity (corrupted file) — amber tone */
   .encrypt-error--warning {
-    background: rgba(245, 158, 11, 0.08);
-    border-color: rgba(245, 158, 11, 0.25);
+    background: var(--error-bg-warning);
+    border-color: var(--error-border-warning);
     color: var(--amber-gold-60);
   }
 
   /* Danger severity (wrong passphrase / tampered) — red tone */
   .encrypt-error--danger {
-    background: rgba(239, 68, 68, 0.10);
-    border-color: rgba(239, 68, 68, 0.30);
+    background: var(--error-bg-danger);
+    border-color: var(--error-border-danger);
     color: var(--red-500-solid);
   }
 

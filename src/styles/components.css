@@ -16,7 +16,7 @@
 .form-card,
 .section-header-v2,
 .github-link {
-  background: rgba(0, 0, 0, 0.85);
+  background: var(--glass-bg-fallback);
   border: var(--border-by-rezky);
   border-radius: var(--radius-lg);
   transition: transform var(--dur-slow) var(--easing-smooth),
@@ -44,12 +44,12 @@
   .form-card,
   .section-header-v2,
   .github-link {
-    background: rgba(0, 0, 0, 0.65);
+    background: var(--glass-bg-enhanced);
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     /* Stronger border + inset highlight compensate for lower opacity,
        ensuring clear container edges on any wallpaper. */
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    border: 1px solid var(--w-10);
     box-shadow:
       0 10px 30px rgba(0, 0, 0, 0.5),
       0 0 0 1px rgba(255, 255, 255, 0.06),
@@ -59,7 +59,7 @@
 
 /* ── Hero content fallback ── */
 .hero-content {
-  background: rgba(0, 0, 0, 0.85);
+  background: var(--glass-bg-fallback);
   border: var(--border-by-rezky);
   border-radius: 2rem;
   transition: transform var(--dur-slow) var(--easing-smooth),
@@ -72,10 +72,10 @@
      The hero is the first visual element — make it feel premium. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .hero-content {
-    background: rgba(0, 0, 0, 0.58);
+    background: var(--glass-bg-hero);
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    border: 1px solid var(--w-10);
     box-shadow:
       0 10px 30px rgba(0, 0, 0, 0.5),
       0 0 0 1px rgba(255, 255, 255, 0.06),
