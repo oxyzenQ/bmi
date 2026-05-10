@@ -21,6 +21,7 @@ import {
     dbSet,
     isIndexedDbAvailable
 } from './db';
+import { warnDev, warnDevOnce } from './warn-dev';
 
 // ── Storage key registry ──
 export const STORAGE_KEYS = {
@@ -60,7 +61,9 @@ function triggerBackup(reason: 'data_change' | 'before_import'): void {
   _backupTimer = setTimeout(() => {
     import('./backup').then(({ createBackup }) => {
       void createBackup(reason);
-    }).catch(() => {});
+    }).catch((err) => {
+      warnDevOnce('storage', 'triggerBackup', 'Backup creation failed', err);
+    });
     _backupTimer = null;
   }, delay);
 }
@@ -97,7 +100,7 @@ export async function initStorage(): Promise<void> {
 
     // Also sync to localStorage so sync fallback works
     for (const { key, value } of entries) {
-      try { localStorage.setItem(key, value); } catch { /* quota */ }
+      try { localStorage.setItem(key, value); } catch { /* quota — warnDev intentionally skipped for perf */ }
     }
 
     // Ensure schema version is recorded
@@ -107,8 +110,9 @@ export async function initStorage(): Promise<void> {
     }
 
     _initialized = true;
-  } catch {
+  } catch (err) {
     // IndexedDB failed — fall back to localStorage-only mode
+    warnDev('storage', 'initStorage', 'IndexedDB init failed, falling back to localStorage-only mode', err);
     _initialized = true;
   }
 }
@@ -126,7 +130,7 @@ async function migrateFromLocalStorage(): Promise<void> {
       if (value !== null) {
         await dbSet(key, value);
       }
-    } catch { /* skip unreadable keys */ }
+    } catch (err) { warnDev('storage', 'migrateFromLocalStorage', `Failed to migrate key: ${key}`, err); }
   }
 
   // Mark migration as complete
@@ -144,7 +148,8 @@ export function storageGet(key: string): string | null {
     const value = localStorage.getItem(key);
     cache.set(key, value);
     return value;
-  } catch {
+  } catch (err) {
+    warnDev('storage', 'storageGet', `Failed to read key: ${key}`, err);
     cache.set(key, null);
     return null;
   }
@@ -159,15 +164,18 @@ export function storageSet(key: string, value: string): boolean {
   try {
     localStorage.setItem(key, value);
     cache.set(key, value);
-  } catch {
+  } catch (err) {
     // localStorage write failed — still update cache but report failure
+    warnDev('storage', 'storageSet', `Failed to write key: ${key}`, err);
     success = false;
     cache.set(key, value);
   }
 
   // Async write to IndexedDB (fire-and-forget, non-blocking)
   if (browser && isIndexedDbAvailable()) {
-    dbSet(key, value).catch(() => { /* silent — cache is source of truth */ });
+    dbSet(key, value).catch((err) => {
+      warnDevOnce('storage', 'storageSet:db', `IndexedDB write failed for key: ${key}`, err);
+    });
   }
 
   // Auto-backup on history data change
@@ -184,12 +192,16 @@ export function storageSet(key: string, value: string): boolean {
 export function storageRemove(key: string): void {
   try {
     localStorage.removeItem(key);
-  } catch { /* unavailable */ }
+  } catch (err) {
+    warnDev('storage', 'storageRemove', `Failed to remove key: ${key}`, err);
+  }
   cache.delete(key);
 
   // Async remove from IndexedDB
   if (browser && isIndexedDbAvailable()) {
-    dbRemove(key).catch(() => {});
+    dbRemove(key).catch((err) => {
+      warnDevOnce('storage', 'storageRemove:db', `IndexedDB remove failed for key: ${key}`, err);
+    });
   }
 }
 
@@ -202,7 +214,8 @@ export function storageGetJSON<T>(key: string, fallback: T): T {
   if (raw === null || raw === undefined) return fallback;
   try {
     return JSON.parse(raw) as T;
-  } catch {
+  } catch (err) {
+    warnDev('storage', 'storageGetJSON', `Failed to parse JSON for key: ${key}`, err);
     return fallback;
   }
 }
@@ -239,7 +252,8 @@ export function isStorageAvailable(): boolean {
     localStorage.setItem(test, '1');
     localStorage.removeItem(test);
     return true;
-  } catch {
+  } catch (err) {
+    warnDev('storage', 'isStorageAvailable', 'localStorage test failed', err);
     return false;
   }
 }

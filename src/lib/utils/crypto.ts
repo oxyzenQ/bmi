@@ -22,6 +22,7 @@
 
 import { browser } from '$app/environment';
 import { dbMetaGet, dbMetaSet, isIndexedDbAvailable } from './db';
+import { warnDev } from './warn-dev';
 
 // ── Constants ──
 const PBKDF2_ITERATIONS = 600_000;
@@ -144,9 +145,9 @@ async function deriveKey(
   if (kdf === 'argon2id') {
     try {
       return await deriveKeyArgon2(passphrase, salt);
-    } catch {
+    } catch (err) {
       // Argon2 unavailable — fall back to PBKDF2
-      console.warn('[crypto] Argon2id unavailable, falling back to PBKDF2');
+      warnDev('crypto', 'deriveKey', 'Argon2id unavailable, falling back to PBKDF2', err);
       return deriveKeyPBKDF2(passphrase, salt);
     }
   }
@@ -209,7 +210,8 @@ export async function verifyChecksum(data: string, checksum: string): Promise<bo
       result |= a[i] ^ b[i]; // XOR — accumulates differences without early exit
     }
     return result === 0;
-  } catch {
+  } catch (err) {
+    warnDev('crypto', 'verifyChecksum', 'Checksum comparison failed — possibly corrupted base64', err);
     return false;
   }
 }
@@ -231,7 +233,7 @@ export function setPassphraseHint(hint: string): void {
     } else {
       localStorage.removeItem(HINT_KEY);
     }
-  } catch { /* localStorage unavailable */ }
+  } catch (err) { warnDev('crypto', 'setPassphraseHint', 'Failed to persist hint', err); }
 }
 
 /**
@@ -242,7 +244,8 @@ export function getPassphraseHint(): string {
   if (!browser) return '';
   try {
     return localStorage.getItem(HINT_KEY) || '';
-  } catch {
+  } catch (err) {
+    warnDev('crypto', 'getPassphraseHint', 'Failed to read hint', err);
     return '';
   }
 }
@@ -282,8 +285,9 @@ export async function analyzeStrength(passphrase: string): Promise<StrengthResul
       warning: result.feedback.warning || undefined,
       suggestions: [...(result.feedback.suggestions || [])],
     };
-  } catch {
+  } catch (err) {
     // zxcvbn load failure — fall back to basic scoring
+    warnDev('crypto', 'analyzeStrength', 'zxcvbn unavailable, using fallback scoring', err);
     return fallbackStrength(passphrase);
   }
 }
@@ -325,8 +329,9 @@ export async function encrypt(plaintext: string, passphrase: string, meta?: Encr
       parallelism: ARGON2_OPTIONS.p,
       hashLen: ARGON2_OPTIONS.dkLen,
     };
-  } catch {
+  } catch (err) {
     // Argon2 unavailable — fall back to PBKDF2
+    warnDev('crypto', 'encrypt', 'Argon2id unavailable, falling back to PBKDF2', err);
     key = await deriveKeyPBKDF2(passphrase, salt);
     kdf = 'pbkdf2';
   }
@@ -398,8 +403,9 @@ export async function decrypt(
     }
 
     return { plaintext, integrityOk };
-  } catch {
+  } catch (err) {
     // Wrong passphrase or corrupted data — AES-GCM auth tag mismatch
+    warnDev('crypto', 'decrypt', 'Decryption failed (wrong passphrase or corrupted data)', err);
     return null;
   }
 }
@@ -411,7 +417,8 @@ export function isEncrypted(json: string): boolean {
   try {
     const parsed = JSON.parse(json);
     return parsed?.format === 'bmi-encrypted-v1';
-  } catch {
+  } catch (err) {
+    warnDev('crypto', 'isEncrypted', 'Failed to parse payload for encryption detection', err);
     return false;
   }
 }
@@ -443,7 +450,8 @@ export async function enableEncryption(passphrase: string): Promise<boolean> {
     }
 
     return true;
-  } catch {
+  } catch (err) {
+    warnDev('crypto', 'enableEncryption', 'Failed to enable encryption (verify test or DB write)', err);
     return false;
   }
 }
@@ -472,7 +480,8 @@ export async function getEncryptionStatus(): Promise<EncryptionStatus> {
       enabled: enabled === '1',
       hasPassphrase: hasSalt !== null,
     };
-  } catch {
+  } catch (err) {
+    warnDev('crypto', 'getEncryptionStatus', 'Failed to read encryption status from IndexedDB', err);
     return { enabled: false, hasPassphrase: false };
   }
 }
@@ -487,7 +496,8 @@ export async function verifyPassphrase(passphrase: string): Promise<boolean> {
     const encrypted = await encrypt(test, passphrase);
     const result = await decrypt(encrypted, passphrase);
     return result !== null && result.plaintext === test;
-  } catch {
+  } catch (err) {
+    warnDev('crypto', 'verifyPassphrase', 'Passphrase verification failed', err);
     return false;
   }
 }

@@ -30,6 +30,7 @@ import {
     storageGet,
     storageSet
 } from './storage';
+import { warnDev } from './warn-dev';
 
 // ---------------------------------------------------------------------------
 // Import error codes — structured, specific, no silent failures
@@ -143,7 +144,8 @@ async function verifyHmac(signature: string, payload: string, salt: string): Pro
                         signature.match(/.{2}/g)?.map((h) => parseInt(h, 16)) ?? []
                 );
                 return await crypto.subtle.verify('HMAC', key, sigBytes, data);
-        } catch {
+        } catch (err) {
+                warnDev('history-io', 'verifyHmac', 'HMAC verification failed', err);
                 return false;
         }
 }
@@ -234,7 +236,8 @@ async function parseAndValidate(json: string): Promise<ParsedImportResult | Inva
         let incoming: unknown;
         try {
                 incoming = JSON.parse(json);
-        } catch {
+        } catch (err) {
+                warnDev('history-io', 'parseAndValidate', 'Failed to parse import JSON', err);
                 return { valid: false, validation: { valid: false, error: t('history.invalid_json'), errorCode: 'invalid_json' } };
         }
 
@@ -340,7 +343,8 @@ export async function exportBmiHistory(passphrase?: string): Promise<string | nu
                 }
 
                 return envelopeJson;
-        } catch {
+        } catch (err) {
+                warnDev('history-io', 'exportBmiHistory', 'Export failed', err);
                 return null;
         }
 }
@@ -514,7 +518,8 @@ export function peekImportMeta(json: string): ImportFileMeta {
                 }
 
                 return { encrypted: false };
-        } catch {
+        } catch (err) {
+                warnDev('history-io', 'peekImportMeta', 'Failed to peek import metadata', err);
                 return { encrypted: false };
         }
 }
@@ -544,7 +549,8 @@ export async function importBmiHistory(json: string, passphrase?: string): Promi
                 let payload: Record<string, unknown>;
                 try {
                         payload = JSON.parse(json);
-                } catch {
+                } catch (err) {
+                        warnDev('history-io', 'importBmiHistory', 'Failed to parse encrypted payload for validation', err);
                         return { success: false, count: 0, error: t('history.corrupted_file'), errorCode: 'corrupted_file' };
                 }
                 if (!payload.salt || !payload.iv || !payload.data) {
@@ -581,8 +587,10 @@ export async function importBmiHistory(json: string, passphrase?: string): Promi
         try {
                 import('./backup').then(({ createBackup }) => {
                         void createBackup('before_import');
-                }).catch(() => {});
-        } catch { /* backup failure should not block import */ }
+                }).catch((err) => {
+                        warnDev('history-io', 'importBmiHistory', 'Pre-import backup failed', err);
+                });
+        } catch (err) { warnDev('history-io', 'importBmiHistory', 'Pre-import backup block failed', err); }
 
         // Override (replace) existing data via centralized storage
         const ok = storageSet(STORAGE_KEYS.HISTORY, JSON.stringify(records));
@@ -634,7 +642,8 @@ export function exportBmiHistoryCsv(): string | null {
                 }
 
                 return rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-        } catch {
+        } catch (err) {
+                warnDev('history-io', 'exportBmiHistoryCsv', 'CSV export failed', err);
                 return null;
         }
 }

@@ -28,6 +28,8 @@
   import { Download, WifiOff } from 'lucide-svelte';
   import { initStorage } from '$lib/utils/storage';
   import { t as _t, localeVersion } from '$lib/i18n';
+  import { warnDevOnce } from '$lib/utils/warn-dev';
+  import { initDevDiagnostics } from '$lib/utils/dev-diagnostics';
   let _rv = $derived($localeVersion);
   function t(key: string): string { void _rv; return _t(key); }
 
@@ -116,6 +118,7 @@
     // Initialize IndexedDB storage layer + run localStorage migration if needed
     if (browser) {
       void initStorage();
+      initDevDiagnostics();
       if (!renderModeInitialized) {
         renderModeEnabled = readRenderMode();
         renderModeInitialized = true;
@@ -135,7 +138,9 @@
 
     // Register service worker for caching (only in production)
     if (browser && 'serviceWorker' in navigator && import.meta.env.PROD) {
-      navigator.serviceWorker.register('/service-worker.js', { type: 'module' }).catch(() => { /* SW registration failed silently */ });
+      navigator.serviceWorker.register('/service-worker.js', { type: 'module' }).catch((err) => {
+        warnDevOnce('layout', 'serviceWorker', 'Service worker registration failed', err);
+      });
     }
 
     // PWA: install prompt handler
@@ -190,7 +195,7 @@
               po.disconnect();
             });
             po.observe({ type, buffered: true });
-          } catch { /* metric type not supported in this browser */ }
+          } catch (err) { warnDevOnce('layout', 'WebVitals', `Metric '${type}' not supported`, err); }
         };
 
         // Web Vitals observation (silent in production)
@@ -201,7 +206,7 @@
         if (PerformanceObserver.supportedEntryTypes?.includes('interaction-to-next-paint')) {
           observe('interaction-to-next-paint', () => { /* INP tracked silently */ });
         }
-      } catch { /* PerformanceObserver failed */ }
+      } catch (err) { warnDevOnce('layout', 'WebVitals', 'PerformanceObserver failed', err); }
     }
 
     return () => {

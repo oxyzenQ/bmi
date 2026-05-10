@@ -12,6 +12,7 @@
   import { t as _t, localeVersion } from '$lib/i18n';
   import { analyzeStrength, getPassphraseHint, setPassphraseHint } from '$lib/utils/crypto';
   import type { StrengthResult } from '$lib/utils/crypto';
+  import { warnDev } from '$lib/utils/warn-dev';
   let _rv = $derived($localeVersion);
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
@@ -108,7 +109,8 @@
     strengthTimer = setTimeout(async () => {
       try {
         strengthResult = await analyzeStrength(pw);
-      } catch {
+      } catch (err) {
+        warnDev('EncryptionModal', 'strengthEffect', 'Strength analysis failed', err);
         strengthResult = null;
       }
     }, 200);

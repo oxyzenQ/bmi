@@ -21,10 +21,11 @@ import {
 } from './db';
 import { t } from '$lib/i18n';
 import { STORAGE_KEYS, storageGet } from './storage';
+import { warnDev } from './warn-dev';
 
 // ── Constants ──
 const MAX_BACKUPS = 3;
-const APP_VERSION = '15.1.0';
+const APP_VERSION = '15.2.0';
 
 // ── Types ──
 export interface BackupStatus {
@@ -67,7 +68,7 @@ export async function createBackup(_trigger: 'data_change' | 'before_import' = '
       try {
         const parsed = JSON.parse(historyRaw);
         if (Array.isArray(parsed)) recordCount = parsed.length;
-      } catch { /* malformed — count as 0 */ }
+      } catch (err) { warnDev('backup', 'createBackup', 'Failed to parse history for record count', err); }
     }
 
     const data = JSON.stringify(snapshot);
@@ -83,7 +84,8 @@ export async function createBackup(_trigger: 'data_change' | 'before_import' = '
     await pruneOldBackups();
 
     return true;
-  } catch {
+  } catch (err) {
+    warnDev('backup', 'createBackup', 'Backup creation failed', err);
     return false;
   }
 }
@@ -133,7 +135,8 @@ export async function getBackupStatus(): Promise<BackupStatus> {
       lastBackupAppVersion: latest.appVersion,
       totalBackups: all.length,
     };
-  } catch {
+  } catch (err) {
+    warnDev('backup', 'getBackupStatus', 'Failed to read backup status', err);
     return fallback;
   }
 }
@@ -146,7 +149,8 @@ export async function isLocalBackupAvailable(): Promise<boolean> {
   try {
     const latest = await dbBackupLatest();
     return latest !== null;
-  } catch {
+  } catch (err) {
+    warnDev('backup', 'isLocalBackupAvailable', 'Failed to check backup availability', err);
     return false;
   }
 }
@@ -178,7 +182,8 @@ export async function restoreLatestBackup(): Promise<boolean> {
     }
 
     return true;
-  } catch {
+  } catch (err) {
+    warnDev('backup', 'restoreLatestBackup', 'Backup restore failed', err);
     return false;
   }
 }

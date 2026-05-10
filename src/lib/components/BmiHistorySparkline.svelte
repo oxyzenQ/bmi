@@ -3,6 +3,7 @@
   import { TrendingUp, TrendingDown, Minus } from 'lucide-svelte';
   import { STORAGE_KEYS } from '$lib/utils/storage';
   import { t as _t, localeVersion } from '$lib/i18n';
+  import { warnDev } from '$lib/utils/warn-dev';
   let _rv = $derived($localeVersion);
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
@@ -54,7 +55,8 @@
       if (!stored) return [];
       const history: BMIRecord[] = JSON.parse(stored);
       return history.slice(-MAX_POINTS);
-    } catch {
+    } catch (err) {
+      warnDev('BmiHistorySparkline', 'loadHistory', 'Failed to parse history data', err);
       return [];
     }
   }

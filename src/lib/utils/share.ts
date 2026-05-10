@@ -6,6 +6,7 @@
  */
 
 import { t, getLocale } from '$lib/i18n';
+import { warnDev } from './warn-dev';
 
 export interface BmiShareData {
   bmi: number;
@@ -101,7 +102,8 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     const ok = document.execCommand('copy');
     document.body.removeChild(textarea);
     return ok;
-  } catch {
+  } catch (err) {
+    warnDev('share', 'copyToClipboard', 'Clipboard write failed', err);
     return false;
   }
 }

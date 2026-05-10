@@ -4,6 +4,7 @@
   import BmiHistorySparkline from './BmiHistorySparkline.svelte';
   import { COLORS, BMI_THRESHOLDS } from '$lib/utils/bmi-category';
   import { t as _t, localeVersion } from '$lib/i18n';
+  import { warnDev } from '$lib/utils/warn-dev';
   let _rv = $derived($localeVersion);
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
@@ -47,7 +48,8 @@
       });
 
       bestBmiState = best.bmi;
-    } catch {
+    } catch (err) {
+      warnDev('BmiSnapshot', 'refreshBestBmi', 'Failed to parse history for best BMI', err);
       bestBmiState = null;
     }
   }

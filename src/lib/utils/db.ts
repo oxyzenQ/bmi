@@ -225,11 +225,15 @@ export async function dbBackupLatest(): Promise<BackupRecord | null> {
 
 // ── Utility ──
 
-/** Check if IndexedDB is available in this context. */
+/**
+ * Check if IndexedDB is available in this context.
+ */
 export function isIndexedDbAvailable(): boolean {
   try {
     return typeof indexedDB !== 'undefined';
-  } catch {
+  } catch (err) {
+    // Should never happen, but guard against edge cases
+    console.warn('[db] isIndexedDbAvailable check failed:', err);
     return false;
   }
 }

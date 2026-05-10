@@ -15,10 +15,10 @@
 - [x] Mobile edge-case fixes (small phones, iOS Safari)
 
 ### v15.2 — Observability
-- [ ] Replace silent `catch {}` with `warnDev()` utility (30+ instances)
-- [ ] Create `warnDev()` logger utility (dev-only, stripped in production)
-- [ ] Crypto/storage error visibility — every failure path logs context
-- [ ] Dev-only diagnostics panel or console helpers
+- [x] Replace silent `catch {}` with `warnDev()` utility (30+ instances)
+- [x] Create `warnDev()` logger utility (dev-only, stripped in production)
+- [x] Crypto/storage error visibility — every failure path logs context
+- [x] Dev-only diagnostics panel or console helpers
 
 ### v15.3 — Regression Fortress
 - [ ] Add regression test for every bug fixed in v15.1–v15.2
@@ -80,8 +80,8 @@ Architecture-level release, not a feature release.
 | Version     | Purpose                       | Status |
 | ----------- | ----------------------------- | ------ |
 | v15.0       | Foundation reset              | ✅ Done |
-| v15.1       | UI Stabilization              | 🔲     |
-| v15.2       | Observability                 | 🔲     |
+| v15.1       | UI Stabilization              | ✅ Done |
+| v15.2       | Observability                 | ✅ Done |
 | v15.3       | Regression Fortress           | 🔲     |
 | v16.0       | Reliability hardening         | 🔲     |
 | v17.0       | UX consistency                | 🔲     |

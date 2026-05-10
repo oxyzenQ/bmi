@@ -9,6 +9,7 @@
   import { STORAGE_KEYS, storageGet, storageSet, storageSetJSON, storageRemove, storageGetJSON, storageInvalidate } from '$lib/utils/storage';
   import { BMI_THRESHOLDS } from '$lib/utils/bmi-category';
   import { calculateBmi, isBmiResult } from '$lib/utils/bmi-calculator';
+  import { warnDev, warnDevOnce } from '$lib/utils/warn-dev';
   import { MARKER_ANIM, PAGER, SPRING, SCROLL, HAPTIC, SECTIONS } from '$lib/utils/animation-config';
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
@@ -191,7 +192,7 @@
     if (!browser) return;
     try {
       if ('vibrate' in navigator) navigator.vibrate(pattern);
-    } catch { /* vibrate not supported */ }
+    } catch (err) { warnDevOnce('page', 'triggerHaptic', 'Vibration API not supported', err); }
   }
 
   function scrollToTop() {
@@ -250,9 +251,7 @@
     if (browser && unitSystemInitialized) {
       try {
         storageSet(STORAGE_KEYS.UNIT_SYSTEM, unitSystem);
-      } catch {
-        // storage unavailable
-      }
+      } catch (err) { warnDev('page', 'unitSystemEffect', 'Failed to persist unit system', err); }
     }
   });
 
@@ -700,9 +699,7 @@
       if (storedUnit === 'imperial' || storedUnit === 'metric') {
         unitSystem = storedUnit;
       }
-    } catch {
-      // storage unavailable
-    }
+    } catch (err) { warnDev('page', 'onMount:unitSystem', 'Failed to read stored unit system', err); }
     unitSystemInitialized = true;
 
     // Read wallpaper theme preference
@@ -712,9 +709,7 @@
         currentTheme = storedTheme as ThemeKey;
         document.documentElement.style.setProperty('--wallpaper-current', THEME_URLS[currentTheme]);
       }
-    } catch {
-      // localStorage unavailable
-    }
+    } catch (err) { warnDev('page', 'onMount:wallpaperTheme', 'Failed to read wallpaper theme', err); }
 
     const idx = indexFromHash(window.location.hash);
     if (idx !== null) goTo(idx, { skipHash: true, skipSwitching: true });
@@ -1222,7 +1217,7 @@
                     <div class="app-info">
                       <p class="info-row">
                         <PackageCheck class="PackageCheck" />
-                        <strong>{t('about.version')}:</strong>Stellar v15.1 <span class="commit-id">({gitCommitId})</span>
+                        <strong>{t('about.version')}:</strong>Stellar v15.2 <span class="commit-id">({gitCommitId})</span>
                       </p>
                       <p class="info-row">
                         <GitBranch class="GitBranch" />
