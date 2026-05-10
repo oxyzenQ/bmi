@@ -45,7 +45,7 @@
 }
 
 .card-subtitle {
-  color: white;
+  color: var(--stellar-white);
   font-size: 1rem;
   line-height: 1.5;
 }
@@ -111,7 +111,7 @@
   margin-bottom: 1.75rem;
   border: 1px solid var(--w-5);
   animation: slideInLeft 0.6s var(--easing-smooth) 0.4s both;
-  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }
 
 .health-advice:hover {
@@ -155,7 +155,7 @@
   padding: 1.75rem;
   margin-bottom: 1.75rem;
   animation: slideInRight 0.6s var(--easing-smooth) 0.6s both;
-  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }
 
 .age-advisory:hover {
@@ -199,7 +199,7 @@
   padding: 1.75rem;
   border: 1px solid var(--w-5);
   animation: fadeInUp 0.6s var(--easing-smooth) 0.8s both;
-  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }
 
 .bmi-explanation:hover {
@@ -237,13 +237,13 @@
   gap: 0.4rem;
   padding: 0.5rem 0.85rem;
   border-radius: var(--btn-radius);
-  border: 1px solid rgba(139, 92, 246, 0.22);
+  border: 1px solid var(--violet-22);
   background: var(--bg-by-rezky);
-  color: white;
+  color: var(--stellar-white);
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  transition: transform var(--dur-interactive) ease, background var(--dur-interactive) ease, border-color var(--dur-interactive) ease;
   flex: 1;
   justify-content: center;
   box-shadow: none;
@@ -251,8 +251,8 @@
 
 .action-btn:hover {
   background: var(--bg-last-by-rezky);
-  border-color: rgba(139, 92, 246, 0.34);
-  color: white;
+  border-color: var(--violet-34);
+  color: var(--stellar-white);
   transform: translateY(-1px);
 }
 

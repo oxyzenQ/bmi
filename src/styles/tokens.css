@@ -83,9 +83,22 @@
 
   /* Animation/transition tuning */
   --easing-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --easing-material: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-gauge: cubic-bezier(.16, 1, .3, 1);
   --dur-fast: 280ms;
   --dur-normal: 500ms;
   --dur-slow: 800ms;
+
+  /* ── HARMONIZED DURATION SCALE (v17.0) ──
+       Standardized timing tokens replacing ad-hoc values.
+       Components should prefer these over magic ms values. */
+  --dur-instant: 80ms;      /* haptic active, active-state snap */
+  --dur-micro: 150ms;       /* backdrop opacity, toast fade, micro-feedback */
+  --dur-interactive: 200ms; /* button hover, input focus, modal backdrop */
+  --dur-content: 300ms;     /* card hover, content transitions */
+  --dur-panel: 400ms;       /* about card hover, heavier content */
+  --dur-slower: 800ms;      /* glass card transitions (alias) */
 
   /* ── Opacity token system ── */
 
@@ -380,14 +393,80 @@
   --btn-height: 44px;
   --btn-padding-x: 18px;
   --btn-font: 600 0.95rem/1 'Inter Variable', system-ui, -apple-system, sans-serif;
-  --btn-bg: linear-gradient(135deg, #140826cc, #5b21b6cc);
+  --btn-bg: linear-gradient(135deg, var(--deep-void-base)cc, #5b21b6cc);
   --btn-bg-hover: linear-gradient(135deg, #1a0d33, #6d28d9);
   --btn-bg-active: linear-gradient(135deg, #10061f, #4c1d95);
-  --btn-surface: linear-gradient(135deg, rgba(20, 8, 38, 0.70), rgba(91, 33, 182, 0.65));
+  --btn-surface: linear-gradient(135deg, var(--deep-void-70), rgba(91, 33, 182, 0.65));
   --btn-border: 1px solid rgba(255, 255, 255, 0.08);
   --btn-border-hover: 1px solid rgba(255, 255, 255, 0.14);
   --btn-shadow: none;
   --btn-shadow-hover: none;
+
+  /* ── TYPOGRAPHY SCALE (v17.0) ──
+       Consistent font-size tokens for predictable type hierarchy.
+       Usage: component text, labels, headings across all views. */
+  --text-xs: 0.65rem;       /* ~10px — TDEE labels, tiny badges */
+  --text-sm: 0.75rem;       /* 12px — label text, badge text, lang-code */
+  --text-base: 0.85rem;     /* ~14px — input labels, secondary text */
+  --text-md: 0.9rem;        /* ~14px — body text, nav text, stat-value */
+  --text-lg: 1rem;          /* 16px — primary text, card text, form label */
+  --text-xl: 1.125rem;      /* 18px — section titles, advice title */
+  --text-2xl: 1.25rem;      /* 20px — modal titles, gauge title, subtitle */
+  --text-3xl: 1.5rem;       /* 24px — card headings, BMI category */
+  --text-4xl: 2rem;         /* 32px — about card titles */
+  --text-5xl: 2.5rem;       /* 40px — section main titles */
+  --text-hero: 3.5rem;      /* 56px — hero title */
+  --text-display: 4.5rem;   /* 72px — BMI value display */
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --font-sans: 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* ── MODAL SYSTEM TOKENS (v17.0) ──
+       Consistent z-index, backdrop, panel, and transition values
+       for all modal/floating window components.
+       Usage: NotifyFloat, EncryptionModal, FeedbackModal, LanguageSwitcher. */
+  --modal-z: 9999;
+  --modal-z-top: 10000;
+  --modal-z-staging: 10001;
+  --modal-backdrop-bg: var(--k-50);
+  --modal-backdrop-blur: 24px;
+  --modal-backdrop-sat: 180%;
+  --modal-panel-radius: var(--radius-xl);
+  --modal-panel-bg: var(--glass-bg-dialog);
+  --modal-panel-shadow: 0 25px 50px -12px var(--k-50);
+  --modal-dur: 0.22s;
+  --modal-ease: var(--easing-spring);
+  --modal-panel-scale-from: scale(0.92) translateY(14px);
+  --modal-panel-scale-to: scale(1) translateY(0);
+  --modal-backdrop-dur: 0.15s;
+
+  /* ── DEEP-VOID GRADIENT SYSTEM (v17.0) ──
+       Centralizes rgba(20, 8, 38, ...) used in button gradients.
+       Previously hardcoded in components.css, nav.css, responsive.css. */
+  --deep-void-base: #140826;
+  --deep-void-30: rgba(20, 8, 38, 0.30);
+  --deep-void-40: rgba(20, 8, 38, 0.40);
+  --deep-void-45: rgba(20, 8, 38, 0.45);
+  --deep-void-55: rgba(20, 8, 38, 0.55);
+  --deep-void-65: rgba(20, 8, 38, 0.65);
+  --deep-void-70: rgba(20, 8, 38, 0.70);
+
+  /* ── COSMIC DEEP (v17.0) ──
+       Fallback background for html element.
+       Previously hardcoded as #0a0e1a in base.css. */
+  --cosmic-deep: #0a0e1a;
+
+  /* ── SUCCESS SEMANTIC (v17.0) ──
+       Green semantic for CheckCircle and success states.
+       Previously used bare 'green' CSS keyword. */
+  --success-solid: #4ade80;
+  --success-bg: rgba(74, 222, 128, 0.08);
+  --success-border: rgba(74, 222, 128, 0.20);
+
+  /* ── AMBER WARNING SYSTEM (v17.0) ──
+       Previously rgba(245, 158, 11, ...) was partially tokenized.
+       Now fully centralized. */
+  --warn-bg: rgba(245, 158, 11, 0.08);
+  --warn-border: rgba(245, 158, 11, 0.20);
 
   /* ── CONSISTENT BORDER RADIUS ── */
   --radius-sm: 8px;

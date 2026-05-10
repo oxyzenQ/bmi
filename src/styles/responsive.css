@@ -129,7 +129,7 @@
 }
 
 .CheckCircle {
-  color: green !important;
+  color: var(--success-solid) !important;
   width: 24px !important;
   height: 24px !important;
 }
@@ -1210,7 +1210,7 @@ p {
   /* T-21: .action-btn box-shadow removed — clean purple glass buttons. */
   .action-btn {
     box-shadow: none !important;
-    border-color: rgba(139, 92, 246, 0.22) !important;
+    border-color: var(--violet-22) !important;
   }
 
   /* T-22: Neutralize remaining color-mix() in borders/backgrounds
@@ -1232,27 +1232,27 @@ p {
   }
 
   .btn-primary {
-    border-color: rgba(139, 92, 246, 0.22) !important;
+    border-color: var(--violet-22) !important;
   }
 
   .btn-danger {
-    border-color: rgba(139, 92, 246, 0.22) !important;
+    border-color: var(--violet-22) !important;
   }
 
   .btn-primary:hover {
-    border-color: rgba(139, 92, 246, 0.34) !important;
+    border-color: var(--violet-34) !important;
   }
 
   .btn-danger:hover {
-    border-color: rgba(139, 92, 246, 0.32) !important;
+    border-color: var(--violet-32) !important;
   }
 
   .btn-secondary {
-    background: linear-gradient(135deg, rgba(20, 8, 38, 0.55), rgba(91, 33, 182, 0.45)) !important;
+    background: linear-gradient(135deg, var(--deep-void-55), rgba(91, 33, 182, 0.45)) !important;
   }
 
   .btn-ghost {
-    background: linear-gradient(135deg, rgba(20, 8, 38, 0.40), rgba(91, 33, 182, 0.30)) !important;
+    background: linear-gradient(135deg, var(--deep-void-40), rgba(91, 33, 182, 0.30)) !important;
   }
 
   .pager-tab.active {
@@ -1901,5 +1901,25 @@ p {
   .btn-cancel,
   .btn-warn {
     background: var(--cosmic-dark-70) !important;
+  }
+}
+
+/* ── Ultrawide breakpoint (v17.0) ──
+     Optimize layout for screens wider than 1400px. */
+@media (min-width: 1400px) {
+  .main-container {
+    max-width: min(92vw, 1200px);
+  }
+
+  .bmi-grid {
+    gap: 2rem;
+  }
+
+  .gauge-container {
+    width: min(80vw, 760px);
+  }
+
+  .about-bmi-grid {
+    gap: 2.5rem;
   }
 }

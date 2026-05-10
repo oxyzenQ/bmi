@@ -156,15 +156,15 @@ button[aria-disabled="true"] {
 
 /* Elegant glassmorphism variants for primary & danger */
 .btn-primary {
-  color: white;
+  color: var(--stellar-white);
   background: var(--bg-by-rezky);
-  border: 1px solid rgba(139, 92, 246, 0.22);
+  border: 1px solid var(--violet-22);
   box-shadow: none;
 }
 
 .btn-primary:hover {
   background: var(--bg-last-by-rezky);
-  border-color: rgba(139, 92, 246, 0.34);
+  border-color: var(--violet-34);
 }
 
 .btn.is-calculating {
@@ -189,15 +189,15 @@ button[aria-disabled="true"] {
 
 /* Elegant danger variant */
 .btn-danger {
-  color: white;
+  color: var(--stellar-white);
   background: var(--bg-by-rezky);
-  border: 1px solid rgba(139, 92, 246, 0.22);
+  border: 1px solid var(--violet-22);
   box-shadow: none;
 }
 
 .btn-danger:hover {
   background: var(--bg-last-by-rezky);
-  border-color: rgba(139, 92, 246, 0.32);
+  border-color: var(--violet-32);
 }
 
 .btn-danger:active,
@@ -209,18 +209,18 @@ button[aria-disabled="true"] {
 }
 
 .btn-secondary {
-  background: linear-gradient(135deg, rgba(20, 8, 38, 0.55), rgba(91, 33, 182, 0.45));
-  border-color: rgba(139, 92, 246, 0.16);
+  background: linear-gradient(135deg, var(--deep-void-55), rgba(91, 33, 182, 0.45));
+  border-color: var(--violet-16);
 }
 
 .btn-secondary:hover {
-  background: linear-gradient(135deg, rgba(20, 8, 38, 0.65), rgba(91, 33, 182, 0.55));
-  border-color: rgba(139, 92, 246, 0.28);
+  background: linear-gradient(135deg, var(--deep-void-65), rgba(91, 33, 182, 0.55));
+  border-color: var(--violet-30);
 }
 
 .btn-ghost {
-  background: linear-gradient(135deg, rgba(20, 8, 38, 0.40), rgba(91, 33, 182, 0.30));
-  border-color: rgba(139, 92, 246, 0.12);
+  background: linear-gradient(135deg, var(--deep-void-40), rgba(91, 33, 182, 0.30));
+  border-color: var(--violet-12);
 }
 
 /* Button sizes */
@@ -329,7 +329,7 @@ button[aria-disabled="true"] {
 }
 
 .hero-title {
-  font-size: 3.5rem;
+  font-size: var(--text-hero);
   font-weight: 700;
   margin-bottom: 1rem;
   line-height: 1.2;
@@ -377,8 +377,8 @@ button[aria-disabled="true"] {
 }
 
 .hero-subtitle {
-  font-size: 1.25rem;
-  color: white;
+  font-size: var(--text-2xl);
+  color: var(--stellar-white);
   margin-bottom: 2rem;
   line-height: 1.6;
   max-width: 600px;
@@ -400,14 +400,14 @@ button[aria-disabled="true"] {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: white;
+  color: var(--stellar-white);
   font-size: 0.875rem;
   font-weight: 500;
   padding: 0.5rem 1rem;
   background: transparent;
   border-radius: 2rem;
   border: var(--border-by-rezky);
-  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }
 
 .feature:hover {
@@ -418,14 +418,14 @@ button[aria-disabled="true"] {
 
 .feature span {
   background: var(--bg-cosmic);
-  color: white;
+  color: var(--stellar-white);
   background-clip: text;
 }
 
 .icon {
   width: 64px;
   height: 64px;
-  color: white;
+  color: var(--stellar-white);
 }
 
 @keyframes bounce {

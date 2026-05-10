@@ -299,9 +299,9 @@ a.button {
 
 /* ── Input Focus Glow ── */
 .form-input {
-  transition: border-color 0.25s ease,
-    box-shadow 0.25s ease,
-    background-color 0.25s ease;
+  transition: border-color var(--dur-interactive) ease,
+    box-shadow var(--dur-interactive) ease,
+    background-color var(--dur-interactive) ease;
 }
 
 .form-input:focus {
@@ -350,7 +350,7 @@ a.button {
     transparent 60%
   );
   transform: translateX(-100%) rotate(15deg);
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform var(--dur-slow) var(--easing-smooth);
   pointer-events: none;
   z-index: 1;
 }
@@ -491,14 +491,14 @@ html:not([data-graphics='render']) .shooting-star {
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 1.25rem;
-  border: 1px solid rgba(139, 92, 246, 0.22);
+  border: 1px solid var(--violet-22);
   border-radius: 9999px;
   background: var(--bg-by-rezky);
-  color: white;
+  color: var(--stellar-white);
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+  transition: background var(--dur-interactive) ease, border-color var(--dur-interactive) ease, transform var(--dur-interactive) ease;
   letter-spacing: 0.02em;
   box-shadow: none;
 }
@@ -529,7 +529,7 @@ html:not([data-graphics='render']) .shooting-star {
   transform: scale(1);
   pointer-events: auto;
   color: white !important;
-  border-color: rgba(139, 92, 246, 0.18) !important;
+  border-color: var(--violet-18) !important;
   background: var(--btn-bg) !important;
   box-shadow: none !important;
 }
@@ -875,7 +875,7 @@ html:not([data-graphics='render']) .shooting-star {
   backdrop-filter: blur(16px) saturate(140%);
   z-index: 10001;
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--dur-interactive) ease;
   pointer-events: none;
   min-height: 100vh;
   min-height: 100dvh;

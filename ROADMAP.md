@@ -43,12 +43,12 @@ Architecture-level release, not a feature release.
 
 ## Phase 3: UX Consistency (v17.0)
 
-- [ ] Design language consistency pass (spacing, typography, colors)
-- [ ] Animation timing harmonization
-- [ ] Spacing system enforcement via design tokens
-- [ ] Modal/floating window visual consistency
-- [ ] i18n visual polish (text overflow, CJK compact layout)
-- [ ] Responsive audit: ultrawide, tablet, small phones
+- [x] Design language consistency pass (spacing, typography, colors)
+- [x] Animation timing harmonization
+- [x] Spacing system enforcement via design tokens
+- [x] Modal/floating window visual consistency
+- [x] i18n visual polish (text overflow, CJK compact layout)
+- [x] Responsive audit: ultrawide, tablet, small phones
 
 ---
 
@@ -84,7 +84,7 @@ Architecture-level release, not a feature release.
 | v15.2       | Observability                 | ✅ Done |
 | v15.3       | Regression Fortress           | ✅ Done |
 | v16.0       | Reliability hardening         | ✅ Done |
-| v17.0       | UX consistency                | 🔲     |
+| v17.0       | UX consistency                | ✅ Done |
 | v18.0       | Performance & maintainability | 🔲     |
 | v20.0       | Next-generation features      | 🔲     |
 

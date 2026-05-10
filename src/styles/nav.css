@@ -85,11 +85,11 @@ html[data-performance-tier="medium"] .cosmic-particles {
   letter-spacing: 0.02em;
   border: 1px solid transparent;
   transition:
-    opacity 0.25s ease,
-    background 0.25s ease,
-    border-color 0.25s ease,
-    box-shadow 0.25s ease,
-    transform 0.2s var(--easing-smooth);
+    opacity var(--dur-interactive) ease,
+    background var(--dur-interactive) ease,
+    border-color var(--dur-interactive) ease,
+    box-shadow var(--dur-interactive) ease,
+    transform var(--dur-interactive) var(--easing-smooth);
 }
 
 .pager-tab:hover {
@@ -158,7 +158,7 @@ html[data-performance-tier="medium"] .cosmic-particles {
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--dur-content) ease;
 }
 
 .pager-controls-shell.pager-hidden {
@@ -186,15 +186,15 @@ html[data-performance-tier="medium"] .cosmic-particles {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  border: 1px solid rgba(139, 92, 246, 0.18);
+  border: 1px solid var(--violet-18);
   background: var(--btn-bg);
-  color: white;
+  color: var(--stellar-white);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   position: relative;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s var(--easing-smooth);
+  transition: background var(--dur-interactive) ease, border-color var(--dur-interactive) ease, color var(--dur-interactive) ease, transform var(--dur-interactive) var(--easing-smooth);
   box-shadow: none;
 }
 
@@ -206,8 +206,8 @@ html[data-performance-tier="medium"] .cosmic-particles {
 
 .pager-btn-futuristic:hover {
   background: var(--btn-bg-hover);
-  border-color: rgba(139, 92, 246, 0.30);
-  color: white;
+  border-color: var(--violet-30);
+  color: var(--stellar-white);
   transform: translateY(-1px);
 }
 
