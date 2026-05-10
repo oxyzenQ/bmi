@@ -256,11 +256,10 @@
     }
   });
 
-  function springSimple(t: number, amount: number) {
-    const base = backOut(t);
-    return t + (base - t) * amount;
-  }
-
+  // Soft Directional Fade transition.
+  // Uses cubicOut for both phases — no spring overshoot, no dramatic opacity swing.
+  // Subtle scale depth (0.997→1) + directional translate3d (8–14px) + gentle opacity.
+  // Inspired by Linear, Arc Browser, modern iOS utility motion.
   function pagerSpring(
     _node: Element,
     opts: {
@@ -273,19 +272,21 @@
     const x = opts.x;
     const duration = opts.duration;
     const phase = opts.phase;
-    const strength = opts.strength;
 
     return {
       duration,
       css: (t: number) => {
-        const linear = phase === 'in' ? t : 1 - t;
-        const p = phase === 'in' ? springSimple(linear, strength) : cubicOut(linear);
+        const p = phase === 'in' ? cubicOut(t) : cubicOut(1 - t);
 
+        // Directional: slide from offset → 0 (in) or 0 → offset (out)
         const dx = phase === 'in' ? (1 - p) * x : p * x;
-        const opacity = phase === 'in' ? Math.min(1, p * 1.08) : Math.max(0, 1 - p * 1.15);
+        // Subtle scale depth — barely perceptible, adds layer separation
+        const scale = phase === 'in' ? 0.997 + 0.003 * p : 1 - 0.003 * p;
+        // Gentle opacity interpolation — soft fade, no hard cut
+        const opacity = phase === 'in' ? 0.6 + 0.4 * p : 1 - 0.4 * p;
 
         const pe = phase === 'out' ? 'pointer-events: none;' : '';
-        return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: ${opacity.toFixed(4)}; ${pe}`;
+        return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)}; ${pe}`;
       }
     };
   }

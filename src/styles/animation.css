@@ -938,7 +938,7 @@ html:not([data-graphics='render']) .shooting-star {
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px) translateZ(0);
+    transform: translateY(10px) translateZ(0);
   }
   to {
     opacity: 1;

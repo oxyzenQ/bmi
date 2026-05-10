@@ -88,7 +88,7 @@
   --easing-gauge: cubic-bezier(.16, 1, .3, 1);
   --dur-fast: 280ms;
   --dur-normal: 500ms;
-  --dur-slow: 800ms;
+  --dur-slow: 600ms;
 
   /* ── HARMONIZED DURATION SCALE (v17.0) ──
        Standardized timing tokens replacing ad-hoc values.
@@ -98,7 +98,7 @@
   --dur-interactive: 200ms; /* button hover, input focus, modal backdrop */
   --dur-content: 300ms;     /* card hover, content transitions */
   --dur-panel: 400ms;       /* about card hover, heavier content */
-  --dur-slower: 800ms;      /* glass card transitions (alias) */
+  --dur-slower: 600ms;      /* glass card transitions (alias) */
 
   /* ── Opacity token system ── */
 
@@ -451,7 +451,7 @@
   --modal-panel-shadow: 0 25px 50px -12px var(--k-50);
   --modal-dur: 0.22s;
   --modal-ease: var(--easing-spring);
-  --modal-panel-scale-from: scale(0.92) translateY(14px);
+  --modal-panel-scale-from: scale(0.995) translateY(6px);
   --modal-panel-scale-to: scale(1) translateY(0);
   --modal-backdrop-dur: 0.15s;
 
