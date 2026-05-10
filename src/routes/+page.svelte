@@ -260,6 +260,9 @@
   // Uses cubicOut for both phases — no spring overshoot, no dramatic opacity swing.
   // Subtle scale depth (0.997→1) + directional translate3d (8–14px) + gentle opacity.
   // Inspired by Linear, Arc Browser, modern iOS utility motion.
+  //
+  // out: element fades out quickly and shifts away so rapid navigation
+  //      never leaves a ghost.  in: element slides in with subtle depth.
   function pagerSpring(
     _node: Element,
     opts: {
@@ -276,17 +279,22 @@
     return {
       duration,
       css: (t: number) => {
-        const p = phase === 'in' ? cubicOut(t) : cubicOut(1 - t);
+        const p = cubicOut(t);
 
-        // Directional: slide from offset → 0 (in) or 0 → offset (out)
-        const dx = phase === 'in' ? (1 - p) * x : p * x;
-        // Subtle scale depth — barely perceptible, adds layer separation
-        const scale = phase === 'in' ? 0.997 + 0.003 * p : 1 - 0.003 * p;
-        // Gentle opacity interpolation — soft fade, no hard cut
-        const opacity = phase === 'in' ? 0.6 + 0.4 * p : 1 - 0.4 * p;
-
-        const pe = phase === 'out' ? 'pointer-events: none;' : '';
-        return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)}; ${pe}`;
+        if (phase === 'in') {
+          // IN: offset → 0, opacity 0.5 → 1, scale 0.997 → 1
+          const dx = (1 - p) * x;
+          const scale = 0.997 + 0.003 * p;
+          const opacity = 0.5 + 0.5 * p;
+          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)};`;
+        } else {
+          // OUT: 0 → offset, opacity 1 → 0, scale 1 → 0.997
+          // Fast fade-out so no ghost lingers during rapid navigation.
+          const dx = p * x;
+          const scale = 1 - 0.003 * p;
+          const opacity = 1 - p;
+          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)}; pointer-events: none;`;
+        }
       }
     };
   }
