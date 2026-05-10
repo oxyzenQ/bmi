@@ -259,15 +259,13 @@
 
   // Safe Premium Spring — spring-inspired page transitions.
   // IN:  uses backOut easing for natural overshoot + settle (iOS/Apple feel).
-  //      Scale 0.98 → overshoots to ~1.01 → settles at 1.0. Satisfying "pop".
   // OUT: uses cubicOut for clean, decisive exit. No bounce on exit.
-  // GPU-only: translate3d, scale, opacity. No rotation, no blur, no gimmicks.
+  // GPU-only: translate3d, opacity. No rotation, no blur, no scale, no gimmicks.
   //
-  // CRITICAL: Both IN and OUT are fully opaque (opacity: 1) throughout.
-  // This prevents the "ghost container" bug where the old page bleeds through
-  // the semi-transparent new page during crossfade transitions.
-  // The result is a slide-over effect (like iOS navigation) where the new
-  // page slides in covering the old page completely — no bleed-through.
+  // CRITICAL: Both IN and OUT are fully opaque (opacity: 1) and NO scale.
+  // - opacity:1 prevents ghost bleed-through (old page visible behind semi-transparent new page)
+  // - no scale prevents edge gaps (scaled-down element smaller than container → background peeks through)
+  // The result is a pure slide-over (like iOS navigation) — clean, no artifacts.
   function pagerSpring(
     _node: Element,
     opts: {
@@ -286,20 +284,15 @@
       css: (t: number) => {
         if (phase === 'in') {
           // IN: spring overshoot + settle via backOut easing.
-          // Content slides in with a satisfying bounce-then-settle.
-          // FULLY OPAQUE — covers OUT element completely, no ghost bleed.
+          // Pure horizontal slide, no scale, fully opaque.
           const p = backOut(t);
           const dx = (1 - p) * x;
-          const scale = 0.98 + 0.02 * p; // 0.98 → ~1.01 → 1.0 (overshoot built into backOut)
-          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: 1; z-index: 1;`;
+          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: 1; z-index: 1;`;
         } else {
-          // OUT: clean decisive exit, no bounce. Slide + drift.
-          // FULLY OPAQUE — visible in the gap beside the sliding-in IN element,
-          // then slides out of view. No fade (fading was invisible behind IN anyway).
+          // OUT: clean decisive exit via cubicOut. Slide out, no scale.
           const p = cubicOut(t);
           const dx = p * x;
-          const scale = 1 - 0.02 * p; // 1 → 0.98
-          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: 1; pointer-events: none; z-index: 0;`;
+          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: 1; pointer-events: none; z-index: 0;`;
         }
       }
     };
