@@ -314,8 +314,6 @@
   const PAGER_DUR_MEDIUM = PAGER.DUR_MEDIUM;
   const PAGER_DUR_LOW = PAGER.DUR_LOW;
   const PAGER_DUR_BASIC = PAGER.DUR_BASIC;
-  const PAGER_OUT_RATIO = PAGER.OUT_RATIO;
-  const PAGER_OUT_BASIC = PAGER.OUT_BASIC;
 
   // Pager motion distance constants (px)
   const PAGER_DIST_HIGH = PAGER.DIST_HIGH;
@@ -1004,11 +1002,7 @@
         }}
         out:pagerSpring={{
           x: -pagerDirection * pagerMotionDistance,
-          duration: reducedMotionEffective
-            ? 0
-            : smoothModeRequested
-              ? Math.round(pagerMotionDuration * PAGER_OUT_RATIO)
-              : PAGER_OUT_BASIC,
+          duration: pagerMotionDuration,
           phase: 'out',
           strength: 0
         }}
