@@ -262,6 +262,12 @@
   //      Scale 0.98 → overshoots to ~1.01 → settles at 1.0. Satisfying "pop".
   // OUT: uses cubicOut for clean, decisive exit. No bounce on exit.
   // GPU-only: translate3d, scale, opacity. No rotation, no blur, no gimmicks.
+  //
+  // CRITICAL: Both IN and OUT are fully opaque (opacity: 1) throughout.
+  // This prevents the "ghost container" bug where the old page bleeds through
+  // the semi-transparent new page during crossfade transitions.
+  // The result is a slide-over effect (like iOS navigation) where the new
+  // page slides in covering the old page completely — no bleed-through.
   function pagerSpring(
     _node: Element,
     opts: {
@@ -281,18 +287,19 @@
         if (phase === 'in') {
           // IN: spring overshoot + settle via backOut easing.
           // Content slides in with a satisfying bounce-then-settle.
+          // FULLY OPAQUE — covers OUT element completely, no ghost bleed.
           const p = backOut(t);
           const dx = (1 - p) * x;
           const scale = 0.98 + 0.02 * p; // 0.98 → ~1.01 → 1.0 (overshoot built into backOut)
-          const opacity = 0.4 + 0.6 * p;
-          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)}; z-index: 1;`;
+          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: 1; z-index: 1;`;
         } else {
-          // OUT: clean decisive exit, no bounce. Fade + drift.
+          // OUT: clean decisive exit, no bounce. Slide + drift.
+          // FULLY OPAQUE — visible in the gap beside the sliding-in IN element,
+          // then slides out of view. No fade (fading was invisible behind IN anyway).
           const p = cubicOut(t);
           const dx = p * x;
           const scale = 1 - 0.02 * p; // 1 → 0.98
-          const opacity = 1 - p;
-          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)}; pointer-events: none; z-index: 0;`;
+          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: 1; pointer-events: none; z-index: 0;`;
         }
       }
     };
@@ -411,8 +418,9 @@
   }
 
   function goTo(index: number, opts?: { skipHash?: boolean; skipSwitching?: boolean }) {
-    // Navigation lock: prevent rapid-fire swipes from causing ghost containers.
-    // The OUT transition must complete before allowing the next navigation.
+    // Navigation lock: prevent rapid-fire swipes from interrupting the IN transition,
+    // which would cause visible jitter (page repeatedly snapping to intro start position).
+    // The ghost-container bug is fixed separately via opacity:1 slide-over in pagerSpring.
     if (isTransitioning && !opts?.skipSwitching) return;
 
     const next = clampIndex(index);
@@ -425,18 +433,13 @@
     if (browser && !reducedMotionEffective && !opts?.skipSwitching) {
       isTransitioning = true;
       if (switchingTimer) clearTimeout(switchingTimer);
-      document.body.classList.add('is-switching');
-      // Lock for the OUT transition duration + small buffer (40ms).
-      // OUT is shorter than IN, so this feels responsive while preventing ghosts.
-      const outDur = smoothModeRequested
-        ? Math.round(pagerMotionDuration * PAGER_OUT_RATIO) + 40
-        : PAGER_OUT_BASIC + 40;
-      const ms = Math.max(outDur, 120);
+      // Lock for the IN transition duration + buffer.
+      // This prevents jitter from rapid swipes but stays responsive.
+      const lockDur = Math.max(pagerMotionDuration + 60, 150);
       switchingTimer = setTimeout(() => {
         isTransitioning = false;
-        document.body.classList.remove('is-switching');
         switchingTimer = null;
-      }, ms);
+      }, lockDur);
     }
 
     lastIndex = activeIndex;
@@ -918,7 +921,6 @@
     pageDestroyed = true;
     if (markerTimer) clearTimeout(markerTimer);
     if (switchingTimer) clearTimeout(switchingTimer);
-    if (browser) document.body.classList.remove('is-switching');
   });
 
 </script>
