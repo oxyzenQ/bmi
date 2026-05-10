@@ -25,8 +25,12 @@ function pinCryptoDeps(): Plugin {
                         if (id === '@noble/hashes/argon2.js') {
                                 return req.resolve('@noble/hashes/argon2.js');
                         }
-                        if (id === 'zxcvbn-ts') {
-                                return req.resolve('zxcvbn-ts');
+                        if (id === '@zxcvbn-ts/core') {
+                                // Pin to ESM entry — CJS entry causes "exports is not defined" in browser
+                                return req.resolve('@zxcvbn-ts/core/dist/index.esm.js');
+                        }
+                        if (id === '@zxcvbn-ts/language-common') {
+                                return req.resolve('@zxcvbn-ts/language-common/dist/index.esm.js');
                         }
                 }
         };

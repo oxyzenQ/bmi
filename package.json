@@ -72,7 +72,8 @@
     "@noble/hashes": "2.2.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
-    "lucide-svelte": "^0.446.0",
-    "zxcvbn-ts": "2.1.0"
+    "@zxcvbn-ts/core": "^3.0.4",
+    "@zxcvbn-ts/language-common": "^3.0.4",
+    "lucide-svelte": "^0.446.0"
   }
 }

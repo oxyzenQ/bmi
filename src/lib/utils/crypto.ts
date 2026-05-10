@@ -274,23 +274,48 @@ export interface StrengthResult {
 }
 
 /**
- * Analyze passphrase strength using zxcvbn.
+ * Analyze passphrase strength using @zxcvbn-ts/core.
  * Returns score (0-4), entropy, crack time, and feedback.
  * Uses dynamic import to keep bundle small until needed.
+ * Dictionary is loaded once and reused across calls.
  */
+let _zxcvbnReady: Promise<boolean> | null = null;
+
+async function initZxcvbn(): Promise<boolean> {
+  try {
+    const { zxcvbnOptions } = await import('@zxcvbn-ts/core');
+    const { dictionary } = await import('@zxcvbn-ts/language-common');
+    zxcvbnOptions.setOptions({ dictionary });
+    return true;
+  } catch (err) {
+    warnDev('crypto', 'initZxcvbn', '@zxcvbn-ts/core init failed, using fallback scoring', err);
+    return false;
+  }
+}
+
 export async function analyzeStrength(passphrase: string): Promise<StrengthResult> {
   if (!passphrase) {
     return { score: 0, entropy: 0, crackTimeDisplay: 'instant', suggestions: [] };
   }
 
   try {
-    const { zxcvbn } = await import('zxcvbn-ts');
+    // Initialize dictionary once (subsequent calls reuse cached promise)
+    if (!_zxcvbnReady) {
+      _zxcvbnReady = initZxcvbn();
+    }
+    const ready = await _zxcvbnReady;
+
+    if (!ready) {
+      return fallbackStrength(passphrase);
+    }
+
+    const { zxcvbn } = await import('@zxcvbn-ts/core');
     const result = zxcvbn(passphrase);
 
     return {
       score: result.score,
-      entropy: result.guesses_log10,
-      crackTimeDisplay: result.crack_times_display.offline_slow_hashing_1e5_per_second,
+      entropy: result.guessesLog10,
+      crackTimeDisplay: result.crackTimesDisplay.offlineSlowHashing1e4PerSecond,
       warning: result.feedback.warning || undefined,
       suggestions: [...(result.feedback.suggestions || [])],
     };
