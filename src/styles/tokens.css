@@ -451,7 +451,7 @@
   --modal-panel-shadow: 0 25px 50px -12px var(--k-50);
   --modal-dur: 0.22s;
   --modal-ease: var(--easing-spring);
-  --modal-panel-scale-from: scale(0.992) translateY(8px);
+  --modal-panel-scale-from: scale(0.96) translateY(8px);
   --modal-panel-scale-to: scale(1) translateY(0);
   --modal-backdrop-dur: 0.15s;
 

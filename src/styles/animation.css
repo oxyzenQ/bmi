@@ -932,19 +932,18 @@ html:not([data-graphics='render']) .shooting-star {
 }
 
 /* ==============================
-      ENTRANCE ANIMATIONS — Gravitational Warp Theme
-      Content emerges from gravitational lensing around the black hole.
+      ENTRANCE ANIMATIONS — Safe Premium
+      Clean ease-out for content entrance. No blur, no spring —
+      spring is reserved for page-level transitions only.
       ============================== */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    filter: blur(2px);
-    transform: translateY(12px) translateZ(0) scale(0.99);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
-    filter: blur(0px);
-    transform: translateY(0) translateZ(0) scale(1);
+    transform: translateY(0);
   }
 }
 

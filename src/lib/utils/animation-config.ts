@@ -16,27 +16,27 @@ export const MARKER_ANIM = {
 } as const;
 
 // ── Pager transition durations (ms) ──
-// Gravitational Warp: cinematic black hole page transitions.
-// Outgoing page spaghettifies (scale down + directional drift + fade to void).
-// Incoming page warps in from the accretion plane (scale up + depth + reveal).
+// Safe Premium Spring: spring-inspired page transitions.
+// IN uses backOut easing for natural overshoot + settle (iOS feel).
+// OUT uses cubicOut for clean, decisive exit. No gimmicks.
 export const PAGER = {
-  DUR_HIGH: 380,
-  DUR_MEDIUM: 350,
+  DUR_HIGH: 360,
+  DUR_MEDIUM: 340,
   DUR_LOW: 320,
   DUR_BASIC: 260,
-  OUT_RATIO: 0.42,
-  OUT_BASIC: 110,
-  DIST_HIGH: 22,
-  DIST_MEDIUM: 18,
-  DIST_LOW: 16,
-  DIST_BASIC: 12,
-  SWITCHING_DELAY: 80,
+  OUT_RATIO: 0.4,
+  OUT_BASIC: 100,
+  DIST_HIGH: 16,
+  DIST_MEDIUM: 14,
+  DIST_LOW: 12,
+  DIST_BASIC: 10,
+  SWITCHING_DELAY: 60,
 } as const;
 
 // ── Spring animation strengths ──
-// Gravitational Warp: subtle pull toward event horizon on enhanced mode.
+// Safe Premium Spring: moderate strength for satisfying overshoot on IN phase.
 export const SPRING = {
-  STRENGTH_ENHANCED: 0.04,
+  STRENGTH_ENHANCED: 0.07,
   STRENGTH_BASIC: 0,
 } as const;
 

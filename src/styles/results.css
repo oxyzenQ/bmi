@@ -50,32 +50,30 @@
   line-height: 1.5;
 }
 
-/* Results content — emerges from gravitational lensing */
+/* Results content — clean entrance */
 .results-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  animation: fadeInUp 0.5s var(--easing-smooth);
+  animation: fadeInUp 0.4s var(--easing-smooth);
 }
 
-/* BMI display — materializes from beyond the event horizon */
+/* BMI display — clean scale entrance */
 .bmi-display {
   text-align: center;
   margin-bottom: 2.5rem;
-  animation: scaleIn 0.5s var(--easing-smooth) 0.15s both;
+  animation: scaleIn 0.4s var(--easing-smooth) 0.15s both;
 }
 
 @keyframes scaleIn {
   from {
     opacity: 0;
-    filter: blur(1px);
-    transform: scale(0.94);
+    transform: scale(0.96);
   }
 
   to {
     opacity: 1;
-    filter: blur(0px);
     transform: scale(1);
   }
 }
@@ -108,14 +106,14 @@
   letter-spacing: 0.05em;
 }
 
-/* Health advice — streams in from gravitational current */
+/* Health advice — clean slide entrance */
 .health-advice {
   background: var(--sd-40);
   border-radius: 1rem;
   padding: 1.75rem;
   margin-bottom: 1.75rem;
   border: 1px solid var(--w-5);
-  animation: slideInLeft 0.5s var(--easing-smooth) 0.25s both;
+  animation: slideInLeft 0.4s var(--easing-smooth) 0.25s both;
   transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }
 
@@ -126,18 +124,16 @@
   box-shadow: 0 8px 25px var(--k-20);
 }
 
-/* Matter streaming toward the accretion disk — leftward gravitational pull */
+/* Clean directional slide — left */
 @keyframes slideInLeft {
   from {
     opacity: 0;
-    filter: blur(1px);
-    transform: translateX(-14px) scale(0.99);
+    transform: translateX(-12px);
   }
 
   to {
     opacity: 1;
-    filter: blur(0px);
-    transform: translateX(0) scale(1);
+    transform: translateX(0);
   }
 }
 
@@ -156,14 +152,14 @@
   line-height: 1.6;
 }
 
-/* Age advisory — streams in from the opposite gravitational current */
+/* Age advisory — clean slide entrance */
 .age-advisory {
   background: var(--coreblue-12);
   border: 1px solid var(--coreblue-22);
   border-radius: 1rem;
   padding: 1.75rem;
   margin-bottom: 1.75rem;
-  animation: slideInRight 0.5s var(--easing-smooth) 0.35s both;
+  animation: slideInRight 0.4s var(--easing-smooth) 0.35s both;
   transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }
 
@@ -174,18 +170,16 @@
   box-shadow: 0 8px 25px var(--coreblue-16);
 }
 
-/* Right gravitational current — matter approaching the singularity */
+/* Clean directional slide — right */
 @keyframes slideInRight {
   from {
     opacity: 0;
-    filter: blur(1px);
-    transform: translateX(14px) scale(0.99);
+    transform: translateX(12px);
   }
 
   to {
     opacity: 1;
-    filter: blur(0px);
-    transform: translateX(0) scale(1);
+    transform: translateX(0);
   }
 }
 
@@ -205,13 +199,13 @@
   font-size: 0.875rem;
 }
 
-/* BMI explanation — emerges from the void */
+/* BMI explanation — clean entrance */
 .bmi-explanation {
   background: var(--sd-40);
   border-radius: var(--radius-md);
   padding: 1.75rem;
   border: 1px solid var(--w-5);
-  animation: fadeInUp 0.5s var(--easing-smooth) 0.45s both;
+  animation: fadeInUp 0.4s var(--easing-smooth) 0.45s both;
   transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }
 
