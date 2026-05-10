@@ -16,26 +16,27 @@ export const MARKER_ANIM = {
 } as const;
 
 // ── Pager transition durations (ms) ──
-// Soft Directional Fade: small translation (8–14px), short duration (260–300ms),
-// no spring overshoot. Feels premium, modern, low-fatigue — content continuity.
+// Gravitational Warp: cinematic black hole page transitions.
+// Outgoing page spaghettifies (scale down + directional drift + fade to void).
+// Incoming page warps in from the accretion plane (scale up + depth + reveal).
 export const PAGER = {
-  DUR_HIGH: 300,
-  DUR_MEDIUM: 280,
-  DUR_LOW: 260,
-  DUR_BASIC: 220,
-  OUT_RATIO: 0.35,
-  OUT_BASIC: 80,
-  DIST_HIGH: 14,
-  DIST_MEDIUM: 12,
-  DIST_LOW: 10,
-  DIST_BASIC: 8,
-  SWITCHING_DELAY: 60,
+  DUR_HIGH: 380,
+  DUR_MEDIUM: 350,
+  DUR_LOW: 320,
+  DUR_BASIC: 260,
+  OUT_RATIO: 0.42,
+  OUT_BASIC: 110,
+  DIST_HIGH: 22,
+  DIST_MEDIUM: 18,
+  DIST_LOW: 16,
+  DIST_BASIC: 12,
+  SWITCHING_DELAY: 80,
 } as const;
 
 // ── Spring animation strengths ──
-// Soft Directional Fade: near-zero overshoot for premium page transitions.
+// Gravitational Warp: subtle pull toward event horizon on enhanced mode.
 export const SPRING = {
-  STRENGTH_ENHANCED: 0.02,
+  STRENGTH_ENHANCED: 0.04,
   STRENGTH_BASIC: 0,
 } as const;
 

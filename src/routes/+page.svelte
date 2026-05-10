@@ -256,13 +256,11 @@
     }
   });
 
-  // Soft Directional Fade transition.
-  // Uses cubicOut for both phases — no spring overshoot, no dramatic opacity swing.
-  // Subtle scale depth (0.997→1) + directional translate3d (8–14px) + gentle opacity.
-  // Inspired by Linear, Arc Browser, modern iOS utility motion.
-  //
-  // out: element fades out quickly and shifts away so rapid navigation
-  //      never leaves a ghost.  in: element slides in with subtle depth.
+  // Gravitational Warp transition — Black Hole themed page navigation.
+  // OUT: page spaghettifies toward the event horizon (scale down + drift + fade to void).
+  // IN:  page warps in from the accretion plane (scale up from depth + directional reveal).
+  // Uses cubicOut with subtle Z-rotation on OUT for cinematic gravity-warp feel.
+  // GPU-only: translate3d, scale, rotate, opacity. No layout properties.
   function pagerSpring(
     _node: Element,
     opts: {
@@ -282,18 +280,24 @@
         const p = cubicOut(t);
 
         if (phase === 'in') {
-          // IN: offset → 0, opacity 0.5 → 1, scale 0.997 → 1
+          // IN: warp in from beyond the event horizon.
+          // Offset drifts from distance → 0, scale emerges from depth,
+          // opacity fades from void darkness to full reveal.
           const dx = (1 - p) * x;
-          const scale = 0.997 + 0.003 * p;
-          const opacity = 0.5 + 0.5 * p;
-          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)};`;
+          const scale = 0.994 + 0.006 * p;
+          const opacity = 0.3 + 0.7 * p;
+          // Subtle Z-rotation unwarp (de-rotate from gravitational lensing)
+          const rotZ = (1 - p) * 0.3 * Math.sign(x);
+          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}) rotateZ(${rotZ.toFixed(3)}deg); opacity: ${opacity.toFixed(4)}; will-change: transform, opacity;`;
         } else {
-          // OUT: 0 → offset, opacity 1 → 0, scale 1 → 0.997
-          // Fast fade-out so no ghost lingers during rapid navigation.
+          // OUT: spaghettify into the black hole.
+          // Scale shrinks, content drifts and rotates, opacity consumed by void.
           const dx = p * x;
-          const scale = 1 - 0.003 * p;
+          const scale = 1 - 0.006 * p;
           const opacity = 1 - p;
-          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)}; pointer-events: none;`;
+          // Subtle gravitational twist as content falls into the singularity
+          const rotZ = p * 0.4 * Math.sign(-x);
+          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}) rotateZ(${rotZ.toFixed(3)}deg); opacity: ${opacity.toFixed(4)}; pointer-events: none; will-change: transform, opacity;`;
         }
       }
     };

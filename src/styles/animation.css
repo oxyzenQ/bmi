@@ -932,17 +932,19 @@ html:not([data-graphics='render']) .shooting-star {
 }
 
 /* ==============================
-      ENTRANCE ANIMATIONS
-      Extracted from responsive.css in v18.0
+      ENTRANCE ANIMATIONS — Gravitational Warp Theme
+      Content emerges from gravitational lensing around the black hole.
       ============================== */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(10px) translateZ(0);
+    filter: blur(2px);
+    transform: translateY(12px) translateZ(0) scale(0.99);
   }
   to {
     opacity: 1;
-    transform: translateY(0) translateZ(0);
+    filter: blur(0px);
+    transform: translateY(0) translateZ(0) scale(1);
   }
 }
 
