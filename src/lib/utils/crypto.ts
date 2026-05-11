@@ -97,6 +97,18 @@ export interface EncryptionStatus {
 // ── Key management ──
 
 /**
+ * Extract a clean ArrayBuffer from a Uint8Array.
+ * WebCrypto (both browser and Node.js) sometimes rejects Uint8Array.buffer
+ * when the backing store is SharedArrayBuffer or has an offset.
+ * Copying into a fresh ArrayBuffer guarantees a valid BufferSource.
+ */
+function toAB(src: Uint8Array): ArrayBuffer {
+  const ab = new ArrayBuffer(src.length);
+  new Uint8Array(ab).set(src);
+  return ab;
+}
+
+/**
  * Derive an AES-256-GCM key from a passphrase + salt using Argon2id.
  * Uses @noble/hashes (pure JS, no WASM, tiny bundle footprint).
  */
@@ -110,7 +122,7 @@ async function deriveKeyArgon2(passphrase: string, salt: Uint8Array): Promise<Cr
 
   return crypto.subtle.importKey(
     'raw',
-    hashBytes.buffer as ArrayBuffer,
+    toAB(hashBytes),
     { name: 'AES-GCM', length: 256 },
     false,
     ['encrypt', 'decrypt']
@@ -122,7 +134,7 @@ async function deriveKeyPBKDF2(passphrase: string, salt: Uint8Array): Promise<Cr
   const encoder = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
-    encoder.encode(passphrase),
+    toAB(encoder.encode(passphrase)),
     'PBKDF2',
     false,
     ['deriveKey']
@@ -131,7 +143,7 @@ async function deriveKeyPBKDF2(passphrase: string, salt: Uint8Array): Promise<Cr
   return crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: salt.buffer as ArrayBuffer,
+      salt: toAB(salt),
       iterations: PBKDF2_ITERATIONS,
       hash: 'SHA-256',
     },
