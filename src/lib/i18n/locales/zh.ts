@@ -6,7 +6,7 @@ import type { TranslationDict } from '../types';
 
 const zh: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': '\u7b80\u5355 BMI \u8ba1\u7b97\u5668 \u2014 Stellar v16.0',
+  'meta.title': '\u7b80\u5355 BMI \u8ba1\u7b97\u5668 \u2014 Stellar v18.0',
   'meta.description': '\u4e00\u6b3e\u5962\u534e\u592a\u7a7a\u4e3b\u9898\u7684 BMI \u8ba1\u7b97\u5668\u3002\u8ba1\u7b97\u4f53\u8d28\u6307\u6570\uff0cTDEE\uff0c\u4f53\u8102\u7387\uff0c\u5e76\u901a\u8fc7\u4ea4\u4e92\u5f0f\u56fe\u8868\u8ddf\u8e2a\u60a8\u7684\u5065\u5eb7\u4e4b\u65c5\u3002\u7531 Team LOGIGO \u4f7f\u7528 SvelteKit \u6784\u5efa\u3002',
   'meta.og_description': '\u4e00\u6b3e\u5962\u534e\u592a\u7a7a\u4e3b\u9898\u7684 BMI \u8ba1\u7b97\u5668\uff0c\u652f\u6301 TDEE\u3001\u4f53\u8102\u7387\u3001\u4ea4\u4e92\u5f0f\u56fe\u8868\u548c PWA\u3002',
 
@@ -58,7 +58,7 @@ const zh: TranslationDict = {
   'hero.feature1': '\u7cbe\u786e\u8ba1\u7b97',
   'hero.feature2': '\u5065\u5eb7\u6d1e\u5bdf',
   'hero.feature3': '\u5962\u534e\u8bbe\u8ba1',
-  'hero.edition': 'Stellar v16.0',
+  'hero.edition': 'Stellar v18.0',
 
   // ── Form ──
   'form.title': 'BMI \u8ba1\u7b97\u5668',

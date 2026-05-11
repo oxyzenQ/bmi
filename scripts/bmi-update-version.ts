@@ -97,8 +97,20 @@ function main(): void {
   console.log(`  Current: \x1b[90m${currentVersion}\x1b[0m`);
   console.log(`  Target:  \x1b[1m${newVersion}\x1b[0m\n`);
 
-  if (currentVersion === newVersion) {
-    die(`Already at version ${newVersion}. Nothing to do.`);
+  if (currentVersion === newVersion && shortOld === short) {
+    // Even when versions match, check for drifted version references in source files
+    const driftFixed = fixVersionDrift(short);
+    if (!driftFixed) {
+      die(`Already at version ${newVersion}. Nothing to do.`);
+    }
+    // Drift was fixed — skip remaining updates since package.json is already correct
+    console.log(`  \x1b[33m*\x1b[0m Version drift detected and fixed (package.json already at ${newVersion})`);
+    console.log('');
+    console.log(`\x1b[32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m`);
+    console.log(`\x1b[32m  Done! Version drift fixed to Stellar v${short}\x1b[0m`);
+    console.log(`\x1b[32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m`);
+    console.log('');
+    return;
   }
 
   // ── 1. Update package.json ──
@@ -281,6 +293,38 @@ function updateBackupTs(newVersion: string): void {
 
 function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Detect and fix version drift in source files when package.json
+ * is already at the target version but source files reference older versions.
+ * Returns true if any drift was fixed.
+ */
+function fixVersionDrift(currentShort: string): boolean {
+  let fixed = false;
+
+  // Check +page.svelte for any "Stellar v{X.Y}" where X.Y !== currentShort
+  const pageContent = readFile('src/routes/+page.svelte');
+  const broadVersionPattern = /Stellar v(\d+\.\d+)/g;
+  let match: RegExpExecArray | null;
+  while ((match = broadVersionPattern.exec(pageContent)) !== null) {
+    if (match[1] !== currentShort) {
+      const drifted = match[0];
+      const corrected = `Stellar v${currentShort}`;
+      console.log(`  \\x1b[33m*\\x1b[0m Fixing drift in +page.svelte: "${drifted}" → "${corrected}"`);
+      // Will be fixed by the updatePageSvelte fallback below
+      fixed = true;
+    }
+  }
+  if (fixed) {
+    // Use the fallback broad patterns from updatePageSvelte
+    const oldContent = readFile('src/routes/+page.svelte');
+    let updated = oldContent.replace(/Stellar-\d+\.\d+(?=[\s<}])/g, `Stellar-${currentShort}`);
+    updated = updated.replace(/Stellar v\d+\.\d+(?=[\s<}])/g, `Stellar v${currentShort}`);
+    if (updated !== oldContent) writeFile('src/routes/+page.svelte', updated);
+  }
+
+  return fixed;
 }
 
 main();

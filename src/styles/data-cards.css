@@ -763,7 +763,7 @@
 }
 
 .about-card h3 {
-  font-size: var(--text-3.5xl);
+  font-size: var(--text-3-half-xl);
   font-weight: 700;
   margin-bottom: 0.75rem;
   color: var(--stellar-white);

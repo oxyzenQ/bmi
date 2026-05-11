@@ -443,7 +443,7 @@
   --text-xl: 1.125rem;      /* 18px — section titles, advice title */
   --text-2xl: 1.25rem;      /* 20px — modal titles, gauge title, subtitle */
   --text-3xl: 1.5rem;       /* 24px — card headings, BMI category */
-  --text-3.5xl: 1.75rem;    /* 28px — about card headings */
+  --text-3-half-xl: 1.75rem;    /* 28px — about card headings */
   --text-4xl: 2rem;         /* 32px — section sub-titles */
   --text-5xl: 2.5rem;       /* 40px — section main titles */
   --text-hero: 3.5rem;      /* 56px — hero title */

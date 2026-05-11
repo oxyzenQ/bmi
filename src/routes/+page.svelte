@@ -314,33 +314,6 @@
   const BMI_BAR_MIN = BMI_THRESHOLDS.MIN;
   const BMI_BAR_MAX = BMI_THRESHOLDS.MAX;
 
-  // Animation duration constants (ms)
-  const MARKER_ANIM_HIGH = MARKER_ANIM.HIGH;
-  const MARKER_ANIM_MEDIUM = MARKER_ANIM.MEDIUM;
-  const MARKER_ANIM_LOW = MARKER_ANIM.LOW;
-  const OVERSHOOT_RATIO = MARKER_ANIM.OVERSHOOT_RATIO;
-  const SETTLE_RATIO = MARKER_ANIM.SETTLE_RATIO;
-  const SETTLE_DELAY_OFFSET = MARKER_ANIM.SETTLE_DELAY_OFFSET;
-
-  // Pager motion duration constants (ms)
-  const PAGER_DUR_HIGH = PAGER.DUR_HIGH;
-  const PAGER_DUR_MEDIUM = PAGER.DUR_MEDIUM;
-  const PAGER_DUR_LOW = PAGER.DUR_LOW;
-  const PAGER_DUR_BASIC = PAGER.DUR_BASIC;
-  const PAGER_OUT_RATIO = PAGER.OUT_RATIO;
-  const PAGER_OUT_BASIC = PAGER.OUT_BASIC;
-
-  // Pager motion distance constants (px)
-  const PAGER_DIST_HIGH = PAGER.DIST_HIGH;
-  const PAGER_DIST_MEDIUM = PAGER.DIST_MEDIUM;
-  const PAGER_DIST_LOW = PAGER.DIST_LOW;
-  const PAGER_DIST_BASIC = PAGER.DIST_BASIC;
-
-  // Other animation constants
-  const SWITCHING_DELAY = PAGER.SWITCHING_DELAY;
-  const SPRING_STRENGTH_ENHANCED = SPRING.STRENGTH_ENHANCED;
-  const SPRING_STRENGTH_BASIC = SPRING.STRENGTH_BASIC;
-
   let rangeMarker =
     $derived(
       bmiValue === null
@@ -369,9 +342,9 @@
       return;
     }
 
-    const base = perfTier === 'high' ? MARKER_ANIM_HIGH : perfTier === 'medium' ? MARKER_ANIM_MEDIUM : MARKER_ANIM_LOW;
-    const overshootDur = Math.round(base * OVERSHOOT_RATIO);
-    const settleDur = Math.round(base * SETTLE_RATIO);
+    const base = perfTier === 'high' ? MARKER_ANIM.HIGH : perfTier === 'medium' ? MARKER_ANIM.MEDIUM : MARKER_ANIM.LOW;
+    const overshootDur = Math.round(base * MARKER_ANIM.OVERSHOOT_RATIO);
+    const settleDur = Math.round(base * MARKER_ANIM.SETTLE_RATIO);
     const delta = target - lastMarker;
     const overshoot = Math.max(0, Math.min(100, target + delta * 0.08));
 
@@ -380,20 +353,20 @@
     markerTimer = setTimeout(() => {
       animatedMarker.set(target, { duration: settleDur, easing: cubicOut });
       markerTimer = null;
-    }, Math.max(0, overshootDur - SETTLE_DELAY_OFFSET));
+    }, Math.max(0, overshootDur - MARKER_ANIM.SETTLE_DELAY_OFFSET));
   }
 
   let pagerDirection = $derived(activeIndex >= lastIndex ? 1 : -1);
   let pagerMotionDuration = $derived(reducedMotionEffective
     ? 0
     : smoothModeRequested
-      ? (perfTier === 'high' ? PAGER_DUR_HIGH : perfTier === 'medium' ? PAGER_DUR_MEDIUM : PAGER_DUR_LOW)
-      : PAGER_DUR_BASIC);
+      ? (perfTier === 'high' ? PAGER.DUR_HIGH : perfTier === 'medium' ? PAGER.DUR_MEDIUM : PAGER.DUR_LOW)
+      : PAGER.DUR_BASIC);
   let pagerMotionDistance = $derived(reducedMotionEffective
     ? 0
     : smoothModeRequested
-      ? (perfTier === 'high' ? PAGER_DIST_HIGH : perfTier === 'medium' ? PAGER_DIST_MEDIUM : PAGER_DIST_LOW)
-      : PAGER_DIST_BASIC);
+      ? (perfTier === 'high' ? PAGER.DIST_HIGH : perfTier === 'medium' ? PAGER.DIST_MEDIUM : PAGER.DIST_LOW)
+      : PAGER.DIST_BASIC);
 
   let pagerEl: HTMLDivElement | null = null;
   let pointerStartX: number | null = null;
@@ -434,7 +407,7 @@
     if (browser && !reducedMotionEffective && !opts?.skipSwitching) {
       if (switchingTimer) clearTimeout(switchingTimer);
       document.body.classList.add('is-switching');
-      const ms = Math.max(240, pagerMotionDuration) + SWITCHING_DELAY;
+      const ms = Math.max(240, pagerMotionDuration) + PAGER.SWITCHING_DELAY;
       switchingTimer = setTimeout(() => {
         document.body.classList.remove('is-switching');
         switchingTimer = null;
@@ -1007,15 +980,15 @@
           x: pagerDirection * pagerMotionDistance,
           duration: pagerMotionDuration,
           phase: 'in',
-          strength: reducedMotionEffective ? 0 : (smoothModeEnhanced ? SPRING_STRENGTH_ENHANCED : SPRING_STRENGTH_BASIC)
+          strength: reducedMotionEffective ? 0 : (smoothModeEnhanced ? SPRING.STRENGTH_ENHANCED : SPRING.STRENGTH_BASIC)
         }}
         out:pagerSpring={{
           x: -pagerDirection * pagerMotionDistance,
           duration: reducedMotionEffective
             ? 0
             : smoothModeRequested
-              ? Math.round(pagerMotionDuration * PAGER_OUT_RATIO)
-              : PAGER_OUT_BASIC,
+              ? Math.round(pagerMotionDuration * PAGER.OUT_RATIO)
+              : PAGER.OUT_BASIC,
           phase: 'out',
           strength: 0
         }}
@@ -1239,7 +1212,7 @@
                     <div class="app-info">
                       <p class="info-row">
                         <PackageCheck class="PackageCheck" />
-                        <strong>{t('about.version')}:</strong>Stellar v16.0 <span class="commit-id">({gitCommitId})</span>
+                        <strong>{t('about.version')}:</strong>Stellar v18.0 <span class="commit-id">({gitCommitId})</span>
                       </p>
                       <p class="info-row">
                         <GitBranch class="GitBranch" />

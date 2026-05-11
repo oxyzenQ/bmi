@@ -6,7 +6,7 @@ import type { TranslationDict } from '../types';
 
 const id: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': 'Kalkulator BMI Sederhana \u2014 Stellar v16.0',
+  'meta.title': 'Kalkulator BMI Sederhana \u2014 Stellar v18.0',
   'meta.description': 'Kalkulator BMI bertema luar angkasa mewah. Hitung Indeks Massa Tubuh, TDEE, Persentase Lemak Tubuh, dan lacak perjalanan kesehatan Anda dengan grafik interaktif. Dibuat dengan SvelteKit oleh Team LOGIGO.',
   'meta.og_description': 'Kalkulator BMI bertema luar angkasa mewah dengan TDEE, Persentase Lemak Tubuh, grafik interaktif, dan dukungan PWA.',
 
@@ -58,7 +58,7 @@ const id: TranslationDict = {
   'hero.feature1': 'Perhitungan Akurat',
   'hero.feature2': 'Insight Kesehatan',
   'hero.feature3': 'Desain Mewah',
-  'hero.edition': 'Stellar v16.0',
+  'hero.edition': 'Stellar v18.0',
 
   // ── Form ──
   'form.title': 'Kalkulator BMI',
