@@ -4,6 +4,7 @@
   import { browser } from '$app/environment';
   import { t as _t, locales, setLocale, localeVersion, locale } from '$lib/i18n';
   import type { Locale, TParams } from '$lib/i18n';
+  import { portal } from '$lib/actions/portal';
 
   // Reactive dependency on locale version so t() re-evaluates on locale change
   let _rv = $derived($localeVersion);
@@ -18,19 +19,6 @@
   let open = $state(false);
   let visible = $state(false);
   let mounted = $state(false);
-
-  /**
-   * Svelte action: portal the element to document.body.
-   * Escapes ancestor containing-block created by backdrop-filter / transform.
-   */
-  function portal(node: HTMLElement): { destroy(): void } {
-    document.body.appendChild(node);
-    return {
-      destroy() {
-        node.remove();
-      }
-    };
-  }
 
   function handleToggle() {
     open = !open;

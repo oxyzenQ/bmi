@@ -437,16 +437,4 @@ button[aria-disabled="true"] {
   color: var(--stellar-white);
 }
 
-/* Note: @keyframes bounce removed in Phase 4 — unused (no animation references) */
-/* @keyframes pulse retained: used by BmiHealthRisk.svelte for health risk pulse animation */
-@keyframes pulse {
-
-  0%,
-  100% {
-    filter: drop-shadow(0 0 6px var(--sky-60));
-  }
-
-  50% {
-    filter: drop-shadow(0 0 12px var(--magenta-80));
-  }
-}
+/* Note: @keyframes bounce/pulse removed — each component defines its own locally */

@@ -5,6 +5,7 @@
   import { COLORS, BMI_THRESHOLDS } from '$lib/utils/bmi-category';
   import { t as _t, localeVersion } from '$lib/i18n';
   import { warnDev } from '$lib/utils/warn-dev';
+  import { storageGetJSON, STORAGE_KEYS } from '$lib/utils/storage';
   let _rv = $derived($localeVersion);
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
@@ -35,10 +36,8 @@
   function refreshBestBmi() {
     if (!browser) return;
     try {
-      const stored = localStorage.getItem('bmi.history');
-      if (!stored) { bestBmiState = null; return; }
-      const history: BMIRecord[] = JSON.parse(stored);
-      if (history.length === 0) { bestBmiState = null; return; }
+      const history = storageGetJSON<BMIRecord[]>(STORAGE_KEYS.HISTORY, []);
+      if (!history || history.length === 0) { bestBmiState = null; return; }
 
       // Find best BMI - closest to ideal (22) within or near normal range
       const best = history.reduce((best, record) => {

@@ -3,6 +3,7 @@
   import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport, importBmiHistory, peekImportMeta, MAX_IMPORT_SIZE, type ImportFileMeta, type ImportError } from '$lib/utils/history-io';
   import { STORAGE_KEYS, storageGetJSON } from '$lib/utils/storage';
   import { warnDev } from '$lib/utils/warn-dev';
+  import { portal } from '$lib/actions/portal';
   import { tick } from 'svelte';
   import { t as _t, localeVersion } from '$lib/i18n';
   import EncryptionModal from './EncryptionModal.svelte';
@@ -170,19 +171,6 @@
   let feedbackType = $state<'success' | 'error'>('success');
   let feedbackMessage = $state('');
 
-  /**
-   * Svelte action: portal the element to document.body.
-   * Escapes ancestor containing-block created by backdrop-filter / transform.
-   */
-  function portal(node: HTMLElement): { destroy(): void } {
-    document.body.appendChild(node);
-    return {
-      destroy() {
-        node.remove();
-      }
-    };
-  }
-
   function formatDate(): string {
     const now = new Date();
     const y = now.getFullYear();
@@ -254,15 +242,11 @@
     fileInputEl?.click();
   }
 
-  function processFile(file: File) {
-    // Reuse the existing file processing logic
+  async function processFile(file: File) {
+    stagingLoading = true;
+    await tick();
     const fakeEvent = { target: { files: [file] } } as unknown as Event;
     handleFileChange(fakeEvent);
-  }
-
-  function handleDropZoneClick() {
-    // Same as handleImportClick — spinner shows after dialog closes.
-    fileInputEl?.click();
   }
 
   function handleFileInputChange(e: Event) {
@@ -453,22 +437,11 @@
     isDragOver = false;
     const file = e.dataTransfer?.files?.[0];
     if (!file) return;
-    processImportFile(file);
+    processFile(file);
   }
 
-  function processImportFile(file: File) {
-    if (file.size === 0) {
-      onNotify?.({ action: 'import-error', error: t('history.empty_file') });
-      return;
-    }
-    if (file.size > MAX_IMPORT_SIZE) {
-      onNotify?.({ action: 'import-error', error: t('history.file_too_large') });
-      return;
-    }
-    // Reuse the existing file processing logic
-    const fakeEvent = { target: { files: [file] } } as unknown as Event;
-    handleFileChange(fakeEvent);
-  }
+  // Alias — drop zone click opens same file picker
+  const handleDropZoneClick = handleImportClick;
 </script>
 <div class="form-inner">
   <div class="card-header">

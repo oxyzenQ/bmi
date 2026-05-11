@@ -160,3 +160,23 @@ Stage Summary:
 - Color consistency: 2 purple/violet token mismatches fixed in responsive overrides
 - 412 tests pass (no regressions), 0 errors, lint clean, build successful
 - v15–v19 engineering hardening roadmap COMPLETE
+---
+Task ID: 6
+Agent: main
+Task: Phase 6 — Performance & Maintainability (v18.0)
+
+Work Log:
+- Explored full repo structure: package.json, vite.config.ts, svelte.config.js, all source files
+- Audited production build output: identified chunk sizes, 465KB largest (lucide icons)
+- Identified performance issues: redundant constant destructuring in +page.svelte (~25 lines), CSS syntax error in tokens.css
+- Identified maintainability issues: version drift across 8 files (v16.0 displayed where v18.0 expected), version-update script couldn't detect drift when package.json already matched
+- Fixed +page.svelte: removed 25 lines of redundant constant destructuring, inlined direct property access (MARKER_ANIM.HIGH, PAGER.DIST_HIGH, etc.)
+- Fixed CSS: renamed --text-3.5xl → --text-3-half-xl in tokens.css and data-cards.css
+- Fixed version drift: updated +page.svelte, en.ts, id.ts, ja.ts, zh.ts, README.md, LICENSE.md from v16.0 to v18.0
+- Enhanced bmi-update-version.ts: added fixVersionDrift() function to detect and fix version drift even when package.json matches target
+- Ran full verify.sh pipeline: check (0 errors, 3 warnings) + lint + test (17 suites, all pass) + build (success)
+
+Stage Summary:
+- Commit: ca139e6 — perf(maintainability): Phase 6 — Performance & Maintainability (v18.0)
+- 10 files changed, 72 insertions(+), 55 deletions(-)
+- All tests passing, build clean, pushed to origin/dev
