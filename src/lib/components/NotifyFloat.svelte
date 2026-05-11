@@ -1,8 +1,20 @@
 <script lang="ts">
+  /**
+   * NotifyFloat — Blocking notification dialog.
+   *
+   * v18.0: Migrated to use ModalShell for consistent backdrop, focus trap,
+   * Escape handling, and spring animation. Eliminates ~80 lines of duplicated
+   * modal infrastructure code.
+   *
+   * NotifyFloat manages its own show/visible state transitions to support
+   * re-opening with different content while already mounted (e.g., import
+   * flow: warn → success).
+   */
   import { onMount, untrack, onDestroy } from 'svelte';
   import { CheckCircle, Trash2, X, ShieldAlert } from 'lucide-svelte';
   import { COLORS } from '$lib/utils/bmi-category';
   import { t as _t, localeVersion } from '$lib/i18n';
+  import ModalShell from './ModalShell.svelte';
   let _rv = $derived($localeVersion);
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
@@ -27,75 +39,11 @@
     onCancel = () => {}
   }: Props = $props();
 
-  let visible = $state(false);
+  let shellVisible = $state(false);
   let mounted = $state(false);
-  let notifyKey = $state(0);
   let actionTimer: ReturnType<typeof setTimeout> | null = null;
-  let backdropEl: HTMLDivElement | null = $state(null);
-  let focusTrapHandler: ((e: KeyboardEvent) => void) | null = null;
-
-  // B-2: Focus trap + Escape key for accessibility
-  function getFocusableElements(): HTMLElement[] {
-    if (!backdropEl) return [];
-    return Array.from(
-      backdropEl.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      )
-    ).filter((el) => !el.hasAttribute('disabled') && el.tabIndex >= 0);
-  }
-
-  function trapFocus(e: KeyboardEvent) {
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      e.stopPropagation();
-      handleClose();
-      return;
-    }
-    if (e.key !== 'Tab') return;
-
-    const focusable = getFocusableElements();
-    if (focusable.length === 0) return;
-
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
-  }
-
-  $effect(() => {
-    if (visible && backdropEl) {
-      // Activate focus trap
-      focusTrapHandler = trapFocus;
-      document.addEventListener('keydown', focusTrapHandler);
-
-      // Autofocus first button
-      const focusable = getFocusableElements();
-      if (focusable.length > 0) {
-        // Slight delay to let animation start
-        const focusTimer = setTimeout(() => {
-          if (backdropEl) focusable[0].focus();
-        }, 100);
-        return () => clearTimeout(focusTimer);
-      }
-    } else {
-      // Deactivate focus trap
-      if (focusTrapHandler) {
-        document.removeEventListener('keydown', focusTrapHandler);
-        focusTrapHandler = null;
-      }
-    }
-  });
 
   onDestroy(() => {
-    if (focusTrapHandler) {
-      document.removeEventListener('keydown', focusTrapHandler);
-    }
     if (actionTimer) clearTimeout(actionTimer);
   });
 
@@ -103,12 +51,11 @@
   //   1. show: false → true (open)
   //   2. type or message change while show is true (content change)
   //   3. mounted: false → true while show is true (mount race condition)
-  // Using untrack on notifyKey to prevent infinite loop (+= reads the value).
   $effect(() => {
     if (!mounted) return;
 
     if (!show) {
-      visible = false;
+      shellVisible = false;
       return;
     }
 
@@ -116,10 +63,9 @@
     void type;
     void message;
 
-    visible = false;
-    untrack(() => { notifyKey += 1; });
+    shellVisible = false;
 
-    const timer = setTimeout(() => { visible = true; }, 60);
+    const timer = setTimeout(() => { shellVisible = true; }, 60);
     return () => { clearTimeout(timer); };
   });
 
@@ -130,8 +76,17 @@
     };
   });
 
+  function handleModalClose() {
+    shellVisible = false;
+    if (actionTimer) clearTimeout(actionTimer);
+    actionTimer = setTimeout(() => {
+      onClose();
+      actionTimer = null;
+    }, 200);
+  }
+
   function handleContinue() {
-    visible = false;
+    shellVisible = false;
     if (actionTimer) clearTimeout(actionTimer);
     actionTimer = setTimeout(() => {
       onContinue();
@@ -140,19 +95,10 @@
   }
 
   function handleCancel() {
-    visible = false;
+    shellVisible = false;
     if (actionTimer) clearTimeout(actionTimer);
     actionTimer = setTimeout(() => {
       onCancel();
-      actionTimer = null;
-    }, 200);
-  }
-
-  function handleClose() {
-    visible = false;
-    if (actionTimer) clearTimeout(actionTimer);
-    actionTimer = setTimeout(() => {
-      onClose();
       actionTimer = null;
     }, 200);
   }
@@ -176,101 +122,64 @@
     'btn-delete'
   );
 </script>
-{#if show}
-  {#key notifyKey}
-  <div
-    bind:this={backdropEl}
-    class="notify-backdrop"
-    class:visible
-    role="dialog"
-    aria-modal="true"
-  >
-    <div class="notify-float-box">
-      <button class="notify-close" onclick={handleClose} aria-label={t('notify.close_aria')}>
-        <span class="close-icon">✕</span>
-      </button>
 
-      <div class="notify-icon" style="color: {iconColor}">
-        <Icon size={48} strokeWidth={1.5} />
-      </div>
+<ModalShell
+  show={shellVisible}
+  closeOnEscape={true}
+  closeOnBackdropClick={false}
+  backdropBlur="24px"
+  backdropSat="180%"
+  onclose={handleModalClose}
+  panelClass="notify-float-box"
+>
+  <button class="notify-close" onclick={handleModalClose} aria-label={t('notify.close_aria')}>
+    <span class="close-icon">✕</span>
+  </button>
 
-      <p class="notify-message">{message}</p>
-
-      {#if type === 'delete' || type === 'warn'}
-        <div class="notify-btn-group">
-          <button
-            class="notify-btn btn-cancel"
-            onclick={handleCancel}
-          >
-            {t('notify.cancel')}
-          </button>
-          <button
-            class="notify-btn {buttonClass}"
-            onclick={handleContinue}
-          >
-            {buttonText}
-          </button>
-        </div>
-      {:else if type === 'error'}
-        <button
-          class="notify-btn {buttonClass}"
-          onclick={handleContinue}
-        >
-          {buttonText || t('notify.ok')}
-        </button>
-      {:else}
-        <button
-          class="notify-btn {buttonClass}"
-          onclick={handleContinue}
-        >
-          {buttonText}
-        </button>
-      {/if}
-    </div>
+  <div class="notify-icon" style="color: {iconColor}">
+    <Icon size={48} strokeWidth={1.5} />
   </div>
-  {/key}
-{/if}
+
+  <p class="notify-message">{message}</p>
+
+  {#if type === 'delete' || type === 'warn'}
+    <div class="notify-btn-group">
+      <button
+        class="notify-btn btn-cancel"
+        onclick={handleCancel}
+      >
+        {t('notify.cancel')}
+      </button>
+      <button
+        class="notify-btn {buttonClass}"
+        onclick={handleContinue}
+      >
+        {buttonText}
+      </button>
+    </div>
+  {:else if type === 'error'}
+    <button
+      class="notify-btn {buttonClass}"
+      onclick={handleContinue}
+    >
+      {buttonText || t('notify.ok')}
+    </button>
+  {:else}
+    <button
+      class="notify-btn {buttonClass}"
+      onclick={handleContinue}
+    >
+      {buttonText}
+    </button>
+  {/if}
+</ModalShell>
 
 <style>
-  .notify-backdrop {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  /* Panel override — NotifyFloat uses its own glass styling, not ModalShell's default */
+  :global(.notify-float-box) {
     background: var(--k-50) !important;
-    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-    backdrop-filter: blur(24px) saturate(180%) !important;
-    isolation: isolate;
-    z-index: var(--z-modal);
-    opacity: 0;
-    transition: opacity var(--dur-micro) ease;
-    pointer-events: none;
-  }
-
-  .notify-backdrop.visible {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .notify-float-box {
-    position: relative;
-    background: var(--k-50) !important;
-    border: var(--border-by-rezky);
-    border-radius: var(--radius-lg);
-    padding: 2rem;
-    min-width: 320px;
-    max-width: 90vw;
     text-align: center;
-    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-    backdrop-filter: blur(24px) saturate(180%) !important;
-    box-shadow: 0 25px 50px -12px var(--k-50);
-    transform: scale(0.92) translateY(14px);
-    transition: transform var(--modal-dur) cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  .notify-backdrop.visible .notify-float-box {
-    transform: scale(1) translateY(0);
+    padding: 2rem;
   }
 
   .notify-close {
@@ -295,7 +204,7 @@
 
   .notify-close:hover {
     background: var(--w-15);
-    color: white;
+    color: var(--stellar-white);
     transform: rotate(90deg) scale(1.1);
     border-color: var(--w-25);
   }
@@ -365,7 +274,7 @@
 
   .btn-success {
     background: linear-gradient(135deg, var(--cat-green-90) 0%, var(--dkgreen-90) 100%);
-    color: white;
+    color: var(--stellar-white);
     box-shadow:
       0 4px 20px var(--cat-green-30),
       0 0 0 1px var(--w-10) inset;
@@ -384,7 +293,7 @@
 
   .btn-delete {
     background: linear-gradient(135deg, var(--cat-red-90) 0%, var(--darkred-90) 100%);
-    color: white;
+    color: var(--stellar-white);
     box-shadow:
       0 4px 20px var(--cat-red-30),
       0 0 0 1px var(--w-10) inset;
@@ -403,7 +312,7 @@
 
   .btn-cancel {
     background: linear-gradient(135deg, var(--coolgray-90) 0%, var(--dkgray-90) 100%);
-    color: white;
+    color: var(--stellar-white);
     box-shadow:
       0 4px 20px var(--coolgray-30),
       0 0 0 1px var(--w-10) inset;
@@ -433,7 +342,7 @@
 
   .btn-warn {
     background: linear-gradient(135deg, var(--cat-amber-90) 0%, var(--dkamber-90) 100%);
-    color: white;
+    color: var(--stellar-white);
     box-shadow:
       0 4px 20px var(--cat-amber-30),
       0 0 0 1px var(--w-10) inset;
@@ -451,7 +360,7 @@
   }
 
   @media (max-width: 480px) {
-    .notify-float-box {
+    :global(.notify-float-box) {
       padding: 1.5rem;
       min-width: auto;
       width: calc(100vw - 2rem);

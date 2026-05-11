@@ -233,7 +233,7 @@
 
   .sex-btn.active {
     background: var(--cosmic-purple);
-    color: white;
+    color: var(--stellar-white);
   }
 
   .bf-result {

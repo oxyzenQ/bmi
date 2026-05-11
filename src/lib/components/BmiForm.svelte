@@ -163,7 +163,7 @@
 
   // Staging spinner overlay (shown before/after modal transitions)
   let stagingLoading = $state(false);
-  const STAGING_DELAY = 1500;
+  const STAGING_DELAY = 800;
   const STAGING_POST_DELAY = 800;
 
   // Feedback modal state (blocking confirmation)
@@ -488,7 +488,7 @@
     </button>
   </div>
 
-  <div class="bmi-form">
+  <form class="bmi-form" onsubmit={(e) => { e.preventDefault(); if (canCalculate && !calculating) onCalculate(); }}>
     <div class="input-group">
       <label for="age" class="input-label">
         <User class="User" />
@@ -631,9 +631,7 @@
 
     <div class="button-group">
       <button
-        type="button"
-        onclick={handleCalculate}
-        onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCalculate()}
+        type="submit"
         class="btn btn-primary"
         class:is-calculating={calculating}
         aria-label={t('form.calculate_aria')}
@@ -706,7 +704,7 @@
       </button>
     </div>
 
-  </div>
+  </form>
 </div>
 
 <!-- Modals: Portal to body to avoid parent transform issues -->
@@ -781,7 +779,7 @@
 
   .unit-toggle-segment.active {
     background: var(--cosmic-purple);
-    color: white;
+    color: var(--stellar-white);
   }
 
   /* Segmented control (gender) */
@@ -820,11 +818,11 @@
 
   .seg-btn.seg-active {
     background: var(--cosmic-purple);
-    color: white;
+    color: var(--stellar-white);
   }
 
   .optional-tag {
-    font-size: 0.65rem;
+    font-size: var(--text-xs);
     font-weight: 500;
     color: var(--text-muted);
     text-transform: uppercase;
@@ -873,7 +871,7 @@
 
   .act-btn.act-active {
     background: var(--cosmic-purple);
-    color: white;
+    color: var(--stellar-white);
   }
 
   .act-label {
@@ -904,7 +902,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 0.85rem;
+    font-size: var(--text-base);
     border-radius: 9999px;
   }
 </style>

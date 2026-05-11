@@ -173,7 +173,8 @@
         modalKey += 1;
       });
       // Trigger animation with micro-delay token for smoother UX
-      setTimeout(() => { visible = true; }, 120); /* --delay-open */
+      const openTimer = setTimeout(() => { visible = true; }, 120); /* --delay-open */
+      return () => { clearTimeout(openTimer); };
     } else if (!currentShow && wasShown) {
       // Modal is closing
       visible = false;
@@ -225,7 +226,7 @@
     document.addEventListener('keydown', focusTrapHandler);
 
     // Auto-focus first input
-    setTimeout(() => {
+    const focusTimer = setTimeout(() => {
       if (backdropEl) {
         const firstInput = backdropEl.querySelector('input');
         firstInput?.focus();
@@ -233,6 +234,7 @@
     }, 120); /* --delay-open */
 
     return () => {
+      clearTimeout(focusTimer);
       if (focusTrapHandler) {
         document.removeEventListener('keydown', focusTrapHandler);
         focusTrapHandler = null;
@@ -758,7 +760,7 @@
     background: rgba(255, 255, 255, 0.1);
     border: none;
     border-radius: var(--radius-xs);
-    color: white;
+    color: var(--stellar-white);
     cursor: pointer;
     transition: all var(--dur-micro) ease;
     z-index: var(--z-inner-control);
@@ -919,12 +921,12 @@
 
   .btn-cancel:hover {
     background: var(--w-15);
-    color: white;
+    color: var(--stellar-white);
   }
 
   .btn-confirm {
     background: var(--cosmic-purple);
-    color: white;
+    color: var(--stellar-white);
     border: 1px solid var(--cosmic-purple);
   }
 
@@ -949,14 +951,10 @@
     width: 14px;
     height: 14px;
     border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
+    border-top-color: var(--stellar-white);
     border-radius: 50%;
     animation: spin var(--dur-spin-fast) linear infinite;
     margin-right: 6px;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
   }
 
   @media (max-width: 480px) {

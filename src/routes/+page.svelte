@@ -145,7 +145,7 @@
 
   // Staging spinner state (gear overlay before notifications)
   let stagingLoading = $state(false);
-  const STAGING_NOTIFY_DELAY = 1200;
+  const STAGING_NOTIFY_DELAY = 600;
 
 
   const currentYear = new Date().getFullYear();

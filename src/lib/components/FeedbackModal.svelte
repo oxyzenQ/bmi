@@ -134,7 +134,7 @@
 
   .feedback-btn.success {
     background: var(--cat-green-90);
-    color: white;
+    color: var(--stellar-white);
   }
 
   .feedback-btn.success:hover {
@@ -144,7 +144,7 @@
 
   .feedback-btn.error {
     background: var(--error-color, #ef4444);
-    color: white;
+    color: var(--stellar-white);
   }
 
   .feedback-btn.error:hover {

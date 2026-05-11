@@ -222,7 +222,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: var(--stellar-white);
     box-shadow: 0 4px 12px var(--k-30);
     animation: pulse var(--dur-breathe) ease-in-out infinite;
   }
@@ -270,7 +270,7 @@
   }
 
   .risk-label {
-    font-size: 0.75rem;
+    font-size: var(--text-sm);
     color: var(--slate-400-solid);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -316,7 +316,7 @@
   }
 
   .risk-level {
-    font-size: 1.125rem;
+    font-size: var(--text-xl);
     font-weight: 700;
     margin-bottom: 0.25rem;
   }
@@ -328,9 +328,9 @@
   }
 
   .risk-bmi {
-    font-size: 1.5rem;
+    font-size: var(--text-3xl);
     font-weight: 700;
-    color: white;
+    color: var(--stellar-white);
     text-align: right;
   }
 
@@ -343,7 +343,7 @@
 
   .health-tips h4 {
     margin: 0 0 1rem;
-    font-size: 1rem;
+    font-size: var(--text-lg);
     color: var(--slate-50-solid);
     display: flex;
     align-items: center;

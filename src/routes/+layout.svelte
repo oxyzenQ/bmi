@@ -47,7 +47,6 @@
   function t(key: string): string { void _rv; return _t(key); }
 
   let { children }: { children: Snippet } = $props();
-  let showMainContent = $state(true); // Show content immediately
   let renderModeEnabled = $state(true);
   let renderModeInitialized = false;
 
@@ -243,7 +242,7 @@
   {/if}
 </svelte:head>
 
-<div class="main-content" class:visible={showMainContent}>
+<div class="main-content">
   {@render children()}
 </div>
 
@@ -278,12 +277,6 @@
   .main-content {
     position: relative;
     z-index: var(--z-content);
-    opacity: 0;
-    transition: opacity var(--dur-normal) var(--easing-smooth);
-  }
-
-  .main-content.visible {
-    opacity: 1;
   }
 
   /* PWA Install Banner */
@@ -323,7 +316,7 @@
     border-radius: 9999px;
     border: none;
     background: var(--cosmic-purple);
-    color: white;
+    color: var(--stellar-white);
     font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
@@ -363,7 +356,7 @@
     border-radius: 9999px;
     background: var(--darkred-85);
     backdrop-filter: blur(8px);
-    color: white;
+    color: var(--stellar-white);
     font-size: 0.65rem;
     font-weight: 600;
     text-transform: uppercase;

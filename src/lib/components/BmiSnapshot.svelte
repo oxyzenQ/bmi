@@ -316,7 +316,7 @@
     font-weight: 700;
     line-height: 1;
     margin-bottom: 0.5rem;
-    color: white;
+    color: var(--stellar-white);
   }
 
   .card-category {
@@ -346,7 +346,7 @@
   .progress-value {
     font-size: 1.25rem;
     font-weight: 700;
-    color: white;
+    color: var(--stellar-white);
   }
 
   .progress-bar {

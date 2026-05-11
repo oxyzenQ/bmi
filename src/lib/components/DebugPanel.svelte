@@ -367,7 +367,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 9999;
+    z-index: var(--z-modal);
     max-height: 60vh;
     display: flex;
     flex-direction: column;
