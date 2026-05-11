@@ -284,15 +284,18 @@
       css: (t: number) => {
         if (phase === 'in') {
           // IN: spring overshoot + settle via backOut easing.
-          // Pure horizontal slide, no scale, fully opaque.
+          // Pure horizontal slide, no scale, fully opaque — no ghost bleed-through.
           const p = backOut(t);
           const dx = (1 - p) * x;
           return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: 1; z-index: 1;`;
         } else {
-          // OUT: clean decisive exit via cubicOut. Slide out, no scale.
+          // OUT: clean decisive exit via cubicOut. Slides away + fades out.
+          // t goes 0→1 naturally (no time reversal). At t=1, element is at
+          // offset + opacity 0 — fully invisible before Svelte removes from DOM.
           const p = cubicOut(t);
           const dx = p * x;
-          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: 1; pointer-events: none; z-index: 0;`;
+          const opacity = 1 - p;
+          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: ${opacity.toFixed(4)}; pointer-events: none; z-index: 0;`;
         }
       }
     };
