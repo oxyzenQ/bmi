@@ -52,3 +52,32 @@ Stage Summary:
 - Total: 1,776 lines added, 23 lines removed across 9 files
 - 250 tests pass (19 new), production build successful
 - Production-safe: DEBUG/INFO logs compile-time eliminated, DebugPanel tree-shaken
+
+---
+Task ID: 3
+Agent: main
+Task: Phase 3 — Regression Fortress
+
+Work Log:
+- Audited existing test coverage: 16 test files, 250 tests across utils and components
+- Identified 7 source files with ZERO tests: crypto.ts, backup.ts, animation-config.ts, i18n/index.ts, ErrorBoundary.svelte, share-image.ts, storage integration
+- Created 8 new test files with 162 new tests:
+  - crypto.test.ts (32 tests): encrypt/decrypt round-trips, Argon2id/PBKDF2 KDF, checksum, isEncrypted, passphrase hints, strength analysis, integrity, payload validation, wrong passphrase, unicode, large data
+  - backup.test.ts (12 tests): getBackupStatus, isLocalBackupAvailable, createBackup with record counting, corrupted history, IndexedDB unavailability
+  - animation-config.test.ts (42 tests): all constant groups (MARKER/PAGER/SPRING/SCROLL/HAPTIC/GAUGE), SECTIONS, prefersReducedMotion, getPerformanceTier
+  - i18n.test.ts (28 tests): locale metadata, t() translation, interpolation, locale switching, version bumping, cross-locale consistency (en/id/zh/ja)
+  - ErrorBoundary.test.ts (4 tests): smoke tests for Svelte 5 error boundary
+  - share-image.test.ts (4 tests): SSR null guard, canvas unavailability
+  - storage-integration.test.ts (26 tests): STORAGE_KEYS, get/set/remove, JSON helpers, cache invalidation, edge cases
+  - phase1-regression.test.ts (14 tests): animation token ranges, z-index hierarchy guard, timing hierarchy, BMI precision, category boundaries
+- Fixed vi.hoisted pattern for backup mock data sharing between mock factories and test code
+- Fixed BMI category boundary tests (exclusive boundaries: 25.0→Overweight, 30.0→Obese)
+- Full verify.sh passed: check (0 errors, 3 pre-existing warnings), lint (clean), 412 tests pass, build success
+
+Stage Summary:
+- 1 commit pushed to origin/dev: `7ff8a15` test(regression): Phase 3 — Regression Fortress
+- New files: 8 test files (crypto, backup, animation-config, i18n, ErrorBoundary, share-image, storage-integration, phase1-regression)
+- Total: 1,712 lines added across 8 files
+- 412 tests pass (+162 new from 250), 24 test files (+8 from 16)
+- Critical gaps closed: crypto.ts (encryption), backup.ts (data recovery), i18n (localization), animation-config (performance tier)
+- Phase 1 regression guards: z-index hierarchy, duration ranges, BMI category boundaries
