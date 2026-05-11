@@ -257,23 +257,12 @@
     }
   });
 
-  // Safe Premium Spring — spring-inspired page transitions.
-  // IN:  uses backOut easing for natural overshoot + settle (iOS/Apple feel).
-  // OUT: uses cubicOut for clean, decisive exit. No bounce on exit.
-  // GPU-only: translate3d, opacity. No rotation, no blur, no scale, no gimmicks.
-  //
-  // Anti-flash strategy:
-  // At t > 0.95, OUT animation opacity is already ~0.001 (imperceptible).
-  // We force opacity to exactly 0 via BOTH:
-  //   a) CSS output — persists if Svelte uses rAF loop (last cssText sticks)
-  //   b) tick callback — sets inline style that survives WAAPI animation.cancel()
-  // After animation cancellation, inline opacity:0 takes effect instantly.
-  // Element is invisible for the ~1 frame between cancellation and DOM removal.
-  //
-  // IN stays at opacity:1 (no ghost bleed-through) and slides only 10-16px
-  // (the subtle spring distance). User sees a clean slide-in.
+  // Soft Directional Fade transition.
+  // Uses cubicOut for both phases — no spring overshoot, no dramatic opacity swing.
+  // Subtle scale depth (0.997→1) + directional translate3d (8–14px) + gentle opacity.
+  // Inspired by Linear, Arc Browser, modern iOS utility motion.
   function pagerSpring(
-    node: Element,
+    _node: Element,
     opts: {
       x: number;
       duration: number;
@@ -287,35 +276,18 @@
 
     return {
       duration,
-      tick: phase === 'out'
-        ? (t: number) => {
-            // At the tail end of the OUT animation, lock opacity to 0 via inline style.
-            // This survives WAAPI animation.cancel() because inline styles persist
-            // when the animation effect stack is removed.
-            // At t=0.95: cubicOut(0.95)≈0.999875 → opacity≈0.000125 (invisible).
-            // The jump to 0 is completely imperceptible.
-            if (t > 0.95) {
-              (node as HTMLElement).style.opacity = '0';
-            }
-          }
-        : undefined,
       css: (t: number) => {
-        if (phase === 'in') {
-          // IN: spring overshoot + settle via backOut easing.
-          // Pure horizontal slide, no scale, fully opaque — no ghost bleed-through.
-          const p = backOut(t);
-          const dx = (1 - p) * x;
-          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: 1; z-index: 1;`;
-        } else {
-          // OUT: slides away via cubicOut, fades 1→0.
-          // At t>0.95, force opacity to exactly 0 for belt-and-suspenders coverage
-          // (handles the rAF-loop case where last cssText must include opacity:0).
-          const p = cubicOut(t);
-          const dx = p * x;
-          const rawOpacity = 1 - p;
-          const opacity = t > 0.95 ? 0 : rawOpacity;
-          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: ${opacity.toFixed(4)}; pointer-events: none; z-index: 0;`;
-        }
+        const p = phase === 'in' ? cubicOut(t) : cubicOut(1 - t);
+
+        // Directional: slide from offset → 0 (in) or 0 → offset (out)
+        const dx = phase === 'in' ? (1 - p) * x : p * x;
+        // Subtle scale depth — barely perceptible, adds layer separation
+        const scale = phase === 'in' ? 0.997 + 0.003 * p : 1 - 0.003 * p;
+        // Gentle opacity interpolation — soft fade, no hard cut
+        const opacity = phase === 'in' ? 0.6 + 0.4 * p : 1 - 0.4 * p;
+
+        const pe = phase === 'out' ? 'pointer-events: none;' : '';
+        return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)}; ${pe}`;
       }
     };
   }
@@ -336,6 +308,8 @@
   const PAGER_DUR_MEDIUM = PAGER.DUR_MEDIUM;
   const PAGER_DUR_LOW = PAGER.DUR_LOW;
   const PAGER_DUR_BASIC = PAGER.DUR_BASIC;
+  const PAGER_OUT_RATIO = PAGER.OUT_RATIO;
+  const PAGER_OUT_BASIC = PAGER.OUT_BASIC;
 
   // Pager motion distance constants (px)
   const PAGER_DIST_HIGH = PAGER.DIST_HIGH;
@@ -1024,7 +998,11 @@
         }}
         out:pagerSpring={{
           x: -pagerDirection * pagerMotionDistance,
-          duration: pagerMotionDuration,
+          duration: reducedMotionEffective
+            ? 0
+            : smoothModeRequested
+              ? Math.round(pagerMotionDuration * PAGER_OUT_RATIO)
+              : PAGER_OUT_BASIC,
           phase: 'out',
           strength: 0
         }}

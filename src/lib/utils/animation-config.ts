@@ -16,25 +16,23 @@ export const MARKER_ANIM = {
 } as const;
 
 // ── Pager transition durations (ms) ──
-// Safe Premium Spring: spring-inspired page transitions.
-// IN uses backOut easing for natural overshoot + settle (iOS feel).
-// OUT uses cubicOut for clean, decisive exit. No gimmicks.
+// Soft Directional Fade: cubicOut for both phases, no spring overshoot.
+// Feels premium, modern, low-fatigue — content continuity.
 export const PAGER = {
-  DUR_HIGH: 360,
-  DUR_MEDIUM: 340,
-  DUR_LOW: 320,
-  DUR_BASIC: 260,
-  OUT_RATIO: 0.4,
-  OUT_BASIC: 100,
-  DIST_HIGH: 16,
-  DIST_MEDIUM: 14,
-  DIST_LOW: 12,
-  DIST_BASIC: 10,
+  DUR_HIGH: 300,
+  DUR_MEDIUM: 280,
+  DUR_LOW: 260,
+  DUR_BASIC: 220,
+  OUT_RATIO: 0.70,
+  OUT_BASIC: 160,
+  DIST_HIGH: 14,
+  DIST_MEDIUM: 12,
+  DIST_LOW: 10,
+  DIST_BASIC: 8,
   SWITCHING_DELAY: 60,
 } as const;
 
 // ── Spring animation strengths ──
-// Safe Premium Spring: moderate strength for satisfying overshoot on IN phase.
 export const SPRING = {
   STRENGTH_ENHANCED: 0.07,
   STRENGTH_BASIC: 0,
