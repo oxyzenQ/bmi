@@ -1,15 +1,17 @@
 /**
- * Dev-only diagnostics helpers — v15.2 Observability
+ * Dev-only diagnostics helpers — v16.0 Observability
  *
  * Exposes `window.__bmi_dev` in development mode with utilities for
- * inspecting storage, encryption status, and backup state.
+ * inspecting storage, encryption status, backup state, and structured logs.
  * Completely eliminated in production builds.
  *
  * Usage (dev console):
  *   __bmi_dev.storage()       // Show all stored keys + values
  *   __bmi_dev.encryption()    // Show encryption status
  *   __bmi_dev.backups()       // Show backup status
- *   __bmi_dev.warnings()      // Show warnDev dedup counters
+ *   __bmi_dev.env()           // Show environment info
+ *   __bmi_dev.logs()          // Show structured logger ring buffer
+ *   __bmi_dev.trace()         // Show current session trace ID
  */
 
 import { browser } from '$app/environment';
@@ -17,6 +19,8 @@ import { STORAGE_KEYS, storageGet, isStorageAvailable } from './storage';
 import { isIndexedDbAvailable } from './db';
 import { getEncryptionStatus } from './crypto';
 import { getBackupStatus } from './backup';
+import { logger } from './logger';
+import { getSessionTraceId } from './trace';
 
 export interface DevDiagnostics {
   /** Show all stored key-value pairs */
@@ -27,6 +31,10 @@ export interface DevDiagnostics {
   backups: () => Promise<unknown>;
   /** Show environment info */
   env: () => Record<string, unknown>;
+  /** Show structured logger entries from ring buffer */
+  logs: () => unknown[];
+  /** Show current session trace ID and active spans */
+  trace: () => Record<string, unknown>;
 }
 
 /**
@@ -70,6 +78,30 @@ export function initDevDiagnostics(): void {
         timestamp: new Date().toISOString(),
       };
     },
+
+    /** v16.0: Show all structured log entries from ring buffer */
+    logs(): unknown[] {
+      return logger.getEntries().map((e) => ({
+        time: e.timestamp,
+        level: e.level,
+        module: e.module,
+        fn: e.fn,
+        message: e.message,
+        traceId: e.traceId,
+        spanId: e.spanId,
+        seq: e.seq,
+        ...(e.error ? { error: `${e.error.name}: ${e.error.message}` } : {}),
+        ...(e.data ? { data: e.data } : {}),
+      }));
+    },
+
+    /** v16.0: Show current trace context */
+    trace(): Record<string, unknown> {
+      return {
+        sessionTraceId: getSessionTraceId(),
+        logCount: logger.getEntries().length,
+      };
+    },
   };
 
   // Expose on window for dev console access
@@ -82,12 +114,14 @@ export function initDevDiagnostics(): void {
       'color:#a78bfa;font-weight:bold'
     );
     console.log(
-      '%c  Methods: %c.storage() %c.encryption() %c.backups() %c.env()',
+      '%c  Methods: %c.storage() %c.encryption() %c.backups() %c.env() %c.logs() %c.trace()',
       'color:#666',
       'color:#22c55e',
       'color:#22c55e',
       'color:#22c55e',
-      'color:#22c55e'
+      'color:#22c55e',
+      'color:#06b6d4',
+      'color:#06b6d4'
     );
   }
 }

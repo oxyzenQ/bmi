@@ -32,6 +32,7 @@
   /* ── Touch device scroll performance (MUST load last — uses !important overrides) ── */
   import '../styles/responsive-mobile-perf.css';
   import CosmicParticles from '$lib/components/CosmicParticles.svelte';
+  import DebugPanel from '$lib/components/DebugPanel.svelte';
   import { onMount, type Snippet } from 'svelte';
   import { browser } from '$app/environment';
   import { fade } from 'svelte/transition';
@@ -40,6 +41,8 @@
   import { t as _t, localeVersion } from '$lib/i18n';
   import { warnDevOnce } from '$lib/utils/warn-dev';
   import { initDevDiagnostics } from '$lib/utils/dev-diagnostics';
+  import { logger } from '$lib/utils/logger';
+  import { getSessionTraceId } from '$lib/utils/trace';
   let _rv = $derived($localeVersion);
   function t(key: string): string { void _rv; return _t(key); }
 
@@ -128,6 +131,8 @@
 
     // Initialize IndexedDB storage layer + run localStorage migration if needed
     if (browser) {
+      // v16.0 Observability: initialize logger session
+      logger.info('app', 'bootstrap', `Session started — trace ${getSessionTraceId()}`);
       void initStorage();
       initDevDiagnostics();
       if (!renderModeInitialized) {
@@ -265,6 +270,9 @@
     <span>{t('pwa.offline')}</span>
   </div>
 {/if}
+
+<!-- v16.0 Observability: Debug Panel (dev-only, tree-shaken in production) -->
+<DebugPanel />
 
 <style>
   .main-content {
