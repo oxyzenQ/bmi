@@ -198,7 +198,7 @@
     -webkit-backdrop-filter: blur(var(--ms-backdrop-blur, 24px)) saturate(var(--ms-backdrop-sat, 180%));
     backdrop-filter: blur(var(--ms-backdrop-blur, 24px)) saturate(var(--ms-backdrop-sat, 180%));
     box-shadow: var(--modal-panel-shadow, 0 25px 50px -12px rgba(0, 0, 0, 0.5));
-    transform: var(--modal-panel-scale-from, scale(0.92) translateY(14px));
+    transform: var(--modal-panel-scale-from, scale(0.96) translateY(8px));
     transition: transform var(--modal-dur, 0.22s) var(--modal-ease, cubic-bezier(0.34, 1.56, 0.64, 1));
   }
   .modal-shell-backdrop.visible .modal-shell-panel {

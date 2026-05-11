@@ -219,7 +219,7 @@
   height: 38px;
   padding: 0 14px;
   min-width: 140px;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   border: 2px solid var(--text-muted);
   background: var(--sd-55);
   color: var(--pill-text-blue);

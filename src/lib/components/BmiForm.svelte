@@ -197,6 +197,7 @@
   }
 
   async function handleExportConfirm(passphrase: string) {
+    if (stagingLoading) return; // prevent double-trigger during encryption
     const json = await exportBmiHistory(passphrase);
     if (!json) {
       encryptError = t('crypto.export_failed');
@@ -236,6 +237,7 @@
   }
 
   function handleImportClick() {
+    if (stagingLoading) return; // prevent double-trigger during processing
     // Open file picker directly — browser requires synchronous call within
     // user gesture. Spinner shows AFTER dialog closes (in handleFileInputChange
     // → handleFileChange via await tick()).
@@ -752,7 +754,7 @@
     align-items: center;
     gap: 2px;
     border: var(--btn-border);
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     padding: 2px;
     margin: 0 auto 1rem;
     width: fit-content;
@@ -762,7 +764,7 @@
     font-size: 0.8rem;
     padding: 0.3rem 0.7rem;
     border: none;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     background: transparent;
     color: var(--w-50);
     cursor: pointer;
@@ -788,7 +790,7 @@
     justify-content: center;
     gap: 2px;
     border: var(--btn-border);
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     padding: 2px;
     width: fit-content;
     max-width: 320px;
@@ -799,7 +801,7 @@
     font-size: 0.8rem;
     padding: 0.35rem 0.8rem;
     border: none;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     background: transparent;
     color: var(--w-50);
     cursor: pointer;
@@ -903,6 +905,6 @@
     align-items: center;
     gap: 0.4rem;
     font-size: var(--text-base);
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
   }
 </style>

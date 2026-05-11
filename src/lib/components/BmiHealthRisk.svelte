@@ -209,7 +209,7 @@
     position: absolute;
     top: -14px;
     transform: translateX(-50%);
-    transition: left var(--dur-normal) cubic-bezier(0.4, 0, 0.2, 1);
+    transition: left var(--dur-normal) var(--easing-material);
     display: flex;
     flex-direction: column;
     align-items: center;

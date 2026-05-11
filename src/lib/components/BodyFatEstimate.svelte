@@ -209,7 +209,7 @@
     justify-content: center;
     gap: 2px;
     border: var(--border-by-rezky);
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     padding: 2px;
     margin: 1rem auto;
     width: fit-content;
@@ -219,7 +219,7 @@
     font-size: 0.8rem;
     padding: 0.35rem 1rem;
     border: none;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     background: transparent;
     color: var(--w-50);
     cursor: pointer;
@@ -278,7 +278,7 @@
 
   .comp-fill {
     height: 100%;
-    transition: width var(--dur-slower) cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width var(--dur-slower) var(--easing-material);
   }
 
   .comp-fill.fat {

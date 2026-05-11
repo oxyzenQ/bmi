@@ -313,7 +313,7 @@
     align-items: center;
     gap: 0.3rem;
     padding: 0.35rem 0.85rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     border: none;
     background: var(--cosmic-purple);
     color: var(--stellar-white);
@@ -334,7 +334,7 @@
     cursor: pointer;
     padding: 0.25rem 0.4rem;
     font-size: 0.85rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     line-height: 1;
   }
 
@@ -353,7 +353,7 @@
     align-items: center;
     gap: 0.3rem;
     padding: 0.25rem 0.6rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     background: var(--darkred-85);
     backdrop-filter: blur(8px);
     color: var(--stellar-white);

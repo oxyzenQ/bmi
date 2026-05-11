@@ -181,7 +181,7 @@ button[aria-disabled="true"] {
 .btn .btn-dot {
   width: 4px;
   height: 4px;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   background: currentColor;
   opacity: 0.5;
   /* animation removed for GPU performance */
@@ -319,7 +319,7 @@ button[aria-disabled="true"] {
   margin-bottom: 1.5rem;
   width: 108px;
   height: 108px;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   padding: 0.6rem;
   background: none;
   border: 2px solid var(--w-30);

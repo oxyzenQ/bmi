@@ -413,7 +413,7 @@
     font-size: 0.6rem;
     font-weight: 500;
     padding: 0.1rem 0.35rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     background: var(--violet-80, rgba(139, 92, 246, 0.3));
     color: var(--violet-40, #c4b5fd);
   }
@@ -425,16 +425,21 @@
     width: 28px;
     height: 28px;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-xs);
     background: transparent;
     color: var(--w-50, #94a3b8);
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background var(--dur-micro) ease, color var(--dur-micro) ease;
   }
 
   .dp-close:hover {
     background: var(--w-10, rgba(255, 255, 255, 0.06));
     color: var(--w-90, #f1f5f9);
+  }
+
+  .dp-close:focus-visible {
+    outline: 2px solid var(--violet-42);
+    outline-offset: 1px;
   }
 
   /* ── Tabs ── */
@@ -456,9 +461,9 @@
     color: var(--w-50, #94a3b8);
     background: transparent;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-xs);
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background var(--dur-micro) ease, color var(--dur-micro) ease;
   }
 
   .dp-tab:hover {
@@ -474,7 +479,7 @@
   .dp-tab-count {
     font-size: 0.6rem;
     padding: 0 0.3rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     background: var(--w-10, rgba(255, 255, 255, 0.1));
     color: var(--w-60, #94a3b8);
     min-width: 16px;
@@ -499,11 +504,10 @@
   .dp-select {
     font-size: 0.7rem;
     padding: 0.2rem 0.4rem;
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
     border: 1px solid var(--w-15, rgba(255, 255, 255, 0.12));
     background: var(--w-8, rgba(255, 255, 255, 0.05));
     color: var(--w-80, #e2e8f0);
-    outline: none;
   }
 
   .dp-auto-scroll {
@@ -527,12 +531,12 @@
     width: 24px;
     height: 24px;
     border: none;
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
     background: transparent;
     color: var(--w-40, #64748b);
     cursor: pointer;
     margin-left: auto;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background var(--dur-micro) ease, color var(--dur-micro) ease;
   }
 
   .dp-btn-clear:hover {
@@ -552,10 +556,10 @@
 
   .dp-log-entry {
     padding: 0.4rem 0.5rem;
-    border-radius: 6px;
+    border-radius: var(--radius-xs);
     background: var(--w-5, rgba(255, 255, 255, 0.02));
     border: 1px solid transparent;
-    transition: border-color 0.1s ease;
+    transition: border-color var(--dur-instant) ease;
   }
 
   .dp-log-entry:hover {
@@ -688,7 +692,7 @@
   }
 
   .dp-storage-item {
-    border-radius: 6px;
+    border-radius: var(--radius-xs);
     overflow: hidden;
   }
 
@@ -702,10 +706,10 @@
     color: var(--violet-40, #c4b5fd);
     background: transparent;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-xs);
     cursor: pointer;
     text-align: left;
-    transition: background 0.15s ease;
+    transition: background var(--dur-micro) ease;
   }
 
   .dp-storage-key:hover {
@@ -716,7 +720,7 @@
     font-size: 0.65rem;
     color: var(--w-50, #94a3b8);
     background: var(--w-5, rgba(255, 255, 255, 0.02));
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
     padding: 0.4rem 0.5rem 0.4rem 1.5rem;
     margin: 0.15rem 0 0.25rem;
     white-space: pre-wrap;
@@ -760,7 +764,7 @@
       bottom: 1rem;
       width: 420px;
       max-height: 50vh;
-      border-radius: 12px;
+      border-radius: var(--radius-md);
       border-top: 1px solid var(--w-10, rgba(255, 255, 255, 0.1));
     }
 

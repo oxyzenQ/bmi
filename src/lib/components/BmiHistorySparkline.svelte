@@ -429,7 +429,7 @@
     font-size: 0.75rem;
     font-weight: 600;
     padding: 0.2rem 0.6rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     background: var(--sg-15);
     color: var(--slate-400-solid);
   }

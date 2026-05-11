@@ -47,7 +47,7 @@
     var(--w-3) 45%,
     transparent 60%
   );
-  animation: skeleton-shimmer var(--dur-shimmer) cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: skeleton-shimmer var(--dur-shimmer) var(--easing-material) infinite;
   will-change: transform;
 }
 
@@ -457,7 +457,7 @@ a.button {
   transform-origin: right center;
   background: linear-gradient(90deg, var(--aurora-glow), transparent);
   opacity: 0.6;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   pointer-events: none;
 }
 
@@ -492,7 +492,7 @@ html:not([data-graphics='render']) .shooting-star {
   gap: 0.4rem;
   padding: 0.5rem 1.25rem;
   border: 1px solid var(--violet-22);
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   background: var(--bg-by-rezky);
   color: var(--stellar-white);
   font-size: 0.82rem;
@@ -662,75 +662,6 @@ html:not([data-graphics='render']) .shooting-star {
   font-size: 0.6rem;
 }
 
-/* ==============================
-      A-6: ENHANCED EMPTY STATE (Phase 2)
-      Rich empty states with icon, description,
-      and CTA button instead of plain text.
-      ============================== */
-.bmi-empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
-  padding: var(--space-6) var(--space-4);
-  text-align: center;
-}
-
-.bmi-empty-state__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--w-6);
-  color: var(--w-30);
-  margin-bottom: var(--space-1);
-}
-
-.bmi-empty-state__title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--w-70);
-  margin: 0;
-  line-height: 1.4;
-}
-
-.bmi-empty-state__desc {
-  font-size: 0.82rem;
-  color: var(--w-40);
-  margin: 0;
-  line-height: 1.5;
-  max-width: 260px;
-}
-
-.bmi-empty-state__cta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--violet-22);
-  border-radius: var(--radius-pill);
-  background: var(--violet-12);
-  color: var(--aurora-glow);
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--dur-fast) var(--easing-smooth);
-  margin-top: var(--space-1);
-}
-
-.bmi-empty-state__cta:hover {
-  background: var(--violet-22);
-  border-color: var(--violet-34);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--violet-15);
-}
-
-.bmi-empty-state__cta:active {
-  transform: translateY(0) scale(0.97);
-}
 
 /* ==============================
       A-7: DRAG & DROP ZONE (Phase 4)

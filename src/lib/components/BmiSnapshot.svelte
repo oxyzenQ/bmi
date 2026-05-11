@@ -364,7 +364,7 @@
   .progress-fill {
     height: 100%;
     border-radius: var(--radius-xs);
-    transition: width var(--dur-slower) cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width var(--dur-slower) var(--easing-material);
   }
 
   .progress-fill.progress-lose {

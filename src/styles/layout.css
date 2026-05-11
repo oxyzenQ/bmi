@@ -142,7 +142,7 @@ html:not([data-graphics='render']) .plasma-star {
   top: -10vh;
   left: 0;
   opacity: 0;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   /* Blade Runner purple rain - elongated drops */
   background: linear-gradient(180deg,
       var(--plum-0) 0%,

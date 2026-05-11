@@ -69,8 +69,8 @@
   .hero-content {
     opacity: 0;
     transform: translateY(20px);
-    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-                transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.8s var(--easing-material),
+                transform 0.8s var(--easing-material);
     /* will-change removed — browser auto-promotes during transition */
   }
 

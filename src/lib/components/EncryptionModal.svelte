@@ -565,7 +565,7 @@
     backdrop-filter: blur(24px) saturate(140%);
     z-index: var(--z-modal);
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity var(--modal-backdrop-dur, 0.15s) ease;
     pointer-events: none;
     /* Ensure full viewport coverage on mobile */
     min-height: 100vh;
@@ -596,19 +596,16 @@
     max-width: 90vw;
     -webkit-backdrop-filter: blur(24px) saturate(140%);
     backdrop-filter: blur(24px) saturate(140%);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
-    animation: modalIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    box-shadow: var(--modal-panel-shadow, 0 25px 50px -12px var(--k-50));
+    opacity: 0;
+    transform: var(--modal-panel-scale-from, scale(0.96) translateY(8px));
+    transition: transform var(--modal-dur, 0.22s) var(--modal-ease, cubic-bezier(0.34, 1.56, 0.64, 1)),
+                opacity var(--modal-dur, 0.22s) var(--modal-ease, cubic-bezier(0.34, 1.56, 0.64, 1));
   }
 
-  @keyframes modalIn {
-    from {
-      opacity: 0;
-      transform: scale(0.96) translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
+  .encrypt-backdrop.visible .encrypt-box {
+    opacity: 1;
+    transform: var(--modal-panel-scale-to, scale(1) translateY(0));
   }
 
   .encrypt-header {
@@ -789,7 +786,8 @@
   }
 
   .encrypt-input:focus {
-    outline: none;
+    outline: 2px solid var(--violet-42);
+    outline-offset: 1px;
     border-color: var(--cosmic-purple);
   }
 
@@ -909,7 +907,7 @@
     border: none;
     border-radius: var(--btn-radius);
     cursor: pointer;
-    transition: all var(--dur-micro) ease;
+    transition: background var(--dur-micro) ease, color var(--dur-micro) ease, transform var(--dur-instant) ease, filter var(--dur-micro) ease;
     min-width: 100px;
   }
 

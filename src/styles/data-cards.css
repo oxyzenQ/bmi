@@ -121,7 +121,7 @@
   display: inline-flex;
   align-items: center;
   padding: 0.15rem 0.45rem;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   font-size: 0.7rem;
   font-weight: 700;
   font-family: var(--font-mono-short);
@@ -169,14 +169,14 @@
   width: 100%;
   height: 6px;
   background: var(--w-5);
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   margin-top: 0.6rem;
   overflow: visible;
 }
 
 .prime-bar-fill {
   height: 100%;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   transition: width var(--dur-slow) var(--easing-smooth), background var(--dur-normal) ease;
   min-width: 4px;
 }
@@ -337,7 +337,7 @@
   font-size: 0.65rem;
   font-weight: 600;
   padding: 0.15rem 0.5rem;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }

@@ -371,16 +371,16 @@
 
   .progress-bar {
     height: 6px;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     background: var(--sd-75);
     overflow: hidden;
   }
 
   .progress-fill {
     height: 100%;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     min-width: 0;
-    transition: width var(--dur-slower) cubic-bezier(0.16, 1, 0.3, 1), background var(--dur-content);
+    transition: width var(--dur-slower) var(--easing-gauge), background var(--dur-content);
   }
 
   .goal-insight {
@@ -401,7 +401,7 @@
     align-items: center;
     gap: 0.3rem;
     font-size: 0.78rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     padding: 0.35rem 0.7rem;
   }
 
@@ -445,7 +445,7 @@
 
   .goal-input-row .btn {
     font-size: 0.78rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     padding: 0.4rem 0.8rem;
   }
 
