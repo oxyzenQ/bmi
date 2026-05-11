@@ -342,7 +342,7 @@
   .stat-value {
     font-size: 1.1rem;
     font-weight: 700;
-    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-family: var(--font-mono-short);
     color: var(--w-90);
   }
 
@@ -366,7 +366,7 @@
   .progress-header span:last-child {
     font-weight: 600;
     color: var(--w-80);
-    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-family: var(--font-mono-short);
   }
 
   .progress-bar {
@@ -439,7 +439,7 @@
     flex: 1;
     max-width: 120px;
     text-align: center;
-    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-family: var(--font-mono-short);
     font-size: 0.95rem;
   }
 

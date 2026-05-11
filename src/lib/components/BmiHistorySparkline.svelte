@@ -469,14 +469,14 @@
   .axis-label {
     font-size: 9px;
     fill: var(--slate-600-solid);
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono-short);
     dominant-baseline: middle;
   }
 
   .zone-label {
     font-size: 7px;
     fill: var(--cat-green-40);
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono-short);
     dominant-baseline: middle;
   }
 
@@ -490,7 +490,7 @@
   .x-label {
     font-size: 0.55rem;
     color: var(--slate-600-solid);
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono-short);
   }
 
   /* Tooltip */
@@ -528,7 +528,7 @@
   }
 
   .tooltip-bmi {
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono-short);
     font-size: 1rem;
     font-weight: 700;
     line-height: 1.2;
@@ -551,7 +551,7 @@
   .tooltip-time {
     font-size: 0.55rem;
     color: var(--slate-600-solid);
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono-short);
   }
 
   .sparkline-footer {

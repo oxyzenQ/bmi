@@ -911,7 +911,7 @@
 
   .act-factor {
     font-size: 0.55rem;
-    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-family: var(--font-mono-short);
     opacity: 0.6;
   }
 

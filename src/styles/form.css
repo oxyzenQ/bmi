@@ -272,7 +272,7 @@
   transform: translateX(-10%);
   opacity: 0;
   pointer-events: none;
-  transition: transform 0.42s cubic-bezier(.2, .9, .2, 1), opacity 0.36s ease;
+  transition: transform var(--dur-content) ease, box-shadow var(--dur-content) ease, background var(--dur-content) ease;
 }
 
 .pill-indicator:active::after {

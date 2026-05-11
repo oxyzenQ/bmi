@@ -92,7 +92,7 @@
 }
 
 .stat-number {
-  font-family: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--stellar-white);
@@ -124,7 +124,7 @@
   border-radius: 9999px;
   font-size: 0.7rem;
   font-weight: 700;
-  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+  font-family: var(--font-mono-short);
   letter-spacing: 0.02em;
 }
 
@@ -216,7 +216,7 @@
   margin-top: 0.25rem;
   font-size: 0.6rem;
   color: var(--text-muted);
-  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+  font-family: var(--font-mono-short);
 }
 
 .prime-bar-labels .label-marker {
@@ -309,7 +309,7 @@
 }
 
 .tdee-stat-value {
-  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+  font-family: var(--font-mono-short);
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--stellar-white);
@@ -395,7 +395,7 @@
 }
 
 .tdee-range-value {
-  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+  font-family: var(--font-mono-short);
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--stellar-white);
@@ -545,18 +545,18 @@
 }
 
 .gauge-center .bmi-value {
-  font: 700 36px/1.1 'Inter Variable', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  font: 700 36px/1.1 var(--font-sans) var(--font-sans), ui-sans-serif, system-ui;
   text-shadow: 0 0 20px var(--coreblue-15);
 }
 
 .gauge-center .bmi-label {
   fill: var(--text-muted);
-  font: 600 12px/1 'Inter Variable', ui-sans-serif, system-ui;
+  font: 600 12px/1 var(--font-sans), ui-sans-serif, system-ui;
   letter-spacing: 1px;
 }
 
 .gauge-center .category-label {
-  font: 600 12px/1 'Inter Variable', ui-sans-serif, system-ui;
+  font: 600 12px/1 var(--font-sans), ui-sans-serif, system-ui;
 }
 
 .scale-indicators {
@@ -595,12 +595,12 @@
 
 .scale-label {
   color: var(--slate-200-solid);
-  font: 600 12px/1 'Inter Variable', ui-sans-serif, system-ui;
+  font: 600 12px/1 var(--font-sans), ui-sans-serif, system-ui;
 }
 
 .scale-range {
   color: var(--text-muted);
-  font: 500 12px/1 'Inter Variable', ui-sans-serif, system-ui;
+  font: 500 12px/1 var(--font-sans), ui-sans-serif, system-ui;
 }
 
 /* Scale-item color variables */

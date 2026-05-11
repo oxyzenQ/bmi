@@ -99,6 +99,12 @@
   --dur-content: 300ms;     /* card hover, content transitions */
   --dur-panel: 400ms;       /* about card hover, heavier content */
   --dur-slower: 600ms;      /* glass card transitions (alias) */
+  --dur-shimmer: 2.2s;     /* skeleton shimmer sweep */
+  --dur-breathe: 2s;       /* skeleton breathing pulse */
+  --dur-spin: 1.6s;        /* loading spinner full rotation */
+  --dur-spin-fast: 0.8s;   /* button spinner rotation */
+  --dur-particle: 1.5s;    /* cosmic particle fall (default) */
+  --dur-shoot: 1.8s;       /* shooting star flight (default) */
 
   /* ── Opacity token system ── */
 
@@ -434,15 +440,42 @@
   --text-hero: 3.5rem;      /* 56px — hero title */
   --text-display: 4.5rem;   /* 72px — BMI value display */
   --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --font-mono-short: 'JetBrains Mono Variable', ui-monospace, monospace;
   --font-sans: 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* ── Z-INDEX HIERARCHY (v18.1 — Phase 1 Hardening) ──
+       Documented elevation stack for all layered elements.
+       Always use these tokens — never hardcode z-index values.
+       
+       Layer 0:   Base content, wallpaper (::before, ::after)
+       Layer 1:   Content containers (.main-container, cosmic particles)
+       Layer 2:   In-component overlays (shine sweeps, card ::before)
+       Layer 10:  Inner-modal controls (close btn, chart tooltip)
+       Layer 19:  Bottom nav pager controls (behind shell)
+       Layer 20:  Bottom nav shell (pager-controls-shell)
+       Layer 999: Bottom nav scroll-to-top button
+       Layer 1000: NotifyFloat trigger button
+       Layer 9999: Modal backdrops + panels (NotifyFloat, EncryptionModal)
+       Layer 10000: Top-most modal (FeedbackModal confirm)
+       Layer 10001: Staging spinner overlay (full-screen loading) */
+  --z-base: 0;
+  --z-content: 1;
+  --z-overlay: 2;
+  --z-inner-control: 10;
+  --z-nav-controls: 19;
+  --z-nav-shell: 20;
+  --z-fab: 999;
+  --z-modal: 9999;
+  --z-modal-top: 10000;
+  --z-staging: 10001;
 
   /* ── MODAL SYSTEM TOKENS (v17.0) ──
        Consistent z-index, backdrop, panel, and transition values
        for all modal/floating window components.
        Usage: NotifyFloat, EncryptionModal, FeedbackModal, LanguageSwitcher. */
-  --modal-z: 9999;
-  --modal-z-top: 10000;
-  --modal-z-staging: 10001;
+  --modal-z: var(--z-modal);
+  --modal-z-top: var(--z-modal-top);
+  --modal-z-staging: var(--z-staging);
   --modal-backdrop-bg: var(--k-50);
   --modal-backdrop-blur: 24px;
   --modal-backdrop-sat: 180%;

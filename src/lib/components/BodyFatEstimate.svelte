@@ -242,7 +242,7 @@
   }
 
   .bf-value {
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono-short);
     font-size: 3rem;
     font-weight: 700;
     line-height: 1;
@@ -402,7 +402,7 @@
     color: var(--slate-400-solid);
     width: 40px;
     flex-shrink: 0;
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono-short);
   }
 
   .bf-empty {

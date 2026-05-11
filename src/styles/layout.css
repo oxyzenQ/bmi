@@ -72,7 +72,7 @@
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  z-index: 0;
+  z-index: var(--z-base);
 }
 
 .about-card-header {
@@ -81,13 +81,13 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   position: relative;
-  z-index: 1;
+  z-index: var(--z-content);
   justify-content: center;
 }
 
 .about-card-content {
   position: relative;
-  z-index: 1;
+  z-index: var(--z-content);
 }
 
 .about-card p {
@@ -125,7 +125,7 @@ html:not([data-graphics='render']) .plasma-star {
 .cosmic-particles {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: var(--z-base);
   pointer-events: none;
   overflow: hidden;
   contain: layout style paint;

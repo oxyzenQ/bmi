@@ -85,7 +85,7 @@
         }
 
         .error-code {
-                font-family: 'JetBrains Mono Variable', monospace;
+                font-family: var(--font-mono-short);
                 font-size: clamp(5rem, 15vw, 8rem);
                 font-weight: 700;
                 line-height: 1;

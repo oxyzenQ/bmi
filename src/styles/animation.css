@@ -31,7 +31,7 @@
   );
   background-size: 100% 200%;
   border-radius: 0.75rem;
-  animation: skeleton-breathe 2s ease-in-out infinite;
+  animation: skeleton-breathe var(--dur-breathe) ease-in-out infinite;
 }
 
 /* Shimmer sweep overlay */
@@ -47,7 +47,7 @@
     var(--w-3) 45%,
     transparent 60%
   );
-  animation: skeleton-shimmer 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: skeleton-shimmer var(--dur-shimmer) cubic-bezier(0.4, 0, 0.2, 1) infinite;
   will-change: transform;
 }
 
@@ -151,7 +151,7 @@
   height: 80px;
   border-radius: 50%;
   margin: 0 auto 1rem;
-  animation: skeleton-ring-pulse 2s ease-in-out infinite;
+  animation: skeleton-ring-pulse var(--dur-breathe) ease-in-out infinite;
 }
 
 @keyframes skeleton-ring-pulse {
@@ -283,7 +283,7 @@ a.button {
   transform: scale(0);
   animation: btn-ripple-expand 0.6s ease-out forwards;
   pointer-events: none;
-  z-index: 1;
+  z-index: var(--z-content);
 }
 
 @keyframes btn-ripple-expand {
@@ -352,7 +352,7 @@ a.button {
   transform: translateX(-100%) rotate(15deg);
   transition: transform var(--dur-slow) var(--easing-smooth);
   pointer-events: none;
-  z-index: 1;
+  z-index: var(--z-content);
 }
 
 .bmi-card:hover::before,
@@ -519,7 +519,7 @@ html:not([data-graphics='render']) .shooting-star {
 .pager-btn-scroll-top {
   opacity: 0;
   transform: scale(0.7);
-  transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s ease, border-color 0.2s ease;
+  transition: opacity var(--dur-interactive) ease, transform var(--dur-interactive) ease, background var(--dur-micro) ease, border-color var(--dur-micro) ease;
   pointer-events: none;
   color: rgba(255, 255, 255, 0.7) !important;
 }
@@ -555,7 +555,7 @@ html:not([data-graphics='render']) .shooting-star {
 
 .btn-haptic:active {
   transform: scale(0.96);
-  transition: transform 0.08s ease;
+  transition: transform var(--dur-instant) ease;
 }
 
 /* ==============================
@@ -658,7 +658,7 @@ html:not([data-graphics='render']) .shooting-star {
 
 .bmi-encryption-badge__algo {
   color: var(--aurora-glow);
-  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+  font-family: var(--font-mono-short);
   font-size: 0.6rem;
 }
 
@@ -738,7 +738,7 @@ html:not([data-graphics='render']) .shooting-star {
       ============================== */
 .bmi-drop-zone {
   position: relative;
-  z-index: 10;
+  z-index: var(--z-inner-control);
   pointer-events: auto;
   border: 2px dashed var(--w-15);
   border-radius: var(--radius-md);
@@ -873,7 +873,7 @@ html:not([data-graphics='render']) .shooting-star {
   background: var(--glass-bg-backdrop);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   backdrop-filter: blur(16px) saturate(140%);
-  z-index: 10001;
+  z-index: var(--z-staging);
   opacity: 0;
   transition: opacity var(--dur-interactive) ease;
   pointer-events: none;
@@ -896,7 +896,7 @@ html:not([data-graphics='render']) .shooting-star {
 
 .staging-gear-icon {
   color: var(--w-50);
-  animation: spin 1.6s linear infinite;
+  animation: spin var(--dur-spin) linear infinite;
   filter: drop-shadow(0 0 8px rgba(128, 0, 255, 0.3));
 }
 
@@ -922,11 +922,11 @@ html:not([data-graphics='render']) .shooting-star {
    The gear spinner communicates "system is working" — it must move. */
 @media (prefers-reduced-motion: reduce) {
   .staging-gear-icon {
-    animation-duration: 1.6s !important;
+    animation-duration: var(--dur-spin) !important;
     animation-iteration-count: infinite !important;
   }
   .btn-spinner {
-    animation-duration: 0.8s !important;
+    animation-duration: var(--dur-spin-fast) !important;
     animation-iteration-count: infinite !important;
   }
 }
