@@ -262,16 +262,18 @@
   // OUT: uses cubicOut for clean, decisive exit. No bounce on exit.
   // GPU-only: translate3d, opacity. No rotation, no blur, no scale, no gimmicks.
   //
-  // IN: opacity:1 (no ghost bleed-through).
-  // OUT: opacity 1→0 + node.style.opacity='0' safety net (no post-animation flash).
+  // Anti-flash strategy (belt + suspenders):
+  // 1. OUT slides full viewport width — exits .pager-view's overflow:hidden clip area
+  //    by the animation midpoint (~50% through). Element is physically invisible
+  //    (outside clipped bounds) for the entire second half of the animation.
+  //    Post-animation flash is impossible because the element is already off-screen.
+  // 2. node.style.opacity='0' as safety net — if clip approach somehow fails,
+  //    the element is still invisible via opacity.
+  // 3. opacity 1→0 fade during animation — additional visual safety layer.
   //
-  // Post-animation flash prevention:
-  // Svelte transitions use Web Animations API (element.animate()). When the animation
-  // finishes, Svelte cancels it — the element briefly reverts to its resting CSS
-  // (opacity:1) for 1 frame before being removed from DOM. To prevent this flash,
-  // we set node.style.opacity='0' at transition start. During the animation,
-  // Web Animations API overrides this inline style. After cancellation, our inline
-  // style takes effect — element stays invisible until DOM removal.
+  // IN stays at opacity:1 (no ghost bleed-through) and slides only 10-16px
+  // (the subtle spring distance). User sees a clean slide-in; the dramatic
+  // full-width exit of OUT is hidden behind IN + overflow:hidden.
   function pagerSpring(
     node: Element,
     opts: {
@@ -281,14 +283,21 @@
       strength: number;
     }
   ) {
-    const x = opts.x;
+    let x = opts.x;
     const duration = opts.duration;
     const phase = opts.phase;
 
-    // Safety net: prevent the 1-frame post-animation flash on OUT.
-    // See comment above for detailed explanation.
     if (phase === 'out') {
-      (node as HTMLElement).style.opacity = '0';
+      const el = node as HTMLElement;
+      // Safety net: opacity:0 inline style survives after animation cancellation
+      el.style.opacity = '0';
+      // Override slide distance: use full viewport width so element exits
+      // .pager-view's overflow:hidden clip area well before animation ends.
+      // Direction preserved via Math.sign(x).
+      const outDist = el.offsetWidth + 60;
+      if (x !== 0) {
+        x = Math.sign(x) * outDist;
+      }
     }
 
     return {
@@ -301,9 +310,9 @@
           const dx = (1 - p) * x;
           return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: 1; z-index: 1;`;
         } else {
-          // OUT: clean decisive exit via cubicOut. Slides away + fades out.
-          // t goes 0→1 naturally. Web Animations API overrides our inline opacity
-          // during animation. After cancellation, inline opacity:0 takes effect.
+          // OUT: slides full viewport width via cubicOut. Fades 1→0.
+          // Element exits overflow:hidden clip area by ~50% mark, making any
+          // post-animation flash physically impossible (element is off-screen).
           const p = cubicOut(t);
           const dx = p * x;
           const opacity = 1 - p;
