@@ -15,9 +15,9 @@
 .app-info .info-row {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   color: var(--text-muted);
-  font-size: 1rem;
+  font-size: var(--text-lg);
 }
 
 .app-info .info-row strong {
@@ -101,7 +101,7 @@
   max-height: none;
   /* allow growth when filled with many fields */
 
-  border-radius: 1.5rem;
+  border-radius: var(--radius-2xl);
 
   padding: clamp(1.25rem, 4vw, 2rem);
   transition: box-shadow var(--dur-interactive) ease;
@@ -117,7 +117,7 @@
 .bmi-card {
   display: flex;
   flex-direction: column;
-  border-radius: 1.5rem;
+  border-radius: var(--radius-2xl);
   padding: clamp(1.25rem, 4vw, 2rem);
   margin-top: auto;
   min-height: 750px;
@@ -170,10 +170,10 @@
 .form-input {
   align-items: center;
   justify-content: center;
-  padding: 1rem 1.25rem;
+  padding: var(--space-4) 1.25rem;
   width: 100%;
   max-width: 320px;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-sm);
   background: var(--sd-75);
   border-top: var(--border-by-rezky);
   border-left: var(--border-by-rezky);

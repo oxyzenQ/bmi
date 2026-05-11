@@ -135,7 +135,7 @@
   width: 100%;
   padding: 0.6rem 0.75rem;
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: transparent;
   color: var(--w-60);
   font-size: 0.9rem;
@@ -179,10 +179,10 @@
 }
 
 .lang-code {
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   font-family: var(--font-mono-short);
   padding: 0.15rem 0.4rem;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   background: var(--w-6);
   opacity: 0.6;
 }

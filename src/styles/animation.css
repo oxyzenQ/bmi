@@ -88,7 +88,7 @@
 .skeleton-card {
   background: var(--k-50);
   border: var(--border-by-rezky);
-  border-radius: 2rem;
+  border-radius: var(--radius-3xl);
   padding: clamp(1.5rem, 4vw, 2rem);
   animation: skeleton-card-enter var(--dur-panel) ease-out;
 }

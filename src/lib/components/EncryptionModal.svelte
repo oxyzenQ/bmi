@@ -638,7 +638,7 @@
   }
 
   .encrypt-title {
-    font-size: 1.25rem;
+    font-size: var(--text-2xl);
     font-weight: 600;
     color: var(--w-95);
     margin: 0;
@@ -659,14 +659,14 @@
     margin-bottom: 1rem;
     background: var(--w-8);
     border: 1px solid var(--w-15);
-    border-radius: 10px;
+    border-radius: var(--btn-radius);
   }
 
   .meta-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.8rem;
+    font-size: var(--text-base);
   }
 
   .meta-key {
@@ -692,8 +692,8 @@
     margin-bottom: 0.75rem;
     background: rgba(251, 191, 36, 0.08);
     border: 1px solid rgba(251, 191, 36, 0.20);
-    border-radius: 8px;
-    font-size: 0.8rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-base);
     color: var(--amber-gold-60);
   }
 
@@ -717,7 +717,7 @@
   }
 
   .field-group label {
-    font-size: 0.85rem;
+    font-size: var(--text-base);
     font-weight: 500;
     color: var(--w-70);
   }
@@ -730,11 +730,11 @@
 
   .encrypt-input {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: var(--space-3) 1rem;
     padding-right: 2.75rem;
-    font-size: 0.95rem;
+    font-size: var(--text-md);
     border: 1px solid var(--w-20);
-    border-radius: 10px;
+    border-radius: var(--btn-radius);
     background: var(--w-4);
     color: var(--w-95);
     transition: border-color var(--dur-micro) ease;
@@ -742,7 +742,7 @@
 
   .encrypt-input--hint {
     padding-right: 1rem;
-    font-size: 0.85rem;
+    font-size: var(--text-base);
   }
 
   .eye-btn {
@@ -757,7 +757,7 @@
     height: 2rem;
     background: rgba(255, 255, 255, 0.1);
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-xs);
     color: white;
     cursor: pointer;
     transition: all var(--dur-micro) ease;
@@ -817,7 +817,7 @@
   }
 
   .strength-label {
-    font-size: 0.7rem;
+    font-size: var(--text-xs);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -825,7 +825,7 @@
   }
 
   .strength-feedback {
-    font-size: 0.75rem;
+    font-size: var(--text-sm);
     color: var(--w-60);
     margin-top: 0.35rem;
     line-height: 1.4;
@@ -848,9 +848,9 @@
     margin-bottom: 1.25rem;
     background: var(--error-bg-default);
     border: 1px solid var(--error-border-default);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     color: var(--red-500-solid);
-    font-size: 0.85rem;
+    font-size: var(--text-base);
   }
 
   .encrypt-error__content {
@@ -901,11 +901,11 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
+    padding: var(--space-3) 1.5rem;
+    font-size: var(--text-md);
     font-weight: 600;
     border: none;
-    border-radius: 10px;
+    border-radius: var(--btn-radius);
     cursor: pointer;
     transition: all var(--dur-micro) ease;
     min-width: 100px;

@@ -260,7 +260,7 @@
   .snapshot-card {
     background: var(--sd-60);
     border: 1px solid var(--sg-15);
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     padding: 1.25rem;
     text-align: center;
     transition: all var(--dur-content) ease;
@@ -328,7 +328,7 @@
   .progress-section {
     background: var(--sd-40);
     border: 1px solid var(--sg-10);
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     padding: 1.5rem;
   }
 
@@ -357,14 +357,14 @@
   .progress-track {
     height: 12px;
     background: var(--sg-15);
-    border-radius: 6px;
+    border-radius: var(--radius-xs);
     overflow: hidden;
     position: relative;
   }
 
   .progress-fill {
     height: 100%;
-    border-radius: 6px;
+    border-radius: var(--radius-xs);
     transition: width var(--dur-slower) cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -401,7 +401,7 @@
     gap: 0.75rem;
     padding: 0.875rem 1rem;
     background: var(--sd-60);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     font-size: 0.875rem;
     color: var(--slate-400-solid);
   }

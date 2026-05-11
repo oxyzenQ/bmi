@@ -394,7 +394,7 @@
   .sparkline-container {
     background: var(--sd-40);
     border: 1px solid var(--sg-10);
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     padding: 0.75rem 0.5rem;
     margin-top: 1rem;
   }
@@ -502,7 +502,7 @@
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     border: 1px solid var(--w-10);
-    border-radius: 10px;
+    border-radius: var(--btn-radius);
     padding: 0.5rem 0.65rem;
     text-align: center;
     white-space: nowrap;

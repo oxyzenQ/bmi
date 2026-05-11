@@ -357,7 +357,7 @@
     font-size: 1rem;
     font-weight: 600;
     border: none;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     cursor: pointer;
     transition: transform var(--dur-micro) ease, background var(--dur-micro) ease;
     min-width: 160px;

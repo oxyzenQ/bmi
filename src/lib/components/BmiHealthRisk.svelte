@@ -175,7 +175,7 @@
   .risk-meter-track {
     display: flex;
     height: 12px;
-    border-radius: 6px;
+    border-radius: var(--radius-xs);
     overflow: hidden;
     background: var(--sg-10);
   }
@@ -281,7 +281,7 @@
     align-items: center;
     gap: 1rem;
     padding: 1.25rem;
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     background: var(--sd-60);
     border: 1px solid var(--sg-10);
     margin-bottom: 1.5rem;
@@ -337,7 +337,7 @@
   .health-tips {
     padding: 1.25rem;
     background: var(--sd-40);
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     border: 1px solid var(--sg-10);
   }
 

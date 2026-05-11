@@ -51,7 +51,7 @@
 }
 
 .about-card {
-  border-radius: 1.5rem;
+  border-radius: var(--radius-2xl);
   padding: 2rem;
   transition: transform var(--dur-slow) var(--easing-material), box-shadow var(--dur-slow) var(--easing-material), border-color var(--dur-slow) var(--easing-material);
   position: relative;
@@ -226,12 +226,12 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 .footer-disclaimer {
   text-align: center;
   color: var(--stellar-white);
-  font-size: 1rem;
+  font-size: var(--text-lg);
   padding: clamp(2rem, 4vw, 4rem);
   margin-top: clamp(40px, 40vh, 180px) !important;
   margin-bottom: clamp(10px, 2vh, 10px) !important;
   /* horizontal centering */
-  border-radius: 2rem;
+  border-radius: var(--radius-3xl);
   max-width: 100%;
 }
 
@@ -281,11 +281,11 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
   gap: 1rem;
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: 1rem;
+  font-size: var(--text-lg);
   font-weight: 500;
   transition: color var(--dur-fast) var(--easing-smooth), background-color var(--dur-fast) var(--easing-smooth), border-color var(--dur-fast) var(--easing-smooth), transform var(--dur-fast) var(--easing-smooth), box-shadow var(--dur-fast) var(--easing-smooth);
-  padding: 1rem 1.5rem;
-  border-radius: 1rem;
+  padding: var(--space-4) 1.5rem;
+  border-radius: var(--radius-lg);
 }
 
 .github-link:hover {

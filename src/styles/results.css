@@ -46,7 +46,7 @@
 
 .card-subtitle {
   color: var(--stellar-white);
-  font-size: 1rem;
+  font-size: var(--text-lg);
   line-height: 1.5;
 }
 
@@ -109,7 +109,7 @@
 /* Health advice — clean slide entrance */
 .health-advice {
   background: var(--sd-40);
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
   padding: 1.75rem;
   margin-bottom: 1.75rem;
   border: 1px solid var(--w-5);
@@ -156,7 +156,7 @@
 .age-advisory {
   background: var(--coreblue-12);
   border: 1px solid var(--coreblue-22);
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
   padding: 1.75rem;
   margin-bottom: 1.75rem;
   animation: slideInRight var(--dur-panel) var(--easing-smooth) 0.35s both;
@@ -184,7 +184,7 @@
 }
 
 .advisory-title {
-  font-size: 1rem;
+  font-size: var(--text-lg);
   font-weight: 600;
   color: var(--accent-blue);
   margin-bottom: 1rem;
@@ -217,7 +217,7 @@
 }
 
 .explanation-title {
-  font-size: 1rem;
+  font-size: var(--text-lg);
   font-weight: 600;
   color: var(--stellar-white);
   margin-bottom: 1rem;

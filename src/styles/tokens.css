@@ -424,6 +424,14 @@
   --btn-shadow: none;
   --btn-shadow-hover: none;
 
+  /* ── DANGER BUTTON VARIANT (v19.0) ──
+       Red-tinted glass for destructive actions.
+       Previously btn-danger was identical to btn-primary. */
+  --btn-danger-bg: linear-gradient(135deg, rgba(30, 8, 8, 0.80), rgba(127, 29, 29, 0.60));
+  --btn-danger-bg-hover: linear-gradient(135deg, rgba(50, 10, 10, 0.90), rgba(153, 27, 27, 0.70));
+  --btn-danger-border: 1px solid rgba(239, 68, 68, 0.25);
+  --btn-danger-border-hover: 1px solid rgba(239, 68, 68, 0.40);
+
   /* ── TYPOGRAPHY SCALE (v17.0) ──
        Consistent font-size tokens for predictable type hierarchy.
        Usage: component text, labels, headings across all views. */
@@ -435,7 +443,8 @@
   --text-xl: 1.125rem;      /* 18px — section titles, advice title */
   --text-2xl: 1.25rem;      /* 20px — modal titles, gauge title, subtitle */
   --text-3xl: 1.5rem;       /* 24px — card headings, BMI category */
-  --text-4xl: 2rem;         /* 32px — about card titles */
+  --text-3.5xl: 1.75rem;    /* 28px — about card headings */
+  --text-4xl: 2rem;         /* 32px — section sub-titles */
   --text-5xl: 2.5rem;       /* 40px — section main titles */
   --text-hero: 3.5rem;      /* 56px — hero title */
   --text-display: 4.5rem;   /* 72px — BMI value display */
@@ -517,11 +526,16 @@
   --warn-bg: rgba(245, 158, 11, 0.08);
   --warn-border: rgba(245, 158, 11, 0.20);
 
-  /* ── CONSISTENT BORDER RADIUS ── */
+  /* ── CONSISTENT BORDER RADIUS (v19.0) ──
+       Unified scale covering all component needs.
+       Usage: cards, modals, inputs, badges, pills. */
+  --radius-xs: 6px;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
   --radius-pill: 9999px;
 
   /* ── CONSISTENT SECTION SPACING ── */

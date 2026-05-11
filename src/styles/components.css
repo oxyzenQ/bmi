@@ -61,7 +61,7 @@
 .hero-content {
   background: var(--glass-bg-fallback);
   border: var(--border-by-rezky);
-  border-radius: 2rem;
+  border-radius: var(--radius-3xl);
   transition: transform var(--dur-slow) var(--easing-smooth),
     box-shadow var(--dur-slow) var(--easing-smooth),
     border-color var(--dur-slow) var(--easing-smooth);
@@ -187,17 +187,17 @@ button[aria-disabled="true"] {
   /* animation removed for GPU performance */
 }
 
-/* Elegant danger variant */
+/* Elegant danger variant — red-tinted glass for destructive actions (v19.0) */
 .btn-danger {
   color: var(--stellar-white);
-  background: var(--bg-by-rezky);
-  border: 1px solid var(--violet-22);
+  background: var(--btn-danger-bg);
+  border: var(--btn-danger-border);
   box-shadow: none;
 }
 
 .btn-danger:hover {
-  background: var(--bg-last-by-rezky);
-  border-color: var(--violet-32);
+  background: var(--btn-danger-bg-hover);
+  border: var(--btn-danger-border-hover);
 }
 
 .btn-danger:active,
@@ -206,6 +206,12 @@ button[aria-disabled="true"] {
 .btn-primary:focus {
   background: var(--bg-last-by-rezky);
   border-radius: var(--btn-radius);
+}
+
+.btn-danger:active,
+.btn-danger:focus {
+  background: var(--btn-danger-bg-hover);
+  border: var(--btn-danger-border-hover);
 }
 
 .btn-secondary {
@@ -292,7 +298,7 @@ button[aria-disabled="true"] {
   margin: 0 auto;
   margin-bottom: clamp(40px, 40vh, 180px) !important;
   padding: 3rem 2rem;
-  border-radius: 2rem;
+  border-radius: var(--radius-3xl);
   position: relative;
   overflow: hidden;
 }
@@ -342,8 +348,8 @@ button[aria-disabled="true"] {
 
 .hero-bottom {
   background: transparent;
-  border-top-left-radius: 2rem;
-  border-top-right-radius: 2rem;
+  border-top-left-radius: var(--radius-3xl);
+  border-top-right-radius: var(--radius-3xl);
   border-top: var(--border-by-rezky);
   padding: 0.75rem 0.5rem 1.5rem 0.5rem;
   height: 50px;
@@ -357,7 +363,7 @@ button[aria-disabled="true"] {
 }
 
 .hero-bottom-text {
-  font-size: 1rem;
+  font-size: var(--text-lg);
   font-weight: 500;
   text-align: center;
   color: var(--text-muted);
@@ -408,7 +414,7 @@ button[aria-disabled="true"] {
   font-weight: 500;
   padding: 0.5rem 1rem;
   background: transparent;
-  border-radius: 2rem;
+  border-radius: var(--radius-pill);
   border: var(--border-by-rezky);
   transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }

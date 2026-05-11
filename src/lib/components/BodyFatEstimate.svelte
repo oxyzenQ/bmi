@@ -271,7 +271,7 @@
   .comp-track {
     display: flex;
     height: 16px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     overflow: hidden;
     background: var(--sg-10);
   }
@@ -333,7 +333,7 @@
     padding: 0.75rem 1rem;
     background: var(--cat-blue-8);
     border: 1px solid var(--cat-blue-15);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     margin-bottom: 1.25rem;
     font-size: 0.78rem;
     color: var(--slate-400-solid);
@@ -353,7 +353,7 @@
   .bf-ranges {
     padding: 1rem;
     background: var(--sd-40);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     border: 1px solid var(--sg-10);
   }
 

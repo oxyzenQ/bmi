@@ -63,7 +63,20 @@ Architecture-level release, not a feature release.
 
 ---
 
-## Phase 5: Next-Generation Features (v20.0+)
+## Phase 5: UX Consistency System (v19.0)
+
+- [x] Border-radius token scale expansion (--radius-xs through --radius-3xl)
+- [x] Border-radius enforcement across all CSS files and Svelte components
+- [x] Font-size token enforcement in Svelte components (EncryptionModal, +error.svelte)
+- [x] Typography token addition (--text-3.5xl for about card headings)
+- [x] Button variant identity — btn-danger distinct red-tinted glass styling
+- [x] Responsive color token fix (--purple-25 → --violet-25 mismatch)
+- [x] Card system unification (consistent radius tokens across card hierarchy)
+- [x] Error page token migration (hardcoded colors/sizes → design tokens)
+
+---
+
+## Phase 6: Next-Generation Features (v20.0+)
 
 *Only after v15–v18 foundation hardening is complete.*
 
@@ -86,8 +99,9 @@ Architecture-level release, not a feature release.
 | v16.0       | Reliability hardening         | ✅ Done |
 | v17.0       | UX consistency                | ✅ Done |
 | v18.0       | Performance & maintainability | ✅ Done |
+| v19.0       | UX consistency system         | ✅ Done |
 | v20.0       | Next-generation features      | 🔲     |
 
 ---
 
-**Rule: v18.0 hardening complete. No major new features until v20.0.**
+**Rule: v19.0 hardening complete. No major new features until v20.0.**

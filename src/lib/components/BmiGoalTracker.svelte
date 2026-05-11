@@ -463,7 +463,7 @@
     gap: 0.4rem;
     padding: 0.75rem;
     border: 1px solid var(--w-8);
-    border-radius: 0.75rem;
+    border-radius: var(--radius-sm);
     background: var(--sd-65);
   }
 </style>

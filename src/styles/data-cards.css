@@ -49,7 +49,7 @@
 .stat-block {
   background: var(--sd-40);
   border: 1px solid var(--w-5);
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
   padding: 1.25rem;
   transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }
@@ -256,7 +256,7 @@
 .tdee-card {
   background: var(--sd-40);
   border: 1px solid var(--w-5);
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
   padding: 1.25rem;
   margin-bottom: 1.75rem;
   animation: fadeInUp var(--dur-panel) var(--easing-smooth) 0.25s both;
@@ -464,7 +464,7 @@
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
   width: 100%;
-  font-size: 1.25rem;
+  font-size: var(--text-2xl);
   text-align: center;
   color: var(--stellar-white);
 }
@@ -573,7 +573,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background:
     linear-gradient(180deg, var(--w-5), var(--w-2)) padding-box,
     radial-gradient(100% 100% at 0% 0%, var(--w-12), var(--w-0)) border-box;
@@ -624,7 +624,7 @@
       REFERENCE TABLE COMPONENT
       ============================== */
 .reference-table {
-  border-radius: 1.25rem;
+  border-radius: var(--radius-xl);
   overflow: hidden;
   margin-top: clamp(40px, 40vh, 180px) !important;
   margin-bottom: clamp(40px, 40vh, 180px) !important;
@@ -640,8 +640,8 @@
   border-bottom: 2px solid var(--w-8);
   color: var(--stellar-white);
   font-weight: 700;
-  border-top-left-radius: 1.25rem;
-  border-top-right-radius: 1.25rem;
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
   border-top: 1px solid var(--text-muted);
   border-left: 1px solid var(--text-muted);
   border-right: 1px solid var(--text-muted);
@@ -684,8 +684,8 @@
 
 .reference-table .ref-row.ref-row-obese {
   --ref-row-accent: var(--danger-42);
-  border-bottom-left-radius: 1.25rem;
-  border-bottom-right-radius: 1.25rem;
+  border-bottom-left-radius: var(--radius-xl);
+  border-bottom-right-radius: var(--radius-xl);
 }
 
 .reference-table .ref-row.ref-row-underweight,
@@ -763,7 +763,7 @@
 }
 
 .about-card h3 {
-  font-size: 1.75rem;
+  font-size: var(--text-3.5xl);
   font-weight: 700;
   margin-bottom: 0.75rem;
   color: var(--stellar-white);

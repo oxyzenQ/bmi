@@ -224,8 +224,8 @@
   .pager-tab.active {
     box-shadow:
       0 0 20px var(--violet-22),
-      0 0 6px var(--purple-15),
-      inset 0 -2px 0 var(--purple-25) !important;
+      0 0 6px var(--violet-15),
+      inset 0 -2px 0 var(--violet-25) !important;
   }
 
   .scale-dot {
