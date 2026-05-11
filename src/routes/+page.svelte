@@ -181,7 +181,6 @@
   let switchingTimer: ReturnType<typeof setTimeout> | null = null;
   let pageDestroyed = $state(false);
   let showScrollTopFab = $state(false);
-  let isTransitioning = false;
 
 
 
@@ -405,11 +404,6 @@
   }
 
   function goTo(index: number, opts?: { skipHash?: boolean; skipSwitching?: boolean }) {
-    // Navigation lock: prevent rapid-fire swipes from interrupting the IN transition,
-    // which would cause visible jitter (page repeatedly snapping to intro start position).
-    // The ghost-container bug is fixed separately via opacity:1 slide-over in pagerSpring.
-    if (isTransitioning && !opts?.skipSwitching) return;
-
     const next = clampIndex(index);
     if (next === activeIndex) {
       if (!opts?.skipHash) setHash(sections[activeIndex].id);
@@ -418,15 +412,13 @@
     }
 
     if (browser && !reducedMotionEffective && !opts?.skipSwitching) {
-      isTransitioning = true;
       if (switchingTimer) clearTimeout(switchingTimer);
-      // Lock for the IN transition duration + buffer.
-      // This prevents jitter from rapid swipes but stays responsive.
-      const lockDur = Math.max(pagerMotionDuration + 60, 150);
+      document.body.classList.add('is-switching');
+      const ms = Math.max(240, pagerMotionDuration) + SWITCHING_DELAY;
       switchingTimer = setTimeout(() => {
-        isTransitioning = false;
+        document.body.classList.remove('is-switching');
         switchingTimer = null;
-      }, lockDur);
+      }, ms);
     }
 
     lastIndex = activeIndex;
@@ -908,6 +900,7 @@
     pageDestroyed = true;
     if (markerTimer) clearTimeout(markerTimer);
     if (switchingTimer) clearTimeout(switchingTimer);
+    if (browser) document.body.classList.remove('is-switching');
   });
 
 </script>

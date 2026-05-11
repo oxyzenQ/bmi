@@ -33,8 +33,9 @@ export const PAGER = {
 } as const;
 
 // ── Spring animation strengths ──
+// Soft Directional Fade: near-zero overshoot for premium page transitions.
 export const SPRING = {
-  STRENGTH_ENHANCED: 0.07,
+  STRENGTH_ENHANCED: 0.02,
   STRENGTH_BASIC: 0,
 } as const;
 
