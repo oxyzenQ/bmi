@@ -262,18 +262,16 @@
   // OUT: uses cubicOut for clean, decisive exit. No bounce on exit.
   // GPU-only: translate3d, opacity. No rotation, no blur, no scale, no gimmicks.
   //
-  // Anti-flash strategy (belt + suspenders):
-  // 1. OUT slides full viewport width — exits .pager-view's overflow:hidden clip area
-  //    by the animation midpoint (~50% through). Element is physically invisible
-  //    (outside clipped bounds) for the entire second half of the animation.
-  //    Post-animation flash is impossible because the element is already off-screen.
-  // 2. node.style.opacity='0' as safety net — if clip approach somehow fails,
-  //    the element is still invisible via opacity.
-  // 3. opacity 1→0 fade during animation — additional visual safety layer.
+  // Anti-flash strategy:
+  // At t > 0.95, OUT animation opacity is already ~0.001 (imperceptible).
+  // We force opacity to exactly 0 via BOTH:
+  //   a) CSS output — persists if Svelte uses rAF loop (last cssText sticks)
+  //   b) tick callback — sets inline style that survives WAAPI animation.cancel()
+  // After animation cancellation, inline opacity:0 takes effect instantly.
+  // Element is invisible for the ~1 frame between cancellation and DOM removal.
   //
   // IN stays at opacity:1 (no ghost bleed-through) and slides only 10-16px
-  // (the subtle spring distance). User sees a clean slide-in; the dramatic
-  // full-width exit of OUT is hidden behind IN + overflow:hidden.
+  // (the subtle spring distance). User sees a clean slide-in.
   function pagerSpring(
     node: Element,
     opts: {
@@ -283,25 +281,24 @@
       strength: number;
     }
   ) {
-    let x = opts.x;
+    const x = opts.x;
     const duration = opts.duration;
     const phase = opts.phase;
 
-    if (phase === 'out') {
-      const el = node as HTMLElement;
-      // Safety net: opacity:0 inline style survives after animation cancellation
-      el.style.opacity = '0';
-      // Override slide distance: use full viewport width so element exits
-      // .pager-view's overflow:hidden clip area well before animation ends.
-      // Direction preserved via Math.sign(x).
-      const outDist = el.offsetWidth + 60;
-      if (x !== 0) {
-        x = Math.sign(x) * outDist;
-      }
-    }
-
     return {
       duration,
+      tick: phase === 'out'
+        ? (t: number) => {
+            // At the tail end of the OUT animation, lock opacity to 0 via inline style.
+            // This survives WAAPI animation.cancel() because inline styles persist
+            // when the animation effect stack is removed.
+            // At t=0.95: cubicOut(0.95)≈0.999875 → opacity≈0.000125 (invisible).
+            // The jump to 0 is completely imperceptible.
+            if (t > 0.95) {
+              (node as HTMLElement).style.opacity = '0';
+            }
+          }
+        : undefined,
       css: (t: number) => {
         if (phase === 'in') {
           // IN: spring overshoot + settle via backOut easing.
@@ -310,12 +307,13 @@
           const dx = (1 - p) * x;
           return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: 1; z-index: 1;`;
         } else {
-          // OUT: slides full viewport width via cubicOut. Fades 1→0.
-          // Element exits overflow:hidden clip area by ~50% mark, making any
-          // post-animation flash physically impossible (element is off-screen).
+          // OUT: slides away via cubicOut, fades 1→0.
+          // At t>0.95, force opacity to exactly 0 for belt-and-suspenders coverage
+          // (handles the rAF-loop case where last cssText must include opacity:0).
           const p = cubicOut(t);
           const dx = p * x;
-          const opacity = 1 - p;
+          const rawOpacity = 1 - p;
+          const opacity = t > 0.95 ? 0 : rawOpacity;
           return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: ${opacity.toFixed(4)}; pointer-events: none; z-index: 0;`;
         }
       }
