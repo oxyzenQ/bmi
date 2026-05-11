@@ -737,7 +737,7 @@
     border-radius: 10px;
     background: var(--w-4);
     color: var(--w-95);
-    transition: border-color 0.15s ease;
+    transition: border-color var(--dur-micro) ease;
   }
 
   .encrypt-input--hint {
@@ -760,7 +760,7 @@
     border-radius: 6px;
     color: white;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all var(--dur-micro) ease;
     z-index: var(--z-inner-control);
   }
 
@@ -813,7 +813,7 @@
   .strength-fill {
     height: 100%;
     border-radius: 2px;
-    transition: width 0.3s ease, background 0.3s ease;
+    transition: width var(--dur-content) ease, background var(--dur-content) ease;
   }
 
   .strength-label {
@@ -907,7 +907,7 @@
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all var(--dur-micro) ease;
     min-width: 100px;
   }
 
@@ -951,7 +951,7 @@
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-top-color: white;
     border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+    animation: spin var(--dur-spin-fast) linear infinite;
     margin-right: 6px;
   }
 

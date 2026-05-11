@@ -90,7 +90,7 @@
   border: var(--border-by-rezky);
   border-radius: 2rem;
   padding: clamp(1.5rem, 4vw, 2rem);
-  animation: skeleton-card-enter 0.4s ease-out;
+  animation: skeleton-card-enter var(--dur-panel) ease-out;
 }
 
 @keyframes skeleton-card-enter {
@@ -281,7 +281,7 @@ a.button {
     transparent 70%
   );
   transform: scale(0);
-  animation: btn-ripple-expand 0.6s ease-out forwards;
+  animation: btn-ripple-expand var(--dur-slower) ease-out forwards;
   pointer-events: none;
   z-index: var(--z-content);
 }

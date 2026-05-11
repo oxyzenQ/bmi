@@ -223,7 +223,7 @@
     background: transparent;
     color: var(--w-50);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--dur-interactive) ease;
     font-weight: 500;
   }
 
@@ -278,7 +278,7 @@
 
   .comp-fill {
     height: 100%;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width var(--dur-slower) cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .comp-fill.fat {

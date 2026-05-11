@@ -380,7 +380,7 @@
     height: 100%;
     border-radius: 9999px;
     min-width: 0;
-    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s;
+    transition: width var(--dur-slower) cubic-bezier(0.16, 1, 0.3, 1), background var(--dur-content);
   }
 
   .goal-insight {

@@ -180,7 +180,7 @@
     border: 1px solid var(--w-12);
     border-radius: 0.5rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--dur-interactive) ease;
   }
 
   .backup-restore-btn:hover {
@@ -219,7 +219,7 @@
     font-size: 0.75rem;
     border-radius: 0.4rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--dur-interactive) ease;
   }
 
   .backup-btn-cancel {

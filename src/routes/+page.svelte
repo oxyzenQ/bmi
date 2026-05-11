@@ -1534,7 +1534,7 @@
 
   .pager-theme :global(.render-spark) {
     color: var(--aurora-glow, #b266ff) !important;
-    transition: color 0.3s ease, filter 0.3s ease;
+    transition: color var(--dur-content) ease, filter var(--dur-content) ease;
   }
 
   .pager-theme .theme-blackhole {

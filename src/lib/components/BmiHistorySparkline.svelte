@@ -463,7 +463,7 @@
   }
 
   .spark-point {
-    transition: r 0.15s ease, opacity 0.15s ease;
+    transition: r var(--dur-micro) ease, opacity var(--dur-micro) ease;
   }
 
   .axis-label {
@@ -507,7 +507,7 @@
     text-align: center;
     white-space: nowrap;
     box-shadow: 0 8px 24px var(--shadow-heavy);
-    animation: tooltipIn 0.15s ease-out;
+    animation: tooltipIn var(--dur-micro) ease-out;
   }
 
   @keyframes tooltipIn {

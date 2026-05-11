@@ -209,7 +209,7 @@
     position: absolute;
     top: -14px;
     transform: translateX(-50%);
-    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: left var(--dur-normal) cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -224,7 +224,7 @@
     justify-content: center;
     color: white;
     box-shadow: 0 4px 12px var(--k-30);
-    animation: pulse 2s ease-in-out infinite;
+    animation: pulse var(--dur-breathe) ease-in-out infinite;
   }
 
   .risk-marker.risk-low {

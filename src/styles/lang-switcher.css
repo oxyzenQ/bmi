@@ -81,7 +81,7 @@
 
 .lang-close:active {
   transform: rotate(90deg) scale(0.95);
-  transition-duration: 80ms;
+  transition-duration: var(--dur-instant);
 }
 
 .lang-close svg {
@@ -97,7 +97,7 @@
   align-items: center;
   color: var(--cosmic-purple);
   margin-bottom: 0.75rem;
-  animation: langIconPop 0.4s ease;
+  animation: langIconPop var(--dur-panel) ease;
 }
 
 .lang-panel-icon svg {
@@ -164,7 +164,7 @@
 
 .lang-option:active {
   transform: scale(0.98);
-  transition-duration: 80ms;
+  transition-duration: var(--dur-instant);
 }
 
 /* ── Option inner elements ── */

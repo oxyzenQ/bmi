@@ -251,7 +251,7 @@
     font-weight: 500;
     border-radius: 10px;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all var(--dur-micro) ease;
     border: none;
     min-width: 120px;
   }

@@ -56,14 +56,14 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  animation: fadeInUp 0.4s var(--easing-smooth);
+  animation: fadeInUp var(--dur-panel) var(--easing-smooth);
 }
 
 /* BMI display — clean scale entrance */
 .bmi-display {
   text-align: center;
   margin-bottom: 2.5rem;
-  animation: scaleIn 0.4s var(--easing-smooth) 0.15s both;
+  animation: scaleIn var(--dur-panel) var(--easing-smooth) 0.15s both;
 }
 
 @keyframes scaleIn {
@@ -113,7 +113,7 @@
   padding: 1.75rem;
   margin-bottom: 1.75rem;
   border: 1px solid var(--w-5);
-  animation: slideInLeft 0.4s var(--easing-smooth) 0.25s both;
+  animation: slideInLeft var(--dur-panel) var(--easing-smooth) 0.25s both;
   transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }
 
@@ -159,7 +159,7 @@
   border-radius: 1rem;
   padding: 1.75rem;
   margin-bottom: 1.75rem;
-  animation: slideInRight 0.4s var(--easing-smooth) 0.35s both;
+  animation: slideInRight var(--dur-panel) var(--easing-smooth) 0.35s both;
   transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }
 
@@ -205,7 +205,7 @@
   border-radius: var(--radius-md);
   padding: 1.75rem;
   border: 1px solid var(--w-5);
-  animation: fadeInUp 0.4s var(--easing-smooth) 0.45s both;
+  animation: fadeInUp var(--dur-panel) var(--easing-smooth) 0.45s both;
   transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }
 
@@ -265,7 +265,7 @@
 
 .action-btn:active {
   transform: scale(0.97);
-  transition-duration: 80ms;
+  transition-duration: var(--dur-instant);
 }
 
 .share-toast {

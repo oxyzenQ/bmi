@@ -37,7 +37,7 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 0.75rem;
   margin-bottom: 1.75rem;
-  animation: fadeInUp 0.4s var(--easing-smooth) 0.2s both;
+  animation: fadeInUp var(--dur-panel) var(--easing-smooth) 0.2s both;
 }
 
 @media (max-width: 480px) {
@@ -259,7 +259,7 @@
   border-radius: 1rem;
   padding: 1.25rem;
   margin-bottom: 1.75rem;
-  animation: fadeInUp 0.4s var(--easing-smooth) 0.25s both;
+  animation: fadeInUp var(--dur-panel) var(--easing-smooth) 0.25s both;
   transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }
 

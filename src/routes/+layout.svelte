@@ -271,7 +271,7 @@
     position: relative;
     z-index: var(--z-content);
     opacity: 0;
-    transition: opacity 0.5s var(--easing-smooth);
+    transition: opacity var(--dur-normal) var(--easing-smooth);
   }
 
   .main-content.visible {

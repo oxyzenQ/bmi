@@ -150,7 +150,7 @@
                 cursor: pointer;
                 font-family: inherit;
                 padding: 0;
-                transition: color 0.2s ease;
+                transition: color var(--dur-interactive) ease;
         }
 
         .error-link:hover {

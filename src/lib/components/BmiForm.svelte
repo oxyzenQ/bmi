@@ -798,7 +798,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background var(--dur-interactive) ease, color var(--dur-interactive) ease;
     white-space: nowrap;
   }
 
@@ -836,7 +836,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.3rem;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background var(--dur-interactive) ease, color var(--dur-interactive) ease;
     white-space: nowrap;
     min-width: 80px;
   }
@@ -889,7 +889,7 @@
     background: transparent;
     color: var(--w-50);
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background var(--dur-interactive) ease, color var(--dur-interactive) ease;
     white-space: nowrap;
   }
 

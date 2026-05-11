@@ -263,7 +263,7 @@
     border-radius: 16px;
     padding: 1.25rem;
     text-align: center;
-    transition: all 0.3s ease;
+    transition: all var(--dur-content) ease;
   }
 
   .snapshot-card:hover {
@@ -365,7 +365,7 @@
   .progress-fill {
     height: 100%;
     border-radius: 6px;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width var(--dur-slower) cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .progress-fill.progress-lose {

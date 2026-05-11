@@ -244,7 +244,7 @@
     isolation: isolate;
     z-index: var(--z-modal);
     opacity: 0;
-    transition: opacity 0.15s ease;
+    transition: opacity var(--dur-micro) ease;
     pointer-events: none;
   }
 
@@ -266,7 +266,7 @@
     backdrop-filter: blur(24px) saturate(180%) !important;
     box-shadow: 0 25px 50px -12px var(--k-50);
     transform: scale(0.92) translateY(14px);
-    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform var(--modal-dur) cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .notify-backdrop.visible .notify-float-box {
@@ -287,7 +287,7 @@
     justify-content: center;
     color: var(--w-80);
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background var(--dur-micro) ease, color var(--dur-micro) ease;
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     z-index: var(--z-inner-control);
@@ -314,7 +314,7 @@
 
   .notify-icon {
     margin-bottom: 1.25rem;
-    animation: iconPop 0.5s ease;
+    animation: iconPop var(--dur-normal) ease;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -359,7 +359,7 @@
     border: none;
     border-radius: 12px;
     cursor: pointer;
-    transition: transform 0.15s ease, background 0.15s ease;
+    transition: transform var(--dur-micro) ease, background var(--dur-micro) ease;
     min-width: 160px;
   }
 
