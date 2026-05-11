@@ -16,27 +16,27 @@ export const MARKER_ANIM = {
 } as const;
 
 // ── Pager transition durations (ms) ──
-// Soft Directional Fade: cubicOut for both phases, no spring overshoot.
-// Feels premium, modern, low-fatigue — content continuity.
+// Stellar v15: Smooth, cinematic page transitions.
+// Longer duration + distance = elegant sweep, not a jump.
 export const PAGER = {
-  DUR_HIGH: 300,
-  DUR_MEDIUM: 280,
-  DUR_LOW: 260,
+  DUR_HIGH: 480,
+  DUR_MEDIUM: 420,
+  DUR_LOW: 360,
   DUR_BASIC: 220,
-  OUT_RATIO: 0.70,
-  OUT_BASIC: 160,
-  DIST_HIGH: 14,
-  DIST_MEDIUM: 12,
-  DIST_LOW: 10,
-  DIST_BASIC: 8,
-  SWITCHING_DELAY: 60,
+  OUT_RATIO: 0.80,
+  OUT_BASIC: 180,
+  DIST_HIGH: 200,
+  DIST_MEDIUM: 160,
+  DIST_LOW: 130,
+  DIST_BASIC: 90,
+  SWITCHING_DELAY: 100,
 } as const;
 
 // ── Spring animation strengths ──
-// Soft Directional Fade: near-zero overshoot for premium page transitions.
+// Stellar v15: Slightly more overshoot for a satisfying bounce.
 export const SPRING = {
-  STRENGTH_ENHANCED: 0.02,
-  STRENGTH_BASIC: 0,
+  STRENGTH_ENHANCED: 0.09,
+  STRENGTH_BASIC: 0.04,
 } as const;
 
 // ── Scroll behavior ──
