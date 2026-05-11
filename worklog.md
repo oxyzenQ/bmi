@@ -128,3 +128,35 @@ Stage Summary:
 - Design tokens: 12 hardcoded values replaced with token references
 - 412 tests pass, 0 errors, lint clean, build successful
 - v15–v18 engineering hardening roadmap COMPLETE
+
+---
+Task ID: 5
+Agent: main
+Task: Phase 5 — UX Consistency System (v19.0)
+
+Work Log:
+- Comprehensive UX audit across 19 CSS files and 20 Svelte components
+- Identified inconsistencies: hardcoded border-radius (6 values), font-sizes, spacing, color token mismatches, button variant identity
+- Expanded border-radius token scale in tokens.css: added --radius-xs (6px), --radius-2xl (24px), --radius-3xl (32px)
+- Added --text-3.5xl typography token (1.75rem) for about card headings
+- Added danger button variant tokens: --btn-danger-bg, --btn-danger-bg-hover, --btn-danger-border, --btn-danger-border-hover
+- Border-radius enforcement: replaced hardcoded values across 8 CSS files (tokens, base, components, layout, form, results, data-cards, animation, lang-switcher, responsive-mobile-perf)
+- Border-radius enforcement in Svelte components: EncryptionModal, NotifyFloat, BmiHistorySparkline, BmiHealthRisk, BmiSnapshot, BodyFatEstimate, BmiForm, BmiGoalTracker (16 replacements)
+- Font-size token enforcement: EncryptionModal (8 replacements), +error.svelte (3 replacements)
+- btn-danger redesign: replaced purple glass with distinct red-tinted glass (gradient from dark-red to crimson)
+- Responsive color fix: --purple-15 → --violet-15, --purple-25 → --violet-25 in pager-tab.active glow
+- Card system unification: form-card/bmi-card/about-card → --radius-2xl, hero-content/footer-disclaimer → --radius-3xl
+- +error.svelte: hardcoded `white` → var(--stellar-white), font-sizes → tokens
+- Updated ROADMAP.md: Phase 5 marked complete, version table updated, rule updated to v19.0
+- Full verify.sh passed: check (0 errors, 3 pre-existing warnings), lint (clean), 412 tests pass, build success
+
+Stage Summary:
+- 1 commit pushed to origin/dev: 7d2fcdb refactor(ux): Phase 5 — UX Consistency System (v19.0)
+- Modified files: 19 files (10 CSS, 8 Svelte components, 1 ROADMAP.md)
+- Token additions: --radius-xs, --radius-2xl, --radius-3xl, --text-3.5xl, --btn-danger-bg/hover/border
+- Border-radius: 40+ hardcoded values replaced with design tokens across CSS + Svelte
+- Font-size: 11 hardcoded values replaced with typography tokens in Svelte components
+- Button identity: btn-danger now has distinct red-tinted glass styling
+- Color consistency: 2 purple/violet token mismatches fixed in responsive overrides
+- 412 tests pass (no regressions), 0 errors, lint clean, build successful
+- v15–v19 engineering hardening roadmap COMPLETE
