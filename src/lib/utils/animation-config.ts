@@ -16,27 +16,28 @@ export const MARKER_ANIM = {
 } as const;
 
 // ── Pager transition durations (ms) ──
-// Stellar v15: Smooth, cinematic page transitions.
-// Longer duration + distance = elegant sweep, not a jump.
+// Safe Premium Spring: spring-inspired page transitions.
+// IN uses backOut easing for natural overshoot + settle (iOS feel).
+// OUT uses cubicOut for clean, decisive exit. No gimmicks.
 export const PAGER = {
-  DUR_HIGH: 480,
-  DUR_MEDIUM: 420,
-  DUR_LOW: 360,
-  DUR_BASIC: 220,
-  OUT_RATIO: 0.80,
-  OUT_BASIC: 180,
-  DIST_HIGH: 200,
-  DIST_MEDIUM: 160,
-  DIST_LOW: 130,
-  DIST_BASIC: 90,
-  SWITCHING_DELAY: 100,
+  DUR_HIGH: 360,
+  DUR_MEDIUM: 340,
+  DUR_LOW: 320,
+  DUR_BASIC: 260,
+  OUT_RATIO: 0.4,
+  OUT_BASIC: 100,
+  DIST_HIGH: 16,
+  DIST_MEDIUM: 14,
+  DIST_LOW: 12,
+  DIST_BASIC: 10,
+  SWITCHING_DELAY: 60,
 } as const;
 
 // ── Spring animation strengths ──
-// Stellar v15: Slightly more overshoot for a satisfying bounce.
+// Safe Premium Spring: moderate strength for satisfying overshoot on IN phase.
 export const SPRING = {
-  STRENGTH_ENHANCED: 0.09,
-  STRENGTH_BASIC: 0.04,
+  STRENGTH_ENHANCED: 0.07,
+  STRENGTH_BASIC: 0,
 } as const;
 
 // ── Scroll behavior ──

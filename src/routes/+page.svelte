@@ -256,11 +256,11 @@
     }
   });
 
-  function springSimple(t: number, amount: number) {
-    const base = backOut(t);
-    return t + (base - t) * amount;
-  }
-
+  // Safe Premium Spring — spring-inspired page transitions.
+  // IN:  uses backOut easing for natural overshoot + settle (iOS/Apple feel).
+  //      Scale 0.98 → overshoots to ~1.01 → settles at 1.0. Satisfying "pop".
+  // OUT: uses cubicOut for clean, decisive exit. No bounce on exit.
+  // GPU-only: translate3d, scale, opacity. No rotation, no blur, no gimmicks.
   function pagerSpring(
     _node: Element,
     opts: {
@@ -273,19 +273,26 @@
     const x = opts.x;
     const duration = opts.duration;
     const phase = opts.phase;
-    const strength = opts.strength;
 
     return {
       duration,
       css: (t: number) => {
-        const linear = phase === 'in' ? t : 1 - t;
-        const p = phase === 'in' ? springSimple(linear, strength) : cubicOut(linear);
-
-        const dx = phase === 'in' ? (1 - p) * x : p * x;
-        const opacity = phase === 'in' ? Math.min(1, p * 1.08) : Math.max(0, 1 - p * 1.15);
-
-        const pe = phase === 'out' ? 'pointer-events: none;' : '';
-        return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: ${opacity.toFixed(4)}; ${pe}`;
+        if (phase === 'in') {
+          // IN: spring overshoot + settle via backOut easing.
+          // Content slides in with a satisfying bounce-then-settle.
+          const p = backOut(t);
+          const dx = (1 - p) * x;
+          const scale = 0.98 + 0.02 * p; // 0.98 → ~1.01 → 1.0 (overshoot built into backOut)
+          const opacity = 0.4 + 0.6 * p;
+          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)};`;
+        } else {
+          // OUT: clean decisive exit, no bounce. Fade + drift.
+          const p = cubicOut(t);
+          const dx = p * x;
+          const scale = 1 - 0.02 * p; // 1 → 0.98
+          const opacity = 1 - p;
+          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)}; pointer-events: none;`;
+        }
       }
     };
   }
