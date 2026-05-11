@@ -262,12 +262,18 @@
   // OUT: uses cubicOut for clean, decisive exit. No bounce on exit.
   // GPU-only: translate3d, opacity. No rotation, no blur, no scale, no gimmicks.
   //
-  // CRITICAL: Both IN and OUT are fully opaque (opacity: 1) and NO scale.
-  // - opacity:1 prevents ghost bleed-through (old page visible behind semi-transparent new page)
-  // - no scale prevents edge gaps (scaled-down element smaller than container → background peeks through)
-  // The result is a pure slide-over (like iOS navigation) — clean, no artifacts.
+  // IN: opacity:1 (no ghost bleed-through).
+  // OUT: opacity 1→0 + node.style.opacity='0' safety net (no post-animation flash).
+  //
+  // Post-animation flash prevention:
+  // Svelte transitions use Web Animations API (element.animate()). When the animation
+  // finishes, Svelte cancels it — the element briefly reverts to its resting CSS
+  // (opacity:1) for 1 frame before being removed from DOM. To prevent this flash,
+  // we set node.style.opacity='0' at transition start. During the animation,
+  // Web Animations API overrides this inline style. After cancellation, our inline
+  // style takes effect — element stays invisible until DOM removal.
   function pagerSpring(
-    _node: Element,
+    node: Element,
     opts: {
       x: number;
       duration: number;
@@ -278,6 +284,12 @@
     const x = opts.x;
     const duration = opts.duration;
     const phase = opts.phase;
+
+    // Safety net: prevent the 1-frame post-animation flash on OUT.
+    // See comment above for detailed explanation.
+    if (phase === 'out') {
+      (node as HTMLElement).style.opacity = '0';
+    }
 
     return {
       duration,
@@ -290,8 +302,8 @@
           return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: 1; z-index: 1;`;
         } else {
           // OUT: clean decisive exit via cubicOut. Slides away + fades out.
-          // t goes 0→1 naturally (no time reversal). At t=1, element is at
-          // offset + opacity 0 — fully invisible before Svelte removes from DOM.
+          // t goes 0→1 naturally. Web Animations API overrides our inline opacity
+          // during animation. After cancellation, inline opacity:0 takes effect.
           const p = cubicOut(t);
           const dx = p * x;
           const opacity = 1 - p;
