@@ -26,3 +26,29 @@ Stage Summary:
 - Responsive-mobile-perf.css rgba values intentionally kept hardcoded (mobile performance overrides)
 - Components.css glassmorphism rgba values intentionally kept (paired with brightness filter)
 - All 231 tests pass, build successful after each commit
+
+---
+Task ID: 2
+Agent: main
+Task: Phase 2 — Observability & Debuggability
+
+Work Log:
+- Assessed existing observability: warnDev(), warnDevOnce(), dev-diagnostics.ts, +error.svelte
+- Implemented trace.ts: session trace IDs, operation spans with startSpan/endSpan, auto-incrementing seq numbers
+- Implemented logger.ts: structured logger with DEBUG/INFO/WARN/ERROR levels, ring buffer (200 entries), trace context auto-attachment
+- Implemented ErrorBoundary.svelte: client-side error catching with fallback UI, retry mechanism, dev-only stack trace display
+- Implemented DebugPanel.svelte: dev-only floating panel with 3 tabs (Logs, System, Storage), level filtering, auto-scroll, live refresh
+- Updated dev-diagnostics.ts: added logs() and trace() methods to window.__bmi_dev
+- Integrated into +layout.svelte: logger session init + DebugPanel mount
+- Fixed svelte-check errors: class directives on Lucide components, LogLevel type narrowing
+- Fixed ESLint errors: SvelteSet reactivity, unused svelte-ignore, each key, implicit coercion
+- Wrote 19 new tests: 7 for trace.ts, 12 for logger.ts
+- Full verify.sh passed: check (0 errors), lint (clean), 250 tests pass, build success
+
+Stage Summary:
+- 1 commit pushed to origin/dev: `f40bddf` feat(observability): Phase 2 — Observability & Debuggability
+- New files: trace.ts, logger.ts, ErrorBoundary.svelte, DebugPanel.svelte, trace.test.ts, logger.test.ts
+- Modified files: dev-diagnostics.ts, +layout.svelte
+- Total: 1,776 lines added, 23 lines removed across 9 files
+- 250 tests pass (19 new), production build successful
+- Production-safe: DEBUG/INFO logs compile-time eliminated, DebugPanel tree-shaken
