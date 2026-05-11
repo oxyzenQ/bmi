@@ -497,7 +497,7 @@
   .chart-tooltip {
     position: absolute;
     pointer-events: none;
-    z-index: 10;
+    z-index: var(--z-inner-control);
     background: var(--sd-92);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);

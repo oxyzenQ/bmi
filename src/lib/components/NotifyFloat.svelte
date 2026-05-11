@@ -242,7 +242,7 @@
     -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
     backdrop-filter: blur(24px) saturate(180%) !important;
     isolation: isolate;
-    z-index: 9999;
+    z-index: var(--z-modal);
     opacity: 0;
     transition: opacity 0.15s ease;
     pointer-events: none;
@@ -290,7 +290,7 @@
     transition: background 0.15s ease, color 0.15s ease;
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    z-index: 10;
+    z-index: var(--z-inner-control);
   }
 
   .notify-close:hover {

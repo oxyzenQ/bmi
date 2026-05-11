@@ -94,7 +94,7 @@
                 background-clip: text;
                 -webkit-text-fill-color: transparent;
                 position: relative;
-                z-index: 1;
+                z-index: var(--z-content);
         }
 
         .error-pulse {

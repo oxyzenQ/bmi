@@ -156,10 +156,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--glass-bg-backdrop, rgba(0, 0, 0, 0.88));
+    background: var(--glass-bg-backdrop, rgba(0, 0, 0, 0.80));
     -webkit-backdrop-filter: blur(24px) saturate(140%);
     backdrop-filter: blur(24px) saturate(140%);
-    z-index: 10000;
+    z-index: var(--z-modal-top);
     opacity: 0;
     transition: opacity 0.2s ease;
     pointer-events: none;
@@ -205,7 +205,7 @@
     .feedback-backdrop {
       -webkit-backdrop-filter: blur(32px) saturate(200%);
       backdrop-filter: blur(32px) saturate(200%);
-      background: var(--glass-bg-strong, rgba(0, 0, 0, 0.92));
+      background: var(--glass-bg-strong, rgba(0, 0, 0, 0.70));
     }
   }
 

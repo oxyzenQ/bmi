@@ -178,7 +178,7 @@ html[data-performance-tier="medium"] .cosmic-particles {
   justify-content: space-between;
   padding: 0 0.85rem;
   position: relative;
-  z-index: 1;
+  z-index: var(--z-content);
   width: 100%;
 }
 

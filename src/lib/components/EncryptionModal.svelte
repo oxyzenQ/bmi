@@ -558,10 +558,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--glass-bg-backdrop, rgba(0, 0, 0, 0.88));
+    background: var(--glass-bg-backdrop, rgba(0, 0, 0, 0.80));
     -webkit-backdrop-filter: blur(24px) saturate(140%);
     backdrop-filter: blur(24px) saturate(140%);
-    z-index: 9999;
+    z-index: var(--z-modal);
     opacity: 0;
     transition: opacity 0.2s ease;
     pointer-events: none;
@@ -581,12 +581,12 @@
     .encrypt-backdrop {
       -webkit-backdrop-filter: blur(32px) saturate(160%);
       backdrop-filter: blur(32px) saturate(160%);
-      background: var(--glass-bg-strong, rgba(0, 0, 0, 0.92));
+      background: var(--glass-bg-strong, rgba(0, 0, 0, 0.70));
     }
   }
 
   .encrypt-box {
-    background: var(--glass-bg-enhanced, rgba(0, 0, 0, 0.85));
+    background: var(--glass-bg-enhanced, rgba(0, 0, 0, 0.65));
     border: var(--border-by-rezky);
     border-radius: var(--radius-lg);
     padding: 2rem;
@@ -761,7 +761,7 @@
     color: white;
     cursor: pointer;
     transition: all 0.15s ease;
-    z-index: 10;
+    z-index: var(--z-inner-control);
   }
 
   /* Fix: ensure SVG icons render correctly - WHITE color for dark modal */

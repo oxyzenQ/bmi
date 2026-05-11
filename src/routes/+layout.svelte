@@ -269,7 +269,7 @@
 <style>
   .main-content {
     position: relative;
-    z-index: 1;
+    z-index: var(--z-content);
     opacity: 0;
     transition: opacity 0.5s var(--easing-smooth);
   }
@@ -284,7 +284,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 1000;
+    z-index: var(--z-fab);
     padding: 0.5rem;
     background: var(--cosmic-base-95);
     backdrop-filter: blur(16px) saturate(180%);
@@ -347,7 +347,7 @@
     position: fixed;
     top: 0.5rem;
     right: 0.5rem;
-    z-index: 999;
+    z-index: var(--z-fab);
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;

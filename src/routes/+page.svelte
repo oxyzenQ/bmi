@@ -1426,7 +1426,7 @@
     left: 0;
     right: 0;
     pointer-events: none;
-    z-index: 19;
+    z-index: var(--z-nav-controls);
   }
 
   .pager-shell::before {
@@ -1481,7 +1481,7 @@
     left: 0;
     right: 0;
     transform: none;
-    z-index: 20;
+    z-index: var(--z-nav-shell);
     padding-top: env(safe-area-inset-top, 0px);
     height: calc(var(--nav-bar-h) + env(safe-area-inset-top, 0px));
     box-sizing: border-box;
@@ -1540,7 +1540,7 @@
   .pager-theme .theme-blackhole {
     color: #b266ff;
     font-weight: 600;
-    text-shadow: 0 0 8px var(--purple-40, rgba(178, 102, 255, 0.4));
+    text-shadow: 0 0 8px var(--purple-40, rgba(168, 85, 247, 0.4));
   }
 
   .pager-theme .theme-spaceship {
