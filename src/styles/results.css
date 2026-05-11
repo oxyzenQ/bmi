@@ -79,7 +79,7 @@
 }
 
 .bmi-value {
-  font-size: 4.5rem;
+  font-size: var(--text-display);
   font-weight: 700;
   line-height: 1;
   margin-bottom: 1rem;
@@ -100,7 +100,7 @@
 }
 
 .bmi-category {
-  font-size: 1.5rem;
+  font-size: var(--text-3xl);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -138,7 +138,7 @@
 }
 
 .advice-title {
-  font-size: 1.125rem;
+  font-size: var(--text-xl);
   font-weight: 600;
   color: var(--stellar-white);
   margin-bottom: 1rem;

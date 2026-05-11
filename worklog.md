@@ -81,3 +81,50 @@ Stage Summary:
 - 412 tests pass (+162 new from 250), 24 test files (+8 from 16)
 - Critical gaps closed: crypto.ts (encryption), backup.ts (data recovery), i18n (localization), animation-config (performance tier)
 - Phase 1 regression guards: z-index hierarchy, duration ranges, BMI category boundaries
+
+---
+Task ID: 4
+Agent: main
+Task: Phase 4 — Maintainability (v18.0)
+
+Work Log:
+- Comprehensive CSS audit: 16 CSS files (6,274 lines), 5 responsive modules (1,775 lines), 200+ design tokens
+- Import/usage audit: all 15 utility files used, all 16 CSS files imported, 3 dead components found
+- CSS dead code elimination:
+  - Removed @keyframes bounce from components.css (unused, no animation references)
+  - Fixed .Activity double-definition in icons.css (consolidated to single definition)
+  - Removed 5 duplicate token definitions from tokens.css (--aurora-core, --cbase-82, --shadow-heavy, --white-15, --white-10)
+  - Fixed grey CSS keyword in --text-muted and --plasma-text-secondary (replaced with --slate-400-solid)
+  - Created missing --cosmic-dark-70 token (was undefined, referenced in responsive-backdrop.css)
+  - Fixed .form-input:focus conflict between form.css and animation.css (removed dead rule from form.css)
+  - Replaced --shadow-heavy references with --k-50 in nav.css and BmiHistorySparkline.svelte
+- Design token enforcement (12 exact-match replacements):
+  - results.css: font-size 4.5rem→--text-display, 1.5rem→--text-3xl, 1.125rem→--text-xl
+  - data-cards.css: font-size 1.5rem→--text-3xl, 2.5rem→--text-5xl
+  - layout.css: font-size 2.5rem→--text-5xl
+  - icons.css: 5× color: white→var(--stellar-white)
+  - base.css: border-radius 12px→var(--radius-md)
+- Reusable modal system:
+  - Enhanced ModalShell.svelte with closeOnEnter and zIndex props
+  - Refactored FeedbackModal.svelte to use ModalShell (eliminated ~100 lines of duplicated focus-trap, backdrop animation, and responsive CSS)
+- Dead component cleanup:
+  - Removed BackupStatus.svelte (never imported anywhere in the codebase)
+  - ErrorBoundary.svelte retained (Svelte 5 lacks component-level error catching without explicit wiring; +error.svelte covers route-level errors)
+- Bundle optimization audit:
+  - Verified lazy loading for 8 components via createLazyLoader
+  - Verified dynamic imports for zxcvbn (1.9MB wordlist, loaded only when encryption modal opens)
+  - Build target es2022, esbuild minification — appropriate
+  - Updated version strings in app.html (v16.0→v18.0 in meta tags)
+- Updated ROADMAP.md: Phase 4 marked complete, all items checked off
+- Full verify.sh passed after every batch: check (0 errors, 3 pre-existing warnings), lint (clean), 412 tests pass, build success
+
+Stage Summary:
+- 1 commit to push to origin/dev: Phase 4 — Maintainability (v18.0)
+- Modified files: tokens.css, components.css, icons.css, form.css, results.css, data-cards.css, layout.css, nav.css, responsive-backdrop.css, app.html, ROADMAP.md, worklog.md, ModalShell.svelte, FeedbackModal.svelte, BmiHistorySparkline.svelte
+- Deleted files: BackupStatus.svelte
+- Token cleanup: 5 duplicate tokens removed, 2 grey keywords fixed, 1 missing token created
+- CSS deduplication: dead keyframes removed, .Activity consolidated, .form-input:focus conflict resolved
+- Modal reuse: FeedbackModal now uses ModalShell (~100 lines of duplication eliminated)
+- Design tokens: 12 hardcoded values replaced with token references
+- 412 tests pass, 0 errors, lint clean, build successful
+- v15–v18 engineering hardening roadmap COMPLETE

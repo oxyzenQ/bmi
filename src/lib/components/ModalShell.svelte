@@ -18,10 +18,14 @@
     panelClass?: string;
     /** Close on Escape key — default true */
     closeOnEscape?: boolean;
+    /** Close on Enter key — default false */
+    closeOnEnter?: boolean;
     /** Close on backdrop click — default false */
     closeOnBackdropClick?: boolean;
     /** Auto-focus first focusable element — default true */
     autoFocus?: boolean;
+    /** Override z-index — default uses --modal-z */
+    zIndex?: string;
     onclose?: () => void;
     children?: Snippet;
   }
@@ -35,8 +39,10 @@
     backdropClass = '',
     panelClass = '',
     closeOnEscape = true,
+    closeOnEnter = false,
     closeOnBackdropClick = false,
     autoFocus = true,
+    zIndex = undefined,
     onclose = () => {},
     children,
   }: Props = $props();
@@ -79,6 +85,12 @@
     }
     focusTrapHandler = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && closeOnEscape) {
+        e.preventDefault();
+        e.stopPropagation();
+        onclose();
+        return;
+      }
+      if (e.key === 'Enter' && closeOnEnter) {
         e.preventDefault();
         e.stopPropagation();
         onclose();
@@ -143,7 +155,7 @@
       role="dialog"
       aria-modal="true"
       onclick={handleBackdropClick}
-      style="--ms-backdrop-blur: {backdropBlur}; --ms-backdrop-sat: {backdropSat};"
+      style="--ms-backdrop-blur: {backdropBlur}; --ms-backdrop-sat: {backdropSat};{zIndex ? ` z-index: ${zIndex};` : ''}"
     >
       <div class="modal-shell-panel {panelClass}" style="--ms-panel-min-w: {panelMinWidth};">
         {@render children?.()}

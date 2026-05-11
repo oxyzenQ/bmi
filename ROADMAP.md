@@ -54,12 +54,12 @@ Architecture-level release, not a feature release.
 
 ## Phase 4: Maintainability (v18.0)
 
-- [ ] Split `responsive.css` (1905 lines) into focused modules
-- [ ] CSS deduplication and dead code elimination
-- [ ] Reusable modal system (extract common pattern)
-- [ ] Design token enforcement (no magic values)
-- [ ] Bundle optimization & code splitting audit
-- [ ] Internal utility cleanup
+- [x] Split `responsive.css` (1905 lines) into focused modules (already done in v15.x)
+- [x] CSS deduplication and dead code elimination
+- [x] Reusable modal system (extract common pattern)
+- [x] Design token enforcement (no magic values)
+- [x] Bundle optimization & code splitting audit
+- [x] Internal utility cleanup
 
 ---
 
@@ -85,9 +85,9 @@ Architecture-level release, not a feature release.
 | v15.3       | Regression Fortress           | ✅ Done |
 | v16.0       | Reliability hardening         | ✅ Done |
 | v17.0       | UX consistency                | ✅ Done |
-| v18.0       | Performance & maintainability | 🔲     |
+| v18.0       | Performance & maintainability | ✅ Done |
 | v20.0       | Next-generation features      | 🔲     |
 
 ---
 
-**Rule: No major new features until v18.0 is complete.**
+**Rule: v18.0 hardening complete. No major new features until v20.0.**

@@ -35,11 +35,7 @@
   height: 24px !important;
 }
 
-.Activity {
-  color: var(--cosmic-silver) !important;
-  width: 24px !important;
-  height: 24px !important;
-}
+/* .Activity: consolidated to single definition below (maintenance section) */
 
 .Gem {
   color: var(--cosmic-purple) !important;
@@ -56,31 +52,31 @@
 
 /* Bmi form icons */
 .Weight {
-  color: white !important;
+  color: var(--stellar-white) !important;
   width: 24px !important;
   height: 24px !important;
 }
 
 .User {
-  color: white !important;
+  color: var(--stellar-white) !important;
   width: 24px !important;
   height: 24px !important;
 }
 
 .Ruler {
-  color: white !important;
+  color: var(--stellar-white) !important;
   width: 24px !important;
   height: 24px !important;
 }
 
 .Trash2 {
-  color: white !important;
+  color: var(--stellar-white) !important;
   width: 24px !important;
   height: 24px !important;
 }
 
 .Zap {
-  color: white !important;
+  color: var(--stellar-white) !important;
   width: 24px !important;
   height: 24px !important;
 }

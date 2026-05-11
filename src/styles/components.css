@@ -431,18 +431,8 @@ button[aria-disabled="true"] {
   color: var(--stellar-white);
 }
 
-@keyframes bounce {
-
-  0%,
-  100% {
-    transform: translate(-50%, 0);
-  }
-
-  50% {
-    transform: translate(-50%, -10px);
-  }
-}
-
+/* Note: @keyframes bounce removed in Phase 4 — unused (no animation references) */
+/* @keyframes pulse retained: used by BmiHealthRisk.svelte for health risk pulse animation */
 @keyframes pulse {
 
   0%,

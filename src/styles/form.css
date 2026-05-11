@@ -184,12 +184,7 @@
   transition: background-color var(--dur-interactive) ease, border-color var(--dur-interactive) ease, box-shadow var(--dur-interactive) ease;
 }
 
-.form-input:focus {
-  outline: none;
-  border-color: var(--neon-purple);
-  background: var(--sd-80);
-}
-
+/* .form-input:focus moved to animation.css — unified glow effect with box-shadow */
 .form-input::placeholder {
   color: var(--text-muted);
 }

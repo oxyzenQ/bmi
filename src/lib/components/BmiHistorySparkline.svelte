@@ -506,7 +506,7 @@
     padding: 0.5rem 0.65rem;
     text-align: center;
     white-space: nowrap;
-    box-shadow: 0 8px 24px var(--shadow-heavy);
+    box-shadow: 0 8px 24px var(--k-50);
     animation: tooltipIn var(--dur-micro) ease-out;
   }
 

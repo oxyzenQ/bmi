@@ -310,7 +310,7 @@
 
 .tdee-stat-value {
   font-family: var(--font-mono-short);
-  font-size: 1.5rem;
+  font-size: var(--text-3xl);
   font-weight: 700;
   color: var(--stellar-white);
   line-height: 1.2;
@@ -746,7 +746,7 @@
   margin-top: 1rem;
   margin-bottom: 1rem;
   width: 100%;
-  font-size: 2.5rem;
+  font-size: var(--text-5xl);
   text-align: center;
   color: var(--stellar-white);
 }
