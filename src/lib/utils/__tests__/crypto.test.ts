@@ -1,3 +1,8 @@
+// @vitest-environment node
+//
+// This test file requires the node environment for native crypto.subtle.
+// jsdom's crypto.subtle is non-functional in Bun 1.3.11 CI runners.
+
 /**
  * Phase 3 — Regression Fortress: crypto.ts tests
  *
@@ -7,6 +12,15 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// Polyfill localStorage for @vitest-environment node (no DOM)
+const store = new Map<string, string>();
+vi.stubGlobal('localStorage', {
+  getItem: (k: string) => store.get(k) ?? null,
+  setItem: (k: string, v: string) => store.set(k, String(v)),
+  removeItem: (k: string) => store.delete(k),
+  clear: () => store.clear(),
+});
 
 // Mock $app/environment
 vi.mock('$app/environment', () => ({
