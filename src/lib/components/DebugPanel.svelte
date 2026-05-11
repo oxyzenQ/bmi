@@ -20,7 +20,7 @@
   import { getEncryptionStatus } from '$lib/utils/crypto';
   import { getBackupStatus } from '$lib/utils/backup';
   import { getPerformanceTier } from '$lib/utils/animation-config';
-  import { Bug, FileText, Cpu, Database, Trash2, ChevronRight, X } from 'lucide-svelte';
+  import { FileText, Cpu, Database, Trash2, ChevronRight, X } from 'lucide-svelte';
 
   // Guard: never render in production
   if (import.meta.env.PROD || !browser) {
@@ -176,20 +176,6 @@
 </script>
 
 {#if !import.meta.env.PROD && browser}
-  <!-- Floating Toggle Button -->
-  <button
-    class="dp-toggle"
-    onclick={togglePanel}
-    aria-label={isOpen ? 'Close debug panel' : 'Open debug panel'}
-    title="Debug Panel (v16.0)"
-  >
-    {#if isOpen}
-      <X size={16} />
-    {:else}
-      <Bug size={16} />
-    {/if}
-  </button>
-
   <!-- Panel Overlay -->
   {#if isOpen}
     <div class="dp-overlay" onclick={togglePanel} onkeydown={(e) => e.key === 'Escape' && togglePanel()} role="presentation"></div>
@@ -199,8 +185,7 @@
       <!-- Header -->
       <div class="dp-header">
         <div class="dp-title">
-          <Bug size={14} />
-          <span>Debug Panel</span>
+        <span>Debug Panel</span>
           <span class="dp-badge">v16.0</span>
         </div>
         <button class="dp-close" onclick={togglePanel} aria-label="Close">
@@ -367,40 +352,6 @@
 {/if}
 
 <style>
-  /* ── Floating Toggle ── */
-  .dp-toggle {
-    position: fixed;
-    bottom: 4.5rem;
-    right: 0.75rem;
-    z-index: 9999;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    border-radius: 50%;
-    background: var(--cosmic-purple, #7c3aed);
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 2px 12px rgba(124, 58, 237, 0.4);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .dp-toggle:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.5);
-  }
-
-  .dp-toggle:active {
-    transform: scale(0.95);
-  }
-
-  .dp-toggle:focus-visible {
-    outline: 2px solid var(--violet-50, #8b5cf6);
-    outline-offset: 2px;
-  }
-
   /* ── Overlay ── */
   .dp-overlay {
     position: fixed;
@@ -811,11 +762,6 @@
       max-height: 50vh;
       border-radius: 12px;
       border-top: 1px solid var(--w-10, rgba(255, 255, 255, 0.1));
-    }
-
-    .dp-toggle {
-      bottom: 1rem;
-      right: 1rem;
     }
 
     @keyframes dpSlideUp {
