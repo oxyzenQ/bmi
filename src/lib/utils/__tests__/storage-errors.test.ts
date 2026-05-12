@@ -6,7 +6,6 @@
  */
 
 import {
-  STORAGE_KEYS,
   storageGet,
   storageGetJSON,
   storageRemove,
