@@ -335,7 +335,7 @@
               {#each storageEntries as entry (entry.key)}
                 <div class="dp-storage-item">
                   <button class="dp-storage-key" onclick={() => toggleKey(entry.key)} aria-expanded={expandedKeys.has(entry.key)}>
-                    <ChevronRight size={12} class={expandedKeys.has(entry.key) ? 'rotated' : ''} />
+                    <ChevronRight size={12} style={expandedKeys.has(entry.key) ? 'transform: rotate(90deg)' : ''} />
                     <span class="mono">{entry.key}</span>
                   </button>
                   {#if expandedKeys.has(entry.key)}
@@ -743,11 +743,6 @@
   /* ── Utilities ── */
   .mono {
     font-family: var(--font-mono-short, monospace);
-  }
-
-  /* svelte-ignore css_unused_selector */
-  .rotated {
-    transform: rotate(90deg);
   }
 
   @media (prefers-reduced-motion: reduce) {

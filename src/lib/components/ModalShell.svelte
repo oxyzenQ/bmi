@@ -154,7 +154,9 @@
       class:visible
       role="dialog"
       aria-modal="true"
+      tabindex="-1"
       onclick={handleBackdropClick}
+      onkeydown={(e: KeyboardEvent) => { if (e.key === 'Escape') onclose(); }}
       style="--ms-backdrop-blur: {backdropBlur}; --ms-backdrop-sat: {backdropSat};{zIndex ? ` z-index: ${zIndex};` : ''}"
     >
       <div class="modal-shell-panel {panelClass}" style="--ms-panel-min-w: {panelMinWidth};">

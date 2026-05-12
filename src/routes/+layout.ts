@@ -1,6 +1,11 @@
 import { dev } from '$app/environment';
-import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
-import { injectAnalytics } from '@vercel/analytics/sveltekit';
 
-injectSpeedInsights();
-injectAnalytics({ mode: dev ? 'development' : 'production' });
+// Only inject Vercel telemetry in production builds.
+// Avoids unnecessary network requests and JS overhead in development.
+if (!dev) {
+	const { injectSpeedInsights } = await import('@vercel/speed-insights/sveltekit');
+	const { injectAnalytics } = await import('@vercel/analytics/sveltekit');
+
+	injectSpeedInsights();
+	injectAnalytics({ mode: 'production' });
+}
