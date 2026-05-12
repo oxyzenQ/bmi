@@ -5,7 +5,7 @@
  * prefersReducedMotion, and getPerformanceTier.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeAll, afterAll } from 'vitest';
 
 import {
   MARKER_ANIM,
