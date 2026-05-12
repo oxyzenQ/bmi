@@ -22,6 +22,7 @@
 
 import { browser } from '$app/environment';
 import { dbMetaGet, dbMetaSet, isIndexedDbAvailable } from './db';
+import { warnDev } from './warn-dev';
 
 // ── Constants ──
 const PBKDF2_ITERATIONS = 600_000;
@@ -29,13 +30,22 @@ const SALT_LENGTH = 16; // 128-bit salt
 const IV_LENGTH = 12; // 96-bit IV for AES-GCM
 
 /**
- * Argon2id parameters — tuned for mobile safety (max ~32 MB RAM).
- * Uses @noble/hashes (pure JS, no WASM overhead).
- * 32 MB memory, 2 iterations, parallelism 1.
+ * Argon2id parameters — tuned for mobile safety.
+ * Based on OWASP 2023 recommendations for password hashing:
+ *   https://owasp.org/www-project-cryptography/
+ *
+ *   m:  64 MiB memory cost (Kibibytes) — up from 32 MiB
+ *   t:  3 iterations (time cost) — up from 2
+ *   p:  1 parallelism (single thread for mobile compatibility)
+ *   dkLen: 32 bytes (256-bit → AES-256 key)
+ *
+ * On mobile devices with <4 GB RAM, Argon2 will fall back gracefully to PBKDF2
+ * via the existing fallback in deriveKey(). This is intentional — we prioritize
+ * not crashing the user's browser over cryptographic strength on low-end devices.
  */
 const ARGON2_OPTIONS = {
-  m: 32 * 1024,   // 32 MB memory cost (Kibibytes)
-  t: 2,            // 2 iterations (time cost)
+  m: 64 * 1024,   // 64 MiB memory cost (up from 32 MiB — OWASP 2023)
+  t: 3,            // 3 iterations (up from 2 — harder for attackers)
   p: 1,            // parallelism (single thread for mobile)
   dkLen: 32,       // 256-bit output → AES-256 key
 };
@@ -87,6 +97,18 @@ export interface EncryptionStatus {
 // ── Key management ──
 
 /**
+ * Extract a clean ArrayBuffer from a Uint8Array.
+ * WebCrypto (both browser and Node.js) sometimes rejects Uint8Array.buffer
+ * when the backing store is SharedArrayBuffer or has an offset.
+ * Copying into a fresh ArrayBuffer guarantees a valid BufferSource.
+ */
+function toAB(src: Uint8Array): ArrayBuffer {
+  const ab = new ArrayBuffer(src.length);
+  new Uint8Array(ab).set(src);
+  return ab;
+}
+
+/**
  * Derive an AES-256-GCM key from a passphrase + salt using Argon2id.
  * Uses @noble/hashes (pure JS, no WASM, tiny bundle footprint).
  */
@@ -100,7 +122,7 @@ async function deriveKeyArgon2(passphrase: string, salt: Uint8Array): Promise<Cr
 
   return crypto.subtle.importKey(
     'raw',
-    hashBytes.buffer as ArrayBuffer,
+    toAB(hashBytes),
     { name: 'AES-GCM', length: 256 },
     false,
     ['encrypt', 'decrypt']
@@ -112,7 +134,7 @@ async function deriveKeyPBKDF2(passphrase: string, salt: Uint8Array): Promise<Cr
   const encoder = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
-    encoder.encode(passphrase),
+    toAB(encoder.encode(passphrase)),
     'PBKDF2',
     false,
     ['deriveKey']
@@ -121,7 +143,7 @@ async function deriveKeyPBKDF2(passphrase: string, salt: Uint8Array): Promise<Cr
   return crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: salt.buffer as ArrayBuffer,
+      salt: toAB(salt),
       iterations: PBKDF2_ITERATIONS,
       hash: 'SHA-256',
     },
@@ -144,9 +166,9 @@ async function deriveKey(
   if (kdf === 'argon2id') {
     try {
       return await deriveKeyArgon2(passphrase, salt);
-    } catch {
+    } catch (err) {
       // Argon2 unavailable — fall back to PBKDF2
-      console.warn('[crypto] Argon2id unavailable, falling back to PBKDF2');
+      warnDev('crypto', 'deriveKey', 'Argon2id unavailable, falling back to PBKDF2', err);
       return deriveKeyPBKDF2(passphrase, salt);
     }
   }
@@ -209,7 +231,8 @@ export async function verifyChecksum(data: string, checksum: string): Promise<bo
       result |= a[i] ^ b[i]; // XOR — accumulates differences without early exit
     }
     return result === 0;
-  } catch {
+  } catch (err) {
+    warnDev('crypto', 'verifyChecksum', 'Checksum comparison failed — possibly corrupted base64', err);
     return false;
   }
 }
@@ -231,7 +254,7 @@ export function setPassphraseHint(hint: string): void {
     } else {
       localStorage.removeItem(HINT_KEY);
     }
-  } catch { /* localStorage unavailable */ }
+  } catch (err) { warnDev('crypto', 'setPassphraseHint', 'Failed to persist hint', err); }
 }
 
 /**
@@ -242,7 +265,8 @@ export function getPassphraseHint(): string {
   if (!browser) return '';
   try {
     return localStorage.getItem(HINT_KEY) || '';
-  } catch {
+  } catch (err) {
+    warnDev('crypto', 'getPassphraseHint', 'Failed to read hint', err);
     return '';
   }
 }
@@ -254,36 +278,62 @@ export interface StrengthResult {
   score: number;
   /** Estimated entropy in bits (log10 scale from zxcvbn) */
   entropy: number;
-  /** Crack time display string */
-  crackTimeDisplay: string;
+  /** Crack time in seconds (raw, for i18n formatting in UI) */
+  crackTimeSeconds: number;
   /** User-facing feedback (suggestions) */
   warning?: string;
   suggestions: string[];
 }
 
 /**
- * Analyze passphrase strength using zxcvbn.
+ * Analyze passphrase strength using @zxcvbn-ts/core.
  * Returns score (0-4), entropy, crack time, and feedback.
  * Uses dynamic import to keep bundle small until needed.
+ * Dictionary is loaded once and reused across calls.
  */
+let _zxcvbnReady: Promise<boolean> | null = null;
+
+async function initZxcvbn(): Promise<boolean> {
+  try {
+    const { zxcvbnOptions } = await import('@zxcvbn-ts/core');
+    const { dictionary } = await import('@zxcvbn-ts/language-common');
+    zxcvbnOptions.setOptions({ dictionary });
+    return true;
+  } catch (err) {
+    warnDev('crypto', 'initZxcvbn', '@zxcvbn-ts/core init failed, using fallback scoring', err);
+    return false;
+  }
+}
+
 export async function analyzeStrength(passphrase: string): Promise<StrengthResult> {
   if (!passphrase) {
-    return { score: 0, entropy: 0, crackTimeDisplay: 'instant', suggestions: [] };
+    return { score: 0, entropy: 0, crackTimeSeconds: 0, suggestions: [] };
   }
 
   try {
-    const { zxcvbn } = await import('zxcvbn-ts');
+    // Initialize dictionary once (subsequent calls reuse cached promise)
+    if (!_zxcvbnReady) {
+      _zxcvbnReady = initZxcvbn();
+    }
+    const ready = await _zxcvbnReady;
+
+    if (!ready) {
+      return fallbackStrength(passphrase);
+    }
+
+    const { zxcvbn } = await import('@zxcvbn-ts/core');
     const result = zxcvbn(passphrase);
 
     return {
       score: result.score,
-      entropy: result.guesses_log10,
-      crackTimeDisplay: result.crack_times_display.offline_slow_hashing_1e5_per_second,
+      entropy: result.guessesLog10,
+      crackTimeSeconds: result.crackTimesSeconds.offlineSlowHashing1e4PerSecond,
       warning: result.feedback.warning || undefined,
       suggestions: [...(result.feedback.suggestions || [])],
     };
-  } catch {
+  } catch (err) {
     // zxcvbn load failure — fall back to basic scoring
+    warnDev('crypto', 'analyzeStrength', 'zxcvbn unavailable, using fallback scoring', err);
     return fallbackStrength(passphrase);
   }
 }
@@ -295,7 +345,7 @@ function fallbackStrength(pw: string): StrengthResult {
   if (/[0-9]/.test(pw)) score++;
   if (/[^a-zA-Z0-9]/.test(pw)) score++;
   if (pw.length >= 12) score++;
-  return { score, entropy: 0, crackTimeDisplay: '', suggestions: [] };
+  return { score, entropy: 0, crackTimeSeconds: 0, suggestions: [] };
 }
 
 // ── Public API ──
@@ -325,8 +375,9 @@ export async function encrypt(plaintext: string, passphrase: string, meta?: Encr
       parallelism: ARGON2_OPTIONS.p,
       hashLen: ARGON2_OPTIONS.dkLen,
     };
-  } catch {
+  } catch (err) {
     // Argon2 unavailable — fall back to PBKDF2
+    warnDev('crypto', 'encrypt', 'Argon2id unavailable, falling back to PBKDF2', err);
     key = await deriveKeyPBKDF2(passphrase, salt);
     kdf = 'pbkdf2';
   }
@@ -361,6 +412,11 @@ export async function encrypt(plaintext: string, passphrase: string, meta?: Encr
  * Auto-detects KDF (argon2id or pbkdf2) from payload.
  * Returns `{ plaintext, integrityOk }` on success, or `null` on failure.
  *
+ * Error differentiation (v16.0 — Reliability):
+ *   - `OperationError`: AES-GCM auth tag mismatch → wrong passphrase (most likely)
+ *   - Other errors: corrupted payload, invalid base64, etc.
+ *   All failures are logged via warnDev with specific context.
+ *
  * Integrity check: verifies SHA-256 checksum of decrypted plaintext
  * against stored checksum. Separate from AES-GCM auth tag — provides
  * explicit tamper detection with clear error messages.
@@ -372,7 +428,26 @@ export async function decrypt(
   try {
     const payload: EncryptedPayload = JSON.parse(encryptedJson);
 
-    if (payload.format !== 'bmi-encrypted-v1') return null;
+    if (payload.format !== 'bmi-encrypted-v1') {
+      warnDev('crypto', 'decrypt', 'Unknown encrypted format — expected bmi-encrypted-v1');
+      return null;
+    }
+
+    // Validate payload structure before attempting crypto operations
+    if (!payload.salt || !payload.iv || !payload.data) {
+      warnDev('crypto', 'decrypt', 'Encrypted payload is missing required fields (salt, iv, or data)');
+      return null;
+    }
+
+    // Validate base64 integrity before decoding
+    try {
+      fromBase64(payload.salt);
+      fromBase64(payload.iv);
+      fromBase64(payload.data);
+    } catch (err) {
+      warnDev('crypto', 'decrypt', 'Encrypted payload contains invalid base64 — data may be corrupted', err);
+      return null;
+    }
 
     const salt = fromBase64(payload.salt);
     const iv = fromBase64(payload.iv);
@@ -398,8 +473,13 @@ export async function decrypt(
     }
 
     return { plaintext, integrityOk };
-  } catch {
-    // Wrong passphrase or corrupted data — AES-GCM auth tag mismatch
+  } catch (err) {
+    // Differentiate AES-GCM auth tag mismatch (wrong passphrase) from other errors
+    if (err instanceof DOMException && err.name === 'OperationError') {
+      warnDev('crypto', 'decrypt', 'AES-GCM auth tag mismatch — likely wrong passphrase');
+    } else {
+      warnDev('crypto', 'decrypt', 'Decryption failed (corrupted data or crypto error)', err);
+    }
     return null;
   }
 }
@@ -411,7 +491,8 @@ export function isEncrypted(json: string): boolean {
   try {
     const parsed = JSON.parse(json);
     return parsed?.format === 'bmi-encrypted-v1';
-  } catch {
+  } catch (err) {
+    warnDev('crypto', 'isEncrypted', 'Failed to parse payload for encryption detection', err);
     return false;
   }
 }
@@ -443,7 +524,8 @@ export async function enableEncryption(passphrase: string): Promise<boolean> {
     }
 
     return true;
-  } catch {
+  } catch (err) {
+    warnDev('crypto', 'enableEncryption', 'Failed to enable encryption (verify test or DB write)', err);
     return false;
   }
 }
@@ -472,7 +554,8 @@ export async function getEncryptionStatus(): Promise<EncryptionStatus> {
       enabled: enabled === '1',
       hasPassphrase: hasSalt !== null,
     };
-  } catch {
+  } catch (err) {
+    warnDev('crypto', 'getEncryptionStatus', 'Failed to read encryption status from IndexedDB', err);
     return { enabled: false, hasPassphrase: false };
   }
 }
@@ -487,7 +570,8 @@ export async function verifyPassphrase(passphrase: string): Promise<boolean> {
     const encrypted = await encrypt(test, passphrase);
     const result = await decrypt(encrypted, passphrase);
     return result !== null && result.plaintext === test;
-  } catch {
+  } catch (err) {
+    warnDev('crypto', 'verifyPassphrase', 'Passphrase verification failed', err);
     return false;
   }
 }

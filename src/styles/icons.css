@@ -1,0 +1,139 @@
+/* ── icons.css — Lucide icon sizing: fluid clamp() for large icons, fixed 24px for small icons ── */
+/* Extracted from responsive.css in v18.0 maintainability refactor */
+
+/* Icon sizing */
+
+/* Bmi form icons and other biggest icons — fluid sizing for responsiveness */
+.Orbit,
+.CircleSlash2,
+.FileChartColumn,
+.Gauge {
+  color: var(--cosmic-purple) !important;
+  width: clamp(40px, 8vw, 74px) !important;
+  height: clamp(40px, 8vw, 74px) !important;
+}
+
+/* footer icons — fluid sizing */
+.AlertTriangle {
+  color: var(--warn-yellow) !important;
+  width: clamp(30px, 6vw, 48px) !important;
+  height: clamp(30px, 6vw, 48px) !important;
+}
+
+/* about icons — fluid sizing */
+.Lightbulb,
+.Users {
+  color: var(--cosmic-purple) !important;
+  width: clamp(30px, 6vw, 48px) !important;
+  height: clamp(30px, 6vw, 48px) !important;
+}
+
+/* Hero icons */
+.Target {
+  color: var(--cosmic-blue) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* .Activity: consolidated to single definition below (maintenance section) */
+
+.Gem {
+  color: var(--cosmic-purple) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.BarChart3,
+.X {
+  color: var(--cosmic-purple) !important;
+  width: clamp(40px, 8vw, 74px) !important;
+  height: clamp(40px, 8vw, 74px) !important;
+}
+
+/* Bmi form icons */
+.Weight {
+  color: var(--stellar-white) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.User {
+  color: var(--stellar-white) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.Ruler {
+  color: var(--stellar-white) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.Trash2 {
+  color: var(--stellar-white) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.Zap {
+  color: var(--stellar-white) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* Bmi result icons */
+.Info {
+  color: var(--warn-yellow) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.AlertCircle {
+  color: var(--warn-yellow) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* BMI reference icon — fluid sizing */
+.Info2 {
+  padding: 2.5rem;
+  color: var(--warn-yellow) !important;
+  width: clamp(28px, 6vw, 48px) !important;
+  height: clamp(28px, 6vw, 48px) !important;
+}
+
+.AlertTriangle2 {
+  color: var(--warn-yellow) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.CheckCircle {
+  color: var(--success-solid) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.TrendingUp {
+  color: var(--warn-yellow) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* icon about — brand accent */
+.GitBranch,
+.PackageCheck,
+.GitCompare,
+.Scale {
+  color: var(--cosmic-purple);
+}
+
+/* Status: trust signal → green (semantic) */
+.ShieldCheck {
+  color: var(--cat-green-90);
+}
+
+/* Maintenance: activity signal → grey */
+.Activity {
+  color: var(--text-muted);
+}

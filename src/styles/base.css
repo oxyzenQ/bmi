@@ -2,11 +2,17 @@
 /* ==============================
       GLOBAL STYLES
       ============================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html {
   height: 100%;
   scrollbar-width: none;
   overscroll-behavior: none;
-  background-color: #0a0e1a;
+  background-color: var(--cosmic-deep);
   max-width: 100%;
   /* A: Prevent browser auto-zoom on small font sizes (iOS Safari) */
   -webkit-text-size-adjust: 100%;
@@ -38,10 +44,10 @@ body {
   padding: 0;
   background-color: transparent;
   color: var(--text-primary);
-  font-family: 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-sans);
   font-size: clamp(0.875rem, 0.85rem + 0.3vw, 1rem);
   position: relative;
-  z-index: 0;
+  z-index: var(--z-base);
   max-width: 100%;
   overflow-x: hidden;
   scrollbar-width: none;
@@ -66,7 +72,8 @@ body::before {
   right: 0;
   bottom: 0;
   min-height: 100vh;
-  z-index: -3;
+  z-index: var(--z-base);
+  /* Negative z-index: intentional — renders behind all content */
   background-color: transparent;
   background-image: var(--wallpaper-current);
   background-size: cover;
@@ -101,7 +108,8 @@ body::after {
   right: 0;
   bottom: 0;
   min-height: 100vh;
-  z-index: -2;
+  z-index: var(--z-base);
+  /* Negative z-index: intentional — gradient overlay behind content */
   background: linear-gradient(180deg, var(--dv-58), var(--dv-90));
   pointer-events: none;
 }
@@ -126,14 +134,14 @@ kbd,
 samp,
 input[type="number"],
 .bmi-value {
-  font-family: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-family: var(--font-mono);
   font-feature-settings: 'tnum' 1, 'lnum' 1;
 }
 
 pre {
   background: var(--w-4);
   border: 1px solid var(--w-8);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 0.85rem 1rem;
   overflow: auto;
 }
@@ -141,6 +149,36 @@ pre {
 /* ==============================
       UTILITY CLASSES
       ============================== */
+/* ── i18n Text Safety (v17.0) ── */
+.text-overflow-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-break-word {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* CJK compact layout — tighter line-height and spacing
+   for Chinese/Japanese/Korean text where characters are uniform width */
+:lang(zh),
+:lang(ja) {
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+}
+
+:lang(zh) .text-overflow-ellipsis,
+:lang(ja) .text-overflow-ellipsis {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* Container utilities */
 .main-container {
   max-width: 1200px;
@@ -149,7 +187,7 @@ pre {
   padding-inline: clamp(1rem, 2vw, 2rem);
   /* gutter fleksibel */
   position: relative;
-  z-index: 2;
+  z-index: var(--z-content);
 }
 
 /* ── Screen reader only (accessibility utility) ── */

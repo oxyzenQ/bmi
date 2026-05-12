@@ -209,7 +209,7 @@
     justify-content: center;
     gap: 2px;
     border: var(--border-by-rezky);
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     padding: 2px;
     margin: 1rem auto;
     width: fit-content;
@@ -219,11 +219,11 @@
     font-size: 0.8rem;
     padding: 0.35rem 1rem;
     border: none;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     background: transparent;
     color: var(--w-50);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--dur-interactive) ease;
     font-weight: 500;
   }
 
@@ -233,7 +233,7 @@
 
   .sex-btn.active {
     background: var(--cosmic-purple);
-    color: white;
+    color: var(--stellar-white);
   }
 
   .bf-result {
@@ -242,7 +242,7 @@
   }
 
   .bf-value {
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono-short);
     font-size: 3rem;
     font-weight: 700;
     line-height: 1;
@@ -271,14 +271,14 @@
   .comp-track {
     display: flex;
     height: 16px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     overflow: hidden;
     background: var(--sg-10);
   }
 
   .comp-fill {
     height: 100%;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width var(--dur-slower) var(--easing-material);
   }
 
   .comp-fill.fat {
@@ -333,7 +333,7 @@
     padding: 0.75rem 1rem;
     background: var(--cat-blue-8);
     border: 1px solid var(--cat-blue-15);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     margin-bottom: 1.25rem;
     font-size: 0.78rem;
     color: var(--slate-400-solid);
@@ -353,7 +353,7 @@
   .bf-ranges {
     padding: 1rem;
     background: var(--sd-40);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     border: 1px solid var(--sg-10);
   }
 
@@ -402,7 +402,7 @@
     color: var(--slate-400-solid);
     width: 40px;
     flex-shrink: 0;
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono-short);
   }
 
   .bf-empty {

@@ -16,7 +16,7 @@
 .form-card,
 .section-header-v2,
 .github-link {
-  background: rgba(0, 0, 0, 0.85);
+  background: var(--glass-bg-fallback);
   border: var(--border-by-rezky);
   border-radius: var(--radius-lg);
   transition: transform var(--dur-slow) var(--easing-smooth),
@@ -44,12 +44,12 @@
   .form-card,
   .section-header-v2,
   .github-link {
-    background: rgba(0, 0, 0, 0.65);
+    background: var(--glass-bg-enhanced);
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     /* Stronger border + inset highlight compensate for lower opacity,
        ensuring clear container edges on any wallpaper. */
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    border: 1px solid var(--w-10);
     box-shadow:
       0 10px 30px rgba(0, 0, 0, 0.5),
       0 0 0 1px rgba(255, 255, 255, 0.06),
@@ -59,9 +59,9 @@
 
 /* ── Hero content fallback ── */
 .hero-content {
-  background: rgba(0, 0, 0, 0.85);
+  background: var(--glass-bg-fallback);
   border: var(--border-by-rezky);
-  border-radius: 2rem;
+  border-radius: var(--radius-3xl);
   transition: transform var(--dur-slow) var(--easing-smooth),
     box-shadow var(--dur-slow) var(--easing-smooth),
     border-color var(--dur-slow) var(--easing-smooth);
@@ -72,10 +72,10 @@
      The hero is the first visual element — make it feel premium. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .hero-content {
-    background: rgba(0, 0, 0, 0.58);
+    background: var(--glass-bg-hero);
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    border: 1px solid var(--w-10);
     box-shadow:
       0 10px 30px rgba(0, 0, 0, 0.5),
       0 0 0 1px rgba(255, 255, 255, 0.06),
@@ -156,15 +156,15 @@ button[aria-disabled="true"] {
 
 /* Elegant glassmorphism variants for primary & danger */
 .btn-primary {
-  color: white;
+  color: var(--stellar-white);
   background: var(--bg-by-rezky);
-  border: 1px solid rgba(139, 92, 246, 0.22);
+  border: 1px solid var(--violet-22);
   box-shadow: none;
 }
 
 .btn-primary:hover {
   background: var(--bg-last-by-rezky);
-  border-color: rgba(139, 92, 246, 0.34);
+  border-color: var(--violet-34);
 }
 
 .btn.is-calculating {
@@ -181,23 +181,23 @@ button[aria-disabled="true"] {
 .btn .btn-dot {
   width: 4px;
   height: 4px;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   background: currentColor;
   opacity: 0.5;
   /* animation removed for GPU performance */
 }
 
-/* Elegant danger variant */
+/* Elegant danger variant — red-tinted glass for destructive actions (v19.0) */
 .btn-danger {
-  color: white;
-  background: var(--bg-by-rezky);
-  border: 1px solid rgba(139, 92, 246, 0.22);
+  color: var(--stellar-white);
+  background: var(--btn-danger-bg);
+  border: var(--btn-danger-border);
   box-shadow: none;
 }
 
 .btn-danger:hover {
-  background: var(--bg-last-by-rezky);
-  border-color: rgba(139, 92, 246, 0.32);
+  background: var(--btn-danger-bg-hover);
+  border: var(--btn-danger-border-hover);
 }
 
 .btn-danger:active,
@@ -208,19 +208,25 @@ button[aria-disabled="true"] {
   border-radius: var(--btn-radius);
 }
 
+.btn-danger:active,
+.btn-danger:focus {
+  background: var(--btn-danger-bg-hover);
+  border: var(--btn-danger-border-hover);
+}
+
 .btn-secondary {
-  background: linear-gradient(135deg, rgba(20, 8, 38, 0.55), rgba(91, 33, 182, 0.45));
-  border-color: rgba(139, 92, 246, 0.16);
+  background: linear-gradient(135deg, var(--deep-void-55), rgba(91, 33, 182, 0.45));
+  border-color: var(--violet-16);
 }
 
 .btn-secondary:hover {
-  background: linear-gradient(135deg, rgba(20, 8, 38, 0.65), rgba(91, 33, 182, 0.55));
-  border-color: rgba(139, 92, 246, 0.28);
+  background: linear-gradient(135deg, var(--deep-void-65), rgba(91, 33, 182, 0.55));
+  border-color: var(--violet-30);
 }
 
 .btn-ghost {
-  background: linear-gradient(135deg, rgba(20, 8, 38, 0.40), rgba(91, 33, 182, 0.30));
-  border-color: rgba(139, 92, 246, 0.12);
+  background: linear-gradient(135deg, var(--deep-void-40), rgba(91, 33, 182, 0.30));
+  border-color: var(--violet-12);
 }
 
 /* Button sizes */
@@ -292,7 +298,7 @@ button[aria-disabled="true"] {
   margin: 0 auto;
   margin-bottom: clamp(40px, 40vh, 180px) !important;
   padding: 3rem 2rem;
-  border-radius: 2rem;
+  border-radius: var(--radius-3xl);
   position: relative;
   overflow: hidden;
 }
@@ -313,7 +319,7 @@ button[aria-disabled="true"] {
   margin-bottom: 1.5rem;
   width: 108px;
   height: 108px;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   padding: 0.6rem;
   background: none;
   border: 2px solid var(--w-30);
@@ -329,7 +335,7 @@ button[aria-disabled="true"] {
 }
 
 .hero-title {
-  font-size: 3.5rem;
+  font-size: var(--text-hero);
   font-weight: 700;
   margin-bottom: 1rem;
   line-height: 1.2;
@@ -342,19 +348,22 @@ button[aria-disabled="true"] {
 
 .hero-bottom {
   background: transparent;
-  border-top-left-radius: 2rem;
-  border-top-right-radius: 2rem;
+  border-top-left-radius: var(--radius-3xl);
+  border-top-right-radius: var(--radius-3xl);
   border-top: var(--border-by-rezky);
-  padding: 0.5rem;
+  padding: 0.75rem 0.5rem 1.5rem 0.5rem;
   height: 50px;
   margin-bottom: -50px;
   max-width: 1200px;
   margin-left: -30px;
   margin-right: -30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hero-bottom-text {
-  font-size: 1rem;
+  font-size: var(--text-lg);
   font-weight: 500;
   text-align: center;
   color: var(--text-muted);
@@ -377,8 +386,8 @@ button[aria-disabled="true"] {
 }
 
 .hero-subtitle {
-  font-size: 1.25rem;
-  color: white;
+  font-size: var(--text-2xl);
+  color: var(--stellar-white);
   margin-bottom: 2rem;
   line-height: 1.6;
   max-width: 600px;
@@ -400,14 +409,14 @@ button[aria-disabled="true"] {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: white;
+  color: var(--stellar-white);
   font-size: 0.875rem;
   font-weight: 500;
   padding: 0.5rem 1rem;
   background: transparent;
-  border-radius: 2rem;
+  border-radius: var(--radius-pill);
   border: var(--border-by-rezky);
-  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }
 
 .feature:hover {
@@ -418,36 +427,14 @@ button[aria-disabled="true"] {
 
 .feature span {
   background: var(--bg-cosmic);
-  color: white;
+  color: var(--stellar-white);
   background-clip: text;
 }
 
 .icon {
   width: 64px;
   height: 64px;
-  color: white;
+  color: var(--stellar-white);
 }
 
-@keyframes bounce {
-
-  0%,
-  100% {
-    transform: translate(-50%, 0);
-  }
-
-  50% {
-    transform: translate(-50%, -10px);
-  }
-}
-
-@keyframes pulse {
-
-  0%,
-  100% {
-    filter: drop-shadow(0 0 6px var(--sky-60));
-  }
-
-  50% {
-    filter: drop-shadow(0 0 12px var(--magenta-80));
-  }
-}
+/* Note: @keyframes bounce/pulse removed — each component defines its own locally */

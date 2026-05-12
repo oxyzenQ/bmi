@@ -6,7 +6,7 @@ import type { TranslationDict } from '../types';
 
 const zh: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': '\u7b80\u5355 BMI \u8ba1\u7b97\u5668 \u2014 Stellar v15.0',
+  'meta.title': '\u7b80\u5355 BMI \u8ba1\u7b97\u5668 \u2014 Stellar v18.0',
   'meta.description': '\u4e00\u6b3e\u5962\u534e\u592a\u7a7a\u4e3b\u9898\u7684 BMI \u8ba1\u7b97\u5668\u3002\u8ba1\u7b97\u4f53\u8d28\u6307\u6570\uff0cTDEE\uff0c\u4f53\u8102\u7387\uff0c\u5e76\u901a\u8fc7\u4ea4\u4e92\u5f0f\u56fe\u8868\u8ddf\u8e2a\u60a8\u7684\u5065\u5eb7\u4e4b\u65c5\u3002\u7531 Team LOGIGO \u4f7f\u7528 SvelteKit \u6784\u5efa\u3002',
   'meta.og_description': '\u4e00\u6b3e\u5962\u534e\u592a\u7a7a\u4e3b\u9898\u7684 BMI \u8ba1\u7b97\u5668\uff0c\u652f\u6301 TDEE\u3001\u4f53\u8102\u7387\u3001\u4ea4\u4e92\u5f0f\u56fe\u8868\u548c PWA\u3002',
 
@@ -58,7 +58,7 @@ const zh: TranslationDict = {
   'hero.feature1': '\u7cbe\u786e\u8ba1\u7b97',
   'hero.feature2': '\u5065\u5eb7\u6d1e\u5bdf',
   'hero.feature3': '\u5962\u534e\u8bbe\u8ba1',
-  'hero.edition': 'Stellar v15.0',
+  'hero.edition': 'Stellar v18.0',
 
   // ── Form ──
   'form.title': 'BMI \u8ba1\u7b97\u5668',
@@ -150,6 +150,24 @@ const zh: TranslationDict = {
   'crypto.meta_version': '\u683c\u5f0f',
   'crypto.passphrase_warning': '\u8bf7\u786e\u4fdd\u60a8\u8bb0\u4f4f\u5bc6\u7801\u3002\u5bc6\u7801\u65e0\u6cd5\u6062\u590d\u3002',
   'crypto.strength_hint': '\u4f7f\u7528 12+ \u4e2a\u5b57\u7b26\uff0c\u5305\u542b\u6570\u5b57\u548c\u7b26\u53f7\uff0c\u4ee5\u83b7\u5f97\u6700\u4f73\u5b89\u5168\u6027',
+
+  // ── Crack time (localized) ──
+  'crypto.crack_time': '\u7834\u89e3\u65f6\u95f4: {t}',
+  'crypto.crack_instant': '\u5373\u65f6',
+  'crypto.crack_seconds': '{n} \u79d2',
+  'crypto.crack_seconds_plural': '{n} \u79d2',
+  'crypto.crack_minutes': '{n} \u5206\u949f',
+  'crypto.crack_minutes_plural': '{n} \u5206\u949f',
+  'crypto.crack_hours': '{n} \u5c0f\u65f6',
+  'crypto.crack_hours_plural': '{n} \u5c0f\u65f6',
+  'crypto.crack_days': '{n} \u5929',
+  'crypto.crack_days_plural': '{n} \u5929',
+  'crypto.crack_months': '{n} \u4e2a\u6708',
+  'crypto.crack_months_plural': '{n} \u4e2a\u6708',
+  'crypto.crack_years': '{n} \u5e74',
+  'crypto.crack_years_plural': '{n} \u5e74',
+  'crypto.crack_centuries': '{n} \u4e2a\u4e16\u7eaa',
+  'crypto.crack_centuries_plural': '{n} \u4e2a\u4e16\u7eaa',
 
   // ── Stellar v15: Trust & Transparency ──
   'crypto.encryption_badge': '\u7aef\u5230\u7aef\u52a0\u5bc6',

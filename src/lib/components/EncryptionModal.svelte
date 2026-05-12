@@ -12,6 +12,7 @@
   import { t as _t, localeVersion } from '$lib/i18n';
   import { analyzeStrength, getPassphraseHint, setPassphraseHint } from '$lib/utils/crypto';
   import type { StrengthResult } from '$lib/utils/crypto';
+  import { warnDev } from '$lib/utils/warn-dev';
   let _rv = $derived($localeVersion);
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
@@ -108,7 +109,8 @@
     strengthTimer = setTimeout(async () => {
       try {
         strengthResult = await analyzeStrength(pw);
-      } catch {
+      } catch (err) {
+        warnDev('EncryptionModal', 'strengthEffect', 'Strength analysis failed', err);
         strengthResult = null;
       }
     }, 200);
@@ -171,7 +173,8 @@
         modalKey += 1;
       });
       // Trigger animation with micro-delay token for smoother UX
-      setTimeout(() => { visible = true; }, 120); /* --delay-open */
+      const openTimer = setTimeout(() => { visible = true; }, 120); /* --delay-open */
+      return () => { clearTimeout(openTimer); };
     } else if (!currentShow && wasShown) {
       // Modal is closing
       visible = false;
@@ -223,7 +226,7 @@
     document.addEventListener('keydown', focusTrapHandler);
 
     // Auto-focus first input
-    setTimeout(() => {
+    const focusTimer = setTimeout(() => {
       if (backdropEl) {
         const firstInput = backdropEl.querySelector('input');
         firstInput?.focus();
@@ -231,6 +234,7 @@
     }, 120); /* --delay-open */
 
     return () => {
+      clearTimeout(focusTimer);
       if (focusTrapHandler) {
         document.removeEventListener('keydown', focusTrapHandler);
         focusTrapHandler = null;
@@ -301,8 +305,9 @@
   let strengthFeedback = $derived(() => {
     if (!strengthResult || strengthScore === 0) return '';
     const parts: string[] = [];
-    if (strengthResult.crackTimeDisplay) {
-      parts.push(`Crack time: ${strengthResult.crackTimeDisplay}`);
+    if (strengthResult.crackTimeSeconds > 0) {
+      const timeStr = formatCrackTime(strengthResult.crackTimeSeconds);
+      parts.push(t('crypto.crack_time', { t: timeStr }));
     }
     if (strengthResult.warning) {
       parts.push(strengthResult.warning);
@@ -312,6 +317,35 @@
     }
     return parts.slice(0, 2).join('. ');
   });
+
+  /**
+   * Format crack time (in seconds) to a localized human-readable string.
+   * Reactive to locale changes via the t() function.
+   */
+  function formatCrackTime(seconds: number): string {
+    if (seconds < 1) return t('crypto.crack_instant');
+
+    // Pair: [singular key, plural key, threshold in seconds]
+    const units: [string, string, number][] = [
+      ['crypto.crack_centuries', 'crypto.crack_centuries_plural', 100 * 365.25 * 24 * 3600],
+      ['crypto.crack_years', 'crypto.crack_years_plural', 365.25 * 24 * 3600],
+      ['crypto.crack_months', 'crypto.crack_months_plural', 30.44 * 24 * 3600],
+      ['crypto.crack_days', 'crypto.crack_days_plural', 24 * 3600],
+      ['crypto.crack_hours', 'crypto.crack_hours_plural', 3600],
+      ['crypto.crack_minutes', 'crypto.crack_minutes_plural', 60],
+      ['crypto.crack_seconds', 'crypto.crack_seconds_plural', 1],
+    ];
+
+    for (const [singularKey, pluralKey, unitSeconds] of units) {
+      if (seconds >= unitSeconds) {
+        const n = Math.round(seconds / unitSeconds);
+        const key = n === 1 ? singularKey : pluralKey;
+        return t(key, { n });
+      }
+    }
+
+    return t('crypto.crack_instant');
+  }
 </script>
 
 {#if show}
@@ -556,12 +590,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--glass-bg-backdrop, rgba(0, 0, 0, 0.88));
+    background: var(--glass-bg-backdrop, rgba(0, 0, 0, 0.80));
     -webkit-backdrop-filter: blur(24px) saturate(140%);
     backdrop-filter: blur(24px) saturate(140%);
-    z-index: 9999;
+    z-index: var(--z-modal);
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity var(--modal-backdrop-dur, 0.15s) ease;
     pointer-events: none;
     /* Ensure full viewport coverage on mobile */
     min-height: 100vh;
@@ -579,12 +613,12 @@
     .encrypt-backdrop {
       -webkit-backdrop-filter: blur(32px) saturate(160%);
       backdrop-filter: blur(32px) saturate(160%);
-      background: var(--glass-bg-strong, rgba(0, 0, 0, 0.92));
+      background: var(--glass-bg-strong, rgba(0, 0, 0, 0.70));
     }
   }
 
   .encrypt-box {
-    background: var(--glass-bg-enhanced, rgba(0, 0, 0, 0.85));
+    background: var(--glass-bg-enhanced, rgba(0, 0, 0, 0.65));
     border: var(--border-by-rezky);
     border-radius: var(--radius-lg);
     padding: 2rem;
@@ -592,19 +626,16 @@
     max-width: 90vw;
     -webkit-backdrop-filter: blur(24px) saturate(140%);
     backdrop-filter: blur(24px) saturate(140%);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
-    animation: modalIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    box-shadow: var(--modal-panel-shadow, 0 25px 50px -12px var(--k-50));
+    opacity: 0;
+    transform: var(--modal-panel-scale-from, scale(0.96) translateY(8px));
+    transition: transform var(--modal-dur, 0.22s) var(--modal-ease, cubic-bezier(0.34, 1.56, 0.64, 1)),
+                opacity var(--modal-dur, 0.22s) var(--modal-ease, cubic-bezier(0.34, 1.56, 0.64, 1));
   }
 
-  @keyframes modalIn {
-    from {
-      opacity: 0;
-      transform: scale(0.96) translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
+  .encrypt-backdrop.visible .encrypt-box {
+    opacity: 1;
+    transform: var(--modal-panel-scale-to, scale(1) translateY(0));
   }
 
   .encrypt-header {
@@ -636,7 +667,7 @@
   }
 
   .encrypt-title {
-    font-size: 1.25rem;
+    font-size: var(--text-2xl);
     font-weight: 600;
     color: var(--w-95);
     margin: 0;
@@ -657,14 +688,14 @@
     margin-bottom: 1rem;
     background: var(--w-8);
     border: 1px solid var(--w-15);
-    border-radius: 10px;
+    border-radius: var(--btn-radius);
   }
 
   .meta-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.8rem;
+    font-size: var(--text-base);
   }
 
   .meta-key {
@@ -690,8 +721,8 @@
     margin-bottom: 0.75rem;
     background: rgba(251, 191, 36, 0.08);
     border: 1px solid rgba(251, 191, 36, 0.20);
-    border-radius: 8px;
-    font-size: 0.8rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-base);
     color: var(--amber-gold-60);
   }
 
@@ -715,7 +746,7 @@
   }
 
   .field-group label {
-    font-size: 0.85rem;
+    font-size: var(--text-base);
     font-weight: 500;
     color: var(--w-70);
   }
@@ -728,19 +759,20 @@
 
   .encrypt-input {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: var(--space-3) 1rem;
     padding-right: 2.75rem;
-    font-size: 0.95rem;
+    font-size: var(--text-md);
+    line-height: 1.5;
     border: 1px solid var(--w-20);
-    border-radius: 10px;
+    border-radius: var(--btn-radius);
     background: var(--w-4);
     color: var(--w-95);
-    transition: border-color 0.15s ease;
+    transition: border-color var(--dur-micro) ease;
   }
 
   .encrypt-input--hint {
     padding-right: 1rem;
-    font-size: 0.85rem;
+    font-size: var(--text-base);
   }
 
   .eye-btn {
@@ -755,11 +787,11 @@
     height: 2rem;
     background: rgba(255, 255, 255, 0.1);
     border: none;
-    border-radius: 6px;
-    color: white;
+    border-radius: var(--radius-xs);
+    color: var(--stellar-white);
     cursor: pointer;
-    transition: all 0.15s ease;
-    z-index: 10;
+    transition: all var(--dur-micro) ease;
+    z-index: var(--z-inner-control);
   }
 
   /* Fix: ensure SVG icons render correctly - WHITE color for dark modal */
@@ -785,7 +817,8 @@
   }
 
   .encrypt-input:focus {
-    outline: none;
+    outline: 2px solid var(--violet-42);
+    outline-offset: 1px;
     border-color: var(--cosmic-purple);
   }
 
@@ -811,11 +844,11 @@
   .strength-fill {
     height: 100%;
     border-radius: 2px;
-    transition: width 0.3s ease, background 0.3s ease;
+    transition: width var(--dur-content) ease, background var(--dur-content) ease;
   }
 
   .strength-label {
-    font-size: 0.7rem;
+    font-size: var(--text-xs);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -823,7 +856,7 @@
   }
 
   .strength-feedback {
-    font-size: 0.75rem;
+    font-size: var(--text-sm);
     color: var(--w-60);
     margin-top: 0.35rem;
     line-height: 1.4;
@@ -844,11 +877,11 @@
     gap: 0.5rem;
     padding: 0.75rem;
     margin-bottom: 1.25rem;
-    background: var(--darkred-10);
-    border: 1px solid var(--darkred-30);
-    border-radius: 8px;
+    background: var(--error-bg-default);
+    border: 1px solid var(--error-border-default);
+    border-radius: var(--radius-sm);
     color: var(--red-500-solid);
-    font-size: 0.85rem;
+    font-size: var(--text-base);
   }
 
   .encrypt-error__content {
@@ -871,15 +904,15 @@
 
   /* Warning severity (corrupted file) — amber tone */
   .encrypt-error--warning {
-    background: rgba(245, 158, 11, 0.08);
-    border-color: rgba(245, 158, 11, 0.25);
+    background: var(--error-bg-warning);
+    border-color: var(--error-border-warning);
     color: var(--amber-gold-60);
   }
 
   /* Danger severity (wrong passphrase / tampered) — red tone */
   .encrypt-error--danger {
-    background: rgba(239, 68, 68, 0.10);
-    border-color: rgba(239, 68, 68, 0.30);
+    background: var(--error-bg-danger);
+    border-color: var(--error-border-danger);
     color: var(--red-500-solid);
   }
 
@@ -899,13 +932,13 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
+    padding: var(--space-3) 1.5rem;
+    font-size: var(--text-md);
     font-weight: 600;
     border: none;
-    border-radius: 10px;
+    border-radius: var(--btn-radius);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background var(--dur-micro) ease, color var(--dur-micro) ease, transform var(--dur-instant) ease, filter var(--dur-micro) ease;
     min-width: 100px;
   }
 
@@ -917,12 +950,12 @@
 
   .btn-cancel:hover {
     background: var(--w-15);
-    color: white;
+    color: var(--stellar-white);
   }
 
   .btn-confirm {
     background: var(--cosmic-purple);
-    color: white;
+    color: var(--stellar-white);
     border: 1px solid var(--cosmic-purple);
   }
 
@@ -947,14 +980,10 @@
     width: 14px;
     height: 14px;
     border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
+    border-top-color: var(--stellar-white);
     border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+    animation: spin var(--dur-spin-fast) linear infinite;
     margin-right: 6px;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
   }
 
   @media (max-width: 480px) {

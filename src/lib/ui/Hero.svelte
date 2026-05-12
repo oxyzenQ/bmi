@@ -29,7 +29,18 @@
 
   <div class="hero-content" class:animate>
     <div class="hero-avatar" aria-hidden="true">
-      <img src="/assets/new_bmi_logo_2026.webp" alt="BMI Logo" fetchpriority="high" decoding="async" />
+      <img
+        src="/assets/new_bmi_logo_216.webp"
+        srcset="/assets/new_bmi_logo_128.webp 128w,
+                /assets/new_bmi_logo_216.webp 216w,
+                /assets/new_bmi_logo_256.webp 256w"
+        sizes="(max-width: 360px) 64px, (max-width: 640px) 92px, 108px"
+        alt="BMI Logo"
+        width="216"
+        height="216"
+        fetchpriority="high"
+        decoding="async"
+      />
     </div>
 
     <h1 class="hero-title">
@@ -69,8 +80,8 @@
   .hero-content {
     opacity: 0;
     transform: translateY(20px);
-    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-                transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.8s var(--easing-material),
+                transform 0.8s var(--easing-material);
     /* will-change removed — browser auto-promotes during transition */
   }
 

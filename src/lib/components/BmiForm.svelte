@@ -2,6 +2,8 @@
   import { Orbit, User, Ruler, Weight, Zap, Trash2, ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, PersonStanding, Flame, FileSpreadsheet, Settings } from 'lucide-svelte';
   import { exportBmiHistory, exportBmiHistoryCsv, validateBmiImport, importBmiHistory, peekImportMeta, MAX_IMPORT_SIZE, type ImportFileMeta, type ImportError } from '$lib/utils/history-io';
   import { STORAGE_KEYS, storageGetJSON } from '$lib/utils/storage';
+  import { warnDev } from '$lib/utils/warn-dev';
+  import { portal } from '$lib/actions/portal';
   import { tick } from 'svelte';
   import { t as _t, localeVersion } from '$lib/i18n';
   import EncryptionModal from './EncryptionModal.svelte';
@@ -161,26 +163,13 @@
 
   // Staging spinner overlay (shown before/after modal transitions)
   let stagingLoading = $state(false);
-  const STAGING_DELAY = 1500;
+  const STAGING_DELAY = 800;
   const STAGING_POST_DELAY = 800;
 
   // Feedback modal state (blocking confirmation)
   let showFeedbackModal = $state(false);
   let feedbackType = $state<'success' | 'error'>('success');
   let feedbackMessage = $state('');
-
-  /**
-   * Svelte action: portal the element to document.body.
-   * Escapes ancestor containing-block created by backdrop-filter / transform.
-   */
-  function portal(node: HTMLElement): { destroy(): void } {
-    document.body.appendChild(node);
-    return {
-      destroy() {
-        node.remove();
-      }
-    };
-  }
 
   function formatDate(): string {
     const now = new Date();
@@ -208,6 +197,7 @@
   }
 
   async function handleExportConfirm(passphrase: string) {
+    if (stagingLoading) return; // prevent double-trigger during encryption
     const json = await exportBmiHistory(passphrase);
     if (!json) {
       encryptError = t('crypto.export_failed');
@@ -247,21 +237,18 @@
   }
 
   function handleImportClick() {
+    if (stagingLoading) return; // prevent double-trigger during processing
     // Open file picker directly — browser requires synchronous call within
     // user gesture. Spinner shows AFTER dialog closes (in handleFileInputChange
     // → handleFileChange via await tick()).
     fileInputEl?.click();
   }
 
-  function processFile(file: File) {
-    // Reuse the existing file processing logic
+  async function processFile(file: File) {
+    stagingLoading = true;
+    await tick();
     const fakeEvent = { target: { files: [file] } } as unknown as Event;
     handleFileChange(fakeEvent);
-  }
-
-  function handleDropZoneClick() {
-    // Same as handleImportClick — spinner shows after dialog closes.
-    fileInputEl?.click();
   }
 
   function handleFileInputChange(e: Event) {
@@ -363,8 +350,9 @@
           error: t(importErrorKey(code))
         });
       }
-    } catch {
+    } catch (err) {
       // Notify parent to show error via NotifyFloat
+      warnDev('BmiForm', 'handleImport', 'Import processing failed unexpectedly', err);
       stagingLoading = false;
       onNotify?.({
         action: 'import-error',
@@ -451,22 +439,11 @@
     isDragOver = false;
     const file = e.dataTransfer?.files?.[0];
     if (!file) return;
-    processImportFile(file);
+    processFile(file);
   }
 
-  function processImportFile(file: File) {
-    if (file.size === 0) {
-      onNotify?.({ action: 'import-error', error: t('history.empty_file') });
-      return;
-    }
-    if (file.size > MAX_IMPORT_SIZE) {
-      onNotify?.({ action: 'import-error', error: t('history.file_too_large') });
-      return;
-    }
-    // Reuse the existing file processing logic
-    const fakeEvent = { target: { files: [file] } } as unknown as Event;
-    handleFileChange(fakeEvent);
-  }
+  // Alias — drop zone click opens same file picker
+  const handleDropZoneClick = handleImportClick;
 </script>
 <div class="form-inner">
   <div class="card-header">
@@ -513,7 +490,7 @@
     </button>
   </div>
 
-  <div class="bmi-form">
+  <form class="bmi-form" onsubmit={(e) => { e.preventDefault(); if (canCalculate && !calculating) onCalculate(); }}>
     <div class="input-group">
       <label for="age" class="input-label">
         <User class="User" />
@@ -656,9 +633,7 @@
 
     <div class="button-group">
       <button
-        type="button"
-        onclick={handleCalculate}
-        onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCalculate()}
+        type="submit"
         class="btn btn-primary"
         class:is-calculating={calculating}
         aria-label={t('form.calculate_aria')}
@@ -731,7 +706,7 @@
       </button>
     </div>
 
-  </div>
+  </form>
 </div>
 
 <!-- Modals: Portal to body to avoid parent transform issues -->
@@ -779,7 +754,7 @@
     align-items: center;
     gap: 2px;
     border: var(--btn-border);
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     padding: 2px;
     margin: 0 auto 1rem;
     width: fit-content;
@@ -789,14 +764,14 @@
     font-size: 0.8rem;
     padding: 0.3rem 0.7rem;
     border: none;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     background: transparent;
     color: var(--w-50);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background var(--dur-interactive) ease, color var(--dur-interactive) ease;
     white-space: nowrap;
   }
 
@@ -806,7 +781,7 @@
 
   .unit-toggle-segment.active {
     background: var(--cosmic-purple);
-    color: white;
+    color: var(--stellar-white);
   }
 
   /* Segmented control (gender) */
@@ -815,7 +790,7 @@
     justify-content: center;
     gap: 2px;
     border: var(--btn-border);
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     padding: 2px;
     width: fit-content;
     max-width: 320px;
@@ -826,7 +801,7 @@
     font-size: 0.8rem;
     padding: 0.35rem 0.8rem;
     border: none;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     background: transparent;
     color: var(--w-50);
     cursor: pointer;
@@ -834,7 +809,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.3rem;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background var(--dur-interactive) ease, color var(--dur-interactive) ease;
     white-space: nowrap;
     min-width: 80px;
   }
@@ -845,11 +820,11 @@
 
   .seg-btn.seg-active {
     background: var(--cosmic-purple);
-    color: white;
+    color: var(--stellar-white);
   }
 
   .optional-tag {
-    font-size: 0.65rem;
+    font-size: var(--text-xs);
     font-weight: 500;
     color: var(--text-muted);
     text-transform: uppercase;
@@ -865,7 +840,7 @@
     width: 100%;
     max-width: 320px;
     border: var(--btn-border);
-    border-radius: 0.75rem;
+    border-radius: var(--radius-sm);
     padding: 3px;
     background: var(--sd-55);
   }
@@ -887,7 +862,7 @@
     background: transparent;
     color: var(--w-50);
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background var(--dur-interactive) ease, color var(--dur-interactive) ease;
     white-space: nowrap;
   }
 
@@ -898,7 +873,7 @@
 
   .act-btn.act-active {
     background: var(--cosmic-purple);
-    color: white;
+    color: var(--stellar-white);
   }
 
   .act-label {
@@ -909,7 +884,7 @@
 
   .act-factor {
     font-size: 0.55rem;
-    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-family: var(--font-mono-short);
     opacity: 0.6;
   }
 
@@ -929,7 +904,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 0.85rem;
-    border-radius: 9999px;
+    font-size: var(--text-base);
+    border-radius: var(--radius-pill);
   }
 </style>

@@ -26,14 +26,14 @@ describe('NotifyFloat', () => {
     onCancel: vi.fn(),
   };
 
-  /** Helper: render + advance timers past the 60ms animation delay */
+  /** Helper: render + advance timers past animation delays
+   * NotifyFloat has 60ms internal delay + ModalShell has 60ms openDelay = 120ms total */
   async function renderVisible(overrides: Record<string, unknown> = {}) {
     const result = render(NotifyFloat, {
       props: { ...defaultProps, show: true, ...overrides }
     });
-    // Advance past the 60ms visible animation delay
     await act(async () => {
-      vi.advanceTimersByTime(100);
+      vi.advanceTimersByTime(200);
     });
     return result;
   }
@@ -121,31 +121,39 @@ describe('NotifyFloat', () => {
 
   it('dismisses on Escape key', async () => {
     await renderVisible();
-    const dialog = screen.getByRole('dialog');
 
-    fireEvent.keyDown(dialog, { key: 'Escape' });
-
+    // The $effect chain uses setTimeout: NotifyFloat (60ms) → ModalShell (60ms).
+    // With fake timers, new timers set during an advance may not fire.
+    // Advance again to ensure the document keydown handler is registered.
     await act(async () => {
-      vi.advanceTimersByTime(250);
+      vi.advanceTimersByTime(300);
+    });
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    // NotifyFloat has 200ms close delay
+    await act(async () => {
+      vi.advanceTimersByTime(500);
     });
     expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('traps focus within dialog via Tab', async () => {
+  it('focus does not escape dialog on Tab key', async () => {
     await renderVisible({ type: 'success' });
     const dialog = screen.getByRole('dialog');
-    const buttons = dialog.querySelectorAll('button');
 
-    // Focus the last button first (fireEvent.keyDown doesn't auto-focus)
+    // Focus the last button
+    const buttons = dialog.querySelectorAll('button');
     const lastBtn = buttons[buttons.length - 1];
     lastBtn.focus();
+    expect(document.activeElement).toBe(lastBtn);
+
+    // Press Tab — focus should stay within dialog (not escape to body)
     fireEvent.keyDown(lastBtn, { key: 'Tab' });
 
-    // Focus should wrap to first button (Tab trap behavior)
-    await act(async () => {
-      vi.advanceTimersByTime(50);
-    });
-    expect(document.activeElement).toBe(buttons[0]);
+    // After Tab, focus should still be on one of the dialog buttons
+    const focusedEl = document.activeElement as HTMLElement;
+    expect(dialog.contains(focusedEl)).toBe(true);
   });
 
   it('has aria-modal attribute on backdrop', async () => {

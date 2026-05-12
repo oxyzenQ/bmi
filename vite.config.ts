@@ -23,8 +23,12 @@ function pinCryptoDeps(): Plugin {
                         if (id === '@noble/hashes/argon2.js') {
                                 return req.resolve('@noble/hashes/argon2.js');
                         }
-                        if (id === 'zxcvbn-ts') {
-                                return req.resolve('zxcvbn-ts');
+                        if (id === '@zxcvbn-ts/core') {
+                                // Pin to ESM entry — CJS entry causes "exports is not defined" in browser
+                                return req.resolve('@zxcvbn-ts/core/dist/index.esm.js');
+                        }
+                        if (id === '@zxcvbn-ts/language-common') {
+                                return req.resolve('@zxcvbn-ts/language-common/dist/index.esm.js');
                         }
                 }
         };
@@ -89,10 +93,10 @@ export default function config({ mode }: { mode: string }): UserConfig {
                         target: 'es2022',
                         minify: 'esbuild',
                         sourcemap: false,
-                        // zxcvbn-ts bundles ~1MB of password frequency lists — already
-                        // dynamically imported so only loaded when encryption modal opens.
-                        // This limit suppresses the unavoidable size warning.
-                        chunkSizeWarningLimit: 1100
+                        // @zxcvbn-ts/language-common bundles ~1.9MB of password frequency
+                        // lists — already dynamically imported so only loaded when the
+                        // encryption modal opens. This limit suppresses the size warning.
+                        chunkSizeWarningLimit: 2100
                 }
         };
 }

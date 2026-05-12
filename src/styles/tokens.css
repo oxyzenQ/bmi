@@ -38,11 +38,11 @@
   /* Plasma theme (splash screen) */
   --plasma-glow: var(--coreblue-15);
   --plasma-text-primary: #e2e8f0;
-  --plasma-text-secondary: grey;
+  --plasma-text-secondary: var(--slate-400-solid);
 
   /* Aurora beam colors */
   --aurora-bright: #8000ff;
-  --aurora-core: #8000ff;
+  /* --aurora-core removed in Phase 4 — duplicate of --aurora-bright */
   --aurora-glow: #b266ff;
 
   /* Atmospheric gradients */
@@ -61,7 +61,7 @@
   /* Text & accents */
   --text-primary: var(--stellar-white);
   --text-secondary: var(--cosmic-silver);
-  --text-muted: grey;
+  --text-muted: var(--slate-400-solid);
   --accent-blue: var(--aurora-bright);
 
   /* Glassmorphism & branding */
@@ -83,9 +83,28 @@
 
   /* Animation/transition tuning */
   --easing-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --easing-material: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-gauge: cubic-bezier(.16, 1, .3, 1);
   --dur-fast: 280ms;
   --dur-normal: 500ms;
-  --dur-slow: 800ms;
+  --dur-slow: 600ms;
+
+  /* ── HARMONIZED DURATION SCALE (v17.0) ──
+       Standardized timing tokens replacing ad-hoc values.
+       Components should prefer these over magic ms values. */
+  --dur-instant: 80ms;      /* haptic active, active-state snap */
+  --dur-micro: 150ms;       /* backdrop opacity, toast fade, micro-feedback */
+  --dur-interactive: 200ms; /* button hover, input focus, modal backdrop */
+  --dur-content: 300ms;     /* card hover, content transitions */
+  --dur-panel: 400ms;       /* about card hover, heavier content */
+  --dur-slower: 600ms;      /* glass card transitions (alias) */
+  --dur-shimmer: 2.2s;     /* skeleton shimmer sweep */
+  --dur-breathe: 2s;       /* skeleton breathing pulse */
+  --dur-spin: 1.6s;        /* loading spinner full rotation */
+  --dur-spin-fast: 0.8s;   /* button spinner rotation */
+  --dur-particle: 1.5s;    /* cosmic particle fall (default) */
+  --dur-shoot: 1.8s;       /* shooting star flight (default) */
 
   /* ── Opacity token system ── */
 
@@ -164,7 +183,7 @@
   --dv8-25: rgba(2, 8, 23, 0.25);
 
   /* Cosmic-base — PURE BLACK */
-  --cbase-82: rgba(0, 0, 0, 0.82);
+  /* --cbase-82 removed in Phase 4 — duplicate of --cosmic-dark-82 */
 
   /* Core-blue (59,130,246) — accent blue */
   --coreblue-0: rgba(59, 130, 246, 0);
@@ -340,13 +359,28 @@
   --cat-amber-20: rgba(251, 191, 36, 0.2);
   --cat-slate-30: rgba(148, 163, 184, 0.3);
   --cat-slate-30-light: rgba(148, 163, 184, 0.45);
-  --white-15: rgba(255, 255, 255, 0.15);
-  --white-10: rgba(255, 255, 255, 0.1);
+  /* --white-15, --white-10 removed in Phase 4 — duplicates of --w-15, --w-10 */
   --cat-green-40: rgba(74, 222, 128, 0.4);
   --sd-92: rgba(15, 23, 42, 0.92);
-  --shadow-heavy: rgba(0, 0, 0, 0.5);
+  /* --shadow-heavy removed in Phase 4 — duplicate of --k-50 */
   --cosmic-base-95: rgba(0, 0, 0, 0.95);
   --darkred-85: rgba(183, 28, 28, 0.85);
+
+  /* ── SHARE IMAGE CANVAS COLORS (v18.0) ──
+       Used by share-image.ts canvas rendering.
+       CSS custom properties can't be read from Canvas API,
+       so these are documented here for reference only. */
+  /* Canvas background: #0a0818 (deep cosmic dark) */
+  /* Canvas mid gradient: #1a0533 (deep purple) */
+  /* Canvas white: #ffffff */
+
+  /* ── MODAL ERROR COLORS (v18.0) ── */
+  --error-bg-default: rgba(213, 0, 0, 0.08);
+  --error-border-default: rgba(213, 0, 0, 0.15);
+  --error-bg-danger: rgba(239, 68, 68, 0.10);
+  --error-border-danger: rgba(239, 68, 68, 0.30);
+  --error-bg-warning: rgba(245, 158, 11, 0.08);
+  --error-border-warning: rgba(245, 158, 11, 0.25);
 
   /* ── End opacity token system ── */
 
@@ -359,6 +393,7 @@
   /* Cosmic-dark — PURE BLACK dialog/backdrop backgrounds (no purple tint) */
   --cosmic-dark-78: rgba(0, 0, 0, 0.78);
   --cosmic-dark-82: rgba(0, 0, 0, 0.82);
+  --cosmic-dark-70: rgba(0, 0, 0, 0.70);
   --cosmic-dark-92: rgba(0, 0, 0, 0.92);
   --cosmic-dark-94: rgba(0, 0, 0, 0.94);
 
@@ -380,20 +415,127 @@
   --btn-height: 44px;
   --btn-padding-x: 18px;
   --btn-font: 600 0.95rem/1 'Inter Variable', system-ui, -apple-system, sans-serif;
-  --btn-bg: linear-gradient(135deg, #140826cc, #5b21b6cc);
+  --btn-bg: linear-gradient(135deg, var(--deep-void-base)cc, #5b21b6cc);
   --btn-bg-hover: linear-gradient(135deg, #1a0d33, #6d28d9);
   --btn-bg-active: linear-gradient(135deg, #10061f, #4c1d95);
-  --btn-surface: linear-gradient(135deg, rgba(20, 8, 38, 0.70), rgba(91, 33, 182, 0.65));
+  --btn-surface: linear-gradient(135deg, var(--deep-void-70), rgba(91, 33, 182, 0.65));
   --btn-border: 1px solid rgba(255, 255, 255, 0.08);
   --btn-border-hover: 1px solid rgba(255, 255, 255, 0.14);
   --btn-shadow: none;
   --btn-shadow-hover: none;
 
-  /* ── CONSISTENT BORDER RADIUS ── */
+  /* ── DANGER BUTTON VARIANT (v19.0) ──
+       Red-tinted glass for destructive actions.
+       Previously btn-danger was identical to btn-primary. */
+  --btn-danger-bg: linear-gradient(135deg, rgba(30, 8, 8, 0.80), rgba(127, 29, 29, 0.60));
+  --btn-danger-bg-hover: linear-gradient(135deg, rgba(50, 10, 10, 0.90), rgba(153, 27, 27, 0.70));
+  --btn-danger-border: 1px solid rgba(239, 68, 68, 0.25);
+  --btn-danger-border-hover: 1px solid rgba(239, 68, 68, 0.40);
+
+  /* ── TYPOGRAPHY SCALE (v17.0) ──
+       Consistent font-size tokens for predictable type hierarchy.
+       Usage: component text, labels, headings across all views. */
+  --text-xs: 0.65rem;       /* ~10px — TDEE labels, tiny badges */
+  --text-sm: 0.75rem;       /* 12px — label text, badge text, lang-code */
+  --text-base: 0.85rem;     /* ~14px — input labels, secondary text */
+  --text-md: 0.9rem;        /* ~14px — body text, nav text, stat-value */
+  --text-lg: 1rem;          /* 16px — primary text, card text, form label */
+  --text-xl: 1.125rem;      /* 18px — section titles, advice title */
+  --text-2xl: 1.25rem;      /* 20px — modal titles, gauge title, subtitle */
+  --text-3xl: 1.5rem;       /* 24px — card headings, BMI category */
+  --text-3-half-xl: 1.75rem;    /* 28px — about card headings */
+  --text-4xl: 2rem;         /* 32px — section sub-titles */
+  --text-5xl: 2.5rem;       /* 40px — section main titles */
+  --text-hero: 3.5rem;      /* 56px — hero title */
+  --text-display: 4.5rem;   /* 72px — BMI value display */
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --font-mono-short: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --font-sans: 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* ── Z-INDEX HIERARCHY (v18.1 — Phase 1 Hardening) ──
+       Documented elevation stack for all layered elements.
+       Always use these tokens — never hardcode z-index values.
+       
+       Layer 0:   Base content, wallpaper (::before, ::after)
+       Layer 1:   Content containers (.main-container, cosmic particles)
+       Layer 2:   In-component overlays (shine sweeps, card ::before)
+       Layer 10:  Inner-modal controls (close btn, chart tooltip)
+       Layer 19:  Bottom nav pager controls (behind shell)
+       Layer 20:  Bottom nav shell (pager-controls-shell)
+       Layer 999: Bottom nav scroll-to-top button
+       Layer 1000: NotifyFloat trigger button
+       Layer 9999: Modal backdrops + panels (NotifyFloat, EncryptionModal)
+       Layer 10000: Top-most modal (FeedbackModal confirm)
+       Layer 10001: Staging spinner overlay (full-screen loading) */
+  --z-base: 0;
+  --z-content: 1;
+  --z-overlay: 2;
+  --z-inner-control: 10;
+  --z-nav-controls: 19;
+  --z-nav-shell: 20;
+  --z-fab: 999;
+  --z-modal: 9999;
+  --z-modal-top: 10000;
+  --z-staging: 10001;
+
+  /* ── MODAL SYSTEM TOKENS (v17.0) ──
+       Consistent z-index, backdrop, panel, and transition values
+       for all modal/floating window components.
+       Usage: NotifyFloat, EncryptionModal, FeedbackModal, LanguageSwitcher. */
+  --modal-z: var(--z-modal);
+  --modal-z-top: var(--z-modal-top);
+  --modal-z-staging: var(--z-staging);
+  --modal-backdrop-bg: var(--k-50);
+  --modal-backdrop-blur: 24px;
+  --modal-backdrop-sat: 180%;
+  --modal-panel-radius: var(--radius-xl);
+  --modal-panel-bg: var(--glass-bg-dialog);
+  --modal-panel-shadow: 0 25px 50px -12px var(--k-50);
+  --modal-dur: 0.22s;
+  --modal-ease: var(--easing-spring);
+  --modal-panel-scale-from: scale(0.96) translateY(8px);
+  --modal-panel-scale-to: scale(1) translateY(0);
+  --modal-backdrop-dur: 0.15s;
+
+  /* ── DEEP-VOID GRADIENT SYSTEM (v17.0) ──
+       Centralizes rgba(20, 8, 38, ...) used in button gradients.
+       Previously hardcoded in components.css, nav.css, responsive.css. */
+  --deep-void-base: #140826;
+  --deep-void-30: rgba(20, 8, 38, 0.30);
+  --deep-void-40: rgba(20, 8, 38, 0.40);
+  --deep-void-45: rgba(20, 8, 38, 0.45);
+  --deep-void-55: rgba(20, 8, 38, 0.55);
+  --deep-void-65: rgba(20, 8, 38, 0.65);
+  --deep-void-70: rgba(20, 8, 38, 0.70);
+
+  /* ── COSMIC DEEP (v17.0) ──
+       Fallback background for html element.
+       Previously hardcoded as #0a0e1a in base.css. */
+  --cosmic-deep: #0a0e1a;
+
+  /* ── SUCCESS SEMANTIC (v17.0) ──
+       Green semantic for CheckCircle and success states.
+       Previously used bare 'green' CSS keyword. */
+  --success-solid: #4ade80;
+  --success-bg: rgba(74, 222, 128, 0.08);
+  --success-border: rgba(74, 222, 128, 0.20);
+
+  /* ── AMBER WARNING SYSTEM (v17.0) ──
+       Previously rgba(245, 158, 11, ...) was partially tokenized.
+       Now fully centralized. */
+  --warn-bg: rgba(245, 158, 11, 0.08);
+  --warn-border: rgba(245, 158, 11, 0.20);
+
+  /* ── CONSISTENT BORDER RADIUS (v19.0) ──
+       Unified scale covering all component needs.
+       Usage: cards, modals, inputs, badges, pills. */
+  --radius-xs: 6px;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
   --radius-pill: 9999px;
 
   /* ── CONSISTENT SECTION SPACING ── */
@@ -410,13 +552,6 @@
   --space-5: 1.5rem;    /* 24px — card padding */
   --space-6: 2rem;      /* 32px — section gaps */
   --space-7: 3rem;      /* 48px — major section separation */
-
-  /* ── ELEVATION SYSTEM (Phase 3: Design System Solidification) ──
-       Layered shadow system for depth hierarchy.
-       Usage: cards, modals, floating elements. */
-  --elevation-1: 0 2px 8px var(--k-30), 0 0 0 1px var(--w-5);
-  --elevation-2: 0 8px 24px var(--k-40), 0 0 0 1px var(--w-8);
-  --elevation-3: 0 16px 48px var(--k-50), 0 0 0 1px var(--w-10);
 
   /* ── MICRO-DELAY SYSTEM (Phase 1: Perceived Performance) ──
        Consistent timing for modal transitions and async feedback.

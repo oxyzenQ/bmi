@@ -342,7 +342,7 @@
   .stat-value {
     font-size: 1.1rem;
     font-weight: 700;
-    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-family: var(--font-mono-short);
     color: var(--w-90);
   }
 
@@ -366,21 +366,21 @@
   .progress-header span:last-child {
     font-weight: 600;
     color: var(--w-80);
-    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-family: var(--font-mono-short);
   }
 
   .progress-bar {
     height: 6px;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     background: var(--sd-75);
     overflow: hidden;
   }
 
   .progress-fill {
     height: 100%;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     min-width: 0;
-    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s;
+    transition: width var(--dur-slower) var(--easing-gauge), background var(--dur-content);
   }
 
   .goal-insight {
@@ -401,7 +401,7 @@
     align-items: center;
     gap: 0.3rem;
     font-size: 0.78rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     padding: 0.35rem 0.7rem;
   }
 
@@ -439,13 +439,13 @@
     flex: 1;
     max-width: 120px;
     text-align: center;
-    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-family: var(--font-mono-short);
     font-size: 0.95rem;
   }
 
   .goal-input-row .btn {
     font-size: 0.78rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     padding: 0.4rem 0.8rem;
   }
 
@@ -463,7 +463,7 @@
     gap: 0.4rem;
     padding: 0.75rem;
     border: 1px solid var(--w-8);
-    border-radius: 0.75rem;
+    border-radius: var(--radius-sm);
     background: var(--sd-65);
   }
 </style>

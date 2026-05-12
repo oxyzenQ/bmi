@@ -3,6 +3,7 @@
   import { TrendingUp, TrendingDown, Minus } from 'lucide-svelte';
   import { STORAGE_KEYS } from '$lib/utils/storage';
   import { t as _t, localeVersion } from '$lib/i18n';
+  import { warnDev } from '$lib/utils/warn-dev';
   let _rv = $derived($localeVersion);
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
@@ -54,7 +55,8 @@
       if (!stored) return [];
       const history: BMIRecord[] = JSON.parse(stored);
       return history.slice(-MAX_POINTS);
-    } catch {
+    } catch (err) {
+      warnDev('BmiHistorySparkline', 'loadHistory', 'Failed to parse history data', err);
       return [];
     }
   }
@@ -392,7 +394,7 @@
   .sparkline-container {
     background: var(--sd-40);
     border: 1px solid var(--sg-10);
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     padding: 0.75rem 0.5rem;
     margin-top: 1rem;
   }
@@ -427,7 +429,7 @@
     font-size: 0.75rem;
     font-weight: 600;
     padding: 0.2rem 0.6rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     background: var(--sg-15);
     color: var(--slate-400-solid);
   }
@@ -461,20 +463,20 @@
   }
 
   .spark-point {
-    transition: r 0.15s ease, opacity 0.15s ease;
+    transition: r var(--dur-micro) ease, opacity var(--dur-micro) ease;
   }
 
   .axis-label {
     font-size: 9px;
     fill: var(--slate-600-solid);
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono-short);
     dominant-baseline: middle;
   }
 
   .zone-label {
     font-size: 7px;
     fill: var(--cat-green-40);
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono-short);
     dominant-baseline: middle;
   }
 
@@ -488,24 +490,24 @@
   .x-label {
     font-size: 0.55rem;
     color: var(--slate-600-solid);
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono-short);
   }
 
   /* Tooltip */
   .chart-tooltip {
     position: absolute;
     pointer-events: none;
-    z-index: 10;
+    z-index: var(--z-inner-control);
     background: var(--sd-92);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     border: 1px solid var(--w-10);
-    border-radius: 10px;
+    border-radius: var(--btn-radius);
     padding: 0.5rem 0.65rem;
     text-align: center;
     white-space: nowrap;
-    box-shadow: 0 8px 24px var(--shadow-heavy);
-    animation: tooltipIn 0.15s ease-out;
+    box-shadow: 0 8px 24px var(--k-50);
+    animation: tooltipIn var(--dur-micro) ease-out;
   }
 
   @keyframes tooltipIn {
@@ -526,7 +528,7 @@
   }
 
   .tooltip-bmi {
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono-short);
     font-size: 1rem;
     font-weight: 700;
     line-height: 1.2;
@@ -549,7 +551,7 @@
   .tooltip-time {
     font-size: 0.55rem;
     color: var(--slate-600-solid);
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--font-mono-short);
   }
 
   .sparkline-footer {

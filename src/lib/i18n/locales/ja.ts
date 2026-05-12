@@ -6,7 +6,7 @@ import type { TranslationDict } from '../types';
 
 const ja: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': '\u7c21\u5358 BMI \u8a08\u7b97 \u2014 Stellar v15.0',
+  'meta.title': '\u7c21\u5358 BMI \u8a08\u7b97 \u2014 Stellar v18.0',
   'meta.description': '\u8c6a\u83ef\u306a\u5b87\u5b99\u30c6\u30fc\u30de\u306e BMI \u8a08\u7b97\u30c4\u30fc\u30eb\u3002BMI\u3001TDEE\u3001\u4f53\u8102\u7387\u3092\u8a08\u7b97\u3057\u3001\u30a4\u30f3\u30bf\u30e9\u30af\u30c6\u30a3\u30d6\u306a\u30c1\u30e3\u30fc\u30c8\u3067\u5065\u5eb7\u306e\u65c5\u3092\u8ffd\u8de1\u3057\u307e\u3057\u3087\u3046\u3002SvelteKit \u306b\u3088\u308b Team LOGIGO \u4f5c\u6210\u3002',
   'meta.og_description': '\u8c6a\u83ef\u306a\u5b87\u5b99\u30c6\u30fc\u30de\u306e BMI \u8a08\u7b97\u30c4\u30fc\u30eb\u3002TDEE\u3001\u4f53\u8102\u7387\u3001\u30a4\u30f3\u30bf\u30e9\u30af\u30c6\u30a3\u30d6\u30c1\u30e3\u30fc\u30c8\u3001PWA \u30b5\u30dd\u30fc\u30c8\u4ed8\u304d\u3002',
 
@@ -58,7 +58,7 @@ const ja: TranslationDict = {
   'hero.feature1': '\u9ad8\u7cbe\u5ea6\u8a08\u7b97',
   'hero.feature2': '\u5065\u5eb7\u30a4\u30f3\u30b5\u30a4\u30c8',
   'hero.feature3': '\u30e9\u30af\u30b7\u30e5\u30ea\u30fc\u30c7\u30b6\u30a4\u30f3',
-  'hero.edition': 'Stellar v15.0',
+  'hero.edition': 'Stellar v18.0',
 
   // ── Form ──
   'form.title': 'BMI \u8a08\u7b97\u30c4\u30fc\u30eb',
@@ -150,6 +150,24 @@ const ja: TranslationDict = {
   'crypto.meta_version': '\u30d5\u30a9\u30fc\u30de\u30c3\u30c8',
   'crypto.passphrase_warning': '\u30d1\u30b9\u30d5\u30ec\u30fc\u30ba\u3092\u5fc5\u305a\u899a\u3048\u3066\u304f\u3060\u3055\u3044\u3002\u5fa9\u5143\u3067\u304d\u307e\u305b\u3093\u3002',
   'crypto.strength_hint': '\u6700\u9ad8\u306e\u30bb\u30ad\u30e5\u30ea\u30c6\u30a3\u306e\u305f\u3081\u300112\u6587\u5b57\u4ee5\u4e0a\u3067\u6570\u5b57\u3068\u8a18\u53f7\u3092\u542b\u3081\u3066\u304f\u3060\u3055\u3044',
+
+  // ── Crack time (localized) ──
+  'crypto.crack_time': '\u89e3\u8aad\u6642\u9593: {t}',
+  'crypto.crack_instant': '\u5373\u6642',
+  'crypto.crack_seconds': '{n}\u79d2',
+  'crypto.crack_seconds_plural': '{n}\u79d2',
+  'crypto.crack_minutes': '{n}\u5206',
+  'crypto.crack_minutes_plural': '{n}\u5206',
+  'crypto.crack_hours': '{n}\u6642\u9593',
+  'crypto.crack_hours_plural': '{n}\u6642\u9593',
+  'crypto.crack_days': '{n}\u65e5',
+  'crypto.crack_days_plural': '{n}\u65e5',
+  'crypto.crack_months': '{n}\u30f6\u6708',
+  'crypto.crack_months_plural': '{n}\u30f6\u6708',
+  'crypto.crack_years': '{n}\u5e74',
+  'crypto.crack_years_plural': '{n}\u5e74',
+  'crypto.crack_centuries': '{n}\u4e16\u7d00',
+  'crypto.crack_centuries_plural': '{n}\u4e16\u7d00',
 
   // ── Stellar v15: Trust & Transparency ──
   'crypto.encryption_badge': '\u30a8\u30f3\u30c9\u30c4\u30fc\u30a8\u30f3\u30c9\u6697\u53f7\u5316',

@@ -11,7 +11,7 @@
 // See: https://github.com/nicedoc/vitest/issues/49
 
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { exportBmiHistory, importBmiHistory, validateBmiImport } from '../history-io';
+import { exportBmiHistory, exportBmiHistoryCsv, importBmiHistory, validateBmiImport, peekImportMeta } from '../history-io';
 import { storageInvalidateAll } from '../storage';
 
 // ---------------------------------------------------------------------------
@@ -43,22 +43,20 @@ beforeAll(async () => {
         }
 });
 
-// Mock localStorage
-const localStorageMock = (() => {
-        let store: Record<string, string> = {};
-        return {
-                getItem: vi.fn((key: string) => store[key] ?? null),
-                setItem: vi.fn((key: string, value: string) => {
-                        store[key] = value;
-                }),
-                removeItem: vi.fn((key: string) => {
-                        delete store[key];
-                }),
-                clear: vi.fn(() => {
-                        store = {};
-                })
-        };
-})();
+// Mock localStorage — uses an external store reference for testability
+let _store: Record<string, string> = {};
+const localStorageMock = {
+        getItem: vi.fn((key: string) => _store[key] ?? null),
+        setItem: vi.fn((key: string, value: string) => {
+                _store[key] = value;
+        }),
+        removeItem: vi.fn((key: string) => {
+                delete _store[key];
+        }),
+        clear: vi.fn(() => {
+                _store = {};
+        })
+};
 
 // Mock IndexedDB
 const mockIndexedDb = {
@@ -97,8 +95,14 @@ Object.defineProperty(globalThis, 'indexedDB', { value: mockIndexedDb, writable:
 
 describe('history-io', () => {
         beforeEach(() => {
-                localStorageMock.clear();
+                // Reset store and clear storage cache before each test
+                _store = {};
                 vi.clearAllMocks();
+                // Re-apply mock implementations after clearAllMocks wipes them
+                localStorageMock.getItem.mockImplementation((key: string) => _store[key] ?? null);
+                localStorageMock.setItem.mockImplementation((key: string, value: string) => { _store[key] = value; });
+                localStorageMock.removeItem.mockImplementation((key: string) => { delete _store[key]; });
+                localStorageMock.clear.mockImplementation(() => { _store = {}; });
                 // Clear storage.ts in-memory cache to prevent cross-test contamination
                 storageInvalidateAll();
         });
@@ -208,6 +212,13 @@ describe('history-io', () => {
                         const result = await validateBmiImport(JSON.stringify(envelope));
                         expect(result.valid).toBe(false);
                         expect(result.error?.toLowerCase()).toContain('integrity');
+                });
+
+                it('rejects oversized input (>5MB) via validateBmiImport', async () => {
+                        const bigData = 'x'.repeat(5 * 1024 * 1024 + 1);
+                        const result = await validateBmiImport(bigData);
+                        expect(result.valid).toBe(false);
+                        expect(result.errorCode).toBe('file_too_large');
                 });
 
                 it('accepts valid v3 HMAC export', async () => {
@@ -368,6 +379,255 @@ describe('history-io', () => {
                         const result = await importBmiHistory(encrypted!); // importBmiHistory doesn't take passphrase directly
                         // Encrypted data looks invalid to raw import (no passphrase)
                         expect(result.success).toBe(false);
+                });
+        });
+
+        describe('exportBmiHistoryCsv', () => {
+                it('returns null when no history exists', () => {
+                        const csv = exportBmiHistoryCsv();
+                        expect(csv).toBeNull();
+                });
+
+                it('returns null for invalid JSON in localStorage', () => {
+                        localStorageMock.getItem.mockReturnValue('not-json');
+                        const csv = exportBmiHistoryCsv();
+                        expect(csv).toBeNull();
+                });
+
+                it('returns null for empty array', () => {
+                        localStorageMock.getItem.mockReturnValue(JSON.stringify([]));
+                        const csv = exportBmiHistoryCsv();
+                        expect(csv).toBeNull();
+                });
+
+                it('exports correct number of rows', async () => {
+                        const records = [
+                                { timestamp: 1700000000000, bmi: 22.5, height: 170, weight: 65 },
+                                { timestamp: 1700086400000, bmi: 22.1, height: 170, weight: 64.5 }
+                        ];
+                        localStorageMock.getItem.mockReturnValue(JSON.stringify(records));
+
+                        const csv = exportBmiHistoryCsv();
+                        expect(csv).not.toBeNull();
+                        // Header + 2 data rows
+                        const lines = csv!.trim().split('\n');
+                        expect(lines).toHaveLength(3);
+                });
+
+                it('returns valid CSV with headers', async () => {
+                        const records = [
+                                { timestamp: 1700000000000, bmi: 22.5, height: 170, weight: 65, age: 25 },
+                                { timestamp: 1700086400000, bmi: 22.1, height: 170, weight: 64.5 }
+                        ];
+                        localStorageMock.getItem.mockReturnValue(JSON.stringify(records));
+
+                        const csv = exportBmiHistoryCsv();
+                        expect(csv).not.toBeNull();
+                        // All cells are quoted in CSV output
+                        expect(csv).toContain('"Date","Time","BMI","Height (cm)","Weight (kg)","Age","Category"');
+                        // Timestamp 1700000000000 = 2023-11-14T22:13:20Z (date from ISO, time from toTimeString)
+                        expect(csv).toContain('"2023-11-14"');
+                        expect(csv).toContain('"22.5"');
+                        expect(csv).toContain('"170"');
+                        expect(csv).toContain('"65"');
+                        expect(csv).toContain('"25"');
+                        // Category name from i18n (may vary by locale)
+                        expect(csv).toContain('"Normal');
+                });
+
+                it('handles records without age field', async () => {
+                        const records = [
+                                { timestamp: 1700000000000, bmi: 22.5, height: 170, weight: 65 }
+                        ];
+                        localStorageMock.getItem.mockReturnValue(JSON.stringify(records));
+
+                        const csv = exportBmiHistoryCsv();
+                        expect(csv).not.toBeNull();
+                        // Age cell is empty (no age field)
+                        expect(csv).toContain('"170"');
+                        expect(csv).toContain('"65"');
+                        expect(csv).toContain('""'); // empty age
+                        // Category name from i18n
+                        expect(csv).toContain('"Normal');
+                });
+
+                it('filters out invalid records on CSV export', async () => {
+                        const records = [
+                                { timestamp: 1700000000000, bmi: 22.5, height: 170, weight: 65 },
+                                { invalid: 'yes' },
+                                { timestamp: 1700086400000, bmi: 22.1, height: 170, weight: 64.5 }
+                        ];
+                        localStorageMock.getItem.mockReturnValue(JSON.stringify(records));
+
+                        const csv = exportBmiHistoryCsv();
+                        expect(csv).not.toBeNull();
+                        // Should have header + 2 valid rows
+                        const lines = csv!.trim().split('\n');
+                        expect(lines).toHaveLength(3); // header + 2 data rows
+                });
+        });
+
+        describe('peekImportMeta', () => {
+                it('returns encrypted: false for plain JSON envelope', () => {
+                        const envelope = {
+                                version: 3,
+                                source: 'bmi-calculator',
+                                exportedAt: '2024-01-01T00:00:00.000Z',
+                                algorithm: 'HMAC-SHA256',
+                                salt: 'a'.repeat(32),
+                                signature: 'b'.repeat(64),
+                                records: [{ timestamp: 1700000000000, bmi: 22.5, height: 170, weight: 65 }]
+                        };
+                        const meta = peekImportMeta(JSON.stringify(envelope));
+                        expect(meta.encrypted).toBe(false);
+                        expect(meta.exportedAt).toBe('2024-01-01T00:00:00.000Z');
+                        expect(meta.recordCount).toBe(1);
+                        expect(meta.version).toBe(3);
+                });
+
+                it('returns encrypted: true for encrypted payload', () => {
+                        const encryptedPayload = {
+                                format: 'bmi-encrypted-v1',
+                                salt: 'c'.repeat(22),
+                                iv: 'd'.repeat(16),
+                                data: 'e'.repeat(100),
+                                meta: {
+                                        exportedAt: '2024-06-01T00:00:00.000Z',
+                                        recordCount: 5,
+                                        version: 3
+                                }
+                        };
+                        const meta = peekImportMeta(JSON.stringify(encryptedPayload));
+                        expect(meta.encrypted).toBe(true);
+                        expect(meta.format).toBe('bmi-encrypted-v1');
+                        expect(meta.exportedAt).toBe('2024-06-01T00:00:00.000Z');
+                        expect(meta.recordCount).toBe(5);
+                        expect(meta.version).toBe(3);
+                });
+
+                it('returns encrypted: false for encrypted payload with no meta', () => {
+                        const encryptedPayload = {
+                                format: 'bmi-encrypted-v1',
+                                salt: 'c'.repeat(22),
+                                iv: 'd'.repeat(16),
+                                data: 'e'.repeat(100)
+                        };
+                        const meta = peekImportMeta(JSON.stringify(encryptedPayload));
+                        expect(meta.encrypted).toBe(true);
+                        expect(meta.format).toBe('bmi-encrypted-v1');
+                        expect(meta.exportedAt).toBeUndefined();
+                        expect(meta.recordCount).toBeUndefined();
+                });
+
+                it('returns encrypted: false for bare array', () => {
+                        const meta = peekImportMeta(JSON.stringify([{ bmi: 22.5 }]));
+                        expect(meta.encrypted).toBe(false);
+                        expect(meta.recordCount).toBe(1);
+                });
+
+                it('returns encrypted: false for invalid JSON', () => {
+                        const meta = peekImportMeta('not-json');
+                        expect(meta.encrypted).toBe(false);
+                        expect(meta.recordCount).toBeUndefined();
+                });
+
+                it('ignores negative recordCount', () => {
+                        const encryptedPayload = {
+                                format: 'bmi-encrypted-v1',
+                                salt: 'c'.repeat(22),
+                                iv: 'd'.repeat(16),
+                                data: 'e'.repeat(100),
+                                meta: { recordCount: -1 }
+                        };
+                        const meta = peekImportMeta(JSON.stringify(encryptedPayload));
+                        expect(meta.recordCount).toBeUndefined();
+                });
+
+                it('ignores negative version', () => {
+                        const encryptedPayload = {
+                                format: 'bmi-encrypted-v1',
+                                salt: 'c'.repeat(22),
+                                iv: 'd'.repeat(16),
+                                data: 'e'.repeat(100),
+                                meta: { version: -5 }
+                        };
+                        const meta = peekImportMeta(JSON.stringify(encryptedPayload));
+                        expect(meta.version).toBeUndefined();
+                });
+
+                it('handles non-string exportedAt', () => {
+                        const encryptedPayload = {
+                                format: 'bmi-encrypted-v1',
+                                salt: 'c'.repeat(22),
+                                iv: 'd'.repeat(16),
+                                data: 'e'.repeat(100),
+                                meta: { exportedAt: 12345, recordCount: 3 }
+                        };
+                        const meta = peekImportMeta(JSON.stringify(encryptedPayload));
+                        expect(meta.exportedAt).toBeUndefined();
+                });
+
+                it('handles non-number recordCount', () => {
+                        const encryptedPayload = {
+                                format: 'bmi-encrypted-v1',
+                                salt: 'c'.repeat(22),
+                                iv: 'd'.repeat(16),
+                                data: 'e'.repeat(100),
+                                meta: { recordCount: 'bad' }
+                        };
+                        const meta = peekImportMeta(JSON.stringify(encryptedPayload));
+                        expect(meta.recordCount).toBeUndefined();
+                });
+        });
+
+        describe('importBmiHistory edge cases', () => {
+                it('rejects empty string input', async () => {
+                        const result = await importBmiHistory('');
+                        expect(result.success).toBe(false);
+                        expect(result.errorCode).toBe('empty_file');
+                });
+
+                it('rejects whitespace-only input', async () => {
+                        const result = await importBmiHistory('   ');
+                        expect(result.success).toBe(false);
+                        expect(result.errorCode).toBe('empty_file');
+                });
+
+                it('rejects oversized input (>5MB)', async () => {
+                        const bigData = 'x'.repeat(5 * 1024 * 1024 + 1);
+                        const result = await importBmiHistory(bigData);
+                        expect(result.success).toBe(false);
+                        expect(result.errorCode).toBe('file_too_large');
+                });
+
+                it('rejects data with no valid records after filtering', async () => {
+                        const envelope = {
+                                version: 3,
+                                source: 'bmi-calculator',
+                                exportedAt: new Date().toISOString(),
+                                algorithm: 'HMAC-SHA256',
+                                salt: 'a'.repeat(32),
+                                signature: 'b'.repeat(64),
+                                records: [
+                                        { invalid: 'record' },
+                                        { also_invalid: true }
+                                ]
+                        };
+                        const result = await importBmiHistory(JSON.stringify(envelope));
+                        expect(result.success).toBe(false);
+                        expect(result.errorCode).toBe('no_valid_records');
+                });
+
+                it('rejects unsupported version (v99)', async () => {
+                        const envelope = {
+                                version: 99,
+                                source: 'bmi-calculator',
+                                exportedAt: new Date().toISOString(),
+                                records: [{ timestamp: 1700000000000, bmi: 22.5, height: 170, weight: 65 }]
+                        };
+                        const result = await importBmiHistory(JSON.stringify(envelope));
+                        expect(result.success).toBe(false);
+                        expect(result.errorCode).toBe('unsupported_version');
                 });
         });
 });

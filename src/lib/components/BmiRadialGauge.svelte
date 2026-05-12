@@ -4,9 +4,8 @@
   import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
   import { browser } from '$app/environment';
-  import { getPerformanceTier, prefersReducedMotion } from '$lib/utils/performance';
+  import { GAUGE, getPerformanceTier, prefersReducedMotion } from '$lib/utils/animation-config';
   import { CATEGORY_COLORS, COLORS, BMI_THRESHOLDS, getCategoryColor, clampBmiForDisplay } from '$lib/utils/bmi-category';
-  import { GAUGE } from '$lib/utils/animation-config';
   import { t as _t, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change

@@ -3,12 +3,13 @@
   import { backOut, cubicOut } from 'svelte/easing';
   import { tweened } from 'svelte/motion';
   import { browser } from '$app/environment';
-  import { getPerformanceTier } from '$lib/utils/performance';
+  import { getPerformanceTier } from '$lib/utils/animation-config';
   import { importBmiHistory } from '$lib/utils/history-io';
   import { createLazyLoader, createPairedLazyLoader } from '$lib/utils/lazy-load';
   import { STORAGE_KEYS, storageGet, storageSet, storageSetJSON, storageRemove, storageGetJSON, storageInvalidate } from '$lib/utils/storage';
   import { BMI_THRESHOLDS } from '$lib/utils/bmi-category';
   import { calculateBmi, isBmiResult } from '$lib/utils/bmi-calculator';
+  import { warnDev, warnDevOnce } from '$lib/utils/warn-dev';
   import { MARKER_ANIM, PAGER, SPRING, SCROLL, HAPTIC, SECTIONS } from '$lib/utils/animation-config';
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
@@ -95,7 +96,8 @@
     let history: Array<{ timestamp: number; bmi: number; height: number; weight: number; age?: number }> = [];
     try {
       history = storageGetJSON(STORAGE_KEYS.HISTORY, []);
-    } catch {
+    } catch (err) {
+      warnDev('page', 'saveBmi', 'Failed to read history — corrupted data removed', err);
       storageRemove(STORAGE_KEYS.HISTORY);
     }
 
@@ -143,7 +145,7 @@
 
   // Staging spinner state (gear overlay before notifications)
   let stagingLoading = $state(false);
-  const STAGING_NOTIFY_DELAY = 1200;
+  const STAGING_NOTIFY_DELAY = 600;
 
 
   const currentYear = new Date().getFullYear();
@@ -191,7 +193,7 @@
     if (!browser) return;
     try {
       if ('vibrate' in navigator) navigator.vibrate(pattern);
-    } catch { /* vibrate not supported */ }
+    } catch (err) { warnDevOnce('page', 'triggerHaptic', 'Vibration API not supported', err); }
   }
 
   function scrollToTop() {
@@ -250,17 +252,24 @@
     if (browser && unitSystemInitialized) {
       try {
         storageSet(STORAGE_KEYS.UNIT_SYSTEM, unitSystem);
-      } catch {
-        // storage unavailable
-      }
+      } catch (err) { warnDev('page', 'unitSystemEffect', 'Failed to persist unit system', err); }
     }
   });
 
-  function springSimple(t: number, amount: number) {
-    const base = backOut(t);
-    return t + (base - t) * amount;
-  }
-
+  // Safe Premium Spring — spring-inspired page transitions.
+  // IN:  uses backOut easing for natural overshoot + settle (iOS/Apple feel).
+  //      Scale 0.98 → overshoots to ~1.01 → settles at 1.0. Satisfying "pop".
+  // OUT: uses cubicOut with reversed time (1-t) — proven glitch-free from 11a717f.
+  //      Ends at base CSS state (center, opacity 1) so WAAPI cancel produces
+  //      no visual flash before DOM removal.
+  //
+  // Anti-glitch rules (discovered through 7 fix iterations):
+  // 1. IN must start at opacity 0 — prevents OUT element bleeding through.
+  //    (0.4 start causes visible ghost of old page behind new page.)
+  // 2. OUT must end at opacity 1 at base position — prevents 1-frame flash
+  //    when Web Animations API cancels the animation before DOM removal.
+  //    (The 1-t reversal makes cubicOut(1-t) go from 1→0, so opacity ends at 1.)
+  // GPU-only: translate3d, scale, opacity. No rotation, no blur, no gimmicks.
   function pagerSpring(
     _node: Element,
     opts: {
@@ -273,52 +282,37 @@
     const x = opts.x;
     const duration = opts.duration;
     const phase = opts.phase;
-    const strength = opts.strength;
 
     return {
       duration,
       css: (t: number) => {
-        const linear = phase === 'in' ? t : 1 - t;
-        const p = phase === 'in' ? springSimple(linear, strength) : cubicOut(linear);
-
-        const dx = phase === 'in' ? (1 - p) * x : p * x;
-        const opacity = phase === 'in' ? Math.min(1, p * 1.08) : Math.max(0, 1 - p * 1.15);
-
-        const pe = phase === 'out' ? 'pointer-events: none;' : '';
-        return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: ${opacity.toFixed(4)}; ${pe}`;
+        if (phase === 'in') {
+          // IN: spring overshoot + settle via backOut easing.
+          // Starts at opacity 0 (no bleed-through) → ends at 1.
+          // Scale pop: 0.98 → ~1.01 → 1.0 (backOut overshoot built-in).
+          const p = backOut(t);
+          const dx = (1 - p) * x;
+          const scale = 0.98 + 0.02 * p;
+          const opacity = p; // 0 → 1 — invisible start, no ghost bleed-through
+          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)};`;
+        } else {
+          // OUT: reversed time (1-t) from glitch-free 11a717f baseline.
+          // Animation ends at center + opacity 1 (= base CSS state).
+          // When WAAPI cancels, element reverts to base CSS — no visual change.
+          // IN element fully covers OUT by this point, so the OUT-to-center
+          // movement is invisible to the user.
+          const linear = 1 - t;
+          const p = cubicOut(linear);
+          const dx = p * x;
+          const opacity = Math.max(0, 1 - p * 1.15); // ends at 1 (= base CSS)
+          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: ${opacity.toFixed(4)}; pointer-events: none;`;
+        }
       }
     };
   }
 
   const BMI_BAR_MIN = BMI_THRESHOLDS.MIN;
   const BMI_BAR_MAX = BMI_THRESHOLDS.MAX;
-
-  // Animation duration constants (ms)
-  const MARKER_ANIM_HIGH = MARKER_ANIM.HIGH;
-  const MARKER_ANIM_MEDIUM = MARKER_ANIM.MEDIUM;
-  const MARKER_ANIM_LOW = MARKER_ANIM.LOW;
-  const OVERSHOOT_RATIO = MARKER_ANIM.OVERSHOOT_RATIO;
-  const SETTLE_RATIO = MARKER_ANIM.SETTLE_RATIO;
-  const SETTLE_DELAY_OFFSET = MARKER_ANIM.SETTLE_DELAY_OFFSET;
-
-  // Pager motion duration constants (ms)
-  const PAGER_DUR_HIGH = PAGER.DUR_HIGH;
-  const PAGER_DUR_MEDIUM = PAGER.DUR_MEDIUM;
-  const PAGER_DUR_LOW = PAGER.DUR_LOW;
-  const PAGER_DUR_BASIC = PAGER.DUR_BASIC;
-  const PAGER_OUT_RATIO = PAGER.OUT_RATIO;
-  const PAGER_OUT_BASIC = PAGER.OUT_BASIC;
-
-  // Pager motion distance constants (px)
-  const PAGER_DIST_HIGH = PAGER.DIST_HIGH;
-  const PAGER_DIST_MEDIUM = PAGER.DIST_MEDIUM;
-  const PAGER_DIST_LOW = PAGER.DIST_LOW;
-  const PAGER_DIST_BASIC = PAGER.DIST_BASIC;
-
-  // Other animation constants
-  const SWITCHING_DELAY = PAGER.SWITCHING_DELAY;
-  const SPRING_STRENGTH_ENHANCED = SPRING.STRENGTH_ENHANCED;
-  const SPRING_STRENGTH_BASIC = SPRING.STRENGTH_BASIC;
 
   let rangeMarker =
     $derived(
@@ -348,9 +342,9 @@
       return;
     }
 
-    const base = perfTier === 'high' ? MARKER_ANIM_HIGH : perfTier === 'medium' ? MARKER_ANIM_MEDIUM : MARKER_ANIM_LOW;
-    const overshootDur = Math.round(base * OVERSHOOT_RATIO);
-    const settleDur = Math.round(base * SETTLE_RATIO);
+    const base = perfTier === 'high' ? MARKER_ANIM.HIGH : perfTier === 'medium' ? MARKER_ANIM.MEDIUM : MARKER_ANIM.LOW;
+    const overshootDur = Math.round(base * MARKER_ANIM.OVERSHOOT_RATIO);
+    const settleDur = Math.round(base * MARKER_ANIM.SETTLE_RATIO);
     const delta = target - lastMarker;
     const overshoot = Math.max(0, Math.min(100, target + delta * 0.08));
 
@@ -359,20 +353,20 @@
     markerTimer = setTimeout(() => {
       animatedMarker.set(target, { duration: settleDur, easing: cubicOut });
       markerTimer = null;
-    }, Math.max(0, overshootDur - SETTLE_DELAY_OFFSET));
+    }, Math.max(0, overshootDur - MARKER_ANIM.SETTLE_DELAY_OFFSET));
   }
 
   let pagerDirection = $derived(activeIndex >= lastIndex ? 1 : -1);
   let pagerMotionDuration = $derived(reducedMotionEffective
     ? 0
     : smoothModeRequested
-      ? (perfTier === 'high' ? PAGER_DUR_HIGH : perfTier === 'medium' ? PAGER_DUR_MEDIUM : PAGER_DUR_LOW)
-      : PAGER_DUR_BASIC);
+      ? (perfTier === 'high' ? PAGER.DUR_HIGH : perfTier === 'medium' ? PAGER.DUR_MEDIUM : PAGER.DUR_LOW)
+      : PAGER.DUR_BASIC);
   let pagerMotionDistance = $derived(reducedMotionEffective
     ? 0
     : smoothModeRequested
-      ? (perfTier === 'high' ? PAGER_DIST_HIGH : perfTier === 'medium' ? PAGER_DIST_MEDIUM : PAGER_DIST_LOW)
-      : PAGER_DIST_BASIC);
+      ? (perfTier === 'high' ? PAGER.DIST_HIGH : perfTier === 'medium' ? PAGER.DIST_MEDIUM : PAGER.DIST_LOW)
+      : PAGER.DIST_BASIC);
 
   let pagerEl: HTMLDivElement | null = null;
   let pointerStartX: number | null = null;
@@ -413,7 +407,7 @@
     if (browser && !reducedMotionEffective && !opts?.skipSwitching) {
       if (switchingTimer) clearTimeout(switchingTimer);
       document.body.classList.add('is-switching');
-      const ms = Math.max(240, pagerMotionDuration) + SWITCHING_DELAY;
+      const ms = Math.max(240, pagerMotionDuration) + PAGER.SWITCHING_DELAY;
       switchingTimer = setTimeout(() => {
         document.body.classList.remove('is-switching');
         switchingTimer = null;
@@ -700,9 +694,7 @@
       if (storedUnit === 'imperial' || storedUnit === 'metric') {
         unitSystem = storedUnit;
       }
-    } catch {
-      // storage unavailable
-    }
+    } catch (err) { warnDev('page', 'onMount:unitSystem', 'Failed to read stored unit system', err); }
     unitSystemInitialized = true;
 
     // Read wallpaper theme preference
@@ -712,9 +704,7 @@
         currentTheme = storedTheme as ThemeKey;
         document.documentElement.style.setProperty('--wallpaper-current', THEME_URLS[currentTheme]);
       }
-    } catch {
-      // localStorage unavailable
-    }
+    } catch (err) { warnDev('page', 'onMount:wallpaperTheme', 'Failed to read wallpaper theme', err); }
 
     const idx = indexFromHash(window.location.hash);
     if (idx !== null) goTo(idx, { skipHash: true, skipSwitching: true });
@@ -990,15 +980,15 @@
           x: pagerDirection * pagerMotionDistance,
           duration: pagerMotionDuration,
           phase: 'in',
-          strength: reducedMotionEffective ? 0 : (smoothModeEnhanced ? SPRING_STRENGTH_ENHANCED : SPRING_STRENGTH_BASIC)
+          strength: reducedMotionEffective ? 0 : (smoothModeEnhanced ? SPRING.STRENGTH_ENHANCED : SPRING.STRENGTH_BASIC)
         }}
         out:pagerSpring={{
           x: -pagerDirection * pagerMotionDistance,
           duration: reducedMotionEffective
             ? 0
             : smoothModeRequested
-              ? Math.round(pagerMotionDuration * PAGER_OUT_RATIO)
-              : PAGER_OUT_BASIC,
+              ? Math.round(pagerMotionDuration * PAGER.OUT_RATIO)
+              : PAGER.OUT_BASIC,
           phase: 'out',
           strength: 0
         }}
@@ -1222,7 +1212,7 @@
                     <div class="app-info">
                       <p class="info-row">
                         <PackageCheck class="PackageCheck" />
-                        <strong>{t('about.version')}:</strong>Stellar v15.0 <span class="commit-id">({gitCommitId})</span>
+                        <strong>{t('about.version')}:</strong>Stellar v18.0 <span class="commit-id">({gitCommitId})</span>
                       </p>
                       <p class="info-row">
                         <GitBranch class="GitBranch" />
@@ -1409,7 +1399,7 @@
     left: 0;
     right: 0;
     pointer-events: none;
-    z-index: 19;
+    z-index: var(--z-nav-controls);
   }
 
   .pager-shell::before {
@@ -1464,7 +1454,7 @@
     left: 0;
     right: 0;
     transform: none;
-    z-index: 20;
+    z-index: var(--z-nav-shell);
     padding-top: env(safe-area-inset-top, 0px);
     height: calc(var(--nav-bar-h) + env(safe-area-inset-top, 0px));
     box-sizing: border-box;
@@ -1517,13 +1507,13 @@
 
   .pager-theme :global(.render-spark) {
     color: var(--aurora-glow, #b266ff) !important;
-    transition: color 0.3s ease, filter 0.3s ease;
+    transition: color var(--dur-content) ease, filter var(--dur-content) ease;
   }
 
   .pager-theme .theme-blackhole {
     color: #b266ff;
     font-weight: 600;
-    text-shadow: 0 0 8px var(--purple-40, rgba(178, 102, 255, 0.4));
+    text-shadow: 0 0 8px var(--purple-40, rgba(168, 85, 247, 0.4));
   }
 
   .pager-theme .theme-spaceship {

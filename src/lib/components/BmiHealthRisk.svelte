@@ -175,7 +175,7 @@
   .risk-meter-track {
     display: flex;
     height: 12px;
-    border-radius: 6px;
+    border-radius: var(--radius-xs);
     overflow: hidden;
     background: var(--sg-10);
   }
@@ -209,7 +209,7 @@
     position: absolute;
     top: -14px;
     transform: translateX(-50%);
-    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: left var(--dur-normal) var(--easing-material);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -222,9 +222,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: var(--stellar-white);
     box-shadow: 0 4px 12px var(--k-30);
-    animation: pulse 2s ease-in-out infinite;
+    animation: pulse var(--dur-breathe) ease-in-out infinite;
   }
 
   .risk-marker.risk-low {
@@ -270,7 +270,7 @@
   }
 
   .risk-label {
-    font-size: 0.75rem;
+    font-size: var(--text-sm);
     color: var(--slate-400-solid);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -281,7 +281,7 @@
     align-items: center;
     gap: 1rem;
     padding: 1.25rem;
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     background: var(--sd-60);
     border: 1px solid var(--sg-10);
     margin-bottom: 1.5rem;
@@ -316,7 +316,7 @@
   }
 
   .risk-level {
-    font-size: 1.125rem;
+    font-size: var(--text-xl);
     font-weight: 700;
     margin-bottom: 0.25rem;
   }
@@ -328,22 +328,22 @@
   }
 
   .risk-bmi {
-    font-size: 1.5rem;
+    font-size: var(--text-3xl);
     font-weight: 700;
-    color: white;
+    color: var(--stellar-white);
     text-align: right;
   }
 
   .health-tips {
     padding: 1.25rem;
     background: var(--sd-40);
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     border: 1px solid var(--sg-10);
   }
 
   .health-tips h4 {
     margin: 0 0 1rem;
-    font-size: 1rem;
+    font-size: var(--text-lg);
     color: var(--slate-50-solid);
     display: flex;
     align-items: center;

@@ -1,0 +1,449 @@
+/* ── responsive-mobile-perf.css — Touch device scroll performance optimizations ── */
+/* Extracted from responsive.css in v18.0 maintainability refactor.
+   MUST load AFTER all component CSS to properly override with !important.
+   Contains: T-0 through T-23 rules for mobile GPU performance. */
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE SCROLL PERFORMANCE (Bug 13)
+   ─────────────────────────────────────────────────────────────
+   Strategy: Apply heavy optimizations PERMANENTLY on touch devices.
+   This eliminates massive per-frame style recalculation on mobile.
+   ═══════════════════════════════════════════════════════════════ */
+@media (hover: none) and (pointer: coarse) {
+
+  /* T-0: Scroll smoothness optimizations for mobile.
+     Enable momentum scrolling, prevent overscroll bounce,
+     and optimize touch response. */
+  html {
+    scroll-behavior: smooth;
+    overscroll-behavior-y: none; /* Prevent bounce on body */
+  }
+
+  body {
+    -webkit-overflow-scrolling: touch; /* Momentum scrolling on iOS */
+    touch-action: pan-y pinch-zoom; /* Optimize touch response */
+  }
+
+  /* T-1: Simplify body::before filter on touch devices.
+     Full filter chain (brightness(1) contrast(1.25) saturate(1)) costs
+     GPU cycles even when values look "neutral".
+     Replace with a single brightness reduction to keep wallpaper
+     dark on mobile — removing the filter entirely made wallpaper
+     too bright (Bug: mobile wallpaper too bright).
+     Also remove translateZ(0) compositor layer promotion. */
+  body::before {
+    filter: brightness(0.7) !important;
+    transform: none !important;
+  }
+
+  /* T-1b: Strengthen body::after gradient overlay on touch.
+     Previously display:none removed ALL darkening, making wallpaper
+     too bright on mobile. Now keeps the overlay with stronger opacity
+     to compensate for smaller screens where the gradient covers less
+     visual area. The dark wallpaper needs this overlay for depth. */
+  body::after {
+    background: linear-gradient(180deg,
+      rgba(2, 6, 23, 0.70),
+      rgba(2, 6, 23, 0.92)) !important;
+  }
+
+  /* T-2: Promote .pager-section to its own compositor layer
+     so the browser can scroll it independently of fixed navbars.
+     Bug-17 follow-up: downgraded from contain: layout style paint to
+     contain: style only. Layout+paint containment on the PRIMARY scroll
+     target with dynamic content (BMI results change height) forces the
+     browser to maintain separate isolation boundaries, causing measurable
+     interaction lag on mobile. Style containment alone prevents outside
+     CSS changes from triggering recalc inside the scroll container.
+     will-change: scroll-position hints the browser to optimize scrolling.
+     touch-action: pan-y pan-x pinch-zoom declares intent to the browser
+     so it can begin scrolling immediately without waiting for JS handlers
+     (Eliminates 100ms+ touch delay on some mobile browsers). */
+  .pager-section {
+    will-change: scroll-position !important;
+    -webkit-overflow-scrolling: touch;
+    contain: style;
+    touch-action: pan-y pan-x pinch-zoom;
+  }
+
+  /* T-3: Permanently simplify box-shadow on glass cards.
+     color-mix() in box-shadow is expensive on low-end GPUs.
+     Note: NO contain on form-card/bmi-card (dynamic content).
+     Static cards get full layout style paint isolation. */
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table,
+  .github-link,
+  .section-header-v2 {
+    box-shadow: 0 4px 16px var(--k-30) !important;
+    contain: layout style paint;
+  }
+
+  /* T-3b: Calculator cards — simplified shadow, NO contain.
+     form-card and bmi-card hold dynamic content (results
+     change height after calculate). ANY containment (even style+paint)
+     forces browser to maintain separate isolation boundaries on the
+     PRIMARY scroll targets. This overhead is negligible when cards
+     are small (empty state) but costly when they're tall (results showing).
+     Bug-17 follow-up: removed contain: style paint that was causing
+     jank specifically when values were inputted. */
+  .bmi-card,
+  .form-card {
+    box-shadow: 0 4px 16px var(--k-30) !important;
+  }
+
+  /* T-3c: Kill ALL transitions on calculator cards permanently.
+     The base CSS sets 800ms transitions on these cards.
+     Even though they don't visually animate during scroll,
+     the browser still maintains transition state computation,
+     which adds to per-frame cost when many elements are involved.
+     Touch devices don't benefit from hover transitions anyway. */
+  .form-card,
+  .bmi-card,
+  .bmi-card:hover,
+  .form-card:hover {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  /* T-3d: Kill results card transitions and overflow layer.
+     bmi-results-card has 500ms transitions + ::before gradient
+     overlay (another compositing layer). Remove all of them. */
+  .bmi-results-card {
+    transition: none !important;
+  }
+  .bmi-results-card::before {
+    display: none !important;
+  }
+
+  /* T-3e: Kill form-input double transition.
+     form.css sets 0.3s transitions, animation.css adds another.
+     Remove all permanently on touch. */
+  .form-input {
+    transition: none !important;
+  }
+
+  /* T-3f: Kill transitions on health-advice, age-advisory, bmi-explanation.
+     Each has 0.3s transitions + hover transforms that add
+     compositor cost during scroll inside the tall bmi-card. */
+  .health-advice,
+  .age-advisory,
+  .bmi-explanation {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  /* T-3g: Kill action-btn transitions permanently. */
+  .action-btn {
+    transition: none !important;
+  }
+
+  /* T-3h: Kill pill-indicator transitions. */
+  .pill-indicator {
+    transition: none !important;
+  }
+
+  /* T-3i: Kill transitions on stat-block and tdee-card.
+     These inner result elements have 0.3s transitions + hover states
+     that are NOT killed by any earlier T-rule. During slow touch scroll,
+     mobile browsers fire :hover on elements passing under the finger,
+     triggering expensive style recalc per frame. Only relevant after
+     values are inputted (these elements only exist inside bmi-card
+     when results are showing). */
+  .stat-block,
+  .tdee-card {
+    transition: none !important;
+  }
+
+  /* T-20: Neutralize :hover on ALL calculator inner elements.
+     During slow touch scroll, some mobile browsers fire :hover on
+     elements passing under the finger. These inner result elements
+     have hover transforms that trigger expensive style recalc + repaint.
+     Touch devices don't need hover feedback anyway. */
+  .stat-block:hover,
+  .tdee-card:hover,
+  .bmi-results-card:hover,
+  .bmi-value:hover,
+  .bmi-category:hover,
+  .bmi-display:hover,
+  .health-advice:hover,
+  .age-advisory:hover,
+  .bmi-explanation:hover {
+    transform: none !important;
+  }
+
+  /* T-21: .action-btn box-shadow removed — clean purple glass buttons. */
+  .action-btn {
+    box-shadow: none !important;
+    border-color: var(--violet-22) !important;
+  }
+
+  /* T-22: Neutralize remaining color-mix() in borders/backgrounds
+     on key interactive elements. color-mix() forces GPU color
+     interpolation on every style recalc. Replace with static rgba. */
+  .tdee-activity-badge {
+    border-color: var(--amber-gold-40) !important;
+  }
+
+  .age-advisory {
+    background: var(--coreblue-12) !important;
+    border-color: var(--coreblue-22) !important;
+  }
+
+  .age-advisory:hover {
+    background: var(--coreblue-16) !important;
+    border-color: var(--coreblue-32) !important;
+    box-shadow: 0 8px 25px var(--coreblue-16) !important;
+  }
+
+  .btn-primary {
+    border-color: var(--violet-22) !important;
+  }
+
+  .btn-danger {
+    border-color: var(--violet-22) !important;
+  }
+
+  .btn-primary:hover {
+    border-color: var(--violet-34) !important;
+  }
+
+  .btn-danger:hover {
+    border-color: var(--violet-32) !important;
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, var(--deep-void-55), rgba(91, 33, 182, 0.45)) !important;
+  }
+
+  .btn-ghost {
+    background: linear-gradient(135deg, var(--deep-void-40), rgba(91, 33, 182, 0.30)) !important;
+  }
+
+  .pager-tab.active {
+    box-shadow:
+      0 0 20px var(--violet-22),
+      0 0 6px var(--violet-15),
+      inset 0 -2px 0 var(--violet-25) !important;
+  }
+
+  .scale-dot {
+    box-shadow: 0 0 0 3px var(--w-8) !important;
+  }
+
+  /* T-8b: Button hover shadows removed — clean purple glass design. */
+  .notify-btn:hover,
+  .action-btn:hover,
+  .gauge-cta-btn:hover {
+    box-shadow: none !important;
+  }
+
+  /* T-4: Permanently disable transitions on glass cards.
+     Touch devices don't benefit from hover transitions anyway. */
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table {
+    transition: none !important;
+  }
+
+  /* T-5: Permanently hide card pseudo-elements (shine sweep).
+     The 200%×200% positioned ::before is expensive to composite. */
+  .bmi-card::before,
+  .footer-disclaimer::before,
+  .about-card::before,
+  .gauge-container::before,
+  .reference-table::before,
+  .form-card::before {
+    display: none !important;
+  }
+
+  /* T-6: Permanently disable transitions on buttons.
+     Prevents the browser from maintaining transition state. */
+  .btn,
+  button,
+  a.button {
+    transition: none !important;
+  }
+
+  /* T-7: Permanently simplify filters on inputs and gauge elements. */
+  .form-input,
+  .empty-glow,
+  .gauge-reflection,
+  .gauge-title .Gauge,
+  .gauge-progress,
+  .scale-item,
+  .scale-dot,
+  .reference-table .icon-col,
+  .reference-table .ref-row,
+  .bmi-value {
+    filter: none !important;
+    text-shadow: none !important;
+  }
+
+  /* T-8: Button shadows permanently removed — clean purple glass design. */
+  .btn,
+  button,
+  a.button {
+    box-shadow: none !important;
+  }
+
+  /* T-9: Permanently remove pager-shell::before and ::after.
+     Fixed overlay elements cause compositing cost per frame. */
+  .pager-shell::before,
+  .pager-shell::after {
+    display: none !important;
+  }
+
+  /* T-10: REMOVED — content-visibility: auto caused small layout jumps
+     when scrolling slowly (elements at viewport edge toggling skip/render
+     state). The contain rules in T-2/T-3 already isolate layout cost. */
+
+  /* T-11: Lightweight blur on navbars for touch devices.
+     Full blur(24px) is too expensive, but zero blur makes the app
+     look flat/transparent on mobile (Bug: Enhancement 4 #1).
+     Compromise: blur(6px) saturate(120%) — subtle glassmorphism
+     that's ~4x cheaper than desktop blur while preserving the
+     premium glass aesthetic. Dialogs/buttons stay solid (T-23). */
+  .pager-nav-shell,
+  .pager-controls-shell {
+    -webkit-backdrop-filter: blur(6px) saturate(120%) !important;
+    backdrop-filter: blur(6px) saturate(120%) !important;
+    background: var(--cosmic-dark-94) !important;
+    box-shadow: none !important;
+    contain: layout style;
+  }
+
+  /* T-12: will-change: auto on cards — avoid unnecessary compositor layers */
+  .bmi-card {
+    will-change: auto !important;
+  }
+
+  /* T-13: Background and wallpaper optimizations */
+  body {
+    background-attachment: scroll;
+  }
+
+  /* T-14: Disable hover transforms on touch devices */
+  :is(.btn, button, a.button):hover {
+    transform: none;
+  }
+
+  /* T-15: Buttons stay solid for tap responsiveness. */
+  .pager-btn-futuristic {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* T-GLASS: Moonshot Glass for touch devices (Stellar v15).
+     Optimized for scroll performance on mobile GPUs.
+     NO brightness() — per-pixel color matrix is too expensive.
+     blur(6px) on large containers — enough for glass, saves GPU.
+     saturate(140%) kept — single-pass color operation (cheap). */
+  .footer-disclaimer,
+  .about-card,
+  .gauge-container,
+  .reference-table,
+  .github-link,
+  .section-header-v2 {
+    background: rgba(0, 0, 0, 0.65) !important;
+    -webkit-backdrop-filter: blur(6px) saturate(140%) !important;
+    backdrop-filter: blur(6px) saturate(140%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+    box-shadow:
+      0 4px 16px var(--k-30),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* T-GLASS-HERO: Hero content (Stellar v15: Moonshot Glass).
+     NO brightness() on mobile. blur(6px) for scroll perf. */
+  .hero-content,
+  .hero-section .hero-content,
+  main .hero-content {
+    background: rgba(0, 0, 0, 0.60) !important;
+    -webkit-backdrop-filter: blur(6px) saturate(140%) !important;
+    backdrop-filter: blur(6px) saturate(140%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+    box-shadow:
+      0 4px 16px var(--k-30),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* T-GLASS-CALC: Calculator cards (Stellar v15: Moonshot Glass).
+     Stronger opacity (0.70) for input field readability.
+     NO brightness() on mobile — GPU cost too high for scroll targets. */
+  .bmi-card,
+  .form-card {
+    background: rgba(0, 0, 0, 0.70) !important;
+    -webkit-backdrop-filter: blur(6px) saturate(130%) !important;
+    backdrop-filter: blur(6px) saturate(130%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  }
+
+  /* T-GLASS-RESULTS: Results inner card (Stellar v15).
+     Lightest glass since it sits inside another glass container.
+     Minimal blur for performance. */
+  .bmi-results-card {
+    background: rgba(0, 0, 0, 0.40) !important;
+    -webkit-backdrop-filter: blur(4px) saturate(120%) !important;
+    backdrop-filter: blur(4px) saturate(120%) !important;
+  }
+
+  /* T-16: Remove ALL pseudo-element shine sweeps permanently on touch.
+     Even when not scrolling, these oversized elements waste memory. */
+  .bmi-card::after,
+  .footer-disclaimer::after,
+  .about-card::after,
+  .gauge-container::after,
+  .reference-table::after,
+  .form-card::after {
+    display: none !important;
+  }
+
+  /* T-17: Simplify .orb blur on touch — reduce from 10px to 4px. */
+  .orb {
+    filter: blur(4px) !important;
+  }
+
+  /* T-18: Moved to base.css — font-feature-settings: none and
+     text-rendering: optimizeSpeed are now applied globally for
+     all devices, not just touch. This improves text rendering
+     performance across all platforms without visual regression. */
+
+  /* T-19: GPU compositing isolation on pager-shell.
+     Changed from contain:strict to contain:layout style —
+     strict includes 'size' containment which forces the browser
+     to compute bounds independently, causing initial-scroll lag
+     ("first touch lag then smooth") on long scrollable containers.
+     Removed translateZ(0) since contain already creates a
+     compositing context — double-layering was redundant. */
+  .pager-shell {
+    contain: layout style;
+  }
+
+  /* T-23: Dialog backdrop and panels (Stellar v15: Moonshot Glass).
+     NO brightness() on mobile. */
+  .lang-backdrop,
+  .notify-backdrop {
+    background: rgba(0, 0, 0, 0.80) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
+    backdrop-filter: blur(16px) saturate(150%) !important;
+  }
+
+  .lang-panel,
+  .notify-float-box {
+    background: rgba(0, 0, 0, 0.60) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
+    backdrop-filter: blur(16px) saturate(150%) !important;
+  }
+
+  .notify-close,
+  .btn-success,
+  .btn-delete,
+  .btn-cancel,
+  .btn-warn {
+    -webkit-backdrop-filter: blur(6px) !important;
+    backdrop-filter: blur(6px) !important;
+  }
+}

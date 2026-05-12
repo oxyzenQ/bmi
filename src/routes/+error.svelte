@@ -85,7 +85,7 @@
         }
 
         .error-code {
-                font-family: 'JetBrains Mono Variable', monospace;
+                font-family: var(--font-mono-short);
                 font-size: clamp(5rem, 15vw, 8rem);
                 font-weight: 700;
                 line-height: 1;
@@ -94,7 +94,7 @@
                 background-clip: text;
                 -webkit-text-fill-color: transparent;
                 position: relative;
-                z-index: 1;
+                z-index: var(--z-content);
         }
 
         .error-pulse {
@@ -120,12 +120,12 @@
         .error-title {
                 font-size: clamp(1.5rem, 4vw, 2rem);
                 font-weight: 700;
-                color: white;
+                color: var(--stellar-white);
                 margin-bottom: 0.75rem;
         }
 
         .error-desc {
-                font-size: 1rem;
+                font-size: var(--text-lg);
                 color: var(--sg-30, #94a3b8);
                 line-height: 1.6;
                 margin-bottom: 2rem;
@@ -136,12 +136,12 @@
         }
 
         .error-hint {
-                font-size: 0.85rem;
+                font-size: var(--text-base);
                 color: var(--coolgray-40, #64748b);
         }
 
         .error-link {
-                font-size: 0.85rem;
+                font-size: var(--text-base);
                 color: var(--violet-50);
                 text-decoration: underline;
                 text-underline-offset: 2px;
@@ -150,7 +150,7 @@
                 cursor: pointer;
                 font-family: inherit;
                 padding: 0;
-                transition: color 0.2s ease;
+                transition: color var(--dur-interactive) ease;
         }
 
         .error-link:hover {

@@ -7,7 +7,7 @@ import type { TranslationDict } from '../types';
 
 const en: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': 'A Simple BMI Calc \u2014 Stellar v15.0',
+  'meta.title': 'A Simple BMI Calc \u2014 Stellar v18.0',
   'meta.description': 'A luxury space-themed BMI calculator. Calculate your Body Mass Index, TDEE, Body Fat %, and track your health journey with interactive charts. Built with SvelteKit by Team LOGIGO.',
   'meta.og_description': 'A luxury space-themed BMI calculator with TDEE, Body Fat %, interactive charts, and PWA support.',
 
@@ -59,7 +59,7 @@ const en: TranslationDict = {
   'hero.feature1': 'Accurate Calculations',
   'hero.feature2': 'Health Insights',
   'hero.feature3': 'Luxury Design',
-  'hero.edition': 'Stellar v15.0',
+  'hero.edition': 'Stellar v18.0',
 
   // ── Form ──
   'form.title': 'BMI Calculator',
@@ -151,6 +151,24 @@ const en: TranslationDict = {
   'crypto.meta_version': 'Format',
   'crypto.passphrase_warning': 'Make sure you remember your passphrase. It cannot be recovered.',
   'crypto.strength_hint': 'Use 12+ characters with numbers and symbols for best security',
+
+  // ── Crack time (localized) ──
+  'crypto.crack_time': 'Crack time: {t}',
+  'crypto.crack_instant': 'instant',
+  'crypto.crack_seconds': '{n} second',
+  'crypto.crack_seconds_plural': '{n} seconds',
+  'crypto.crack_minutes': '{n} minute',
+  'crypto.crack_minutes_plural': '{n} minutes',
+  'crypto.crack_hours': '{n} hour',
+  'crypto.crack_hours_plural': '{n} hours',
+  'crypto.crack_days': '{n} day',
+  'crypto.crack_days_plural': '{n} days',
+  'crypto.crack_months': '{n} month',
+  'crypto.crack_months_plural': '{n} months',
+  'crypto.crack_years': '{n} year',
+  'crypto.crack_years_plural': '{n} years',
+  'crypto.crack_centuries': '{n} century',
+  'crypto.crack_centuries_plural': '{n} centuries',
 
   // ── Stellar v15: Trust & Transparency ──
   'crypto.encryption_badge': 'End-to-end encrypted',

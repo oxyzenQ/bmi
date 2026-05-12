@@ -6,7 +6,7 @@ import type { TranslationDict } from '../types';
 
 const id: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': 'Kalkulator BMI Sederhana \u2014 Stellar v15.0',
+  'meta.title': 'Kalkulator BMI Sederhana \u2014 Stellar v18.0',
   'meta.description': 'Kalkulator BMI bertema luar angkasa mewah. Hitung Indeks Massa Tubuh, TDEE, Persentase Lemak Tubuh, dan lacak perjalanan kesehatan Anda dengan grafik interaktif. Dibuat dengan SvelteKit oleh Team LOGIGO.',
   'meta.og_description': 'Kalkulator BMI bertema luar angkasa mewah dengan TDEE, Persentase Lemak Tubuh, grafik interaktif, dan dukungan PWA.',
 
@@ -58,7 +58,7 @@ const id: TranslationDict = {
   'hero.feature1': 'Perhitungan Akurat',
   'hero.feature2': 'Insight Kesehatan',
   'hero.feature3': 'Desain Mewah',
-  'hero.edition': 'Stellar v15.0',
+  'hero.edition': 'Stellar v18.0',
 
   // ── Form ──
   'form.title': 'Kalkulator BMI',
@@ -150,6 +150,24 @@ const id: TranslationDict = {
   'crypto.meta_version': 'Format',
   'crypto.passphrase_warning': 'Pastikan Anda mengingat passphrase. Tidak dapat dipulihkan.',
   'crypto.strength_hint': 'Gunakan 12+ karakter dengan angka dan simbol untuk keamanan terbaik',
+
+  // ── Crack time (localized) ──
+  'crypto.crack_time': 'Waktu crack: {t}',
+  'crypto.crack_instant': 'instan',
+  'crypto.crack_seconds': '{n} detik',
+  'crypto.crack_seconds_plural': '{n} detik',
+  'crypto.crack_minutes': '{n} menit',
+  'crypto.crack_minutes_plural': '{n} menit',
+  'crypto.crack_hours': '{n} jam',
+  'crypto.crack_hours_plural': '{n} jam',
+  'crypto.crack_days': '{n} hari',
+  'crypto.crack_days_plural': '{n} hari',
+  'crypto.crack_months': '{n} bulan',
+  'crypto.crack_months_plural': '{n} bulan',
+  'crypto.crack_years': '{n} tahun',
+  'crypto.crack_years_plural': '{n} tahun',
+  'crypto.crack_centuries': '{n} abad',
+  'crypto.crack_centuries_plural': '{n} abad',
 
   // ── Stellar v15: Trust & Transparency ──
   'crypto.encryption_badge': 'Enkripsi ujung-ke-ujung',

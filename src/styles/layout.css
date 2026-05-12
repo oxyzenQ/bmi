@@ -8,7 +8,7 @@
 }
 
 .main-container .section-header-v2 {
-  color: white;
+  color: var(--stellar-white);
   padding: 4rem;
   text-align: center;
   margin-bottom: clamp(1rem, 4vw, 2rem);
@@ -18,9 +18,9 @@
   margin-top: 1rem;
   margin-bottom: 1rem;
   width: 100%;
-  font-size: 2.5rem;
+  font-size: var(--text-5xl);
   text-align: center;
-  color: white;
+  color: var(--stellar-white);
 }
 
 .about-bmi-section .subtitle {
@@ -51,9 +51,9 @@
 }
 
 .about-card {
-  border-radius: 1.5rem;
+  border-radius: var(--radius-2xl);
   padding: 2rem;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--dur-slow) var(--easing-material), box-shadow var(--dur-slow) var(--easing-material), border-color var(--dur-slow) var(--easing-material);
   position: relative;
   overflow: hidden;
   will-change: auto;
@@ -72,7 +72,7 @@
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  z-index: 0;
+  z-index: var(--z-base);
 }
 
 .about-card-header {
@@ -81,13 +81,13 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   position: relative;
-  z-index: 1;
+  z-index: var(--z-content);
   justify-content: center;
 }
 
 .about-card-content {
   position: relative;
-  z-index: 1;
+  z-index: var(--z-content);
 }
 
 .about-card p {
@@ -125,7 +125,7 @@ html:not([data-graphics='render']) .plasma-star {
 .cosmic-particles {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: var(--z-base);
   pointer-events: none;
   overflow: hidden;
   contain: layout style paint;
@@ -142,7 +142,7 @@ html:not([data-graphics='render']) .plasma-star {
   top: -10vh;
   left: 0;
   opacity: 0;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   /* Blade Runner purple rain - elongated drops */
   background: linear-gradient(180deg,
       var(--plum-0) 0%,
@@ -198,7 +198,7 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 /* Plasma star effects */
 .plasma-star {
   position: relative;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--dur-content) var(--easing-material), filter var(--dur-content) var(--easing-material);
 }
 
 .plasma-star.star-1 {
@@ -225,13 +225,13 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
       ============================== */
 .footer-disclaimer {
   text-align: center;
-  color: white;
-  font-size: 1rem;
+  color: var(--stellar-white);
+  font-size: var(--text-lg);
   padding: clamp(2rem, 4vw, 4rem);
   margin-top: clamp(40px, 40vh, 180px) !important;
   margin-bottom: clamp(10px, 2vh, 10px) !important;
   /* horizontal centering */
-  border-radius: 2rem;
+  border-radius: var(--radius-3xl);
   max-width: 100%;
 }
 
@@ -272,7 +272,7 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
 
 .github-footer span {
   font-weight: 500;
-  color: white;
+  color: var(--stellar-white);
 }
 
 .github-link {
@@ -281,11 +281,11 @@ html[data-graphics='render'] .cosmic-particles .cosmic-particle {
   gap: 1rem;
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: 1rem;
+  font-size: var(--text-lg);
   font-weight: 500;
   transition: color var(--dur-fast) var(--easing-smooth), background-color var(--dur-fast) var(--easing-smooth), border-color var(--dur-fast) var(--easing-smooth), transform var(--dur-fast) var(--easing-smooth), box-shadow var(--dur-fast) var(--easing-smooth);
-  padding: 1rem 1.5rem;
-  border-radius: 1rem;
+  padding: var(--space-4) 1.5rem;
+  border-radius: var(--radius-lg);
 }
 
 .github-link:hover {

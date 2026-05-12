@@ -16,27 +16,28 @@ export const MARKER_ANIM = {
 } as const;
 
 // ── Pager transition durations (ms) ──
-// Stellar v15: Smooth, cinematic page transitions.
-// Longer duration + distance = elegant sweep, not a jump.
+// Safe Premium Spring: spring-inspired page transitions.
+// IN uses backOut easing for natural overshoot + settle (iOS feel).
+// OUT uses cubicOut for clean, decisive exit. No gimmicks.
 export const PAGER = {
-  DUR_HIGH: 480,
-  DUR_MEDIUM: 420,
-  DUR_LOW: 360,
-  DUR_BASIC: 220,
-  OUT_RATIO: 0.80,
-  OUT_BASIC: 180,
-  DIST_HIGH: 200,
-  DIST_MEDIUM: 160,
-  DIST_LOW: 130,
-  DIST_BASIC: 90,
-  SWITCHING_DELAY: 100,
+  DUR_HIGH: 360,
+  DUR_MEDIUM: 340,
+  DUR_LOW: 320,
+  DUR_BASIC: 260,
+  OUT_RATIO: 0.4,
+  OUT_BASIC: 100,
+  DIST_HIGH: 16,
+  DIST_MEDIUM: 14,
+  DIST_LOW: 12,
+  DIST_BASIC: 10,
+  SWITCHING_DELAY: 60,
 } as const;
 
 // ── Spring animation strengths ──
-// Stellar v15: Slightly more overshoot for a satisfying bounce.
+// Safe Premium Spring: moderate strength for satisfying overshoot on IN phase.
 export const SPRING = {
-  STRENGTH_ENHANCED: 0.09,
-  STRENGTH_BASIC: 0.04,
+  STRENGTH_ENHANCED: 0.07,
+  STRENGTH_BASIC: 0,
 } as const;
 
 // ── Scroll behavior ──
@@ -88,3 +89,43 @@ export const SECTIONS = [
   { id: 'about', label: 'About', labelKey: 'nav.about' },
   { id: 'info', label: 'Info', labelKey: 'nav.info' },
 ] as const;
+
+// ── Performance utilities (v18.0) ──
+// Merged from performance.ts to reduce module count.
+
+/**
+ * Check if device prefers reduced motion
+ */
+export function prefersReducedMotion(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/**
+ * Get device performance tier (high, medium, low).
+ *
+ * Uses hardwareConcurrency, deviceMemory, and connection.effectiveType.
+ * Defaults to 'medium' when APIs are unavailable.
+ */
+export function getPerformanceTier(): 'high' | 'medium' | 'low' {
+  if (typeof window === 'undefined') return 'medium';
+
+  // Check for hardware concurrency (CPU cores)
+  const cores = navigator.hardwareConcurrency || 2;
+
+  // Check for device memory (if available)
+  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory || 4;
+
+  // Check for connection type
+  const connection = (navigator as Navigator & { connection?: { effectiveType?: string } }).connection;
+  const effectiveType = connection?.effectiveType || '4g';
+
+  // Determine tier
+  if (cores >= 8 && memory >= 8 && (effectiveType === '4g' || !connection)) {
+    return 'high';
+  } else if (cores >= 4 && memory >= 4) {
+    return 'medium';
+  } else {
+    return 'low';
+  }
+}

@@ -4,6 +4,8 @@
   import BmiHistorySparkline from './BmiHistorySparkline.svelte';
   import { COLORS, BMI_THRESHOLDS } from '$lib/utils/bmi-category';
   import { t as _t, localeVersion } from '$lib/i18n';
+  import { warnDev } from '$lib/utils/warn-dev';
+  import { storageGetJSON, STORAGE_KEYS } from '$lib/utils/storage';
   let _rv = $derived($localeVersion);
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
@@ -34,10 +36,8 @@
   function refreshBestBmi() {
     if (!browser) return;
     try {
-      const stored = localStorage.getItem('bmi.history');
-      if (!stored) { bestBmiState = null; return; }
-      const history: BMIRecord[] = JSON.parse(stored);
-      if (history.length === 0) { bestBmiState = null; return; }
+      const history = storageGetJSON<BMIRecord[]>(STORAGE_KEYS.HISTORY, []);
+      if (!history || history.length === 0) { bestBmiState = null; return; }
 
       // Find best BMI - closest to ideal (22) within or near normal range
       const best = history.reduce((best, record) => {
@@ -47,7 +47,8 @@
       });
 
       bestBmiState = best.bmi;
-    } catch {
+    } catch (err) {
+      warnDev('BmiSnapshot', 'refreshBestBmi', 'Failed to parse history for best BMI', err);
       bestBmiState = null;
     }
   }
@@ -258,10 +259,10 @@
   .snapshot-card {
     background: var(--sd-60);
     border: 1px solid var(--sg-15);
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     padding: 1.25rem;
     text-align: center;
-    transition: all 0.3s ease;
+    transition: all var(--dur-content) ease;
   }
 
   .snapshot-card:hover {
@@ -315,7 +316,7 @@
     font-weight: 700;
     line-height: 1;
     margin-bottom: 0.5rem;
-    color: white;
+    color: var(--stellar-white);
   }
 
   .card-category {
@@ -326,7 +327,7 @@
   .progress-section {
     background: var(--sd-40);
     border: 1px solid var(--sg-10);
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     padding: 1.5rem;
   }
 
@@ -345,7 +346,7 @@
   .progress-value {
     font-size: 1.25rem;
     font-weight: 700;
-    color: white;
+    color: var(--stellar-white);
   }
 
   .progress-bar {
@@ -355,15 +356,15 @@
   .progress-track {
     height: 12px;
     background: var(--sg-15);
-    border-radius: 6px;
+    border-radius: var(--radius-xs);
     overflow: hidden;
     position: relative;
   }
 
   .progress-fill {
     height: 100%;
-    border-radius: 6px;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: var(--radius-xs);
+    transition: width var(--dur-slower) var(--easing-material);
   }
 
   .progress-fill.progress-lose {
@@ -399,7 +400,7 @@
     gap: 0.75rem;
     padding: 0.875rem 1rem;
     background: var(--sd-60);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     font-size: 0.875rem;
     color: var(--slate-400-solid);
   }

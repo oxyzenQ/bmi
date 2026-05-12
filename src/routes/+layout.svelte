@@ -3,6 +3,8 @@
   import '../styles/tokens.css';
   /* ── Base resets, typography, utility classes ── */
   import '../styles/base.css';
+  /* ── Lucide icon sizing (fluid clamp for large, fixed 24px for small) ── */
+  import '../styles/icons.css';
   /* ── Glassmorphism containers, button system, hero section ── */
   import '../styles/components.css';
   /* ── BMI form layout, inputs, validation ── */
@@ -13,28 +15,39 @@
   import '../styles/data-cards.css';
   /* ── Cosmic particles, footer ── */
   import '../styles/layout.css';
-  /* ── Responsive breakpoints, reduced motion ── */
-  import '../styles/responsive.css';
+  /* ── Responsive: base rules, form width reduction ── */
+  import '../styles/responsive-base.css';
+  /* ── Responsive: width-based breakpoints (768px → 250px, ultrawide) ── */
+  import '../styles/responsive-width.css';
+  /* ── Responsive: height-based breakpoints (640px, 520px) ── */
+  import '../styles/responsive-height.css';
+  /* ── Responsive: backdrop-filter fallback (must load after components) ── */
+  import '../styles/responsive-backdrop.css';
   /* ── Pager / bottom navbar ── */
   import '../styles/nav.css';
   /* ── Language switcher floating panel (portaled to body) ── */
   import '../styles/lang-switcher.css';
   /* ── Skeleton loading, shooting stars, haptic feedback ── */
   import '../styles/animation.css';
-  import CosmicParticles from '$lib/components/CosmicParticles.svelte';
+  /* ── Touch device scroll performance (MUST load last — uses !important overrides) ── */
+  import '../styles/responsive-mobile-perf.css';
   import { onMount, type Snippet } from 'svelte';
   import { browser } from '$app/environment';
   import { fade } from 'svelte/transition';
   import { Download, WifiOff } from 'lucide-svelte';
   import { initStorage } from '$lib/utils/storage';
   import { t as _t, localeVersion } from '$lib/i18n';
+  import { warnDevOnce } from '$lib/utils/warn-dev';
   let _rv = $derived($localeVersion);
   function t(key: string): string { void _rv; return _t(key); }
 
   let { children }: { children: Snippet } = $props();
-  let showMainContent = $state(true); // Show content immediately
   let renderModeEnabled = $state(true);
   let renderModeInitialized = false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let CosmicParticlesComponent: any = $state(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let DebugPanelComponent: any = $state(null);
 
   // ── Button ripple effect (delegated on document) ──
   function initButtonRipple() {
@@ -81,7 +94,8 @@
     try {
       const stored = localStorage.getItem('bmi.renderMode');
       return stored === null ? true : stored === '1' || stored === 'true';
-    } catch {
+    } catch (err) {
+      warnDevOnce('layout', 'readRenderMode', 'Failed to read render mode from localStorage', err);
       return true;
     }
   }
@@ -115,7 +129,32 @@
 
     // Initialize IndexedDB storage layer + run localStorage migration if needed
     if (browser) {
+      // v16.0 Observability: initialize logger session (dev-only)
+      if (!import.meta.env.PROD) {
+        import('$lib/utils/logger').then(({ logger }) => {
+          import('$lib/utils/trace').then(({ getSessionTraceId }) => {
+            logger.info('app', 'bootstrap', `Session started — trace ${getSessionTraceId()}`);
+          });
+        });
+        import('$lib/utils/dev-diagnostics').then(({ initDevDiagnostics }) => initDevDiagnostics());
+        import('$lib/components/DebugPanel.svelte').then((mod) => {
+          DebugPanelComponent = mod.default;
+        });
+      }
       void initStorage();
+      // Lazy-load CosmicParticles after initial render (idle priority)
+      if (renderModeEnabled) {
+        const loadParticles = () => {
+          import('$lib/components/CosmicParticles.svelte').then((mod) => {
+            CosmicParticlesComponent = mod.default;
+          });
+        };
+        if (typeof requestIdleCallback === 'function') {
+          requestIdleCallback(loadParticles, { timeout: 3000 });
+        } else {
+          setTimeout(loadParticles, 2000);
+        }
+      }
       if (!renderModeInitialized) {
         renderModeEnabled = readRenderMode();
         renderModeInitialized = true;
@@ -135,7 +174,9 @@
 
     // Register service worker for caching (only in production)
     if (browser && 'serviceWorker' in navigator && import.meta.env.PROD) {
-      navigator.serviceWorker.register('/service-worker.js', { type: 'module' }).catch(() => { /* SW registration failed silently */ });
+      navigator.serviceWorker.register('/service-worker.js', { type: 'module' }).catch((err) => {
+        warnDevOnce('layout', 'serviceWorker', 'Service worker registration failed', err);
+      });
     }
 
     // PWA: install prompt handler
@@ -190,7 +231,7 @@
               po.disconnect();
             });
             po.observe({ type, buffered: true });
-          } catch { /* metric type not supported in this browser */ }
+          } catch (err) { warnDevOnce('layout', 'WebVitals', `Metric '${type}' not supported`, err); }
         };
 
         // Web Vitals observation (silent in production)
@@ -201,7 +242,7 @@
         if (PerformanceObserver.supportedEntryTypes?.includes('interaction-to-next-paint')) {
           observe('interaction-to-next-paint', () => { /* INP tracked silently */ });
         }
-      } catch { /* PerformanceObserver failed */ }
+      } catch (err) { warnDevOnce('layout', 'WebVitals', 'PerformanceObserver failed', err); }
     }
 
     return () => {
@@ -222,12 +263,15 @@
   {/if}
 </svelte:head>
 
-<div class="main-content" class:visible={showMainContent}>
+<div class="main-content">
   {@render children()}
 </div>
 
 {#if renderModeEnabled}
-  <CosmicParticles />
+  {#if CosmicParticlesComponent}
+    {@const Particles = CosmicParticlesComponent}
+    <Particles />
+  {/if}
 {/if}
 
 <!-- PWA Install Banner -->
@@ -250,16 +294,16 @@
   </div>
 {/if}
 
+<!-- v16.0 Observability: Debug Panel (dev-only, lazy-loaded) -->
+{#if DebugPanelComponent}
+  {@const Panel = DebugPanelComponent}
+  <Panel />
+{/if}
+
 <style>
   .main-content {
     position: relative;
-    z-index: 1;
-    opacity: 0;
-    transition: opacity 0.5s var(--easing-smooth);
-  }
-
-  .main-content.visible {
-    opacity: 1;
+    z-index: var(--z-content);
   }
 
   /* PWA Install Banner */
@@ -268,7 +312,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 1000;
+    z-index: var(--z-fab);
     padding: 0.5rem;
     background: var(--cosmic-base-95);
     backdrop-filter: blur(16px) saturate(180%);
@@ -296,10 +340,10 @@
     align-items: center;
     gap: 0.3rem;
     padding: 0.35rem 0.85rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     border: none;
     background: var(--cosmic-purple);
-    color: white;
+    color: var(--stellar-white);
     font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
@@ -317,7 +361,7 @@
     cursor: pointer;
     padding: 0.25rem 0.4rem;
     font-size: 0.85rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     line-height: 1;
   }
 
@@ -331,15 +375,15 @@
     position: fixed;
     top: 0.5rem;
     right: 0.5rem;
-    z-index: 999;
+    z-index: var(--z-fab);
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
     padding: 0.25rem 0.6rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     background: var(--darkred-85);
     backdrop-filter: blur(8px);
-    color: white;
+    color: var(--stellar-white);
     font-size: 0.65rem;
     font-weight: 600;
     text-transform: uppercase;

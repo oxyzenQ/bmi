@@ -16,6 +16,7 @@ import { STORAGE_KEYS, storageGet, storageSet } from '$lib/utils/storage';
 import { get, writable } from 'svelte/store';
 import type { Locale, LocaleInfo, TParams, TranslationDict } from './types';
 export type { Locale, LocaleInfo, TParams, TranslationDict } from './types';
+import { warnDev } from '$lib/utils/warn-dev';
 
 // Pre-import English synchronously — always available as fallback
 import enDict from './locales/en';
@@ -106,7 +107,8 @@ async function loadNonEnglishLocale(code: Locale): Promise<void> {
       default: throw new Error(`Unknown locale: ${code}`);
     }
     dicts[code] = mod.default;
-  } catch {
+  } catch (err) {
+    warnDev('i18n', 'loadNonEnglishLocale', `Failed to load locale: ${code}, falling back to English`, err);
     // Fallback to English silently
     dicts[code] = enDict;
   }

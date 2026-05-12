@@ -45,29 +45,31 @@
 }
 
 .card-subtitle {
-  color: white;
-  font-size: 1rem;
+  color: var(--stellar-white);
+  font-size: var(--text-lg);
   line-height: 1.5;
 }
 
+/* Results content — clean entrance */
 .results-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  animation: fadeInUp 0.8s var(--easing-smooth);
+  animation: fadeInUp var(--dur-panel) var(--easing-smooth);
 }
 
+/* BMI display — clean scale entrance */
 .bmi-display {
   text-align: center;
   margin-bottom: 2.5rem;
-  animation: scaleIn 0.6s var(--easing-smooth) 0.2s both;
+  animation: scaleIn var(--dur-panel) var(--easing-smooth) 0.15s both;
 }
 
 @keyframes scaleIn {
   from {
     opacity: 0;
-    transform: scale(0.8);
+    transform: scale(0.96);
   }
 
   to {
@@ -77,7 +79,7 @@
 }
 
 .bmi-value {
-  font-size: 4.5rem;
+  font-size: var(--text-display);
   font-weight: 700;
   line-height: 1;
   margin-bottom: 1rem;
@@ -98,20 +100,21 @@
 }
 
 .bmi-category {
-  font-size: 1.5rem;
+  font-size: var(--text-3xl);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
+/* Health advice — clean slide entrance */
 .health-advice {
   background: var(--sd-40);
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
   padding: 1.75rem;
   margin-bottom: 1.75rem;
   border: 1px solid var(--w-5);
-  animation: slideInLeft 0.6s var(--easing-smooth) 0.4s both;
-  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  animation: slideInLeft var(--dur-panel) var(--easing-smooth) 0.25s both;
+  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }
 
 .health-advice:hover {
@@ -121,10 +124,11 @@
   box-shadow: 0 8px 25px var(--k-20);
 }
 
+/* Clean directional slide — left */
 @keyframes slideInLeft {
   from {
     opacity: 0;
-    transform: translateX(-30px);
+    transform: translateX(-12px);
   }
 
   to {
@@ -134,7 +138,7 @@
 }
 
 .advice-title {
-  font-size: 1.125rem;
+  font-size: var(--text-xl);
   font-weight: 600;
   color: var(--stellar-white);
   margin-bottom: 1rem;
@@ -148,14 +152,15 @@
   line-height: 1.6;
 }
 
+/* Age advisory — clean slide entrance */
 .age-advisory {
   background: var(--coreblue-12);
   border: 1px solid var(--coreblue-22);
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
   padding: 1.75rem;
   margin-bottom: 1.75rem;
-  animation: slideInRight 0.6s var(--easing-smooth) 0.6s both;
-  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  animation: slideInRight var(--dur-panel) var(--easing-smooth) 0.35s both;
+  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }
 
 .age-advisory:hover {
@@ -165,10 +170,11 @@
   box-shadow: 0 8px 25px var(--coreblue-16);
 }
 
+/* Clean directional slide — right */
 @keyframes slideInRight {
   from {
     opacity: 0;
-    transform: translateX(30px);
+    transform: translateX(12px);
   }
 
   to {
@@ -178,7 +184,7 @@
 }
 
 .advisory-title {
-  font-size: 1rem;
+  font-size: var(--text-lg);
   font-weight: 600;
   color: var(--accent-blue);
   margin-bottom: 1rem;
@@ -193,13 +199,14 @@
   font-size: 0.875rem;
 }
 
+/* BMI explanation — clean entrance */
 .bmi-explanation {
   background: var(--sd-40);
   border-radius: var(--radius-md);
   padding: 1.75rem;
   border: 1px solid var(--w-5);
-  animation: fadeInUp 0.6s var(--easing-smooth) 0.8s both;
-  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeInUp var(--dur-panel) var(--easing-smooth) 0.45s both;
+  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
 }
 
 .bmi-explanation:hover {
@@ -210,7 +217,7 @@
 }
 
 .explanation-title {
-  font-size: 1rem;
+  font-size: var(--text-lg);
   font-weight: 600;
   color: var(--stellar-white);
   margin-bottom: 1rem;
@@ -237,13 +244,13 @@
   gap: 0.4rem;
   padding: 0.5rem 0.85rem;
   border-radius: var(--btn-radius);
-  border: 1px solid rgba(139, 92, 246, 0.22);
+  border: 1px solid var(--violet-22);
   background: var(--bg-by-rezky);
-  color: white;
+  color: var(--stellar-white);
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  transition: transform var(--dur-interactive) ease, background var(--dur-interactive) ease, border-color var(--dur-interactive) ease;
   flex: 1;
   justify-content: center;
   box-shadow: none;
@@ -251,14 +258,14 @@
 
 .action-btn:hover {
   background: var(--bg-last-by-rezky);
-  border-color: rgba(139, 92, 246, 0.34);
-  color: white;
+  border-color: var(--violet-34);
+  color: var(--stellar-white);
   transform: translateY(-1px);
 }
 
 .action-btn:active {
   transform: scale(0.97);
-  transition-duration: 80ms;
+  transition-duration: var(--dur-instant);
 }
 
 .share-toast {

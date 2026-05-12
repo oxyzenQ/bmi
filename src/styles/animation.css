@@ -31,7 +31,7 @@
   );
   background-size: 100% 200%;
   border-radius: 0.75rem;
-  animation: skeleton-breathe 2s ease-in-out infinite;
+  animation: skeleton-breathe var(--dur-breathe) ease-in-out infinite;
 }
 
 /* Shimmer sweep overlay */
@@ -47,7 +47,7 @@
     var(--w-3) 45%,
     transparent 60%
   );
-  animation: skeleton-shimmer 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: skeleton-shimmer var(--dur-shimmer) var(--easing-material) infinite;
   will-change: transform;
 }
 
@@ -88,9 +88,9 @@
 .skeleton-card {
   background: var(--k-50);
   border: var(--border-by-rezky);
-  border-radius: 2rem;
+  border-radius: var(--radius-3xl);
   padding: clamp(1.5rem, 4vw, 2rem);
-  animation: skeleton-card-enter 0.4s ease-out;
+  animation: skeleton-card-enter var(--dur-panel) ease-out;
 }
 
 @keyframes skeleton-card-enter {
@@ -151,7 +151,7 @@
   height: 80px;
   border-radius: 50%;
   margin: 0 auto 1rem;
-  animation: skeleton-ring-pulse 2s ease-in-out infinite;
+  animation: skeleton-ring-pulse var(--dur-breathe) ease-in-out infinite;
 }
 
 @keyframes skeleton-ring-pulse {
@@ -281,9 +281,9 @@ a.button {
     transparent 70%
   );
   transform: scale(0);
-  animation: btn-ripple-expand 0.6s ease-out forwards;
+  animation: btn-ripple-expand var(--dur-slower) ease-out forwards;
   pointer-events: none;
-  z-index: 1;
+  z-index: var(--z-content);
 }
 
 @keyframes btn-ripple-expand {
@@ -299,9 +299,9 @@ a.button {
 
 /* ── Input Focus Glow ── */
 .form-input {
-  transition: border-color 0.25s ease,
-    box-shadow 0.25s ease,
-    background-color 0.25s ease;
+  transition: border-color var(--dur-interactive) ease,
+    box-shadow var(--dur-interactive) ease,
+    background-color var(--dur-interactive) ease;
 }
 
 .form-input:focus {
@@ -350,9 +350,9 @@ a.button {
     transparent 60%
   );
   transform: translateX(-100%) rotate(15deg);
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform var(--dur-slow) var(--easing-smooth);
   pointer-events: none;
-  z-index: 1;
+  z-index: var(--z-content);
 }
 
 .bmi-card:hover::before,
@@ -457,7 +457,7 @@ a.button {
   transform-origin: right center;
   background: linear-gradient(90deg, var(--aurora-glow), transparent);
   opacity: 0.6;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   pointer-events: none;
 }
 
@@ -491,14 +491,14 @@ html:not([data-graphics='render']) .shooting-star {
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 1.25rem;
-  border: 1px solid rgba(139, 92, 246, 0.22);
-  border-radius: 9999px;
+  border: 1px solid var(--violet-22);
+  border-radius: var(--radius-pill);
   background: var(--bg-by-rezky);
-  color: white;
+  color: var(--stellar-white);
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+  transition: background var(--dur-interactive) ease, border-color var(--dur-interactive) ease, transform var(--dur-interactive) ease;
   letter-spacing: 0.02em;
   box-shadow: none;
 }
@@ -519,7 +519,7 @@ html:not([data-graphics='render']) .shooting-star {
 .pager-btn-scroll-top {
   opacity: 0;
   transform: scale(0.7);
-  transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s ease, border-color 0.2s ease;
+  transition: opacity var(--dur-interactive) ease, transform var(--dur-interactive) ease, background var(--dur-micro) ease, border-color var(--dur-micro) ease;
   pointer-events: none;
   color: rgba(255, 255, 255, 0.7) !important;
 }
@@ -529,13 +529,13 @@ html:not([data-graphics='render']) .shooting-star {
   transform: scale(1);
   pointer-events: auto;
   color: white !important;
-  border-color: rgba(139, 92, 246, 0.18) !important;
-  background: var(--btn-bg) !important;
+  border-color: var(--violet-18) !important;
+  background: var(--btn-bg-hover) !important;
   box-shadow: none !important;
 }
 
 .pager-btn-scroll-top.fab-visible:hover {
-  background: var(--btn-bg-hover) !important;
+  background: var(--btn-bg-active) !important;
   box-shadow: none !important;
   color: white !important;
 }
@@ -555,7 +555,7 @@ html:not([data-graphics='render']) .shooting-star {
 
 .btn-haptic:active {
   transform: scale(0.96);
-  transition: transform 0.08s ease;
+  transition: transform var(--dur-instant) ease;
 }
 
 /* ==============================
@@ -658,79 +658,10 @@ html:not([data-graphics='render']) .shooting-star {
 
 .bmi-encryption-badge__algo {
   color: var(--aurora-glow);
-  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+  font-family: var(--font-mono-short);
   font-size: 0.6rem;
 }
 
-/* ==============================
-      A-6: ENHANCED EMPTY STATE (Phase 2)
-      Rich empty states with icon, description,
-      and CTA button instead of plain text.
-      ============================== */
-.bmi-empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
-  padding: var(--space-6) var(--space-4);
-  text-align: center;
-}
-
-.bmi-empty-state__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--w-6);
-  color: var(--w-30);
-  margin-bottom: var(--space-1);
-}
-
-.bmi-empty-state__title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--w-70);
-  margin: 0;
-  line-height: 1.4;
-}
-
-.bmi-empty-state__desc {
-  font-size: 0.82rem;
-  color: var(--w-40);
-  margin: 0;
-  line-height: 1.5;
-  max-width: 260px;
-}
-
-.bmi-empty-state__cta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--violet-22);
-  border-radius: var(--radius-pill);
-  background: var(--violet-12);
-  color: var(--aurora-glow);
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--dur-fast) var(--easing-smooth);
-  margin-top: var(--space-1);
-}
-
-.bmi-empty-state__cta:hover {
-  background: var(--violet-22);
-  border-color: var(--violet-34);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--violet-15);
-}
-
-.bmi-empty-state__cta:active {
-  transform: translateY(0) scale(0.97);
-}
 
 /* ==============================
       A-7: DRAG & DROP ZONE (Phase 4)
@@ -738,7 +669,7 @@ html:not([data-graphics='render']) .shooting-star {
       ============================== */
 .bmi-drop-zone {
   position: relative;
-  z-index: 10;
+  z-index: var(--z-inner-control);
   pointer-events: auto;
   border: 2px dashed var(--w-15);
   border-radius: var(--radius-md);
@@ -837,8 +768,8 @@ html:not([data-graphics='render']) .shooting-star {
   align-items: flex-start;
   gap: var(--space-2);
   padding: var(--space-3);
-  background: rgba(245, 158, 11, 0.08);
-  border: 1px solid rgba(245, 158, 11, 0.20);
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
   border-radius: var(--radius-sm);
   margin-bottom: var(--space-4);
   font-size: 0.82rem;
@@ -870,12 +801,12 @@ html:not([data-graphics='render']) .shooting-star {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.80);
+  background: var(--glass-bg-backdrop);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   backdrop-filter: blur(16px) saturate(140%);
-  z-index: 10001;
+  z-index: var(--z-staging);
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--dur-interactive) ease;
   pointer-events: none;
   min-height: 100vh;
   min-height: 100dvh;
@@ -896,7 +827,7 @@ html:not([data-graphics='render']) .shooting-star {
 
 .staging-gear-icon {
   color: var(--w-50);
-  animation: spin 1.6s linear infinite;
+  animation: spin var(--dur-spin) linear infinite;
   filter: drop-shadow(0 0 8px rgba(128, 0, 255, 0.3));
 }
 
@@ -922,11 +853,42 @@ html:not([data-graphics='render']) .shooting-star {
    The gear spinner communicates "system is working" — it must move. */
 @media (prefers-reduced-motion: reduce) {
   .staging-gear-icon {
-    animation-duration: 1.6s !important;
+    animation-duration: var(--dur-spin) !important;
     animation-iteration-count: infinite !important;
   }
   .btn-spinner {
-    animation-duration: 0.8s !important;
+    animation-duration: var(--dur-spin-fast) !important;
     animation-iteration-count: infinite !important;
+  }
+}
+
+/* ==============================
+      ENTRANCE ANIMATIONS — Safe Premium
+      Clean ease-out for content entrance. No blur, no spring —
+      spring is reserved for page-level transitions only.
+      ============================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==============================
+      COSMIC PARTICLES — REDUCED MOTION OVERRIDE
+      Extracted from responsive.css in v18.0.
+      Re-enables cosmic particles when global reduced-motion is active,
+      since they are ambient decoration (not functional animation).
+      ============================== */
+@media (prefers-reduced-motion: reduce) {
+  html[data-graphics='render'] .cosmic-particles .cosmic-particle {
+    animation-duration: var(--duration, 12s) !important;
+    animation-delay: var(--delay, 0s) !important;
+    animation-iteration-count: infinite !important;
+    animation-timing-function: linear !important;
   }
 }
