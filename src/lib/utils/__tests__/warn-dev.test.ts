@@ -6,7 +6,7 @@
  * overriding the production check.
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 describe('warnDev utility', () => {
   // We need to dynamically import to get fresh modules
