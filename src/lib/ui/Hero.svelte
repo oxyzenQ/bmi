@@ -29,7 +29,7 @@
 
   <div class="hero-content" class:animate>
     <div class="hero-avatar" aria-hidden="true">
-      <img src="/assets/new_bmi_logo_2026.webp" alt="BMI Logo" fetchpriority="high" decoding="async" />
+      <img src="/assets/new_bmi_logo_2026.webp" alt="BMI Logo" width="1024" height="1024" fetchpriority="high" decoding="async" />
     </div>
 
     <h1 class="hero-title">

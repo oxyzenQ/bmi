@@ -31,8 +31,6 @@
   import '../styles/animation.css';
   /* ── Touch device scroll performance (MUST load last — uses !important overrides) ── */
   import '../styles/responsive-mobile-perf.css';
-  import CosmicParticles from '$lib/components/CosmicParticles.svelte';
-  import DebugPanel from '$lib/components/DebugPanel.svelte';
   import { onMount, type Snippet } from 'svelte';
   import { browser } from '$app/environment';
   import { fade } from 'svelte/transition';
@@ -40,15 +38,16 @@
   import { initStorage } from '$lib/utils/storage';
   import { t as _t, localeVersion } from '$lib/i18n';
   import { warnDevOnce } from '$lib/utils/warn-dev';
-  import { initDevDiagnostics } from '$lib/utils/dev-diagnostics';
-  import { logger } from '$lib/utils/logger';
-  import { getSessionTraceId } from '$lib/utils/trace';
   let _rv = $derived($localeVersion);
   function t(key: string): string { void _rv; return _t(key); }
 
   let { children }: { children: Snippet } = $props();
   let renderModeEnabled = $state(true);
   let renderModeInitialized = false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let CosmicParticlesComponent: any = $state(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let DebugPanelComponent: any = $state(null);
 
   // ── Button ripple effect (delegated on document) ──
   function initButtonRipple() {
@@ -130,10 +129,32 @@
 
     // Initialize IndexedDB storage layer + run localStorage migration if needed
     if (browser) {
-      // v16.0 Observability: initialize logger session
-      logger.info('app', 'bootstrap', `Session started — trace ${getSessionTraceId()}`);
+      // v16.0 Observability: initialize logger session (dev-only)
+      if (!import.meta.env.PROD) {
+        import('$lib/utils/logger').then(({ logger }) => {
+          import('$lib/utils/trace').then(({ getSessionTraceId }) => {
+            logger.info('app', 'bootstrap', `Session started — trace ${getSessionTraceId()}`);
+          });
+        });
+        import('$lib/utils/dev-diagnostics').then(({ initDevDiagnostics }) => initDevDiagnostics());
+        import('$lib/components/DebugPanel.svelte').then((mod) => {
+          DebugPanelComponent = mod.default;
+        });
+      }
       void initStorage();
-      initDevDiagnostics();
+      // Lazy-load CosmicParticles after initial render (idle priority)
+      if (renderModeEnabled) {
+        const loadParticles = () => {
+          import('$lib/components/CosmicParticles.svelte').then((mod) => {
+            CosmicParticlesComponent = mod.default;
+          });
+        };
+        if (typeof requestIdleCallback === 'function') {
+          requestIdleCallback(loadParticles, { timeout: 3000 });
+        } else {
+          setTimeout(loadParticles, 2000);
+        }
+      }
       if (!renderModeInitialized) {
         renderModeEnabled = readRenderMode();
         renderModeInitialized = true;
@@ -247,7 +268,10 @@
 </div>
 
 {#if renderModeEnabled}
-  <CosmicParticles />
+  {#if CosmicParticlesComponent}
+    {@const Particles = CosmicParticlesComponent}
+    <Particles />
+  {/if}
 {/if}
 
 <!-- PWA Install Banner -->
@@ -270,8 +294,11 @@
   </div>
 {/if}
 
-<!-- v16.0 Observability: Debug Panel (dev-only, tree-shaken in production) -->
-<DebugPanel />
+<!-- v16.0 Observability: Debug Panel (dev-only, lazy-loaded) -->
+{#if DebugPanelComponent}
+  {@const Panel = DebugPanelComponent}
+  <Panel />
+{/if}
 
 <style>
   .main-content {

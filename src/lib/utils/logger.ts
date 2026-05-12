@@ -200,10 +200,12 @@ export const logger: Logger = {
         },
 
         warn(module: string, fn: string, message: string, error?: unknown, data?: Record<string, unknown>): void {
+                if (import.meta.env.PROD) return;
                 logEntry('WARN', module, fn, message, error, data);
         },
 
         error(module: string, fn: string, message: string, error?: unknown, data?: Record<string, unknown>): void {
+                if (import.meta.env.PROD) return;
                 logEntry('ERROR', module, fn, message, error, data);
         },
 
