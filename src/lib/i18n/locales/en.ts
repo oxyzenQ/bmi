@@ -152,6 +152,24 @@ const en: TranslationDict = {
   'crypto.passphrase_warning': 'Make sure you remember your passphrase. It cannot be recovered.',
   'crypto.strength_hint': 'Use 12+ characters with numbers and symbols for best security',
 
+  // ── Crack time (localized) ──
+  'crypto.crack_time': 'Crack time: {t}',
+  'crypto.crack_instant': 'instant',
+  'crypto.crack_seconds': '{n} second',
+  'crypto.crack_seconds_plural': '{n} seconds',
+  'crypto.crack_minutes': '{n} minute',
+  'crypto.crack_minutes_plural': '{n} minutes',
+  'crypto.crack_hours': '{n} hour',
+  'crypto.crack_hours_plural': '{n} hours',
+  'crypto.crack_days': '{n} day',
+  'crypto.crack_days_plural': '{n} days',
+  'crypto.crack_months': '{n} month',
+  'crypto.crack_months_plural': '{n} months',
+  'crypto.crack_years': '{n} year',
+  'crypto.crack_years_plural': '{n} years',
+  'crypto.crack_centuries': '{n} century',
+  'crypto.crack_centuries_plural': '{n} centuries',
+
   // ── Stellar v15: Trust & Transparency ──
   'crypto.encryption_badge': 'End-to-end encrypted',
   'crypto.strong_warning': '<strong>Do not lose your passphrase.</strong> It cannot be recovered. Without it, your encrypted backup is permanently inaccessible.',

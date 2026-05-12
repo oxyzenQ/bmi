@@ -151,6 +151,24 @@ const id: TranslationDict = {
   'crypto.passphrase_warning': 'Pastikan Anda mengingat passphrase. Tidak dapat dipulihkan.',
   'crypto.strength_hint': 'Gunakan 12+ karakter dengan angka dan simbol untuk keamanan terbaik',
 
+  // ── Crack time (localized) ──
+  'crypto.crack_time': 'Waktu crack: {t}',
+  'crypto.crack_instant': 'instan',
+  'crypto.crack_seconds': '{n} detik',
+  'crypto.crack_seconds_plural': '{n} detik',
+  'crypto.crack_minutes': '{n} menit',
+  'crypto.crack_minutes_plural': '{n} menit',
+  'crypto.crack_hours': '{n} jam',
+  'crypto.crack_hours_plural': '{n} jam',
+  'crypto.crack_days': '{n} hari',
+  'crypto.crack_days_plural': '{n} hari',
+  'crypto.crack_months': '{n} bulan',
+  'crypto.crack_months_plural': '{n} bulan',
+  'crypto.crack_years': '{n} tahun',
+  'crypto.crack_years_plural': '{n} tahun',
+  'crypto.crack_centuries': '{n} abad',
+  'crypto.crack_centuries_plural': '{n} abad',
+
   // ── Stellar v15: Trust & Transparency ──
   'crypto.encryption_badge': 'Enkripsi ujung-ke-ujung',
   'crypto.strong_warning': '<strong>Jangan sampai lupa passphrase Anda.</strong> Tidak dapat dipulihkan. Tanpa passphrase, backup terenkripsi Anda akan tidak dapat diakses secara permanen.',

@@ -278,8 +278,8 @@ export interface StrengthResult {
   score: number;
   /** Estimated entropy in bits (log10 scale from zxcvbn) */
   entropy: number;
-  /** Crack time display string */
-  crackTimeDisplay: string;
+  /** Crack time in seconds (raw, for i18n formatting in UI) */
+  crackTimeSeconds: number;
   /** User-facing feedback (suggestions) */
   warning?: string;
   suggestions: string[];
@@ -307,7 +307,7 @@ async function initZxcvbn(): Promise<boolean> {
 
 export async function analyzeStrength(passphrase: string): Promise<StrengthResult> {
   if (!passphrase) {
-    return { score: 0, entropy: 0, crackTimeDisplay: 'instant', suggestions: [] };
+    return { score: 0, entropy: 0, crackTimeSeconds: 0, suggestions: [] };
   }
 
   try {
@@ -327,7 +327,7 @@ export async function analyzeStrength(passphrase: string): Promise<StrengthResul
     return {
       score: result.score,
       entropy: result.guessesLog10,
-      crackTimeDisplay: result.crackTimesDisplay.offlineSlowHashing1e4PerSecond,
+      crackTimeSeconds: result.crackTimesSeconds.offlineSlowHashing1e4PerSecond,
       warning: result.feedback.warning || undefined,
       suggestions: [...(result.feedback.suggestions || [])],
     };
@@ -345,7 +345,7 @@ function fallbackStrength(pw: string): StrengthResult {
   if (/[0-9]/.test(pw)) score++;
   if (/[^a-zA-Z0-9]/.test(pw)) score++;
   if (pw.length >= 12) score++;
-  return { score, entropy: 0, crackTimeDisplay: '', suggestions: [] };
+  return { score, entropy: 0, crackTimeSeconds: 0, suggestions: [] };
 }
 
 // ── Public API ──

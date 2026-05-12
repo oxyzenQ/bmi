@@ -281,7 +281,7 @@ describe('analyzeStrength', () => {
     const result = await analyzeStrength('');
     expect(result.score).toBe(0);
     expect(result.entropy).toBe(0);
-    expect(result.crackTimeDisplay).toBe('instant');
+    expect(result.crackTimeSeconds).toBe(0);
   });
 
   it('returns a valid result for short passphrase', async () => {
@@ -289,7 +289,7 @@ describe('analyzeStrength', () => {
     expect(result.score).toBeGreaterThanOrEqual(0);
     expect(result.score).toBeLessThanOrEqual(4);
     expect(typeof result.entropy).toBe('number');
-    expect(typeof result.crackTimeDisplay).toBe('string');
+    expect(typeof result.crackTimeSeconds).toBe('number');
     expect(Array.isArray(result.suggestions)).toBe(true);
   });
 

@@ -181,6 +181,7 @@
   border-right: var(--border-by-rezky);
   color: var(--stellar-white);
   font-size: 1rem;
+  line-height: 1.5;
   transition: background-color var(--dur-interactive) ease, border-color var(--dur-interactive) ease, box-shadow var(--dur-interactive) ease;
 }
 
