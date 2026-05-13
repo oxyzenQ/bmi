@@ -27,14 +27,10 @@ import { warnDev, warnDevOnce } from './warn-dev';
 export const STORAGE_KEYS = {
   HISTORY: 'bmi.history',
   UNIT_SYSTEM: 'bmi.unitSystem',
-  RENDER_MODE: 'bmi.renderMode',
   WALLPAPER_THEME: 'bmi.wallpaperTheme',
   LOCALE: 'bmi.locale',
   BMI_GOAL: 'bmi.goal',
   BMI_GOAL_START: 'bmi.goal.start',
-  // Legacy keys (cleaned up on read)
-  SMOOTH_MODE: 'bmi.smoothMode',
-  ULTRA_SMOOTH: 'bmi.ultraSmooth',
 } as const;
 
 /** Current storage schema version (bumped when structure changes). */

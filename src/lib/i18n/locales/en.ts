@@ -14,9 +14,7 @@ const en: TranslationDict = {
   // ── Navigation ──
   'nav.aria_label': 'BMI Calculator',
   'nav.sections_aria': 'Sections',
-  'nav.render_aria': 'Toggle atmosphere',
   'nav.theme_aria': 'Toggle wallpaper theme',
-  'nav.render': 'Atmosphere :',
   'nav.on': 'On',
   'nav.off': 'Off',
   'nav.theme': 'Theme :',

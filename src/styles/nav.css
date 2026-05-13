@@ -21,13 +21,6 @@ html[data-performance-tier="low"] :is(
   box-shadow: 0 4px 12px var(--k-30) !important;
 }
 
-/* LOW TIER: Simplified dust — no blur, solid color */
-html[data-performance-tier="low"] .cosmic-particles .dust-particle {
-  filter: none !important;
-  background: var(--w-50) !important;
-  will-change: auto;
-}
-
 html[data-performance-tier="low"] :is(
   .plasma-star,
   .sparkle-icon,
@@ -49,24 +42,11 @@ html[data-performance-tier="low"] :is(
   text-shadow: none !important;
 }
 
-/* HIGH TIER: Full effects — GPU optimization for dust particles. */
-html[data-performance-tier="high"] .cosmic-particles .dust-particle {
-  contain: layout style paint;
-}
-
+/* HIGH TIER: GPU optimization for content layers. */
 html[data-performance-tier="high"] :is(
   .hero-content,
   .bmi-card
 ) {
-  contain: layout style;
-}
-
-/* Ensure smooth scrolling and compositing on all tiers */
-html[data-performance-tier="low"] .cosmic-particles {
-  contain: layout;
-}
-
-html[data-performance-tier="medium"] .cosmic-particles {
   contain: layout style;
 }
 

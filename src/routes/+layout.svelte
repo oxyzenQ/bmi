@@ -13,7 +13,7 @@
   import '../styles/results.css';
   /* ── Stat grid, TDEE, radial gauge, reference table ── */
   import '../styles/data-cards.css';
-  /* ── Cosmic particles, footer ── */
+  /* ── Layout, footer ── */
   import '../styles/layout.css';
   /* ── Responsive: base rules, form width reduction ── */
   import '../styles/responsive-base.css';
@@ -42,10 +42,6 @@
   function t(key: string): string { void _rv; return _t(key); }
 
   let { children }: { children: Snippet } = $props();
-  let renderModeEnabled = $state(true);
-  let renderModeInitialized = false;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let CosmicParticlesComponent: any = $state(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let DebugPanelComponent: any = $state(null);
 
@@ -90,16 +86,6 @@
     userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
   }
 
-  function readRenderMode(): boolean {
-    try {
-      const stored = localStorage.getItem('bmi.renderMode');
-      return stored === null ? true : stored === '1' || stored === 'true';
-    } catch (err) {
-      warnDevOnce('layout', 'readRenderMode', 'Failed to read render mode from localStorage', err);
-      return true;
-    }
-  }
-
   async function handleInstallClick() {
     if (!deferredPrompt) return;
     await deferredPrompt.prompt();
@@ -115,13 +101,6 @@
   function dismissInstallBanner() {
     showInstallBanner = false;
     installDismissed = true;
-  }
-
-  if (browser) {
-    const mode = readRenderMode();
-    renderModeEnabled = mode;
-    renderModeInitialized = true;
-    document.documentElement.dataset.graphics = mode ? 'render' : 'basic';
   }
 
   onMount(() => {
@@ -142,34 +121,9 @@
         });
       }
       void initStorage();
-      // Lazy-load CosmicParticles after initial render (idle priority)
-      if (renderModeEnabled) {
-        const loadParticles = () => {
-          import('$lib/components/CosmicParticles.svelte').then((mod) => {
-            CosmicParticlesComponent = mod.default;
-          });
-        };
-        if (typeof requestIdleCallback === 'function') {
-          requestIdleCallback(loadParticles, { timeout: 3000 });
-        } else {
-          setTimeout(loadParticles, 2000);
-        }
-      }
-      if (!renderModeInitialized) {
-        renderModeEnabled = readRenderMode();
-        renderModeInitialized = true;
-      }
 
       // Button ripple micro-interaction
       cleanupFns.push(initButtonRipple());
-
-      const handleRenderMode = (event: Event) => {
-        const ce = event as CustomEvent<{ enabled?: boolean; requested?: boolean; status?: string }>;
-        renderModeEnabled = Boolean(ce.detail?.enabled ?? ce.detail?.requested);
-      };
-
-      window.addEventListener('bmi:smoothMode', handleRenderMode as EventListener);
-      cleanupFns.push(() => window.removeEventListener('bmi:smoothMode', handleRenderMode as EventListener));
     }
 
     // Register service worker for caching (only in production)
@@ -266,13 +220,6 @@
 <div class="main-content">
   {@render children()}
 </div>
-
-{#if renderModeEnabled}
-  {#if CosmicParticlesComponent}
-    {@const Particles = CosmicParticlesComponent}
-    <Particles />
-  {/if}
-{/if}
 
 <!-- PWA Install Banner -->
 {#if showInstallBanner && canInstall && !isInstalled}

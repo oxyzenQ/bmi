@@ -820,14 +820,4 @@ a.button {
   }
 }
 
-/* ==============================
-      COSMIC PARTICLES — REDUCED MOTION OVERRIDE
-      Atmospheric Dust Field — slow orbit even with reduced-motion,
-      since particles are ambient decoration (not functional animation).
-      ============================== */
-@media (prefers-reduced-motion: reduce) {
-  html[data-graphics='render'] .cosmic-particles .dust-particle {
-    animation-duration: 90s, 30s !important;
-    animation-timing-function: linear, ease-in-out !important;
-  }
-}
+

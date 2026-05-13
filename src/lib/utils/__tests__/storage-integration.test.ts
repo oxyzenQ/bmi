@@ -57,7 +57,6 @@ describe('STORAGE_KEYS', () => {
   it('has all required keys', () => {
     expect(STORAGE_KEYS.HISTORY).toBe('bmi.history');
     expect(STORAGE_KEYS.UNIT_SYSTEM).toBe('bmi.unitSystem');
-    expect(STORAGE_KEYS.RENDER_MODE).toBe('bmi.renderMode');
     expect(STORAGE_KEYS.LOCALE).toBe('bmi.locale');
     expect(STORAGE_KEYS.BMI_GOAL).toBe('bmi.goal');
     expect(STORAGE_KEYS.BMI_GOAL_START).toBe('bmi.goal.start');

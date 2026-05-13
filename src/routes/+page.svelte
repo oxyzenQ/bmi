@@ -3,7 +3,7 @@
   import { backOut, cubicOut } from 'svelte/easing';
   import { tweened } from 'svelte/motion';
   import { browser } from '$app/environment';
-  import { getPerformanceTier } from '$lib/utils/animation-config';
+  import { getPerformanceTier, prefersReducedMotion as checkReducedMotion } from '$lib/utils/animation-config';
   import { importBmiHistory } from '$lib/utils/history-io';
   import { createLazyLoader, createPairedLazyLoader } from '$lib/utils/lazy-load';
   import { STORAGE_KEYS, storageGet, storageSet, storageSetJSON, storageRemove, storageGetJSON, storageInvalidate } from '$lib/utils/storage';
@@ -26,7 +26,6 @@
     Scale,
     Settings,
     Sparkles,
-    Orbit,
     ChevronLeft,
     ChevronRight,
     ChevronUp
@@ -160,7 +159,6 @@
   let lastIndex = $state(0);
   let prefersReducedMotion = $state(false);
   let perfTier = $state<'high' | 'medium' | 'low'>('medium');
-  let smoothModeRequested = $state(false);
 
   let pagerNavEl: HTMLElement | null = null;
   let pagerNavCentered = $state(false);
@@ -183,12 +181,6 @@
   let showScrollTopFab = $state(false);
 
 
-
-  function broadcastSmoothMode(enabled: boolean) {
-    if (!browser) return;
-    window.dispatchEvent(new CustomEvent('bmi:smoothMode', { detail: { enabled } }));
-  }
-
   function triggerHaptic(pattern: number | number[] = HAPTIC.NAV) {
     if (!browser) return;
     try {
@@ -206,21 +198,7 @@
     triggerHaptic(5);
   }
 
-  function toggleSmoothMode() {
-    smoothModeRequested = !smoothModeRequested;
-    if (browser) {
-      storageSet(STORAGE_KEYS.RENDER_MODE, smoothModeRequested ? '1' : '0');
-      storageRemove(STORAGE_KEYS.SMOOTH_MODE);
-      storageRemove(STORAGE_KEYS.ULTRA_SMOOTH);
-      document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
-      broadcastSmoothMode(smoothModeRequested);
-      void tick().then(schedulePagerNavAlignment);
-    }
-  }
-
-  let reducedMotionEffective = $derived(prefersReducedMotion && !smoothModeRequested);
-  let smoothModeEnhanced = $derived(smoothModeRequested && perfTier !== 'low');
-  let smoothModeStatus = $derived(smoothModeRequested ? t('nav.on') : t('nav.off'));
+  let reducedMotionEffective = $derived(prefersReducedMotion);
 
   // Wallpaper theme toggle
   type ThemeKey = 'blackhole' | 'spaceship' | 'space';
@@ -336,7 +314,7 @@
       markerTimer = null;
     }
 
-    if (reducedMotionEffective || !smoothModeRequested) {
+    if (reducedMotionEffective) {
       lastMarker = target;
       animatedMarker.set(target, { duration: 0 });
       return;
@@ -359,14 +337,10 @@
   let pagerDirection = $derived(activeIndex >= lastIndex ? 1 : -1);
   let pagerMotionDuration = $derived(reducedMotionEffective
     ? 0
-    : smoothModeRequested
-      ? (perfTier === 'high' ? PAGER.DUR_HIGH : perfTier === 'medium' ? PAGER.DUR_MEDIUM : PAGER.DUR_LOW)
-      : PAGER.DUR_BASIC);
+    : (perfTier === 'high' ? PAGER.DUR_HIGH : perfTier === 'medium' ? PAGER.DUR_MEDIUM : PAGER.DUR_LOW));
   let pagerMotionDistance = $derived(reducedMotionEffective
     ? 0
-    : smoothModeRequested
-      ? (perfTier === 'high' ? PAGER.DIST_HIGH : perfTier === 'medium' ? PAGER.DIST_MEDIUM : PAGER.DIST_LOW)
-      : PAGER.DIST_BASIC);
+    : (perfTier === 'high' ? PAGER.DIST_HIGH : perfTier === 'medium' ? PAGER.DIST_MEDIUM : PAGER.DIST_LOW));
 
   let pagerEl: HTMLDivElement | null = null;
   let pointerStartX: number | null = null;
@@ -656,7 +630,7 @@
     if (!browser) return;
     perfTier = getPerformanceTier();
     initLocale();
-    prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    prefersReducedMotion = checkReducedMotion();
 
     // Enhancement #12: Live listener for prefers-reduced-motion changes
     // If user toggles reduced-motion in OS settings while app is open,
@@ -667,27 +641,7 @@
     };
     motionQuery.addEventListener('change', onMotionChange);
 
-    const storedRenderMode = storageGet(STORAGE_KEYS.RENDER_MODE);
-    if (storedRenderMode === null) {
-      const storedSmooth = storageGet(STORAGE_KEYS.SMOOTH_MODE);
-      const storedUltra = storageGet(STORAGE_KEYS.ULTRA_SMOOTH);
-      const hasLegacy = storedSmooth !== null || storedUltra !== null;
-      smoothModeRequested =
-        hasLegacy
-          ? (storedSmooth === '1' || storedSmooth === 'true' || storedUltra === '1' || storedUltra === 'true')
-          : true;
-      storageSet(STORAGE_KEYS.RENDER_MODE, smoothModeRequested ? '1' : '0');
-      storageRemove(STORAGE_KEYS.SMOOTH_MODE);
-      storageRemove(STORAGE_KEYS.ULTRA_SMOOTH);
-    } else {
-      smoothModeRequested = storedRenderMode === '1' || storedRenderMode === 'true';
-      storageRemove(STORAGE_KEYS.SMOOTH_MODE);
-      storageRemove(STORAGE_KEYS.ULTRA_SMOOTH);
-    }
-
-    document.documentElement.dataset.graphics = smoothModeRequested ? 'render' : 'basic';
     document.documentElement.dataset.performanceTier = perfTier;
-    broadcastSmoothMode(smoothModeRequested);
 
     try {
       const storedUnit = storageGet(STORAGE_KEYS.UNIT_SYSTEM);
@@ -938,20 +892,6 @@
 
         <button
           type="button"
-          class="btn btn-ghost pager-tab pager-smooth"
-          aria-label={t('nav.render_aria')}
-          aria-pressed={smoothModeRequested}
-          onclick={toggleSmoothMode}
-        >
-          <Orbit class="render-spark" aria-hidden="true" />
-          {t('nav.render')}
-          <span class:render-on={smoothModeRequested} class:render-off={!smoothModeRequested}>
-            {smoothModeStatus}
-          </span>
-        </button>
-
-        <button
-          type="button"
           class="btn btn-ghost pager-tab pager-theme"
           aria-label={t('nav.theme_aria')}
           aria-pressed={currentTheme !== 'blackhole'}
@@ -980,15 +920,13 @@
           x: pagerDirection * pagerMotionDistance,
           duration: pagerMotionDuration,
           phase: 'in',
-          strength: reducedMotionEffective ? 0 : (smoothModeEnhanced ? SPRING.STRENGTH_ENHANCED : SPRING.STRENGTH_BASIC)
+          strength: reducedMotionEffective ? 0 : SPRING.STRENGTH_ENHANCED
         }}
         out:pagerSpring={{
           x: -pagerDirection * pagerMotionDistance,
           duration: reducedMotionEffective
             ? 0
-            : smoothModeRequested
-              ? Math.round(pagerMotionDuration * PAGER.OUT_RATIO)
-              : PAGER.OUT_BASIC,
+            : Math.round(pagerMotionDuration * PAGER.OUT_RATIO),
           phase: 'out',
           strength: 0
         }}
@@ -1079,7 +1017,7 @@
                 <BmiRadialGaugeComponent
                   bmi={bmiValue || 0}
                   category={category}
-                  ultraSmooth={smoothModeRequested}
+                  ultraSmooth={true}
                 />
               {:else}
                 <div class="skeleton-card">
@@ -1488,23 +1426,6 @@
 
   /* .pager-tab styles moved to global nav.css for cross-component use (LanguageSwitcher) */
 
-  .pager-smooth {
-    opacity: 1;
-    font-size: 0.82rem;
-  }
-
-  .pager-smooth :global(.render-spark) {
-    color: var(--cosmic-purple) !important;
-  }
-
-  .pager-smooth .render-on {
-    color: var(--cat-green-toast);
-  }
-
-  .pager-smooth .render-off {
-    color: var(--cat-amber-95);
-  }
-
   .pager-theme :global(.render-spark) {
     color: var(--aurora-glow, #b266ff) !important;
     transition: color var(--dur-content) ease, filter var(--dur-content) ease;
@@ -1574,10 +1495,6 @@
     }
 
     /* .pager-tab responsive moved to global nav.css */
-
-    .pager-smooth {
-      font-size: 0.76rem;
-    }
   }
 
   .pager-btn-spacer {

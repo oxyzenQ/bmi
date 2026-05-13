@@ -64,10 +64,7 @@ describe('STORAGE_KEYS', () => {
   it('has all expected keys', () => {
     expect(STORAGE_KEYS.HISTORY).toBe('bmi.history');
     expect(STORAGE_KEYS.UNIT_SYSTEM).toBe('bmi.unitSystem');
-    expect(STORAGE_KEYS.RENDER_MODE).toBe('bmi.renderMode');
     expect(STORAGE_KEYS.WALLPAPER_THEME).toBe('bmi.wallpaperTheme');
-    expect(STORAGE_KEYS.SMOOTH_MODE).toBe('bmi.smoothMode');
-    expect(STORAGE_KEYS.ULTRA_SMOOTH).toBe('bmi.ultraSmooth');
   });
 });
 

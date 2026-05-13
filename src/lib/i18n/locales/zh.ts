@@ -13,9 +13,7 @@ const zh: TranslationDict = {
   // ── Navigation ──
   'nav.aria_label': 'BMI \u8ba1\u7b97\u5668',
   'nav.sections_aria': '\u5206\u9875',
-  'nav.render_aria': '\u5207\u6362\u6c1b\u56f4\u6548\u679c',
   'nav.theme_aria': '\u5207\u6362\u58c1\u7eb8\u4e3b\u9898',
-  'nav.render': '\u6c1b\u56f4\uff1a',
   'nav.on': '\u5f00',
   'nav.off': '\u5173',
   'nav.theme': '\u4e3b\u9898\uff1a',

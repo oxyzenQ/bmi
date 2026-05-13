@@ -20,13 +20,10 @@ vi.mock('$lib/utils/storage', () => ({
   STORAGE_KEYS: {
     HISTORY: 'bmi.history',
     UNIT_SYSTEM: 'bmi.unitSystem',
-    RENDER_MODE: 'bmi.renderMode',
     WALLPAPER_THEME: 'bmi.wallpaperTheme',
     LOCALE: 'bmi.locale',
     BMI_GOAL: 'bmi.goal',
     BMI_GOAL_START: 'bmi.goal.start',
-    SMOOTH_MODE: 'bmi.smoothMode',
-    ULTRA_SMOOTH: 'bmi.ultraSmooth',
   },
   storageGet: vi.fn().mockReturnValue(null),
   storageSet: vi.fn(),
