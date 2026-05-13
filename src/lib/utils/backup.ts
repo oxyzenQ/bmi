@@ -170,15 +170,23 @@ export async function restoreLatestBackup(): Promise<boolean> {
     const snapshot = JSON.parse(latest.data) as Record<string, string | null>;
 
     // Import dynamically to avoid circular dependency
-    const { storageSet, storageRemove } = await import('./storage');
+    const { storageSet, storageRemove, setRestoreMode } = await import('./storage');
 
-    // Restore all keys from snapshot
-    for (const [key, value] of Object.entries(snapshot)) {
-      if (value !== null) {
-        storageSet(key, value);
-      } else {
-        storageRemove(key);
+    // Suppress backup triggers during restore to prevent recursive backup creation
+    setRestoreMode(true);
+
+    try {
+      // Restore all keys from snapshot
+      for (const [key, value] of Object.entries(snapshot)) {
+        if (value !== null) {
+          storageSet(key, value);
+        } else {
+          storageRemove(key);
+        }
       }
+    } finally {
+      // Always re-enable backup after restore
+      setRestoreMode(false);
     }
 
     return true;

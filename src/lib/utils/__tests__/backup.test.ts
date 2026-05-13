@@ -67,6 +67,7 @@ vi.mock('$lib/utils/storage', () => ({
   storageGet: mockStorageGet,
   storageSet: vi.fn(),
   storageRemove: vi.fn(),
+  setRestoreMode: vi.fn(),
 }));
 
 // Mock db.ts — reference hoisted functions

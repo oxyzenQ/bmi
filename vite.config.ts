@@ -45,7 +45,7 @@ function getLocalGitInfo(): { sha: string; branch: string } {
                 ? vercelSha.slice(0, 7)
                 : (() => {
                                 try {
-                                        return execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf-8' }).trim();
+                                        return execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
                                 } catch {
                                         return 'unknown';
                                 }
@@ -55,7 +55,7 @@ function getLocalGitInfo(): { sha: string; branch: string } {
                 ? vercelRef
                 : (() => {
                                 try {
-                                        return execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { encoding: 'utf-8' }).trim();
+                                        return execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
                                 } catch {
                                         return 'main';
                                 }

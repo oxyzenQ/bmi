@@ -603,7 +603,8 @@ export async function importBmiHistory(json: string, passphrase?: string): Promi
         } catch (err) { warnDev('history-io', 'importBmiHistory', 'Pre-import backup block failed', err); }
 
         // Override (replace) existing data via centralized storage
-        const ok = storageSet(STORAGE_KEYS.HISTORY, JSON.stringify(records));
+        // skipBackup: true — we already created a backup above
+        const ok = storageSet(STORAGE_KEYS.HISTORY, JSON.stringify(records), { skipBackup: true });
         if (!ok) {
                 return { success: false, count: 0, error: t('history.save_failed'), errorCode: 'save_failed' };
         }

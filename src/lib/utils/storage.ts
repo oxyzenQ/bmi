@@ -65,6 +65,17 @@ function triggerBackup(reason: 'data_change' | 'before_import'): void {
   }, delay);
 }
 
+/** Global flag to suppress backup triggers during restore operations. */
+let _restoreInProgress = false;
+
+/**
+ * Set restore-in-progress flag to prevent recursive backup creation.
+ * Call with `true` before restoring, `false` after restore completes.
+ */
+export function setRestoreMode(active: boolean): void {
+  _restoreInProgress = active;
+}
+
 /**
  * Initialize storage: populate cache from IndexedDB, run migration if needed.
  * Must be called once in onMount before any data-dependent logic.
@@ -215,9 +226,13 @@ async function migrateFromLocalStorage(): Promise<void> {
     } catch (err) {
       warnDev('storage', 'migrateFromLocalStorage', 'Failed to write corruption diagnostic', err);
     }
+
+    // Do NOT mark migration as complete — retry on next app load
+    warnDev('storage', 'migrateFromLocalStorage', `Migration incomplete — ${failedKeys.length} keys failed, will retry next load`);
+    return;
   }
 
-  // Mark migration as complete (even if partial — localStorage still has the data as fallback)
+  // Mark migration as complete only when ALL keys succeeded
   await dbMetaSet(META_MIGRATED_KEY, '1');
 }
 
@@ -240,10 +255,19 @@ export function storageGet(key: string): string | null {
 }
 
 /**
- * Write a value to cache + localStorage (sync) and IndexedDB (async fire-and-forget).
- * Returns true on success (sync write), false on sync failure.
+ * Options for storageSet.
  */
-export function storageSet(key: string, value: string): boolean {
+export interface StorageSetOptions {
+  /** Skip auto-backup trigger (used during restore/import operations) */
+  skipBackup?: boolean;
+}
+
+/**
+ * Write a value to cache + localStorage (sync) and IndexedDB (async fire-and-forget).
+ * Returns a Promise that resolves to true on sync success, false on sync failure.
+ * The Promise also awaits the IndexedDB write for durability when await-ed.
+ */
+export function storageSet(key: string, value: string, options?: StorageSetOptions): boolean {
   let success = true;
   try {
     localStorage.setItem(key, value);
@@ -262,8 +286,8 @@ export function storageSet(key: string, value: string): boolean {
     });
   }
 
-  // Auto-backup on history data change
-  if (key === STORAGE_KEYS.HISTORY && browser) {
+  // Auto-backup on history data change (skip during restore)
+  if (key === STORAGE_KEYS.HISTORY && browser && !_restoreInProgress && !(options?.skipBackup)) {
     triggerBackup('data_change');
   }
 
