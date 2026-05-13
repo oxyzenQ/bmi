@@ -6,11 +6,16 @@
  * can enable/disable it at any time.
  *
  * Key derivation (new): Argon2id — memory-hard KDF, resistant to GPU attacks
- *   Params (mobile-safe): 32 MB memory, 2 iterations, parallelism 1
+ *   Params (mobile-safe): 64 MB memory, 3 iterations, parallelism 1
  * Key derivation (legacy): PBKDF2 with 600k iterations + random salt
  * Encryption: AES-256-GCM with 12-byte IV
  * Integrity: SHA-256 checksum of plaintext stored in meta (explicit tamper detection)
  * Storage: salt + IV + ciphertext + checksum (base64-encoded in JSON)
+ *
+ * Passphrase verification (v18.1):
+ *   - enableEncryption() stores a verifier (encrypted known plaintext)
+ *   - verifyPassphrase() decrypts the stored verifier (not a self-test)
+ *   - Wrong passphrase → AES-GCM auth tag mismatch → false
  *
  * Backward compatibility:
  *   - Files encrypted with PBKDF2 (no kdf field) auto-detected and still decryptable
@@ -31,28 +36,34 @@ const IV_LENGTH = 12; // 96-bit IV for AES-GCM
 
 /**
  * Argon2id parameters — tuned for mobile safety.
- * Based on OWASP 2023 recommendations for password hashing:
- *   https://owasp.org/www-project-cryptography/
+ * Based on OWASP 2023 recommendations for password hashing.
  *
- *   m:  64 MiB memory cost (Kibibytes) — up from 32 MiB
- *   t:  3 iterations (time cost) — up from 2
- *   p:  1 parallelism (single thread for mobile compatibility)
+ * In test mode (`vitest`), uses lightweight params (1 MiB, 1 iteration) so
+ * CI crypto tests finish deterministically without timeouts.
+ *
+ * Production params:
+ *   m:  64 MiB memory cost — resistant to GPU attacks
+ *   t:  3 iterations — harder for brute force
+ *   p:  1 parallelism — single thread for mobile compatibility
  *   dkLen: 32 bytes (256-bit → AES-256 key)
- *
- * On mobile devices with <4 GB RAM, Argon2 will fall back gracefully to PBKDF2
- * via the existing fallback in deriveKey(). This is intentional — we prioritize
- * not crashing the user's browser over cryptographic strength on low-end devices.
  */
-const ARGON2_OPTIONS = {
-  m: 64 * 1024,   // 64 MiB memory cost (up from 32 MiB — OWASP 2023)
-  t: 3,            // 3 iterations (up from 2 — harder for attackers)
-  p: 1,            // parallelism (single thread for mobile)
-  dkLen: 32,       // 256-bit output → AES-256 key
-};
+const IS_TEST = import.meta.env?.MODE === 'test';
+
+const ARGON2_OPTIONS = IS_TEST
+  ? { m: 1024, t: 1, p: 1, dkLen: 32 }   // lightweight — CI-friendly
+  : {
+      m: 64 * 1024,   // 64 MiB memory cost (OWASP 2023)
+      t: 3,            // 3 iterations
+      p: 1,            // parallelism (single thread for mobile)
+      dkLen: 32,       // 256-bit output → AES-256 key
+    };
 
 const META_ENCRYPTION_KEY = '__encryption_enabled';
-const META_ENCRYPTION_SALT = '__encryption_salt';
+const META_ENCRYPTION_VERIFIER = '__encryption_verifier';
 // Passphrase hint stored in localStorage (see setPassphraseHint / getPassphraseHint below)
+
+/** Known plaintext encrypted during enableEncryption() for later passphrase verification. */
+const VERIFIER_PLAINTEXT = 'BMI_STELLAR_VERIFIER_V1';
 
 // ── Types ──
 export interface EncryptedPayload {
@@ -500,47 +511,44 @@ export function isEncrypted(json: string): boolean {
 // ── Encryption preference persistence ──
 
 /**
- * Enable encryption and store the passphrase salt in IndexedDB meta.
- * The passphrase itself is NEVER stored — only the salt for key derivation.
- * The user must re-enter the passphrase on each session.
+ * Enable encryption and create a verifier for passphrase validation.
+ *
+ * Flow:
+ *   1. Encrypt a known test string (VERIFIER_PLAINTEXT) with the passphrase
+ *   2. Store the encrypted verifier in IndexedDB
+ *   3. Later, verifyPassphrase() decrypts this stored verifier to validate
+ *
+ * The passphrase itself is NEVER stored — only the verifier ciphertext.
+ * A wrong passphrase will fail AES-GCM authentication (auth tag mismatch).
  */
 export async function enableEncryption(passphrase: string): Promise<boolean> {
   if (!browser || !isIndexedDbAvailable()) return false;
 
   try {
-    const salt = randomBytes(SALT_LENGTH);
-    await dbMetaSet(META_ENCRYPTION_SALT, toBase64(salt));
+    // Create a verifier by encrypting the known plaintext
+    const verifier = await encrypt(VERIFIER_PLAINTEXT, passphrase);
+    await dbMetaSet(META_ENCRYPTION_VERIFIER, verifier);
     await dbMetaSet(META_ENCRYPTION_KEY, '1');
-
-    // Verify the passphrase works by encrypting/decrypting a test string
-    const test = 'bmi-encryption-test';
-    const encrypted = await encrypt(test, passphrase);
-    const result = await decrypt(encrypted, passphrase);
-
-    if (!result || result.plaintext !== test) {
-      // Something went wrong — disable
-      await disableEncryption();
-      return false;
-    }
-
     return true;
   } catch (err) {
-    warnDev('crypto', 'enableEncryption', 'Failed to enable encryption (verify test or DB write)', err);
+    warnDev('crypto', 'enableEncryption', 'Failed to enable encryption (verifier creation or DB write)', err);
     return false;
   }
 }
 
 /**
- * Disable encryption. Does NOT decrypt existing encrypted data —
- * the user must decrypt first or data will become unreadable.
+ * Disable encryption. Clears the verifier so stored passphrase can no longer be validated.
+ * Does NOT decrypt existing encrypted data — the user must decrypt first.
  */
 export async function disableEncryption(): Promise<void> {
   if (!browser || !isIndexedDbAvailable()) return;
   await dbMetaSet(META_ENCRYPTION_KEY, '0');
+  await dbMetaSet(META_ENCRYPTION_VERIFIER, '');
 }
 
 /**
  * Get the current encryption status.
+ * `hasPassphrase` is true only when a real verifier exists in storage.
  */
 export async function getEncryptionStatus(): Promise<EncryptionStatus> {
   if (!browser || !isIndexedDbAvailable()) {
@@ -549,10 +557,10 @@ export async function getEncryptionStatus(): Promise<EncryptionStatus> {
 
   try {
     const enabled = await dbMetaGet(META_ENCRYPTION_KEY);
-    const hasSalt = await dbMetaGet(META_ENCRYPTION_SALT);
+    const verifier = await dbMetaGet(META_ENCRYPTION_VERIFIER);
     return {
       enabled: enabled === '1',
-      hasPassphrase: hasSalt !== null,
+      hasPassphrase: Boolean(verifier), // true only if a verifier record exists
     };
   } catch (err) {
     warnDev('crypto', 'getEncryptionStatus', 'Failed to read encryption status from IndexedDB', err);
@@ -561,15 +569,32 @@ export async function getEncryptionStatus(): Promise<EncryptionStatus> {
 }
 
 /**
- * Verify a passphrase against the stored salt.
- * Returns true if the passphrase can successfully encrypt/decrypt.
+ * Verify a passphrase against the previously stored verifier.
+ *
+ * Unlike the previous (broken) implementation that created a new encrypted blob
+ * with the same passphrase and immediately decrypted it (always true), this
+ * version decrypts the VERIFIER stored by enableEncryption().
+ *
+ * - Correct passphrase → decrypt succeeds → plaintext matches → true
+ * - Wrong passphrase → AES-GCM auth tag mismatch → null → false
+ * - No verifier stored → returns false (encryption not enabled)
  */
 export async function verifyPassphrase(passphrase: string): Promise<boolean> {
+  if (!browser || !isIndexedDbAvailable()) return false;
+
   try {
-    const test = 'bmi-verify-test';
-    const encrypted = await encrypt(test, passphrase);
-    const result = await decrypt(encrypted, passphrase);
-    return result !== null && result.plaintext === test;
+    const storedVerifier = await dbMetaGet(META_ENCRYPTION_VERIFIER);
+    if (!storedVerifier) {
+      warnDev('crypto', 'verifyPassphrase', 'No verifier found — encryption may not be enabled');
+      return false;
+    }
+
+    const result = await decrypt(storedVerifier, passphrase);
+    if (!result || result.plaintext !== VERIFIER_PLAINTEXT) {
+      return false;
+    }
+
+    return true;
   } catch (err) {
     warnDev('crypto', 'verifyPassphrase', 'Passphrase verification failed', err);
     return false;

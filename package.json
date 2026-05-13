@@ -18,6 +18,9 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest --run",
+    "test:fast": "vitest run --exclude='**/crypto*.test.ts' --exclude='**/history-io*.test.ts'",
+    "test:crypto": "vitest run src/lib/utils/__tests__/crypto.test.ts src/lib/utils/__tests__/history-io.test.ts",
+    "test:ci": "vitest run --pool=forks --maxWorkers=2",
     "clean": "rm -rf .svelte-kit build dist node_modules/.cache",
     "type-check": "svelte-check --tsconfig ./tsconfig.json",
     "build:analyze": "vite build --mode analyze",
@@ -30,6 +33,7 @@
   "devDependencies": {
     "@eslint/compat": "^1.4.1",
     "@eslint/js": "^9.39.4",
+    "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/adapter-vercel": "^5.10.3",
     "@sveltejs/kit": "2.59.1",
     "@sveltejs/vite-plugin-svelte": "6.2.4",

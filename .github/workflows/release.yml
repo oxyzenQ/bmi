@@ -62,48 +62,22 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Install dependencies
-        run: bun install
+      - name: Install dependencies (frozen)
+        run: bun install --frozen-lockfile
 
-      - name: Install adapter-static
-        run: bun add -D @sveltejs/adapter-static
+      - name: Use static build config
+        run: cp svelte.config.js svelte.config.js.vercel && cp svelte.config.static.js svelte.config.js
 
-      - name: Backup original config and create static build config
-        run: |
-          # Backup original config
-          mv svelte.config.js svelte.config.js.bak
+      - name: Enable prerendering for static build
+        run: echo "export const prerender = true;" >> src/routes/+layout.ts
 
-          # Create static build config
-          cat > svelte.config.js << 'EOF'
-          import adapter from '@sveltejs/adapter-static';
-          import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-
-          const config = {
-            preprocess: vitePreprocess(),
-            kit: {
-              adapter: adapter({
-                pages: 'build',
-                assets: 'build',
-                fallback: 'index.html',
-                precompress: false,
-                strict: false
-              })
-            }
-          };
-
-          export default config;
-          EOF
-
-          # Enable prerendering for static build (append to existing +layout.ts)
-          echo "export const prerender = true;" >> src/routes/+layout.ts
-
-      - name: Build project with static adapter
+      - name: Build project
         run: bun run build
 
       - name: Restore original config
         run: |
-          mv svelte.config.js.bak svelte.config.js
-          # Remove prerender line from +layout.ts (restore original)
+          cp svelte.config.js.vercel svelte.config.js
+          rm svelte.config.js.vercel
           sed -i '/^export const prerender = true;$/d' src/routes/+layout.ts
 
       - name: Generate changelog

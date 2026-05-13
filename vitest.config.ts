@@ -44,7 +44,7 @@ export default defineConfig({
                 setupFiles: ['./src/test-setup.ts'],
                 globals: true,
                 include: ['src/**/*.{test,spec}.{js,ts}'],
-                testTimeout: 15000, // v16.0: increased for Argon2id (64 MiB, 3 iter) crypto operations
+                testTimeout: 10000, // v18.1: reduced — Argon2 uses lightweight params in test mode
         },
         resolve: {
                 alias: {

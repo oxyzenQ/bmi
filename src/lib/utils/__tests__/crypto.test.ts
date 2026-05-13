@@ -30,11 +30,15 @@ vi.mock('$app/environment', () => ({
   version: 'test',
 }));
 
-// Mock db.ts — encryption status persistence
+// Mock db.ts — encryption status persistence (dynamic mock for verifier tests)
+const mockDbMetaGet = vi.fn().mockResolvedValue(null);
+const mockDbMetaSet = vi.fn().mockResolvedValue(undefined);
+const mockIsIndexedDbAvailable = vi.fn().mockReturnValue(true);
+
 vi.mock('../db', () => ({
-  dbMetaGet: vi.fn().mockResolvedValue(null),
-  dbMetaSet: vi.fn().mockResolvedValue(undefined),
-  isIndexedDbAvailable: vi.fn().mockReturnValue(true),
+  dbMetaGet: (...args: unknown[]) => mockDbMetaGet(...args),
+  dbMetaSet: (...args: unknown[]) => mockDbMetaSet(...args),
+  isIndexedDbAvailable: (...args: unknown[]) => mockIsIndexedDbAvailable(...args),
 }));
 
 import {
@@ -46,6 +50,10 @@ import {
   setPassphraseHint,
   getPassphraseHint,
   analyzeStrength,
+  enableEncryption,
+  verifyPassphrase,
+  disableEncryption,
+  getEncryptionStatus,
 } from '../crypto';
 
 // ── computeChecksum ──
@@ -336,5 +344,128 @@ describe('KDF detection', () => {
       expect(payload.kdfParams.parallelism).toBeGreaterThan(0);
       expect(payload.kdfParams.hashLen).toBeGreaterThan(0);
     }
+  });
+});
+
+// ── Passphrase verification (v18.1 — verifier-based) ──
+
+describe('enableEncryption + verifyPassphrase (verifier-based)', () => {
+  beforeEach(() => {
+    mockDbMetaGet.mockReset();
+    mockDbMetaSet.mockReset();
+    mockDbMetaGet.mockResolvedValue(null);
+    mockDbMetaSet.mockResolvedValue(undefined);
+  });
+
+  it('enableEncryption stores a verifier in IndexedDB', async () => {
+    const result = await enableEncryption('my-secret-passphrase');
+    expect(result).toBe(true);
+
+    // Verify dbMetaSet was called: once for verifier, once for enabled flag
+    expect(mockDbMetaSet).toHaveBeenCalledTimes(2);
+
+    // Find the call that stored the verifier
+    const verifierCall = mockDbMetaSet.mock.calls.find(
+      (call: unknown[]) => call[0] === '__encryption_verifier'
+    );
+    expect(verifierCall).toBeDefined();
+    expect(typeof verifierCall![1]).toBe('string');
+    expect(verifierCall![1].length).toBeGreaterThan(0);
+  });
+
+  it('verifyPassphrase returns true for the correct passphrase', async () => {
+    const passphrase = 'correct-passphrase-2026';
+
+    // First enable encryption
+    const enabled = await enableEncryption(passphrase);
+    expect(enabled).toBe(true);
+
+    // Capture the stored verifier
+    const verifierCall = mockDbMetaSet.mock.calls.find(
+      (call: unknown[]) => call[0] === '__encryption_verifier'
+    );
+    const storedVerifier = verifierCall![1];
+
+    // Now mock dbMetaGet to return the stored verifier
+    mockDbMetaGet.mockImplementation(async (key: string) => {
+      if (key === '__encryption_verifier') return storedVerifier;
+      return null;
+    });
+
+    // verifyPassphrase should return true
+    const verified = await verifyPassphrase(passphrase);
+    expect(verified).toBe(true);
+  });
+
+  it('verifyPassphrase returns false for a wrong passphrase', async () => {
+    const passphrase = 'my-passphrase';
+    const wrongPassphrase = 'wrong-passphrase';
+
+    // Enable encryption
+    await enableEncryption(passphrase);
+
+    // Capture the stored verifier
+    const verifierCall = mockDbMetaSet.mock.calls.find(
+      (call: unknown[]) => call[0] === '__encryption_verifier'
+    );
+    const storedVerifier = verifierCall![1];
+
+    // Mock dbMetaGet to return the verifier
+    mockDbMetaGet.mockImplementation(async (key: string) => {
+      if (key === '__encryption_verifier') return storedVerifier;
+      return null;
+    });
+
+    // verifyPassphrase with wrong passphrase should return false
+    const verified = await verifyPassphrase(wrongPassphrase);
+    expect(verified).toBe(false);
+  });
+
+  it('verifyPassphrase returns false when no verifier exists', async () => {
+    // dbMetaGet returns null by default (no verifier stored)
+    const verified = await verifyPassphrase('any-passphrase');
+    expect(verified).toBe(false);
+  });
+
+  it('getEncryptionStatus returns hasPassphrase=true when verifier exists', async () => {
+    const passphrase = 'test-pass';
+
+    // Enable encryption
+    await enableEncryption(passphrase);
+
+    // Capture the stored verifier
+    const verifierCall = mockDbMetaSet.mock.calls.find(
+      (call: unknown[]) => call[0] === '__encryption_verifier'
+    );
+    const storedVerifier = verifierCall![1];
+
+    // Mock dbMetaGet
+    mockDbMetaGet.mockImplementation(async (key: string) => {
+      if (key === '__encryption_verifier') return storedVerifier;
+      if (key === '__encryption_enabled') return '1';
+      return null;
+    });
+
+    const status = await getEncryptionStatus();
+    expect(status.enabled).toBe(true);
+    expect(status.hasPassphrase).toBe(true);
+  });
+
+  it('getEncryptionStatus returns hasPassphrase=false when no verifier', async () => {
+    // No verifier stored — dbMetaGet returns null for everything
+    const status = await getEncryptionStatus();
+    expect(status.enabled).toBe(false);
+    expect(status.hasPassphrase).toBe(false);
+  });
+
+  it('disableEncryption clears the verifier', async () => {
+    await disableEncryption();
+
+    // Verify dbMetaSet was called to clear verifier
+    const verifierClearCall = mockDbMetaSet.mock.calls.find(
+      (call: unknown[]) => call[0] === '__encryption_verifier'
+    );
+    expect(verifierClearCall).toBeDefined();
+    expect(verifierClearCall![1]).toBe('');
   });
 });
