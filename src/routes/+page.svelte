@@ -173,7 +173,6 @@
   let touchStartX: number | null = null;
   let touchStartY: number | null = null;
   let touchStartTime: number = 0;
-  let touchHandled = false;
   let activePointerId: number | null = null;
   let lastWheelNavAt = 0;
   let switchingTimer: ReturnType<typeof setTimeout> | null = null;
@@ -494,25 +493,11 @@
     touchStartX = touch.clientX;
     touchStartY = touch.clientY;
     touchStartTime = Date.now();
-    touchHandled = false;
   }
 
-  function handleTouchMove(e: TouchEvent) {
-    // NOTE: This listener uses { passive: true } — we do NOT call preventDefault().
-    // Horizontal swipe detection is handled purely via touchstart/touchend.
-    // This ensures the browser can process vertical scrolling on its own
-    // compositor thread (60 fps) without waiting for JS — critical for
-    // Bug-13 scroll jank fix on mobile/low-end devices.
-    if (touchStartX === null || touchStartY === null) return;
-    const touch = e.touches[0];
-    if (!touch) return;
-    const dx = Math.abs(touch.clientX - touchStartX);
-    const dy = Math.abs(touch.clientY - touchStartY);
-    // Track whether horizontal swipe is dominant (used in handleTouchEnd)
-    if (dx > dy * SCROLL.SWIPE_ANGLE_RATIO && dx > 15) {
-      touchHandled = true;
-    }
-  }
+  // handleTouchMove removed — swipe detection is handled purely via
+  // touchstart/touchend. Vertical scrolling runs on the browser compositor
+  // thread (passive, no JS blocking) for smooth 60fps on mobile.
 
   function handleTouchEnd(e: TouchEvent) {
     if (touchStartX === null || touchStartY === null) {
@@ -692,7 +677,6 @@
     // CSS touch-action on .pager-shell. We detect horizontal swipes
     // purely in touchstart/touchend without blocking the scroll thread.
     pagerEl?.addEventListener('touchstart', handleTouchStart, { passive: true });
-    pagerEl?.addEventListener('touchmove', handleTouchMove, { passive: true });
     pagerEl?.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     // Unified scroll listener: is-scrolling class + pager-controls auto-hide
@@ -750,7 +734,6 @@
       window.removeEventListener('storage', onStorage);
       document.removeEventListener('scroll', onScroll, { capture: true });
       pagerEl?.removeEventListener('touchstart', handleTouchStart);
-      pagerEl?.removeEventListener('touchmove', handleTouchMove);
       pagerEl?.removeEventListener('touchend', handleTouchEnd);
       if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
       if (scrollRafId !== null) cancelAnimationFrame(scrollRafId);

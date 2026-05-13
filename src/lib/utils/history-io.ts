@@ -652,7 +652,7 @@ export function exportBmiHistoryCsv(): string | null {
                         rows.push([date, time, bmi, String(r.height), String(r.weight), r.age ? String(r.age) : '', category]);
                 }
 
-                return rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+                return rows.map(row => row.map(cell => `"${cell.replaceAll('"', '""')}"`).join(',')).join('\n');
         } catch (err) {
                 warnDev('history-io', 'exportBmiHistoryCsv', 'CSV export failed', err);
                 return null;
