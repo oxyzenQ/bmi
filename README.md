@@ -1,10 +1,20 @@
-# BMI Calculator — Stellar v18.0
+<p align="center">
+  <img src="static/assets/bmi-logigo-v2.png" alt="BMI Calculator — Stellar Edition" width="280" />
+</p>
 
-A luxury, space-themed **Body Mass Index (BMI)** calculator built with **SvelteKit 2 + Svelte 5 (Runes) + TypeScript**, designed for an accessible, privacy-first user experience with production-grade polish.
+<h1 align="center">BMI Calculator — Stellar v18.0</h1>
 
-- **Live**: <https://bmi-logigo.vercel.app>
-- **License**: GPL-3.0
-- **Version**: 18.0.0 (Stellar Edition)
+<p align="center">
+  A luxury, space-themed <strong>Body Mass Index (BMI)</strong> calculator built with <strong>SvelteKit 2 + Svelte 5 (Runes) + TypeScript</strong>, designed for an accessible, privacy-first user experience with production-grade polish.
+</p>
+
+<p align="center">
+  <a href="https://bmi-logigo.vercel.app"><strong>Live Demo</strong></a> ·
+  <a href="LICENSE.md">GPL-3.0</a> ·
+  v18.0.0 (Stellar Edition)
+</p>
+
+---
 
 ## Highlights
 
