@@ -45,9 +45,6 @@
   /* --aurora-core removed in Phase 4 — duplicate of --aurora-bright */
   --aurora-glow: #b266ff;
 
-  /* Atmospheric gradients */
-  --atmosphere-horizon: #5b2ea6;
-
   /* Accent colors */
   --stellar-white: #ffffff;
   --cosmic-silver: #d6ccff;
@@ -456,7 +453,7 @@
        Always use these tokens — never hardcode z-index values.
        
        Layer 0:   Base content, wallpaper (::before, ::after)
-       Layer 1:   Content containers (.main-container, cosmic particles)
+       Layer 1:   Content containers (.main-container)
        Layer 2:   In-component overlays (shine sweeps, card ::before)
        Layer 10:  Inner-modal controls (close btn, chart tooltip)
        Layer 19:  Bottom nav pager controls (behind shell)

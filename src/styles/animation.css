@@ -400,10 +400,10 @@ a.button {
 }
 
 /* ==============================
-      SHOOTING STARS (LEGACY — kept for reference, not used by dust field)
+      SHOOTING STARS (LEGACY — removed)
       ============================== */
 
-/* Hide shooting stars — replaced by atmospheric dust field */
+/* Hide shooting stars — decorative feature removed in v18.0 cleanup */
 .shooting-star {
   display: none;
 }
