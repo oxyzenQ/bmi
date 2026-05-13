@@ -25,8 +25,8 @@
     AlertTriangle,
     Scale,
     Settings,
-    Bot,
     Sparkles,
+    Orbit,
     ChevronLeft,
     ChevronRight,
     ChevronUp
@@ -943,7 +943,7 @@
           aria-pressed={smoothModeRequested}
           onclick={toggleSmoothMode}
         >
-          <Bot class="render-spark" aria-hidden="true" />
+          <Orbit class="render-spark" aria-hidden="true" />
           {t('nav.render')}
           <span class:render-on={smoothModeRequested} class:render-off={!smoothModeRequested}>
             {smoothModeStatus}

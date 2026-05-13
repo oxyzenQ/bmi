@@ -103,8 +103,7 @@
   --dur-breathe: 2s;       /* skeleton breathing pulse */
   --dur-spin: 1.6s;        /* loading spinner full rotation */
   --dur-spin-fast: 0.8s;   /* button spinner rotation */
-  --dur-particle: 1.5s;    /* cosmic particle fall (default) */
-  --dur-shoot: 1.8s;       /* shooting star flight (default) */
+  --dur-dust-orbit: 30s;   /* atmospheric dust orbital drift (default) */
 
   /* ── Opacity token system ── */
 

@@ -13,9 +13,9 @@ const ja: TranslationDict = {
   // ── Navigation ──
   'nav.aria_label': 'BMI \u8a08\u7b97\u30c4\u30fc\u30eb',
   'nav.sections_aria': '\u30bb\u30af\u30b7\u30e7\u30f3',
-  'nav.render_aria': '\u30ec\u30f3\u30c0\u30fc\u30e2\u30fc\u30c9\u3092\u5207\u308a\u66ff\u3048',
+  'nav.render_aria': '\u96f0\u56f2\u6c17\u3092\u5207\u308a\u66ff\u3048',
   'nav.theme_aria': '\u58c1\u7d19\u30c6\u30fc\u30de\u3092\u5207\u308a\u66ff\u3048',
-  'nav.render': '\u30ec\u30f3\u30c0\u30fc\uff1a',
+  'nav.render': '\u96f0\u56f2\u6c17\uff1a',
   'nav.on': '\u30aa\u30f3',
   'nav.off': '\u30aa\u30d5',
   'nav.theme': '\u30c6\u30fc\u30de\uff1a',

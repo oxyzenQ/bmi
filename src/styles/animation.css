@@ -400,69 +400,11 @@ a.button {
 }
 
 /* ==============================
-      SHOOTING STARS
+      SHOOTING STARS (LEGACY — kept for reference, not used by dust field)
       ============================== */
+
+/* Hide shooting stars — replaced by atmospheric dust field */
 .shooting-star {
-  position: absolute;
-  top: 0;
-  width: 3px;
-  height: 3px;
-  background: radial-gradient(circle, var(--w-95) 0%, var(--aurora-glow) 40%, transparent 70%);
-  border-radius: 50%;
-  box-shadow: 0 0 6px var(--aurora-glow),
-              0 0 12px var(--purple-60),
-              0 0 20px var(--plum-30);
-  opacity: 0;
-  will-change: transform, opacity;
-  pointer-events: none;
-  animation-name: shootingStarFly;
-  animation-duration: var(--shoot-duration, 1.8s);
-  animation-delay: var(--shoot-delay, 0s);
-  animation-timing-function: ease-out;
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards;
-}
-
-@keyframes shootingStarFly {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, 0, 0) scale(0.5);
-    filter: blur(2px);
-  }
-  5% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-    filter: blur(0px);
-  }
-  15% {
-    opacity: 0.9;
-    transform: translate3d(calc(var(--shoot-dx, 30px)), calc(var(--shoot-dy, 20px)), 0) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(calc(var(--shoot-dx, 250px)), calc(var(--shoot-dy, 180px)), 0) scale(0.3);
-    filter: blur(1px);
-  }
-}
-
-/* Shooting star tail */
-.shooting-star::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  right: 100%;
-  width: 60px;
-  height: 1.5px;
-  transform: translateY(-50%) rotate(calc(var(--shoot-angle, 35deg)));
-  transform-origin: right center;
-  background: linear-gradient(90deg, var(--aurora-glow), transparent);
-  opacity: 0.6;
-  border-radius: var(--radius-pill);
-  pointer-events: none;
-}
-
-/* Hide shooting stars when not in render mode */
-html:not([data-graphics='render']) .shooting-star {
   display: none;
 }
 
@@ -880,15 +822,12 @@ html:not([data-graphics='render']) .shooting-star {
 
 /* ==============================
       COSMIC PARTICLES — REDUCED MOTION OVERRIDE
-      Extracted from responsive.css in v18.0.
-      Re-enables cosmic particles when global reduced-motion is active,
-      since they are ambient decoration (not functional animation).
+      Atmospheric Dust Field — slow orbit even with reduced-motion,
+      since particles are ambient decoration (not functional animation).
       ============================== */
 @media (prefers-reduced-motion: reduce) {
-  html[data-graphics='render'] .cosmic-particles .cosmic-particle {
-    animation-duration: var(--duration, 12s) !important;
-    animation-delay: var(--delay, 0s) !important;
-    animation-iteration-count: infinite !important;
+  html[data-graphics='render'] .cosmic-particles .dust-particle {
+    animation-duration: 120s !important;
     animation-timing-function: linear !important;
   }
 }

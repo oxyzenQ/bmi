@@ -21,9 +21,10 @@ html[data-performance-tier="low"] :is(
   box-shadow: 0 4px 12px var(--k-30) !important;
 }
 
-html[data-performance-tier="low"] .cosmic-particles .cosmic-particle {
+/* LOW TIER: Simplified dust — no blur, solid color */
+html[data-performance-tier="low"] .cosmic-particles .dust-particle {
   filter: none !important;
-  background: var(--w-60) !important;
+  background: var(--w-50) !important;
   will-change: auto;
 }
 
@@ -48,8 +49,8 @@ html[data-performance-tier="low"] :is(
   text-shadow: none !important;
 }
 
-/* HIGH TIER: Full effects — will-change applied directly for GPU optimization. */
-html[data-performance-tier="high"] .cosmic-particles .cosmic-particle {
+/* HIGH TIER: Full effects — GPU optimization for dust particles. */
+html[data-performance-tier="high"] .cosmic-particles .dust-particle {
   contain: layout style paint;
 }
 

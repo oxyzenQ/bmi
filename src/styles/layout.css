@@ -107,6 +107,7 @@
 
 /* ==============================
       COSMIC PARTICLES & EFFECTS
+      Atmospheric Dust Field — gravitational particle system
       ============================== */
 html:not([data-graphics='render']) .cosmic-particles {
   display: none;
@@ -129,70 +130,78 @@ html:not([data-graphics='render']) .plasma-star {
   pointer-events: none;
   overflow: hidden;
   contain: layout style paint;
-  will-change: transform;
   isolation: isolate;
+  /* Smooth fade transition for atmosphere toggle */
+  transition: opacity 0.7s ease-out;
 }
 
-.cosmic-particles.is-paused .cosmic-particle {
+.cosmic-particles:not(.dust-active) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cosmic-particles.dust-active {
+  opacity: 1;
+}
+
+.cosmic-particles.is-paused .dust-particle {
   animation-play-state: paused !important;
 }
 
-.cosmic-particles .cosmic-particle {
+/* ── Dust particle: tiny circular dot with orbital drift ── */
+.cosmic-particles .dust-particle {
   position: absolute;
-  top: -10vh;
-  left: 0;
-  opacity: 0;
-  border-radius: var(--radius-pill);
-  /* Blade Runner purple rain - elongated drops */
-  background: linear-gradient(180deg,
-      var(--plum-0) 0%,
-      var(--plum-80) 20%,
-      var(--purple-90) 50%,
-      var(--plum-80) 80%,
-      var(--plum-0) 100%);
-  box-shadow: 0 0 6px var(--purple-60),
-              0 0 12px var(--plum-40);
-  filter: blur(0.5px);
-  animation-name: rainFall;
-  animation-duration: var(--duration, 1.5s);
-  animation-delay: var(--delay, 0s);
-  animation-timing-function: ease-out;
-  animation-iteration-count: infinite;
-  /* will-change applied only when NOT scrolling — see responsive.css R-9 */
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--w-80) 0%, var(--w-50) 40%, transparent 70%);
+  pointer-events: none;
   will-change: auto;
-  /* Rain drop shape - thin and tall */
-  width: 2px !important;
-  height: 24px !important;
+  /* Orbital drift + micro-glint animations */
+  animation-name: dustOrbit, dustGlint;
+  animation-duration: var(--orbit-speed, 30s), var(--glint-dur, 0s);
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+  animation-delay: calc(var(--orbit-start, 0rad) / 6.283 * var(--orbit-speed, 30s) * -1), var(--glint-delay, 0s);
 }
 
-html[data-graphics='render'] .cosmic-particles .cosmic-particle {
-  animation-timing-function: ease-out !important;
-  /* Enhanced glow for render mode */
-  box-shadow: 0 0 8px var(--purple-80),
-              0 0 16px var(--plum-50),
-              0 0 24px var(--plum-30);
-}
-
-@keyframes rainFall {
+@keyframes dustOrbit {
   0% {
-    opacity: 0;
-    transform: translate3d(0, -10vh, 0) scaleY(0.5);
+    transform: translate(0, 0);
   }
-
-  5% {
-    opacity: var(--opacity, 0.85);
-    transform: translate3d(0, 0vh, 0) scaleY(1);
+  25% {
+    transform: translate(
+      calc(var(--orbit-r, 40px) * 0.707),
+      calc(var(--orbit-r, 40px) * -0.707)
+    );
   }
-
-  95% {
-    opacity: var(--opacity, 0.85);
-    transform: translate3d(0, 105vh, 0) scaleY(1);
+  50% {
+    transform: translate(0, calc(var(--orbit-r, 40px) * -1));
   }
-
+  75% {
+    transform: translate(
+      calc(var(--orbit-r, 40px) * -0.707),
+      calc(var(--orbit-r, 40px) * -0.707)
+    );
+  }
   100% {
-    opacity: 0;
-    transform: translate3d(0, 115vh, 0) scaleY(0.5);
+    transform: translate(0, 0);
   }
+}
+
+/* Subtle brightness glint — only fires when --glint-dur > 0 */
+@keyframes dustGlint {
+  0%, 85%, 100% {
+    opacity: var(--target-opacity, 0.12);
+  }
+  90% {
+    opacity: calc(var(--target-opacity, 0.12) * 2.5);
+    box-shadow: 0 0 3px var(--w-60);
+  }
+}
+
+/* Fade-out when atmosphere toggled off */
+.cosmic-particles:not(.dust-active) .dust-particle {
+  opacity: 0 !important;
+  transition: opacity 0.7s ease-out !important;
 }
 
 /* Plasma star effects */

@@ -1,55 +1,59 @@
 <script lang="ts">
+  /**
+   * Atmospheric Dust Field — Gravitational particle system
+   *
+   * Evolution from rain effect to premium cosmic atmosphere:
+   * - Tiny floating particles with slow orbital drift
+   * - Subtle gravitational curvature toward viewport center
+   * - Ultra-low opacity, sparse distribution
+   * - Occasional micro-glint on high-end devices
+   * - Adaptive complexity: fewer particles on low-end, layered depth on high-end
+   *
+   * Pure DOM + CSS transforms. No canvas, no WebGL.
+   */
   import { onMount, onDestroy } from 'svelte';
   import { getPerformanceTier } from '$lib/utils/animation-config';
 
-  let particlesContainer: HTMLDivElement;
+  let container: HTMLDivElement;
   let particles: HTMLDivElement[] = [];
-  let shootingStars: HTMLDivElement[] = [];
   let destroyed = false;
-  let particleCount = 10;
-  let baseParticleCount = 10;
-  let reduced = false;
-  let paused = false;
+  let reduced = $state(false);
+  let paused = $state(false);
   let visibilityHandler: (() => void) | null = null;
-  let smoothModeEnabled = false;
   let smoothModeHandler: (() => void) | null = null;
   let tier: 'high' | 'medium' | 'low' = 'medium';
-  let shootingStarTimer: ReturnType<typeof setInterval> | null = null;
-  let initialShootingDelay: ReturnType<typeof setTimeout> | null = null;
-  let cleanupTimers: Array<ReturnType<typeof setTimeout>> = [];
+  let animFrameId: number | null = null;
+  let particleCount = 16;
+  let fading = $state(false);
+  let visible = $state(false);
 
   onMount(() => {
     tier = getPerformanceTier();
-    // Base rain: reduce on mobile/touch for GPU perf
-    const isMobileTouch = typeof window !== 'undefined' &&
-      window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-    baseParticleCount = isMobileTouch ? 5 : 10;
     smoothModeEnabled = true;
     updateReduced();
 
-    // Set performance tier on document for CSS optimizations
     if (typeof document !== 'undefined') {
       document.documentElement.dataset.performanceTier = tier;
     }
 
     const handleSmoothMode = (event: Event) => {
       if (destroyed) return;
-      const ce = event as CustomEvent<{ enabled?: boolean; requested?: boolean; status?: string }>;
-      smoothModeEnabled = Boolean(ce.detail?.enabled ?? ce.detail?.requested);
+      const ce = event as CustomEvent<{ enabled?: boolean; requested?: boolean }>;
+      const enabled = Boolean(ce.detail?.enabled ?? ce.detail?.requested);
+      smoothModeEnabled = enabled;
       updateReduced();
 
       if (reduced) {
-        stopParticles();
-        stopShootingStars();
+        fadeOut();
         return;
       }
 
       const nextCount = computeParticleCount(tier, smoothModeEnabled);
-      const shouldRecreate = particles.length !== nextCount;
-      particleCount = nextCount;
-
-      if (!paused && (particles.length === 0 || shouldRecreate)) {
-        createParticles();
+      if (particles.length !== nextCount) {
+        particleCount = nextCount;
+        if (!paused) createParticles(true);
+      } else if (!paused && particles.length === 0) {
+        fadeIn();
       }
     };
 
@@ -58,14 +62,9 @@
 
     const handleVisibility = () => {
       if (destroyed) return;
-      const isHidden = document.hidden;
-      paused = isHidden;
-
-      if (isHidden) return;
-      if (reduced) return;
-
-      if (particles.length === 0) {
-        createParticles();
+      paused = document.hidden;
+      if (!paused && !reduced && particles.length === 0) {
+        fadeIn();
       }
     };
 
@@ -74,199 +73,189 @@
 
     if (!reduced && !document.hidden) {
       particleCount = computeParticleCount(tier, smoothModeEnabled);
-      createParticles();
-      startShootingStars();
-    } else {
-      stopParticles();
-      stopShootingStars();
+      createParticles(false);
     }
-
-    handleVisibility();
   });
 
   onDestroy(() => {
     destroyed = true;
-    stopParticles();
-    stopShootingStars();
-    // Clean up initial shooting star delay
-    if (initialShootingDelay) {
-      clearTimeout(initialShootingDelay);
-      initialShootingDelay = null;
-    }
-    // Clean up any outstanding per-star cleanup timers
-    for (const t of cleanupTimers) clearTimeout(t);
-    cleanupTimers = [];
+    if (animFrameId !== null) cancelAnimationFrame(animFrameId);
     if (visibilityHandler) visibilityHandler();
     if (smoothModeHandler) smoothModeHandler();
+    particles = [];
   });
 
-  function computeParticleCount(tier: 'high' | 'medium' | 'low', smoothEnabled: boolean) {
-    if (!smoothEnabled) return baseParticleCount;
+  let smoothModeEnabled = true;
+
+  function computeParticleCount(t: 'high' | 'medium' | 'low', smooth: boolean): number {
+    if (!smooth) return 0;
     const isMobile = typeof window !== 'undefined' &&
       window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    // Mobile: 10/12/14 | Desktop: 14/18/24
     if (isMobile) {
-      // Mobile smooth: low=5, medium=6, high=8 (vs desktop 10/15/20)
-      if (tier === 'high') return Math.min(baseParticleCount + 3, 8);
-      if (tier === 'medium') return Math.min(baseParticleCount + 1, 6);
-      return baseParticleCount; // 5
+      if (t === 'high') return 14;
+      if (t === 'medium') return 12;
+      return 10;
     }
-    // Desktop smooth limits: high=20, medium=15, low=10
-    if (tier === 'high') return Math.min(baseParticleCount + 10, 20);
-    if (tier === 'medium') return Math.min(baseParticleCount + 5, 15);
-    return Math.min(baseParticleCount + 0, 10);
+    if (t === 'high') return 24;
+    if (t === 'medium') return 18;
+    return 14;
   }
 
   function updateReduced() {
     reduced = !smoothModeEnabled;
   }
 
-  function stopParticles() {
-    if (particlesContainer) particlesContainer.textContent = '';
-    particles = [];
-  }
-
-  function prng(i: number, salt: number, seed = 999) {
+  /** Deterministic pseudo-random for reproducible layouts */
+  function prng(i: number, salt: number, seed = 7777) {
     const x = Math.sin((i + 1) * seed + salt) * 10000;
     return x - Math.floor(x);
   }
 
-  function createParticle() {
-    const particle = document.createElement('div');
-    particle.className = 'cosmic-particle';
-    return particle;
+  function fadeIn() {
+    if (destroyed || fading) return;
+    fading = true;
+    visible = true;
+    createParticles(true);
+    setTimeout(() => { fading = false; }, 600);
   }
 
-  function createParticles() {
-    if (!particlesContainer) return;
+  function fadeOut() {
+    if (destroyed || fading) return;
+    fading = true;
+    visible = false;
+    // Let CSS transition handle the fade, then remove DOM
+    setTimeout(() => {
+      if (container) container.textContent = '';
+      particles = [];
+      fading = false;
+    }, 800);
+  }
 
-    particlesContainer.textContent = '';
+  function createParticles(animate: boolean) {
+    if (!container) return;
+
+    container.textContent = '';
     particles = [];
 
     const frag = document.createDocumentFragment();
+    const vw = typeof window !== 'undefined' ? window.innerWidth : 390;
+    const vh = typeof window !== 'undefined' ? window.innerHeight : 844;
+    const cx = vw / 2;
+    const cy = vh / 2;
+    const hasParallax = tier === 'high';
+    const hasGlint = tier === 'high';
 
-    // Create particles (optimized for performance)
     for (let i = 0; i < particleCount; i++) {
-      const particle = createParticle();
-      const opacity = 0.26 + prng(i, 1) * 0.58;
-      const left = prng(i, 4) * 100;
-      const sizeRand = prng(i, 5);
-      // Rain drops: thin and long (2px x 15-35px)
-      const width = 2;
-      const height = 15 + Math.floor(sizeRand * 20);
-      // Smooth rain: 1.5-3s duration (not too fast)
-      const delay = prng(i, 6) * 3;
-      const duration = 1.5 + prng(i, 7) * 1.5;
+      const el = document.createElement('div');
+      el.className = 'dust-particle';
 
-      particle.style.cssText = `
-        left: ${left}%;
-        width: ${width}px;
-        height: ${height}px;
-        --delay: ${delay}s;
-        --duration: ${duration}s;
-        --opacity: ${opacity};
+      // Position: spread across viewport, avoid dead center cluster
+      const angle = prng(i, 1) * Math.PI * 2;
+      const dist = 0.25 + prng(i, 2) * 0.4; // 25-65% from center
+      const x = cx + Math.cos(angle) * vw * dist;
+      const y = cy + Math.sin(angle) * vh * dist;
+
+      // Size: 1.5-3px tiny dots
+      const size = 1.5 + prng(i, 3) * 1.5;
+
+      // Opacity: very low, atmospheric
+      const opacity = 0.08 + prng(i, 4) * 0.18;
+
+      // Depth layer (0 = far, 1 = near) for parallax
+      const depth = prng(i, 5);
+
+      // Orbital speed: slow, varies per particle
+      const speed = 0.15 + prng(i, 6) * 0.35; // 0.15-0.5 multiplier
+      const orbitRadius = 20 + prng(i, 7) * 60; // 20-80px drift radius
+      const startAngle = prng(i, 8) * Math.PI * 2;
+
+      // Micro-glint: occasional brightness pulse (high-end only)
+      const glintDelay = hasGlint ? (8 + prng(i, 9) * 20).toFixed(1) : '0';
+      const glintDuration = hasGlint ? (2 + prng(i, 10) * 3).toFixed(1) : '0';
+
+      el.style.cssText = `
+        left: ${x}px;
+        top: ${y}px;
+        width: ${size}px;
+        height: ${size}px;
+        opacity: ${animate ? 0 : opacity};
+        --target-opacity: ${opacity};
+        --depth: ${depth};
+        --orbit-r: ${orbitRadius}px;
+        --orbit-start: ${startAngle.toFixed(3)}rad;
+        --orbit-speed: ${(speed * 60).toFixed(1)}s;
+        --glint-delay: ${glintDelay}s;
+        --glint-dur: ${glintDuration}s;
+        ${animate ? 'transition: opacity 0.6s ease;' : ''}
+        ${hasParallax ? `--parallax-factor: ${(0.3 + depth * 0.7).toFixed(2)};` : ''}
       `;
 
-      frag.appendChild(particle);
-      particles.push(particle);
-    }
-
-    particlesContainer.appendChild(frag);
-  }
-
-  // ── Shooting Stars ── (reuses prng with seed=777)
-
-  function createShootingStar() {
-    if (destroyed || reduced || paused || !particlesContainer) return;
-    if (shootingStars.length >= 3) return; // Max 3 concurrent
-
-    const star = document.createElement('div');
-    star.className = 'shooting-star';
-
-    const top = prng(Date.now(), 3, 777) * 60; // Top 0-60% of screen
-    const left = prng(Date.now(), 7, 777) * 100; // Random horizontal start
-    const angle = 25 + prng(Date.now(), 9, 777) * 25; // 25-50 degree angle
-    const distance = 200 + prng(Date.now(), 11, 777) * 150; // 200-350px travel
-    const dx = Math.cos(angle * Math.PI / 180) * distance;
-    const dy = Math.sin(angle * Math.PI / 180) * distance;
-    const duration = 1.2 + Number(prng(Date.now(), 13, 777)) * 1.0;
-    const delay = 0.05 + Math.random() * 0.15;
-
-    star.style.cssText = `
-      top: ${top}%;
-      left: ${left}%;
-      --shoot-dx: ${dx.toFixed(1)}px;
-      --shoot-dy: ${dy.toFixed(1)}px;
-      --shoot-duration: ${duration.toFixed(2)}s;
-      --shoot-delay: ${delay.toFixed(2)}s;
-      --shoot-angle: ${angle.toFixed(1)}deg;
-    `;
-
-    particlesContainer.appendChild(star);
-    shootingStars.push(star);
-
-    // Auto-cleanup after animation — tracked for proper destroy cleanup
-    const cleanupTime = (duration + delay) * 1000 + 500;
-    const cleanupId = setTimeout(() => {
-      if (star.parentNode) {
-        star.parentNode.removeChild(star);
+      if (animate) {
+        // Trigger fade-in after DOM insert
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            el.style.opacity = String(opacity);
+            el.style.transition = '';
+          });
+        });
       }
-      const idx = shootingStars.indexOf(star);
-      if (idx >= 0) shootingStars.splice(idx, 1);
-      // Remove this timer from tracking
-      const ci = cleanupTimers.indexOf(cleanupId);
-      if (ci >= 0) cleanupTimers.splice(ci, 1);
-    }, cleanupTime);
-    cleanupTimers.push(cleanupId);
+
+      frag.appendChild(el);
+      particles.push(el);
+    }
+
+    container.appendChild(frag);
+
+    // Start animation loop (or let CSS handle it for medium/low)
+    if (hasParallax && !paused) {
+      startAnimLoop();
+    }
   }
 
-  function startShootingStars() {
-    stopShootingStars();
-    if (destroyed || reduced) return;
+  let scrollX = 0;
+  let scrollY = 0;
 
-    // Spawn shooting stars at random intervals (4-12 seconds)
-    function scheduleNext() {
-      if (destroyed || reduced || paused) return;
-      const interval = 4000 + Math.random() * 8000;
-      shootingStarTimer = setInterval(() => {
-        // Guard inside interval callback to prevent firing after destroy
-        if (destroyed || reduced || paused) {
-          stopShootingStars();
-          return;
-        }
-        createShootingStar();
-      }, interval) as unknown as ReturnType<typeof setInterval>;
-    }
+  function startAnimLoop() {
+    if (animFrameId !== null) return;
 
-    // First star after 2-5 seconds — tracked for proper cleanup
-    initialShootingDelay = setTimeout(() => {
-      if (destroyed || reduced || paused) return;
-      scheduleNext();
-    }, 2000 + Math.random() * 3000);
-  }
+    let lastTime = 0;
+    const tick = (time: number) => {
+      if (destroyed || paused || reduced) {
+        animFrameId = null;
+        return;
+      }
+      // Throttle to ~30fps for dust (no need for 60fps on ambient particles)
+      if (time - lastTime < 33) {
+        animFrameId = requestAnimationFrame(tick);
+        return;
+      }
+      lastTime = time;
 
-  function stopShootingStars() {
-    if (shootingStarTimer) {
-      clearInterval(shootingStarTimer);
-      shootingStarTimer = null;
-    }
-    if (initialShootingDelay) {
-      clearTimeout(initialShootingDelay);
-      initialShootingDelay = null;
-    }
-    // Clean up existing stars gracefully
-    for (const star of shootingStars) {
-      if (star.parentNode) star.parentNode.removeChild(star);
-    }
-    shootingStars = [];
-    // Clean up outstanding per-star cleanup timers
-    for (const t of cleanupTimers) clearTimeout(t);
-    cleanupTimers = [];
+      const sx = window.scrollX || 0;
+      const sy = window.scrollY || 0;
+
+      for (const el of particles) {
+        const factor = parseFloat(el.style.getPropertyValue('--parallax-factor') || '0.5');
+        const dx = (sx - scrollX) * factor * 0.02;
+        const dy = (sy - scrollY) * factor * 0.02;
+        el.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
+      }
+
+      scrollX = sx;
+      scrollY = sy;
+      animFrameId = requestAnimationFrame(tick);
+    };
+
+    animFrameId = requestAnimationFrame(tick);
   }
 </script>
 
 <div
-  bind:this={particlesContainer}
+  bind:this={container}
   class="cosmic-particles"
   class:is-paused={paused}
+  class:dust-active={visible}
+  class:dust-fading={fading}
   aria-hidden="true"
 ></div>
