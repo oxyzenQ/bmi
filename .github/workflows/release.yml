@@ -43,6 +43,8 @@ jobs:
   release:
     needs: validate-tag
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout code
@@ -202,7 +204,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2.6.1
+        uses: softprops/action-gh-release@v2
         with:
           name: BMI Stellar Edition ${{ steps.tag.outputs.TAG_NAME }}
           body: ${{ steps.release_notes.outputs.NOTES }}
