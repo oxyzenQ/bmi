@@ -148,53 +148,72 @@ html:not([data-graphics='render']) .plasma-star {
   animation-play-state: paused !important;
 }
 
-/* ── Dust particle: tiny circular dot with orbital drift ── */
+/* ── Dust particle: tiny circular dot with organic orbital drift ── */
 .cosmic-particles .dust-particle {
   position: absolute;
   border-radius: 50%;
   background: radial-gradient(circle, var(--w-80) 0%, var(--w-50) 40%, transparent 70%);
   pointer-events: none;
   will-change: auto;
-  /* Orbital drift + micro-glint animations */
+  /* Organic orbital drift + micro-glint animations */
   animation-name: dustOrbit, dustGlint;
   animation-duration: var(--orbit-speed, 30s), var(--glint-dur, 0s);
-  animation-timing-function: linear, ease-in-out;
+  animation-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95), ease-in-out;
   animation-iteration-count: infinite, infinite;
   animation-delay: calc(var(--orbit-start, 0rad) / 6.283 * var(--orbit-speed, 30s) * -1), var(--glint-delay, 0s);
 }
 
+/*
+ * Organic orbit — distorted elliptical path with subtle scale breathing.
+ * Non-linear easing (cubic-bezier) makes acceleration/deceleration feel alive.
+ * Not a perfect circle — asymmetric keyframe stops create natural drift.
+ */
 @keyframes dustOrbit {
   0% {
-    transform: translate(0, 0);
+    transform: translate(0, 0) scale(1);
   }
-  25% {
+  20% {
     transform: translate(
-      calc(var(--orbit-r, 40px) * 0.707),
-      calc(var(--orbit-r, 40px) * -0.707)
-    );
+      calc(var(--orbit-r, 40px) * 0.94),
+      calc(var(--orbit-r, 40px) * -0.34)
+    ) scale(1.03);
   }
-  50% {
-    transform: translate(0, calc(var(--orbit-r, 40px) * -1));
-  }
-  75% {
+  40% {
     transform: translate(
-      calc(var(--orbit-r, 40px) * -0.707),
-      calc(var(--orbit-r, 40px) * -0.707)
-    );
+      calc(var(--orbit-r, 40px) * 0.56),
+      calc(var(--orbit-r, 40px) * -0.83)
+    ) scale(0.97);
+  }
+  60% {
+    transform: translate(
+      calc(var(--orbit-r, 40px) * -0.20),
+      calc(var(--orbit-r, 40px) * -0.98)
+    ) scale(1.02);
+  }
+  80% {
+    transform: translate(
+      calc(var(--orbit-r, 40px) * -0.80),
+      calc(var(--orbit-r, 40px) * -0.60)
+    ) scale(0.98);
   }
   100% {
-    transform: translate(0, 0);
+    transform: translate(0, 0) scale(1);
   }
 }
 
-/* Subtle brightness glint — only fires when --glint-dur > 0 */
+/*
+ * Subtle brightness glint — peak and spread controlled per-particle via CSS vars.
+ * Hero particles use higher --glint-peak (2.2) and --glint-spread (8px).
+ * Far particles use lower values (1.8, 3px) for subtlety.
+ */
 @keyframes dustGlint {
-  0%, 85%, 100% {
-    opacity: var(--target-opacity, 0.12);
+  0%, 80%, 100% {
+    opacity: var(--target-opacity, 0.20);
+    box-shadow: none;
   }
   90% {
-    opacity: calc(var(--target-opacity, 0.12) * 2.5);
-    box-shadow: 0 0 3px var(--w-60);
+    opacity: calc(var(--target-opacity, 0.20) * var(--glint-peak, 2.0));
+    box-shadow: 0 0 var(--glint-spread, 4px) var(--w-40);
   }
 }
 
@@ -202,6 +221,23 @@ html:not([data-graphics='render']) .plasma-star {
 .cosmic-particles:not(.dust-active) .dust-particle {
   opacity: 0 !important;
   transition: opacity 0.7s ease-out !important;
+}
+
+/* ── Hero particle: bright accent with persistent warm glow ── */
+.cosmic-particles .hero-particle {
+  background: radial-gradient(circle, var(--w-95) 0%, var(--w-70) 25%, var(--w-40) 50%, transparent 75%);
+  box-shadow: 0 0 6px 2px var(--w-20), 0 0 16px 4px var(--w-8);
+}
+
+/* ── Mid particle: slightly brighter core ── */
+.cosmic-particles .mid-particle {
+  background: radial-gradient(circle, var(--w-85) 0%, var(--w-55) 35%, transparent 70%);
+}
+
+/* ── Gravity particle: no orbit (JS handles position), glint only ── */
+.cosmic-particles .gravity-particle {
+  animation: dustGlint var(--glint-dur, 4s) ease-in-out infinite var(--glint-delay, 0s) !important;
+  will-change: transform, opacity, left, top;
 }
 
 /* Plasma star effects */

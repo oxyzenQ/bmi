@@ -1,21 +1,22 @@
 <script lang="ts">
   /**
-   * Atmospheric Dust Field — Gravitational particle system
+   * Atmospheric Dust Field v2 — Gravitational particle system
    *
-   * Evolution from rain effect to premium cosmic atmosphere:
-   * - Tiny floating particles with slow orbital drift
-   * - Subtle gravitational curvature toward viewport center
-   * - Ultra-low opacity, sparse distribution
-   * - Occasional micro-glint on high-end devices
-   * - Adaptive complexity: fewer particles on low-end, layered depth on high-end
+   * Premium cosmic atmosphere calibrated for human perception:
+   * - 3-layer depth: faint far dust, visible mid-layer, hero accent particles
+   * - Organic orbital drift with non-linear easing and distorted elliptical paths
+   * - Gravitational center pull: ~20% of particles slowly spiral toward viewport center
+   * - Hero particles: 2-3 brighter accent dots with persistent glow and prominent glint
+   * - Adaptive complexity: 20-40 particles depending on device capability
    *
-   * Pure DOM + CSS transforms. No canvas, no WebGL.
+   * Artistic target: "Space dust illuminated by an invisible black hole accretion field."
+   *
+   * Pure DOM + CSS transforms + minimal JS for gravity. No canvas, no WebGL.
    */
   import { onMount, onDestroy } from 'svelte';
   import { getPerformanceTier } from '$lib/utils/animation-config';
 
   let container: HTMLDivElement;
-  let particles: HTMLDivElement[] = [];
   let destroyed = false;
   let reduced = $state(false);
   let paused = $state(false);
@@ -26,15 +27,27 @@
   let particleCount = 16;
   let fading = $state(false);
   let visible = $state(false);
+  let smoothModeEnabled = true;
+  let particles: HTMLDivElement[] = [];
+
+  // ── Gravity simulation state ──
+  interface GravityState {
+    el: HTMLDivElement;
+    baseX: number;
+    baseY: number;
+    offsetX: number;
+    offsetY: number;
+    vx: number;
+    vy: number;
+    baseOpacity: number;
+  }
+  let gravityParticles: GravityState[] = [];
 
   onMount(() => {
     tier = getPerformanceTier();
     smoothModeEnabled = true;
     updateReduced();
-
-    if (typeof document !== 'undefined') {
-      document.documentElement.dataset.performanceTier = tier;
-    }
+    document.documentElement.dataset.performanceTier = tier;
 
     const handleSmoothMode = (event: Event) => {
       if (destroyed) return;
@@ -47,7 +60,6 @@
         fadeOut();
         return;
       }
-
       visible = true;
       const nextCount = computeParticleCount(tier, smoothModeEnabled);
       if (particles.length !== nextCount) {
@@ -89,23 +101,25 @@
     if (visibilityHandler) visibilityHandler();
     if (smoothModeHandler) smoothModeHandler();
     particles = [];
+    gravityParticles = [];
   });
 
-  let smoothModeEnabled = true;
-
+  /**
+   * Adaptive particle count.
+   * Mobile: 20/26/32 | Desktop: 28/34/40
+   */
   function computeParticleCount(t: 'high' | 'medium' | 'low', smooth: boolean): number {
     if (!smooth) return 0;
     const isMobile = typeof window !== 'undefined' &&
       window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-    // Mobile: 10/12/14 | Desktop: 14/18/24
     if (isMobile) {
-      if (t === 'high') return 14;
-      if (t === 'medium') return 12;
-      return 10;
+      if (t === 'high') return 32;
+      if (t === 'medium') return 26;
+      return 20;
     }
-    if (t === 'high') return 24;
-    if (t === 'medium') return 18;
-    return 14;
+    if (t === 'high') return 40;
+    if (t === 'medium') return 34;
+    return 28;
   }
 
   function updateReduced() {
@@ -130,55 +144,102 @@
     if (destroyed || fading) return;
     fading = true;
     visible = false;
-    // Let CSS transition handle the fade, then remove DOM
     setTimeout(() => {
       if (container) container.textContent = '';
       particles = [];
+      gravityParticles = [];
       fading = false;
     }, 800);
   }
 
   function createParticles(animate: boolean) {
     if (!container) return;
-
     container.textContent = '';
     particles = [];
+    gravityParticles = [];
 
     const frag = document.createDocumentFragment();
     const vw = typeof window !== 'undefined' ? window.innerWidth : 390;
     const vh = typeof window !== 'undefined' ? window.innerHeight : 844;
     const cx = vw / 2;
     const cy = vh / 2;
-    const hasParallax = tier === 'high';
-    const hasGlint = tier === 'high';
+
+    // Hero: 2-3 brightest particles (last indices)
+    const heroCount = tier === 'high' ? 3 : 2;
+    const normalCount = particleCount - heroCount;
+
+    // Layer split: ~60% far (atmospheric), ~40% mid (visible)
+    const farCount = Math.round(normalCount * 0.6);
+    // midCount = normalCount - farCount
+
+    // Gravity: 20% of normal particles — spiral toward center
+    const gravityCount = Math.round(normalCount * 0.2);
 
     for (let i = 0; i < particleCount; i++) {
       const el = document.createElement('div');
-      el.className = 'dust-particle';
 
-      // Position: spread across viewport, avoid dead center cluster
+      // Layer assignment by index order
+      const isHero = i >= normalCount;
+      const isMid = !isHero && i >= farCount;
+      // else: far layer
+      const isGravity = !isHero && i < gravityCount;
+
+      // Base position: spread across viewport
       const angle = prng(i, 1) * Math.PI * 2;
-      const dist = 0.25 + prng(i, 2) * 0.4; // 25-65% from center
+      const dist = 0.2 + prng(i, 2) * 0.45; // 20-65% from center
       const x = cx + Math.cos(angle) * vw * dist;
       const y = cy + Math.sin(angle) * vh * dist;
 
-      // Size: 1.5-3px tiny dots
-      const size = 1.5 + prng(i, 3) * 1.5;
+      let size: number;
+      let opacity: number;
+      let speed: number;        // seconds for full orbit
+      let orbitRadius: number;
+      let glintDelay: number;
+      let glintDuration: number;
+      let glintPeak: number;
+      let glintSpread: number;
+      let cssClass = 'dust-particle';
 
-      // Opacity: very low, atmospheric
-      const opacity = 0.08 + prng(i, 4) * 0.18;
+      if (isHero) {
+        // ── HERO LAYER: bright accent particles ──
+        // Visible immediately, draws the eye, establishes "atmosphere exists"
+        cssClass = 'dust-particle hero-particle';
+        size = 3.5 + prng(i, 3) * 2.5;          // 3.5-6px
+        opacity = 0.30 + prng(i, 4) * 0.10;     // 0.30-0.40
+        speed = 30 + prng(i, 6) * 15;            // 30-45s (slow, stately)
+        orbitRadius = 40 + prng(i, 7) * 55;      // 40-95px (wide drift)
+        glintDelay = 3 + prng(i, 9) * 7;         // 3-10s (frequent)
+        glintDuration = 3 + prng(i, 10) * 3;     // 3-6s (long pulse)
+        glintPeak = 2.2;
+        glintSpread = 8;
+      } else if (isMid) {
+        // ── MID LAYER: clearly visible, medium presence ──
+        cssClass = 'dust-particle mid-particle';
+        size = 2.5 + prng(i, 3) * 1.5;          // 2.5-4px
+        opacity = 0.20 + prng(i, 4) * 0.08;     // 0.20-0.28
+        speed = 22 + prng(i, 6) * 13;            // 22-35s
+        orbitRadius = 25 + prng(i, 7) * 40;      // 25-65px
+        glintDelay = 8 + prng(i, 9) * 18;        // 8-26s
+        glintDuration = 2 + prng(i, 10) * 3;     // 2-5s
+        glintPeak = 2.0;
+        glintSpread = 4;
+      } else {
+        // ── FAR LAYER: faint atmospheric dust ──
+        // Thin, slow, faint — fills depth without demanding attention
+        size = 2 + prng(i, 3) * 1;              // 2-3px
+        opacity = 0.16 + prng(i, 4) * 0.06;     // 0.16-0.22
+        speed = 30 + prng(i, 6) * 12;            // 30-42s
+        orbitRadius = 15 + prng(i, 7) * 25;      // 15-40px
+        glintDelay = 12 + prng(i, 9) * 20;       // 12-32s
+        glintDuration = 2 + prng(i, 10) * 2;     // 2-4s
+        glintPeak = 1.8;
+        glintSpread = 3;
+      }
 
-      // Depth layer (0 = far, 1 = near) for parallax
+      const startAngle = prng(i, 8) * Math.PI * 2;
       const depth = prng(i, 5);
 
-      // Orbital speed: slow, varies per particle
-      const speed = 0.15 + prng(i, 6) * 0.35; // 0.15-0.5 multiplier
-      const orbitRadius = 20 + prng(i, 7) * 60; // 20-80px drift radius
-      const startAngle = prng(i, 8) * Math.PI * 2;
-
-      // Micro-glint: occasional brightness pulse (high-end only)
-      const glintDelay = hasGlint ? (8 + prng(i, 9) * 20).toFixed(1) : '0';
-      const glintDuration = hasGlint ? (2 + prng(i, 10) * 3).toFixed(1) : '0';
+      el.className = cssClass;
 
       el.style.cssText = `
         left: ${x}px;
@@ -190,15 +251,15 @@
         --depth: ${depth};
         --orbit-r: ${orbitRadius}px;
         --orbit-start: ${startAngle.toFixed(3)}rad;
-        --orbit-speed: ${(speed * 60).toFixed(1)}s;
-        --glint-delay: ${glintDelay}s;
-        --glint-dur: ${glintDuration}s;
+        --orbit-speed: ${speed.toFixed(1)}s;
+        --glint-delay: ${glintDelay.toFixed(1)}s;
+        --glint-dur: ${glintDuration.toFixed(1)}s;
+        --glint-peak: ${glintPeak};
+        --glint-spread: ${glintSpread}px;
         ${animate ? 'transition: opacity 0.6s ease;' : ''}
-        ${hasParallax ? `--parallax-factor: ${(0.3 + depth * 0.7).toFixed(2)};` : ''}
       `;
 
       if (animate) {
-        // Trigger fade-in after DOM insert
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             el.style.opacity = String(opacity);
@@ -207,49 +268,115 @@
         });
       }
 
+      // ── Gravity particle setup ──
+      if (isGravity) {
+        el.classList.add('gravity-particle');
+        // Small initial tangential velocity for spiral (not straight radial)
+        const perpAngle = angle + Math.PI / 2;
+        const initSpeed = 0.03 + prng(i, 11) * 0.05;
+        gravityParticles.push({
+          el,
+          baseX: x,
+          baseY: y,
+          offsetX: 0,
+          offsetY: 0,
+          vx: Math.cos(perpAngle) * initSpeed,
+          vy: Math.sin(perpAngle) * initSpeed,
+          baseOpacity: opacity,
+        });
+      }
+
       frag.appendChild(el);
       particles.push(el);
     }
 
     container.appendChild(frag);
-
-    // Start animation loop (or let CSS handle it for medium/low)
-    if (hasParallax && !paused) {
-      startAnimLoop();
-    }
+    if (!paused) startAnimLoop();
   }
 
-  let scrollX = 0;
-  let scrollY = 0;
-
+  /**
+   * JS animation loop for gravity simulation.
+   * Runs on ALL tiers — lightweight (8-16 particles max at 15-30fps).
+   */
   function startAnimLoop() {
     if (animFrameId !== null) return;
-
+    const interval = tier === 'high' ? 33 : tier === 'medium' ? 50 : 66;
     let lastTime = 0;
+
     const tick = (time: number) => {
       if (destroyed || paused || reduced) {
         animFrameId = null;
         return;
       }
-      // Throttle to ~30fps for dust (no need for 60fps on ambient particles)
-      if (time - lastTime < 33) {
+      if (time - lastTime < interval) {
         animFrameId = requestAnimationFrame(tick);
         return;
       }
       lastTime = time;
 
-      const sx = window.scrollX || 0;
-      const sy = window.scrollY || 0;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const cx = vw / 2;
+      const cy = vh / 2;
+      const minDim = Math.min(vw, vh);
+      const killRadius = minDim * 0.04;
+      const fadeStart = minDim * 0.14;
+      const gravForce = 0.012;
 
-      for (const el of particles) {
-        const factor = parseFloat(el.style.getPropertyValue('--parallax-factor') || '0.5');
-        const dx = (sx - scrollX) * factor * 0.02;
-        const dy = (sy - scrollY) * factor * 0.02;
-        el.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
+      for (const gp of gravityParticles) {
+        const absX = gp.baseX + gp.offsetX;
+        const absY = gp.baseY + gp.offsetY;
+        const dx = cx - absX;
+        const dy = cy - absY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        // Respawn when swallowed by the center
+        if (dist < killRadius) {
+          const a = Math.random() * Math.PI * 2;
+          const spawnDist = minDim * (0.35 + Math.random() * 0.2);
+          gp.baseX = cx + Math.cos(a) * spawnDist;
+          gp.baseY = cy + Math.sin(a) * spawnDist;
+          gp.offsetX = 0;
+          gp.offsetY = 0;
+          // Small random tangential velocity for variety
+          const newAngle = a + Math.PI / 2 * (Math.random() > 0.5 ? 1 : -1);
+          const newSpeed = 0.03 + Math.random() * 0.05;
+          gp.vx = Math.cos(newAngle) * newSpeed;
+          gp.vy = Math.sin(newAngle) * newSpeed;
+          gp.el.style.left = `${gp.baseX}px`;
+          gp.el.style.top = `${gp.baseY}px`;
+          gp.el.style.transform = 'translate(0, 0)';
+          // Smooth fade-in at respawn
+          gp.el.style.transition = 'opacity 1.2s ease';
+          gp.el.style.opacity = String(gp.baseOpacity);
+          requestAnimationFrame(() => { gp.el.style.transition = ''; });
+          continue;
+        }
+
+        // Gravitational pull — stronger when closer, capped for stability
+        const accel = gravForce * Math.min(1, 60 / Math.max(20, dist));
+        const nx = dx / dist;
+        const ny = dy / dist;
+        gp.vx += nx * accel;
+        gp.vy += ny * accel;
+
+        // Slight tangential component → spiral, not straight radial
+        gp.vx += (-ny) * 0.004;
+        gp.vy += nx * 0.004;
+
+        // Damping
+        gp.vx *= 0.996;
+        gp.vy *= 0.996;
+
+        gp.offsetX += gp.vx;
+        gp.offsetY += gp.vy;
+
+        // Fade out as approaching center
+        const fadeMult = Math.min(1, Math.max(0, (dist - killRadius) / (fadeStart - killRadius)));
+        gp.el.style.transform = `translate(${gp.offsetX.toFixed(1)}px, ${gp.offsetY.toFixed(1)}px)`;
+        gp.el.style.opacity = String((gp.baseOpacity * fadeMult).toFixed(3));
       }
 
-      scrollX = sx;
-      scrollY = sy;
       animFrameId = requestAnimationFrame(tick);
     };
 

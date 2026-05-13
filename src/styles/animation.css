@@ -827,7 +827,7 @@ a.button {
       ============================== */
 @media (prefers-reduced-motion: reduce) {
   html[data-graphics='render'] .cosmic-particles .dust-particle {
-    animation-duration: 120s !important;
-    animation-timing-function: linear !important;
+    animation-duration: 90s, 30s !important;
+    animation-timing-function: linear, ease-in-out !important;
   }
 }
