@@ -1,0 +1,184 @@
+/* ── responsive-content.css — v19 Mobile Premium Layout Hardening ──
+ *
+ * Final responsive correction layer. Loaded AFTER all other CSS
+ * (including responsive-mobile-perf.css) to ensure these rules win.
+ *
+ * Purpose:
+ *   - Override cramped mobile container widths from responsive-width.css
+ *   - Restore premium glass depth (handled in responsive-mobile-perf.css)
+ *   - Normalize content spacing for mobile breathability
+ *   - Protect text wrapping for large font sizes / accessibility zoom
+ *   - Fix gauge container to never be smaller than SVG content
+ *   - Replace manual tiny-breakpoint icon shrink with fluid clamp tokens
+ *
+ * DOES NOT touch: navbar, pager-tabs, or any navigation behavior.
+ */
+
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL — Prevent min-width overflow on all elements
+   ═══════════════════════════════════════════════════════════════ */
+* {
+  min-width: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FLUID ICON TOKENS — replaces manual 52px→40px breakpoint shrink
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  --icon-card-lg: clamp(2.25rem, 9vw, 3.25rem);
+  --icon-card-md: clamp(1.75rem, 7vw, 2.5rem);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TEXT WRAPPING — resilient under large font sizes / zoom
+   ═══════════════════════════════════════════════════════════════ */
+.card-title,
+.card-subtitle,
+.input-label,
+.stat-label,
+.stat-number,
+.bmi-category,
+.hero-title,
+.hero-subtitle,
+.gauge-title h3,
+.gauge-subtitle,
+.advice-title,
+.advisory-title,
+.explanation-title {
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE (<= 600px) — Full-width, breathable, premium
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+
+  /* Container: use full width with safe gutters.
+     Overrides the cramped max-width:400px from responsive-width.css. */
+  .main-container {
+    width: 100%;
+    max-width: none;
+    padding-inline: clamp(0.875rem, 4vw, 1.25rem);
+  }
+
+  /* BMI grid: tighter spacing, no excess padding */
+  .bmi-grid {
+    padding: 0 !important;
+    gap: 1rem;
+    margin-top: clamp(1.5rem, 8vh, 4rem) !important;
+    margin-bottom: clamp(2rem, 10vh, 5rem) !important;
+  }
+
+  /* Cards: full width, fluid padding and radius */
+  .form-card,
+  .bmi-card,
+  .about-card,
+  .section-header-v2,
+  .footer-disclaimer {
+    width: 100%;
+    padding: clamp(1rem, 4.5vw, 1.5rem);
+    border-radius: clamp(16px, 5vw, 24px);
+  }
+
+  .bmi-results-card {
+    padding: clamp(1rem, 4.5vw, 1.5rem);
+    border-radius: clamp(14px, 4vw, 20px);
+  }
+
+  /* Gauge: container never smaller than SVG, SVG scales via CSS */
+  .gauge-container {
+    width: 100% !important;
+    max-width: 420px;
+  }
+
+  .radial-gauge {
+    width: min(72vw, 280px);
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Hero: full width, fluid typography */
+  .hero-content {
+    width: 100%;
+    padding: clamp(1.5rem, 6vw, 2rem);
+    margin-bottom: clamp(2rem, 10vh, 6rem) !important;
+  }
+
+  .hero-title {
+    font-size: clamp(1.75rem, 8vw, 3rem);
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1rem, 4vw, 1.25rem);
+    padding-inline: 0;
+  }
+
+  /* Stat/action grids: wrap naturally */
+  .stat-row-grid,
+  .scale-indicators {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  }
+
+  .action-buttons-row {
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    min-width: min(100%, 9rem);
+  }
+
+  /* Section margins for mobile */
+  .bmi-section,
+  .charts-section {
+    margin-top: clamp(1rem, 4vh, 2.5rem);
+    margin-bottom: clamp(1rem, 4vh, 2.5rem);
+  }
+
+  .hero-content,
+  .footer-disclaimer,
+  .about-bmi-grid {
+    margin-top: clamp(1.5rem, 7vh, 4rem) !important;
+    margin-bottom: clamp(1.5rem, 8vh, 5rem) !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FLUID ICONS — replace manual 52px/40px breakpoint shrink
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .Orbit,
+  .CircleSlash2,
+  .FileChartColumn,
+  .BarChart3,
+  .X,
+  .Gauge {
+    width: var(--icon-card-lg) !important;
+    height: var(--icon-card-lg) !important;
+  }
+
+  .AlertTriangle,
+  .Lightbulb,
+  .Users,
+  .Info2 {
+    width: var(--icon-card-md) !important;
+    height: var(--icon-card-md) !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EMERGENCY TINY SCREEN (<= 360px) — only essentials
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 360px) {
+  .form-card,
+  .bmi-card,
+  .about-card,
+  .section-header-v2,
+  .footer-disclaimer {
+    padding: 0.875rem;
+  }
+
+  .hero-content {
+    padding: 1.25rem 1rem;
+  }
+}

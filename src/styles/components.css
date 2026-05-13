@@ -296,7 +296,7 @@ button[aria-disabled="true"] {
 .hero-content {
   max-width: 800px;
   margin: 0 auto;
-  margin-bottom: clamp(40px, 40vh, 180px) !important;
+  margin-bottom: clamp(2rem, 12vh, 8rem) !important;
   padding: 3rem 2rem;
   border-radius: var(--radius-3xl);
   position: relative;

@@ -3,7 +3,7 @@
       ABOUT BMI SECTION
   ============================== */
 .section-header-v2 {
-  margin-top: clamp(40px, 40vh, 120px) !important;
+  margin-top: clamp(2rem, 10vh, 7rem) !important;
   border-radius: var(--radius-lg);
 }
 
@@ -47,7 +47,7 @@
   grid-template-columns: 1fr;
   gap: 2rem;
   margin-top: auto;
-  margin-bottom: clamp(40px, 40vh, 180px) !important;
+  margin-bottom: clamp(2rem, 10vh, 7rem) !important;
 }
 
 .about-card {
@@ -140,7 +140,7 @@
   color: var(--stellar-white);
   font-size: var(--text-lg);
   padding: clamp(2rem, 4vw, 4rem);
-  margin-top: clamp(40px, 40vh, 180px) !important;
+  margin-top: clamp(2rem, 10vh, 7rem) !important;
   margin-bottom: clamp(10px, 2vh, 10px) !important;
   /* horizontal centering */
   border-radius: var(--radius-3xl);
