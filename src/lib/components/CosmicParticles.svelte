@@ -48,6 +48,7 @@
         return;
       }
 
+      visible = true;
       const nextCount = computeParticleCount(tier, smoothModeEnabled);
       if (particles.length !== nextCount) {
         particleCount = nextCount;
@@ -63,8 +64,12 @@
     const handleVisibility = () => {
       if (destroyed) return;
       paused = document.hidden;
-      if (!paused && !reduced && particles.length === 0) {
-        fadeIn();
+      if (!paused && !reduced) {
+        if (particles.length === 0) {
+          fadeIn();
+        } else {
+          visible = true;
+        }
       }
     };
 
@@ -74,6 +79,7 @@
     if (!reduced && !document.hidden) {
       particleCount = computeParticleCount(tier, smoothModeEnabled);
       createParticles(false);
+      visible = true;
     }
   });
 
