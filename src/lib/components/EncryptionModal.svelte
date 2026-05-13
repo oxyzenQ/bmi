@@ -13,6 +13,7 @@
   import { analyzeStrength, getPassphraseHint, setPassphraseHint } from '$lib/utils/crypto';
   import type { StrengthResult } from '$lib/utils/crypto';
   import { warnDev } from '$lib/utils/warn-dev';
+  import StrengthMeter from './StrengthMeter.svelte';
   let _rv = $derived($localeVersion);
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 
@@ -69,31 +70,6 @@
   // Real strength analysis (zxcvbn-based, async)
   let strengthResult = $state<StrengthResult | null>(null);
   let strengthScore = $derived(strengthResult?.score ?? 0);
-  let strengthLevel = $derived(
-    strengthScore <= 0 ? 'weak' :
-    strengthScore === 1 ? 'fair' :
-    strengthScore === 2 ? 'medium' :
-    strengthScore === 3 ? 'strong' : 'very_strong'
-  );
-  let strengthPercent = $derived(
-    strengthScore === 0 ? 0 :
-    strengthScore === 1 ? 25 :
-    strengthScore === 2 ? 50 :
-    strengthScore === 3 ? 75 : 100
-  );
-  let strengthColor = $derived(
-    strengthScore <= 0 ? 'var(--red-500-solid)' :
-    strengthScore === 1 ? 'var(--cat-orange-solid)' :
-    strengthScore === 2 ? 'var(--warn-amber)' :
-    strengthScore === 3 ? 'var(--cat-green-solid)' : 'var(--emerald-solid)'
-  );
-  let strengthLabel = $derived(
-    strengthLevel === 'weak' ? t('crypto.strength_weak') :
-    strengthLevel === 'fair' ? t('crypto.strength_fair') :
-    strengthLevel === 'medium' ? t('crypto.strength_medium') :
-    strengthLevel === 'strong' ? t('crypto.strength_strong') :
-    t('crypto.strength_very_strong')
-  );
 
   // Debounced strength analysis (avoid heavy zxcvbn on every keystroke)
   let strengthTimer: ReturnType<typeof setTimeout> | null = null;
@@ -300,52 +276,6 @@
   const title = $derived(mode === 'export' ? t('crypto.export_title') : t('crypto.import_title'));
   const Icon = $derived(mode === 'export' ? Lock : Unlock);
   const iconColor = $derived(mode === 'export' ? 'var(--cosmic-purple)' : 'var(--cat-green-90)');
-
-  // Feedback text for strength meter
-  let strengthFeedback = $derived(() => {
-    if (!strengthResult || strengthScore === 0) return '';
-    const parts: string[] = [];
-    if (strengthResult.crackTimeSeconds > 0) {
-      const timeStr = formatCrackTime(strengthResult.crackTimeSeconds);
-      parts.push(t('crypto.crack_time', { t: timeStr }));
-    }
-    if (strengthResult.warning) {
-      parts.push(strengthResult.warning);
-    }
-    if (strengthResult.suggestions.length > 0) {
-      parts.push(strengthResult.suggestions[0]);
-    }
-    return parts.slice(0, 2).join('. ');
-  });
-
-  /**
-   * Format crack time (in seconds) to a localized human-readable string.
-   * Reactive to locale changes via the t() function.
-   */
-  function formatCrackTime(seconds: number): string {
-    if (seconds < 1) return t('crypto.crack_instant');
-
-    // Pair: [singular key, plural key, threshold in seconds]
-    const units: [string, string, number][] = [
-      ['crypto.crack_centuries', 'crypto.crack_centuries_plural', 100 * 365.25 * 24 * 3600],
-      ['crypto.crack_years', 'crypto.crack_years_plural', 365.25 * 24 * 3600],
-      ['crypto.crack_months', 'crypto.crack_months_plural', 30.44 * 24 * 3600],
-      ['crypto.crack_days', 'crypto.crack_days_plural', 24 * 3600],
-      ['crypto.crack_hours', 'crypto.crack_hours_plural', 3600],
-      ['crypto.crack_minutes', 'crypto.crack_minutes_plural', 60],
-      ['crypto.crack_seconds', 'crypto.crack_seconds_plural', 1],
-    ];
-
-    for (const [singularKey, pluralKey, unitSeconds] of units) {
-      if (seconds >= unitSeconds) {
-        const n = Math.round(seconds / unitSeconds);
-        const key = n === 1 ? singularKey : pluralKey;
-        return t(key, { n });
-      }
-    }
-
-    return t('crypto.crack_instant');
-  }
 </script>
 
 {#if show}
@@ -452,20 +382,11 @@
                 {/if}
               </button>
             </div>
-            {#if passphrase && mode === 'export'}
-              <div class="strength-bar-wrap">
-                <div class="strength-bar">
-                  <div class="strength-fill" style="width: {strengthPercent}%; background: {strengthColor};"></div>
-                </div>
-                <span class="strength-label" style="color: {strengthColor};">
-                  {strengthLabel}
-                </span>
-              </div>
-              {#if strengthFeedback()}
-                <p class="strength-feedback">{strengthFeedback()}</p>
-              {/if}
-              <p class="strength-hint">{t('crypto.strength_hint')}</p>
-            {/if}
+            <StrengthMeter
+              visible={!!passphrase && mode === 'export'}
+              score={strengthScore}
+              result={strengthResult}
+            />
           </div>
 
           {#if mode === 'export'}
@@ -824,51 +745,6 @@
 
   .encrypt-input::placeholder {
     color: var(--w-40);
-  }
-
-  .strength-bar-wrap {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.25rem;
-  }
-
-  .strength-bar {
-    flex: 1;
-    height: 4px;
-    background: var(--w-15);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .strength-fill {
-    height: 100%;
-    border-radius: 2px;
-    transition: width var(--dur-content) ease, background var(--dur-content) ease;
-  }
-
-  .strength-label {
-    font-size: var(--text-xs);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    white-space: nowrap;
-  }
-
-  .strength-feedback {
-    font-size: var(--text-sm);
-    color: var(--w-60);
-    margin-top: 0.35rem;
-    line-height: 1.4;
-    font-weight: 400;
-  }
-
-  .strength-hint {
-    font-size: 0.8rem;
-    color: var(--w-60);
-    margin-top: 0.5rem;
-    line-height: 1.5;
-    font-weight: 400;
   }
 
   .encrypt-error {
