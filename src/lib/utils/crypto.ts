@@ -9,7 +9,7 @@
  *   Params (mobile-safe): 64 MB memory, 3 iterations, parallelism 1
  * Key derivation (legacy): PBKDF2 with 600k iterations + random salt
  * Encryption: AES-256-GCM with 12-byte IV
- * Integrity: SHA-256 checksum of plaintext stored in meta (explicit tamper detection)
+ * Integrity: AES-GCM auth tag (built-in) + SHA-256 checksum of ciphertext in meta
  * Storage: salt + IV + ciphertext + checksum (base64-encoded in JSON)
  *
  * Passphrase verification (v18.1):
@@ -95,7 +95,7 @@ export interface EncryptedPayload {
     recordCount?: number;
     /** Envelope version (0–3) */
     version?: number;
-    /** SHA-256 checksum of plaintext — explicit tamper detection */
+    /** SHA-256 checksum of ciphertext — detects envelope-level tampering without leaking plaintext equality */
     checksum?: string;
   };
 }
@@ -213,12 +213,19 @@ function fromBase64(base64: string): Uint8Array {
   return bytes;
 }
 
-// ── SHA-256 checksum (explicit integrity) ──
+// ── SHA-256 checksum (ciphertext integrity) ──
 
 /**
- * Compute SHA-256 checksum of plaintext for explicit tamper detection.
- * Stored unencrypted in meta.checksum so import can detect tampering
- * BEFORE attempting decryption (clear error UX).
+ * Compute SHA-256 checksum of ciphertext (not plaintext).
+ * Stored unencrypted in meta.checksum to detect envelope tampering
+ * without leaking plaintext equality fingerprints.
+ *
+ * Why ciphertext, not plaintext:
+ *   - A plaintext checksum would leak equality: two files with the same
+ *     content would share the same checksum, even if encrypted differently.
+ *   - AES-GCM already provides integrity via its auth tag, so the plaintext
+ *     checksum was redundant for correctness. The ciphertext checksum adds
+ *     a lightweight pre-decryption sanity check at no extra cost.
  */
 export async function computeChecksum(data: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -227,7 +234,7 @@ export async function computeChecksum(data: string): Promise<string> {
 }
 
 /**
- * Verify plaintext against stored checksum.
+ * Verify ciphertext against stored checksum.
  * Returns true if the data matches, false if tampered.
  */
 export async function verifyChecksum(data: string, checksum: string): Promise<boolean> {
@@ -371,7 +378,6 @@ function fallbackStrength(pw: string): StrengthResult {
 export async function encrypt(plaintext: string, passphrase: string, meta?: EncryptedPayload['meta']): Promise<string> {
   const salt = randomBytes(SALT_LENGTH);
   const iv = randomBytes(IV_LENGTH);
-  const checksum = await computeChecksum(plaintext);
 
   let key: CryptoKey;
   let kdf: 'argon2id' | 'pbkdf2' = 'argon2id';
@@ -401,6 +407,9 @@ export async function encrypt(plaintext: string, passphrase: string, meta?: Encr
     encoder.encode(plaintext)
   );
 
+  const ciphertextB64 = toBase64(new Uint8Array(ciphertext));
+  const checksum = await computeChecksum(ciphertextB64);
+
   const payload: EncryptedPayload = {
     format: 'bmi-encrypted-v1',
     cipher: 'aes-256-gcm',
@@ -408,7 +417,7 @@ export async function encrypt(plaintext: string, passphrase: string, meta?: Encr
     ...(kdfParams && { kdfParams }),
     salt: toBase64(salt),
     iv: toBase64(iv),
-    data: toBase64(new Uint8Array(ciphertext)),
+    data: ciphertextB64,
     meta: {
       ...meta,
       checksum,
@@ -428,9 +437,10 @@ export async function encrypt(plaintext: string, passphrase: string, meta?: Encr
  *   - Other errors: corrupted payload, invalid base64, etc.
  *   All failures are logged via warnDev with specific context.
  *
- * Integrity check: verifies SHA-256 checksum of decrypted plaintext
- * against stored checksum. Separate from AES-GCM auth tag — provides
- * explicit tamper detection with clear error messages.
+ * Integrity check: verifies SHA-256 checksum of ciphertext
+ * against stored checksum. Uses ciphertext (not plaintext) to avoid
+ * leaking plaintext equality fingerprints. Separate from AES-GCM
+ * auth tag — provides a lightweight pre-decryption sanity check.
  */
 export async function decrypt(
   encryptedJson: string,
@@ -477,10 +487,10 @@ export async function decrypt(
 
     const plaintext = new TextDecoder().decode(plaintextBuf);
 
-    // Verify checksum if present (explicit tamper detection)
+    // Verify ciphertext checksum if present (detects envelope tampering)
     let integrityOk = true;
     if (payload.meta?.checksum) {
-      integrityOk = await verifyChecksum(plaintext, payload.meta.checksum);
+      integrityOk = await verifyChecksum(payload.data, payload.meta.checksum);
     }
 
     return { plaintext, integrityOk };

@@ -93,10 +93,11 @@ export default function config({ mode }: { mode: string }): UserConfig {
                         target: 'es2022',
                         minify: 'esbuild',
                         sourcemap: false,
-                        // @zxcvbn-ts/language-common bundles ~1.9MB of password frequency
-                        // lists — already dynamically imported so only loaded when the
-                        // encryption modal opens. This limit suppresses the size warning.
-                        chunkSizeWarningLimit: 2100
+                        // 700 KB warning threshold catches real regressions early.
+                        // Known heavy lazy chunks (acceptable):
+                        //   @zxcvbn-ts/language-common: ~465 KB raw / ~229 KB gzip (password dictionary)
+                        // These are dynamically imported only when the encryption modal opens.
+                        chunkSizeWarningLimit: 700
                 }
         };
 }

@@ -1,7 +1,8 @@
 /**
- * BMI History Export/Import utilities with HMAC-SHA256 integrity verification.
+ * BMI History Export/Import utilities with HMAC-SHA256 integrity check.
  *
  * Export wraps records in a versioned envelope signed with HMAC-SHA256.
+ * The signature helps detect accidental corruption and casual tampering.
  * A per-export random salt is mixed into the MAC computation so that even
  * identical records produce different signatures every time.
  *
@@ -9,8 +10,9 @@
  * to raise the effort required for casual extraction from the JS bundle.
  * This is obfuscation, not true protection — a determined attacker with
  * JS inspection can still recover the key. For the BMI calculator use-case
- * this trade-off is acceptable: it provides tamper-resistance against
- * casual manipulation while keeping the system fully client-side.
+ * this trade-off is acceptable: it provides checksum/signature-based
+ * detection of accidental corruption and casual tampering while keeping
+ * the system fully client-side.
  *
  * Envelope format:
  *   v0 (checksum 8-ch)  — FNV-1a 32-bit on records only        [legacy import only]
