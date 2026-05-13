@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount, tick } from 'svelte';
   import { backOut, cubicOut } from 'svelte/easing';
+  import { pagerSpring } from '$lib/utils/pager-spring';
   import { tweened } from 'svelte/motion';
   import { browser } from '$app/environment';
   import { getPerformanceTier, prefersReducedMotion as checkReducedMotion } from '$lib/utils/animation-config';
@@ -11,20 +12,14 @@
   import { calculateBmi, isBmiResult } from '$lib/utils/bmi-calculator';
   import { warnDev, warnDevOnce } from '$lib/utils/warn-dev';
   import { MARKER_ANIM, PAGER, SPRING, SCROLL, HAPTIC, SECTIONS } from '$lib/utils/animation-config';
+  import { isEditableTarget } from '$lib/utils/dom';
   import Hero from '$lib/ui/Hero.svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
   import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
+  import AboutSection from '$lib/components/sections/AboutSection.svelte';
+  import SettingsSection from '$lib/components/sections/SettingsSection.svelte';
+  import StagingSpinner from '$lib/components/StagingSpinner.svelte';
   import {
-    Lightbulb,
-    Users,
-    GitBranch,
-    GitCompare,
-    PackageCheck,
-    ShieldCheck,
-    Activity,
-    AlertTriangle,
-    Scale,
-    Settings,
     Sparkles,
     ChevronLeft,
     ChevronRight,
@@ -233,61 +228,6 @@
     }
   });
 
-  // Safe Premium Spring — spring-inspired page transitions.
-  // IN:  uses backOut easing for natural overshoot + settle (iOS/Apple feel).
-  //      Scale 0.98 → overshoots to ~1.01 → settles at 1.0. Satisfying "pop".
-  // OUT: uses cubicOut with reversed time (1-t) — proven glitch-free from 11a717f.
-  //      Ends at base CSS state (center, opacity 1) so WAAPI cancel produces
-  //      no visual flash before DOM removal.
-  //
-  // Anti-glitch rules (discovered through 7 fix iterations):
-  // 1. IN must start at opacity 0 — prevents OUT element bleeding through.
-  //    (0.4 start causes visible ghost of old page behind new page.)
-  // 2. OUT must end at opacity 1 at base position — prevents 1-frame flash
-  //    when Web Animations API cancels the animation before DOM removal.
-  //    (The 1-t reversal makes cubicOut(1-t) go from 1→0, so opacity ends at 1.)
-  // GPU-only: translate3d, scale, opacity. No rotation, no blur, no gimmicks.
-  function pagerSpring(
-    _node: Element,
-    opts: {
-      x: number;
-      duration: number;
-      phase: 'in' | 'out';
-      strength: number;
-    }
-  ) {
-    const x = opts.x;
-    const duration = opts.duration;
-    const phase = opts.phase;
-
-    return {
-      duration,
-      css: (t: number) => {
-        if (phase === 'in') {
-          // IN: spring overshoot + settle via backOut easing.
-          // Starts at opacity 0 (no bleed-through) → ends at 1.
-          // Scale pop: 0.98 → ~1.01 → 1.0 (backOut overshoot built-in).
-          const p = backOut(t);
-          const dx = (1 - p) * x;
-          const scale = 0.98 + 0.02 * p;
-          const opacity = p; // 0 → 1 — invisible start, no ghost bleed-through
-          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0) scale(${scale.toFixed(4)}); opacity: ${opacity.toFixed(4)};`;
-        } else {
-          // OUT: reversed time (1-t) from glitch-free 11a717f baseline.
-          // Animation ends at center + opacity 1 (= base CSS state).
-          // When WAAPI cancels, element reverts to base CSS — no visual change.
-          // IN element fully covers OUT by this point, so the OUT-to-center
-          // movement is invisible to the user.
-          const linear = 1 - t;
-          const p = cubicOut(linear);
-          const dx = p * x;
-          const opacity = Math.max(0, 1 - p * 1.15); // ends at 1 (= base CSS)
-          return `transform: translate3d(${dx.toFixed(3)}px, 0, 0); opacity: ${opacity.toFixed(4)}; pointer-events: none;`;
-        }
-      }
-    };
-  }
-
   const BMI_BAR_MIN = BMI_THRESHOLDS.MIN;
   const BMI_BAR_MAX = BMI_THRESHOLDS.MAX;
 
@@ -404,19 +344,6 @@
     if (activeIndex >= sections.length - 1) return;
     triggerHaptic(5);
     goTo(activeIndex + 1);
-  }
-
-  function isEditableTarget(el: EventTarget | null) {
-    const t = el as HTMLElement | null;
-    if (!t) return false;
-    const tag = t.tagName;
-    return (
-      tag === 'INPUT' ||
-      tag === 'TEXTAREA' ||
-      tag === 'SELECT' ||
-      t.isContentEditable ||
-      Boolean(t.closest('input, textarea, select, [contenteditable="true"]'))
-    );
   }
 
   function handlePointerDown(event: PointerEvent) {
@@ -1091,106 +1018,11 @@
         {/if}
 
         {#if activeIndex === 4}
-          {#key $localeVersion}
-          <!-- About BMI Section -->
-          <section class="about-bmi-section">
-            <div class="main-container">
-              <div class="section-header-v2">
-                <h2 class="title">{t('about.title')}</h2>
-                <p class="subtitle">{t('about.subtitle')}</p>
-              </div>
-
-              <div class="about-bmi-grid">
-                <!-- What is BMI Card -->
-                <div class="about-card">
-                  <div class="about-card-header">
-                    <Lightbulb class="Lightbulb" />
-                    <h3>{t('about.what_is_title')}</h3>
-                  </div>
-                  <div class="about-card-content">
-                    <p>
-                      {@html t('about.what_is_p1')}
-                    </p>
-                    <p>
-                      {@html t('about.what_is_p2')}
-                    </p>
-                    <p>
-                      {@html t('about.what_is_p3')}
-                    </p>
-                  </div>
-                </div>
-
-                <!-- About Our App Card -->
-                <div class="about-card">
-                  <div class="about-card-header">
-                    <Users class="Users" />
-                    <h3>{t('about.app_title')}</h3>
-                  </div>
-                  <div class="about-card-content">
-                    <p>
-                      {@html t('about.app_desc')}
-                    </p>
-                    <div class="app-info">
-                      <p class="info-row">
-                        <PackageCheck class="PackageCheck" />
-                        <strong>{t('about.version')}:</strong>Stellar v18.0 <span class="commit-id">({gitCommitId})</span>
-                      </p>
-                      <p class="info-row">
-                        <GitBranch class="GitBranch" />
-                        <strong>{t('about.branch')}:</strong>{gitBranch}
-                      </p>
-                      <p class="info-row">
-                        <GitCompare class="GitCompare" />
-                        <strong>{t('about.type_apps')}:</strong><span class="text-gradient-elegant">{t('about.open_source')}</span>
-                      </p>
-                      <p class="info-row">
-                        <ShieldCheck class="ShieldCheck" />
-                        <strong>{t('about.status')}:</strong>{t('about.status_stable')}
-                      </p>
-                      <p class="info-row">
-                        <Activity class="Activity" />
-                        <strong>{t('about.maintenance')}:</strong>{t('about.maintenance_active')}
-                      </p>
-                      <p class="info-row">
-                        <Scale class="Scale" />
-                        <strong>{t('about.license')}:</strong>GPL v3
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </section>
-          {/key}
+          <AboutSection {gitCommitId} {gitBranch} />
         {/if}
 
         {#if activeIndex === 5}
-          {#key $localeVersion}
-          <div class="main-container">
-            <footer class="footer-disclaimer">
-              <div class="disclaimer-icon">
-                <AlertTriangle class="AlertTriangle" />
-              </div>
-              <p>
-                {t('info.disclaimer')}
-              </p>
-            </footer>
-
-            <div class="github-footer">
-              <a
-                href="https://github.com/oxyzenq/bmi"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="github-link"
-              >
-                <span>
-                  {t('info.copyright', { n: currentYear })}
-                </span>
-              </a>
-            </div>
-          </div>
-          {/key}
+          <SettingsSection {currentYear} />
         {/if}
       </section>
     {/key}
@@ -1289,14 +1121,7 @@
   />
 {/if}
 
-{#if stagingLoading}
-  <div class="staging-backdrop staging-visible">
-    <div class="staging-spinner-wrap">
-      <Settings class="staging-gear-icon" size={48} />
-      <span class="staging-text">{t('crypto.preparing')}</span>
-    </div>
-  </div>
-{/if}
+<StagingSpinner show={stagingLoading} />
 
 <style>
   .pager-shell {
