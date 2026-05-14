@@ -217,7 +217,7 @@ button[aria-disabled="true"] {
 }
 
 .btn-ghost {
-  background: linear-gradient(135deg, var(--deep-void-40), rgba(91, 33, 182, 0.30));
+  background: linear-gradient(135deg, var(--deep-void-40), rgba(91, 33, 182, 0.50));
   border: 1px solid transparent;
 }
 

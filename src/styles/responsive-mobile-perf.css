@@ -209,7 +209,7 @@
   }
 
   .btn-ghost {
-    background: linear-gradient(135deg, var(--deep-void-40), rgba(91, 33, 182, 0.30)) !important;
+    background: linear-gradient(135deg, var(--deep-void-40), rgba(91, 33, 182, 0.50)) !important;
   }
 
 

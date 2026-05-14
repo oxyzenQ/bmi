@@ -133,7 +133,7 @@
   panelClass="notify-float-box"
 >
   <button class="notify-close" onclick={handleModalClose} aria-label={t('notify.close_aria')}>
-    <span class="close-icon">✕</span>
+    <span class="close-icon-text">✕</span>
   </button>
 
   <div class="notify-icon" style="color: {iconColor}">
@@ -196,7 +196,7 @@
     justify-content: center;
     color: var(--w-80);
     cursor: pointer;
-    transition: background var(--dur-micro) ease, color var(--dur-micro) ease;
+    transition: background var(--dur-micro) ease, color var(--dur-micro) ease, transform var(--dur-micro) ease;
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     z-index: var(--z-inner-control);
@@ -209,16 +209,17 @@
     border-color: var(--w-25);
   }
 
-  .notify-close :global(svg) {
-    display: none;
-  }
-
-  .close-icon {
-    font-size: 18px;
-    font-weight: 600;
-    color: inherit;
+  .close-icon-text {
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 22px;
+    font-weight: 400;
     line-height: 1;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -2px; /* Visual center adjustment */
+    color: inherit;
+    pointer-events: none;
   }
 
   .notify-icon {
@@ -287,18 +288,18 @@
     background: linear-gradient(135deg, var(--cat-green-95) 0%, var(--dkgreen-95) 100%);
   }
 
-  .btn-delete {
+  .btn-delete,
+  .btn-error {
     background: linear-gradient(135deg, var(--cat-red-90) 0%, var(--darkred-90) 100%);
     color: var(--stellar-white);
-    
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border: 1px solid var(--w-15);
   }
 
-  .btn-delete:hover {
+  .btn-delete:hover,
+  .btn-error:hover {
     transform: translateY(-2px) scale(1.02);
-    
     background: linear-gradient(135deg, var(--cat-red-95) 0%, var(--darkred-95) 100%);
   }
 
