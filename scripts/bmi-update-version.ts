@@ -11,8 +11,9 @@
  *
  * Files updated:
  *   - package.json        → top-level "version" field
- *   - README.md           → title "Stellar v{major}.{minor}" + version line
+ *   - README.md           → title "Stellar v{major}.{minor}"
  *   - src/routes/+page.svelte → about section "Stellar-{major}.{minor}"
+ *   - src/lib/components/sections/AboutSection.svelte → version display
  *   - src/app.html        → 3 meta tags (title, og:title, twitter:title)
  *   - src/lib/i18n/locales/{en,id,ja,zh}.ts → meta.title + hero.edition
  *   - src/lib/utils/backup.ts → APP_VERSION constant
@@ -90,9 +91,7 @@ function main(): void {
   const shortOld = shortVersion(currentVersion);
 
   console.log('');
-  console.log('\x1b[36m╔══════════════════════════════════════════╗');
-  console.log('║  BMI Logigo — Version Updater               ║');
-  console.log('╚══════════════════════════════════════════╝\x1b[0m');
+  console.log('\x1b[36m  BMI Logigo — Version Updater\x1b[0m');
   console.log('');
   console.log(`  Current: \x1b[90m${currentVersion}\x1b[0m`);
   console.log(`  Target:  \x1b[1m${newVersion}\x1b[0m\n`);
@@ -106,9 +105,7 @@ function main(): void {
     // Drift was fixed — skip remaining updates since package.json is already correct
     console.log(`  \x1b[33m*\x1b[0m Version drift detected and fixed (package.json already at ${newVersion})`);
     console.log('');
-    console.log(`\x1b[32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m`);
     console.log(`\x1b[32m  Done! Version drift fixed to Stellar v${short}\x1b[0m`);
-    console.log(`\x1b[32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m`);
     console.log('');
     return;
   }
@@ -120,20 +117,25 @@ function main(): void {
 
   // ── 2. Update README.md ──
   console.log('  \x1b[33m→\x1b[0m README.md');
-  updateReadme(newVersion, short);
-  console.log('    \x1b[32m✓\x1b[0m title + version line updated');
+  updateReadme(short);
+  console.log('    \x1b[32m✓\x1b[0m title updated');
 
   // ── 3. Update +page.svelte about section ──
   console.log('  \x1b[33m→\x1b[0m src/routes/+page.svelte');
   updatePageSvelte(shortOld, short);
   console.log('    \x1b[32m✓\x1b[0m about section updated');
 
-  // ── 4. Update app.html meta tags ──
+  // ── 4. Update AboutSection.svelte version display ──
+  console.log('  \x1b[33m→\x1b[0m src/lib/components/sections/AboutSection.svelte');
+  updateAboutSection(short);
+  console.log('    \x1b[32m✓\x1b[0m version display updated');
+
+  // ── 5. Update app.html meta tags ──
   console.log('  \x1b[33m→\x1b[0m src/app.html');
   updateAppHtml(shortOld, short);
   console.log('    \x1b[32m✓\x1b[0m 3 meta tags updated');
 
-  // ── 5. Update i18n locale files ──
+  // ── 6. Update i18n locale files ──
   const locales = ['en', 'id', 'ja', 'zh'];
   for (const locale of locales) {
     console.log(`  \x1b[33m→\x1b[0m src/lib/i18n/locales/${locale}.ts`);
@@ -141,17 +143,17 @@ function main(): void {
     console.log('    \x1b[32m✓\x1b[0m meta.title + hero.edition updated');
   }
 
-  // ── 6. Update LICENSE.md ──
+  // ── 7. Update LICENSE.md ──
   console.log('  \x1b[33m→\x1b[0m LICENSE.md');
   updateLicense(shortOld, short);
   console.log('    \x1b[32m✓\x1b[0m title updated');
 
-  // ── 7. Update backup.ts APP_VERSION ──
+  // ── 8. Update backup.ts APP_VERSION ──
   console.log('  \x1b[33m→\x1b[0m src/lib/utils/backup.ts');
   updateBackupTs(newVersion);
   console.log('    \x1b[32m✓\x1b[0m APP_VERSION updated');
 
-  // ── 8. Regenerate lock files ──
+  // ── 9. Regenerate lock files ──
   console.log('  \x1b[33m→\x1b[0m Regenerating lock files');
   try {
     execSync('bun install', { cwd: ROOT, stdio: 'pipe' });
@@ -162,10 +164,8 @@ function main(): void {
 
   // ── Summary ──
   console.log('');
-  console.log('\x1b[32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m');
   console.log(`\x1b[32m  Done! Version \x1b[1m${currentVersion}\x1b[0m \x1b[32m→\x1b[0m \x1b[1m\x1b[32m${newVersion}\x1b[0m`);
   console.log(`\x1b[32m  Display: Stellar v${short}\x1b[0m`);
-  console.log('\x1b[32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m');
   console.log('');
 }
 
@@ -187,19 +187,13 @@ function updatePackageJson(newVersion: string): void {
   writeFile('package.json', JSON.stringify(pkg, null, 2) + '\n');
 }
 
-function updateReadme(newVersion: string, short: string): void {
+function updateReadme(short: string): void {
   let content = readFile('README.md');
 
   // Title: "# BMI Calculator — Stellar v10.5"
   content = content.replace(
-    /^# BMI Calculator — Stellar v\d+\.\d+/m,
-    `# BMI Calculator — Stellar v${short}`
-  );
-
-  // Version line: "- **Version**: 10.5.0 (Stellar Edition)"
-  content = content.replace(
-    /- \*\*Version\*\*: \d+\.\d+\.\d+ \(Stellar Edition\)/,
-    `- **Version**: ${newVersion} (Stellar Edition)`
+    /Stellar v\d+\.\d+/g,
+    `Stellar v${short}`
   );
 
   writeFile('README.md', content);
@@ -228,6 +222,18 @@ function updatePageSvelte(oldShort: string, newShort: string): void {
   }
 
   writeFile('src/routes/+page.svelte', updated);
+}
+
+function updateAboutSection(short: string): void {
+  let content = readFile('src/lib/components/sections/AboutSection.svelte');
+
+  // Replace "Stellar v{X.Y}" in the version display
+  content = content.replace(
+    /Stellar v\d+\.\d+/g,
+    `Stellar v${short}`
+  );
+
+  writeFile('src/lib/components/sections/AboutSection.svelte', content);
 }
 
 function updateAppHtml(oldShort: string, newShort: string): void {
@@ -298,30 +304,43 @@ function escapeRegex(str: string): string {
 /**
  * Detect and fix version drift in source files when package.json
  * is already at the target version but source files reference older versions.
+ * Checks +page.svelte, AboutSection.svelte, and README.md.
  * Returns true if any drift was fixed.
  */
 function fixVersionDrift(currentShort: string): boolean {
   let fixed = false;
-
-  // Check +page.svelte for any "Stellar v{X.Y}" where X.Y !== currentShort
-  const pageContent = readFile('src/routes/+page.svelte');
   const broadVersionPattern = /Stellar v(\d+\.\d+)/g;
-  let match: RegExpExecArray | null;
-  while ((match = broadVersionPattern.exec(pageContent)) !== null) {
-    if (match[1] !== currentShort) {
-      const drifted = match[0];
-      const corrected = `Stellar v${currentShort}`;
-      console.log(`  \\x1b[33m*\\x1b[0m Fixing drift in +page.svelte: "${drifted}" → "${corrected}"`);
-      // Will be fixed by the updatePageSvelte fallback below
-      fixed = true;
+
+  const filesToCheck = [
+    'src/routes/+page.svelte',
+    'src/lib/components/sections/AboutSection.svelte',
+    'README.md'
+  ];
+
+  for (const filePath of filesToCheck) {
+    const content = readFile(filePath);
+    let match: RegExpExecArray | null;
+    broadVersionPattern.lastIndex = 0;
+    let needsUpdate = false;
+
+    while ((match = broadVersionPattern.exec(content)) !== null) {
+      if (match[1] !== currentShort) {
+        const drifted = match[0];
+        const corrected = `Stellar v${currentShort}`;
+        console.log(`  \x1b[33m*\x1b[0m Fixing drift in ${filePath}: "${drifted}" → "${corrected}"`);
+        needsUpdate = true;
+        fixed = true;
+      }
     }
-  }
-  if (fixed) {
-    // Use the fallback broad patterns from updatePageSvelte
-    const oldContent = readFile('src/routes/+page.svelte');
-    let updated = oldContent.replace(/Stellar-\d+\.\d+(?=[\s<}])/g, `Stellar-${currentShort}`);
-    updated = updated.replace(/Stellar v\d+\.\d+(?=[\s<}])/g, `Stellar v${currentShort}`);
-    if (updated !== oldContent) writeFile('src/routes/+page.svelte', updated);
+
+    if (needsUpdate) {
+      let updated = content.replace(/Stellar v\d+\.\d+/g, `Stellar v${currentShort}`);
+      // Also fix "Stellar-X.Y" patterns in +page.svelte
+      if (filePath === 'src/routes/+page.svelte') {
+        updated = updated.replace(/Stellar-\d+\.\d+(?=[\s<}])/g, `Stellar-${currentShort}`);
+      }
+      writeFile(filePath, updated);
+    }
   }
 
   return fixed;

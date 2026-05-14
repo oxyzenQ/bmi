@@ -2,7 +2,7 @@
   <img src="static/assets/bmi-logigo-v2.png" alt="BMI Calculator — Stellar Edition" width="280" />
 </p>
 
-<h1 align="center">BMI Calculator — Stellar v18.0</h1>
+<h1 align="center">BMI Calculator — Stellar v20.0</h1>
 
 <p align="center">
   A luxury, space-themed <strong>Body Mass Index (BMI)</strong> calculator built with <strong>SvelteKit 2 + Svelte 5 (Runes) + TypeScript</strong>, designed for an accessible, privacy-first user experience with production-grade polish.
@@ -10,8 +10,7 @@
 
 <p align="center">
   <a href="https://bmi-logigo.vercel.app"><strong>Live Demo</strong></a> ·
-  <a href="LICENSE.md">GPL-3.0</a> ·
-  v18.0.0 (Stellar Edition)
+  <a href="LICENSE.md">GPL-3.0</a>
 </p>
 
 ---
@@ -48,7 +47,7 @@
 |---|---|
 | Framework | SvelteKit 2.57 (Svelte 5.55 Runes) |
 | Language | TypeScript (strict mode) |
-| Styling | Modular CSS with CSS custom properties (11 files in `src/styles/`) |
+| Styling | Modular CSS with CSS custom properties (17 files in `src/styles/`) |
 | Icons | lucide-svelte |
 | Fonts | Inter Variable + JetBrains Mono Variable (bundled locally) |
 | Runtime / tooling | Bun |
@@ -88,7 +87,7 @@ src/
     +layout.svelte         Root layout (CosmicParticles, PWA install, Web Vitals)
     +layout.ts             Root layout loader (locale detection, security)
     +error.svelte          Custom error page (themed, accessible)
-  styles/                  Modular CSS (11 files, imported in cascade order)
+  styles/                  Modular CSS (17 files, imported in cascade order)
     tokens.css             Design tokens: fonts, opacity system, glassmorphism tokens
     base.css               Global resets, typography, utility classes
     components.css         Glassmorphism containers (@supports progressive enhancement)
@@ -96,10 +95,16 @@ src/
     results.css            BMI results card, share/action buttons, empty states
     data-cards.css         Stat grid, TDEE, radial gauge, reference table
     layout.css             About section, cosmic particles, footer
-    responsive.css         Responsive breakpoints, mobile performance (T-rules)
+    icons.css              Icon styling and alignment utilities
     nav.css                Pager / bottom navbar, performance tier optimizations
     lang-switcher.css      Language switcher floating panel (portaled to body)
     animation.css          Skeleton loading, shooting stars, haptic feedback, progress bar, encryption badge, empty states, drag & drop zone
+    responsive-base.css    Responsive base breakpoints and layout shifts
+    responsive-width.css   Width-based responsive rules, ref-table mobile stacking
+    responsive-height.css  Height-based responsive rules
+    responsive-content.css Mobile content overrides, glass tuning
+    responsive-backdrop.css No-backdrop fallback for unsupported browsers
+    responsive-mobile-perf.css Touch-device GPU optimizations (T-rules)
   lib/
     components/            Reusable UI components
       BmiForm.svelte         Height/weight/age/gender/activity input form
@@ -178,7 +183,7 @@ Heavy components (BmiForm, BmiResults, BmiRadialGauge, BmiHealthRisk, BmiSnapsho
 - `$bindable()` for two-way bound props
 
 ### CSS Architecture
-Styles split into 11 focused modules under `src/styles/`, imported in cascade order in `+layout.svelte`:
+Styles split into 17 focused modules under `src/styles/`, imported in cascade order in `+layout.svelte`:
 
 1. **tokens.css** — All CSS custom properties (colors, opacity tokens, spacing, elevation, micro-delay, glassmorphism tokens)
 2. **base.css** — Global resets, typography, utility classes
@@ -187,10 +192,16 @@ Styles split into 11 focused modules under `src/styles/`, imported in cascade or
 5. **results.css** — BMI results card, share/action buttons
 6. **data-cards.css** — Stat grid, TDEE, radial gauge, reference table
 7. **layout.css** — About section, cosmic particles, footer
-8. **responsive.css** — Responsive breakpoints + mobile performance optimizations (T-rules)
+8. **icons.css** — Icon styling and alignment utilities
 9. **nav.css** — Pager navigation, performance tier optimizations
 10. **lang-switcher.css** — Language switcher panel (portaled to body)
 11. **animation.css** — Skeleton loading, shooting stars, micro-interactions
+12. **responsive-base.css** — Base responsive breakpoints and layout shifts
+13. **responsive-width.css** — Width-based responsive rules, ref-table mobile stacking
+14. **responsive-height.css** — Height-based responsive rules
+15. **responsive-content.css** — Mobile content overrides, glass tuning
+16. **responsive-backdrop.css** — No-backdrop fallback for unsupported browsers
+17. **responsive-mobile-perf.css** — Touch-device GPU optimizations (T-rules)
 
 ### Glassmorphism System (Bug #19 Fix)
 All glass containers use a consistent progressive enhancement pattern:
@@ -232,7 +243,7 @@ Device capabilities detected at mount time via `performance.ts`:
 - **Medium**: 4+ cores, 4+ GB RAM -> standard animations, style containment
 - **Low**: everything else -> minimal animations, simplified shadows, no backdrop-filter
 
-### Mobile Performance Optimizations (responsive.css T-rules)
+### Mobile Performance Optimizations (responsive-mobile-perf.css T-rules)
 The `@media (hover: none) and (pointer: coarse)` block applies permanent GPU optimizations on touch devices:
 - **T-1/T-1b**: Simplified body filters and removed gradient overlay
 - **T-2**: Containment on scroll container

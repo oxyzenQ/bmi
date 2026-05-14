@@ -693,6 +693,8 @@
       var(--w-6),
       var(--w-2));
   border-bottom: 2px solid var(--w-10);
+  border-left: 1px solid var(--text-muted);
+  border-right: 1px solid var(--text-muted);
   
 }
 
