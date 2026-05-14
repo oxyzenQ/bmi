@@ -1,6 +1,6 @@
-# BMI Calculator – Stellar v20.0
+# BMI Stellar – v20.0
 
-Copyright (C) 2025 Team LOGIGO and rezky_nightky
+Copyright (C) 2025-2026 Rezky Nightky
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

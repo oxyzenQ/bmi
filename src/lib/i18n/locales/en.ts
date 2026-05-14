@@ -7,9 +7,9 @@ import type { TranslationDict } from '../types';
 
 const en: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': 'A Simple BMI Calc \u2014 Stellar v20.0',
-  'meta.description': 'A luxury space-themed BMI calculator. Calculate your Body Mass Index, TDEE, Body Fat %, and track your health journey with interactive charts. Built with SvelteKit by Team LOGIGO.',
-  'meta.og_description': 'A luxury space-themed BMI calculator with TDEE, Body Fat %, interactive charts, and PWA support.',
+  'meta.title': 'BMI Stellar v20.0 \u2014 Privacy-First BMI Companion',
+  'meta.description': 'Calculate BMI, TDEE, body-fat estimates, and ideal weight range with BMI Stellar \u2014 a privacy-first, offline-ready health companion with charts and encrypted backups.',
+  'meta.og_description': 'A privacy-first BMI companion with TDEE, body-fat estimates, progress charts, offline support, and encrypted backups.',
 
   // ── Navigation ──
   'nav.aria_label': 'BMI Calculator',
@@ -52,11 +52,11 @@ const en: TranslationDict = {
   'notify.error_title': 'Error',
 
   // ── Hero ──
-  'hero.title': 'BMI Calculator',
-  'hero.subtitle': 'Explore your body \u2014 discover balance under the stars.',
-  'hero.feature1': 'Accurate Calculations',
-  'hero.feature2': 'Health Insights',
-  'hero.feature3': 'Luxury Design',
+  'hero.title': 'BMI Stellar',
+  'hero.subtitle': 'Calculate, understand, and track your body metrics \u2014 privately, offline, and beautifully.',
+  'hero.feature1': 'BMI + TDEE',
+  'hero.feature2': 'Local Progress',
+  'hero.feature3': 'Encrypted Backup',
   'hero.edition': 'Stellar v20.0',
 
   // ── Form ──
@@ -169,7 +169,7 @@ const en: TranslationDict = {
   'crypto.crack_centuries_plural': '{n} centuries',
 
   // ── Stellar v15: Trust & Transparency ──
-  'crypto.encryption_badge': 'End-to-end encrypted',
+  'crypto.encryption_badge': 'Passphrase-encrypted backup',
   'crypto.strong_warning': '<strong>Do not lose your passphrase.</strong> It cannot be recovered. Without it, your encrypted backup is permanently inaccessible.',
   'crypto.export_summary_records': 'Records',
   'crypto.export_summary_encrypted': 'Encryption',
@@ -392,26 +392,26 @@ const en: TranslationDict = {
   'error.reload': 'reload the app',
 
   // ── Share ──
-  'share.title': 'BMI Calculator Result',
+  'share.title': 'BMI Stellar Result',
   'share.bmi_line': 'BMI: {n} ({category})',
   'share.prime_line': 'BMI Prime: {n}',
   'share.weight_line': 'Weight: {n} {unit}',
   'share.height_line': 'Height: {n} {unit}',
   'share.tdee_line': 'TDEE: {n} kcal/day',
-  'share.footer': 'Calculated with A Simple BMI Calc',
-  'share.card_header': 'BMI CALCULATOR',
+  'share.footer': 'Calculated with BMI Stellar',
+  'share.card_header': 'BMI STELLAR',
   'share.card_prime': 'BMI Prime',
   'share.card_ideal': 'Ideal Range',
   'share.card_tdee': 'TDEE',
   'share.card_kcal': 'kcal',
-  'share.card_branding': 'A Simple BMI Calc \u2014 by Rezky Nightky',
+  'share.card_branding': 'BMI Stellar \u2014 by Rezky Nightky',
   'share.card_text': 'My BMI: {n} ({category})',
 
   // ── History IO ──
   'history.invalid_json': 'Invalid JSON format.',
   'history.no_records': 'No valid BMI records found in the file.',
   'history.integrity_failed': 'Integrity verification failed \u2014 the file has been tampered with and is not safe to import.',
-  'history.invalid_format': 'Invalid file format. This file was not exported by BMI Calculator or has been modified. Please export a new file and try again.',
+  'history.invalid_format': 'Invalid file format. This file was not exported by BMI Stellar or has been modified. Please export a new file and try again.',
   'history.no_valid_records': 'No valid BMI records found.',
   'history.save_failed': 'Failed to save history to storage.',
   'history.import_success': 'Successfully imported {count} records',
@@ -466,8 +466,8 @@ const en: TranslationDict = {
   'about.what_is_p1': 'Body Mass Index (BMI) is a simple weight\u2011for\u2011height index: weight (kg) divided by height (m) squared. It\u2019s a quick population\u2011level screening tool to gauge potential health risk.',
   'about.what_is_p2': 'Adult ranges: <em>Underweight</em> (< 18.5), <em>Normal</em> (18.5\u201324.9), <em>Overweight</em> (25.0\u201329.9), <em>Obese</em> (\u2265 30).',
   'about.what_is_p3': 'Limitations: BMI doesn\u2019t distinguish fat vs muscle or fat distribution. Use it alongside waist circumference, body\u2011fat %, lifestyle factors, and clinical assessment.',
-  'about.app_title': 'About Our BMI App',
-  'about.app_desc': 'Our BMI app features a modern and clean design, developed by <strong>Team LOGIGO</strong>. The team includes Rezky (Project Lead), Fiqih (Menu Design), Agus (Competitor Research), Virlan (Login Functionality), Andre (Graph and BMI Calculation Functions), and Ferdian (Website Testing). Thank you for your support!',
+  'about.app_title': 'About BMI Stellar',
+  'about.app_desc': 'BMI Stellar is a privacy-first BMI companion built for fast body-metric calculations, local progress tracking, offline use, and encrypted backup export. It is designed to feel polished without sending your personal health data to a server.',
   'about.version': 'Version',
   'about.branch': 'Branch',
   'about.type_apps': 'Type Apps',
@@ -477,6 +477,33 @@ const en: TranslationDict = {
   'about.status_stable': 'Stable',
   'about.maintenance': 'Maintenance',
   'about.maintenance_active': 'Actively Maintained',
+
+  'about.limit_title': 'What BMI Can and Cannot Tell You',
+  'about.limit_p1': 'BMI is useful as a quick screening tool, but it is not a diagnosis. It does not directly measure muscle mass, fat distribution, hydration, bone density, or individual medical conditions.',
+  'about.limit_p2': 'For a clearer picture, combine BMI with waist circumference, body-fat estimates, activity level, nutrition, sleep, and professional medical advice when needed.',
+
+  'about.features_title': 'What BMI Stellar Calculates',
+  'about.features_p1': 'BMI Stellar calculates BMI category, BMI Prime, ideal weight range, TDEE, BMR, body-fat estimate, and health-risk guidance based on your inputs.',
+  'about.features_p2': 'It also includes a radial gauge, progress snapshot, sparkline history, CSV/JSON export, share card generation, and multi-language support.',
+
+  'about.privacy_title': 'Privacy & Local Data',
+  'about.privacy_p1': 'Your BMI history and preferences are stored locally on your device. The app is designed to work offline and does not require an account.',
+  'about.privacy_p2': 'You stay in control of your data: clear it, export it, import it, or keep it only on your current device.',
+
+  'about.backup_title': 'Encrypted Backups',
+  'about.backup_p1': 'BMI Stellar supports encrypted backup export using AES-GCM with passphrase-based key derivation.',
+  'about.backup_p2': 'Your passphrase is not stored. If you lose it, encrypted backups cannot be recovered.',
+
+  'about.opensource_title': 'Open Source & Release',
+  'about.opensource_p1': 'BMI Stellar is an open-source project maintained by Rezky Nightky with a focus on accessibility, privacy, responsive UI, and long-term stability.',
+  'about.opensource_p2': 'This release is part of the Stellar v20.0 milestone.',
+
+  'about.data_model': 'Data Model',
+  'about.local_first': 'Local-first',
+  'about.backup': 'Backup',
+  'about.backup_optional': 'Optional encrypted export',
+  'about.pwa_type': 'Open-source PWA',
+  'about.status_rc': 'Stable release candidate',
 
   // ── Info Section ──
   'info.disclaimer': 'BMI is a screening tool and should not be used as a sole diagnostic method. Please consult healthcare professionals for comprehensive health assessment.',

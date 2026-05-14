@@ -6,9 +6,9 @@ import type { TranslationDict } from '../types';
 
 const id: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': 'Kalkulator BMI Sederhana \u2014 Stellar v20.0',
-  'meta.description': 'Kalkulator BMI bertema luar angkasa mewah. Hitung Indeks Massa Tubuh, TDEE, Persentase Lemak Tubuh, dan lacak perjalanan kesehatan Anda dengan grafik interaktif. Dibuat dengan SvelteKit oleh Team LOGIGO.',
-  'meta.og_description': 'Kalkulator BMI bertema luar angkasa mewah dengan TDEE, Persentase Lemak Tubuh, grafik interaktif, dan dukungan PWA.',
+  'meta.title': 'BMI Stellar v20.0 \u2014 Pendamping BMI Privacy-First',
+  'meta.description': 'Hitung BMI, TDEE, estimasi lemak tubuh, dan rentang berat ideal dengan BMI Stellar \u2014 aplikasi offline-ready dengan grafik dan backup terenkripsi.',
+  'meta.og_description': 'Pendamping BMI privacy-first dengan TDEE, estimasi lemak tubuh, grafik progres, dukungan offline, dan backup terenkripsi.',
 
   // ── Navigation ──
   'nav.aria_label': 'Kalkulator BMI',
@@ -51,11 +51,11 @@ const id: TranslationDict = {
   'notify.error_title': 'Error',
 
   // ── Hero ──
-  'hero.title': 'Kalkulator BMI',
-  'hero.subtitle': 'Jelajahi tubuh Anda \u2014 temukan keseimbangan di bawah bintang-bintang.',
-  'hero.feature1': 'Perhitungan Akurat',
-  'hero.feature2': 'Insight Kesehatan',
-  'hero.feature3': 'Desain Mewah',
+  'hero.title': 'BMI Stellar',
+  'hero.subtitle': 'Hitung, pahami, dan lacak metrik tubuhmu \u2014 secara privat, offline, dan elegan.',
+  'hero.feature1': 'BMI + TDEE',
+  'hero.feature2': 'Progres Lokal',
+  'hero.feature3': 'Backup Terenkripsi',
   'hero.edition': 'Stellar v20.0',
 
   // ── Form ──
@@ -168,7 +168,7 @@ const id: TranslationDict = {
   'crypto.crack_centuries_plural': '{n} abad',
 
   // ── Stellar v15: Trust & Transparency ──
-  'crypto.encryption_badge': 'Enkripsi ujung-ke-ujung',
+  'crypto.encryption_badge': 'Backup terenkripsi passphrase',
   'crypto.strong_warning': '<strong>Jangan sampai lupa passphrase Anda.</strong> Tidak dapat dipulihkan. Tanpa passphrase, backup terenkripsi Anda akan tidak dapat diakses secara permanen.',
   'crypto.export_summary_records': 'Data',
   'crypto.export_summary_encrypted': 'Enkripsi',
@@ -391,26 +391,26 @@ const id: TranslationDict = {
   'error.reload': 'muat ulang aplikasi',
 
   // ── Share ──
-  'share.title': 'Hasil Kalkulator BMI',
+  'share.title': 'Hasil BMI Stellar',
   'share.bmi_line': 'BMI: {n} ({category})',
   'share.prime_line': 'BMI Prime: {n}',
   'share.weight_line': 'Berat: {n} {unit}',
   'share.height_line': 'Tinggi: {n} {unit}',
   'share.tdee_line': 'TDEE: {n} kkal/hari',
-  'share.footer': 'Dihitung dengan Kalkulator BMI Sederhana',
-  'share.card_header': 'KALKULATOR BMI',
+  'share.footer': 'Dihitung dengan BMI Stellar',
+  'share.card_header': 'BMI STELLAR',
   'share.card_prime': 'BMI Prime',
   'share.card_ideal': 'Rentang Ideal',
   'share.card_tdee': 'TDEE',
   'share.card_kcal': 'kkal',
-  'share.card_branding': 'Kalkulator BMI Sederhana \u2014 oleh Rezky Nightky',
+  'share.card_branding': 'BMI Stellar \u2014 oleh Rezky Nightky',
   'share.card_text': 'BMI saya: {n} ({category})',
 
   // ── History IO ──
   'history.invalid_json': 'Format JSON tidak valid.',
   'history.no_records': 'Tidak ditemukan catatan BMI yang valid dalam file.',
   'history.integrity_failed': 'Verifikasi integritas gagal \u2014 file telah dimodifikasi dan tidak aman untuk diimpor.',
-  'history.invalid_format': 'Format file tidak valid. File ini tidak diekspor oleh Kalkulator BMI atau telah dimodifikasi.',
+  'history.invalid_format': 'Format file tidak valid. File ini tidak diekspor oleh BMI Stellar atau telah dimodifikasi.',
   'history.no_valid_records': 'Tidak ada catatan BMI yang valid.',
   'history.save_failed': 'Gagal menyimpan riwayat ke storage.',
   'history.import_success': 'Berhasil mengimpor {count} catatan',
@@ -465,8 +465,8 @@ const id: TranslationDict = {
   'about.what_is_p1': 'Indeks Massa Tubuh (BMI) adalah indeks sederhana berat\u2011terhadap\u2011tinggi: berat (kg) dibagi kuadrat tinggi (m). Ini adalah alat skrining cepat tingkat populasi untuk mengukur potensi risiko kesehatan.',
   'about.what_is_p2': 'Rentang dewasa: <em>Kurus</em> (< 18,5), <em>Normal</em> (18,5\u201324,9), <em>Gemuk</em> (25,0\u201329,9), <em>Obesitas</em> (\u2265 30).',
   'about.what_is_p3': 'Keterbatasan: BMI tidak membedakan lemak vs otot atau distribusi lemak. Gunakan bersama lingkar pinggang, persentase lemak tubuh, faktor gaya hidup, dan penilaian klinis.',
-  'about.app_title': 'Tentang Aplikasi BMI Kami',
-  'about.app_desc': 'Aplikasi BMI kami memiliki desain modern dan bersih, dikembangkan oleh <strong>Team LOGIGO</strong>. Tim ini termasuk Rezky (Project Lead), Fiqih (Menu Design), Agus (Competitor Research), Virlan (Login Functionality), Andre (Graph dan BMI Calculation Functions), dan Ferdian (Website Testing). Terima kasih atas dukungannya!',
+  'about.app_title': 'Tentang BMI Stellar',
+  'about.app_desc': 'BMI Stellar adalah pendamping BMI privacy-first untuk menghitung metrik tubuh dengan cepat, melacak progres secara lokal, mendukung penggunaan offline, dan mengekspor backup terenkripsi. Aplikasi ini dirancang terasa premium tanpa mengirim data kesehatan pribadi Anda ke server.',
   'about.version': 'Versi',
   'about.branch': 'Cabang',
   'about.type_apps': 'Tipe Aplikasi',
@@ -476,6 +476,33 @@ const id: TranslationDict = {
   'about.status_stable': 'Stabil',
   'about.maintenance': 'Pemeliharaan',
   'about.maintenance_active': 'Aktif Dipelihara',
+
+  'about.limit_title': 'Apa yang Bisa dan Tidak Bisa Dijelaskan BMI',
+  'about.limit_p1': 'BMI berguna sebagai alat skrining cepat, tetapi bukan diagnosis. BMI tidak mengukur langsung massa otot, distribusi lemak, hidrasi, kepadatan tulang, atau kondisi medis individu.',
+  'about.limit_p2': 'Untuk gambaran yang lebih jelas, kombinasikan BMI dengan lingkar pinggang, estimasi lemak tubuh, tingkat aktivitas, nutrisi, tidur, dan saran tenaga medis bila diperlukan.',
+
+  'about.features_title': 'Apa yang Dihitung BMI Stellar',
+  'about.features_p1': 'BMI Stellar menghitung kategori BMI, BMI Prime, rentang berat ideal, TDEE, BMR, estimasi lemak tubuh, dan panduan risiko kesehatan berdasarkan input Anda.',
+  'about.features_p2': 'Aplikasi ini juga menyediakan radial gauge, snapshot progres, riwayat sparkline, ekspor CSV/JSON, pembuatan kartu hasil, dan dukungan multi-bahasa.',
+
+  'about.privacy_title': 'Privasi & Data Lokal',
+  'about.privacy_p1': 'Riwayat BMI dan preferensi Anda disimpan secara lokal di perangkat. Aplikasi dirancang bisa digunakan offline dan tidak membutuhkan akun.',
+  'about.privacy_p2': 'Anda tetap mengontrol data Anda: hapus, ekspor, impor, atau simpan hanya di perangkat saat ini.',
+
+  'about.backup_title': 'Backup Terenkripsi',
+  'about.backup_p1': 'BMI Stellar mendukung ekspor backup terenkripsi menggunakan AES-GCM dengan derivasi kunci berbasis passphrase.',
+  'about.backup_p2': 'Passphrase tidak disimpan. Jika hilang, backup terenkripsi tidak dapat dipulihkan.',
+
+  'about.opensource_title': 'Open Source & Rilis',
+  'about.opensource_p1': 'BMI Stellar adalah project open-source yang dikelola oleh Rezky Nightky dengan fokus pada aksesibilitas, privasi, UI responsif, dan stabilitas jangka panjang.',
+  'about.opensource_p2': 'Rilis ini adalah bagian dari milestone Stellar v20.0.',
+
+  'about.data_model': 'Model Data',
+  'about.local_first': 'Local-first',
+  'about.backup': 'Backup',
+  'about.backup_optional': 'Ekspor terenkripsi opsional',
+  'about.pwa_type': 'PWA open-source',
+  'about.status_rc': 'Kandidat rilis stabil',
 
   // ── Info Section ──
   'info.disclaimer': 'BMI adalah alat skrining dan tidak boleh digunakan sebagai satu-satunya metode diagnostik. Silakan berkonsultasi dengan profesional kesehatan untuk penilaian kesehatan yang komprehensif.',

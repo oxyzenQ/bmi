@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="static/assets/bmi-logigo-v2.png" alt="BMI Calculator — Stellar Edition" width="280" />
+  <img src="static/assets/bmi-logigo-v2.png" alt="BMI Stellar" width="280" />
 </p>
 
-<h1 align="center">BMI Calculator — Stellar v20.0</h1>
+<h1 align="center">BMI Stellar v20.0</h1>
 
 <p align="center">
-  A luxury, space-themed <strong>Body Mass Index (BMI)</strong> calculator built with <strong>SvelteKit 2 + Svelte 5 (Runes) + TypeScript</strong>, designed for an accessible, privacy-first user experience with production-grade polish.
+  A privacy-first <strong>BMI companion</strong> built with <strong>SvelteKit 2 + Svelte 5 (Runes) + TypeScript</strong>. Calculate BMI, TDEE, body-fat estimates, ideal weight range, and track progress locally with offline support, encrypted backups, and a polished Stellar interface.
 </p>
 
 <p align="center">
@@ -22,9 +22,7 @@
 - **Goal tracker** — Set target BMI, track progress with current/best/target comparison and sparkline chart.
 - **Interactive radial gauge** — SVG gauge with tiered animations (ultra-smooth on high-end, instant on low-end).
 - **BMI history sparkline** — Interactive SVG chart with tooltips and BMI zone highlighting; stores up to 1 year locally.
-- **Encrypted backup** — AES-256-GCM encryption with Argon2id key derivation (32 MB memory, 2 iterations). SHA-256 checksum for tamper detection. Import/export with passphrase protection.
-- **Social sharing** — Web Share API, copy-to-clipboard, and BMI result card image export (canvas).
-- **Import/Export history** — JSON export with SHA-256 checksum verification for data integrity.
+- **Passphrase-encrypted backup** — AES-256-GCM encryption with Argon2id key derivation. SHA-256 checksum for tamper detection. Import/export with passphrase protection.
 - **Multi-language (i18n)** — English, Indonesian (Bahasa), Japanese, Chinese. Floating language switcher panel.
 - **Luxury space theme** — Glassmorphism containers with `@supports` progressive enhancement, cosmic particles, shooting stars, aurora effects, skeleton loading.
 - **Keyboard shortcuts** — Arrow keys for navigation, Enter to calculate, Escape to clear.
@@ -35,7 +33,7 @@
 - **Progress indicators** — Indeterminate progress bar during encryption/decryption operations.
 - **Render Mode toggle** — Switch between rich visuals and basic mode for performance or battery.
 - **Reduced motion support** — Respects `prefers-reduced-motion` and `prefers-contrast` system settings (Bug #19 fix: reduced motion disables animations, not visual effects like backdrop-filter).
-- **Privacy-first** — Zero tracking (no analytics pixels). All data stays in `localStorage`. No passphrase stored for encrypted backups.
+- **Privacy-first** — Health data stays local. No account required. Analytics, if enabled in deployment, does not collect BMI history, passphrases, or personal measurements.
 - **Offline ready** — Service worker caches assets; installable PWA with offline badge.
 - **Fully accessible** — ARIA labels, roles, focus trap, keyboard navigation, screen reader support.
 - **Responsive** — Aggressive breakpoints down to 320px; anti-zoom protection; font clamps. Consistent glassmorphism across desktop and mobile (Bug #19 fix).
@@ -45,7 +43,7 @@
 
 | Layer | Technology |
 |---|---|
-| Framework | SvelteKit 2.57 (Svelte 5.55 Runes) |
+| Framework | SvelteKit 2.59 + Svelte 5.55 Runes |
 | Language | TypeScript (strict mode) |
 | Styling | Modular CSS with CSS custom properties (17 files in `src/styles/`) |
 | Icons | lucide-svelte |
@@ -53,7 +51,7 @@
 | Runtime / tooling | Bun |
 | Linting | ESLint 9 + eslint-plugin-svelte |
 | Formatting | Prettier + prettier-plugin-svelte |
-| Testing | Vitest + @testing-library/svelte (25 tests) |
+| Testing | Vitest + @testing-library/svelte |
 | Analytics | Vercel Analytics + Speed Insights |
 | Deployment | Vercel (Node.js 22 runtime) |
 
@@ -73,7 +71,7 @@ Open the local URL printed in your terminal (default: `http://localhost:5173`).
 | `bun run dev` | Start dev server with HMR |
 | `bun run check` | Type-check via svelte-check |
 | `bun run lint` | Lint with ESLint |
-| `bun run test:run` | Run tests (Vitest, 25 tests) |
+| `bun run test:run` | Run tests (Vitest) |
 | `bun run build` | Production build |
 | `bun run preview` | Preview production build |
 | `./verify.sh` | Full verification: check -> lint -> test -> build |
@@ -152,7 +150,7 @@ src/
   app.html                   HTML shell with SEO meta tags
 
 scripts/
-  bmi-update-version.ts      Version bumping script
+  bmi-update-version.ts      Version bumping script (also updates AboutSection.svelte)
 
 static/
   images/                    Background images (blackhole, spaceship, space)
@@ -241,16 +239,16 @@ Backup data is encrypted using a layered security architecture:
 Device capabilities detected at mount time via `performance.ts`:
 - **High**: 8+ cores, 8+ GB RAM, 4G -> full animations, contain optimizations
 - **Medium**: 4+ cores, 4+ GB RAM -> standard animations, style containment
-- **Low**: everything else -> minimal animations, simplified shadows, no backdrop-filter
+- **Low**: Reduced motion and lighter transitions while preserving readable glass backgrounds.
 
 ### Mobile Performance Optimizations (responsive-mobile-perf.css T-rules)
 The `@media (hover: none) and (pointer: coarse)` block applies permanent GPU optimizations on touch devices:
 - **T-1/T-1b**: Simplified body filters and removed gradient overlay
 - **T-2**: Containment on scroll container
-- **T-3**: Simplified box-shadows, removed transitions on interactive elements
+- **T-3**: Reduced transitions and expensive hover effects
 - **T-5**: Removed shine sweep pseudo-elements
 - **T-11**: Lightweight blur on navbars
-- **T-GLASS**: Consistent glassmorphism treatment for all containers
+- **T-GLASS**: Mobile no longer downgrades the glass identity; final glass tokens are controlled by responsive-content.css
 - **T-GLASS-CALC/HERO/RESULTS**: Per-container glass tuning for visual hierarchy
 
 ### Data Persistence

@@ -1,5 +1,5 @@
 /**
- * Lightweight i18n system for BMI Calculator — Svelte 5 compatible
+ * Lightweight i18n system for BMI Stellar — Svelte 5 compatible
  *
  * Uses writable stores for reactivity (works in plain .ts files).
  * Svelte 5 components can use $store syntax or $derived to react.

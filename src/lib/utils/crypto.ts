@@ -1,5 +1,5 @@
 /**
- * Optional passphrase-based encryption for BMI Calculator.
+ * Optional passphrase-based encryption for BMI Stellar.
  *
  * Uses Web Crypto API (AES-GCM) to encrypt/decrypt stored data
  * and exported files. Encryption is entirely optional — the user

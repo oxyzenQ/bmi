@@ -10,7 +10,7 @@ describe('share utils', () => {
       });
       expect(text).toContain('BMI: 22.50');
       expect(text).toContain('Normal Weight');
-      expect(text).toContain('A Simple BMI Calc');
+      expect(text).toContain('BMI Stellar');
     });
 
     it('includes BMI Prime when provided', () => {

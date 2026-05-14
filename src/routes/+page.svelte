@@ -849,7 +849,7 @@
 
         {#if activeIndex === 1}
           <div class="main-container">
-            <!-- BMI Calculator Section -->
+            <!-- BMI Stellar Section -->
             <section class="bmi-section">
               <div class="bmi-grid">
                 <div class="form-card">

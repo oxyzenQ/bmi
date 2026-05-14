@@ -17,7 +17,7 @@ vi.mock('$lib/i18n', () => ({
       'share.card_ideal': 'Ideal Weight',
       'share.card_tdee': 'TDEE',
       'share.card_kcal': 'kcal',
-      'share.card_branding': 'BMI Calculator',
+      'share.card_branding': 'BMI Stellar',
       'share.card_text': 'My BMI is {n} ({category})',
     };
     let result = translations[key] ?? key;

@@ -1,5 +1,5 @@
 /**
- * i18n type definitions for BMI Calculator
+ * i18n type definitions for BMI Stellar
  * Supports 4 locales: en (English), id (Indonesian), zh (Chinese), ja (Japanese)
  */
 

@@ -1,5 +1,5 @@
 /**
- * Lightweight IndexedDB wrapper for BMI Calculator.
+ * Lightweight IndexedDB wrapper for BMI Stellar.
  *
  * Provides a simple key-value store backed by IndexedDB,
  * with no external dependencies. Used as the durable store

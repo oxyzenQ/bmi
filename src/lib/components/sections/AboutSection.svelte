@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
-    Lightbulb, Users, GitBranch, GitCompare,
+    Lightbulb, AlertTriangle, ListChecks, Database,
+    LockKeyhole, HeartPulse, GitBranch, GitCompare,
     PackageCheck, ShieldCheck, Activity, Scale
   } from 'lucide-svelte';
   import { t as _t, localeVersion } from '$lib/i18n';
@@ -39,16 +40,63 @@
         </div>
       </div>
 
-      <!-- About Our App Card -->
+      <!-- What BMI Can and Cannot Tell You -->
       <div class="about-card">
         <div class="about-card-header">
-          <Users class="Users" />
-          <h3>{t('about.app_title')}</h3>
+          <AlertTriangle class="AlertTriangle" />
+          <h3>{t('about.limit_title')}</h3>
         </div>
         <div class="about-card-content">
-          <p>
-            {@html t('about.app_desc')}
-          </p>
+          <p>{@html t('about.limit_p1')}</p>
+          <p>{@html t('about.limit_p2')}</p>
+        </div>
+      </div>
+
+      <!-- What BMI Stellar Calculates -->
+      <div class="about-card">
+        <div class="about-card-header">
+          <ListChecks class="ListChecks" />
+          <h3>{t('about.features_title')}</h3>
+        </div>
+        <div class="about-card-content">
+          <p>{@html t('about.features_p1')}</p>
+          <p>{@html t('about.features_p2')}</p>
+        </div>
+      </div>
+
+      <!-- Privacy & Local Data -->
+      <div class="about-card">
+        <div class="about-card-header">
+          <Database class="Database" />
+          <h3>{t('about.privacy_title')}</h3>
+        </div>
+        <div class="about-card-content">
+          <p>{@html t('about.privacy_p1')}</p>
+          <p>{@html t('about.privacy_p2')}</p>
+        </div>
+      </div>
+
+      <!-- Encrypted Backups -->
+      <div class="about-card">
+        <div class="about-card-header">
+          <LockKeyhole class="LockKeyhole" />
+          <h3>{t('about.backup_title')}</h3>
+        </div>
+        <div class="about-card-content">
+          <p>{@html t('about.backup_p1')}</p>
+          <p>{@html t('about.backup_p2')}</p>
+        </div>
+      </div>
+
+      <!-- Open Source & Release -->
+      <div class="about-card">
+        <div class="about-card-header">
+          <HeartPulse class="HeartPulse" />
+          <h3>{t('about.opensource_title')}</h3>
+        </div>
+        <div class="about-card-content">
+          <p>{@html t('about.opensource_p1')}</p>
+          <p>{@html t('about.opensource_p2')}</p>
           <div class="app-info">
             <p class="info-row">
               <PackageCheck class="PackageCheck" />
@@ -60,15 +108,19 @@
             </p>
             <p class="info-row">
               <GitCompare class="GitCompare" />
-              <strong>{t('about.type_apps')}:</strong><span class="text-gradient-elegant">{t('about.open_source')}</span>
+              <strong>{t('about.type_apps')}:</strong><span class="text-gradient-elegant">{t('about.pwa_type')}</span>
+            </p>
+            <p class="info-row">
+              <Database class="Database" />
+              <strong>{t('about.data_model')}:</strong>{t('about.local_first')}
+            </p>
+            <p class="info-row">
+              <LockKeyhole class="LockKeyhole" />
+              <strong>{t('about.backup')}:</strong>{t('about.backup_optional')}
             </p>
             <p class="info-row">
               <ShieldCheck class="ShieldCheck" />
-              <strong>{t('about.status')}:</strong>{t('about.status_stable')}
-            </p>
-            <p class="info-row">
-              <Activity class="Activity" />
-              <strong>{t('about.maintenance')}:</strong>{t('about.maintenance_active')}
+              <strong>{t('about.status')}:</strong>{t('about.status_rc')}
             </p>
             <p class="info-row">
               <Scale class="Scale" />

@@ -1,5 +1,5 @@
 /**
- * Auto Backup System for BMI Calculator.
+ * Auto Backup System for BMI Stellar.
  *
  * Implements rolling local backups stored in IndexedDB:
  *   - Keeps last 3 backups (oldest auto-deleted on new backup)

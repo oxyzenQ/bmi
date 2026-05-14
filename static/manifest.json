@@ -1,71 +1,70 @@
 {
-	"name": "BMI Calculator — Stellar Edition",
-	"short_name": "BMI Calc",
-	"description": "A luxury space-themed BMI calculator with TDEE, Body Fat %, interactive charts, and PWA support. Your health journey, beautifully calculated.",
-	"start_url": "/",
-	"scope": "/",
-	"display": "standalone",
-	"orientation": "portrait",
-	"background_color": "#070a1c",
-	"theme_color": "#7c3aed",
-	"dir": "ltr",
-	"lang": "en",
-	"categories": ["health", "fitness", "lifestyle", "medical"],
-	"prefer_related_applications": false,
-	"icons": [
-		{
-			"src": "/assets/icon-192.webp",
-			"sizes": "192x192",
-			"type": "image/webp",
-			"purpose": "any"
-		},
-		{
-			"src": "/assets/icon-512.webp",
-			"sizes": "512x512",
-			"type": "image/webp",
-			"purpose": "any"
-		},
-		{
-			"src": "/assets/icon-maskable-512.webp",
-			"sizes": "512x512",
-			"type": "image/webp",
-			"purpose": "maskable"
-		},
-		{
-			"src": "/assets/new_bmi_logo_2026.webp",
-			"sizes": "1024x1024",
-			"type": "image/webp",
-			"purpose": "any"
-		}
-	],
-	"screenshots": [
-		{
-			"src": "/assets/screenshot-wide.webp",
-			"sizes": "1280x720",
-			"type": "image/webp",
-			"form_factor": "wide",
-			"label": "BMI Calculator — Desktop view"
-		},
-		{
-			"src": "/assets/screenshot-narrow.webp",
-			"sizes": "828x1792",
-			"type": "image/webp",
-			"form_factor": "narrow",
-			"label": "BMI Calculator — Mobile view"
-		}
-	],
-	"shortcuts": [
-		{
-			"name": "Calculate BMI",
-			"short_name": "Calculate",
-			"description": "Go directly to the BMI calculator",
-			"url": "/#calculator"
-		},
-		{
-			"name": "View Results",
-			"short_name": "Results",
-			"description": "View your BMI gauge and health risk",
-			"url": "/#gauge"
-		}
-	]
+        "name": "BMI Stellar — Privacy-First BMI Companion",
+        "short_name": "BMI Stellar",
+        "description": "Calculate BMI, TDEE, body-fat estimates, and track progress locally with charts, offline support, and encrypted backups.",
+        "start_url": "/",
+        "scope": "/",
+        "display": "standalone",
+        "orientation": "portrait",
+        "background_color": "#070a1c",
+        "theme_color": "#7c3aed",
+        "dir": "ltr",
+        "lang": "en",
+        "categories": ["health", "fitness", "lifestyle", "utilities"],
+        "prefer_related_applications": false,
+        "icons": [
+                {
+                        "src": "/assets/icon-192.webp",
+                        "sizes": "192x192",
+                        "type": "image/webp",
+                        "purpose": "any"
+                },
+                {
+                        "src": "/assets/icon-512.webp",
+                        "sizes": "512x512",
+                        "type": "image/webp",
+                        "purpose": "any"
+                },
+                {
+                        "src": "/assets/icon-maskable-512.webp",
+                        "sizes": "512x512",
+                        "type": "image/webp",
+                        "purpose": "maskable"
+                },
+                {
+                        "src": "/assets/new_bmi_logo_2026.webp",
+                        "sizes": "1024x1024",
+                        "type": "image/webp",
+                        "purpose": "any"
+                }
+        ],
+        "screenshots": [
+                {
+                        "src": "/assets/screenshot-wide.webp",
+                        "sizes": "1280x720",
+                        "type": "image/webp",
+                        "form_factor": "wide",
+                        "label": "BMI Stellar — Desktop view"
+                },
+                {
+                        "src": "/assets/screenshot-narrow.webp",
+                        "sizes": "828x1792",
+                        "type": "image/webp",
+                        "form_factor": "narrow",
+                        "label": "BMI Stellar — Mobile view"
+                }
+        ],
+        "shortcuts": [
+                {
+                        "name": "Calculate BMI",
+                        "description": "Go directly to the BMI calculator",
+                        "url": "/#calculator"
+                },
+                {
+                        "name": "View Results",
+                        "short_name": "Results",
+                        "description": "View your BMI gauge and health risk",
+                        "url": "/#gauge"
+                }
+        ]
 }

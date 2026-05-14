@@ -273,7 +273,7 @@ export async function shareBmiCard(data: BmiCardData): Promise<{ ok: boolean; me
   if (navigator.share && navigator.canShare?.({ files: [file] })) {
     try {
       await navigator.share({
-        title: 'BMI Calculator Result',
+        title: 'BMI Stellar Result',
         text: t('share.card_text', { n: data.bmi.toFixed(1), category: data.category }),
         files: [file]
       });

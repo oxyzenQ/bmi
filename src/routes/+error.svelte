@@ -33,7 +33,7 @@
 </script>
 
 <svelte:head>
-        <title>{statusText} — BMI Calculator</title>
+        <title>{statusText} — BMI Stellar</title>
         <meta name="robots" content="noindex" />
 </svelte:head>
 <div class="error-shell">
