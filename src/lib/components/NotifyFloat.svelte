@@ -304,7 +304,7 @@
   }
 
   .btn-cancel {
-    background: linear-gradient(135deg, var(--coolgray-90) 0%, var(--dkgray-90) 100%);
+    background: linear-gradient(135deg, var(--cat-red-90) 0%, var(--darkred-90) 100%);
     color: var(--stellar-white);
     
     -webkit-backdrop-filter: blur(10px);
@@ -315,7 +315,7 @@
   .btn-cancel:hover {
     transform: translateY(-2px) scale(1.02);
     
-    background: linear-gradient(135deg, var(--coolgray-95) 0%, var(--dkgray-95) 100%);
+    background: linear-gradient(135deg, var(--cat-red-95) 0%, var(--darkred-95) 100%);
   }
 
   .notify-btn-group {

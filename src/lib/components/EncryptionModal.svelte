@@ -819,14 +819,15 @@
   }
 
   .btn-cancel {
-    background: var(--w-10);
-    color: var(--w-80);
-    border: 1px solid var(--w-20);
+    background: linear-gradient(135deg, var(--cat-red-90) 0%, var(--darkred-90) 100%);
+    color: var(--stellar-white);
+    border: 1px solid var(--w-15);
   }
 
   .btn-cancel:hover {
-    background: var(--w-15);
+    background: linear-gradient(135deg, var(--cat-red-95) 0%, var(--darkred-95) 100%);
     color: var(--stellar-white);
+    transform: translateY(-1px);
   }
 
   .btn-confirm {
