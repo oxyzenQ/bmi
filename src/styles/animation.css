@@ -558,6 +558,25 @@ a.button {
   font-size: 0.6rem;
 }
 
+/* ── Encryption badge: compact phones ── */
+@media (max-width: 400px) {
+  .bmi-encryption-badge {
+    flex-wrap: wrap;
+    white-space: normal;
+    justify-content: center;
+    gap: var(--space-1) var(--space-2);
+    max-width: 100%;
+  }
+
+  .bmi-encryption-badge__label {
+    font-size: 0.65rem;
+  }
+
+  .bmi-encryption-badge__algo {
+    font-size: 0.55rem;
+  }
+}
+
 
 /* ==============================
       A-7: DRAG & DROP ZONE (Phase 4)
