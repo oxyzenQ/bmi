@@ -229,24 +229,6 @@
 .skeleton-gauge .skeleton-bar span:nth-child(3)::after { animation-delay: 0.3s; }
 .skeleton-gauge .skeleton-bar span:nth-child(4)::after { animation-delay: 0.45s; }
 
-/* Skeleton results skeleton */
-.skeleton-results {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 2rem;
-  text-align: center;
-}
-
-.skeleton-results .skeleton-value {
-  font-size: 3.5rem;
-  font-weight: 700;
-  height: 4rem;
-  width: 8rem;
-  border-radius: 0.75rem;
-}
-
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .skeleton::after,
@@ -393,15 +375,6 @@ a.button {
 }
 
 /* ==============================
-      SHOOTING STARS (LEGACY — removed)
-      ============================== */
-
-/* Hide shooting stars — decorative feature removed in v18.0 cleanup */
-.shooting-star {
-  display: none;
-}
-
-/* ==============================
       A-1: GAUGE EMPTY STATE CTA
       ============================== */
 
@@ -479,18 +452,6 @@ a.button {
   .pager-btn-scroll-top {
     transition: none;
   }
-}
-
-/* ==============================
-      A-3: HAPTIC FEEDBACK
-      ============================== */
-.btn-haptic {
-  -webkit-tap-highlight-color: transparent;
-}
-
-.btn-haptic:active {
-  transform: scale(0.96);
-  transition: transform var(--dur-instant) ease;
 }
 
 /* ==============================

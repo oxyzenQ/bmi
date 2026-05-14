@@ -267,30 +267,6 @@ button[aria-disabled="true"] {
   z-index: -1;
 }
 
-.cosmic-orbs {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  /* Reduced blur from 20px to 10px for GPU performance */
-  filter: blur(10px);
-  /* Reduced opacity for lighter GPU load */
-  opacity: 0.15;
-  /* animation removed for GPU performance */
-}
-
-.orb-1 {
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, var(--blue-35), transparent);
-  top: 20%;
-  left: 10%;
-}
-
 .hero-content {
   max-width: 800px;
   margin: 0 auto;
@@ -373,14 +349,6 @@ button[aria-disabled="true"] {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   position: relative;
-}
-
-.sparkle-icon {
-  /* animation removed for GPU performance */
-  will-change: auto;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-  contain: layout style;
 }
 
 .hero-subtitle {

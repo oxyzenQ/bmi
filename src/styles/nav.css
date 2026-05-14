@@ -21,11 +21,7 @@ html[data-performance-tier="low"] :is(
   
 }
 
-html[data-performance-tier="low"] :is(
-  .plasma-star,
-  .sparkle-icon,
-  .gauge-reflection
-) {
+html[data-performance-tier="low"] .gauge-reflection {
   filter: none !important;
   animation: none !important;
 }

@@ -105,32 +105,6 @@
   margin-bottom: 0;
 }
 
-/* ==============================
-      PLASMA STAR EFFECTS
-      ============================== */
-.plasma-star {
-  position: relative;
-  transition: transform var(--dur-content) var(--easing-material), filter var(--dur-content) var(--easing-material);
-}
-
-.plasma-star.star-1 {
-  color: var(--cat-blue-solid);
-  filter: drop-shadow(0 0 6px var(--blue-50));
-  /* animation removed for GPU performance */
-}
-
-.plasma-star.star-2 {
-  color: var(--cat-blue-deep);
-  filter: drop-shadow(0 0 6px var(--coreblue-50));
-  /* animation removed for GPU performance */
-}
-
-.plasma-star.star-3 {
-  color: var(--cosmic-purple);
-  filter: drop-shadow(0 0 6px var(--violet-50));
-  /* animation removed for GPU performance */
-}
-
 
 /* ==============================
       FOOTER COMPONENTS

@@ -28,7 +28,7 @@
 
   .form-card,
   .bmi-card {
-    min-height: 0;
+    min-height: auto;
     padding: 1.25rem;
   }
 

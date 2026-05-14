@@ -41,7 +41,7 @@ export default defineConfig({
         plugins: [svelte({ hot: false }), pinCryptoDeps()],
         test: {
                 environment: 'jsdom',
-                setupFiles: ['./src/test-setup.ts'],
+                setupFiles: [path.resolve(__dirname, 'src/test-setup.ts')],
                 globals: true,
                 include: ['src/**/*.{test,spec}.{js,ts}'],
                 testTimeout: 10000, // v18.1: reduced — Argon2 uses lightweight params in test mode
