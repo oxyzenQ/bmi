@@ -198,57 +198,78 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   MOBILE PREMIUM GLASS — final source of truth
-   Ensures desktop-quality glass does not disappear on mobile.
-   Loaded after responsive-mobile-perf.css.
+   FINAL MOBILE GLASS SOURCE OF TRUTH — v19.1
+   Must be loaded after ALL responsive/mobile performance CSS.
+   Width-based query so Chrome DevTools responsive mode matches.
+   Stronger selectors (html body .main-container) to beat earlier layers.
+   Zero box-shadow — glass depth via blur + gradient + border + outline.
    ═══════════════════════════════════════════════════════════════ */
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   @media (max-width: 600px) {
-    .bmi-card,
-    .about-card,
-    .gauge-container,
-    .form-card,
-    .main-container .section-header-v2,
-    .github-link {
-      background: var(--glass-bg-enhanced) !important;
+    html body .main-container .bmi-card,
+    html body .main-container .form-card,
+    html body .main-container .about-card,
+    html body .main-container .gauge-container,
+    html body .main-container .section-header-v2,
+    html body .main-container .github-link,
+    html body .main-container .footer-disclaimer {
+      background:
+        linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.075),
+          rgba(255, 255, 255, 0.025) 42%,
+          rgba(255, 255, 255, 0.01)
+        ),
+        var(--glass-bg-enhanced) !important;
       -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
       backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
       border: 1px solid var(--w-10) !important;
-      box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.5),
-        0 0 0 1px rgba(255, 255, 255, 0.06),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+      outline: 1px solid rgba(255, 255, 255, 0.04);
+      outline-offset: -2px;
     }
 
-    .hero-content,
-    .hero-section .hero-content,
-    main .hero-content {
-      background: var(--glass-bg-hero) !important;
+    html body .hero-section .hero-content,
+    html body main .hero-content {
+      background:
+        linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.075),
+          rgba(255, 255, 255, 0.025) 42%,
+          rgba(255, 255, 255, 0.01)
+        ),
+        var(--glass-bg-hero) !important;
       -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
       backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
       border: 1px solid var(--w-10) !important;
-      box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.5),
-        0 0 0 1px rgba(255, 255, 255, 0.06),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+      outline: 1px solid rgba(255, 255, 255, 0.04);
+      outline-offset: -2px;
     }
 
-    .bmi-results-card {
-      background: var(--glass-bg-results) !important;
+    html body .main-container .bmi-results-card {
+      background:
+        linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.06),
+          rgba(255, 255, 255, 0.02) 45%,
+          rgba(255, 255, 255, 0.008)
+        ),
+        var(--glass-bg-results) !important;
       -webkit-backdrop-filter: blur(12px) saturate(160%) brightness(1.08) !important;
       backdrop-filter: blur(12px) saturate(160%) brightness(1.08) !important;
-    }
-
-    /* Footer: dedicated premium glass (separate from generic card group) */
-    .footer-disclaimer {
-      background: var(--glass-bg-enhanced) !important;
-      -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-      backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-      border: 1px solid var(--w-10) !important;
-      box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.5),
-        0 0 0 1px rgba(255, 255, 255, 0.06),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+      border: 1px solid rgba(255, 255, 255, 0.10) !important;
+      outline: 1px solid rgba(255, 255, 255, 0.035);
+      outline-offset: -2px;
     }
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ZERO SHADOW POLICY — v19.1 cleanup
+   No box-shadow anywhere. Glass depth via blur/border/gradient.
+   This must be the ABSOLUTE LAST rule in the LAST CSS file.
+   ═══════════════════════════════════════════════════════════════ */
+*,
+*::before,
+*::after {
+  box-shadow: none !important;
 }

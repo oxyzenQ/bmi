@@ -336,78 +336,10 @@
     -webkit-backdrop-filter: none !important;
   }
 
-  /* T-GLASS: Premium Glass for touch devices (Stellar v19).
-     v18 used blur(6px)/blur(4px) — too aggressive, making mobile look flat.
-     v19 raises to blur(14px)/blur(10px) — close to desktop glass depth.
-     Touch devices are NOT always low-end; modern phones handle this fine.
-     Performance is maintained by killing transitions/hover/shine (T-3..T-7),
-     not by destroying the core glass visual identity.
-     Uses CSS variables for consistency with desktop values. */
-  .footer-disclaimer,
-  .about-card,
-  .gauge-container,
-  .reference-table,
-  .github-link,
-  .section-header-v2 {
-    background: var(--glass-bg-enhanced) !important;
-    -webkit-backdrop-filter: blur(14px) saturate(170%) brightness(1.08) !important;
-    backdrop-filter: blur(14px) saturate(170%) brightness(1.08) !important;
-    border: 1px solid rgba(255, 255, 255, 0.11) !important;
-    box-shadow:
-      0 10px 30px rgba(0, 0, 0, 0.45),
-      0 0 0 1px rgba(255, 255, 255, 0.05),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-  }
-
-  /* T-GLASS-HERO: Hero content (Stellar v19: Premium Glass). */
-  .hero-content,
-  .hero-section .hero-content,
-  main .hero-content {
-    background: var(--glass-bg-hero) !important;
-    -webkit-backdrop-filter: blur(14px) saturate(170%) brightness(1.08) !important;
-    backdrop-filter: blur(14px) saturate(170%) brightness(1.08) !important;
-    border: 1px solid rgba(255, 255, 255, 0.11) !important;
-    box-shadow:
-      0 10px 30px rgba(0, 0, 0, 0.45),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-  }
-
-  /* T-GLASS-CALC: Calculator cards (Stellar v19: Premium Glass).
-     Slightly stronger blur for input readability on touch. */
-  .bmi-card,
-  .form-card {
-    background: var(--glass-bg-enhanced) !important;
-    -webkit-backdrop-filter: blur(14px) saturate(170%) brightness(1.08) !important;
-    backdrop-filter: blur(14px) saturate(170%) brightness(1.08) !important;
-    border: 1px solid rgba(255, 255, 255, 0.11) !important;
-  }
-
-  /* T-GLASS-RESULTS: Results inner card (Stellar v19).
-     Lightest glass since it sits inside another glass container.
-     Still uses meaningful blur — not the flat blur(4px) from v18. */
-  .bmi-results-card {
-    background: var(--glass-bg-results) !important;
-    -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
-    backdrop-filter: blur(10px) saturate(150%) !important;
-  }
-
-  /* T-GLASS-FALLBACK: Reduced blur for very narrow/old devices only. */
-  @media (max-width: 360px) {
-    .footer-disclaimer,
-    .about-card,
-    .gauge-container,
-    .reference-table,
-    .github-link,
-    .section-header-v2,
-    .bmi-card,
-    .form-card,
-    .hero-content,
-    .hero-section .hero-content,
-    main .hero-content {
-      -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
-      backdrop-filter: blur(10px) saturate(150%) !important;
-    }
-  }
+  /* T-GLASS: REMOVED (v19.1) — glass visual rules moved to
+     responsive-content.css as the single source of truth.
+     This file now ONLY handles performance: transitions, animations,
+     transforms, will-change, hover effects, and pseudo-elements. */
 
   /* T-16: Remove ALL pseudo-element shine sweeps permanently on touch.
      Even when not scrolling, these oversized elements waste memory. */
