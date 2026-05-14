@@ -290,8 +290,12 @@
     -webkit-backdrop-filter: blur(6px) saturate(120%) brightness(1.15) !important;
     backdrop-filter: blur(6px) saturate(120%) brightness(1.15) !important;
     background: var(--glass-bg-nightky) !important;
-    
-    contain: layout style;
+    border: none !important;
+
+    /* contain: layout removed — it can interfere with backdrop-filter
+       compositing on some mobile browsers, causing plain black backgrounds.
+       contain: style still prevents CSS recalc cascade without affecting paint. */
+    contain: style;
   }
 
   /* T-12: will-change: auto on cards — avoid unnecessary compositor layers */

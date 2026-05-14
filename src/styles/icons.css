@@ -21,6 +21,7 @@
 }
 
 /* about header icons — fluid sizing (scoped to card header only) */
+.about-card-header .AlertTriangle,
 .about-card-header .Lightbulb,
 .about-card-header .Users,
 .about-card-header .ListChecks,
@@ -34,10 +35,46 @@
 
 /* info-row icons — compact, independent from header icon sizing
    Prevents Database/LockKeyhole in app-info rows from inheriting
-   the large header icon sizing above. */
-.info-row :is(.Database, .LockKeyhole, .PackageCheck, .GitBranch, .GitCompare, .Scale, .ShieldCheck, .HeartPulse) {
+   the large header icon sizing above.
+   Uses higher specificity (.about-card .info-row) to guarantee win
+   over any .about-card-header .Database rule in responsive files.
+   Color tokens match each icon's semantic meaning. */
+.about-card .info-row :is(.Database, .LockKeyhole, .PackageCheck, .GitBranch, .GitCompare, .Scale, .ShieldCheck, .HeartPulse) {
   width: 20px !important;
   height: 20px !important;
+}
+
+/* info-row icon colors — semantic brand accents */
+.about-card .info-row .Database {
+  color: var(--cosmic-purple) !important;
+}
+
+.about-card .info-row .LockKeyhole {
+  color: var(--cat-green-90) !important;
+}
+
+.about-card .info-row .PackageCheck {
+  color: var(--cosmic-purple) !important;
+}
+
+.about-card .info-row .GitBranch {
+  color: var(--cosmic-purple) !important;
+}
+
+.about-card .info-row .GitCompare {
+  color: var(--cosmic-purple) !important;
+}
+
+.about-card .info-row .Scale {
+  color: var(--cosmic-purple) !important;
+}
+
+.about-card .info-row .ShieldCheck {
+  color: var(--cat-green-90) !important;
+}
+
+.about-card .info-row .HeartPulse {
+  color: var(--cat-red-90) !important;
 }
 
 /* Hero icons */

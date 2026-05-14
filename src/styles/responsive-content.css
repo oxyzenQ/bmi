@@ -187,6 +187,74 @@
     width: var(--icon-card-md) !important;
     height: var(--icon-card-md) !important;
   }
+
+  /* info-row body icons — fluid responsive, independent from header icons */
+  .about-card .info-row :is(.Database, .LockKeyhole, .PackageCheck, .GitBranch, .GitCompare, .Scale, .ShieldCheck, .HeartPulse) {
+    width: clamp(16px, 5vw, 20px) !important;
+    height: clamp(16px, 5vw, 20px) !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ABOUT PAGE — Premium responsive cards (v20.0)
+   Info rows, card content, app-info block need fluid layout
+   for screens 300-600px to prevent text/icon overflow.
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  /* About card header — fluid gap and alignment */
+  .about-card-header {
+    gap: clamp(0.5rem, 2vw, 1rem);
+    margin-bottom: clamp(1rem, 4vw, 1.5rem);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* About card title — fluid sizing */
+  .about-card h3 {
+    font-size: clamp(1rem, 4vw, 1.75rem);
+  }
+
+  /* About card paragraph text — fluid line height */
+  .about-card p {
+    font-size: clamp(0.85rem, 3.5vw, 1rem);
+    line-height: 1.65;
+    margin-bottom: clamp(0.5rem, 2vw, 1rem);
+  }
+
+  /* App-info block — compact, no overflow */
+  .about-card .app-info {
+    margin-top: clamp(0.75rem, 3vw, 1.25rem);
+    padding-top: clamp(0.75rem, 3vw, 1rem);
+    border-top: 1px solid var(--w-10);
+  }
+
+  /* Info rows — fluid layout, prevent icon/text collision */
+  .about-card .info-row {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.35rem, 1.5vw, 0.6rem);
+    font-size: clamp(0.75rem, 3vw, 0.9rem);
+    margin-bottom: clamp(0.35rem, 1.5vw, 0.5rem);
+    line-height: 1.5;
+    flex-wrap: wrap;
+  }
+
+  .about-card .info-row strong {
+    font-size: clamp(0.75rem, 3vw, 0.9rem);
+    white-space: nowrap;
+  }
+
+  /* Commit ID — truncate on tiny screens */
+  .about-card .commit-id {
+    font-size: clamp(0.6rem, 2.5vw, 0.8rem);
+    word-break: break-all;
+  }
+
+  /* Text gradient — prevent overflow */
+  .about-card .text-gradient-elegant {
+    white-space: nowrap;
+    font-size: clamp(0.75rem, 3vw, 0.9rem);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -203,6 +271,30 @@
 
   .hero-content {
     padding: 1.25rem 1rem;
+  }
+
+  /* About cards — extra compact at 360px */
+  .about-card-header {
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .about-card h3 {
+    font-size: clamp(0.9rem, 3.5vw, 1.25rem);
+  }
+
+  .about-card p {
+    font-size: clamp(0.78rem, 3vw, 0.9rem);
+    line-height: 1.55;
+  }
+
+  .about-card .info-row {
+    gap: 0.25rem;
+    font-size: clamp(0.7rem, 2.8vw, 0.8rem);
+  }
+
+  .about-card .info-row strong {
+    font-size: clamp(0.7rem, 2.8vw, 0.8rem);
   }
 }
 

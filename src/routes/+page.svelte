@@ -1183,11 +1183,11 @@
     max-width: 100%;
     min-width: 0;
     overflow: hidden;
-    background: var(--glass-bg-nightky);
-    /* backdrop-filter owned by nav.css (with -webkit- prefix + !important) */
+    background: var(--glass-bg-nightky) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
+    backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
     border: none;
-    border-bottom: 1px solid var(--w-10);
-    
+    border-bottom: 1px solid var(--w-10) !important;
     border-radius: 0 0 22px 22px;
     margin-inline: 0;
     position: absolute;
