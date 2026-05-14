@@ -631,7 +631,7 @@
       </div>
     </div>
 
-    <div class="button-group">
+    <div class="button-group main-actions">
       <button
         type="submit"
         class="btn btn-primary"
@@ -901,10 +901,22 @@
   }
 
   .history-actions .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: var(--text-base);
-    border-radius: var(--radius-pill);
+    min-width: 120px;
+    font-size: 0.8rem;
+  }
+
+  .main-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .main-actions .btn {
+    width: auto;
+    min-width: 120px;
+    flex: 0 0 auto;
   }
 </style>

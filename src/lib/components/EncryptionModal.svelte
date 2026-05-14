@@ -511,7 +511,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--glass-bg-backdrop, rgba(0, 0, 0, 0.80));
+    background: var(--glass-bg-nightky, rgba(0, 0, 0, 0.65));
     -webkit-backdrop-filter: blur(24px) saturate(140%);
     backdrop-filter: blur(24px) saturate(140%);
     z-index: var(--z-modal);
@@ -534,12 +534,12 @@
     .encrypt-backdrop {
       -webkit-backdrop-filter: blur(32px) saturate(160%);
       backdrop-filter: blur(32px) saturate(160%);
-      background: var(--glass-bg-strong, rgba(0, 0, 0, 0.70));
+      background: var(--glass-bg-nightky, rgba(0, 0, 0, 0.65));
     }
   }
 
   .encrypt-box {
-    background: var(--glass-bg-enhanced, rgba(0, 0, 0, 0.65));
+    background: var(--glass-bg-nightky, rgba(0, 0, 0, 0.65));
     border: var(--border-by-rezky);
     border-radius: var(--radius-lg);
     padding: 2rem;

@@ -239,27 +239,17 @@
 }
 
 .action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.85rem;
-  border-radius: var(--btn-radius);
-  border: 1px solid var(--violet-22);
-  background: var(--bg-by-rezky);
-  color: var(--stellar-white);
   font-size: 0.75rem;
   font-weight: 600;
-  cursor: pointer;
-  transition: transform var(--dur-interactive) ease, background var(--dur-interactive) ease, border-color var(--dur-interactive) ease;
   flex: 1;
   justify-content: center;
-  
+  background: linear-gradient(135deg, var(--deep-void-55), rgba(91, 33, 182, 0.45));
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .action-btn:hover {
-  background: var(--bg-last-by-rezky);
-  border-color: var(--violet-34);
-  color: var(--stellar-white);
+  background: linear-gradient(135deg, var(--deep-void-65), rgba(91, 33, 182, 0.55));
+  border-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-1px);
 }
 

@@ -735,7 +735,7 @@ a.button {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--glass-bg-backdrop);
+  background: var(--glass-bg-nightky);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   backdrop-filter: blur(16px) saturate(140%);
   z-index: var(--z-staging);

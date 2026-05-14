@@ -16,7 +16,7 @@
 .form-card,
 .section-header-v2,
 .github-link {
-  background: var(--glass-bg-fallback);
+  background: var(--glass-bg-nightky);
   border: var(--border-by-rezky);
   border-radius: var(--radius-lg);
   transition: transform var(--dur-slow) var(--easing-smooth),
@@ -43,7 +43,7 @@
   .form-card,
   .section-header-v2,
   .github-link {
-    background: var(--glass-bg-enhanced);
+    background: var(--glass-bg-nightky);
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     /* Stronger border + inset highlight compensate for lower opacity,
@@ -55,7 +55,7 @@
 
 /* ── Hero content fallback ── */
 .hero-content {
-  background: var(--glass-bg-fallback);
+  background: var(--glass-bg-nightky);
   border: var(--border-by-rezky);
   border-radius: var(--radius-3xl);
   transition: transform var(--dur-slow) var(--easing-smooth),
@@ -67,7 +67,7 @@
      The hero is the first visual element — make it feel premium. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .hero-content {
-    background: var(--glass-bg-hero);
+    background: var(--glass-bg-nightky);
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     border: 1px solid var(--w-10);
@@ -97,14 +97,16 @@ a.button {
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   position: relative;
-  overflow: visible;
+  overflow: hidden;
   transition: transform var(--dur-fast) var(--easing-smooth),
     background var(--dur-fast) var(--easing-smooth),
-    border-color var(--dur-fast) var(--easing-smooth);
+    border-color var(--dur-fast) var(--easing-smooth),
+    box-shadow var(--dur-fast) var(--easing-smooth);
   background: var(--btn-bg);
   border: var(--btn-border);
-  
   border-radius: var(--btn-radius);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .btn:hover,
@@ -146,17 +148,15 @@ button[aria-disabled="true"] {
   
 }
 
-/* Elegant glassmorphism variants for primary & danger */
 .btn-primary {
   color: var(--stellar-white);
   background: var(--bg-by-rezky);
-  border: 1px solid var(--violet-22);
-  
+  border: 1px solid rgba(139, 92, 246, 0.45);
 }
 
 .btn-primary:hover {
   background: var(--bg-last-by-rezky);
-  border-color: var(--violet-34);
+  border-color: rgba(139, 92, 246, 0.60);
 }
 
 .btn.is-calculating {
@@ -208,17 +208,22 @@ button[aria-disabled="true"] {
 
 .btn-secondary {
   background: linear-gradient(135deg, var(--deep-void-55), rgba(91, 33, 182, 0.45));
-  border-color: var(--violet-16);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .btn-secondary:hover {
   background: linear-gradient(135deg, var(--deep-void-65), rgba(91, 33, 182, 0.55));
-  border-color: var(--violet-30);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .btn-ghost {
   background: linear-gradient(135deg, var(--deep-void-40), rgba(91, 33, 182, 0.30));
-  border-color: var(--violet-12);
+  border: 1px solid transparent;
+}
+
+.btn-ghost:hover {
+  background: linear-gradient(135deg, var(--deep-void-50), rgba(91, 33, 182, 0.40));
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 /* Button sizes */
@@ -232,9 +237,10 @@ button[aria-disabled="true"] {
 /* Button groups */
 .button-group {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   margin-top: 1.5rem;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .button-group.stack {

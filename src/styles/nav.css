@@ -109,7 +109,7 @@ html[data-performance-tier="high"] :is(
 .pager-nav-shell {
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
-  background: var(--k-50) !important;
+  background: var(--glass-bg-nightky) !important;
 }
 
 /* Bottom navbar */
@@ -118,7 +118,7 @@ html[data-performance-tier="high"] :is(
   max-width: none;
   min-width: 0;
   overflow: hidden;
-  background: var(--k-50) !important;
+  background: var(--glass-bg-nightky) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   border: none !important;

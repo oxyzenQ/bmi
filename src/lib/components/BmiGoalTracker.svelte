@@ -397,12 +397,9 @@
   }
 
   .goal-actions .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
     font-size: 0.78rem;
-    border-radius: var(--radius-pill);
-    padding: 0.35rem 0.7rem;
+    width: auto;
+    flex: 0 0 auto;
   }
 
   .goal-empty {
@@ -445,8 +442,8 @@
 
   .goal-input-row .btn {
     font-size: 0.78rem;
-    border-radius: var(--radius-pill);
-    padding: 0.4rem 0.8rem;
+    width: auto;
+    flex: 0 0 auto;
   }
 
   .goal-hint {

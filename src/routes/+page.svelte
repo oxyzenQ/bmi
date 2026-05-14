@@ -1183,7 +1183,7 @@
     max-width: 100%;
     min-width: 0;
     overflow: hidden;
-    background: var(--k-50);
+    background: var(--glass-bg-nightky);
     /* backdrop-filter owned by nav.css (with -webkit- prefix + !important) */
     border: none;
     border-bottom: 1px solid var(--w-8);

@@ -415,8 +415,9 @@
   --btn-bg-hover: linear-gradient(135deg, #1a0d33, #6d28d9);
   --btn-bg-active: linear-gradient(135deg, #10061f, #4c1d95);
   --btn-surface: linear-gradient(135deg, var(--deep-void-70), rgba(91, 33, 182, 0.65));
-  --btn-border: 1px solid rgba(255, 255, 255, 0.08);
-  --btn-border-hover: 1px solid rgba(255, 255, 255, 0.14);
+
+  --btn-border: 1px solid rgba(255, 255, 255, 0.10);
+  --btn-border-hover: 1px solid rgba(255, 255, 255, 0.18);
   --btn-shadow: none;
   --btn-shadow-hover: none;
 
@@ -425,8 +426,8 @@
        Previously btn-danger was identical to btn-primary. */
   --btn-danger-bg: linear-gradient(135deg, rgba(30, 8, 8, 0.80), rgba(127, 29, 29, 0.60));
   --btn-danger-bg-hover: linear-gradient(135deg, rgba(50, 10, 10, 0.90), rgba(153, 27, 27, 0.70));
-  --btn-danger-border: 1px solid rgba(239, 68, 68, 0.25);
-  --btn-danger-border-hover: 1px solid rgba(239, 68, 68, 0.40);
+  --btn-danger-border: 1px solid rgba(239, 68, 68, 0.20);
+  --btn-danger-border-hover: 1px solid rgba(239, 68, 68, 0.35);
 
   /* ── TYPOGRAPHY SCALE (v17.0) ──
        Consistent font-size tokens for predictable type hierarchy.
@@ -570,15 +571,16 @@
      
      Fallback (no blur support): strong solid background (0.85).
      Enhanced (blur supported): lighter background + blur filters. */
-  --glass-bg-fallback: rgba(0, 0, 0, 0.85);
-  --glass-bg-enhanced: rgba(0, 0, 0, 0.65);
-  --glass-bg-calc: rgba(0, 0, 0, 0.68);
-  --glass-bg-hero: rgba(0, 0, 0, 0.58);
-  --glass-bg-card: rgba(0, 0, 0, 0.55);
-  --glass-bg-results: rgba(0, 0, 0, 0.40);
-  --glass-bg-dialog: rgba(0, 0, 0, 0.60);
-  --glass-bg-backdrop: rgba(0, 0, 0, 0.80);
-  --glass-bg-strong: rgba(0, 0, 0, 0.70);
+  --glass-bg-nightky: rgba(0, 0, 0, 0.65);
+  --glass-bg-fallback: var(--glass-bg-nightky);
+  --glass-bg-enhanced: var(--glass-bg-nightky);
+  --glass-bg-calc: var(--glass-bg-nightky);
+  --glass-bg-hero: var(--glass-bg-nightky);
+  --glass-bg-card: var(--glass-bg-nightky);
+  --glass-bg-results: var(--glass-bg-nightky);
+  --glass-bg-dialog: var(--glass-bg-nightky);
+  --glass-bg-backdrop: var(--glass-bg-nightky);
+  --glass-bg-strong: var(--glass-bg-nightky);
   --glass-blur: 16px;
   --glass-blur-heavy: 20px;
   --glass-blur-light: 10px;

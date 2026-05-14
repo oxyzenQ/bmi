@@ -173,7 +173,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--glass-bg-backdrop, rgba(0, 0, 0, 0.80));
+    background: var(--glass-bg-nightky, rgba(0, 0, 0, 0.65));
     -webkit-backdrop-filter: blur(var(--ms-backdrop-blur, 24px)) saturate(var(--ms-backdrop-sat, 180%));
     backdrop-filter: blur(var(--ms-backdrop-blur, 24px)) saturate(var(--ms-backdrop-sat, 180%));
     z-index: var(--modal-z);
@@ -191,7 +191,7 @@
   }
   .modal-shell-panel {
     position: relative;
-    background: var(--glass-bg-enhanced, rgba(0, 0, 0, 0.65));
+    background: var(--glass-bg-nightky, rgba(0, 0, 0, 0.65));
     border: var(--border-by-rezky);
     border-radius: var(--modal-panel-radius, var(--radius-lg));
     padding: 2rem;
@@ -211,7 +211,7 @@
     .modal-shell-backdrop {
       -webkit-backdrop-filter: blur(32px) saturate(200%);
       backdrop-filter: blur(32px) saturate(200%);
-      background: var(--glass-bg-strong, rgba(0, 0, 0, 0.92));
+      background: var(--glass-bg-nightky, rgba(0, 0, 0, 0.65));
     }
   }
   @media (max-width: 480px) {

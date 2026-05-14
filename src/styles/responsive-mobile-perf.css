@@ -83,10 +83,7 @@
      are small (empty state) but costly when they're tall (results showing).
      Bug-17 follow-up: removed contain: style paint that was causing
      jank specifically when values were inputted. */
-  .bmi-card,
-  .form-card {
-    
-  }
+
 
   /* T-3c: Kill ALL transitions on calculator cards permanently.
      The base CSS sets 800ms transitions on these cards.
@@ -215,20 +212,12 @@
     background: linear-gradient(135deg, var(--deep-void-40), rgba(91, 33, 182, 0.30)) !important;
   }
 
-  .pager-tab.active {
-    
-  }
 
-  .scale-dot {
-    
-  }
+
+
 
   /* T-8b: Button hover shadows removed — clean purple glass design. */
-  .notify-btn:hover,
-  .action-btn:hover,
-  .gauge-cta-btn:hover {
-    
-  }
+
 
   /* T-4: Permanently disable transitions on glass cards.
      Touch devices don't benefit from hover transitions anyway. */
@@ -274,11 +263,7 @@
   }
 
   /* T-8: Button shadows permanently removed — clean purple glass design. */
-  .btn,
-  button,
-  a.button {
-    
-  }
+
 
   /* T-9: Permanently remove pager-shell::before and ::after.
      Fixed overlay elements cause compositing cost per frame. */
@@ -301,7 +286,7 @@
   .pager-controls-shell {
     -webkit-backdrop-filter: blur(6px) saturate(120%) !important;
     backdrop-filter: blur(6px) saturate(120%) !important;
-    background: var(--cosmic-dark-94) !important;
+    background: var(--glass-bg-nightky) !important;
     
     contain: layout style;
   }

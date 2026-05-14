@@ -30,14 +30,14 @@
   .github-link,
   .section-header-v2,
   .hero-content {
-    background: var(--glass-bg-fallback) !important;
+    background: var(--glass-bg-nightky) !important;
     border: 1px solid var(--w-8) !important;
     
   }
 
   .pager-nav-shell,
   .pager-controls-shell {
-    background: var(--cosmic-dark-94) !important;
+    background: var(--glass-bg-nightky) !important;
     
   }
 
@@ -48,7 +48,7 @@
 
   .lang-panel,
   .notify-float-box {
-    background: var(--glass-bg-fallback) !important;
+    background: var(--glass-bg-nightky) !important;
   }
 
   .chart-tooltip {
