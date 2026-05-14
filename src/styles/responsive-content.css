@@ -179,6 +179,10 @@
   .AlertTriangle,
   .Lightbulb,
   .Users,
+  .ListChecks,
+  .Database,
+  .LockKeyhole,
+  .HeartPulse,
   .Info2 {
     width: var(--icon-card-md) !important;
     height: var(--icon-card-md) !important;

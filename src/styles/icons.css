@@ -22,7 +22,11 @@
 
 /* about icons — fluid sizing */
 .Lightbulb,
-.Users {
+.Users,
+.ListChecks,
+.Database,
+.LockKeyhole,
+.HeartPulse {
   color: var(--cosmic-purple) !important;
   width: clamp(30px, 6vw, 48px) !important;
   height: clamp(30px, 6vw, 48px) !important;

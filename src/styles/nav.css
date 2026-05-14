@@ -101,24 +101,26 @@ html[data-performance-tier="high"] :is(
 
 /* Top navbar — ensures backdrop-filter renders consistently
    across mobile browsers (especially WebKit/Safari).
-   -webkit- prefix must come before unprefixed for reliable fallback. */
+   -webkit- prefix must come before unprefixed for reliable fallback.
+   brightness(1.15) matches content-container glass for premium feel. */
 .pager-nav-shell {
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
+  backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
   background: var(--glass-bg-nightky) !important;
+  border-bottom: 1px solid var(--w-10) !important;
 }
 
-/* Bottom navbar */
+/* Bottom navbar — same premium glass as content containers */
 .pager-controls-shell {
   width: 100%;
   max-width: none;
   min-width: 0;
   overflow: hidden;
   background: var(--glass-bg-nightky) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
+  backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
   border: none !important;
-  border-top: 1px solid var(--w-8) !important;
+  border-top: 1px solid var(--w-10) !important;
   
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   margin-inline: auto;

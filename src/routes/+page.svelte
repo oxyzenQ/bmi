@@ -1186,7 +1186,7 @@
     background: var(--glass-bg-nightky);
     /* backdrop-filter owned by nav.css (with -webkit- prefix + !important) */
     border: none;
-    border-bottom: 1px solid var(--w-8);
+    border-bottom: 1px solid var(--w-10);
     
     border-radius: 0 0 22px 22px;
     margin-inline: 0;

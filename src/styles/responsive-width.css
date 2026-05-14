@@ -125,7 +125,11 @@
   /* Footer / about icons compact */
   .AlertTriangle,
   .Lightbulb,
-  .Users {
+  .Users,
+  .ListChecks,
+  .Database,
+  .LockKeyhole,
+  .HeartPulse {
     width: 36px !important;
     height: 36px !important;
   }
@@ -325,7 +329,11 @@
   /* Footer / about icons further reduced */
   .AlertTriangle,
   .Lightbulb,
-  .Users {
+  .Users,
+  .ListChecks,
+  .Database,
+  .LockKeyhole,
+  .HeartPulse {
     width: 30px !important;
     height: 30px !important;
   }

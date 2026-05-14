@@ -284,8 +284,8 @@
      premium glass aesthetic. Dialogs/buttons stay solid (T-23). */
   .pager-nav-shell,
   .pager-controls-shell {
-    -webkit-backdrop-filter: blur(6px) saturate(120%) !important;
-    backdrop-filter: blur(6px) saturate(120%) !important;
+    -webkit-backdrop-filter: blur(6px) saturate(120%) brightness(1.15) !important;
+    backdrop-filter: blur(6px) saturate(120%) brightness(1.15) !important;
     background: var(--glass-bg-nightky) !important;
     
     contain: layout style;
