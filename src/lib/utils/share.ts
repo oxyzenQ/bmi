@@ -45,7 +45,7 @@ export function formatBmiText(data: BmiShareData): string {
   }
 
   text += `\n${t('share.footer')}`;
-  text += `\nhttps://bmi-logigo.vercel.app`;
+  text += `\nhttps://bmi-stellar.vercel.app`;
   text += `\n${new Date().toLocaleString(getLocale() === 'zh' ? 'zh-CN' : getLocale(), { dateStyle: 'medium', timeStyle: 'short' })}`;
 
   return text;
@@ -61,7 +61,7 @@ export async function shareBmiResult(data: BmiShareData): Promise<{ ok: boolean;
   const shareData: ShareData = {
     title: t('share.title'),
     text,
-    url: 'https://bmi-logigo.vercel.app'
+    url: 'https://bmi-stellar.vercel.app'
   };
 
   // Try Web Share API first (mobile)

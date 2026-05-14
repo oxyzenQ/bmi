@@ -391,7 +391,7 @@ const zh: TranslationDict = {
   'error.reload': '\u91cd\u65b0\u52a0\u8f7d\u5e94\u7528',
 
   // ── Share ──
-  'share.title': 'BMI Stellar 7ed3679c',
+  'share.title': 'BMI Stellar 结果',
   'share.bmi_line': 'BMI: {n} ({category})',
   'share.prime_line': 'BMI Prime: {n}',
   'share.weight_line': '\u4f53\u91cd: {n} {unit}',
@@ -503,6 +503,7 @@ const zh: TranslationDict = {
   'about.backup_optional': '\u53ef\u9009\u52a0\u5bc6\u5bfc\u51fa',
   'about.pwa_type': '\u5f00\u6e90 PWA',
   'about.status_rc': '\u7a33\u5b9a\u53d1\u5e03\u5019\u9009',
+  'about.status_release': '稳定发布',
 
   // ── Info Section ──
   'info.disclaimer': 'BMI \u662f\u7b5b\u67e5\u5de5\u5177\uff0c\u4e0d\u5e94\u4f5c\u4e3a\u552f\u4e00\u7684\u8bca\u65ad\u65b9\u6cd5\u3002\u8bf7\u54a8\u8be2\u533b\u7597\u4e13\u4e1a\u4eba\u58eb\u8fdb\u884c\u5168\u9762\u7684\u5065\u5eb7\u8bc4\u4f30\u3002',

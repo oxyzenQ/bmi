@@ -466,7 +466,7 @@ const id: TranslationDict = {
   'about.what_is_p2': 'Rentang dewasa: <em>Kurus</em> (< 18,5), <em>Normal</em> (18,5\u201324,9), <em>Gemuk</em> (25,0\u201329,9), <em>Obesitas</em> (\u2265 30).',
   'about.what_is_p3': 'Keterbatasan: BMI tidak membedakan lemak vs otot atau distribusi lemak. Gunakan bersama lingkar pinggang, persentase lemak tubuh, faktor gaya hidup, dan penilaian klinis.',
   'about.app_title': 'Tentang BMI Stellar',
-  'about.app_desc': 'BMI Stellar adalah pendamping BMI privacy-first untuk menghitung metrik tubuh dengan cepat, melacak progres secara lokal, mendukung penggunaan offline, dan mengekspor backup terenkripsi. Aplikasi ini dirancang terasa premium tanpa mengirim data kesehatan pribadi Anda ke server.',
+  'about.app_desc': 'BMI Stellar adalah pendamping BMI privacy-first untuk menghitung metrik tubuh dengan cepat, melacak progres secara lokal, mendukung penggunaan offline, dan mengekspor backup terenkripsi. Riwayat BMI, pengukuran, dan passphrase backup Anda tetap berada di perangkat Anda.',
   'about.version': 'Versi',
   'about.branch': 'Cabang',
   'about.type_apps': 'Tipe Aplikasi',
@@ -503,6 +503,7 @@ const id: TranslationDict = {
   'about.backup_optional': 'Ekspor terenkripsi opsional',
   'about.pwa_type': 'PWA open-source',
   'about.status_rc': 'Kandidat rilis stabil',
+  'about.status_release': 'Rilis stabil',
 
   // ── Info Section ──
   'info.disclaimer': 'BMI adalah alat skrining dan tidak boleh digunakan sebagai satu-satunya metode diagnostik. Silakan berkonsultasi dengan profesional kesehatan untuk penilaian kesehatan yang komprehensif.',

@@ -115,22 +115,22 @@ jobs:
 
           # Create zip file
           cd release-package
-          zip -r ../bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip .
+          zip -r ../bmi-stellar-${{ steps.tag.outputs.TAG_NAME }}.zip .
           cd ..
 
           # Generate SHA256 checksum
-          sha256sum bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip > bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
+          sha256sum bmi-stellar-${{ steps.tag.outputs.TAG_NAME }}.zip > bmi-stellar-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
 
       - name: Create release notes
         id: release_notes
         run: |
           {
             echo "NOTES<<EOF"
-            echo "# BMI Calculator Stellar Edition - Release ${{ steps.tag.outputs.TAG_NAME }}"
+            echo "# BMI Stellar - Release ${{ steps.tag.outputs.TAG_NAME }}"
             echo ""
             echo "## 🎉 What's New"
             echo ""
-            echo "This release includes the latest improvements, bug fixes, and feature enhancements for the BMI Calculator Stellar Edition."
+            echo "This release includes the latest improvements, bug fixes, and feature enhancements for BMI Stellar."
             echo ""
             echo "## 📦 Installation"
             echo ""
@@ -138,7 +138,7 @@ jobs:
             echo ""
             echo "\`\`\`bash"
             echo "# Extract the package"
-            echo "unzip bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip -d bmi-calculator"
+            echo "unzip bmi-stellar-${{ steps.tag.outputs.TAG_NAME }}.zip -d bmi-calculator"
             echo ""
             echo "# Install dependencies"
             echo "cd bmi-calculator"
@@ -159,7 +159,7 @@ jobs:
             echo "Verify the integrity of the downloaded package using SHA256:"
             echo ""
             echo "\`\`\`bash"
-            echo "sha256sum -c bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256"
+            echo "sha256sum -c bmi-stellar-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256"
             echo "\`\`\`"
             echo ""
             echo "## 📄 License"
@@ -173,17 +173,18 @@ jobs:
             echo "---"
             echo ""
             echo "**Built with:** SvelteKit + TypeScript + Vite"
-            echo "**Team:** LOGIGO"
+            echo "**Maintainer:** Rezky Nightky"
+            echo "**Project:** BMI Stellar"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: BMI Stellar Edition ${{ steps.tag.outputs.TAG_NAME }}
+          name: BMI Stellar ${{ steps.tag.outputs.TAG_NAME }}
           body: ${{ steps.release_notes.outputs.NOTES }}
           files: |
-            bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip
-            bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
+            bmi-stellar-${{ steps.tag.outputs.TAG_NAME }}.zip
+            bmi-stellar-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
           draft: false
           prerelease: false

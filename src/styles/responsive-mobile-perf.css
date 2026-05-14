@@ -282,7 +282,9 @@
      Compromise: blur(6px) saturate(120%) — subtle glassmorphism
      that's ~4x cheaper than desktop blur while preserving the
      premium glass aesthetic. Dialogs/buttons stay solid (T-23).
-     High-specificity selectors ensure glass wins over scoped styles. */
+     High-specificity selectors ensure glass wins over scoped styles.
+     NOTE: border is NOT set to none — keeping the glass border
+     is essential for the premium look. */
   .pager-nav-shell,
   html body .pager-nav-shell,
   .pager-controls-shell,
@@ -290,7 +292,6 @@
     -webkit-backdrop-filter: blur(6px) saturate(120%) brightness(1.15) !important;
     backdrop-filter: blur(6px) saturate(120%) brightness(1.15) !important;
     background: var(--glass-bg-nightky) !important;
-    border: none !important;
 
     /* contain: layout removed — it can interfere with backdrop-filter
        compositing on some mobile browsers, causing plain black backgrounds.

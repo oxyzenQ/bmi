@@ -467,7 +467,7 @@ const en: TranslationDict = {
   'about.what_is_p2': 'Adult ranges: <em>Underweight</em> (< 18.5), <em>Normal</em> (18.5\u201324.9), <em>Overweight</em> (25.0\u201329.9), <em>Obese</em> (\u2265 30).',
   'about.what_is_p3': 'Limitations: BMI doesn\u2019t distinguish fat vs muscle or fat distribution. Use it alongside waist circumference, body\u2011fat %, lifestyle factors, and clinical assessment.',
   'about.app_title': 'About BMI Stellar',
-  'about.app_desc': 'BMI Stellar is a privacy-first BMI companion built for fast body-metric calculations, local progress tracking, offline use, and encrypted backup export. It is designed to feel polished without sending your personal health data to a server.',
+  'about.app_desc': 'BMI Stellar is a privacy-first BMI companion built for fast body-metric calculations, local progress tracking, offline use, and encrypted backup export. Your BMI history, measurements, and backup passphrases stay on your device.',
   'about.version': 'Version',
   'about.branch': 'Branch',
   'about.type_apps': 'Type Apps',
@@ -504,6 +504,7 @@ const en: TranslationDict = {
   'about.backup_optional': 'Optional encrypted export',
   'about.pwa_type': 'Open-source PWA',
   'about.status_rc': 'Stable release candidate',
+  'about.status_release': 'Stable release',
 
   // ── Info Section ──
   'info.disclaimer': 'BMI is a screening tool and should not be used as a sole diagnostic method. Please consult healthcare professionals for comprehensive health assessment.',

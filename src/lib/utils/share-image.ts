@@ -228,7 +228,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 
   ctx.fillStyle = 'rgba(255,255,255,0.15)';
   ctx.font = '400 20px system-ui, sans-serif';
-  ctx.fillText('bmi-logigo.vercel.app', CARD_W / 2, CARD_H - 120);
+  ctx.fillText('bmi-stellar.vercel.app', CARD_W / 2, CARD_H - 120);
 
   // Timestamp
   const now = new Date();

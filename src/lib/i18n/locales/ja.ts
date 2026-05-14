@@ -391,7 +391,7 @@ const ja: TranslationDict = {
   'error.reload': '\u30a2\u30d7\u30ea\u3092\u518d\u8aad\u307f\u8fbc\u307f',
 
   // ── Share ──
-  'share.title': 'BMI Stellar 7d50679c',
+  'share.title': 'BMI Stellar の結果',
   'share.bmi_line': 'BMI: {n} ({category})',
   'share.prime_line': 'BMI Prime: {n}',
   'share.weight_line': '\u4f53\u91cd: {n} {unit}',
@@ -503,6 +503,7 @@ const ja: TranslationDict = {
   'about.backup_optional': '\u30aa\u30d7\u30b7\u30e7\u30f3\u306e\u6697\u53f7\u5316\u30a8\u30af\u30b9\u30dd\u30fc\u30c8',
   'about.pwa_type': '\u30aa\u30fc\u30d7\u30f3\u30bd\u30fc\u30b9 PWA',
   'about.status_rc': '\u5b89\u5b9a\u30ea\u30ea\u30fc\u30b9\u5019\u88dc',
+  'about.status_release': '安定リリース',
 
   // ── Info Section ──
   'info.disclaimer': 'BMI \u306f\u30b9\u30af\u30ea\u30fc\u30cb\u30f3\u30b0\u30c4\u30fc\u30eb\u3067\u3042\u308a\u3001\u552f\u4e00\u306e\u8a3a\u65ad\u65b9\u6cd5\u3068\u3057\u3066\u4f7f\u7528\u3059\u3079\u304d\u3067\u306f\u3042\u308a\u307e\u305b\u3093\u3002\u7dcf\u5408\u7684\u306a\u5065\u5eb7\u8a55\u4fa1\u306b\u306f\u533b\u7678\u306b\u76f8\u8ac7\u3057\u3066\u304f\u3060\u3055\u3044\u3002',

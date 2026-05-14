@@ -15,7 +15,9 @@
 .gauge-container,
 .form-card,
 .section-header-v2,
-.github-link {
+.github-link,
+.pager-nav-shell,
+.pager-controls-shell {
   background: var(--glass-bg-nightky);
   border: var(--border-by-rezky);
   border-radius: var(--radius-lg);
@@ -42,7 +44,9 @@
   .gauge-container,
   .form-card,
   .section-header-v2,
-  .github-link {
+  .github-link,
+  .pager-nav-shell,
+  .pager-controls-shell {
     background: var(--glass-bg-nightky);
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15);

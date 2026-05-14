@@ -2,7 +2,7 @@
   import {
     Lightbulb, AlertTriangle, ListChecks, Database,
     LockKeyhole, HeartPulse, GitBranch, GitCompare,
-    PackageCheck, ShieldCheck, Activity, Scale
+    PackageCheck, ShieldCheck, Scale
   } from 'lucide-svelte';
   import { t as _t, localeVersion } from '$lib/i18n';
 
@@ -37,6 +37,17 @@
           <p>
             {@html t('about.what_is_p3')}
           </p>
+        </div>
+      </div>
+
+      <!-- About BMI Stellar -->
+      <div class="about-card">
+        <div class="about-card-header">
+          <HeartPulse class="HeartPulse" />
+          <h3>{t('about.app_title')}</h3>
+        </div>
+        <div class="about-card-content">
+          <p>{@html t('about.app_desc')}</p>
         </div>
       </div>
 
@@ -102,10 +113,12 @@
               <PackageCheck class="PackageCheck" />
               <strong>{t('about.version')}:</strong>Stellar v20.0 <span class="commit-id">({gitCommitId})</span>
             </p>
+            {#if gitBranch !== 'main'}
             <p class="info-row">
               <GitBranch class="GitBranch" />
               <strong>{t('about.branch')}:</strong>{gitBranch}
             </p>
+            {/if}
             <p class="info-row">
               <GitCompare class="GitCompare" />
               <strong>{t('about.type_apps')}:</strong><span class="text-gradient-elegant">{t('about.pwa_type')}</span>
@@ -120,7 +133,7 @@
             </p>
             <p class="info-row">
               <ShieldCheck class="ShieldCheck" />
-              <strong>{t('about.status')}:</strong>{t('about.status_rc')}
+              <strong>{t('about.status')}:</strong>{t('about.status_release')}
             </p>
             <p class="info-row">
               <Scale class="Scale" />

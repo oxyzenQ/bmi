@@ -296,6 +296,244 @@
   .about-card .info-row strong {
     font-size: clamp(0.7rem, 2.8vw, 0.8rem);
   }
+
+  /* Section header — compact on tiny screens */
+  .main-container .section-header-v2 {
+    padding: 2rem 1rem;
+    margin-bottom: clamp(4rem, 8vw, 5rem) !important;
+  }
+
+  .section-header-v2 .title {
+    font-size: clamp(1.5rem, 6vw, 2.5rem);
+  }
+
+  .section-header-v2 .subtitle {
+    font-size: clamp(0.9rem, 3.5vw, 1.25rem);
+  }
+
+  /* Gauge container — compact */
+  .gauge-container {
+    padding: 1rem;
+    border-radius: clamp(12px, 4vw, 16px);
+  }
+
+  /* Reference table — compact */
+  .reference-table {
+    padding: 0.75rem;
+    border-radius: clamp(12px, 4vw, 16px);
+    font-size: clamp(0.75rem, 3vw, 0.85rem);
+  }
+
+  /* Results card — compact */
+  .bmi-results-card {
+    padding: 0.875rem;
+    border-radius: clamp(12px, 4vw, 16px);
+  }
+
+  /* Nav tabs — extra compact */
+  .pager-tab {
+    height: 30px;
+    padding-inline: 0.45rem;
+    font-size: 0.7rem;
+  }
+
+  /* Bottom nav buttons — compact */
+  .pager-btn-futuristic {
+    width: 44px;
+    height: 44px;
+  }
+
+  .pager-btn-futuristic svg {
+    width: 36px !important;
+    height: 36px !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ULTRA-TINY SCREEN (<= 300px) — survival mode
+   Everything must fit without overflow.
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 300px) {
+  .main-container {
+    padding-inline: 0.5rem;
+  }
+
+  .form-card,
+  .bmi-card,
+  .about-card,
+  .main-container .section-header-v2,
+  .footer-disclaimer {
+    padding: 0.625rem;
+    border-radius: clamp(8px, 3vw, 14px);
+  }
+
+  .hero-content {
+    padding: 1rem 0.75rem;
+    border-radius: clamp(12px, 4vw, 20px);
+  }
+
+  .hero-title {
+    font-size: clamp(1.4rem, 7vw, 2.25rem);
+  }
+
+  .hero-subtitle {
+    font-size: clamp(0.85rem, 3.5vw, 1rem);
+  }
+
+  /* About cards — ultra compact */
+  .about-card-header {
+    gap: 0.3rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .about-card h3 {
+    font-size: clamp(0.8rem, 3vw, 1.1rem);
+  }
+
+  .about-card p {
+    font-size: clamp(0.72rem, 2.8vw, 0.85rem);
+    line-height: 1.5;
+    margin-bottom: 0.4rem;
+  }
+
+  .about-card .info-row {
+    gap: 0.2rem;
+    font-size: clamp(0.65rem, 2.5vw, 0.75rem);
+  }
+
+  .about-card .info-row strong {
+    font-size: clamp(0.65rem, 2.5vw, 0.75rem);
+  }
+
+  .about-card .commit-id {
+    font-size: clamp(0.55rem, 2vw, 0.7rem);
+  }
+
+  /* Section header — ultra compact */
+  .main-container .section-header-v2 {
+    padding: 1.5rem 0.75rem;
+    margin-bottom: clamp(3rem, 6vw, 4rem) !important;
+  }
+
+  .section-header-v2 .title {
+    font-size: clamp(1.25rem, 5vw, 2rem);
+  }
+
+  .section-header-v2 .subtitle {
+    font-size: clamp(0.8rem, 3vw, 1.1rem);
+  }
+
+  /* Gauge — ultra compact */
+  .gauge-container {
+    padding: 0.75rem;
+  }
+
+  .radial-gauge {
+    width: min(65vw, 220px);
+  }
+
+  /* Reference table — ultra compact */
+  .reference-table {
+    padding: 0.5rem;
+    font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+  }
+
+  /* Results card — ultra compact */
+  .bmi-results-card {
+    padding: 0.625rem;
+  }
+
+  .bmi-value {
+    font-size: clamp(2rem, 10vw, 2.75rem);
+  }
+
+  /* Footer — ultra compact */
+  .footer-disclaimer {
+    padding: 0.75rem;
+  }
+
+  .footer-disclaimer p {
+    font-size: clamp(0.75rem, 3vw, 0.9rem);
+  }
+
+  /* GitHub link — ultra compact */
+  .github-link {
+    padding: 0.5rem 0.75rem;
+    font-size: clamp(0.75rem, 3vw, 0.9rem);
+  }
+
+  /* Nav tabs — ultra compact */
+  .pager-tab {
+    height: 28px;
+    padding-inline: 0.35rem;
+    font-size: 0.65rem;
+  }
+
+  /* Bottom nav — ultra compact */
+  .pager-btn-futuristic {
+    width: 40px;
+    height: 40px;
+  }
+
+  .pager-btn-futuristic svg {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .pager-btn-spacer {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* BMI grid — ultra compact */
+  .bmi-grid {
+    gap: 0.75rem !important;
+  }
+
+  /* Form inputs — ultra compact */
+  .form-input {
+    font-size: clamp(0.8rem, 3vw, 0.9rem);
+    padding: 0.5rem 0.625rem;
+  }
+
+  /* Buttons — ultra compact */
+  .btn,
+  button,
+  a.button {
+    height: 38px;
+    padding-inline: 14px;
+    font-size: 0.8rem;
+  }
+
+  .btn-lg {
+    height: 44px;
+    padding-inline: 16px;
+    font-size: 0.9rem;
+  }
+
+  /* Modal panels — ultra compact */
+  .notify-float-box {
+    padding: 1rem;
+    border-radius: clamp(12px, 4vw, 16px);
+  }
+
+  .lang-panel {
+    padding: 1rem;
+    border-radius: clamp(12px, 4vw, 16px);
+  }
+
+  /* Stat blocks — ultra compact */
+  .stat-block {
+    padding: 0.625rem;
+  }
+
+  .stat-number {
+    font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+  }
+
+  .stat-label {
+    font-size: clamp(0.6rem, 2.5vw, 0.7rem);
+  }
 }
 
 @media (max-width: 600px) {

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="static/assets/bmi-logigo-v2.png" alt="BMI Stellar" width="280" />
+  <img src="static/assets/new_bmi_logo_2026.webp" alt="BMI Stellar" width="280" />
 </p>
 
 <h1 align="center">BMI Stellar v20.0</h1>
@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://bmi-logigo.vercel.app"><strong>Live Demo</strong></a> ·
+  <a href="https://bmi-stellar.vercel.app"><strong>Live Demo</strong></a> ·
   <a href="LICENSE.md">GPL-3.0</a>
 </p>
 
@@ -82,7 +82,7 @@ Open the local URL printed in your terminal (default: `http://localhost:5173`).
 src/
   routes/
     +page.svelte          Main SPA page (pager navigation, BMI logic, lazy loading)
-    +layout.svelte         Root layout (CosmicParticles, PWA install, Web Vitals)
+    +layout.svelte         Root layout (PWA install, Web Vitals, CSS cascade)
     +layout.ts             Root layout loader (locale detection, security)
     +error.svelte          Custom error page (themed, accessible)
   styles/                  Modular CSS (17 files, imported in cascade order)
@@ -100,9 +100,9 @@ src/
     responsive-base.css    Responsive base breakpoints and layout shifts
     responsive-width.css   Width-based responsive rules, ref-table mobile stacking
     responsive-height.css  Height-based responsive rules
-    responsive-content.css Mobile content overrides, glass tuning
     responsive-backdrop.css No-backdrop fallback for unsupported browsers
     responsive-mobile-perf.css Touch-device GPU optimizations (T-rules)
+    responsive-content.css Mobile content overrides, glass tuning (final correction layer, loads LAST)
   lib/
     components/            Reusable UI components
       BmiForm.svelte         Height/weight/age/gender/activity input form
@@ -117,9 +117,7 @@ src/
       NotifyFloat.svelte     Toast notification (confirm/cancel flow)
       FeedbackModal.svelte   Feedback modal (blocking, portal-rendered)
       EncryptionModal.svelte Encryption passphrase modal for backup
-      BackupStatus.svelte    Backup operation status display
       LanguageSwitcher.svelte Floating language switcher (portal to body)
-      CosmicParticles.svelte Canvas particle background (purple rain)
       __tests__/             Component tests (Vitest)
     ui/
       Hero.svelte            Welcome/hero section
@@ -139,10 +137,9 @@ src/
       history-io.ts         Export/import with SHA-256 checksum verification
       backup.ts             Encrypted backup (AES-GCM + Argon2id/PBKDF2)
       crypto.ts             Encryption utilities (AES-GCM, Argon2id, PBKDF2 key derivation, SHA-256 checksum)
-      performance.ts        Device capability detection (tier + reduced motion)
+      animation-config.ts   Animation timing, easing, and performance tier configuration
       share.ts              Web Share API, clipboard, formatted BMI text
       share-image.ts        Canvas-based BMI result card image generation
-      animation-config.ts   Animation timing and easing configuration
       lazy-load.ts          Dynamic component lazy loading
       __tests__/            Unit tests
   hooks.server.ts            Security headers (CSP, HSTS, COOP, CORP, COEP)
@@ -197,16 +194,16 @@ Styles split into 17 focused modules under `src/styles/`, imported in cascade or
 12. **responsive-base.css** — Base responsive breakpoints and layout shifts
 13. **responsive-width.css** — Width-based responsive rules, ref-table mobile stacking
 14. **responsive-height.css** — Height-based responsive rules
-15. **responsive-content.css** — Mobile content overrides, glass tuning
-16. **responsive-backdrop.css** — No-backdrop fallback for unsupported browsers
-17. **responsive-mobile-perf.css** — Touch-device GPU optimizations (T-rules)
+15. **responsive-backdrop.css** — No-backdrop fallback for unsupported browsers
+16. **responsive-mobile-perf.css** — Touch-device GPU optimizations (T-rules)
+17. **responsive-content.css** — Mobile content overrides, glass tuning (final correction layer, loads LAST)
 
 ### Glassmorphism System (Bug #19 Fix)
 All glass containers use a consistent progressive enhancement pattern:
 
 ```
-Fallback (no backdrop-filter support):  rgba(10, 2, 28, 0.82) — solid, dark
-Enhanced (backdrop-filter supported):   rgba(10, 2, 28, 0.55) + blur(8px) saturate(140%) — glass
+Fallback (no backdrop-filter support):  rgba(0, 0, 0, 0.65) — solid, dark
+Enhanced (backdrop-filter supported):   rgba(0, 0, 0, 0.65) + blur(16px) saturate(180%) brightness(1.15) — glass
 ```
 
 Glass design tokens are centralized in `tokens.css` (`--glass-bg-*`, `--glass-blur-*`, `--glass-saturation-*`). Mobile touch devices (`hover: none`) use slightly stronger backgrounds with reduced blur for GPU performance, but maintain visual consistency with desktop. The `@supports` feature query ensures containers never appear transparent, even on browsers that don't support `backdrop-filter`.
@@ -236,7 +233,7 @@ Backup data is encrypted using a layered security architecture:
 ```
 
 ### Performance Tiers
-Device capabilities detected at mount time via `performance.ts`:
+Device capabilities detected at mount time via `animation-config.ts`:
 - **High**: 8+ cores, 8+ GB RAM, 4G -> full animations, contain optimizations
 - **Medium**: 4+ cores, 4+ GB RAM -> standard animations, style containment
 - **Low**: Reduced motion and lighter transitions while preserving readable glass backgrounds.
@@ -275,8 +272,8 @@ All user data stored in `localStorage` under namespaced keys (via centralized `s
 ## Known Constraints
 
 - Some older mobile browsers (Android Chrome < 76, older WebViews) may not support `backdrop-filter`. The `@supports` progressive enhancement ensures these fall back to a strong opaque background instead of appearing transparent.
-- `prefers-reduced-motion` disables animations and transitions but preserves visual effects (glassmorphism, colors, shadows) for consistent appearance.
-- Performance tier "low" disables `backdrop-filter` for GPU savings but maintains strong semi-transparent backgrounds.
+- `prefers-reduced-motion` disables animations and transitions but preserves visual identity such as glass backgrounds, color, border, and contrast for consistent appearance.
+- Performance tier "low" keeps glass backgrounds and border clarity while simplifying GPU-intensive effects.
 - Encrypted backups require the user to remember their passphrase — there is no recovery mechanism (by design, for privacy).
 
 ## Contributing
