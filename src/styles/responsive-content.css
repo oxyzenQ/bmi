@@ -74,11 +74,25 @@
   .form-card,
   .bmi-card,
   .about-card,
-  .section-header-v2,
-  .footer-disclaimer {
+  .main-container .section-header-v2 {
     width: 100%;
     padding: clamp(1rem, 4.5vw, 1.5rem);
     border-radius: clamp(16px, 5vw, 24px);
+  }
+
+  /* Footer: width:auto fills parent content without margin overflow.
+     width:100% + existing margin-left/right causes right-edge overflow.
+     margin-inline:0 neutralizes layout.css horizontal margins. */
+  .footer-disclaimer {
+    width: auto;
+    max-width: 100%;
+    margin-inline: 0 !important;
+    padding: clamp(1rem, 4.5vw, 1.5rem);
+    border-radius: clamp(16px, 5vw, 24px);
+  }
+
+  .github-footer {
+    margin-inline: 0 !important;
   }
 
   .bmi-results-card {
@@ -173,12 +187,68 @@
   .form-card,
   .bmi-card,
   .about-card,
-  .section-header-v2,
+  .main-container .section-header-v2,
   .footer-disclaimer {
     padding: 0.875rem;
   }
 
   .hero-content {
     padding: 1.25rem 1rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE PREMIUM GLASS — final source of truth
+   Ensures desktop-quality glass does not disappear on mobile.
+   Loaded after responsive-mobile-perf.css.
+   ═══════════════════════════════════════════════════════════════ */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  @media (max-width: 600px) {
+    .bmi-card,
+    .about-card,
+    .gauge-container,
+    .form-card,
+    .main-container .section-header-v2,
+    .github-link {
+      background: var(--glass-bg-enhanced) !important;
+      -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
+      backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
+      border: 1px solid var(--w-10) !important;
+      box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .hero-content,
+    .hero-section .hero-content,
+    main .hero-content {
+      background: var(--glass-bg-hero) !important;
+      -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
+      backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
+      border: 1px solid var(--w-10) !important;
+      box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .bmi-results-card {
+      background: var(--glass-bg-results) !important;
+      -webkit-backdrop-filter: blur(12px) saturate(160%) brightness(1.08) !important;
+      backdrop-filter: blur(12px) saturate(160%) brightness(1.08) !important;
+    }
+
+    /* Footer: dedicated premium glass (separate from generic card group) */
+    .footer-disclaimer {
+      background: var(--glass-bg-enhanced) !important;
+      -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
+      backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
+      border: 1px solid var(--w-10) !important;
+      box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    }
   }
 }
