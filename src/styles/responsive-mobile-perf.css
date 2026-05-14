@@ -32,7 +32,7 @@
      too bright (Bug: mobile wallpaper too bright).
      Also remove translateZ(0) compositor layer promotion. */
   body::before {
-    filter: brightness(0.7) !important;
+    filter: brightness(0.35) contrast(1) saturate(1);
     transform: none !important;
   }
 
@@ -40,12 +40,12 @@
      Previously display:none removed ALL darkening, making wallpaper
      too bright on mobile. Now keeps the overlay with stronger opacity
      to compensate for smaller screens where the gradient covers less
-     visual area. The dark wallpaper needs this overlay for depth. */
+     visual area. The dark wallpaper needs this overlay for depth.
   body::after {
     background: linear-gradient(180deg,
       rgba(2, 6, 23, 0.70),
       rgba(2, 6, 23, 0.92)) !important;
-  }
+  }*/
 
   /* T-2: Promote .pager-section to its own compositor layer
      so the browser can scroll it independently of fixed navbars.

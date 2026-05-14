@@ -1149,9 +1149,8 @@
   }
 
   .pager-shell::before {
-    top: var(--nav-bar-h);
-    height: var(--pager-edge-fade);
-    background: linear-gradient(to bottom, var(--cosmic-dark-92), var(--k-0));
+    content: none;
+    display: none;
   }
 
   .pager-shell::after {
@@ -1204,24 +1203,9 @@
     align-items: flex-end;
   }
 
-  /* Aurora glow accent line at bottom of navbar */
   .pager-nav-shell::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 10%;
-    right: 10%;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      var(--aurora-glow, #b266ff) 30%,
-      var(--cosmic-blue) 50%,
-      var(--aurora-glow, #b266ff) 70%,
-      transparent 100%
-    );
-    opacity: 0.5;
-    pointer-events: none;
+    content: none;
+    display: none;
   }
 
   .pager-nav::-webkit-scrollbar {
