@@ -383,7 +383,7 @@
               </button>
             </div>
             <StrengthMeter
-              visible={!!passphrase && mode === 'export'}
+              visible={Boolean(passphrase) && mode === 'export'}
               score={strengthScore}
               result={strengthResult}
             />
