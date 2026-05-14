@@ -223,29 +223,29 @@
     align-items: center;
     justify-content: center;
     color: var(--stellar-white);
-    box-shadow: 0 4px 12px var(--k-30);
+    
     animation: pulse var(--dur-breathe) ease-in-out infinite;
   }
 
   .risk-marker.risk-low {
     background: var(--cat-green-90);
-    box-shadow: 0 0 20px var(--cat-green-40);
+    
   }
 
   .risk-marker.risk-moderate {
     background: var(--cat-blue-90);
-    box-shadow: 0 0 20px var(--cat-blue-40);
+    
   }
 
   .risk-marker.risk-elevated {
     background: var(--cat-amber-90);
-    box-shadow: 0 0 20px var(--cat-yellow-40);
+    
     color: var(--text-on-amber);
   }
 
   .risk-marker.risk-high {
     background: var(--cat-red-90);
-    box-shadow: 0 0 20px var(--cat-red-40);
+    
   }
 
   .risk-marker.risk-unknown {

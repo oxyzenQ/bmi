@@ -51,14 +51,14 @@
   border: 1px solid var(--w-5);
   border-radius: var(--radius-lg);
   padding: 1.25rem;
-  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
+  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease;
 }
 
 .stat-block:hover {
   background: var(--sd-60);
   border-color: var(--w-10);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px var(--k-20);
+  
 }
 
 .stat-block-header {
@@ -260,14 +260,14 @@
   padding: 1.25rem;
   margin-bottom: 1.75rem;
   animation: fadeInUp var(--dur-panel) var(--easing-smooth) 0.25s both;
-  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
+  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease;
 }
 
 .tdee-card:hover {
   background: var(--sd-60);
   border-color: var(--w-10);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px var(--k-20);
+  
 }
 
 .tdee-header {
@@ -578,9 +578,7 @@
     linear-gradient(180deg, var(--w-5), var(--w-2)) padding-box,
     radial-gradient(100% 100% at 0% 0%, var(--w-12), var(--w-0)) border-box;
   border: 1px solid var(--sg-16);
-  box-shadow:
-    inset 0 1px 0 var(--w-5),
-    0 8px 20px var(--dv8-25);
+  
 }
 
 .scale-dot {
@@ -588,9 +586,7 @@
   height: 10px;
   border-radius: 999px;
   background: var(--category-color, var(--accent-blue));
-  box-shadow:
-    0 0 0 4px var(--blue-18),
-    0 0 14px var(--blue-20);
+  
 }
 
 .scale-label {
@@ -697,10 +693,7 @@
       var(--w-6),
       var(--w-2));
   border-bottom: 2px solid var(--w-10);
-  box-shadow:
-    inset 0 0 0 1px var(--zinc2-20),
-    inset 4px 0 0 var(--ref-row-accent),
-    0 0 0 1px var(--sg-8);
+  
 }
 
 .reference-table .ref-row.ref-row-underweight:hover,
@@ -713,10 +706,7 @@
 }
 
 .reference-table .ref-row.ref-row-obese {
-  box-shadow:
-    inset 0 0 0 1px var(--zinc2-22),
-    inset 4px 0 0 var(--ref-row-accent),
-    0 0 0 1px var(--sg-10);
+  
 }
 
 .reference-table .ref-col strong {

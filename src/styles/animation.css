@@ -156,10 +156,10 @@
 
 @keyframes skeleton-ring-pulse {
   0%, 100% {
-    box-shadow: 0 0 0 0 var(--w-5);
+    
   }
   50% {
-    box-shadow: 0 0 12px 2px var(--w-8);
+    
   }
 }
 
@@ -199,15 +199,15 @@
 @keyframes skeleton-ring-spin {
   0% {
     border-color: var(--w-8);
-    box-shadow: inset 0 0 20px var(--w-5);
+    
   }
   50% {
     border-color: var(--w-14);
-    box-shadow: inset 0 0 20px var(--w-8);
+    
   }
   100% {
     border-color: var(--w-8);
-    box-shadow: inset 0 0 20px var(--w-5);
+    
   }
 }
 
@@ -300,16 +300,12 @@ a.button {
 /* ── Input Focus Glow ── */
 .form-input {
   transition: border-color var(--dur-interactive) ease,
-    box-shadow var(--dur-interactive) ease,
     background-color var(--dur-interactive) ease;
 }
 
 .form-input:focus {
   border-color: var(--violet-50);
-  box-shadow:
-    0 0 0 3px var(--violet-15),
-    0 0 16px var(--violet-20),
-    inset 0 1px 2px var(--w-5);
+  
   background-color: var(--void-85);
 }
 
@@ -366,10 +362,7 @@ a.button {
 
 /* ── Pager Tab Active Glow Indicator ── */
 .pager-tab.active {
-  box-shadow:
-    0 0 20px var(--violet-22),
-    0 0 6px var(--violet-15),
-    inset 0 -2px 0 var(--violet-25);
+  
 }
 
 /* ── NotifyFloat Button Hover Lift ── */
@@ -442,7 +435,7 @@ a.button {
   cursor: pointer;
   transition: background var(--dur-interactive) ease, border-color var(--dur-interactive) ease, transform var(--dur-interactive) ease;
   letter-spacing: 0.02em;
-  box-shadow: none;
+  
 }
 
 .gauge-cta-btn:hover {
@@ -473,12 +466,12 @@ a.button {
   color: white !important;
   border-color: var(--violet-18) !important;
   background: var(--btn-bg-hover) !important;
-  box-shadow: none !important;
+  
 }
 
 .pager-btn-scroll-top.fab-visible:hover {
   background: var(--btn-bg-active) !important;
-  box-shadow: none !important;
+  
   color: white !important;
 }
 
@@ -630,8 +623,7 @@ a.button {
 .bmi-drop-zone--active {
   border-color: var(--aurora-glow);
   background: var(--violet-15);
-  box-shadow: 0 0 24px var(--violet-20),
-    inset 0 0 24px var(--violet-8);
+  
   transform: scale(1.01);
 }
 
@@ -819,5 +811,4 @@ a.button {
     transform: translateY(0);
   }
 }
-
 

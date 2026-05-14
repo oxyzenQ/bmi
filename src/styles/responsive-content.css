@@ -202,12 +202,7 @@
    Must be loaded after ALL responsive/mobile performance CSS.
    Width-based query so Chrome DevTools responsive mode matches.
    Stronger selectors (html body .main-container) to beat earlier layers.
-   Zero box-shadow — glass depth via blur + gradient + border + outline.
-   ═══════════════════════════════════════════════════════════════ */
-@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  @media (max-width: 600px) {
-    html body .main-container .bmi-card,
-    html body .main-container .form-card,
+   Zero html body .main-container .form-card,
     html body .main-container .about-card,
     html body .main-container .gauge-container,
     html body .main-container .section-header-v2,

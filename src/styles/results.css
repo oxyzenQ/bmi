@@ -10,7 +10,7 @@
   min-height: 450px;
   display: flex;
   flex-direction: column;
-  transition: transform var(--dur-normal) var(--easing-smooth), box-shadow var(--dur-normal) var(--easing-smooth), border-color var(--dur-normal) var(--easing-smooth);
+  transition: transform var(--dur-normal) var(--easing-smooth), border-color var(--dur-normal) var(--easing-smooth);
 }
 
 .bmi-results-card::before {
@@ -114,14 +114,14 @@
   margin-bottom: 1.75rem;
   border: 1px solid var(--w-5);
   animation: slideInLeft var(--dur-panel) var(--easing-smooth) 0.25s both;
-  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
+  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease;
 }
 
 .health-advice:hover {
   background: var(--sd-60);
   border-color: var(--w-10);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px var(--k-20);
+  
 }
 
 /* Clean directional slide — left */
@@ -160,14 +160,14 @@
   padding: 1.75rem;
   margin-bottom: 1.75rem;
   animation: slideInRight var(--dur-panel) var(--easing-smooth) 0.35s both;
-  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
+  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease;
 }
 
 .age-advisory:hover {
   background: var(--coreblue-16);
   border-color: var(--coreblue-32);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px var(--coreblue-16);
+  
 }
 
 /* Clean directional slide — right */
@@ -206,14 +206,14 @@
   padding: 1.75rem;
   border: 1px solid var(--w-5);
   animation: fadeInUp var(--dur-panel) var(--easing-smooth) 0.45s both;
-  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
+  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease;
 }
 
 .bmi-explanation:hover {
   background: var(--sd-60);
   border-color: var(--w-10);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px var(--k-20);
+  
 }
 
 .explanation-title {
@@ -253,7 +253,7 @@
   transition: transform var(--dur-interactive) ease, background var(--dur-interactive) ease, border-color var(--dur-interactive) ease;
   flex: 1;
   justify-content: center;
-  box-shadow: none;
+  
 }
 
 .action-btn:hover {

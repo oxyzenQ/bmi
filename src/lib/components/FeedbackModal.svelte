@@ -82,7 +82,7 @@
   /* Override ModalShell panel styles for feedback-specific appearance */
   :global(.feedback-box) {
     background: var(--k-50);
-    box-shadow: 0 25px 50px -12px var(--k-50);
+    
   }
 
   .feedback-header {

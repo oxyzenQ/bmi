@@ -18,7 +18,7 @@ html[data-performance-tier="low"] :is(
 ) {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  box-shadow: 0 4px 12px var(--k-30) !important;
+  
 }
 
 html[data-performance-tier="low"] :is(
@@ -38,7 +38,7 @@ html[data-performance-tier="low"] :is(
   .empty-glow
 ) {
   filter: none !important;
-  box-shadow: none !important;
+  
   text-shadow: none !important;
 }
 
@@ -69,7 +69,6 @@ html[data-performance-tier="high"] :is(
     opacity var(--dur-interactive) ease,
     background var(--dur-interactive) ease,
     border-color var(--dur-interactive) ease,
-    box-shadow var(--dur-interactive) ease,
     transform var(--dur-interactive) var(--easing-smooth);
 }
 
@@ -87,9 +86,7 @@ html[data-performance-tier="high"] :is(
     var(--w-5) 100%
   );
   border-color: var(--violet-45);
-  box-shadow:
-    0 0 20px var(--violet-22),
-    0 0 6px var(--violet-15);
+  
   transform: translateY(-1px);
   font-weight: 500;
 }
@@ -126,7 +123,7 @@ html[data-performance-tier="high"] :is(
   backdrop-filter: blur(24px) saturate(180%) !important;
   border: none !important;
   border-top: 1px solid var(--w-8) !important;
-  box-shadow: 0 -1px 0 var(--w-6), 0 -8px 30px var(--k-50), 0 -2px 8px var(--k-30);
+  
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   margin-inline: auto;
   position: absolute;
@@ -176,7 +173,7 @@ html[data-performance-tier="high"] :is(
   cursor: pointer;
   position: relative;
   transition: background var(--dur-interactive) ease, border-color var(--dur-interactive) ease, color var(--dur-interactive) ease, transform var(--dur-interactive) var(--easing-smooth);
-  box-shadow: none;
+  
 }
 
 .pager-btn-futuristic svg {

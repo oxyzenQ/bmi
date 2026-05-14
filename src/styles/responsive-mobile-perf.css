@@ -66,17 +66,12 @@
     touch-action: pan-y pan-x pinch-zoom;
   }
 
-  /* T-3: Permanently simplify box-shadow on glass cards.
-     color-mix() in box-shadow is expensive on low-end GPUs.
-     Note: NO contain on form-card/bmi-card (dynamic content).
-     Static cards get full layout style paint isolation. */
-  .footer-disclaimer,
-  .about-card,
+  /* T-3: Permanently simplify .about-card,
   .gauge-container,
   .reference-table,
   .github-link,
   .section-header-v2 {
-    box-shadow: 0 4px 16px var(--k-30) !important;
+    
     contain: layout style paint;
   }
 
@@ -90,7 +85,7 @@
      jank specifically when values were inputted. */
   .bmi-card,
   .form-card {
-    box-shadow: 0 4px 16px var(--k-30) !important;
+    
   }
 
   /* T-3c: Kill ALL transitions on calculator cards permanently.
@@ -173,9 +168,8 @@
     transform: none !important;
   }
 
-  /* T-21: .action-btn box-shadow removed — clean purple glass buttons. */
   .action-btn {
-    box-shadow: none !important;
+    
     border-color: var(--violet-22) !important;
   }
 
@@ -194,7 +188,7 @@
   .age-advisory:hover {
     background: var(--coreblue-16) !important;
     border-color: var(--coreblue-32) !important;
-    box-shadow: 0 8px 25px var(--coreblue-16) !important;
+    
   }
 
   .btn-primary {
@@ -222,21 +216,18 @@
   }
 
   .pager-tab.active {
-    box-shadow:
-      0 0 20px var(--violet-22),
-      0 0 6px var(--violet-15),
-      inset 0 -2px 0 var(--violet-25) !important;
+    
   }
 
   .scale-dot {
-    box-shadow: 0 0 0 3px var(--w-8) !important;
+    
   }
 
   /* T-8b: Button hover shadows removed — clean purple glass design. */
   .notify-btn:hover,
   .action-btn:hover,
   .gauge-cta-btn:hover {
-    box-shadow: none !important;
+    
   }
 
   /* T-4: Permanently disable transitions on glass cards.
@@ -286,7 +277,7 @@
   .btn,
   button,
   a.button {
-    box-shadow: none !important;
+    
   }
 
   /* T-9: Permanently remove pager-shell::before and ::after.
@@ -311,7 +302,7 @@
     -webkit-backdrop-filter: blur(6px) saturate(120%) !important;
     backdrop-filter: blur(6px) saturate(120%) !important;
     background: var(--cosmic-dark-94) !important;
-    box-shadow: none !important;
+    
     contain: layout style;
   }
 

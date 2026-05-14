@@ -275,9 +275,7 @@
   .btn-success {
     background: linear-gradient(135deg, var(--cat-green-90) 0%, var(--dkgreen-90) 100%);
     color: var(--stellar-white);
-    box-shadow:
-      0 4px 20px var(--cat-green-30),
-      0 0 0 1px var(--w-10) inset;
+    
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border: 1px solid var(--w-15);
@@ -285,18 +283,14 @@
 
   .btn-success:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow:
-      0 8px 25px var(--cat-green-40),
-      0 0 0 1px var(--w-15) inset;
+    
     background: linear-gradient(135deg, var(--cat-green-95) 0%, var(--dkgreen-95) 100%);
   }
 
   .btn-delete {
     background: linear-gradient(135deg, var(--cat-red-90) 0%, var(--darkred-90) 100%);
     color: var(--stellar-white);
-    box-shadow:
-      0 4px 20px var(--cat-red-30),
-      0 0 0 1px var(--w-10) inset;
+    
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border: 1px solid var(--w-15);
@@ -304,18 +298,14 @@
 
   .btn-delete:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow:
-      0 8px 25px var(--cat-red-40),
-      0 0 0 1px var(--w-15) inset;
+    
     background: linear-gradient(135deg, var(--cat-red-95) 0%, var(--darkred-95) 100%);
   }
 
   .btn-cancel {
     background: linear-gradient(135deg, var(--coolgray-90) 0%, var(--dkgray-90) 100%);
     color: var(--stellar-white);
-    box-shadow:
-      0 4px 20px var(--coolgray-30),
-      0 0 0 1px var(--w-10) inset;
+    
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border: 1px solid var(--w-15);
@@ -323,9 +313,7 @@
 
   .btn-cancel:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow:
-      0 8px 25px var(--coolgray-40),
-      0 0 0 1px var(--w-15) inset;
+    
     background: linear-gradient(135deg, var(--coolgray-95) 0%, var(--dkgray-95) 100%);
   }
 
@@ -343,9 +331,7 @@
   .btn-warn {
     background: linear-gradient(135deg, var(--cat-amber-90) 0%, var(--dkamber-90) 100%);
     color: var(--stellar-white);
-    box-shadow:
-      0 4px 20px var(--cat-amber-30),
-      0 0 0 1px var(--w-10) inset;
+    
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border: 1px solid var(--w-15);
@@ -353,9 +339,7 @@
 
   .btn-warn:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow:
-      0 8px 25px var(--cat-amber-40),
-      0 0 0 1px var(--w-15) inset;
+    
     background: linear-gradient(135deg, var(--cat-amber-95) 0%, var(--dkamber-95) 100%);
   }
 

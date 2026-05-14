@@ -36,7 +36,7 @@
   text-align: center;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
-  box-shadow: 0 25px 50px -12px var(--k-50);
+  
   transform: scale(0.92) translateY(14px);
   transition: transform var(--modal-dur) var(--modal-ease);
   outline: none;
@@ -67,7 +67,7 @@
   transition: background var(--dur-micro) ease, color var(--dur-micro) ease;
   /* Reset global button styles */
   font: inherit;
-  box-shadow: none;
+  
   gap: 0;
   overflow: hidden;
 }
@@ -146,7 +146,7 @@
   height: auto;
   padding-inline: 0.75rem;
   font: inherit;
-  box-shadow: none;
+  
 }
 
 .lang-option:hover {
@@ -159,7 +159,7 @@
   background: linear-gradient(135deg, var(--violet-20), var(--violet-10));
   color: var(--stellar-white);
   border-color: var(--cosmic-purple);
-  box-shadow: 0 0 12px var(--violet-25);
+  
 }
 
 .lang-option:active {

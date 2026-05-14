@@ -1188,11 +1188,7 @@
     /* backdrop-filter owned by nav.css (with -webkit- prefix + !important) */
     border: none;
     border-bottom: 1px solid var(--w-8);
-    box-shadow:
-      0 1px 0 0 var(--w-4),
-      0 8px 32px var(--k-50),
-      0 2px 16px var(--k-32),
-      inset 0 1px 0 var(--w-6);
+    
     border-radius: 0 0 22px 22px;
     margin-inline: 0;
     position: absolute;

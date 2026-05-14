@@ -374,7 +374,7 @@
     background: var(--cosmic-base-95, #0f0b1e);
     border-top: 1px solid var(--w-10, rgba(255, 255, 255, 0.1));
     border-radius: 16px 16px 0 0;
-    box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.5);
+    
     animation: dpSlideUp 0.2s ease-out;
     font-size: 0.8rem;
   }

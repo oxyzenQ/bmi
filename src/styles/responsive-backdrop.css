@@ -32,13 +32,13 @@
   .hero-content {
     background: var(--glass-bg-fallback) !important;
     border: 1px solid var(--w-8) !important;
-    box-shadow: 0 4px 16px var(--k-40), inset 0 1px 0 var(--w-6) !important;
+    
   }
 
   .pager-nav-shell,
   .pager-controls-shell {
     background: var(--cosmic-dark-94) !important;
-    box-shadow: none !important;
+    
   }
 
   .lang-backdrop,
