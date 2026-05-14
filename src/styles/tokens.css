@@ -64,7 +64,7 @@
   /* Glassmorphism & branding */
   --bg-by-rezky: linear-gradient(135deg, #140826cc, #5b21b6cc);
   --bg-last-by-rezky: linear-gradient(135deg, #1a0d33, #6d28d9);
-  --border-by-rezky: 1px solid var(--w-14);
+  --border-by-rezky: 1px solid rgba(130, 130, 130, 0.18);
   --bg-cosmic: linear-gradient(135deg,
       #4e3383,
       /* deep space violet */
@@ -588,8 +588,8 @@
   --glass-saturation: 180%;
   --glass-saturation-high: 200%;
   --glass-saturation-light: 150%;
-  --glass-border: 1px solid rgba(255, 255, 255, 0.10);
-  --glass-border-strong: 1px solid rgba(255, 255, 255, 0.14);
+  --glass-border: 1px solid rgba(130, 130, 130, 0.18);
+  --glass-border-strong: 1px solid rgba(130, 130, 130, 0.24);
   --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --glass-brightness: brightness(1.15);

@@ -225,7 +225,7 @@
   .about-card .app-info {
     margin-top: clamp(0.75rem, 3vw, 1.25rem);
     padding-top: clamp(0.75rem, 3vw, 1rem);
-    border-top: 1px solid var(--w-10);
+    border-top: 1px solid rgba(130, 130, 130, 0.18);
   }
 
   /* Info rows — fluid layout, prevent icon/text collision */
@@ -548,7 +548,7 @@
     background: var(--glass-bg-nightky) !important;
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-    border: 1px solid var(--w-10) !important;
+    border: 1px solid rgba(130, 130, 130, 0.18) !important;
     outline: 1px solid rgba(255, 255, 255, 0.04);
     outline-offset: -2px;
   }
@@ -559,7 +559,7 @@
     var(--glass-bg-nightky) !important;
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-    border: 1px solid var(--w-10) !important;
+    border: 1px solid rgba(130, 130, 130, 0.18) !important;
     outline: 1px solid rgba(255, 255, 255, 0.04);
     outline-offset: -2px;
   }
@@ -568,7 +568,7 @@
     background: var(--glass-bg-nightky) !important;
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-    border: 1px solid var(--w-10) !important;
+    border: 1px solid rgba(130, 130, 130, 0.18) !important;
     outline: 1px solid rgba(255, 255, 255, 0.04);
     outline-offset: -2px;
   }
@@ -580,14 +580,14 @@
     background: var(--glass-bg-nightky) !important;
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-    border-bottom: 1px solid var(--w-10) !important;
+    border-bottom: 1px solid rgba(130, 130, 130, 0.18) !important;
   }
 
   html body .pager-controls-shell {
     background: var(--glass-bg-nightky) !important;
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-    border-top: 1px solid var(--w-10) !important;
+    border-top: 1px solid rgba(130, 130, 130, 0.18) !important;
   }
 }
 

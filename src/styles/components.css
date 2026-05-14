@@ -52,7 +52,7 @@
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     /* Stronger border + inset highlight compensate for lower opacity,
        ensuring clear container edges on any wallpaper. */
-    border: 1px solid var(--w-10);
+    border: 1px solid rgba(130, 130, 130, 0.18);
     
   }
 }
@@ -74,7 +74,7 @@
     background: var(--glass-bg-nightky);
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
-    border: 1px solid var(--w-10);
+    border: 1px solid rgba(130, 130, 130, 0.18);
     
   }
 }
