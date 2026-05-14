@@ -176,13 +176,13 @@
     height: var(--icon-card-lg) !important;
   }
 
-  .AlertTriangle,
-  .Lightbulb,
-  .Users,
-  .ListChecks,
-  .Database,
-  .LockKeyhole,
-  .HeartPulse,
+  .about-card-header .AlertTriangle,
+  .about-card-header .Lightbulb,
+  .about-card-header .Users,
+  .about-card-header .ListChecks,
+  .about-card-header .Database,
+  .about-card-header .LockKeyhole,
+  .about-card-header .HeartPulse,
   .Info2 {
     width: var(--icon-card-md) !important;
     height: var(--icon-card-md) !important;
@@ -241,6 +241,23 @@
     border: 1px solid var(--w-10) !important;
     outline: 1px solid rgba(255, 255, 255, 0.04);
     outline-offset: -2px;
+  }
+
+  /* Navbar shells — same premium glass treatment as content containers.
+     High-specificity selectors ensure glass effect wins over
+     Svelte scoped style overrides on mobile. */
+  html body .pager-nav-shell {
+    background: var(--glass-bg-nightky) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
+    backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
+    border-bottom: 1px solid var(--w-10) !important;
+  }
+
+  html body .pager-controls-shell {
+    background: var(--glass-bg-nightky) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
+    backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
+    border-top: 1px solid var(--w-10) !important;
   }
 }
 

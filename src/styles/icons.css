@@ -20,16 +20,24 @@
   height: clamp(30px, 6vw, 48px) !important;
 }
 
-/* about icons — fluid sizing */
-.Lightbulb,
-.Users,
-.ListChecks,
-.Database,
-.LockKeyhole,
-.HeartPulse {
+/* about header icons — fluid sizing (scoped to card header only) */
+.about-card-header .Lightbulb,
+.about-card-header .Users,
+.about-card-header .ListChecks,
+.about-card-header .Database,
+.about-card-header .LockKeyhole,
+.about-card-header .HeartPulse {
   color: var(--cosmic-purple) !important;
   width: clamp(30px, 6vw, 48px) !important;
   height: clamp(30px, 6vw, 48px) !important;
+}
+
+/* info-row icons — compact, independent from header icon sizing
+   Prevents Database/LockKeyhole in app-info rows from inheriting
+   the large header icon sizing above. */
+.info-row :is(.Database, .LockKeyhole, .PackageCheck, .GitBranch, .GitCompare, .Scale, .ShieldCheck, .HeartPulse) {
+  width: 20px !important;
+  height: 20px !important;
 }
 
 /* Hero icons */

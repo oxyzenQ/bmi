@@ -281,9 +281,12 @@
      look flat/transparent on mobile (Bug: Enhancement 4 #1).
      Compromise: blur(6px) saturate(120%) — subtle glassmorphism
      that's ~4x cheaper than desktop blur while preserving the
-     premium glass aesthetic. Dialogs/buttons stay solid (T-23). */
+     premium glass aesthetic. Dialogs/buttons stay solid (T-23).
+     High-specificity selectors ensure glass wins over scoped styles. */
   .pager-nav-shell,
-  .pager-controls-shell {
+  html body .pager-nav-shell,
+  .pager-controls-shell,
+  html body .pager-controls-shell {
     -webkit-backdrop-filter: blur(6px) saturate(120%) brightness(1.15) !important;
     backdrop-filter: blur(6px) saturate(120%) brightness(1.15) !important;
     background: var(--glass-bg-nightky) !important;

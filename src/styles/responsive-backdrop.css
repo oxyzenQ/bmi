@@ -36,7 +36,9 @@
   }
 
   .pager-nav-shell,
-  .pager-controls-shell {
+  html body .pager-nav-shell,
+  .pager-controls-shell,
+  html body .pager-controls-shell {
     background: var(--glass-bg-nightky) !important;
     
   }

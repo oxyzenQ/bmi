@@ -122,14 +122,18 @@
     height: 32px;
   }
 
-  /* Footer / about icons compact */
-  .AlertTriangle,
-  .Lightbulb,
-  .Users,
-  .ListChecks,
-  .Database,
-  .LockKeyhole,
-  .HeartPulse {
+  /* Footer / about header icons compact (scoped to card header) */
+  .about-card-header .Lightbulb,
+  .about-card-header .Users,
+  .about-card-header .ListChecks,
+  .about-card-header .Database,
+  .about-card-header .LockKeyhole,
+  .about-card-header .HeartPulse {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .AlertTriangle {
     width: 36px !important;
     height: 36px !important;
   }
@@ -326,14 +330,18 @@
     letter-spacing: 0.3px;
   }
 
-  /* Footer / about icons further reduced */
-  .AlertTriangle,
-  .Lightbulb,
-  .Users,
-  .ListChecks,
-  .Database,
-  .LockKeyhole,
-  .HeartPulse {
+  /* Footer / about header icons further reduced (scoped to card header) */
+  .about-card-header .Lightbulb,
+  .about-card-header .Users,
+  .about-card-header .ListChecks,
+  .about-card-header .Database,
+  .about-card-header .LockKeyhole,
+  .about-card-header .HeartPulse {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .AlertTriangle {
     width: 30px !important;
     height: 30px !important;
   }
