@@ -71,7 +71,7 @@ html[data-performance-tier="high"] :is(
 .pager-tab:hover {
   opacity: 0.9;
   background: var(--w-6);
-  border-color: var(--w-10);
+  border-color: rgba(140, 140, 140, 0.30);
 }
 
 .pager-tab.active {
@@ -108,7 +108,7 @@ html[data-performance-tier="high"] :is(
    Also added to @supports block in components.css for progressive enhancement. */
 .pager-nav-shell {
   background: var(--glass-bg-nightky);
-  border-bottom: 1px solid rgba(130, 130, 130, 0.18);
+  border-bottom: 1px solid rgba(140, 140, 140, 0.30);
 }
 
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
@@ -116,7 +116,7 @@ html[data-performance-tier="high"] :is(
     background: var(--glass-bg-nightky);
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
-    border-bottom: 1px solid rgba(130, 130, 130, 0.18);
+    border-bottom: 1px solid rgba(140, 140, 140, 0.30);
   }
 }
 
@@ -127,7 +127,7 @@ html body .pager-nav-shell {
   background: var(--glass-bg-nightky) !important;
   -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
   backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-  border-bottom: 1px solid rgba(130, 130, 130, 0.18) !important;
+  border-bottom: 1px solid rgba(140, 140, 140, 0.30) !important;
 }
 
 /* Bottom navbar — premium glassmorphism matching content containers.
@@ -135,7 +135,7 @@ html body .pager-nav-shell {
    Scoped styles in +page.svelte handle only layout properties. */
 .pager-controls-shell {
   background: var(--glass-bg-nightky);
-  border-top: 1px solid rgba(130, 130, 130, 0.18);
+  border-top: 1px solid rgba(140, 140, 140, 0.30);
 }
 
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
@@ -143,7 +143,7 @@ html body .pager-nav-shell {
     background: var(--glass-bg-nightky);
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
-    border-top: 1px solid rgba(130, 130, 130, 0.18);
+    border-top: 1px solid rgba(140, 140, 140, 0.30);
   }
 }
 
@@ -153,7 +153,7 @@ html body .pager-controls-shell {
   background: var(--glass-bg-nightky) !important;
   -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
   backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-  border-top: 1px solid rgba(130, 130, 130, 0.18) !important;
+  border-top: 1px solid rgba(140, 140, 140, 0.30) !important;
 }
 
 /* Layout properties for bottom navbar shell.

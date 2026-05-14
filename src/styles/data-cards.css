@@ -48,7 +48,7 @@
 
 .stat-block {
   background: var(--sd-40);
-  border: 1px solid var(--w-5);
+  border: 1px solid rgba(140, 140, 140, 0.22);
   border-radius: var(--radius-lg);
   padding: 1.25rem;
   transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease;
@@ -56,7 +56,7 @@
 
 .stat-block:hover {
   background: var(--sd-60);
-  border-color: var(--w-10);
+  border-color: rgba(140, 140, 140, 0.30);
   transform: translateY(-2px);
   
 }
@@ -255,7 +255,7 @@
    ============================== */
 .tdee-card {
   background: var(--sd-40);
-  border: 1px solid var(--w-5);
+  border: 1px solid rgba(140, 140, 140, 0.22);
   border-radius: var(--radius-lg);
   padding: 1.25rem;
   margin-bottom: 1.75rem;
@@ -265,7 +265,7 @@
 
 .tdee-card:hover {
   background: var(--sd-60);
-  border-color: var(--w-10);
+  border-color: rgba(140, 140, 140, 0.30);
   transform: translateY(-2px);
   
 }
@@ -292,7 +292,7 @@
   padding: 0.6rem;
   border-radius: 0.75rem;
   background: var(--w-3);
-  border: 1px solid var(--w-5);
+  border: 1px solid rgba(140, 140, 140, 0.22);
 }
 
 .tdee-highlight {
@@ -378,7 +378,7 @@
 
 .tdee-maintain {
   background: var(--w-3);
-  border: 1px solid var(--w-8);
+  border: 1px solid rgba(140, 140, 140, 0.22);
 }
 
 .tdee-gain {
@@ -633,7 +633,7 @@
   align-items: center;
   padding: 1.25rem 1.25rem;
   background: linear-gradient(180deg, var(--w-6), var(--w-2));
-  border-bottom: 2px solid var(--w-8);
+  border-bottom: 2px solid rgba(140, 140, 140, 0.22);
   color: var(--stellar-white);
   font-weight: 700;
   border-top-left-radius: var(--radius-xl);
@@ -654,7 +654,7 @@
   align-items: start;
   padding: 0.875rem 1.25rem;
   color: var(--stellar-white);
-  border-bottom: 2px solid var(--w-6);
+  border-bottom: 2px solid rgba(140, 140, 140, 0.18);
   transition: background-color var(--dur-fast) var(--easing-smooth);
 }
 
@@ -692,7 +692,7 @@
   background: linear-gradient(180deg,
       var(--w-6),
       var(--w-2));
-  border-bottom: 2px solid var(--w-10);
+  border-bottom: 2px solid rgba(140, 140, 140, 0.30);
   border-left: 1px solid var(--text-muted);
   border-right: 1px solid var(--text-muted);
   

@@ -63,7 +63,7 @@
 .about-card:hover {
   transform: translateY(-4px);
   
-  border-color: var(--w-12);
+  border-color: rgba(140, 140, 140, 0.30);
 }
 
 .about-card::before {
@@ -109,7 +109,7 @@
 .about-card .app-info {
   margin-top: 1.25rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--w-10);
+  border-top: 1px solid rgba(140, 140, 140, 0.30);
   text-align: left;
 }
 

@@ -140,7 +140,7 @@ input[type="number"],
 
 pre {
   background: var(--w-4);
-  border: 1px solid var(--w-8);
+  border: 1px solid rgba(140, 140, 140, 0.22);
   border-radius: var(--radius-md);
   padding: 0.85rem 1rem;
   overflow: auto;
