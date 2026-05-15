@@ -99,14 +99,76 @@ html[data-performance-tier="high"] :is(
    PAGER / NAV BAR STYLES (top + bottom)
    ============================== */
 
-/* Top navbar — ensures backdrop-filter renders consistently
+/* Top navbar shell — ensures backdrop-filter renders consistently
    across mobile browsers (especially WebKit/Safari).
    -webkit- prefix must come before unprefixed for reliable fallback. */
 .pager-nav-shell {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border: none;
+  border-radius: 0 0 22px 22px;
+  margin-inline: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  transform: none;
+  z-index: var(--z-nav-shell);
+  padding-top: env(safe-area-inset-top, 0px);
+  height: calc(var(--nav-bar-h) + env(safe-area-inset-top, 0px));
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-end;
+
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   background: var(--glass-bg-nightky) !important;
   border-bottom: 3px solid rgba(130, 130, 130, 0.30) !important;
+}
+
+.pager-nav-shell::after {
+  content: none;
+  display: none;
+}
+
+/* Top navbar inner — flex container for tab buttons */
+.pager-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  padding: 0 0.85rem 0.55rem 0.85rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  min-width: 0;
+  width: 100%;
+  height: var(--nav-bar-h);
+  box-sizing: border-box;
+}
+
+.pager-nav.centered {
+  justify-content: center;
+}
+
+.pager-nav::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .pager-nav {
+    justify-content: center;
+    padding-inline: 2rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .pager-nav {
+    gap: 0.25rem;
+    padding: 0 0.55rem 0.45rem 0.55rem;
+    overflow-x: auto;
+  }
 }
 
 /* Bottom navbar */

@@ -1160,55 +1160,8 @@
     pointer-events: none;
   }
 
-  .pager-nav {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 0.35rem;
-    padding: 0 0.85rem 0.55rem 0.85rem;
-    overflow-x: auto;
-    scrollbar-width: none;
-    min-width: 0;
-    width: 100%;
-    height: var(--nav-bar-h);
-    box-sizing: border-box;
-  }
-
-  .pager-nav.centered {
-    justify-content: center;
-  }
-
-  .pager-nav-shell {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    overflow: hidden;
-    border: none;
-    border-radius: 0 0 22px 22px;
-    margin-inline: 0;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    transform: none;
-    z-index: var(--z-nav-shell);
-    padding-top: env(safe-area-inset-top, 0px);
-    height: calc(var(--nav-bar-h) + env(safe-area-inset-top, 0px));
-    box-sizing: border-box;
-    display: flex;
-    align-items: flex-end;
-  }
-
-  .pager-nav-shell::after {
-    content: none;
-    display: none;
-  }
-
-  .pager-nav::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* .pager-tab styles moved to global nav.css for cross-component use (LanguageSwitcher) */
+  /* .pager-nav, .pager-nav-shell, .pager-nav::-webkit-scrollbar styles
+     moved to global nav.css for unified navbar maintenance */
 
   .pager-theme :global(.render-spark) {
     color: var(--aurora-glow, #b266ff) !important;
@@ -1264,34 +1217,9 @@
     display: none;
   }
 
-  @media (min-width: 900px) {
-    .pager-nav {
-      justify-content: center;
-      padding-inline: 2rem;
-    }
-  }
+  /* .pager-nav responsive breakpoints (900px, 600px) and
+     .pager-btn-spacer moved to global nav.css */
 
-  @media (max-width: 600px) {
-    .pager-nav {
-      gap: 0.25rem;
-      padding: 0 0.55rem 0.45rem 0.55rem;
-      overflow-x: auto;
-    }
-
-    /* .pager-tab responsive moved to global nav.css */
-  }
-
-  .pager-btn-spacer {
-    width: 56px;
-    height: 56px;
-  }
-
-  @media (max-width: 480px) {
-    .pager-btn-spacer {
-      width: 50px;
-      height: 50px;
-    }
-  }
 </style>
 
 <!-- styles moved to global-styles.css -->
