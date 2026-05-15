@@ -58,7 +58,7 @@
   background: var(--sd-60);
   border-color: rgba(130, 130, 130, 0.40);
   transform: translateY(-2px);
-  
+
 }
 
 .stat-block-header {
@@ -267,7 +267,7 @@
   background: var(--sd-60);
   border-color: rgba(130, 130, 130, 0.40);
   transform: translateY(-2px);
-  
+
 }
 
 .tdee-header {
@@ -529,10 +529,6 @@
   transition: stroke-dashoffset var(--gauge-stroke-dur-fill, 1800ms) var(--easing-gauge) var(--gauge-stroke-delay-fill, 120ms), stroke var(--dur-content) ease;
 }
 
-.gauge-progress.pulsing {
-  /* animation removed for GPU performance */
-}
-
 
 .gauge-reflection {
   width: min(52vw, 280px);
@@ -578,7 +574,7 @@
     linear-gradient(180deg, var(--w-5), var(--w-2)) padding-box,
     radial-gradient(100% 100% at 0% 0%, var(--w-12), var(--w-0)) border-box;
   border: 1px solid var(--sg-16);
-  
+
 }
 
 .scale-dot {
@@ -586,7 +582,7 @@
   height: 10px;
   border-radius: 999px;
   background: var(--category-color, var(--accent-blue));
-  
+
 }
 
 .scale-label {
@@ -632,7 +628,7 @@
   gap: 0.75rem;
   align-items: center;
   padding: 1.25rem 1.25rem;
-  background: linear-gradient(180deg, var(--w-6), var(--w-2));
+  background: black;
   border-bottom: 2px solid var(--w-8);
   color: var(--stellar-white);
   font-weight: 700;
@@ -689,27 +685,13 @@
 .reference-table .ref-row.ref-row-overweight,
 .reference-table .ref-row.ref-row-obese {
   position: relative;
-  background: linear-gradient(180deg,
-      var(--w-6),
-      var(--w-2));
+  background: black;
   border-bottom: 2px solid var(--w-10);
-  border-left: 3px solid rgba(130, 130, 130, 0.30);
-  border-right: 3px solid rgba(130, 130, 130, 0.30);
-  
+  border-left: 2px solid rgba(130, 130, 130, 0.30);
+  border-right: 2px solid rgba(130, 130, 130, 0.30);
+
 }
 
-.reference-table .ref-row.ref-row-underweight:hover,
-.reference-table .ref-row.ref-row-normal:hover,
-.reference-table .ref-row.ref-row-overweight:hover,
-.reference-table .ref-row.ref-row-obese:hover {
-  background: linear-gradient(180deg,
-      var(--w-8),
-      var(--w-3));
-}
-
-.reference-table .ref-row.ref-row-obese {
-  
-}
 
 .reference-table .ref-col strong {
   color: var(--slate-50-solid);

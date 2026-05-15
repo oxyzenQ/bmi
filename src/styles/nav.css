@@ -109,22 +109,22 @@ html[data-performance-tier="high"] :is(
   background:
     linear-gradient(
       180deg,
-      rgba(255,255,255,0.14) 0%,
-      rgba(255,255,255,0.05) 12%,
-      rgba(255,255,255,0.015) 100%
+      rgba(255,255,255,0.12) 0%,
+      rgba(255,255,255,0.04) 10%,
+      rgba(255,255,255,0.01) 100%
     ),
-    rgba(8, 8, 12, 0.52);
+    rgba(0, 0, 0, 0.25);
 
   /* Unified blur */
   backdrop-filter:
     blur(10px)
     saturate(140%)
-    brightness(1.08);
+    brightness(1.02);
 
   -webkit-backdrop-filter:
     blur(10px)
     saturate(140%)
-    brightness(1.08);
+    brightness(1.02);
 
   /* GPU compositing hint */
   will-change: transform, opacity;
@@ -153,7 +153,7 @@ html[data-performance-tier="high"] :is(
   box-sizing: border-box;
   display: flex;
   align-items: flex-end;
-  border-bottom: 1px solid rgba(255,255,255,0.16);
+  border-bottom: 0 solid rgba(255,255,255,0.16);
   transition:
     opacity var(--dur-content) ease,
     transform var(--dur-content) ease;
@@ -182,7 +182,7 @@ html[data-performance-tier="high"] :is(
 
   overflow: hidden;
 
-  height: calc(72px + env(safe-area-inset-bottom, 0px));
+  height: calc(60px + env(safe-area-inset-bottom, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);
 
   border-radius: 40px 40px 0 0;

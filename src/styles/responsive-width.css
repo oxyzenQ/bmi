@@ -212,6 +212,8 @@
     grid-template-columns: 1fr;
     gap: 0.75rem;
     padding: 0.85rem 1rem;
+    border-radius: 12px;
+    border-top: 3px solid rgba(130, 130, 130, 0.30);
   }
 
   .reference-table .ref-col {
