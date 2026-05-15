@@ -186,8 +186,8 @@
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
-    background: var(--w-10);
-    border: 1px solid var(--w-20);
+    background: var(--btn-bg);
+    border: 1px solid rgba(130, 130, 130, 0.30);
     border-radius: 50%;
     width: 36px;
     height: 36px;
@@ -196,17 +196,17 @@
     justify-content: center;
     color: var(--w-80);
     cursor: pointer;
-    transition: background var(--dur-micro) ease, color var(--dur-micro) ease, transform var(--dur-micro) ease;
+    transition: background var(--dur-micro) ease, color var(--dur-micro) ease, transform var(--dur-micro) ease, border-color var(--dur-micro) ease;
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     z-index: var(--z-inner-control);
   }
 
   .notify-close:hover {
-    background: var(--w-15);
+    background: var(--btn-bg-hover);
     color: var(--stellar-white);
     transform: rotate(90deg) scale(1.1);
-    border-color: var(--w-25);
+    border-color: rgba(130, 130, 130, 0.45);
   }
 
   .close-icon-text {
@@ -263,59 +263,55 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.875rem 2rem;
-    font-size: 1rem;
+    padding: 0 1.5rem;
+    height: var(--btn-height);
+    font-size: 0.95rem;
     font-weight: 600;
-    border: none;
-    border-radius: var(--radius-md);
+    border: 1px solid rgba(130, 130, 130, 0.30);
+    border-radius: var(--btn-radius);
     cursor: pointer;
-    transition: transform var(--dur-micro) ease, background var(--dur-micro) ease;
+    transition: transform var(--dur-micro) ease, background var(--dur-micro) ease, border-color var(--dur-micro) ease;
     min-width: 160px;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
   }
 
   .btn-success {
-    background: linear-gradient(135deg, var(--cat-green-90) 0%, var(--dkgreen-90) 100%);
+    background: linear-gradient(135deg, rgba(5, 46, 22, 0.80), rgba(22, 101, 52, 0.60));
     color: var(--stellar-white);
-    
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--w-15);
+    border: 1px solid rgba(74, 222, 128, 0.30);
   }
 
   .btn-success:hover {
     transform: translateY(-2px) scale(1.02);
-    
-    background: linear-gradient(135deg, var(--cat-green-95) 0%, var(--dkgreen-95) 100%);
+    background: linear-gradient(135deg, rgba(5, 46, 22, 0.90), rgba(22, 101, 52, 0.70));
+    border-color: rgba(74, 222, 128, 0.45);
   }
 
   .btn-delete,
   .btn-error {
-    background: linear-gradient(135deg, var(--cat-red-90) 0%, var(--darkred-90) 100%);
+    background: var(--btn-danger-bg);
     color: var(--stellar-white);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--w-15);
+    border: var(--btn-danger-border);
   }
 
   .btn-delete:hover,
   .btn-error:hover {
     transform: translateY(-2px) scale(1.02);
-    background: linear-gradient(135deg, var(--cat-red-95) 0%, var(--darkred-95) 100%);
+    background: var(--btn-danger-bg-hover);
+    border: var(--btn-danger-border-hover);
   }
 
   .btn-cancel {
-    background: linear-gradient(135deg, var(--cat-red-90) 0%, var(--darkred-90) 100%);
+    background: var(--btn-bg);
     color: var(--stellar-white);
-    
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--w-15);
+    border: 1px solid rgba(130, 130, 130, 0.30);
   }
 
   .btn-cancel:hover {
     transform: translateY(-2px) scale(1.02);
-    
-    background: linear-gradient(135deg, var(--cat-red-95) 0%, var(--darkred-95) 100%);
+    background: var(--btn-bg-hover);
+    border-color: rgba(130, 130, 130, 0.45);
   }
 
   .notify-btn-group {
@@ -330,18 +326,15 @@
   }
 
   .btn-warn {
-    background: linear-gradient(135deg, var(--cat-amber-90) 0%, var(--dkamber-90) 100%);
+    background: linear-gradient(135deg, rgba(69, 26, 3, 0.80), rgba(146, 64, 14, 0.60));
     color: var(--stellar-white);
-    
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--w-15);
+    border: 1px solid rgba(245, 158, 11, 0.30);
   }
 
   .btn-warn:hover {
     transform: translateY(-2px) scale(1.02);
-    
-    background: linear-gradient(135deg, var(--cat-amber-95) 0%, var(--dkamber-95) 100%);
+    background: linear-gradient(135deg, rgba(69, 26, 3, 0.90), rgba(146, 64, 14, 0.70));
+    border-color: rgba(245, 158, 11, 0.45);
   }
 
   @media (max-width: 480px) {
@@ -357,7 +350,7 @@
     }
 
     .notify-btn {
-      padding: 0.75rem 1.5rem;
+      padding: 0 1.25rem;
       min-width: 140px;
     }
   }

@@ -416,8 +416,8 @@
   --btn-bg-active: linear-gradient(135deg, #10061f, #4c1d95);
   --btn-surface: linear-gradient(135deg, var(--deep-void-70), rgba(91, 33, 182, 0.65));
 
-  --btn-border: 1px solid rgba(255, 255, 255, 0.10);
-  --btn-border-hover: 1px solid rgba(255, 255, 255, 0.18);
+  --btn-border: 1px solid rgba(130, 130, 130, 0.30);
+  --btn-border-hover: 1px solid rgba(130, 130, 130, 0.45);
   --btn-shadow: none;
   --btn-shadow-hover: none;
 

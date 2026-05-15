@@ -122,33 +122,40 @@
   }
 
   .feedback-btn {
-    padding: var(--space-3) 2rem;
-    font-size: var(--text-md);
-    font-weight: 500;
+    padding: 0 2rem;
+    height: var(--btn-height);
+    font-size: 0.95rem;
+    font-weight: 600;
     border-radius: var(--btn-radius);
     cursor: pointer;
-    transition: all var(--dur-micro) ease;
-    border: none;
+    transition: transform var(--dur-micro) ease, background var(--dur-micro) ease, border-color var(--dur-micro) ease;
+    border: 1px solid rgba(130, 130, 130, 0.30);
     min-width: 120px;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
   }
 
   .feedback-btn.success {
-    background: var(--cat-green-90);
+    background: linear-gradient(135deg, rgba(5, 46, 22, 0.80), rgba(22, 101, 52, 0.60));
     color: var(--stellar-white);
+    border: 1px solid rgba(74, 222, 128, 0.30);
   }
 
   .feedback-btn.success:hover {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, rgba(5, 46, 22, 0.90), rgba(22, 101, 52, 0.70));
+    border-color: rgba(74, 222, 128, 0.45);
   }
 
   .feedback-btn.error {
-    background: var(--error-color, #ef4444);
+    background: var(--btn-danger-bg);
     color: var(--stellar-white);
+    border: var(--btn-danger-border);
   }
 
   .feedback-btn.error:hover {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    background: var(--btn-danger-bg-hover);
+    border: var(--btn-danger-border-hover);
   }
 </style>

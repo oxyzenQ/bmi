@@ -244,12 +244,12 @@
   flex: 1;
   justify-content: center;
   background: linear-gradient(135deg, var(--deep-void-55), rgba(91, 33, 182, 0.45));
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(130, 130, 130, 0.30);
 }
 
 .action-btn:hover {
   background: linear-gradient(135deg, var(--deep-void-65), rgba(91, 33, 182, 0.55));
-  border-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(130, 130, 130, 0.45);
   transform: translateY(-1px);
 }
 

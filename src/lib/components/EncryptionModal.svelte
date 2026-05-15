@@ -706,13 +706,15 @@
     justify-content: center;
     width: 2rem;
     height: 2rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
+    background: var(--btn-bg);
+    border: 1px solid rgba(130, 130, 130, 0.30);
     border-radius: var(--radius-xs);
     color: var(--stellar-white);
     cursor: pointer;
     transition: all var(--dur-micro) ease;
     z-index: var(--z-inner-control);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
   }
 
   /* Fix: ensure SVG icons render correctly - WHITE color for dark modal */
@@ -729,8 +731,9 @@
   }
 
   .eye-btn:hover {
-    color: var(--w-80);
-    background: var(--w-10);
+    color: var(--stellar-white);
+    background: var(--btn-bg-hover);
+    border-color: rgba(130, 130, 130, 0.45);
   }
 
   .eye-btn:active {
@@ -808,36 +811,41 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: var(--space-3) 1.5rem;
-    font-size: var(--text-md);
+    padding: 0 1.5rem;
+    height: var(--btn-height);
+    font-size: 0.95rem;
     font-weight: 600;
-    border: none;
+    border: 1px solid rgba(130, 130, 130, 0.30);
     border-radius: var(--btn-radius);
     cursor: pointer;
-    transition: background var(--dur-micro) ease, color var(--dur-micro) ease, transform var(--dur-instant) ease, filter var(--dur-micro) ease;
+    transition: transform var(--dur-micro) ease, background var(--dur-micro) ease, border-color var(--dur-micro) ease;
     min-width: 100px;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
   }
 
   .btn-cancel {
-    background: linear-gradient(135deg, var(--cat-red-90) 0%, var(--darkred-90) 100%);
+    background: var(--btn-bg);
     color: var(--stellar-white);
-    border: 1px solid var(--w-15);
+    border: 1px solid rgba(130, 130, 130, 0.30);
   }
 
   .btn-cancel:hover {
-    background: linear-gradient(135deg, var(--cat-red-95) 0%, var(--darkred-95) 100%);
+    background: var(--btn-bg-hover);
     color: var(--stellar-white);
     transform: translateY(-1px);
+    border-color: rgba(130, 130, 130, 0.45);
   }
 
   .btn-confirm {
-    background: var(--cosmic-purple);
+    background: var(--bg-by-rezky);
     color: var(--stellar-white);
-    border: 1px solid var(--cosmic-purple);
+    border: 1px solid rgba(139, 92, 246, 0.45);
   }
 
   .btn-confirm:hover {
-    filter: brightness(1.15);
+    background: var(--bg-last-by-rezky);
+    border-color: rgba(139, 92, 246, 0.60);
     transform: translateY(-1px);
   }
 

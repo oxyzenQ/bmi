@@ -56,15 +56,17 @@
   padding: 0 !important;
   margin: 0;
   border-radius: 50%;
-  border: 1px solid rgba(140, 140, 140, 0.35);
-  background: var(--w-10);
+  border: 1px solid rgba(130, 130, 130, 0.30);
+  background: var(--btn-bg);
   color: var(--w-80);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: var(--z-inner-control);
-  transition: background var(--dur-micro) ease, color var(--dur-micro) ease;
+  transition: background var(--dur-micro) ease, color var(--dur-micro) ease, border-color var(--dur-micro) ease;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   /* Reset global button styles */
   font: inherit;
   
@@ -73,10 +75,10 @@
 }
 
 .lang-close:hover {
-  background: var(--w-15);
+  background: var(--btn-bg-hover);
   color: var(--stellar-white);
   transform: rotate(90deg) scale(1.1);
-  border-color: rgba(140, 140, 140, 0.45);
+  border-color: rgba(130, 130, 130, 0.45);
 }
 
 .lang-close:active {
@@ -152,7 +154,7 @@
 .lang-option:hover {
   background: var(--w-6);
   color: var(--w-95);
-  border-color: rgba(140, 140, 140, 0.30);
+  border-color: rgba(130, 130, 130, 0.30);
 }
 
 .lang-option.active {
