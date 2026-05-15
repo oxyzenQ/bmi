@@ -61,11 +61,19 @@
      see responsive-base.css for the global fluid-media rule. */
 
   .hero-bottom {
-    margin-bottom: -20px;
+    padding: 1.25rem;
+    margin-bottom: -40px;
   }
 
   .gauge-container {
     width: min(96vw, 400px);
+  }
+}
+
+@media (max-width: 600px) {
+
+  .hero-bottom {
+    margin-bottom: -25px;
   }
 }
 
@@ -266,8 +274,7 @@
   .hero-bottom {
     margin-left: -8px;
     margin-right: -8px;
-    height: 40px;
-    margin-bottom: -40px;
+    margin-bottom: -20px;
   }
 
   .hero-bottom-text {
@@ -438,8 +445,7 @@
   .hero-bottom {
     margin-left: -6px;
     margin-right: -6px;
-    height: 36px;
-    margin-bottom: -36px;
+    margin-bottom: -20px;
   }
 
   .hero-bottom-text {

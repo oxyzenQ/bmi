@@ -229,15 +229,6 @@
     outline: 1px solid rgba(255, 255, 255, 0.04);
     outline-offset: -2px;
   }
-
-  html body .main-container .bmi-results-card {
-    background: var(--glass-bg-nightky) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-    backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-    border: 3px solid rgba(130, 130, 130, 0.30) !important;
-    outline: 1px solid rgba(255, 255, 255, 0.04);
-    outline-offset: -2px;
-  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
