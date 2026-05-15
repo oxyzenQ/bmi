@@ -276,28 +276,11 @@
      when scrolling slowly (elements at viewport edge toggling skip/render
      state). The contain rules in T-2/T-3 already isolate layout cost. */
 
-  /* T-11: Lightweight blur on navbars for touch devices.
-     Full blur(24px) is too expensive, but zero blur makes the app
-     look flat/transparent on mobile (Bug: Enhancement 4 #1).
-     Compromise: blur(6px) saturate(120%) — subtle glassmorphism
-     that's ~4x cheaper than desktop blur while preserving the
-     premium glass aesthetic. Dialogs/buttons stay solid (T-23).
-     High-specificity selectors ensure glass wins over scoped styles.
-     NOTE: border is NOT set to none — keeping the glass border
-     is essential for the premium look. */
-  .pager-nav-shell,
-  html body .pager-nav-shell,
-  .pager-controls-shell,
-  html body .pager-controls-shell {
-    -webkit-backdrop-filter: blur(6px) saturate(120%) brightness(1.15) !important;
-    backdrop-filter: blur(6px) saturate(120%) brightness(1.15) !important;
-    background: var(--glass-bg-nightky) !important;
-
-    /* contain: layout removed — it can interfere with backdrop-filter
-       compositing on some mobile browsers, causing plain black backgrounds.
-       contain: style still prevents CSS recalc cascade without affecting paint. */
-    contain: style;
-  }
+  /* T-11: REMOVED — navbar glass styles now universal in nav.css.
+     Liquid glass navbar (blur(10px) saturate(140%) brightness(1.08)
+     + layered gradient) works on ALL devices — desktop, mobile, touch.
+     No per-device override needed. Old T-11 was overriding with
+     blur(6px) + var(--glass-bg-nightky) which broke the liquid glass. */
 
   /* T-12: will-change: auto on cards — avoid unnecessary compositor layers */
   .bmi-card {
