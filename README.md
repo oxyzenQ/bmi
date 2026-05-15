@@ -76,93 +76,6 @@ Open the local URL printed in your terminal (default: `http://localhost:5173`).
 | `bun run preview` | Preview production build |
 | `./verify.sh` | Full verification: check -> lint -> test -> build |
 
-## Project Structure
-
-```text
-src/
-  routes/
-    +page.svelte          Main SPA page (pager navigation, BMI logic, lazy loading)
-    +layout.svelte         Root layout (PWA install, Web Vitals, CSS cascade)
-    +layout.ts             Root layout loader (locale detection, security)
-    +error.svelte          Custom error page (themed, accessible)
-  styles/                  Modular CSS (17 files, imported in cascade order)
-    tokens.css             Design tokens: fonts, opacity system, glassmorphism tokens
-    base.css               Global resets, typography, utility classes
-    components.css         Glassmorphism containers (@supports progressive enhancement)
-    form.css               BMI form layout, inputs, validation, pill indicators
-    results.css            BMI results card, share/action buttons, empty states
-    data-cards.css         Stat grid, TDEE, radial gauge, reference table
-    layout.css             About section, cosmic particles, footer
-    icons.css              Icon styling and alignment utilities
-    nav.css                Pager / bottom navbar, performance tier optimizations
-    lang-switcher.css      Language switcher floating panel (portaled to body)
-    animation.css          Skeleton loading, shooting stars, haptic feedback, progress bar, encryption badge, empty states, drag & drop zone
-    responsive-base.css    Responsive base breakpoints and layout shifts
-    responsive-width.css   Width-based responsive rules, ref-table mobile stacking
-    responsive-height.css  Height-based responsive rules
-    responsive-backdrop.css No-backdrop fallback for unsupported browsers
-    responsive-mobile-perf.css Touch-device GPU optimizations (T-rules)
-    responsive-content.css Mobile content overrides, glass tuning (final correction layer, loads LAST)
-  lib/
-    components/            Reusable UI components
-      BmiForm.svelte         Height/weight/age/gender/activity input form
-      BmiResults.svelte      BMI result display, health advice, share buttons
-      BmiRadialGauge.svelte  SVG radial gauge with tiered animations
-      BmiHealthRisk.svelte   Health risk assessment panel
-      BmiSnapshot.svelte     Current/best/target comparison + sparkline
-      BmiGoalTracker.svelte  Goal setting and progress tracking
-      BmiHistorySparkline.svelte  Interactive SVG sparkline chart
-      BodyFatEstimate.svelte Body fat % estimate (age-adjusted)
-      ReferenceTable.svelte  BMI reference table
-      NotifyFloat.svelte     Toast notification (confirm/cancel flow)
-      FeedbackModal.svelte   Feedback modal (blocking, portal-rendered)
-      EncryptionModal.svelte Encryption passphrase modal for backup
-      LanguageSwitcher.svelte Floating language switcher (portal to body)
-      __tests__/             Component tests (Vitest)
-    ui/
-      Hero.svelte            Welcome/hero section
-    i18n/                    Internationalization system
-      index.ts               Translation loader and locale management
-      types.ts               Translation type definitions
-      locales/
-        en.ts                English translations
-        id.ts                Indonesian (Bahasa) translations
-        ja.ts                Japanese translations
-        zh.ts                Chinese translations
-    utils/
-      bmi-calculator.ts     Core BMI calculation engine
-      bmi-category.ts       BMI category classification + color mapping
-      storage.ts            Centralized localStorage/IndexedDB access layer
-      db.ts                 IndexedDB wrapper for structured data
-      history-io.ts         Export/import with SHA-256 checksum verification
-      backup.ts             Encrypted backup (AES-GCM + Argon2id/PBKDF2)
-      crypto.ts             Encryption utilities (AES-GCM, Argon2id, PBKDF2 key derivation, SHA-256 checksum)
-      animation-config.ts   Animation timing, easing, and performance tier configuration
-      share.ts              Web Share API, clipboard, formatted BMI text
-      share-image.ts        Canvas-based BMI result card image generation
-      lazy-load.ts          Dynamic component lazy loading
-      __tests__/            Unit tests
-  hooks.server.ts            Security headers (CSP, HSTS, COOP, CORP, COEP)
-  service-worker.ts          Offline caching (stale-while-revalidate)
-  app.html                   HTML shell with SEO meta tags
-
-scripts/
-  bmi-update-version.ts      Version bumping script (also updates AboutSection.svelte)
-
-static/
-  images/                    Background images (blackhole, spaceship, space)
-  assets/                    Logos, icons, screenshots
-  manifest.json              PWA manifest (v3)
-  robots.txt                 Crawl policy
-
-.github/workflows/           CI/CD pipelines
-  ci.yml                     Quality checks (type-check, lint, test, build)
-  auto-update.yml            Daily dependency updates
-  codeql.yml                 Security scanning (CodeQL)
-  release.yml                GitHub release publisher
-  self-heal-actions.yml      Automated action version bumping
-```
-
 ## Architecture Notes
 
 ### Pager Navigation
@@ -198,16 +111,6 @@ Styles split into 17 focused modules under `src/styles/`, imported in cascade or
 16. **responsive-mobile-perf.css** — Touch-device GPU optimizations (T-rules)
 17. **responsive-content.css** — Mobile content overrides, glass tuning (final correction layer, loads LAST)
 
-### Glassmorphism System (Bug #19 Fix)
-All glass containers use a consistent progressive enhancement pattern:
-
-```
-Fallback (no backdrop-filter support):  rgba(0, 0, 0, 0.65) — solid, dark
-Enhanced (backdrop-filter supported):   rgba(0, 0, 0, 0.65) + blur(16px) saturate(180%) brightness(1.15) — glass
-```
-
-Glass design tokens are centralized in `tokens.css` (`--glass-bg-*`, `--glass-blur-*`, `--glass-saturation-*`). Mobile touch devices (`hover: none`) use slightly stronger backgrounds with reduced blur for GPU performance, but maintain visual consistency with desktop. The `@supports` feature query ensures containers never appear transparent, even on browsers that don't support `backdrop-filter`.
-
 ### Encryption System
 Backup data is encrypted using a layered security architecture:
 
@@ -219,34 +122,6 @@ Backup data is encrypted using a layered security architecture:
 - **Hint**: Stored in `localStorage` only, never in the encrypted file
 - **No passphrase storage**: Users must remember their passphrase — no recovery mechanism
 - **Format**: `bmi-encrypted-v1` with `cipher`, `kdf`, and `kdfParams` metadata
-
-#### Encrypted Export Structure
-```json
-{
-  "format": "bmi-encrypted-v1",
-  "cipher": "aes-256-gcm",
-  "kdf": "argon2id",
-  "kdfParams": { "type": 2, "mem": 32768, "time": 2, "parallelism": 1, "hashLen": 32 },
-  "salt": "<base64>", "iv": "<base64>", "data": "<base64 ciphertext>",
-  "meta": { "exportedAt": "...", "recordCount": 42, "version": 3, "checksum": "<SHA-256>" }
-}
-```
-
-### Performance Tiers
-Device capabilities detected at mount time via `animation-config.ts`:
-- **High**: 8+ cores, 8+ GB RAM, 4G -> full animations, contain optimizations
-- **Medium**: 4+ cores, 4+ GB RAM -> standard animations, style containment
-- **Low**: Reduced motion and lighter transitions while preserving readable glass backgrounds.
-
-### Mobile Performance Optimizations (responsive-mobile-perf.css T-rules)
-The `@media (hover: none) and (pointer: coarse)` block applies permanent GPU optimizations on touch devices:
-- **T-1/T-1b**: Simplified body filters and removed gradient overlay
-- **T-2**: Containment on scroll container
-- **T-3**: Reduced transitions and expensive hover effects
-- **T-5**: Removed shine sweep pseudo-elements
-- **T-11**: Lightweight blur on navbars
-- **T-GLASS**: Mobile no longer downgrades the glass identity; final glass tokens are controlled by responsive-content.css
-- **T-GLASS-CALC/HERO/RESULTS**: Per-container glass tuning for visual hierarchy
 
 ### Data Persistence
 All user data stored in `localStorage` under namespaced keys (via centralized `storage.ts`):
