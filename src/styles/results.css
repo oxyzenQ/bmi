@@ -112,14 +112,14 @@
   border-radius: var(--radius-lg);
   padding: 1.75rem;
   margin-bottom: 1.75rem;
-  border: 1px solid rgba(140, 140, 140, 0.22);
+  border: 3px solid rgba(130, 130, 130, 0.30);
   animation: slideInLeft var(--dur-panel) var(--easing-smooth) 0.25s both;
   transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease;
 }
 
 .health-advice:hover {
   background: var(--sd-60);
-  border-color: rgba(140, 140, 140, 0.30);
+  border-color: rgba(130, 130, 130, 0.40);
   transform: translateY(-2px);
   
 }
@@ -155,7 +155,7 @@
 /* Age advisory — clean slide entrance */
 .age-advisory {
   background: var(--coreblue-12);
-  border: 1px solid var(--coreblue-22);
+  border: 3px solid rgba(130, 130, 130, 0.30);
   border-radius: var(--radius-lg);
   padding: 1.75rem;
   margin-bottom: 1.75rem;
@@ -165,7 +165,7 @@
 
 .age-advisory:hover {
   background: var(--coreblue-16);
-  border-color: var(--coreblue-32);
+  border-color: rgba(130, 130, 130, 0.40);
   transform: translateY(-2px);
   
 }
@@ -204,14 +204,14 @@
   background: var(--sd-40);
   border-radius: var(--radius-md);
   padding: 1.75rem;
-  border: 1px solid rgba(140, 140, 140, 0.22);
+  border: 3px solid rgba(130, 130, 130, 0.30);
   animation: fadeInUp var(--dur-panel) var(--easing-smooth) 0.45s both;
   transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease;
 }
 
 .bmi-explanation:hover {
   background: var(--sd-60);
-  border-color: rgba(140, 140, 140, 0.30);
+  border-color: rgba(130, 130, 130, 0.40);
   transform: translateY(-2px);
   
 }
@@ -244,12 +244,12 @@
   flex: 1;
   justify-content: center;
   background: linear-gradient(135deg, var(--deep-void-55), rgba(91, 33, 182, 0.45));
-  border: 1px solid rgba(140, 140, 140, 0.30);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .action-btn:hover {
   background: linear-gradient(135deg, var(--deep-void-65), rgba(91, 33, 182, 0.55));
-  border-color: rgba(140, 140, 140, 0.45);
+  border-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-1px);
 }
 

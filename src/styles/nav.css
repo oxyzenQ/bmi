@@ -71,7 +71,7 @@ html[data-performance-tier="high"] :is(
 .pager-tab:hover {
   opacity: 0.9;
   background: var(--w-6);
-  border-color: rgba(140, 140, 140, 0.30);
+  border-color: var(--w-10);
 }
 
 .pager-tab.active {
@@ -99,70 +99,28 @@ html[data-performance-tier="high"] :is(
    PAGER / NAV BAR STYLES (top + bottom)
    ============================== */
 
-/* Top navbar — premium glassmorphism matching content containers.
-   -webkit- prefix must come before unprefixed for reliable fallback.
-   brightness(1.15) matches content-container glass for premium feel.
-   IMPORTANT: Scoped styles in +page.svelte handle only layout properties.
-   Glass (background, backdrop-filter, border) are set HERE as the
-   single source of truth, preventing specificity wars.
-   Also added to @supports block in components.css for progressive enhancement. */
+/* Top navbar — ensures backdrop-filter renders consistently
+   across mobile browsers (especially WebKit/Safari).
+   -webkit- prefix must come before unprefixed for reliable fallback. */
 .pager-nav-shell {
-  background: var(--glass-bg-nightky);
-  border-bottom: 1px solid rgba(140, 140, 140, 0.30);
-}
-
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-  .pager-nav-shell {
-    background: var(--glass-bg-nightky);
-    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
-    backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
-    border-bottom: 1px solid rgba(140, 140, 140, 0.30);
-  }
-}
-
-/* High-specificity override: ensures glass effect wins over any
-   Svelte scoped style overrides or mobile media queries.
-   This is the authoritative rule for navbar glass on all viewports. */
-html body .pager-nav-shell {
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
   background: var(--glass-bg-nightky) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-  backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-  border-bottom: 1px solid rgba(140, 140, 140, 0.30) !important;
+  border-bottom: 3px solid rgba(130, 130, 130, 0.30) !important;
 }
 
-/* Bottom navbar — premium glassmorphism matching content containers.
-   IMPORTANT: Glass properties set HERE as single source of truth.
-   Scoped styles in +page.svelte handle only layout properties. */
-.pager-controls-shell {
-  background: var(--glass-bg-nightky);
-  border-top: 1px solid rgba(140, 140, 140, 0.30);
-}
-
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-  .pager-controls-shell {
-    background: var(--glass-bg-nightky);
-    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
-    backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
-    border-top: 1px solid rgba(140, 140, 140, 0.30);
-  }
-}
-
-/* High-specificity override for bottom navbar glass.
-   Ensures glass effect wins on all viewports. */
-html body .pager-controls-shell {
-  background: var(--glass-bg-nightky) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-  backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-  border-top: 1px solid rgba(140, 140, 140, 0.30) !important;
-}
-
-/* Layout properties for bottom navbar shell.
-   Glass properties are set above (progressive enhancement + !important). */
+/* Bottom navbar */
 .pager-controls-shell {
   width: 100%;
   max-width: none;
   min-width: 0;
   overflow: hidden;
+  background: var(--glass-bg-nightky) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  border: none !important;
+  border-top: 3px solid rgba(130, 130, 130, 0.30) !important;
+  
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   margin-inline: auto;
   position: absolute;

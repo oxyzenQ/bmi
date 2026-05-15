@@ -63,7 +63,7 @@
 .about-card:hover {
   transform: translateY(-4px);
   
-  border-color: rgba(140, 140, 140, 0.30);
+  border-color: rgba(130, 130, 130, 0.40);
 }
 
 .about-card::before {
@@ -103,44 +103,6 @@
 
 .about-card p:last-child {
   margin-bottom: 0;
-}
-
-/* ── App info block (Open Source & Release card) ── */
-.about-card .app-info {
-  margin-top: 1.25rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(140, 140, 140, 0.30);
-  text-align: left;
-}
-
-.about-card .info-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-secondary-bright);
-  font-size: 0.9rem;
-  line-height: 1.6;
-  margin-bottom: 0.5rem;
-}
-
-.about-card .info-row strong {
-  color: var(--stellar-white);
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.about-card .commit-id {
-  color: var(--text-muted);
-  font-family: var(--font-mono-short);
-  font-size: 0.75rem;
-}
-
-.about-card .text-gradient-elegant {
-  background: var(--bg-cosmic);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 600;
 }
 
 

@@ -175,10 +175,10 @@
   max-width: 320px;
   border-radius: var(--radius-sm);
   background: var(--sd-75);
-  border-top: var(--border-by-rezky);
-  border-left: var(--border-by-rezky);
+  border-top: 1px solid var(--w-14);
+  border-left: 1px solid var(--w-14);
   border-bottom: 2px solid var(--text-muted);
-  border-right: var(--border-by-rezky);
+  border-right: 1px solid var(--w-14);
   color: var(--stellar-white);
   font-size: 1rem;
   line-height: 1.5;

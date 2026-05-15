@@ -16,8 +16,7 @@
 .form-card,
 .section-header-v2,
 .github-link,
-.pager-nav-shell,
-.pager-controls-shell {
+.reference-table {
   background: var(--glass-bg-nightky);
   border: var(--border-by-rezky);
   border-radius: var(--radius-lg);
@@ -45,14 +44,13 @@
   .form-card,
   .section-header-v2,
   .github-link,
-  .pager-nav-shell,
-  .pager-controls-shell {
+  .reference-table {
     background: var(--glass-bg-nightky);
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     /* Stronger border + inset highlight compensate for lower opacity,
        ensuring clear container edges on any wallpaper. */
-    border: 1px solid rgba(140, 140, 140, 0.30);
+    border: 3px solid rgba(130, 130, 130, 0.30);
     
   }
 }
@@ -74,7 +72,7 @@
     background: var(--glass-bg-nightky);
     -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
     backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
-    border: 1px solid rgba(140, 140, 140, 0.30);
+    border: 3px solid rgba(130, 130, 130, 0.30);
     
   }
 }
@@ -212,12 +210,12 @@ button[aria-disabled="true"] {
 
 .btn-secondary {
   background: linear-gradient(135deg, var(--deep-void-55), rgba(91, 33, 182, 0.45));
-  border: 1px solid rgba(140, 140, 140, 0.30);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .btn-secondary:hover {
   background: linear-gradient(135deg, var(--deep-void-65), rgba(91, 33, 182, 0.55));
-  border-color: rgba(140, 140, 140, 0.45);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .btn-ghost {
@@ -227,7 +225,7 @@ button[aria-disabled="true"] {
 
 .btn-ghost:hover {
   background: linear-gradient(135deg, var(--deep-void-50), rgba(91, 33, 182, 0.40));
-  border-color: rgba(140, 140, 140, 0.30);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 /* Button sizes */

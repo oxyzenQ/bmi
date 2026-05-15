@@ -179,12 +179,12 @@
 
   .age-advisory {
     background: var(--coreblue-12) !important;
-    border-color: var(--coreblue-22) !important;
+    border-color: rgba(130, 130, 130, 0.30) !important;
   }
 
   .age-advisory:hover {
     background: var(--coreblue-16) !important;
-    border-color: var(--coreblue-32) !important;
+    border-color: rgba(130, 130, 130, 0.35) !important;
     
   }
 
