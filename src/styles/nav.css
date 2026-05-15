@@ -159,6 +159,11 @@ html[data-performance-tier="high"] :is(
   transform: translateX(-50%);
   z-index: var(--z-nav-shell);
   padding-top: env(safe-area-inset-top, 0px);
+  /* Right padding ensures last tab (language switcher) has same
+     visual spacing from the edge as the first tab on the left.
+     Without this, the scrollable inner content's right padding
+     gets clipped at the scroll boundary. */
+  padding-right: 0.4rem;
   height: calc(var(--nav-bar-h) + env(safe-area-inset-top, 0px));
   box-sizing: border-box;
   display: flex;
@@ -218,7 +223,7 @@ html[data-performance-tier="high"] :is(
   align-items: center;
   justify-content: flex-start;
   gap: 0.35rem;
-  padding: 0 0.85rem 0.55rem 0.85rem;
+  padding: 0 0.5rem 0.55rem 0.85rem;
   min-width: 0;
   width: max-content;
   box-sizing: border-box;
@@ -240,11 +245,12 @@ html[data-performance-tier="high"] :is(
 @media (max-width: 600px) {
   .pager-nav {
     gap: 0.25rem;
-    padding: 0 0.55rem 0.45rem 0.55rem;
+    padding: 0 0.25rem 0.45rem 0.55rem;
   }
 
   .pager-nav-shell {
     border-radius: 40px;
+    padding-right: 0.3rem;
   }
 }
 
