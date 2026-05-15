@@ -73,11 +73,26 @@
   /* Cards: full width, fluid padding and radius */
   .form-card,
   .bmi-card,
-  .about-card,
+  .about-card:not(.about-card-merged),
   .main-container .section-header-v2 {
     width: 100%;
     padding: clamp(1rem, 4.5vw, 1.5rem);
     border-radius: clamp(16px, 5vw, 24px);
+  }
+
+  /* Merged about card: outer shell, inner blocks handle padding */
+  .about-card-merged {
+    width: 100%;
+    padding: 0;
+    border-radius: clamp(16px, 5vw, 24px);
+  }
+
+  .about-section-block {
+    padding: clamp(1rem, 4.5vw, 1.5rem);
+  }
+
+  .about-section-divider {
+    margin: 0 clamp(1rem, 4.5vw, 1.5rem);
   }
 
   /* Footer: width:auto fills parent content without margin overflow.

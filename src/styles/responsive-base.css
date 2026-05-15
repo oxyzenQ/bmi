@@ -293,6 +293,15 @@ p {
     font-size: 1rem;
   }
 
+  /* Merged about card section blocks compact */
+  .about-section-block {
+    padding: 1.25rem;
+  }
+
+  .about-section-divider {
+    margin: 0 1.25rem;
+  }
+
   /* Prime bar compact */
   .prime-bar-track {
     height: 5px;

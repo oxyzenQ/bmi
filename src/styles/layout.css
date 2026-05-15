@@ -105,6 +105,43 @@
   margin-bottom: 0;
 }
 
+/* ── Merged about card: unified container for multiple sections ── */
+.about-card-merged {
+  padding: 0;
+}
+
+.about-section-block {
+  padding: 2rem;
+  position: relative;
+  z-index: var(--z-content);
+}
+
+.about-section-block:first-child {
+  padding-top: 2rem;
+}
+
+.about-section-block:last-child {
+  padding-bottom: 2rem;
+}
+
+.about-section-divider {
+  height: 1px;
+  margin: 0 2rem;
+  background: rgba(130, 130, 130, 0.25);
+  border: none;
+  position: relative;
+  z-index: var(--z-content);
+}
+
+.about-card-merged .about-card-header {
+  margin-bottom: 1rem;
+}
+
+/* Merged card: no hover lift (too tall for translateY) */
+.about-card-merged:hover {
+  transform: none;
+  border-color: rgba(130, 130, 130, 0.40);
+}
 
 /* ==============================
       FOOTER COMPONENTS

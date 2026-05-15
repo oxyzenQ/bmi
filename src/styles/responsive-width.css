@@ -372,6 +372,15 @@
     font-size: 1.25rem;
   }
 
+  /* Merged about card section blocks compact */
+  .about-section-block {
+    padding: 1.25rem;
+  }
+
+  .about-section-divider {
+    margin: 0 1.25rem;
+  }
+
   /* Composition bar compact */
   .comp-track {
     height: 12px;
@@ -554,6 +563,15 @@
 
   .about-card h3 {
     font-size: 0.9rem;
+  }
+
+  /* Merged about card section blocks compact at 300px */
+  .about-section-block {
+    padding: 0.875rem;
+  }
+
+  .about-section-divider {
+    margin: 0 0.875rem;
   }
 
   /* About info rows — extreme compact at 300px */
@@ -876,6 +894,15 @@
 
   .about-card h3 {
     font-size: 0.78rem;
+  }
+
+  /* Merged about card section blocks minimal at 250px */
+  .about-section-block {
+    padding: 0.65rem;
+  }
+
+  .about-section-divider {
+    margin: 0 0.65rem;
   }
 
   /* About info rows — minimal at 250px */
