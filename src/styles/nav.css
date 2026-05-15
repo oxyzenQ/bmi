@@ -140,7 +140,7 @@ html[data-performance-tier="high"] :is(
   min-width: 0;
   overflow: hidden;
   border: none;
-  border-radius: 0 0 22px 22px;
+  border-radius: 40px 40px 0 0;
   margin-inline: 0;
   position: absolute;
   top: 0;
@@ -153,7 +153,8 @@ html[data-performance-tier="high"] :is(
   box-sizing: border-box;
   display: flex;
   align-items: flex-end;
-  border-bottom: 0 solid rgba(255,255,255,0.16);
+  border-left: 1px solid rgba(255,255,255,0.16);
+  border-right: 1px solid rgba(255,255,255,0.16);
   transition:
     opacity var(--dur-content) ease,
     transform var(--dur-content) ease;
@@ -187,8 +188,9 @@ html[data-performance-tier="high"] :is(
 
   border-radius: 40px 40px 0 0;
 
-  border-top:
-    1px solid rgba(255,255,255,0.16);
+  border-top: 1px solid rgba(255,255,255,0.16);
+  border-left: 1px solid rgba(255,255,255,0.16);
+  border-right: 1px solid rgba(255,255,255,0.16);
 
   transition:
     opacity var(--dur-content) ease,
