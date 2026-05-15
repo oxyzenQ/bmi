@@ -149,7 +149,7 @@ html[data-performance-tier="high"] :is(
   contain: paint style;
 
   border: none;
-  border-radius: 30px 30px 30px 30px;
+  border-radius: 40px;
   border-left: 1px solid rgba(255,255,255,0.16);
   border-right: 1px solid rgba(255,255,255,0.16);
   border-bottom: 1px solid rgba(255,255,255,0.01);
@@ -197,7 +197,7 @@ html[data-performance-tier="high"] :is(
   height: calc(55px + env(safe-area-inset-bottom, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);
 
-  border-radius: 40px 40px 40px 40px;
+  border-radius: 40px;
   border-bottom: 1px solid rgba(255,255,255,0.01);
 
   border-top: 1px solid rgba(255,255,255,0.16);
@@ -244,7 +244,7 @@ html[data-performance-tier="high"] :is(
   }
 
   .pager-nav-shell {
-    border-radius: 22px;
+    border-radius: 40px;
   }
 }
 
