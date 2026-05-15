@@ -332,6 +332,14 @@
     showScrollTopFab = false;
     if (!opts?.skipHash) setHash(sections[activeIndex].id);
     void resetSectionScroll();
+
+    /* Scroll active tab into view inside the horizontal-scrolling navbar */
+    if (browser && pagerNavEl) {
+      const activeTab = pagerNavEl.querySelector('.pager-tab.active') as HTMLElement | null;
+      if (activeTab) {
+        activeTab.scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
+      }
+    }
   }
 
   function prevSection() {
@@ -517,7 +525,11 @@
 
   function updatePagerNavAlignment() {
     if (!pagerNavEl) return;
-    const overflow = pagerNavEl.scrollWidth > pagerNavEl.clientWidth + 1;
+    /* Scroll is on the shell (.pager-nav-shell), not the inner nav.
+       Check if the shell's content overflows. */
+    const shell = pagerNavEl.parentElement;
+    if (!shell) return;
+    const overflow = shell.scrollWidth > shell.clientWidth + 1;
     const nextCentered = !overflow;
     if (pagerNavCentered !== nextCentered) pagerNavCentered = nextCentered;
   }

@@ -138,7 +138,16 @@ html[data-performance-tier="high"] :is(
   width: calc(100% - 24px);
   max-width: 850px;
   min-width: 0;
-  overflow: hidden;
+
+  /* Enable horizontal scroll when tabs overflow */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  white-space: nowrap;
+
+  /* Override shared contain — layout containment blocks scroll */
+  contain: paint style;
+
   border: none;
   border-radius: 30px 30px 30px 30px;
   border-left: 1px solid rgba(255,255,255,0.16);
@@ -157,6 +166,10 @@ html[data-performance-tier="high"] :is(
   transition:
     opacity var(--dur-content) ease,
     transform var(--dur-content) ease;
+}
+
+.pager-nav-shell::-webkit-scrollbar {
+  display: none;
 }
 
 .pager-nav-shell::after {
@@ -196,16 +209,18 @@ html[data-performance-tier="high"] :is(
     transform var(--dur-content) ease;
 }
 
-/* Top navbar inner — flex container for tab buttons */
+/* Top navbar inner — flex container for tab buttons.
+   width: max-content so children overflow the shell,
+   which then scrolls horizontally. */
 .pager-nav {
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: flex-start;
   gap: 0.35rem;
   padding: 0 0.85rem 0.55rem 0.85rem;
-  scrollbar-width: none;
   min-width: 0;
-  width: 100%;
+  width: max-content;
   box-sizing: border-box;
 }
 
@@ -213,14 +228,12 @@ html[data-performance-tier="high"] :is(
   justify-content: center;
 }
 
-.pager-nav::-webkit-scrollbar {
-  display: none;
-}
-
 @media (min-width: 900px) {
   .pager-nav {
     justify-content: center;
     padding-inline: 2rem;
+    /* On wide screens tabs fit, use full width so centering works */
+    width: 100%;
   }
 }
 
@@ -228,6 +241,10 @@ html[data-performance-tier="high"] :is(
   .pager-nav {
     gap: 0.25rem;
     padding: 0 0.55rem 0.45rem 0.55rem;
+  }
+
+  .pager-nav-shell {
+    border-radius: 22px;
   }
 }
 
