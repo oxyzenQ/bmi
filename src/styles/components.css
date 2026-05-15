@@ -29,11 +29,11 @@
      available — the blur softens wallpaper content, compensating for
      readability. This creates a TRUE glass effect where wallpaper colors
      bleed through containers.
-     
+
      saturate(180%) boosts subtle nebula/purple tones in dark wallpapers.
      brightness(1.15) prevents dark-on-dark invisibility.
      blur(16px) provides enough depth without excessive GPU cost.
-     
+
      On touch devices, T-GLASS rules in responsive.css override with
      !important using stronger opacity for varied mobile GPUs. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
@@ -46,12 +46,12 @@
   .github-link,
   .reference-table {
     background: var(--glass-bg-nightky);
-    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
-    backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
+    -webkit-backdrop-filter: blur(8px) saturate(100%) brightness(1);
+    backdrop-filter: blur(8px) saturate(100%) brightness(1);
     /* Stronger border + inset highlight compensate for lower opacity,
        ensuring clear container edges on any wallpaper. */
     border: 3px solid rgba(130, 130, 130, 0.30);
-    
+
   }
 }
 
@@ -70,10 +70,10 @@
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .hero-content {
     background: var(--glass-bg-nightky);
-    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
-    backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
+    -webkit-backdrop-filter: blur(8px) saturate(100%) brightness(1);
+    backdrop-filter: blur(8px) saturate(100%) brightness(1);
     border: 3px solid rgba(130, 130, 130, 0.30);
-    
+
   }
 }
 
@@ -147,18 +147,18 @@ button[aria-disabled="true"] {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
-  
+
 }
 
 .btn-primary {
   color: var(--stellar-white);
-  background: var(--bg-by-rezky);
-  border: 1px solid rgba(139, 92, 246, 0.45);
+  background: linear-gradient(180deg, var(--deep-void-55), rgba(91, 33, 182, 0.70));
+  border: 1px solid rgba(130, 130, 130, 0.30);
 }
 
 .btn-primary:hover {
-  background: var(--bg-last-by-rezky);
-  border-color: rgba(139, 92, 246, 0.60);
+  background: linear-gradient(135deg, var(--deep-void-65), rgba(91, 33, 182, 0.55));
+  border-color: rgba(130, 130, 130, 0.45);
 }
 
 .btn.is-calculating {
@@ -186,7 +186,7 @@ button[aria-disabled="true"] {
   color: var(--stellar-white);
   background: var(--btn-danger-bg);
   border: var(--btn-danger-border);
-  
+
 }
 
 .btn-danger:hover {
@@ -390,7 +390,7 @@ button[aria-disabled="true"] {
 .feature:hover {
   background: var(--w-10);
   transform: translateY(-2px);
-  
+
 }
 
 .feature span {

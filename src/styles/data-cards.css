@@ -618,7 +618,6 @@
 .reference-table {
   border-radius: var(--radius-xl);
   overflow: hidden;
-  margin-top: clamp(40px, 40vh, 180px) !important;
   margin-bottom: clamp(40px, 40vh, 180px) !important;
 }
 

@@ -156,10 +156,10 @@
 
 @keyframes skeleton-ring-pulse {
   0%, 100% {
-    
+
   }
   50% {
-    
+
   }
 }
 
@@ -199,15 +199,15 @@
 @keyframes skeleton-ring-spin {
   0% {
     border-color: var(--w-8);
-    
+
   }
   50% {
     border-color: var(--w-14);
-    
+
   }
   100% {
     border-color: var(--w-8);
-    
+
   }
 }
 
@@ -287,7 +287,7 @@ a.button {
 
 .form-input:focus {
   border-color: var(--violet-50);
-  
+
   background-color: var(--void-85);
 }
 
@@ -344,7 +344,7 @@ a.button {
 
 /* ── Pager Tab Active Glow Indicator ── */
 .pager-tab.active {
-  
+
 }
 
 /* ── NotifyFloat Button Hover Lift ── */
@@ -399,21 +399,21 @@ a.button {
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 1.25rem;
-  border: 1px solid var(--violet-22);
+  background: linear-gradient(180deg, var(--deep-void-55), rgba(91, 33, 182, 0.70));
+  border: 1px solid rgba(130, 130, 130, 0.30);
   border-radius: var(--radius-pill);
-  background: var(--bg-by-rezky);
   color: var(--stellar-white);
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   transition: background var(--dur-interactive) ease, border-color var(--dur-interactive) ease, transform var(--dur-interactive) ease;
   letter-spacing: 0.02em;
-  
+
 }
 
 .gauge-cta-btn:hover {
-  background: var(--violet-25);
-  border-color: var(--aurora-glow);
+  background: linear-gradient(135deg, var(--deep-void-65), rgba(91, 33, 182, 0.55));
+  border-color: rgba(130, 130, 130, 0.45);
   transform: translateY(-1px);
 }
 
@@ -439,12 +439,12 @@ a.button {
   color: white !important;
   border-color: var(--violet-18) !important;
   background: var(--btn-bg-hover) !important;
-  
+
 }
 
 .pager-btn-scroll-top.fab-visible:hover {
   background: var(--btn-bg-active) !important;
-  
+
   color: white !important;
 }
 
@@ -603,7 +603,7 @@ a.button {
 .bmi-drop-zone--active {
   border-color: var(--aurora-glow);
   background: var(--violet-15);
-  
+
   transform: scale(1.01);
 }
 
@@ -791,4 +791,3 @@ a.button {
     transform: translateY(0);
   }
 }
-

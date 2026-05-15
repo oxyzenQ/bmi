@@ -20,8 +20,8 @@
   }
 
   .bmi-grid {
-    margin-top: clamp(20px, 10vh, 90px) !important;
-    margin-bottom: clamp(24px, 12vh, 120px) !important;
+    margin-top: clamp(20px, 10vh, 90px);
+    margin-bottom: clamp(24px, 12vh, 120px);
     padding: 14px;
     gap: 1rem;
   }

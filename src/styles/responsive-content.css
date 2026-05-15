@@ -66,8 +66,6 @@
   .bmi-grid {
     padding: 0 !important;
     gap: 1rem;
-    margin-top: clamp(1.5rem, 8vh, 4rem) !important;
-    margin-bottom: clamp(2rem, 10vh, 5rem) !important;
   }
 
   /* Cards: full width, fluid padding and radius */
@@ -180,13 +178,13 @@
   .hero-content,
   .footer-disclaimer,
   .about-bmi-grid {
-    margin-top: clamp(-4.5rem, -8vh, 5rem) !important;
-    margin-bottom: clamp(1.5rem, 8vh, 5rem) !important;
+    margin-top: clamp(1rem, 6vh, 5rem);
+    margin-bottom: clamp(1rem, 7vh, 6rem);
   }
 
   /* margin top for footer */
   .footer-disclaimer {
-    margin-top: clamp(1.5rem, 8vh, 5rem) !important;
+    margin-top: clamp(1rem, 6vh, 5rem);
   }
 }
 
@@ -240,8 +238,8 @@
   html body .main-container .reference-table,
   html body .main-container .bmi-card {
     background: var(--glass-bg-nightky) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-    backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(140%) brightness(1.02) !important;
+    backdrop-filter: blur(10px) saturate(140%) brightness(1.02) !important;
     border: 3px solid rgba(130, 130, 130, 0.30) !important;
     outline: 1px solid rgba(255, 255, 255, 0.04);
     outline-offset: -2px;
@@ -251,8 +249,8 @@
   html body main .hero-content {
     background:
     var(--glass-bg-nightky) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
-    backdrop-filter: blur(16px) saturate(180%) brightness(1.15) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(140%) brightness(1.02) !important;
+    backdrop-filter: blur(10px) saturate(140%) brightness(1.02) !important;
     border: 3px solid rgba(130, 130, 130, 0.30) !important;
     outline: 1px solid rgba(255, 255, 255, 0.04);
     outline-offset: -2px;

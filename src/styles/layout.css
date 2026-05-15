@@ -29,7 +29,6 @@
 }
 
 .about-bmi-section {
-  padding: 4rem 0;
   background: none;
   position: relative;
 }
@@ -46,8 +45,6 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
-  margin-top: auto;
-  margin-bottom: clamp(2rem, 10vh, 7rem) !important;
 }
 
 .about-card {
@@ -62,7 +59,7 @@
 
 .about-card:hover {
   transform: translateY(-4px);
-  
+
   border-color: rgba(130, 130, 130, 0.40);
 }
 
@@ -240,5 +237,5 @@
   background: var(--coreblue-12);
   border-color: var(--coreblue-30);
   transform: translateY(-2px);
-  
+
 }

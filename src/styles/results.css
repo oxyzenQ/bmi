@@ -121,7 +121,7 @@
   background: var(--sd-60);
   border-color: rgba(130, 130, 130, 0.40);
   transform: translateY(-2px);
-  
+
 }
 
 /* Clean directional slide — left */
@@ -167,7 +167,7 @@
   background: var(--coreblue-16);
   border-color: rgba(130, 130, 130, 0.40);
   transform: translateY(-2px);
-  
+
 }
 
 /* Clean directional slide — right */
@@ -213,7 +213,7 @@
   background: var(--sd-60);
   border-color: rgba(130, 130, 130, 0.40);
   transform: translateY(-2px);
-  
+
 }
 
 .explanation-title {
@@ -243,7 +243,7 @@
   font-weight: 600;
   flex: 1;
   justify-content: center;
-  background: linear-gradient(135deg, var(--deep-void-55), rgba(91, 33, 182, 0.45));
+  background: linear-gradient(180deg, var(--deep-void-55), rgba(91, 33, 182, 0.70));
   border: 1px solid rgba(130, 130, 130, 0.30);
 }
 

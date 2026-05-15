@@ -452,7 +452,7 @@
   /* ── Z-INDEX HIERARCHY (v18.1 — Phase 1 Hardening) ──
        Documented elevation stack for all layered elements.
        Always use these tokens — never hardcode z-index values.
-       
+
        Layer 0:   Base content, wallpaper (::before, ::after)
        Layer 1:   Content containers (.main-container)
        Layer 2:   In-component overlays (shine sweeps, card ::before)
@@ -561,17 +561,17 @@
   /* ── GLASSMORPHISM DESIGN TOKENS (Stellar v15: Moonshot Glass) ──
      Centralized glass effect values for consistency across
      desktop, mobile, and fallback rendering contexts.
-     
+
      Design principle: when backdrop-filter is available, REDUCE
      background opacity — the blur compensates for readability.
      This lets the wallpaper bleed through for a true glass effect.
-     
+
      saturate(180%) + brightness(1.15) boost subtle nebula colors
      in dark wallpapers so they remain visible through the glass.
-     
+
      Fallback (no blur support): strong solid background (0.85).
      Enhanced (blur supported): lighter background + blur filters. */
-  --glass-bg-nightky: rgba(0, 0, 0, 0.65);
+  --glass-bg-nightky: rgba(0, 0, 0, 0.70);
   --glass-bg-fallback: var(--glass-bg-nightky);
   --glass-bg-enhanced: var(--glass-bg-nightky);
   --glass-bg-calc: var(--glass-bg-nightky);

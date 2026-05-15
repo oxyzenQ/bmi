@@ -71,7 +71,7 @@
   .reference-table,
   .github-link,
   .section-header-v2 {
-    
+
     contain: layout style paint;
   }
 
@@ -166,7 +166,7 @@
   }
 
   .action-btn {
-    
+
     border-color: var(--violet-22) !important;
   }
 
@@ -185,7 +185,7 @@
   .age-advisory:hover {
     background: var(--coreblue-16) !important;
     border-color: rgba(130, 130, 130, 0.35) !important;
-    
+
   }
 
   .btn-primary {
@@ -205,11 +205,11 @@
   }
 
   .btn-secondary {
-    background: linear-gradient(135deg, var(--deep-void-55), rgba(91, 33, 182, 0.45)) !important;
+    background: linear-gradient(180deg, var(--deep-void-55), rgba(91, 33, 182, 0.70)) !important;
   }
 
   .btn-ghost {
-    background: linear-gradient(135deg, var(--deep-void-40), rgba(91, 33, 182, 0.50)) !important;
+    background: linear-gradient(180deg, var(--deep-void-55), rgba(91, 33, 182, 0.70)) !important;
   }
 
 

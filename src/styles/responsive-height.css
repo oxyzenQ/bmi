@@ -1,20 +1,19 @@
 /* ── responsive-height.css — Height-based breakpoints ── */
 /* v18.0 refactor: Extracted from responsive.css.
-   Contains: short-height 640px and 520px breakpoints. */
+   Contains: short-height 768px and 520px breakpoints. */
 
 /* Media queries: short-height devices (<=640px) */
-@media (max-height: 640px) {
+@media (max-height: 768px) {
   .hero-section {
-    padding: 3.5rem 1.5rem 1rem;
-    margin: 0.75rem;
+    padding: 0;
+    margin: 0;
     min-height: auto;
     align-items: flex-start;
   }
 
   .hero-content {
-    margin-top: clamp(12px, 4vh, 28px) !important;
+    margin-top: 90px !important;
     margin-bottom: clamp(16px, 6vh, 56px) !important;
-    padding: 1.75rem 1.25rem;
   }
 
   .hero-avatar {
@@ -41,24 +40,23 @@
     margin-bottom: clamp(20px, 8vh, 60px);
   }
 
-  .bmi-grid {
-    margin-top: clamp(24px, 18vh, 80px) !important;
-    margin-bottom: clamp(24px, 18vh, 80px) !important;
-    padding: 14px;
-  }
-
   .bmi-card {
     margin-bottom: clamp(28px, 18vh, 140px) !important;
-  }
-
-  .reference-table {
-    margin-top: clamp(20px, 14vh, 90px) !important;
   }
 
   .form-card,
   .bmi-card,
   .bmi-results-card {
     min-height: 0;
+  }
+
+  /* for consistency put here */
+  .bmi-grid,
+  .footer-disclaimer,
+  .about-bmi-grid,
+  .reference-table,
+  .gauge-container {
+    margin-top: 90px !important;
   }
 }
 
