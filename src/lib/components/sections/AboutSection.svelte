@@ -15,14 +15,18 @@
 <!-- About BMI Section -->
 <section class="about-bmi-section">
   <div class="main-container">
-    <div class="section-header-v2">
-      <h2 class="title">{t('about.title')}</h2>
-      <p class="subtitle">{t('about.subtitle')}</p>
-    </div>
 
     <div class="about-bmi-grid">
-      <!-- Merged info card: About BMI through Encrypted Backup -->
+      <!-- Merged info card: About BMI title through Encrypted Backup -->
       <div class="about-card about-card-merged">
+        <!-- Section header: About BMI title -->
+        <div class="about-section-block about-section-hero">
+          <h2 class="about-hero-title">{t('about.title')}</h2>
+          <p class="about-hero-subtitle">{t('about.subtitle')}</p>
+        </div>
+
+        <div class="about-section-divider"></div>
+
         <!-- What is BMI -->
         <div class="about-section-block">
           <div class="about-card-header">

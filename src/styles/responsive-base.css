@@ -298,6 +298,19 @@ p {
     padding: 1.25rem;
   }
 
+  .about-section-hero {
+    padding-top: 1.5rem;
+    padding-bottom: 1rem;
+  }
+
+  .about-hero-title {
+    font-size: 1.5rem;
+  }
+
+  .about-hero-subtitle {
+    font-size: 0.95rem;
+  }
+
   .about-section-divider {
     margin: 0 1.25rem;
   }

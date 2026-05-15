@@ -377,6 +377,19 @@
     padding: 1.25rem;
   }
 
+  .about-section-hero {
+    padding-top: 1.5rem;
+    padding-bottom: 1rem;
+  }
+
+  .about-hero-title {
+    font-size: 1.5rem;
+  }
+
+  .about-hero-subtitle {
+    font-size: 0.95rem;
+  }
+
   .about-section-divider {
     margin: 0 1.25rem;
   }
@@ -568,6 +581,19 @@
   /* Merged about card section blocks compact at 300px */
   .about-section-block {
     padding: 0.875rem;
+  }
+
+  .about-section-hero {
+    padding-top: 1rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .about-hero-title {
+    font-size: 1.25rem;
+  }
+
+  .about-hero-subtitle {
+    font-size: 0.85rem;
   }
 
   .about-section-divider {
@@ -899,6 +925,19 @@
   /* Merged about card section blocks minimal at 250px */
   .about-section-block {
     padding: 0.65rem;
+  }
+
+  .about-section-hero {
+    padding-top: 0.75rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .about-hero-title {
+    font-size: 1.1rem;
+  }
+
+  .about-hero-subtitle {
+    font-size: 0.78rem;
   }
 
   .about-section-divider {

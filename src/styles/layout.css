@@ -77,8 +77,9 @@
 
 .about-card-header {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   margin-bottom: 1.5rem;
   position: relative;
   z-index: var(--z-content);
@@ -135,6 +136,29 @@
 
 .about-card-merged .about-card-header {
   margin-bottom: 1rem;
+}
+
+/* ── About section hero (page title inside merged card) ── */
+.about-section-hero {
+  text-align: center;
+  padding-top: 2.5rem;
+  padding-bottom: 2rem;
+}
+
+.about-hero-title {
+  font-size: var(--text-4xl);
+  font-weight: 700;
+  color: var(--stellar-white);
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+
+.about-hero-subtitle {
+  color: var(--text-secondary-bright);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 /* Merged card: no hover lift (too tall for translateY) */
