@@ -102,24 +102,76 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Create release package
+      - name: Create source archive
         run: |
-          # Create package directory
-          mkdir -p release-package
+          TAG="${{ steps.tag.outputs.TAG_NAME }}"
+          STAGE="release-source"
 
-          # Copy build artifacts
-          cp -r build release-package/
-          cp package.json release-package/
-          cp README.md release-package/
-          cp LICENSE.md release-package/
+          # Clean staging dir
+          rm -rf "$STAGE"
+          mkdir -p "$STAGE"
 
-          # Create zip file
-          cd release-package
-          zip -r ../bmi-stellar-${{ steps.tag.outputs.TAG_NAME }}.zip .
+          # Copy source code directories
+          cp -r src "$STAGE/"
+          cp -r static "$STAGE/"
+          cp -r scripts "$STAGE/"
+          cp -r .github "$STAGE/"
+
+          # Copy config files needed to rebuild
+          cp package.json "$STAGE/"
+          cp bun.lock "$STAGE/" 2>/dev/null || true
+          cp package-lock.json "$STAGE/" 2>/dev/null || true
+          cp svelte.config.js "$STAGE/" 2>/dev/null || true
+          cp svelte.config.static.js "$STAGE/" 2>/dev/null || true
+          cp vite.config.ts "$STAGE/" 2>/dev/null || true
+          cp tsconfig.json "$STAGE/" 2>/dev/null || true
+          cp vitest.config.ts "$STAGE/" 2>/dev/null || true
+          cp postcss.config.js "$STAGE/" 2>/dev/null || true
+          cp eslint.config.js "$STAGE/" 2>/dev/null || true
+          cp vercel.json "$STAGE/" 2>/dev/null || true
+          cp verify.sh "$STAGE/" 2>/dev/null || true
+
+          # Copy documentation
+          cp README.md "$STAGE/" 2>/dev/null || true
+          cp LICENSE.md "$STAGE/" 2>/dev/null || true
+          cp SECURITY.md "$STAGE/" 2>/dev/null || true
+
+          # Create source zip
+          cd "$STAGE"
+          zip -r "../bmi-stellar-source-${TAG}.zip" .
           cd ..
 
           # Generate SHA256 checksum
-          sha256sum bmi-stellar-${{ steps.tag.outputs.TAG_NAME }}.zip > bmi-stellar-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
+          sha256sum "bmi-stellar-source-${TAG}.zip" > "bmi-stellar-source-${TAG}.zip.sha256"
+
+          # Clean up staging
+          rm -rf "$STAGE"
+
+      - name: Create build archive
+        run: |
+          TAG="${{ steps.tag.outputs.TAG_NAME }}"
+          STAGE="release-build"
+
+          # Clean staging dir
+          rm -rf "$STAGE"
+          mkdir -p "$STAGE"
+
+          # Copy build output only
+          cp -r build "$STAGE/"
+          cp package.json "$STAGE/"
+          cp README.md "$STAGE/" 2>/dev/null || true
+          cp LICENSE.md "$STAGE/" 2>/dev/null || true
+
+          # Create build zip
+          cd "$STAGE"
+          zip -r "../bmi-stellar-build-${TAG}.zip" .
+          cd ..
+
+          # Generate SHA256 checksum
+          sha256sum "bmi-stellar-build-${TAG}.zip" > "bmi-stellar-build-${TAG}.zip.sha256"
+
+          # Clean up staging
+          rm -rf "$STAGE"
 
       - name: Create release notes
         id: release_notes
@@ -132,20 +184,39 @@ jobs:
             echo ""
             echo "This release includes the latest improvements, bug fixes, and feature enhancements for BMI Stellar."
             echo ""
-            echo "## 📦 Installation"
+            echo "## 📦 Download Packages"
             echo ""
-            echo "Download the package below and extract it to your desired location:"
+            echo "This release provides **two separate artifacts**:"
+            echo ""
+            echo "| Artifact | Description |"
+            echo "|----------|-------------|"
+            echo "| \`bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip\` | Full source code — rebuild from source |"
+            echo "| \`bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip\` | Pre-built static output — deploy ready |"
+            echo ""
+            echo "### From Source"
             echo ""
             echo "\`\`\`bash"
-            echo "# Extract the package"
-            echo "unzip bmi-stellar-${{ steps.tag.outputs.TAG_NAME }}.zip -d bmi-calculator"
+            echo "# Extract the source archive"
+            echo "unzip bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip -d bmi-stellar"
             echo ""
             echo "# Install dependencies"
-            echo "cd bmi-calculator"
+            echo "cd bmi-stellar"
             echo "bun install"
             echo ""
-            echo "# Start the application"
+            echo "# Build and preview"
+            echo "bun run build"
             echo "bun run preview"
+            echo "\`\`\`"
+            echo ""
+            echo "### From Build (Deploy Ready)"
+            echo ""
+            echo "\`\`\`bash"
+            echo "# Extract the build archive"
+            echo "unzip bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip -d bmi-stellar-deploy"
+            echo ""
+            echo "# Serve the static build with any HTTP server"
+            echo "cd bmi-stellar-deploy"
+            echo "npx serve build"
             echo "\`\`\`"
             echo ""
             echo "## 📋 Changelog"
@@ -159,7 +230,11 @@ jobs:
             echo "Verify the integrity of the downloaded package using SHA256:"
             echo ""
             echo "\`\`\`bash"
-            echo "sha256sum -c bmi-stellar-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256"
+            echo "# Verify source archive"
+            echo "sha256sum -c bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256"
+            echo ""
+            echo "# Verify build archive"
+            echo "sha256sum -c bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256"
             echo "\`\`\`"
             echo ""
             echo "## 📄 License"
@@ -184,7 +259,9 @@ jobs:
           name: BMI Stellar ${{ steps.tag.outputs.TAG_NAME }}
           body: ${{ steps.release_notes.outputs.NOTES }}
           files: |
-            bmi-stellar-${{ steps.tag.outputs.TAG_NAME }}.zip
-            bmi-stellar-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
+            bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip
+            bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
+            bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip
+            bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
           draft: false
           prerelease: false
