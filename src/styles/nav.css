@@ -125,7 +125,7 @@ html[data-performance-tier="high"] :is(
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   background: var(--glass-bg-nightky) !important;
-  border-bottom: 3px solid rgba(130, 130, 130, 0.30) !important;
+  border-bottom: 0 solid rgba(130, 130, 130, 0.30) !important;
 }
 
 .pager-nav-shell::after {
@@ -171,52 +171,83 @@ html[data-performance-tier="high"] :is(
   }
 }
 
-/* Bottom navbar */
+/* LIQUID GLASS NAVBAR, for navbar bottom */
 .pager-controls-shell {
   width: 100%;
-  max-width: none;
   min-width: 0;
-  overflow: hidden;
-  background: var(--glass-bg-nightky) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  border: none !important;
-  border-top: 1px solid rgba(130, 130, 130, 0.30) !important;
+  max-width: none;
 
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  margin-inline: auto;
   position: absolute;
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
+
   z-index: var(--z-nav-shell);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  height: calc(58px + env(safe-area-inset-bottom, 0px));
-  box-sizing: border-box;
+
   display: flex;
   align-items: center;
-  transition: opacity var(--dur-content) ease;
+
+  overflow: hidden;
+
+  height: calc(72px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+
+  border-radius: 40px 40px 0 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.14) 0%,
+      rgba(255,255,255,0.05) 12%,
+      rgba(255,255,255,0.015) 100%
+    ),
+    rgba(8, 8, 12, 0.52);
+
+  /* unified blur */
+  backdrop-filter:
+    blur(10px)
+    saturate(140%)
+    brightness(1.08);
+
+  -webkit-backdrop-filter:
+    blur(10px)
+    saturate(140%)
+    brightness(1.08);
+
+  border-top:
+    1px solid rgba(255,255,255,0.16);
+
+  transition:
+    opacity var(--dur-content) ease,
+    transform var(--dur-content) ease;
+
+  /* GPU compositing hint */
+  will-change: transform, opacity;
+
+  /* isolate repaint */
+  contain: layout paint style;
 }
 
 .pager-controls-shell.pager-hidden {
   opacity: 0;
   pointer-events: none;
-  transform: translateX(-50%) translateY(100%);
-}
 
-.pager-controls-shell::before {
-  content: none;
-  display: none;
+  transform:
+    translateX(-50%)
+    translateY(100%);
 }
 
 .pager-controls {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 0.85rem;
-  position: relative;
-  z-index: var(--z-content);
-  width: 100%;
+
+  padding: 0 1rem;
 }
 
 .pager-btn-futuristic {
