@@ -135,26 +135,25 @@ html[data-performance-tier="high"] :is(
 
 /* ── Top navbar shell ── */
 .pager-nav-shell {
-  width: 100%;
-  max-width: 100%;
+  width: calc(100% - 24px);
+  max-width: 850px;
   min-width: 0;
   overflow: hidden;
   border: none;
-  border-radius: 40px 40px 0 0;
-  margin-inline: 0;
+  border-radius: 30px 30px 30px 30px;
+  border-left: 1px solid rgba(255,255,255,0.16);
+  border-right: 1px solid rgba(255,255,255,0.16);
+  border-bottom: 1px solid rgba(255,255,255,0.01);
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  transform: none;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: var(--z-nav-shell);
   padding-top: env(safe-area-inset-top, 0px);
   height: calc(var(--nav-bar-h) + env(safe-area-inset-top, 0px));
   box-sizing: border-box;
   display: flex;
   align-items: flex-end;
-  border-left: 1px solid rgba(255,255,255,0.16);
-  border-right: 1px solid rgba(255,255,255,0.16);
   transition:
     opacity var(--dur-content) ease,
     transform var(--dur-content) ease;
@@ -167,12 +166,11 @@ html[data-performance-tier="high"] :is(
 
 /* ── Bottom navbar shell ── */
 .pager-controls-shell {
-  width: 100%;
-  min-width: 0;
-  max-width: none;
+  width: calc(100% - 24px);
+  max-width: 500px;
 
   position: absolute;
-  bottom: 0;
+  bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
 
@@ -183,10 +181,11 @@ html[data-performance-tier="high"] :is(
 
   overflow: hidden;
 
-  height: calc(60px + env(safe-area-inset-bottom, 0px));
+  height: calc(55px + env(safe-area-inset-bottom, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);
 
-  border-radius: 40px 40px 0 0;
+  border-radius: 40px 40px 40px 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.01);
 
   border-top: 1px solid rgba(255,255,255,0.16);
   border-left: 1px solid rgba(255,255,255,0.16);
@@ -204,11 +203,9 @@ html[data-performance-tier="high"] :is(
   justify-content: flex-start;
   gap: 0.35rem;
   padding: 0 0.85rem 0.55rem 0.85rem;
-  overflow-x: auto;
   scrollbar-width: none;
   min-width: 0;
   width: 100%;
-  height: var(--nav-bar-h);
   box-sizing: border-box;
 }
 
@@ -231,7 +228,6 @@ html[data-performance-tier="high"] :is(
   .pager-nav {
     gap: 0.25rem;
     padding: 0 0.55rem 0.45rem 0.55rem;
-    overflow-x: auto;
   }
 }
 
