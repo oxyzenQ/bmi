@@ -35,6 +35,27 @@ video {
   padding-inline: clamp(0.75rem, 2vw, 1.25rem);
 }
 
+/* Shared responsive container contract.
+   Width/height breakpoint files tune these surfaces together so new cards
+   do not need one-off overflow fixes in multiple places. */
+.main-container,
+.hero-content,
+.bmi-grid,
+.form-card,
+.bmi-card,
+.bmi-results-card,
+.gauge-container,
+.reference-table,
+.about-card,
+.section-header-v2,
+.footer-disclaimer,
+.github-footer,
+.github-link {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
 /* Typographic scale using clamp for readability */
 h1 {
   font-size: clamp(1.75rem, 4vw, 2.75rem);

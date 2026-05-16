@@ -1,9 +1,45 @@
 /* ── responsive-height.css — Height-based breakpoints ── */
-/* v18.0 refactor: Extracted from responsive.css.
-   Contains: short-height 768px and 520px breakpoints. */
+/* Keep vertical compression here. Width-driven layout belongs in
+   responsive-width.css so the two axes stay predictable. */
 
-/* Media queries: short-height devices (<=640px) */
+/* Comfortable and tall viewports: restate the container baseline so the
+   short-screen overrides below have an obvious counterpart. */
+@media (min-height: 769px) {
+  .hero-section {
+    min-height: 50vh;
+  }
+
+  .bmi-section,
+  .charts-section {
+    margin-top: var(--section-margin-y);
+    margin-bottom: var(--section-margin-y);
+  }
+
+  .form-card,
+  .bmi-card {
+    min-height: clamp(560px, 70vh, 750px);
+  }
+
+  .bmi-results-card {
+    min-height: 450px;
+  }
+
+  .gauge-container {
+    margin-top: clamp(24px, 3vh, 48px);
+    margin-bottom: 100px;
+  }
+}
+
+/* Short viewports: all major containers lose forced height and use smaller
+   vertical rhythm. This prevents each section from needing bespoke fixes. */
 @media (max-height: 768px) {
+  :root {
+    --rsp-height-section-y: clamp(16px, 5vh, 56px);
+    --rsp-height-container-top: clamp(48px, 11vh, 90px);
+    --rsp-height-container-bottom: clamp(20px, 8vh, 80px);
+    --rsp-height-card-padding-y: clamp(0.875rem, 3vh, 1.5rem);
+  }
+
   .hero-section {
     padding: 0;
     margin: 0;
@@ -12,8 +48,10 @@
   }
 
   .hero-content {
-    margin-top: 90px !important;
+    margin-top: var(--rsp-height-container-top) !important;
     margin-bottom: clamp(16px, 6vh, 56px) !important;
+    padding-top: var(--rsp-height-card-padding-y);
+    padding-bottom: var(--rsp-height-card-padding-y);
   }
 
   .hero-avatar {
@@ -36,38 +74,88 @@
 
   .bmi-section,
   .charts-section {
-    margin-top: clamp(20px, 8vh, 60px);
-    margin-bottom: clamp(20px, 8vh, 60px);
+    margin-top: var(--rsp-height-section-y);
+    margin-bottom: var(--rsp-height-section-y);
+  }
+
+  .form-card,
+  .bmi-card,
+  .bmi-results-card,
+  .gauge-container,
+  .reference-table,
+  .about-card,
+  .main-container .section-header-v2,
+  .footer-disclaimer,
+  .github-link {
+    min-height: 0;
+  }
+
+  .form-card,
+  .bmi-card,
+  .bmi-results-card,
+  .about-card:not(.about-card-merged),
+  .main-container .section-header-v2,
+  .footer-disclaimer {
+    padding-top: var(--rsp-height-card-padding-y);
+    padding-bottom: var(--rsp-height-card-padding-y);
   }
 
   .bmi-card {
     margin-bottom: clamp(28px, 18vh, 140px) !important;
   }
 
-  .form-card,
-  .bmi-card,
-  .bmi-results-card {
-    min-height: 0;
+  .bmi-grid,
+  .about-bmi-grid {
+    gap: clamp(0.75rem, 2.5vh, 1.25rem);
   }
 
-  /* for consistency put here */
   .bmi-grid,
   .footer-disclaimer,
   .about-bmi-grid,
   .reference-table,
-  .gauge-container {
-    margin-top: 90px !important;
+  .gauge-container,
+  .main-container .section-header-v2 {
+    margin-top: var(--rsp-height-container-top) !important;
+  }
+
+  .reference-table,
+  .gauge-container,
+  .footer-disclaimer {
+    margin-bottom: var(--rsp-height-container-bottom) !important;
   }
 }
 
+/* Extra-short landscape windows. Keep the layout scrollable but remove
+   vertical ceremony that competes with the fixed pager/navigation chrome. */
 @media (max-height: 520px) {
+  :root {
+    --rsp-height-section-y: clamp(10px, 3vh, 24px);
+    --rsp-height-container-top: clamp(10px, 4vh, 28px);
+    --rsp-height-container-bottom: clamp(12px, 5vh, 36px);
+    --rsp-height-card-padding-y: 0.875rem;
+  }
+
   .hero-section {
     padding: 3rem 1.25rem 0.75rem;
   }
 
   .hero-content {
-    margin-top: 10px !important;
+    margin-top: var(--rsp-height-container-top) !important;
     margin-bottom: 20px !important;
-    padding: 1.5rem 1.1rem;
+    padding: var(--rsp-height-card-padding-y) 1.1rem;
+  }
+
+  .hero-avatar {
+    width: 72px;
+    height: 72px;
+  }
+
+  .hero-title {
+    font-size: clamp(1.35rem, 4vw, 2rem);
+  }
+
+  .hero-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 0.875rem;
   }
 }

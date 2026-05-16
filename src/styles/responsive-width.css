@@ -4,32 +4,90 @@
    ultra-compact 360px, extreme-narrow 300px, very extreme 250px,
    gauge width breakpoints, and ultrawide 1400px. */
 
-/* Media queries: tablet - CONSOLIDATED */
-@media (max-width: 768px) {
-
+/* Container width contract.
+   Keep width-driven sizing here; height-driven compression lives in
+   responsive-height.css. */
+@media (min-width: 769px) {
   .main-container {
-    max-width: 660px;
-    margin-inline: auto;
+    max-width: min(96vw, 1200px);
     padding-inline: clamp(0.75rem, 2vw, 1.25rem);
-  }
-
-  .bmi-section,
-  .charts-section {
-    margin-top: clamp(24px, 6vh, 90px);
-    margin-bottom: clamp(24px, 6vh, 90px);
-  }
-
-  .bmi-grid {
-    margin-top: clamp(20px, 10vh, 90px);
-    margin-bottom: clamp(24px, 12vh, 120px);
-    padding: 14px;
-    gap: 1rem;
   }
 
   .form-card,
   .bmi-card {
+    min-height: clamp(560px, 70vh, 750px);
+    padding: clamp(1.25rem, 4vw, 2rem);
+  }
+
+  .bmi-results-card {
+    min-height: 450px;
+    padding: 2.5rem;
+  }
+
+  .about-card:not(.about-card-merged),
+  .main-container .section-header-v2,
+  .footer-disclaimer {
+    padding: clamp(2rem, 4vw, 4rem);
+  }
+
+  .gauge-container {
+    width: min(96vw, 550px);
+  }
+}
+
+/* Media queries: tablet and below - all major containers respond together */
+@media (max-width: 768px) {
+  :root {
+    --rsp-page-max: 660px;
+    --rsp-page-gutter: clamp(0.75rem, 2vw, 1.25rem);
+    --rsp-section-y: clamp(24px, 6vh, 90px);
+    --rsp-grid-top: clamp(20px, 10vh, 90px);
+    --rsp-grid-bottom: clamp(24px, 12vh, 120px);
+    --rsp-grid-padding: 14px;
+    --rsp-grid-gap: 1rem;
+    --rsp-card-padding: 1.25rem;
+    --rsp-results-padding: 1.75rem;
+    --rsp-gauge-width: min(96vw, 400px);
+  }
+
+  .main-container {
+    max-width: var(--rsp-page-max);
+    margin-inline: auto;
+    padding-inline: var(--rsp-page-gutter);
+  }
+
+  .bmi-section,
+  .charts-section {
+    margin-top: var(--rsp-section-y);
+    margin-bottom: var(--rsp-section-y);
+  }
+
+  .bmi-grid {
+    margin-top: var(--rsp-grid-top);
+    margin-bottom: var(--rsp-grid-bottom);
+    padding: var(--rsp-grid-padding);
+    gap: var(--rsp-grid-gap);
+  }
+
+  .form-card,
+  .bmi-card,
+  .about-card:not(.about-card-merged),
+  .main-container .section-header-v2,
+  .footer-disclaimer {
     min-height: auto;
-    padding: 1.25rem;
+    padding: var(--rsp-card-padding);
+  }
+
+  .about-card-merged {
+    min-height: auto;
+    padding: 0;
+  }
+
+  .reference-table,
+  .gauge-container,
+  .github-footer,
+  .github-link {
+    min-height: auto;
   }
 
   .bmi-card {
@@ -39,7 +97,7 @@
 
   .bmi-results-card {
     min-height: 0;
-    padding: 1.75rem;
+    padding: var(--rsp-results-padding);
   }
 
   .form-input {
@@ -66,7 +124,7 @@
   }
 
   .gauge-container {
-    width: min(96vw, 400px);
+    width: var(--rsp-gauge-width);
   }
 }
 
@@ -79,11 +137,17 @@
 
 /* Media queries: mobile (incl. 1080x2340 logical CSS px density-aware) */
 @media (max-width: 480px) {
+  :root {
+    --rsp-page-max: 400px;
+    --rsp-page-gutter: clamp(0.75rem, 4vw, 0.9rem);
+    --rsp-results-padding: 1.5rem;
+    --rsp-gauge-width: min(96vw, 260px);
+  }
 
   .main-container {
-    max-width: 400px;
+    max-width: var(--rsp-page-max);
     margin-inline: auto;
-    padding-inline: clamp(0.75rem, 4vw, 0.9rem);
+    padding-inline: var(--rsp-page-gutter);
   }
 
   /* Slightly reduce headings for smaller screens */
@@ -100,7 +164,7 @@
   }
 
   .gauge-container {
-    width: min(96vw, 260px);
+    width: var(--rsp-gauge-width);
   }
 
   /* Scale down large card header icons on mobile */
@@ -155,7 +219,7 @@
 
   /* B: Compact results card on mobile — reduce padding */
   .bmi-results-card {
-    padding: 1.5rem;
+    padding: var(--rsp-results-padding);
     border-radius: var(--radius-md);
     min-height: auto;
   }
@@ -238,6 +302,13 @@
 
 /* Media queries: ultra-compact width (<=360px) */
 @media (max-width: 360px) {
+  :root {
+    --rsp-section-y: clamp(16px, 6vh, 50px);
+    --rsp-grid-padding: 8px;
+    --rsp-grid-gap: 0.6rem;
+    --rsp-gauge-width: min(96vw, 220px);
+  }
+
   .hero-content {
     margin-top: clamp(20px, 12vh, 48px) !important;
     margin-bottom: clamp(28px, 16vh, 90px) !important;
@@ -285,17 +356,17 @@
 
   .bmi-section,
   .charts-section {
-    margin-top: clamp(16px, 6vh, 50px);
-    margin-bottom: clamp(16px, 6vh, 50px);
+    margin-top: var(--rsp-section-y);
+    margin-bottom: var(--rsp-section-y);
   }
 
   .bmi-grid {
-    padding: 8px;
-    gap: 0.6rem;
+    padding: var(--rsp-grid-padding);
+    gap: var(--rsp-grid-gap);
   }
 
   .gauge-container {
-    width: min(96vw, 220px);
+    width: var(--rsp-gauge-width);
   }
 
   /* Even smaller card header icons at 360px */
@@ -430,8 +501,17 @@
 
 /* Media queries: extreme-narrow (<=300px) */
 @media (max-width: 300px) {
+  :root {
+    --rsp-page-gutter: clamp(0.5rem, 3vw, 0.75rem);
+    --rsp-grid-padding: 6px;
+    --rsp-grid-gap: 0.5rem;
+    --rsp-card-padding: clamp(0.75rem, 3vw, 1rem);
+    --rsp-results-padding: 0.75rem 0.625rem;
+    --rsp-gauge-width: min(96vw, 200px);
+  }
+
   .main-container {
-    padding-inline: clamp(0.5rem, 3vw, 0.75rem);
+    padding-inline: var(--rsp-page-gutter);
   }
 
   .hero-content {
@@ -477,14 +557,14 @@
   }
 
   .bmi-grid {
-    padding: 6px;
-    gap: 0.5rem;
+    padding: var(--rsp-grid-padding);
+    gap: var(--rsp-grid-gap);
   }
 
   .form-card,
   .bmi-card {
     min-height: auto;
-    padding: clamp(0.75rem, 3vw, 1rem);
+    padding: var(--rsp-card-padding);
     border-radius: var(--radius-md);
   }
 
@@ -503,7 +583,7 @@
   }
 
   .bmi-results-card {
-    padding: 0.75rem 0.625rem;
+    padding: var(--rsp-results-padding);
     border-radius: var(--radius-sm);
   }
 
@@ -551,7 +631,7 @@
   }
 
   .gauge-container {
-    width: min(96vw, 200px);
+    width: var(--rsp-gauge-width);
   }
 
   .tdee-grid {
@@ -818,31 +898,49 @@
 
 /* ── Gauge width breakpoints ── */
 @media (min-width: 720px) and (max-width: 767px) {
+  :root {
+    --rsp-gauge-width: min(92vw, 520px);
+  }
+
   .gauge-container {
-    width: min(92vw, 520px);
+    width: var(--rsp-gauge-width);
     margin-top: clamp(20px, 10vh, 120px) !important;
     margin-bottom: clamp(24px, 12vh, 140px) !important;
   }
 }
 
 @media (min-width: 768px) {
+  :root {
+    --rsp-gauge-width: min(96vw, 550px);
+  }
+
   .gauge-container {
-    width: min(96vw, 550px);
+    width: var(--rsp-gauge-width);
   }
 }
 
 @media (min-width: 1100px) {
+  :root {
+    --rsp-gauge-width: min(96vw, 760px);
+  }
+
   .gauge-container {
-    width: min(96vw, 760px) !important;
+    width: var(--rsp-gauge-width) !important;
   }
 }
 
 /* Media queries: very extreme narrow (<=250px) */
 @media (max-width: 250px) {
+  :root {
+    --rsp-card-padding: 0.5rem;
+    --rsp-results-padding: 0.5rem;
+    --rsp-gauge-width: min(96vw, 170px);
+  }
+
   .form-card,
   .bmi-card,
   .bmi-results-card {
-    padding: 0.5rem;
+    padding: var(--rsp-card-padding);
     border-radius: 0.625rem;
   }
 
@@ -902,7 +1000,7 @@
   }
 
   .gauge-container {
-    width: min(96vw, 170px);
+    width: var(--rsp-gauge-width);
   }
 
   .ref-card .title {
