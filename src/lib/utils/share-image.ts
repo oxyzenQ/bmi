@@ -1,6 +1,9 @@
 /**
  * C-3: Canvas-based BMI result card image generator.
  * Produces a shareable PNG for Instagram Story / X / etc.
+ *
+ * P0 quality pass: glassmorphism card, BMI value glow,
+ * upgraded scale bar, pervasive accent color.
  */
 
 import { t, getLocale } from '$lib/i18n';
@@ -19,6 +22,14 @@ export interface BmiCardData {
 const CARD_W = 1080;
 const CARD_H = 1920;
 const RADIUS = 64;
+
+/** Helper: convert hex (#RRGGBB) to rgba string */
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
 
 function getCategoryColor(cat: string): string {
   return isBmiCategory(cat) ? CATEGORY_COLORS[cat] : COLORS.SLATE;
@@ -41,6 +52,47 @@ function roundRect(
   ctx.closePath();
 }
 
+/** Draw a pill-shaped stat cell with label above and value below */
+function drawStatCell(
+  ctx: CanvasRenderingContext2D,
+  cx: number, // center x
+  y: number,  // top of cell
+  label: string,
+  value: string,
+  accent: string
+) {
+  const pillW = 260;
+  const pillH = 120;
+  const pillX = cx - pillW / 2;
+  const pillR = 20;
+
+  // Pill background — subtle glass
+  const pillGrad = ctx.createLinearGradient(pillX, y, pillX + pillW, y + pillH);
+  pillGrad.addColorStop(0, 'rgba(255,255,255,0.06)');
+  pillGrad.addColorStop(1, 'rgba(255,255,255,0.02)');
+  roundRect(ctx, pillX, y, pillW, pillH, pillR);
+  ctx.fillStyle = pillGrad;
+  ctx.fill();
+
+  // Pill border — accent tinted
+  roundRect(ctx, pillX, y, pillW, pillH, pillR);
+  ctx.strokeStyle = hexToRgba(accent, 0.18);
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Label (above value)
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.font = '600 20px system-ui, sans-serif';
+  ctx.letterSpacing = '0.05em';
+  ctx.fillText(label, cx, y + 42);
+
+  // Value (large, white with accent tint)
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '700 36px system-ui, sans-serif';
+  ctx.fillText(value, cx, y + 90);
+}
+
 export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   if (typeof document === 'undefined') return null;
 
@@ -52,178 +104,274 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 
   const accent = getCategoryColor(data.category);
 
-  // Background — deep cosmic gradient
+  // ── Background — deep cosmic gradient ──
   const bgGrad = ctx.createLinearGradient(0, 0, CARD_W, CARD_H);
   bgGrad.addColorStop(0, '#0a0818');
-  bgGrad.addColorStop(0.5, '#1a0533');
+  bgGrad.addColorStop(0.35, '#140428');
+  bgGrad.addColorStop(0.65, '#1a0533');
   bgGrad.addColorStop(1, '#0a0818');
   roundRect(ctx, 0, 0, CARD_W, CARD_H, 0);
   ctx.fillStyle = bgGrad;
   ctx.fill();
 
-  // Subtle radial glow behind center
-  const glow = ctx.createRadialGradient(CARD_W / 2, CARD_H * 0.38, 0, CARD_W / 2, CARD_H * 0.38, 500);
-  glow.addColorStop(0, accent + '22');
-  glow.addColorStop(1, 'transparent');
-  ctx.fillStyle = glow;
+  // ── Accent radial glow — large, behind BMI value area ──
+  const glow1 = ctx.createRadialGradient(
+    CARD_W / 2, CARD_H * 0.30, 0,
+    CARD_W / 2, CARD_H * 0.30, 600
+  );
+  glow1.addColorStop(0, hexToRgba(accent, 0.12));
+  glow1.addColorStop(0.5, hexToRgba(accent, 0.04));
+  glow1.addColorStop(1, 'transparent');
+  ctx.fillStyle = glow1;
   ctx.fillRect(0, 0, CARD_W, CARD_H);
 
-  // Card container
+  // ── Secondary glow — subtle, lower ──
+  const glow2 = ctx.createRadialGradient(
+    CARD_W / 2, CARD_H * 0.55, 0,
+    CARD_W / 2, CARD_H * 0.55, 400
+  );
+  glow2.addColorStop(0, hexToRgba(accent, 0.06));
+  glow2.addColorStop(1, 'transparent');
+  ctx.fillStyle = glow2;
+  ctx.fillRect(0, 0, CARD_W, CARD_H);
+
+  // ── Card container ──
   const cardX = 60;
   const cardY = 200;
   const cardW = CARD_W - 120;
   const cardH = CARD_H - 400;
 
-  // Card background
-  const cardBg = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
-  cardBg.addColorStop(0, 'rgba(255,255,255,0.06)');
-  cardBg.addColorStop(1, 'rgba(255,255,255,0.02)');
+  // Card background — layered glass gradient
+  const cardBg = ctx.createLinearGradient(cardX, cardY, cardX, cardY + cardH);
+  cardBg.addColorStop(0, 'rgba(255,255,255,0.08)');
+  cardBg.addColorStop(0.15, 'rgba(255,255,255,0.05)');
+  cardBg.addColorStop(0.85, 'rgba(255,255,255,0.03)');
+  cardBg.addColorStop(1, 'rgba(255,255,255,0.06)');
   roundRect(ctx, cardX, cardY, cardW, cardH, RADIUS);
   ctx.fillStyle = cardBg;
   ctx.fill();
 
-  // Card border
+  // Card inner glow — top edge highlight
+  const innerGlow = ctx.createLinearGradient(cardX, cardY, cardX, cardY + 200);
+  innerGlow.addColorStop(0, hexToRgba(accent, 0.06));
+  innerGlow.addColorStop(1, 'transparent');
+  roundRect(ctx, cardX, cardY, cardW, 200, RADIUS);
+  ctx.fillStyle = innerGlow;
+  ctx.fill();
+
+  // Card border — accent tinted, thicker
   roundRect(ctx, cardX, cardY, cardW, cardH, RADIUS);
-  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = hexToRgba(accent, 0.20);
+  ctx.lineWidth = 3;
   ctx.stroke();
 
-  // Top accent line
-  const accentGrad = ctx.createLinearGradient(cardX + RADIUS, 0, cardX + cardW - RADIUS, 0);
-  accentGrad.addColorStop(0, 'transparent');
-  accentGrad.addColorStop(0.3, accent);
-  accentGrad.addColorStop(0.7, accent);
-  accentGrad.addColorStop(1, 'transparent');
+  // ── Top accent line — gradient with glow ──
+  // Wide glow line
+  const accentGlowGrad = ctx.createLinearGradient(cardX + RADIUS, 0, cardX + cardW - RADIUS, 0);
+  accentGlowGrad.addColorStop(0, 'transparent');
+  accentGlowGrad.addColorStop(0.2, hexToRgba(accent, 0.15));
+  accentGlowGrad.addColorStop(0.5, hexToRgba(accent, 0.30));
+  accentGlowGrad.addColorStop(0.8, hexToRgba(accent, 0.15));
+  accentGlowGrad.addColorStop(1, 'transparent');
   ctx.beginPath();
   ctx.moveTo(cardX + RADIUS, cardY);
   ctx.lineTo(cardX + cardW - RADIUS, cardY);
-  ctx.strokeStyle = accentGrad;
-  ctx.lineWidth = 4;
+  ctx.strokeStyle = accentGlowGrad;
+  ctx.lineWidth = 8;
   ctx.stroke();
 
-  // Header text
+  // Sharp accent line on top
+  const accentSharpGrad = ctx.createLinearGradient(cardX + RADIUS, 0, cardX + cardW - RADIUS, 0);
+  accentSharpGrad.addColorStop(0, 'transparent');
+  accentSharpGrad.addColorStop(0.25, accent);
+  accentSharpGrad.addColorStop(0.75, accent);
+  accentSharpGrad.addColorStop(1, 'transparent');
+  ctx.beginPath();
+  ctx.moveTo(cardX + RADIUS, cardY);
+  ctx.lineTo(cardX + cardW - RADIUS, cardY);
+  ctx.strokeStyle = accentSharpGrad;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // ── Header text — accent tinted ──
   ctx.textAlign = 'center';
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.fillStyle = hexToRgba(accent, 0.55);
   ctx.font = '600 28px system-ui, sans-serif';
   ctx.fillText(t('share.card_header'), CARD_W / 2, cardY + 100);
 
-  // BMI Value — big
+  // ── BMI Value — large with glow ──
+  // Large radial glow behind the number
+  const valueGlow = ctx.createRadialGradient(
+    CARD_W / 2, cardY + 330, 0,
+    CARD_W / 2, cardY + 330, 280
+  );
+  valueGlow.addColorStop(0, hexToRgba(accent, 0.18));
+  valueGlow.addColorStop(0.4, hexToRgba(accent, 0.06));
+  valueGlow.addColorStop(1, 'transparent');
+  ctx.fillStyle = valueGlow;
+  ctx.fillRect(cardX, cardY + 100, cardW, 500);
+
+  // Canvas shadow for the BMI value
+  ctx.save();
+  ctx.shadowColor = hexToRgba(accent, 0.50);
+  ctx.shadowBlur = 60;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
   ctx.fillStyle = accent;
   ctx.font = '800 160px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(data.bmi.toFixed(1), CARD_W / 2, cardY + 360);
+  ctx.restore();
+
+  // Second pass without shadow for crisp text on top
+  ctx.fillStyle = accent;
+  ctx.font = '800 160px system-ui, sans-serif';
+  ctx.textAlign = 'center';
   ctx.fillText(data.bmi.toFixed(1), CARD_W / 2, cardY + 360);
 
-  // Category
+  // ── Category — white with subtle accent glow ──
+  ctx.save();
+  ctx.shadowColor = hexToRgba(accent, 0.25);
+  ctx.shadowBlur = 20;
   ctx.fillStyle = '#ffffff';
   ctx.font = '700 52px system-ui, sans-serif';
+  ctx.textAlign = 'center';
   ctx.fillText(data.category.toUpperCase(), CARD_W / 2, cardY + 440);
+  ctx.restore();
 
-  // Divider
+  // ── Divider — accent tinted ──
   const divY = cardY + 500;
-  const divGrad = ctx.createLinearGradient(cardX + 120, 0, cardX + cardW - 120, 0);
+  const divGrad = ctx.createLinearGradient(cardX + 80, 0, cardX + cardW - 80, 0);
   divGrad.addColorStop(0, 'transparent');
-  divGrad.addColorStop(0.5, 'rgba(255,255,255,0.15)');
+  divGrad.addColorStop(0.3, hexToRgba(accent, 0.15));
+  divGrad.addColorStop(0.5, hexToRgba(accent, 0.25));
+  divGrad.addColorStop(0.7, hexToRgba(accent, 0.15));
   divGrad.addColorStop(1, 'transparent');
   ctx.beginPath();
-  ctx.moveTo(cardX + 120, divY);
-  ctx.lineTo(cardX + cardW - 120, divY);
+  ctx.moveTo(cardX + 80, divY);
+  ctx.lineTo(cardX + cardW - 80, divY);
   ctx.strokeStyle = divGrad;
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  // Stats grid
-  const statsY = divY + 80;
+  // ── Stats grid — pill cells ──
+  const statsY = divY + 60;
   const colW = cardW / 3;
 
-  // BMI Prime
   if (data.bmiPrime !== null && data.bmiPrime !== undefined) {
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.font = '500 24px system-ui, sans-serif';
-    ctx.fillText(t('share.card_prime'), cardX + colW * 0.5, statsY);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '700 40px system-ui, sans-serif';
-    ctx.fillText(data.bmiPrime.toFixed(2), cardX + colW * 0.5, statsY + 50);
+    drawStatCell(ctx, cardX + colW * 0.5, statsY, t('share.card_prime'), data.bmiPrime.toFixed(2), accent);
   }
 
-  // Ideal Range
   if (data.idealMin !== null && data.idealMax !== null && data.weightUnit) {
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.font = '500 24px system-ui, sans-serif';
-    ctx.fillText(t('share.card_ideal'), cardX + colW * 1.5, statsY);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '700 36px system-ui, sans-serif';
-    ctx.fillText(`${data.idealMin}–${data.idealMax} ${data.weightUnit}`, cardX + colW * 1.5, statsY + 50);
+    drawStatCell(ctx, cardX + colW * 1.5, statsY, t('share.card_ideal'), `${data.idealMin}–${data.idealMax} ${data.weightUnit}`, accent);
   }
 
-  // TDEE
   if (data.tdee !== null && data.tdee !== undefined) {
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.font = '500 24px system-ui, sans-serif';
-    ctx.fillText(t('share.card_tdee'), cardX + colW * 2.5, statsY);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '700 40px system-ui, sans-serif';
-    ctx.fillText(`${Math.round(data.tdee)} ${t('share.card_kcal')}`, cardX + colW * 2.5, statsY + 50);
+    drawStatCell(ctx, cardX + colW * 2.5, statsY, t('share.card_tdee'), `${Math.round(data.tdee)} ${t('share.card_kcal')}`, accent);
   }
 
-  // BMI Scale bar
-  const barY = statsY + 140;
-  const barX = cardX + 120;
-  const barW = cardW - 240;
-  const barH = 16;
+  // ── BMI Scale bar — upgraded with gradient segments, glow, labels ──
+  const barY = statsY + 170;
+  const barX = cardX + 80;
+  const barW = cardW - 160;
+  const barH = 24;
+  const barR = 12;
+  const bmiMin = 12;
+  const bmiMax = 42;
+  const bmiRange = bmiMax - bmiMin;
 
-  // Bar track
-  roundRect(ctx, barX, barY, barW, barH, 8);
-  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  // Bar track background
+  roundRect(ctx, barX, barY, barW, barH, barR);
+  ctx.fillStyle = 'rgba(255,255,255,0.04)';
   ctx.fill();
 
-  // Bar segments
+  // Bar segments — gradient fills with rounded clipping
   const segments = [
-    { pct: (18.5 - 12) / (42 - 12), color: '#4A90E2' },
-    { pct: (25 - 18.5) / (42 - 12), color: '#00C853' },
-    { pct: (30 - 25) / (42 - 12), color: '#FFD600' },
-    { pct: (42 - 30) / (42 - 12), color: '#D50000' }
+    { start: 12, end: 18.5, color: '#4A90E2', label: 'UW' },
+    { start: 18.5, end: 25, color: '#00C853', label: 'NW' },
+    { start: 25, end: 30, color: '#FFD600', label: 'OW' },
+    { start: 30, end: 42, color: '#D50000', label: 'OB' }
   ];
+
+  // Clip to bar shape for clean segment edges
+  ctx.save();
+  roundRect(ctx, barX, barY, barW, barH, barR);
+  ctx.clip();
+
   let segX = barX;
   for (const seg of segments) {
-    const segW = (seg.pct / (segments.reduce((s, x) => s + x.pct, 0))) * barW;
-    roundRect(ctx, segX, barY, segW, barH, 0);
-    ctx.fillStyle = seg.color + '88';
-    ctx.fill();
+    const segW = ((seg.end - seg.start) / bmiRange) * barW;
+
+    // Gradient fill per segment (darker at edges, brighter in center)
+    const segGrad = ctx.createLinearGradient(segX, barY, segX + segW, barY);
+    segGrad.addColorStop(0, hexToRgba(seg.color, 0.40));
+    segGrad.addColorStop(0.5, hexToRgba(seg.color, 0.65));
+    segGrad.addColorStop(1, hexToRgba(seg.color, 0.40));
+    ctx.fillStyle = segGrad;
+    ctx.fillRect(segX, barY, segW, barH);
+
     segX += segW;
   }
+  ctx.restore();
 
-  // BMI marker on scale
-  const markerPct = Math.max(0, Math.min(1, (data.bmi - 12) / (42 - 12)));
+  // Active segment glow — overlay glow at the marker position
+  const markerPct = Math.max(0, Math.min(1, (data.bmi - bmiMin) / bmiRange));
   const markerX = barX + markerPct * barW;
+  const activeGlow = ctx.createRadialGradient(markerX, barY + barH / 2, 0, markerX, barY + barH / 2, 100);
+  activeGlow.addColorStop(0, hexToRgba(accent, 0.35));
+  activeGlow.addColorStop(1, 'transparent');
+  ctx.fillStyle = activeGlow;
+  ctx.fillRect(markerX - 100, barY - 10, 200, barH + 20);
+
+  // BMI marker — outer glow ring + filled circle
+  ctx.save();
+  ctx.shadowColor = hexToRgba(accent, 0.60);
+  ctx.shadowBlur = 20;
+
+  // Outer ring
   ctx.beginPath();
-  ctx.arc(markerX, barY + barH / 2, 14, 0, Math.PI * 2);
+  ctx.arc(markerX, barY + barH / 2, 18, 0, Math.PI * 2);
   ctx.fillStyle = '#ffffff';
   ctx.fill();
+
+  // Inner accent circle
   ctx.beginPath();
-  ctx.arc(markerX, barY + barH / 2, 10, 0, Math.PI * 2);
+  ctx.arc(markerX, barY + barH / 2, 13, 0, Math.PI * 2);
   ctx.fillStyle = accent;
   ctx.fill();
+  ctx.restore();
 
-  // Scale labels
-  ctx.textAlign = 'left';
-  ctx.fillStyle = 'rgba(255,255,255,0.3)';
-  ctx.font = '400 20px system-ui, sans-serif';
-  ctx.fillText('12', barX, barY + barH + 36);
-
+  // Scale numeric labels
   ctx.textAlign = 'center';
-  ctx.fillText('18.5', barX + ((18.5 - 12) / (42 - 12)) * barW, barY + barH + 36);
-  ctx.fillText('25', barX + ((25 - 12) / (42 - 12)) * barW, barY + barH + 36);
-  ctx.fillText('30', barX + ((30 - 12) / (42 - 12)) * barW, barY + barH + 36);
+  ctx.fillStyle = 'rgba(255,255,255,0.30)';
+  ctx.font = '500 18px system-ui, sans-serif';
+  const labelY = barY + barH + 32;
 
-  ctx.textAlign = 'right';
-  ctx.fillText('42', barX + barW, barY + barH + 36);
+  ctx.fillText('12', barX, labelY);
+  ctx.fillText('18.5', barX + ((18.5 - bmiMin) / bmiRange) * barW, labelY);
+  ctx.fillText('25', barX + ((25 - bmiMin) / bmiRange) * barW, labelY);
+  ctx.fillText('30', barX + ((30 - bmiMin) / bmiRange) * barW, labelY);
+  ctx.fillText('42', barX + barW, labelY);
 
-  // Footer branding
+  // Category labels below the scale
+  ctx.font = '600 14px system-ui, sans-serif';
+  const catLabelY = labelY + 24;
+  const segColors = ['#4A90E2', '#00C853', '#FFD600', '#D50000'];
+  const catCenters = [
+    barX + ((15.25 - bmiMin) / bmiRange) * barW,
+    barX + ((21.75 - bmiMin) / bmiRange) * barW,
+    barX + ((27.5 - bmiMin) / bmiRange) * barW,
+    barX + ((36 - bmiMin) / bmiRange) * barW
+  ];
+  for (let i = 0; i < segments.length; i++) {
+    ctx.fillStyle = hexToRgba(segColors[i], 0.55);
+    ctx.fillText(segments[i].label, catCenters[i], catLabelY);
+  }
+
+  // ── Footer branding — accent tinted ──
   ctx.textAlign = 'center';
-  ctx.fillStyle = 'rgba(255,255,255,0.25)';
-  ctx.font = '500 22px system-ui, sans-serif';
+  ctx.fillStyle = hexToRgba(accent, 0.30);
+  ctx.font = '600 22px system-ui, sans-serif';
   ctx.fillText(t('share.card_branding'), CARD_W / 2, CARD_H - 160);
 
   ctx.fillStyle = 'rgba(255,255,255,0.15)';
@@ -239,7 +387,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 
   // Convert canvas to blob
   return new Promise<Blob | null>((resolve) => {
-    canvas.toBlob((blob) => resolve(blob), 'image/png', 0.92);
+    canvas.toBlob((blob) => resolve(blob), 'image/png');
   });
 }
 
