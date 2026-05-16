@@ -130,4 +130,32 @@ describe('generateBmiCard', () => {
       })
     ).resolves.not.toThrow();
   });
+
+  it('does not crash with jpeg format', async () => {
+    await expect(
+      generateBmiCard({
+        bmi: 24.5,
+        category: 'Normal Weight',
+        format: 'jpeg',
+      })
+    ).resolves.not.toThrow();
+  });
+
+  it('does not crash with all fields and jpeg format', async () => {
+    await expect(
+      generateBmiCard({
+        bmi: 22.1,
+        category: 'Normal Weight',
+        bmiPrime: 0.88,
+        tdee: 1850,
+        idealMin: 55.0,
+        idealMax: 75.0,
+        weightUnit: 'kg',
+        height: 175,
+        weight: 68,
+        heightUnit: 'cm',
+        format: 'jpeg',
+      })
+    ).resolves.not.toThrow();
+  });
 });

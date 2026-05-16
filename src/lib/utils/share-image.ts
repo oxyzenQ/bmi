@@ -4,6 +4,8 @@
  *
  * P0: Glassmorphism card, BMI value glow, upgraded scale bar, accent consistency.
  * P1: Star field decoration, health insight text, grain overlay, personal data row.
+ * P2: Corner accent decorations, mini radial gauge, bottom accent line,
+ *     category color dot, dual-format export (PNG + JPEG).
  */
 
 import { t, getLocale } from '$lib/i18n';
@@ -20,6 +22,7 @@ export interface BmiCardData {
   height?: number | null;
   weight?: number | null;
   heightUnit?: string;
+  format?: 'png' | 'jpeg';
 }
 
 const CARD_W = 1080;
@@ -286,6 +289,142 @@ function drawPersonalDataRow(
   return y + pillH + 20; // return Y after this row
 }
 
+/**
+ * P2: Draw corner accent decorations — L-shaped accent lines at each card corner.
+ * Creates a premium "frame" effect with geometric accent marks.
+ */
+function drawCornerAccents(
+  ctx: CanvasRenderingContext2D,
+  cardX: number,
+  cardY: number,
+  cardW: number,
+  cardH: number,
+  accent: string,
+  inset: number = 20,
+  lineLen: number = 50
+) {
+  ctx.save();
+  ctx.strokeStyle = hexToRgba(accent, 0.30);
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+
+  // Top-left corner
+  ctx.beginPath();
+  ctx.moveTo(cardX + inset, cardY + inset + lineLen);
+  ctx.lineTo(cardX + inset, cardY + inset);
+  ctx.lineTo(cardX + inset + lineLen, cardY + inset);
+  ctx.stroke();
+
+  // Top-right corner
+  ctx.beginPath();
+  ctx.moveTo(cardX + cardW - inset - lineLen, cardY + inset);
+  ctx.lineTo(cardX + cardW - inset, cardY + inset);
+  ctx.lineTo(cardX + cardW - inset, cardY + inset + lineLen);
+  ctx.stroke();
+
+  // Bottom-left corner
+  ctx.beginPath();
+  ctx.moveTo(cardX + inset, cardY + cardH - inset - lineLen);
+  ctx.lineTo(cardX + inset, cardY + cardH - inset);
+  ctx.lineTo(cardX + inset + lineLen, cardY + cardH - inset);
+  ctx.stroke();
+
+  // Bottom-right corner
+  ctx.beginPath();
+  ctx.moveTo(cardX + cardW - inset - lineLen, cardY + cardH - inset);
+  ctx.lineTo(cardX + cardW - inset, cardY + cardH - inset);
+  ctx.lineTo(cardX + cardW - inset, cardY + cardH - inset - lineLen);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+/**
+ * P2: Draw a mini radial gauge showing BMI position visually.
+ * A small circular arc gauge that complements the BMI number.
+ */
+function drawMiniGauge(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  radius: number,
+  bmi: number,
+  accent: string
+) {
+  const bmiMin = 12;
+  const bmiMax = 42;
+  const bmiRange = bmiMax - bmiMin;
+  const pct = Math.max(0, Math.min(1, (bmi - bmiMin) / bmiRange));
+
+  // Gauge track arc — full circle, very subtle
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 6;
+  ctx.stroke();
+
+  // Gauge segment colors — map to BMI range
+  const segDefs = [
+    { from: 0, to: 0.217, color: '#4A90E2' },       // Underweight: 12-18.5
+    { from: 0.217, to: 0.433, color: '#00C853' },    // Normal: 18.5-25
+    { from: 0.433, to: 0.600, color: '#FFD600' },    // Overweight: 25-30
+    { from: 0.600, to: 1.0, color: '#D50000' },      // Obese: 30-42
+  ];
+
+  const startAngle = -Math.PI / 2; // top of circle
+
+  for (const seg of segDefs) {
+    const a1 = startAngle + seg.from * Math.PI * 2;
+    const a2 = startAngle + Math.min(seg.to, pct) * Math.PI * 2;
+    if (a2 <= a1) continue;
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, a1, a2);
+    ctx.strokeStyle = hexToRgba(seg.color, 0.50);
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+  }
+
+  // Active segment — draw the arc up to current BMI
+  const activeAngle = startAngle + pct * Math.PI * 2;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, startAngle, activeAngle);
+  ctx.strokeStyle = hexToRgba(accent, 0.70);
+  ctx.lineWidth = 6;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Needle/marker dot at current position
+  const dotX = cx + Math.cos(activeAngle) * radius;
+  const dotY = cy + Math.sin(activeAngle) * radius;
+
+  // Outer glow
+  ctx.save();
+  ctx.shadowColor = hexToRgba(accent, 0.50);
+  ctx.shadowBlur = 12;
+  ctx.beginPath();
+  ctx.arc(dotX, dotY, 7, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.restore();
+
+  // Inner dot
+  ctx.beginPath();
+  ctx.arc(dotX, dotY, 4, 0, Math.PI * 2);
+  ctx.fillStyle = accent;
+  ctx.fill();
+
+  // Center text — small BMI value
+  ctx.textAlign = 'center';
+  ctx.fillStyle = hexToRgba(accent, 0.50);
+  ctx.font = '700 18px system-ui, sans-serif';
+  ctx.fillText('BMI', cx, cy - 4);
+  ctx.fillStyle = 'rgba(255,255,255,0.30)';
+  ctx.font = '500 12px system-ui, sans-serif';
+  ctx.fillText(bmi.toFixed(1), cx, cy + 14);
+}
+
 export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   if (typeof document === 'undefined') return null;
 
@@ -296,6 +435,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   if (!ctx) return null;
 
   const accent = getCategoryColor(data.category);
+  const format = data.format === 'jpeg' ? 'jpeg' : 'png';
 
   // ── Background — deep cosmic gradient ──
   const bgGrad = ctx.createLinearGradient(0, 0, CARD_W, CARD_H);
@@ -307,7 +447,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.fillStyle = bgGrad;
   ctx.fill();
 
-  // ── P1: Star field decoration ──
+  // ── Star field decoration ──
   drawStarField(ctx, CARD_W, CARD_H, accent);
 
   // ── Accent radial glow — large, behind BMI value area ──
@@ -361,8 +501,11 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  // ── P1: Grain/noise texture overlay on card ──
+  // ── Grain/noise texture overlay on card ──
   drawGrainOverlay(ctx, cardX, cardY, cardW, cardH, RADIUS);
+
+  // ── P2: Corner accent decorations ──
+  drawCornerAccents(ctx, cardX, cardY, cardW, cardH, accent);
 
   // ── Top accent line — gradient with glow ──
   // Wide glow line
@@ -390,6 +533,32 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.lineTo(cardX + cardW - RADIUS, cardY);
   ctx.strokeStyle = accentSharpGrad;
   ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // ── P2: Bottom accent line — matching bottom edge glow ──
+  const bottomGlowGrad = ctx.createLinearGradient(cardX + RADIUS, 0, cardX + cardW - RADIUS, 0);
+  bottomGlowGrad.addColorStop(0, 'transparent');
+  bottomGlowGrad.addColorStop(0.2, hexToRgba(accent, 0.08));
+  bottomGlowGrad.addColorStop(0.5, hexToRgba(accent, 0.15));
+  bottomGlowGrad.addColorStop(0.8, hexToRgba(accent, 0.08));
+  bottomGlowGrad.addColorStop(1, 'transparent');
+  ctx.beginPath();
+  ctx.moveTo(cardX + RADIUS, cardY + cardH);
+  ctx.lineTo(cardX + cardW - RADIUS, cardY + cardH);
+  ctx.strokeStyle = bottomGlowGrad;
+  ctx.lineWidth = 6;
+  ctx.stroke();
+
+  const bottomSharpGrad = ctx.createLinearGradient(cardX + RADIUS, 0, cardX + cardW - RADIUS, 0);
+  bottomSharpGrad.addColorStop(0, 'transparent');
+  bottomSharpGrad.addColorStop(0.3, hexToRgba(accent, 0.35));
+  bottomSharpGrad.addColorStop(0.7, hexToRgba(accent, 0.35));
+  bottomSharpGrad.addColorStop(1, 'transparent');
+  ctx.beginPath();
+  ctx.moveTo(cardX + RADIUS, cardY + cardH);
+  ctx.lineTo(cardX + cardW - RADIUS, cardY + cardH);
+  ctx.strokeStyle = bottomSharpGrad;
+  ctx.lineWidth = 2;
   ctx.stroke();
 
   // ── Header text — accent tinted ──
@@ -428,6 +597,11 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.textAlign = 'center';
   ctx.fillText(data.bmi.toFixed(1), CARD_W / 2, cardY + 360);
 
+  // ── P2: Mini radial gauge — positioned to the right of BMI value ──
+  const gaugeCx = cardX + cardW - 110;
+  const gaugeCy = cardY + 320;
+  drawMiniGauge(ctx, gaugeCx, gaugeCy, 45, data.bmi, accent);
+
   // ── Category — white with subtle accent glow ──
   ctx.save();
   ctx.shadowColor = hexToRgba(accent, 0.25);
@@ -435,10 +609,37 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.fillStyle = '#ffffff';
   ctx.font = '700 52px system-ui, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(data.category.toUpperCase(), CARD_W / 2, cardY + 440);
+  const categoryText = data.category.toUpperCase();
+
+  // P2: Measure category text width to position color dot
+  const catMetrics = ctx.measureText(categoryText);
+  const catTextX = CARD_W / 2;
+  const catTextY = cardY + 440;
+  ctx.fillText(categoryText, catTextX, catTextY);
   ctx.restore();
 
-  // ── P1: Personal data row (height/weight) ──
+  // ── P2: Category color dot — small colored indicator before category text ──
+  const dotRadius = 8;
+  const dotX = catTextX - catMetrics.width / 2 - 24;
+  const dotY = catTextY - 16;
+
+  ctx.save();
+  ctx.shadowColor = hexToRgba(accent, 0.40);
+  ctx.shadowBlur = 8;
+  ctx.beginPath();
+  ctx.arc(dotX, dotY, dotRadius, 0, Math.PI * 2);
+  ctx.fillStyle = accent;
+  ctx.fill();
+  ctx.restore();
+
+  // Small white ring around the dot
+  ctx.beginPath();
+  ctx.arc(dotX, dotY, dotRadius, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.30)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // ── Personal data row (height/weight) ──
   const afterPersonalY = drawPersonalDataRow(ctx, CARD_W / 2, cardY + 470, data, accent);
 
   // ── Divider — accent tinted ──
@@ -570,7 +771,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
     ctx.fillText(segments[i].label, catCenters[i], catLabelY);
   }
 
-  // ── P1: Health insight text ──
+  // ── Health insight text ──
   const insightY = catLabelY + 50;
   const insightKey = getCategoryInsightKey(data.category);
   const insightText = t(insightKey);
@@ -655,9 +856,12 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.font = '400 18px system-ui, sans-serif';
   ctx.fillText(timestamp, CARD_W / 2, CARD_H - 80);
 
-  // Convert canvas to blob
+  // Convert canvas to blob — support JPEG format for smaller file sizes
+  const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+  const quality = format === 'jpeg' ? 0.92 : undefined;
+
   return new Promise<Blob | null>((resolve) => {
-    canvas.toBlob((blob) => resolve(blob), 'image/png');
+    canvas.toBlob((blob) => resolve(blob), mimeType, quality);
   });
 }
 
@@ -668,10 +872,11 @@ export async function downloadBmiCard(data: BmiCardData): Promise<boolean> {
   const blob = await generateBmiCard(data);
   if (!blob) return false;
 
+  const ext = data.format === 'jpeg' ? 'jpg' : 'png';
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `bmi-result-${data.bmi.toFixed(1)}.png`;
+  a.download = `bmi-result-${data.bmi.toFixed(1)}.${ext}`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -686,7 +891,9 @@ export async function shareBmiCard(data: BmiCardData): Promise<{ ok: boolean; me
   const blob = await generateBmiCard(data);
   if (!blob) return { ok: false, method: 'none' };
 
-  const file = new File([blob], `bmi-result-${data.bmi.toFixed(1)}.png`, { type: 'image/png' });
+  const ext = data.format === 'jpeg' ? 'jpg' : 'png';
+  const mimeType = data.format === 'jpeg' ? 'image/jpeg' : 'image/png';
+  const file = new File([blob], `bmi-result-${data.bmi.toFixed(1)}.${ext}`, { type: mimeType });
 
   if (navigator.share && navigator.canShare?.({ files: [file] })) {
     try {
@@ -708,7 +915,7 @@ export async function shareBmiCard(data: BmiCardData): Promise<{ ok: boolean; me
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `bmi-result-${data.bmi.toFixed(1)}.png`;
+  a.download = `bmi-result-${data.bmi.toFixed(1)}.${ext}`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
