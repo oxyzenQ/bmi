@@ -531,6 +531,7 @@
 
     const currentScrollY = pendingScrollY;
     const delta = currentScrollY - lastScrollY;
+    const scrollingUp = delta < 0;
 
     if (Math.abs(delta) < SCROLL.SCROLL_DELTA_EPSILON) {
       pendingScrollTarget = null;
@@ -543,8 +544,6 @@
     }
 
     if (!isTouchDevice) {
-      const scrollingUp = currentScrollY < lastScrollY;
-
       if (!scrollingUp && currentScrollY > 50) {
         pagerControlsVisible = false;
       } else if (scrollingUp) {
@@ -555,8 +554,22 @@
       scrollTimeout = setTimeout(() => {
         pagerControlsVisible = true;
       }, SCROLL.SCROLL_IDLE_DELAY);
-    } else if (!pagerControlsVisible) {
-      pagerControlsVisible = true;
+    } else {
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+
+      if (
+        !scrollingUp &&
+        currentScrollY > SCROLL.TOUCH_NAV_HIDE_THRESHOLD &&
+        delta > SCROLL.TOUCH_NAV_HIDE_DELTA
+      ) {
+        if (pagerControlsVisible) pagerControlsVisible = false;
+      } else if (scrollingUp && Math.abs(delta) > SCROLL.TOUCH_NAV_SHOW_DELTA) {
+        if (!pagerControlsVisible) pagerControlsVisible = true;
+      }
+
+      scrollTimeout = setTimeout(() => {
+        pagerControlsVisible = true;
+      }, SCROLL.TOUCH_NAV_IDLE_DELAY);
     }
 
     lastScrollY = currentScrollY;
@@ -1200,7 +1213,7 @@
     gap: 0;
     padding-top: 0;
     overflow: hidden;
-    touch-action: pan-y pinch-zoom;
+    touch-action: pan-y pan-x pinch-zoom;
     position: relative;
     --pager-top-inset: calc(env(safe-area-inset-top, 0px) + 54px);
     --pager-edge-fade: 100px;

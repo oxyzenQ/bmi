@@ -61,6 +61,9 @@ html[data-performance-tier="high"] :is(
   overflow: visible;
   letter-spacing: 0.02em;
   border: 1px solid transparent;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: manipulation;
   transition:
     opacity var(--dur-interactive) ease,
     background var(--dur-interactive) ease,
@@ -137,8 +140,12 @@ html[data-performance-tier="high"] :is(
   /* Enable horizontal scroll when tabs overflow */
   overflow-x: auto;
   overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-inline: contain;
+  scroll-behavior: auto;
   scrollbar-width: none;
   white-space: nowrap;
+  touch-action: pan-x pinch-zoom;
 
   /* Override shared contain — layout containment blocks scroll */
   contain: paint style;
@@ -167,6 +174,7 @@ html[data-performance-tier="high"] :is(
   transition:
     opacity var(--dur-content) ease,
     transform var(--dur-content) ease;
+  touch-action: manipulation;
 }
 
 .pager-nav-shell::-webkit-scrollbar {
@@ -283,6 +291,9 @@ html[data-performance-tier="high"] :is(
   align-items: center;
   justify-content: center;
   overflow: visible;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: manipulation;
 }
 
 .pager-btn-futuristic svg {
