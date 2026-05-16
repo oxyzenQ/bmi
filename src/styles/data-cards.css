@@ -730,4 +730,5 @@
   font-weight: 700;
   margin-bottom: 0.75rem;
   color: var(--stellar-white);
+  letter-spacing: 0.01em;
 }

@@ -77,30 +77,45 @@
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
   position: relative;
   z-index: var(--z-content);
   justify-content: center;
 }
 
+.about-card-header :is(svg, .Lightbulb, .AlertTriangle, .ListChecks,
+  .Database, .LockKeyhole, .HeartPulse, .Scale, .GitBranch,
+  .GitCompare, .PackageCheck, .ShieldCheck) {
+  color: var(--cosmic-purple, #a855f7);
+  filter: drop-shadow(0 0 6px var(--coreblue-25, rgba(96, 165, 250, 0.25)));
+}
+
 .about-card-content {
   position: relative;
   z-index: var(--z-content);
+  max-width: 72ch;
+  margin-inline: auto;
 }
 
 .about-card p {
   color: var(--text-secondary-bright);
   font-size: 1rem;
-  line-height: 1.7;
+  line-height: 1.75;
   margin-bottom: 1rem;
-
-  text-align: center;
-
+  text-align: left;
   overflow-wrap: break-word;
+  letter-spacing: 0.01em;
 }
 
 .about-card p:last-child {
   margin-bottom: 0;
+}
+
+/* Emphasized inline elements within about-card paragraphs */
+.about-card p em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--stellar-white);
 }
 
 /* ── Merged about card: unified container for multiple sections ── */
@@ -132,7 +147,12 @@
 }
 
 .about-card-merged .about-card-header {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Merged card section h3 — slightly larger for hierarchy */
+.about-card-merged .about-section-block:not(.about-section-hero) h3 {
+  font-size: 1.2rem;
 }
 
 /* ── About section hero (page title inside merged card) ── */
@@ -156,6 +176,24 @@
   line-height: 1.6;
   max-width: 600px;
   margin: 0 auto;
+}
+
+/* Merged card: section headers left-aligned with icon for readability */
+.about-card-merged .about-section-block:not(.about-section-hero) .about-card-header {
+  flex-direction: row;
+  gap: 0.6rem;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.about-card-merged .about-section-block:not(.about-section-hero) .about-card-header :is(svg) {
+  width: 1.35rem !important;
+  height: 1.35rem !important;
+  flex-shrink: 0;
+}
+
+.about-card-merged .about-section-block:not(.about-section-hero) .about-card-header h3 {
+  text-align: left;
 }
 
 /* Merged card: no hover lift (too tall for translateY) */

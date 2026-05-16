@@ -20,14 +20,22 @@
   height: clamp(30px, 6vw, 48px) !important;
 }
 
-/* about header icons — fluid sizing (scoped to card header only) */
-.about-card-header .AlertTriangle,
-.about-card-header .Lightbulb,
-.about-card-header .Users,
-.about-card-header .ListChecks,
-.about-card-header .Database,
-.about-card-header .LockKeyhole,
-.about-card-header .HeartPulse {
+/* about header icons — fluid sizing (scoped to card header only)
+   Merged card section headers (row layout) use compact icons instead. */
+.about-card:not(.about-card-merged) .about-card-header .AlertTriangle,
+.about-card:not(.about-card-merged) .about-card-header .Lightbulb,
+.about-card:not(.about-card-merged) .about-card-header .Users,
+.about-card:not(.about-card-merged) .about-card-header .ListChecks,
+.about-card:not(.about-card-merged) .about-card-header .Database,
+.about-card:not(.about-card-merged) .about-card-header .LockKeyhole,
+.about-card:not(.about-card-merged) .about-card-header .HeartPulse,
+.about-card-merged .about-section-hero .about-card-header .AlertTriangle,
+.about-card-merged .about-section-hero .about-card-header .Lightbulb,
+.about-card-merged .about-section-hero .about-card-header .Users,
+.about-card-merged .about-section-hero .about-card-header .ListChecks,
+.about-card-merged .about-section-hero .about-card-header .Database,
+.about-card-merged .about-section-hero .about-card-header .LockKeyhole,
+.about-card-merged .about-section-hero .about-card-header .HeartPulse {
   color: var(--cosmic-purple) !important;
   width: clamp(30px, 6vw, 48px) !important;
   height: clamp(30px, 6vw, 48px) !important;
