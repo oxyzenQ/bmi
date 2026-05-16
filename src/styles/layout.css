@@ -83,10 +83,7 @@
   justify-content: center;
 }
 
-.about-card-header :is(svg, .Lightbulb, .AlertTriangle, .ListChecks,
-  .Database, .LockKeyhole, .HeartPulse, .Scale, .GitBranch,
-  .GitCompare, .PackageCheck, .ShieldCheck) {
-  color: var(--cosmic-purple, #a855f7);
+.about-card-header :is(svg) {
   filter: drop-shadow(0 0 6px var(--coreblue-25, rgba(96, 165, 250, 0.25)));
 }
 
@@ -150,11 +147,6 @@
   margin-bottom: 0.75rem;
 }
 
-/* Merged card section h3 — slightly larger for hierarchy */
-.about-card-merged .about-section-block:not(.about-section-hero) h3 {
-  font-size: 1.2rem;
-}
-
 /* ── About section hero (page title inside merged card) ── */
 .about-section-hero {
   text-align: center;
@@ -176,25 +168,10 @@
   line-height: 1.6;
   max-width: 600px;
   margin: 0 auto;
+  text-align: center;
 }
 
-/* Merged card: section headers left-aligned with icon for readability */
-.about-card-merged .about-section-block:not(.about-section-hero) .about-card-header {
-  flex-direction: row;
-  gap: 0.6rem;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.about-card-merged .about-section-block:not(.about-section-hero) .about-card-header :is(svg) {
-  width: 1.35rem !important;
-  height: 1.35rem !important;
-  flex-shrink: 0;
-}
-
-.about-card-merged .about-section-block:not(.about-section-hero) .about-card-header h3 {
-  text-align: left;
-}
+/* Merged card: section headers stay centered (icon above title) */
 
 /* Merged card: no hover lift (too tall for translateY) */
 .about-card-merged:hover {

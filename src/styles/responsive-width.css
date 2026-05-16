@@ -260,19 +260,13 @@
     height: 32px;
   }
 
-  /* Footer / about header icons compact (scoped to non-merged card headers & hero only) */
-  .about-card:not(.about-card-merged) .about-card-header .Lightbulb,
-  .about-card:not(.about-card-merged) .about-card-header .Users,
-  .about-card:not(.about-card-merged) .about-card-header .ListChecks,
-  .about-card:not(.about-card-merged) .about-card-header .Database,
-  .about-card:not(.about-card-merged) .about-card-header .LockKeyhole,
-  .about-card:not(.about-card-merged) .about-card-header .HeartPulse,
-  .about-card-merged .about-section-hero .about-card-header .Lightbulb,
-  .about-card-merged .about-section-hero .about-card-header .Users,
-  .about-card-merged .about-section-hero .about-card-header .ListChecks,
-  .about-card-merged .about-section-hero .about-card-header .Database,
-  .about-card-merged .about-section-hero .about-card-header .LockKeyhole,
-  .about-card-merged .about-section-hero .about-card-header .HeartPulse {
+  /* Footer / about header icons compact (scoped to card header) */
+  .about-card-header .Lightbulb,
+  .about-card-header .Users,
+  .about-card-header .ListChecks,
+  .about-card-header .Database,
+  .about-card-header .LockKeyhole,
+  .about-card-header .HeartPulse {
     width: 36px !important;
     height: 36px !important;
   }
@@ -480,19 +474,13 @@
     letter-spacing: 0.3px;
   }
 
-  /* Footer / about header icons further reduced (scoped to non-merged card headers & hero only) */
-  .about-card:not(.about-card-merged) .about-card-header .Lightbulb,
-  .about-card:not(.about-card-merged) .about-card-header .Users,
-  .about-card:not(.about-card-merged) .about-card-header .ListChecks,
-  .about-card:not(.about-card-merged) .about-card-header .Database,
-  .about-card:not(.about-card-merged) .about-card-header .LockKeyhole,
-  .about-card:not(.about-card-merged) .about-card-header .HeartPulse,
-  .about-card-merged .about-section-hero .about-card-header .Lightbulb,
-  .about-card-merged .about-section-hero .about-card-header .Users,
-  .about-card-merged .about-section-hero .about-card-header .ListChecks,
-  .about-card-merged .about-section-hero .about-card-header .Database,
-  .about-card-merged .about-section-hero .about-card-header .LockKeyhole,
-  .about-card-merged .about-section-hero .about-card-header .HeartPulse {
+  /* Footer / about header icons further reduced (scoped to card header) */
+  .about-card-header .Lightbulb,
+  .about-card-header .Users,
+  .about-card-header .ListChecks,
+  .about-card-header .Database,
+  .about-card-header .LockKeyhole,
+  .about-card-header .HeartPulse {
     width: 30px !important;
     height: 30px !important;
   }
