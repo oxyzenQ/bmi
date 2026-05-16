@@ -15,7 +15,7 @@
      Enable momentum scrolling, prevent overscroll bounce,
      and optimize touch response. */
   html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
     overscroll-behavior-y: none; /* Prevent bounce on body */
   }
 
@@ -47,23 +47,21 @@
       rgba(2, 6, 23, 0.92)) !important;
   }*/
 
-  /* T-2: Promote .pager-section to its own compositor layer
-     so the browser can scroll it independently of fixed navbars.
+  /* T-2: Keep .pager-section on native compositor scrolling without
+     forcing a permanent scroll-position layer.
      Bug-17 follow-up: downgraded from contain: layout style paint to
      contain: style only. Layout+paint containment on the PRIMARY scroll
      target with dynamic content (BMI results change height) forces the
      browser to maintain separate isolation boundaries, causing measurable
      interaction lag on mobile. Style containment alone prevents outside
      CSS changes from triggering recalc inside the scroll container.
-     will-change: scroll-position hints the browser to optimize scrolling.
-     touch-action: pan-y pan-x pinch-zoom declares intent to the browser
-     so it can begin scrolling immediately without waiting for JS handlers
-     (Eliminates 100ms+ touch delay on some mobile browsers). */
+     touch-action is vertical-only so diagonal scrolls do not compete
+     with horizontal page navigation. */
   .pager-section {
-    will-change: scroll-position !important;
+    will-change: auto !important;
     -webkit-overflow-scrolling: touch;
     contain: style;
-    touch-action: pan-y pan-x pinch-zoom;
+    touch-action: pan-y pinch-zoom;
   }
 
   /* T-3: Permanently simplify .about-card,

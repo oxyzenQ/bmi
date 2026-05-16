@@ -491,6 +491,9 @@
     flex: 1;
     overflow-y: auto;
     padding: 0.5rem 0;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y pinch-zoom;
   }
 
   /* ── Log Controls ── */
@@ -552,6 +555,9 @@
     gap: 0.35rem;
     max-height: 35vh;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y pinch-zoom;
   }
 
   .dp-log-entry {
@@ -727,6 +733,9 @@
     word-break: break-all;
     max-height: 150px;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y pinch-zoom;
     margin: 0;
   }
 

@@ -188,7 +188,13 @@
     const scroller = pagerEl?.querySelector<HTMLElement>(
       `[data-pager-scroll="true"][data-section-id="${activeId}"]`
     );
-    if (scroller) scroller.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!scroller) return;
+
+    const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    scroller.scrollTo({
+      top: 0,
+      behavior: isTouchDevice || reducedMotionEffective ? 'auto' : 'smooth'
+    });
     triggerHaptic(5);
   }
 
@@ -452,12 +458,14 @@
     touchStartX = null;
     touchStartY = null;
 
-    // Swipe must be horizontal enough, exceed minimum distance, and be fast enough
-    const isHorizontal = Math.abs(dx) > Math.abs(dy) * SCROLL.SWIPE_ANGLE_RATIO;
-    const isLongEnough = Math.abs(dx) >= SCROLL.SWIPE_DX_MIN;
-    const isFastEnough = elapsed < 500;
+    const absDx = Math.abs(dx);
+    const absDy = Math.abs(dy);
+    const isHorizontal = absDx > absDy * SCROLL.TOUCH_SWIPE_ANGLE_RATIO;
+    const isLongEnough = absDx >= SCROLL.TOUCH_SWIPE_DX_MIN;
+    const isFastEnough = elapsed < SCROLL.TOUCH_SWIPE_MAX_MS;
+    const verticalDidNotDominate = absDy < SCROLL.TOUCH_VERTICAL_CANCEL_PX || isHorizontal;
 
-    if (isHorizontal && isLongEnough && isFastEnough) {
+    if (isHorizontal && isLongEnough && isFastEnough && verticalDidNotDominate) {
       triggerHaptic(HAPTIC.NAV);
       if (dx < 0) nextSection();
       else prevSection();
@@ -624,10 +632,28 @@
     let pendingScrollTarget: HTMLElement | null = null;
     let pendingScrollY = 0;
 
+    if (isTouchDevice) {
+      pagerControlsVisible = true;
+    }
+
     const flushScrollState = () => {
       scrollRafId = null;
-      if (pendingScrollTarget) {
-        const currentScrollY = pendingScrollY;
+      if (!pendingScrollTarget) return;
+
+      const currentScrollY = pendingScrollY;
+      const delta = currentScrollY - lastScrollY;
+
+      if (Math.abs(delta) < SCROLL.SCROLL_DELTA_EPSILON) {
+        pendingScrollTarget = null;
+        return;
+      }
+
+      const shouldShowFab = currentScrollY > SCROLL.SCROLL_TOP_THRESHOLD;
+      if (showScrollTopFab !== shouldShowFab) {
+        showScrollTopFab = shouldShowFab;
+      }
+
+      if (!isTouchDevice) {
         const scrollingUp = currentScrollY < lastScrollY;
 
         if (!scrollingUp && currentScrollY > 50) {
@@ -636,16 +662,16 @@
           pagerControlsVisible = true;
         }
 
-        showScrollTopFab = currentScrollY > SCROLL.SCROLL_TOP_THRESHOLD;
-
-        lastScrollY = currentScrollY;
-        pendingScrollTarget = null;
-
         if (scrollTimeout) clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(() => {
           pagerControlsVisible = true;
         }, SCROLL.SCROLL_IDLE_DELAY);
+      } else if (!pagerControlsVisible) {
+        pagerControlsVisible = true;
       }
+
+      lastScrollY = currentScrollY;
+      pendingScrollTarget = null;
     };
 
     const onScroll = (event: Event) => {
@@ -1143,7 +1169,7 @@
     gap: 0;
     padding-top: 0;
     overflow: hidden;
-    touch-action: pan-y pan-x pinch-zoom;
+    touch-action: pan-y pinch-zoom;
     position: relative;
     --pager-top-inset: calc(env(safe-area-inset-top, 0px) + 54px);
     --pager-edge-fade: 100px;
@@ -1214,11 +1240,9 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    /* will-change removed: touch devices get will-change: scroll-position
-       via T-2 in responsive.css; desktop doesn't need compositor promotion.
-       Permanent will-change wastes GPU memory on both platforms. */
     scrollbar-width: none;
     contain: style;
+    touch-action: pan-y pinch-zoom;
     padding-top: calc(var(--pager-top-inset) + 0.5rem);
     padding-bottom: calc(1.5rem + 58px + 1.5rem + env(safe-area-inset-bottom, 0px));
     scroll-padding-top: calc(var(--pager-top-inset) + 0.5rem);

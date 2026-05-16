@@ -197,11 +197,20 @@
     padding: 2rem;
     min-width: var(--ms-panel-min-w, 320px);
     max-width: 90vw;
+    max-height: min(calc(100dvh - 2rem), 760px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y pinch-zoom;
+    scrollbar-width: none;
     -webkit-backdrop-filter: blur(var(--ms-backdrop-blur, 24px)) saturate(var(--ms-backdrop-sat, 180%));
     backdrop-filter: blur(var(--ms-backdrop-blur, 24px)) saturate(var(--ms-backdrop-sat, 180%));
     
     transform: var(--modal-panel-scale-from, scale(0.96) translateY(8px));
     transition: transform var(--modal-dur, 0.22s) var(--modal-ease, cubic-bezier(0.34, 1.56, 0.64, 1));
+  }
+  .modal-shell-panel::-webkit-scrollbar {
+    display: none;
   }
   .modal-shell-backdrop.visible .modal-shell-panel {
     transform: var(--modal-panel-scale-to, scale(1) translateY(0));
@@ -218,8 +227,20 @@
     .modal-shell-panel {
       min-width: auto;
       width: calc(100vw - 2rem);
+      max-height: calc(100dvh - 2rem);
       margin: 0 1rem;
       padding: 1.5rem;
+    }
+  }
+  @media (hover: none) and (pointer: coarse) {
+    .modal-shell-backdrop {
+      -webkit-backdrop-filter: blur(10px) saturate(130%) !important;
+      backdrop-filter: blur(10px) saturate(130%) !important;
+    }
+
+    .modal-shell-panel {
+      -webkit-backdrop-filter: blur(8px) saturate(120%) !important;
+      backdrop-filter: blur(8px) saturate(120%) !important;
     }
   }
 </style>

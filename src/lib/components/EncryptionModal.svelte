@@ -545,6 +545,12 @@
     padding: 2rem;
     min-width: 340px;
     max-width: 90vw;
+    max-height: min(calc(100dvh - 2rem), 760px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y pinch-zoom;
+    scrollbar-width: none;
     -webkit-backdrop-filter: blur(24px) saturate(140%);
     backdrop-filter: blur(24px) saturate(140%);
     
@@ -557,6 +563,10 @@
   .encrypt-backdrop.visible .encrypt-box {
     opacity: 1;
     transform: var(--modal-panel-scale-to, scale(1) translateY(0));
+  }
+
+  .encrypt-box::-webkit-scrollbar {
+    display: none;
   }
 
   .encrypt-header {
@@ -875,6 +885,7 @@
     .encrypt-box {
       min-width: auto;
       width: calc(100vw - 2rem);
+      max-height: calc(100dvh - 2rem);
       margin: 0 1rem;
       padding: 1.5rem;
     }
@@ -889,6 +900,18 @@
 
     .encrypt-btn {
       width: 100%;
+    }
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    .encrypt-backdrop {
+      -webkit-backdrop-filter: blur(10px) saturate(130%) !important;
+      backdrop-filter: blur(10px) saturate(130%) !important;
+    }
+
+    .encrypt-box {
+      -webkit-backdrop-filter: blur(8px) saturate(120%) !important;
+      backdrop-filter: blur(8px) saturate(120%) !important;
     }
   }
 </style>
