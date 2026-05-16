@@ -297,6 +297,12 @@
     margin-bottom: clamp(60px, 30vh, 180px) !important;
   }
 
+  @media (max-width: 768px), (max-height: 768px) {
+    .goal-tracker {
+      margin-bottom: 100px !important;
+    }
+  }
+
   .goal-content {
     display: flex;
     flex-direction: column;

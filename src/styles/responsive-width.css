@@ -41,8 +41,7 @@
     --rsp-page-max: 660px;
     --rsp-page-gutter: clamp(0.75rem, 2vw, 1.25rem);
     --rsp-section-y: clamp(24px, 6vh, 90px);
-    --rsp-grid-top: clamp(20px, 10vh, 90px);
-    --rsp-grid-bottom: clamp(24px, 12vh, 120px);
+    --rsp-container-y: 100px;
     --rsp-grid-padding: 14px;
     --rsp-grid-gap: 1rem;
     --rsp-card-padding: 1.25rem;
@@ -63,10 +62,23 @@
   }
 
   .bmi-grid {
-    margin-top: var(--rsp-grid-top);
-    margin-bottom: var(--rsp-grid-bottom);
-    padding: var(--rsp-grid-padding);
     gap: var(--rsp-grid-gap);
+  }
+
+  .hero-content,
+  .bmi-grid,
+  .gauge-container,
+  .reference-table,
+  .about-bmi-grid,
+  .footer-disclaimer {
+    margin-top: var(--rsp-container-y) !important;
+    margin-bottom: var(--rsp-container-y) !important;
+  }
+
+  .bmi-card,
+  .goal-tracker,
+  .github-footer {
+    margin-bottom: var(--rsp-container-y) !important;
   }
 
   .form-card,
@@ -92,7 +104,6 @@
 
   .bmi-card {
     margin-top: 0;
-    margin-bottom: clamp(48px, 24vh, 240px) !important;
   }
 
   .bmi-results-card {
@@ -120,12 +131,13 @@
 
   .hero-bottom {
     padding: 1.25rem;
-    margin-bottom: -40px;
+    margin-bottom: -20px;
   }
 
   .gauge-container {
     width: var(--rsp-gauge-width);
   }
+
 }
 
 @media (max-width: 600px) {
@@ -310,8 +322,6 @@
   }
 
   .hero-content {
-    margin-top: clamp(20px, 12vh, 48px) !important;
-    margin-bottom: clamp(28px, 16vh, 90px) !important;
     padding: 2rem 1rem;
   }
 
@@ -516,7 +526,6 @@
 
   .hero-content {
     padding: 1.5rem 0.75rem;
-    margin: 0.5rem !important;
   }
 
   .hero-avatar {
@@ -904,8 +913,6 @@
 
   .gauge-container {
     width: var(--rsp-gauge-width);
-    margin-top: clamp(20px, 10vh, 120px) !important;
-    margin-bottom: clamp(24px, 12vh, 140px) !important;
   }
 }
 

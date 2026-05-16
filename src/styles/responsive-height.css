@@ -35,8 +35,7 @@
 @media (max-height: 768px) {
   :root {
     --rsp-height-section-y: clamp(16px, 5vh, 56px);
-    --rsp-height-container-top: clamp(48px, 11vh, 90px);
-    --rsp-height-container-bottom: clamp(20px, 8vh, 80px);
+    --rsp-height-container-y: 100px;
     --rsp-height-card-padding-y: clamp(0.875rem, 3vh, 1.5rem);
   }
 
@@ -48,8 +47,6 @@
   }
 
   .hero-content {
-    margin-top: var(--rsp-height-container-top) !important;
-    margin-bottom: clamp(16px, 6vh, 56px) !important;
     padding-top: var(--rsp-height-card-padding-y);
     padding-bottom: var(--rsp-height-card-padding-y);
   }
@@ -100,28 +97,25 @@
     padding-bottom: var(--rsp-height-card-padding-y);
   }
 
-  .bmi-card {
-    margin-bottom: clamp(28px, 18vh, 140px) !important;
-  }
-
   .bmi-grid,
   .about-bmi-grid {
     gap: clamp(0.75rem, 2.5vh, 1.25rem);
   }
 
   .bmi-grid,
-  .footer-disclaimer,
   .about-bmi-grid,
   .reference-table,
   .gauge-container,
-  .main-container .section-header-v2 {
-    margin-top: var(--rsp-height-container-top) !important;
+  .hero-content,
+  .footer-disclaimer {
+    margin-top: var(--rsp-height-container-y) !important;
+    margin-bottom: var(--rsp-height-container-y) !important;
   }
 
-  .reference-table,
-  .gauge-container,
-  .footer-disclaimer {
-    margin-bottom: var(--rsp-height-container-bottom) !important;
+  .bmi-card,
+  .goal-tracker,
+  .github-footer {
+    margin-bottom: var(--rsp-height-container-y) !important;
   }
 }
 
@@ -130,8 +124,6 @@
 @media (max-height: 520px) {
   :root {
     --rsp-height-section-y: clamp(10px, 3vh, 24px);
-    --rsp-height-container-top: clamp(10px, 4vh, 28px);
-    --rsp-height-container-bottom: clamp(12px, 5vh, 36px);
     --rsp-height-card-padding-y: 0.875rem;
   }
 
@@ -140,8 +132,6 @@
   }
 
   .hero-content {
-    margin-top: var(--rsp-height-container-top) !important;
-    margin-bottom: 20px !important;
     padding: var(--rsp-height-card-padding-y) 1.1rem;
   }
 
