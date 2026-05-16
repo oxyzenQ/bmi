@@ -90,12 +90,88 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   MOBILE (<= 600px) — Full-width, breathable, premium
+   RESPONSIVE SURFACE WIDTH — consistent compact containers
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width: 769px) {
+  :root {
+    --responsive-page-max: 1040px;
+    --responsive-surface-max: 840px;
+    --responsive-hero-max: 720px;
+    --responsive-compact-surface-max: 560px;
+  }
+
+  .main-container {
+    width: 100%;
+    max-width: min(94vw, var(--responsive-page-max));
+    padding-inline: clamp(0.875rem, 1.5vw, 1.25rem);
+  }
+
+  .bmi-grid {
+    width: min(100%, var(--responsive-page-max)) !important;
+    max-width: var(--responsive-page-max) !important;
+    margin-inline: auto !important;
+  }
+
+  .hero-content {
+    width: min(100%, var(--responsive-hero-max)) !important;
+    max-width: var(--responsive-hero-max) !important;
+    margin-inline: auto !important;
+  }
+
+  .reference-table,
+  .about-bmi-grid,
+  .main-container .section-header-v2,
+  .footer-disclaimer,
+  .github-footer {
+    width: min(100%, var(--responsive-surface-max)) !important;
+    max-width: var(--responsive-surface-max) !important;
+    margin-inline: auto !important;
+  }
+
+  .gauge-container {
+    width: min(100%, var(--responsive-compact-surface-max)) !important;
+    max-width: var(--responsive-compact-surface-max) !important;
+    margin-inline: auto !important;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --responsive-surface-max: 520px;
+  }
+
+  .main-container {
+    width: 100%;
+    max-width: none;
+    padding-inline: clamp(0.875rem, 4vw, 1.25rem);
+  }
+
+  .hero-content,
+  .bmi-grid,
+  .form-card,
+  .bmi-card,
+  .gauge-container,
+  .reference-table,
+  .about-bmi-grid,
+  .about-card:not(.about-card-merged),
+  .main-container .section-header-v2,
+  .footer-disclaimer,
+  .github-footer {
+    width: min(100%, var(--responsive-surface-max)) !important;
+    max-width: var(--responsive-surface-max) !important;
+    margin-inline: auto !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE (<= 600px) — Compact, consistent, premium
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 600px) {
+  :root {
+    --responsive-surface-max: 420px;
+  }
 
-  /* Container: use full width with safe gutters.
-     Overrides the cramped max-width:400px from responsive-width.css. */
+  /* Container: use safe gutters while surfaces stay capped above. */
   .main-container {
     width: 100%;
     max-width: none;
@@ -146,19 +222,17 @@
     margin: 0 clamp(1rem, 4.5vw, 1.5rem);
   }
 
-  /* Footer: width:auto fills parent content without margin overflow.
-     width:100% + existing margin-left/right causes right-edge overflow.
-     margin-inline:0 neutralizes layout.css horizontal margins. */
+  /* Footer: keep the same compact surface width and center alignment. */
   .footer-disclaimer {
     width: auto;
     max-width: 100%;
-    margin-inline: 0 !important;
+    margin-inline: auto !important;
     padding: clamp(1rem, 4.5vw, 1.5rem);
     border-radius: clamp(16px, 5vw, 24px);
   }
 
   .github-footer {
-    margin-inline: 0 !important;
+    margin-inline: auto !important;
   }
 
   .bmi-results-card {
@@ -168,8 +242,8 @@
 
   /* Gauge: container never smaller than SVG, SVG scales via CSS */
   .gauge-container {
-    width: 100% !important;
-    max-width: 420px;
+    width: min(100%, var(--responsive-surface-max)) !important;
+    max-width: var(--responsive-surface-max);
   }
 
   .radial-gauge {
