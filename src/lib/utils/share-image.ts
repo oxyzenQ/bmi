@@ -2,8 +2,8 @@
  * C-3: Canvas-based BMI result card image generator.
  * Produces a shareable PNG for Instagram Story / X / etc.
  *
- * P0 quality pass: glassmorphism card, BMI value glow,
- * upgraded scale bar, pervasive accent color.
+ * P0: Glassmorphism card, BMI value glow, upgraded scale bar, accent consistency.
+ * P1: Star field decoration, health insight text, grain overlay, personal data row.
  */
 
 import { t, getLocale } from '$lib/i18n';
@@ -17,6 +17,9 @@ export interface BmiCardData {
   idealMin?: number | null;
   idealMax?: number | null;
   weightUnit?: string;
+  height?: number | null;
+  weight?: number | null;
+  heightUnit?: string;
 }
 
 const CARD_W = 1080;
@@ -33,6 +36,17 @@ function hexToRgba(hex: string, alpha: number): string {
 
 function getCategoryColor(cat: string): string {
   return isBmiCategory(cat) ? CATEGORY_COLORS[cat] : COLORS.SLATE;
+}
+
+/** Map English category to insight i18n key */
+function getCategoryInsightKey(cat: string): string {
+  switch (cat.toLowerCase()) {
+    case 'underweight': return 'share.card_insight_underweight';
+    case 'normal weight': return 'share.card_insight_normal';
+    case 'overweight': return 'share.card_insight_overweight';
+    case 'obese': return 'share.card_insight_obese';
+    default: return 'share.card_insight_normal';
+  }
 }
 
 function roundRect(
@@ -93,6 +107,185 @@ function drawStatCell(
   ctx.fillText(value, cx, y + 90);
 }
 
+/**
+ * P1: Draw star field on the background.
+ * Renders tiny dots of varying brightness to simulate a cosmic star field.
+ * Uses a seeded pseudo-random generator for reproducibility across renders.
+ */
+function drawStarField(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  accent: string,
+  seed: number = 42
+) {
+  // Simple seeded PRNG for deterministic star positions
+  let s = seed;
+  function rand(): number {
+    s = (s * 16807 + 0) % 2147483647;
+    return s / 2147483647;
+  }
+
+  // Layer 1: Dim distant stars (small, low alpha)
+  for (let i = 0; i < 120; i++) {
+    const x = rand() * w;
+    const y = rand() * h;
+    const r = rand() * 1.2 + 0.3;
+    const alpha = rand() * 0.25 + 0.05;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+    ctx.fill();
+  }
+
+  // Layer 2: Medium stars (slightly brighter)
+  for (let i = 0; i < 40; i++) {
+    const x = rand() * w;
+    const y = rand() * h;
+    const r = rand() * 1.5 + 0.8;
+    const alpha = rand() * 0.35 + 0.15;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+    ctx.fill();
+  }
+
+  // Layer 3: Accent-tinted bright stars (rare, colored)
+  for (let i = 0; i < 12; i++) {
+    const x = rand() * w;
+    const y = rand() * h;
+    const r = rand() * 1.8 + 1.0;
+    const alpha = rand() * 0.3 + 0.1;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = hexToRgba(accent, alpha);
+    ctx.fill();
+
+    // Subtle glow around accent stars
+    if (alpha > 0.2) {
+      const glow = ctx.createRadialGradient(x, y, 0, x, y, r * 4);
+      glow.addColorStop(0, hexToRgba(accent, 0.06));
+      glow.addColorStop(1, 'transparent');
+      ctx.fillStyle = glow;
+      ctx.fillRect(x - r * 4, y - r * 4, r * 8, r * 8);
+    }
+  }
+}
+
+/**
+ * P1: Draw subtle grain/noise texture overlay on a region.
+ * Uses a deterministic pattern of semi-transparent pixels for texture.
+ */
+function drawGrainOverlay(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+  seed: number = 137
+) {
+  // Simple seeded PRNG
+  let s = seed;
+  function rand(): number {
+    s = (s * 16807 + 0) % 2147483647;
+    return s / 2147483647;
+  }
+
+  // Clip to rounded rect
+  ctx.save();
+  roundRect(ctx, x, y, w, h, r);
+  ctx.clip();
+
+  // Sparse grain dots — very subtle
+  for (let i = 0; i < 800; i++) {
+    const dx = rand() * w;
+    const dy = rand() * h;
+    const alpha = rand() * 0.04 + 0.01;
+    const size = rand() < 0.3 ? 1.5 : 1;
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+    ctx.fillRect(x + dx, y + dy, size, size);
+  }
+
+  // Dark grain dots — even more subtle
+  for (let i = 0; i < 400; i++) {
+    const dx = rand() * w;
+    const dy = rand() * h;
+    const alpha = rand() * 0.03 + 0.005;
+    ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+    ctx.fillRect(x + dx, y + dy, 1, 1);
+  }
+
+  ctx.restore();
+}
+
+/**
+ * P1: Draw a compact personal data row (height/weight) as small pill badges.
+ */
+function drawPersonalDataRow(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  y: number,
+  data: BmiCardData,
+  accent: string
+) {
+  const items: { label: string; value: string }[] = [];
+
+  if (data.height !== null && data.height !== undefined && data.heightUnit) {
+    items.push({
+      label: t('share.card_height'),
+      value: `${data.height} ${data.heightUnit}`
+    });
+  }
+
+  if (data.weight !== null && data.weight !== undefined && data.weightUnit) {
+    items.push({
+      label: t('share.card_weight'),
+      value: `${data.weight} ${data.weightUnit}`
+    });
+  }
+
+  if (items.length === 0) return y; // no data to show, return unchanged Y
+
+  const pillW = 180;
+  const pillH = 52;
+  const gap = 24;
+  const totalW = items.length * pillW + (items.length - 1) * gap;
+  const startX = cx - totalW / 2;
+
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const px = startX + i * (pillW + gap);
+    const pillR = 14;
+
+    // Pill background
+    const pillGrad = ctx.createLinearGradient(px, y, px + pillW, y + pillH);
+    pillGrad.addColorStop(0, 'rgba(255,255,255,0.05)');
+    pillGrad.addColorStop(1, 'rgba(255,255,255,0.02)');
+    roundRect(ctx, px, y, pillW, pillH, pillR);
+    ctx.fillStyle = pillGrad;
+    ctx.fill();
+
+    // Pill border
+    roundRect(ctx, px, y, pillW, pillH, pillR);
+    ctx.strokeStyle = hexToRgba(accent, 0.12);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Label + Value inline
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '500 16px system-ui, sans-serif';
+    ctx.fillText(item.label, px + pillW / 2 - 30, y + 33);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '600 18px system-ui, sans-serif';
+    ctx.fillText(item.value, px + pillW / 2 + 30, y + 33);
+  }
+
+  return y + pillH + 20; // return Y after this row
+}
+
 export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   if (typeof document === 'undefined') return null;
 
@@ -113,6 +306,9 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   roundRect(ctx, 0, 0, CARD_W, CARD_H, 0);
   ctx.fillStyle = bgGrad;
   ctx.fill();
+
+  // ── P1: Star field decoration ──
+  drawStarField(ctx, CARD_W, CARD_H, accent);
 
   // ── Accent radial glow — large, behind BMI value area ──
   const glow1 = ctx.createRadialGradient(
@@ -164,6 +360,9 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.strokeStyle = hexToRgba(accent, 0.20);
   ctx.lineWidth = 3;
   ctx.stroke();
+
+  // ── P1: Grain/noise texture overlay on card ──
+  drawGrainOverlay(ctx, cardX, cardY, cardW, cardH, RADIUS);
 
   // ── Top accent line — gradient with glow ──
   // Wide glow line
@@ -239,8 +438,11 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.fillText(data.category.toUpperCase(), CARD_W / 2, cardY + 440);
   ctx.restore();
 
+  // ── P1: Personal data row (height/weight) ──
+  const afterPersonalY = drawPersonalDataRow(ctx, CARD_W / 2, cardY + 470, data, accent);
+
   // ── Divider — accent tinted ──
-  const divY = cardY + 500;
+  const divY = Math.max(cardY + 500, afterPersonalY);
   const divGrad = ctx.createLinearGradient(cardX + 80, 0, cardX + cardW - 80, 0);
   divGrad.addColorStop(0, 'transparent');
   divGrad.addColorStop(0.3, hexToRgba(accent, 0.15));
@@ -263,7 +465,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   }
 
   if (data.idealMin !== null && data.idealMax !== null && data.weightUnit) {
-    drawStatCell(ctx, cardX + colW * 1.5, statsY, t('share.card_ideal'), `${data.idealMin}–${data.idealMax} ${data.weightUnit}`, accent);
+    drawStatCell(ctx, cardX + colW * 1.5, statsY, t('share.card_ideal'), `${data.idealMin}\u2013${data.idealMax} ${data.weightUnit}`, accent);
   }
 
   if (data.tdee !== null && data.tdee !== undefined) {
@@ -366,6 +568,74 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   for (let i = 0; i < segments.length; i++) {
     ctx.fillStyle = hexToRgba(segColors[i], 0.55);
     ctx.fillText(segments[i].label, catCenters[i], catLabelY);
+  }
+
+  // ── P1: Health insight text ──
+  const insightY = catLabelY + 50;
+  const insightKey = getCategoryInsightKey(data.category);
+  const insightText = t(insightKey);
+
+  // Insight container — subtle glass pill
+  const insightPadX = 60;
+  const insightPadY = 24;
+  const insightMaxW = cardW - insightPadX * 2;
+
+  // Measure text to determine container height
+  ctx.font = '400 22px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+
+  // Word-wrap insight text manually
+  const words = insightText.split(' ');
+  const lines: string[] = [];
+  let currentLine = '';
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    const metrics = ctx.measureText(testLine);
+    if (metrics.width > insightMaxW - 40 && currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = testLine;
+    }
+  }
+  if (currentLine) lines.push(currentLine);
+
+  const lineHeight = 30;
+  const insightBoxH = lines.length * lineHeight + insightPadY * 2;
+  const insightBoxX = cardX + insightPadX;
+  const insightBoxY = insightY;
+  const insightBoxW = insightMaxW;
+
+  // Insight box background
+  const insightGrad = ctx.createLinearGradient(insightBoxX, insightBoxY, insightBoxX, insightBoxY + insightBoxH);
+  insightGrad.addColorStop(0, hexToRgba(accent, 0.05));
+  insightGrad.addColorStop(1, hexToRgba(accent, 0.02));
+  roundRect(ctx, insightBoxX, insightBoxY, insightBoxW, insightBoxH, 16);
+  ctx.fillStyle = insightGrad;
+  ctx.fill();
+
+  // Insight box border
+  roundRect(ctx, insightBoxX, insightBoxY, insightBoxW, insightBoxH, 16);
+  ctx.strokeStyle = hexToRgba(accent, 0.10);
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Insight text start position
+  const textStartY = insightBoxY + insightPadY + 22;
+
+  // Left accent dot/bar
+  const barDotX = insightBoxX + 24;
+  roundRect(ctx, barDotX, insightBoxY + insightPadY, 3, lines.length * lineHeight, 1.5);
+  ctx.fillStyle = hexToRgba(accent, 0.40);
+  ctx.fill();
+
+  // Draw insight text lines
+  ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.60)';
+  ctx.font = '400 22px system-ui, sans-serif';
+  const textX = insightBoxX + 40;
+  for (let i = 0; i < lines.length; i++) {
+    ctx.fillText(lines[i], textX, textStartY + i * lineHeight);
   }
 
   // ── Footer branding — accent tinted ──

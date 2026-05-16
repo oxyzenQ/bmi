@@ -5,7 +5,7 @@
   import { cubicOut } from 'svelte/easing';
   import { browser } from '$app/environment';
   import { shareBmiResult, copyToClipboard, formatBmiText } from '$lib/utils/share';
-  import { downloadBmiCard } from '$lib/utils/share-image';
+  import { downloadBmiCard, shareBmiCard } from '$lib/utils/share-image';
   import { t as _t, localeVersion } from '$lib/i18n';
   import { KG_TO_LBS } from '$lib/utils/bmi-calculator';
   let _rv = $derived($localeVersion);
@@ -200,6 +200,7 @@
   }
 
   function getCardData() {
+    const hUnit = unitSystem === 'imperial' ? 'in' : 'cm';
     return {
       bmi: bmiValue!,
       category: category!,
@@ -207,7 +208,10 @@
       tdee,
       idealMin: idealMinDisplay,
       idealMax: idealMaxDisplay,
-      weightUnit
+      weightUnit,
+      height,
+      weight,
+      heightUnit: hUnit
     };
   }
 
@@ -227,8 +231,13 @@
 
   async function handleDownloadCard() {
     if (!browser) return;
-    const ok = await downloadBmiCard(getCardData());
-    flashToast(ok ? t('results.image_saved') : t('results.image_failed'));
+    const result = await shareBmiCard(getCardData());
+    if (result.method === 'share') return; // native share sheet handled it
+    if (result.method === 'download') {
+      flashToast(t('results.image_downloaded'));
+    } else if (!result.ok) {
+      flashToast(t('results.image_failed'));
+    }
   }
 
   let catClass = $derived(

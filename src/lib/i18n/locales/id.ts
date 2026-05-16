@@ -405,6 +405,12 @@ const id: TranslationDict = {
   'share.card_kcal': 'kkal',
   'share.card_branding': 'BMI Stellar \u2014 oleh Rezky Nightky',
   'share.card_text': 'BMI saya: {n} ({category})',
+  'share.card_insight_underweight': 'Pertimbangkan untuk berkonsultasi dengan penyedia layanan kesehatan tentang strategi penambahan berat badan yang sehat.',
+  'share.card_insight_normal': 'Hebat! Pertahankan gaya hidup sehat dengan nutrisi seimbang dan olahraga teratur.',
+  'share.card_insight_overweight': 'Fokus pada penurunan berat badan bertahap melalui diet dan olahraga. Konsultasikan dengan penyedia layanan kesehatan.',
+  'share.card_insight_obese': 'Carilah saran medis profesional untuk program pengelolaan berat badan yang komprehensif.',
+  'share.card_height': 'Tinggi',
+  'share.card_weight': 'Berat',
 
   // ── History IO ──
   'history.invalid_json': 'Format JSON tidak valid.',

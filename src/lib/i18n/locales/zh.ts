@@ -405,6 +405,12 @@ const zh: TranslationDict = {
   'share.card_kcal': '\u5343\u5361',
   'share.card_branding': 'BMI Stellar \u2014 \u7531 Rezky Nightky \u5236\u4f5c',
   'share.card_text': '\u6211\u7684 BMI: {n} ({category})',
+  'share.card_insight_underweight': '\u5efa\u8bae\u54a8\u8be2\u533b\u7597\u4fdd\u5065\u63d0\u4f9b\u8005\uff0c\u4e86\u89e3\u5065\u5eb7\u589e\u91cd\u7684\u65b9\u6cd5\u3002',
+  'share.card_insight_normal': '\u5f88\u68d2\uff01\u8bf7\u7ee7\u7eed\u4fdd\u6301\u5747\u8861\u8425\u517b\u548c\u89c4\u5f8b\u8fd0\u52a8\u7684\u5065\u5eb7\u751f\u6d3b\u65b9\u5f0f\u3002',
+  'share.card_insight_overweight': '\u91cd\u70b9\u901a\u8fc7\u996e\u98df\u548c\u8fd0\u52a8\u9010\u6b65\u51cf\u91cd\u3002\u8bf7\u54a8\u8be2\u533b\u7597\u4fdd\u5065\u63d0\u4f9b\u8005\u3002',
+  'share.card_insight_obese': '\u8bf7\u5bfb\u6c42\u4e13\u4e1a\u533b\u7597\u5efa\u8bae\uff0c\u5236\u5b9a\u5168\u9762\u7684\u4f53\u91cd\u7ba1\u7406\u8ba1\u5212\u3002',
+  'share.card_height': '\u8eab\u9ad8',
+  'share.card_weight': '\u4f53\u91cd',
 
   // ── History IO ──
   'history.invalid_json': 'JSON \u683c\u5f0f\u65e0\u6548\u3002',

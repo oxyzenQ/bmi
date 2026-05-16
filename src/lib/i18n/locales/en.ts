@@ -406,6 +406,12 @@ const en: TranslationDict = {
   'share.card_kcal': 'kcal',
   'share.card_branding': 'BMI Stellar \u2014 by Rezky Nightky',
   'share.card_text': 'My BMI: {n} ({category})',
+  'share.card_insight_underweight': 'Consider consulting a healthcare provider about healthy weight gain strategies.',
+  'share.card_insight_normal': 'Great! Maintain your healthy lifestyle with balanced nutrition and regular exercise.',
+  'share.card_insight_overweight': 'Focus on gradual weight loss through diet and exercise. Consult a healthcare provider.',
+  'share.card_insight_obese': 'Seek professional medical advice for a comprehensive weight management plan.',
+  'share.card_height': 'Height',
+  'share.card_weight': 'Weight',
 
   // ── History IO ──
   'history.invalid_json': 'Invalid JSON format.',

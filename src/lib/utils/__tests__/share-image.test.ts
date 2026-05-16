@@ -19,6 +19,12 @@ vi.mock('$lib/i18n', () => ({
       'share.card_kcal': 'kcal',
       'share.card_branding': 'BMI Stellar',
       'share.card_text': 'My BMI is {n} ({category})',
+      'share.card_insight_underweight': 'Consider consulting a healthcare provider.',
+      'share.card_insight_normal': 'Maintain your healthy lifestyle.',
+      'share.card_insight_overweight': 'Focus on gradual weight loss.',
+      'share.card_insight_obese': 'Seek professional medical advice.',
+      'share.card_height': 'Height',
+      'share.card_weight': 'Weight',
     };
     let result = translations[key] ?? key;
     if (params) {
@@ -91,6 +97,36 @@ describe('generateBmiCard', () => {
         idealMin: 56.0,
         idealMax: 76.0,
         weightUnit: 'kg',
+      })
+    ).resolves.not.toThrow();
+  });
+
+  it('does not crash with personal data fields', async () => {
+    await expect(
+      generateBmiCard({
+        bmi: 24.5,
+        category: 'Normal Weight',
+        bmiPrime: 0.98,
+        tdee: 2100,
+        idealMin: 56.0,
+        idealMax: 76.0,
+        weightUnit: 'kg',
+        height: 170,
+        weight: 70,
+        heightUnit: 'cm',
+      })
+    ).resolves.not.toThrow();
+  });
+
+  it('does not crash with imperial personal data', async () => {
+    await expect(
+      generateBmiCard({
+        bmi: 24.5,
+        category: 'Normal Weight',
+        weightUnit: 'lbs',
+        height: 67,
+        weight: 154,
+        heightUnit: 'in',
       })
     ).resolves.not.toThrow();
   });
