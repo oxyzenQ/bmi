@@ -27,7 +27,6 @@
 :root {
   --icon-card-lg: clamp(2.25rem, 9vw, 3.25rem);
   --icon-card-md: clamp(1.75rem, 7vw, 2.5rem);
-  --container-radius: 40px;
 }
 
 /* ═══════════════════════════════════════════════════════════════

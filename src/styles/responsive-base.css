@@ -278,7 +278,7 @@ p {
   /* Sparkline compact */
   .sparkline-container {
     padding: 0.625rem 0.4rem;
-    border-radius: 0.75rem;
+    border-radius: var(--container-radius);
   }
 
   .interactive-chart {

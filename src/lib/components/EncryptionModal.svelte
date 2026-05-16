@@ -541,7 +541,7 @@
   .encrypt-box {
     background: var(--glass-bg-nightky, rgba(0, 0, 0, 0.65));
     border: var(--border-by-rezky);
-    border-radius: var(--radius-lg);
+    border-radius: var(--modal-panel-radius);
     padding: 2rem;
     min-width: 340px;
     max-width: 90vw;
@@ -642,7 +642,7 @@
     margin-bottom: 0.75rem;
     background: rgba(251, 191, 36, 0.08);
     border: 1px solid rgba(251, 191, 36, 0.20);
-    border-radius: var(--radius-sm);
+    border-radius: var(--control-radius);
     font-size: var(--text-base);
     color: var(--amber-gold-60);
   }
@@ -708,7 +708,7 @@
     height: 2rem;
     background: var(--btn-bg);
     border: 1px solid rgba(130, 130, 130, 0.30);
-    border-radius: var(--radius-xs);
+    border-radius: var(--control-radius);
     color: var(--stellar-white);
     cursor: pointer;
     transition: all var(--dur-micro) ease;
@@ -758,7 +758,7 @@
     margin-bottom: 1.25rem;
     background: var(--error-bg-default);
     border: 1px solid var(--error-border-default);
-    border-radius: var(--radius-sm);
+    border-radius: var(--control-radius);
     color: var(--red-500-solid);
     font-size: var(--text-base);
   }

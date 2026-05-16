@@ -100,7 +100,7 @@
   max-height: none;
   /* allow growth when filled with many fields */
 
-  border-radius: var(--radius-2xl);
+  border-radius: var(--container-radius);
 
   padding: clamp(1.25rem, 4vw, 2rem);
 
@@ -116,7 +116,7 @@
 .bmi-card {
   display: flex;
   flex-direction: column;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--container-radius);
   padding: clamp(1.25rem, 4vw, 2rem);
   margin-top: auto;
   min-height: clamp(560px, 70vh, 750px);
@@ -172,7 +172,7 @@
   padding: var(--space-4) 1.25rem;
   width: 100%;
   max-width: 320px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--control-radius);
   background: var(--sd-75);
   border-top: 1px solid var(--w-14);
   border-left: 1px solid var(--w-14);
@@ -218,7 +218,7 @@
   height: 38px;
   padding: 0 14px;
   min-width: 140px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--control-radius);
   border: 2px solid var(--text-muted);
   background: var(--sd-55);
   color: var(--pill-text-blue);

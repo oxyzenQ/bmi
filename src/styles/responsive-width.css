@@ -86,7 +86,6 @@
   .github-footer {
     max-width: 840px;
     padding: 1rem;
-    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -710,7 +709,7 @@
     min-width: auto;
     width: calc(100vw - 2rem);
     padding: 1.25rem 1rem;
-    border-radius: var(--radius-md);
+    border-radius: var(--modal-panel-radius);
   }
 
   .about-card {

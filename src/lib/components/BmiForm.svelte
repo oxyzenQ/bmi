@@ -754,7 +754,7 @@
     align-items: center;
     gap: 2px;
     border: var(--btn-border);
-    border-radius: var(--radius-pill);
+    border-radius: var(--control-radius);
     padding: 2px;
     margin: 0 auto 1rem;
     width: fit-content;
@@ -764,7 +764,7 @@
     font-size: 0.8rem;
     padding: 0.3rem 0.7rem;
     border: none;
-    border-radius: var(--radius-pill);
+    border-radius: var(--control-radius);
     background: transparent;
     color: var(--w-50);
     cursor: pointer;
@@ -780,7 +780,7 @@
   }
 
   .unit-toggle-segment.active {
-    background: var(--cosmic-purple);
+    background: var(--btn-bg-hover);
     color: var(--stellar-white);
   }
 
@@ -790,7 +790,7 @@
     justify-content: center;
     gap: 2px;
     border: var(--btn-border);
-    border-radius: var(--radius-pill);
+    border-radius: var(--control-radius);
     padding: 2px;
     width: fit-content;
     max-width: 320px;
@@ -801,7 +801,7 @@
     font-size: 0.8rem;
     padding: 0.35rem 0.8rem;
     border: none;
-    border-radius: var(--radius-pill);
+    border-radius: var(--control-radius);
     background: transparent;
     color: var(--w-50);
     cursor: pointer;
@@ -819,7 +819,7 @@
   }
 
   .seg-btn.seg-active {
-    background: var(--cosmic-purple);
+    background: var(--btn-bg-hover);
     color: var(--stellar-white);
   }
 
@@ -840,7 +840,7 @@
     width: 100%;
     max-width: 320px;
     border: var(--btn-border);
-    border-radius: var(--radius-sm);
+    border-radius: var(--control-radius);
     padding: 3px;
     background: var(--sd-55);
   }
@@ -858,7 +858,7 @@
     gap: 0.1rem;
     padding: 0.4rem 0.25rem;
     border: none;
-    border-radius: 0.55rem;
+    border-radius: var(--control-radius);
     background: transparent;
     color: var(--w-50);
     cursor: pointer;
@@ -872,7 +872,7 @@
   }
 
   .act-btn.act-active {
-    background: var(--cosmic-purple);
+    background: var(--btn-bg-hover);
     color: var(--stellar-white);
   }
 

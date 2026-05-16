@@ -38,12 +38,12 @@
   }
 
   const MAX_POINTS = 20;
-  const CHART_WIDTH = 380;
-  const CHART_HEIGHT = 300;
-  const PAD_LEFT = 26;
-  const PAD_RIGHT = 2;
-  const PAD_TOP = 24;
-  const PAD_BOTTOM = 24;
+  const CHART_WIDTH = 560;
+  const CHART_HEIGHT = 260;
+  const PAD_LEFT = 34;
+  const PAD_RIGHT = 14;
+  const PAD_TOP = 18;
+  const PAD_BOTTOM = 22;
 
   const BMI_MIN = 12;
   const BMI_MAX = 42;
@@ -394,8 +394,8 @@
   .sparkline-container {
     background: var(--sd-40);
     border: 1px solid var(--sg-10);
-    border-radius: var(--radius-lg);
-    padding: 0.75rem 0.5rem;
+    border-radius: var(--container-radius);
+    padding: 0.9rem 0.75rem 0.75rem;
     margin-top: 1rem;
   }
 
@@ -410,7 +410,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.35rem;
   }
 
   .sparkline-title {
@@ -451,7 +451,7 @@
   }
 
   .interactive-chart {
-    height: 260px;
+    height: 220px;
     margin: 0;
     overflow: hidden;
   }
@@ -483,7 +483,7 @@
   .x-axis-labels {
     display: flex;
     justify-content: space-between;
-    padding: 0.15rem 0 0;
+    padding: 0.1rem 0.1rem 0;
     margin: 0;
   }
 
@@ -557,8 +557,8 @@
   .sparkline-footer {
     display: flex;
     justify-content: space-between;
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
+    margin-top: 0.35rem;
+    padding-top: 0.45rem;
     border-top: 1px solid var(--sg-8);
   }
 
@@ -576,7 +576,7 @@
     }
 
     .interactive-chart {
-      height: 200px;
+      height: 190px;
     }
   }
 </style>

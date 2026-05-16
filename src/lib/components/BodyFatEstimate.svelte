@@ -209,7 +209,7 @@
     justify-content: center;
     gap: 2px;
     border: var(--border-by-rezky);
-    border-radius: var(--radius-pill);
+    border-radius: var(--control-radius);
     padding: 2px;
     margin: 1rem auto;
     width: fit-content;
@@ -219,7 +219,7 @@
     font-size: 0.8rem;
     padding: 0.35rem 1rem;
     border: none;
-    border-radius: var(--radius-pill);
+    border-radius: var(--control-radius);
     background: transparent;
     color: var(--w-50);
     cursor: pointer;
@@ -271,7 +271,7 @@
   .comp-track {
     display: flex;
     height: 16px;
-    border-radius: var(--radius-sm);
+    border-radius: var(--control-radius);
     overflow: hidden;
     background: var(--sg-10);
   }
@@ -333,7 +333,7 @@
     padding: 0.75rem 1rem;
     background: var(--cat-blue-8);
     border: 1px solid var(--cat-blue-15);
-    border-radius: var(--radius-md);
+    border-radius: var(--control-radius);
     margin-bottom: 1.25rem;
     font-size: 0.78rem;
     color: var(--slate-400-solid);
@@ -353,7 +353,7 @@
   .bf-ranges {
     padding: 1rem;
     background: var(--sd-40);
-    border-radius: var(--radius-md);
+    border-radius: var(--control-radius);
     border: 1px solid var(--sg-10);
   }
 

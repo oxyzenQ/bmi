@@ -373,7 +373,7 @@
     flex-direction: column;
     background: var(--cosmic-base-95, #0f0b1e);
     border-top: 1px solid var(--w-10, rgba(255, 255, 255, 0.1));
-    border-radius: 16px 16px 0 0;
+    border-radius: var(--container-radius) var(--container-radius) 0 0;
     
     animation: dpSlideUp 0.2s ease-out;
     font-size: 0.8rem;
@@ -759,7 +759,7 @@
       bottom: 1rem;
       width: 420px;
       max-height: 50vh;
-      border-radius: var(--radius-md);
+      border-radius: var(--container-radius);
       border-top: 1px solid var(--w-10, rgba(255, 255, 255, 0.1));
     }
 

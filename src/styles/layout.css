@@ -206,7 +206,6 @@
   text-align: center;
   padding: 1.5rem;
   margin: 1rem auto 0;
-  padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
   max-width: 1000px;
   position: relative;
   overflow: hidden;

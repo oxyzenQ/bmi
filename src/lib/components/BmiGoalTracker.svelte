@@ -314,7 +314,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.6rem 0.8rem;
-    border-radius: 0.6rem;
+    border-radius: var(--control-radius);
     background: var(--goal-green-10);
     border: 1px solid var(--goal-green-20);
     color: var(--cat-green-40);
@@ -334,7 +334,7 @@
     align-items: center;
     gap: 0.2rem;
     padding: 0.5rem;
-    border-radius: 0.6rem;
+    border-radius: var(--control-radius);
     background: var(--sd-65);
   }
 
@@ -466,7 +466,7 @@
     gap: 0.4rem;
     padding: 0.75rem;
     border: 1px solid var(--w-8);
-    border-radius: var(--radius-sm);
+    border-radius: var(--control-radius);
     background: var(--sd-65);
   }
 </style>

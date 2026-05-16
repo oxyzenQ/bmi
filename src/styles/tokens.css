@@ -406,8 +406,12 @@
   --goal-green-10: rgba(34, 197, 94, 0.10);
   --goal-green-20: rgba(34, 197, 94, 0.20);
 
+  /* Unified radius policy */
+  --container-radius: 40px;
+  --control-radius: var(--container-radius);
+
   /* Button system — Premium Purple Glass */
-  --btn-radius: 10px;
+  --btn-radius: var(--control-radius);
   --btn-height: 44px;
   --btn-padding-x: 18px;
   --btn-font: 600 0.95rem/1 'Inter Variable', system-ui, -apple-system, sans-serif;
@@ -485,7 +489,7 @@
   --modal-backdrop-bg: var(--k-50);
   --modal-backdrop-blur: 24px;
   --modal-backdrop-sat: 180%;
-  --modal-panel-radius: var(--radius-xl);
+  --modal-panel-radius: var(--container-radius);
   --modal-panel-bg: var(--glass-bg-nightky);
   --modal-panel-shadow: 0 25px 50px -12px var(--k-50);
   --modal-dur: 0.22s;
@@ -523,9 +527,8 @@
   --warn-bg: rgba(245, 158, 11, 0.08);
   --warn-border: rgba(245, 158, 11, 0.20);
 
-  /* ── CONSISTENT BORDER RADIUS (v19.0) ──
-       Unified scale covering all component needs.
-       Usage: cards, modals, inputs, badges, pills. */
+  /* ── LEGACY BORDER RADIUS SCALE ──
+       Prefer --container-radius and --control-radius for new UI. */
   --radius-xs: 6px;
   --radius-sm: 8px;
   --radius-md: 12px;
