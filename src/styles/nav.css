@@ -147,7 +147,8 @@ html[data-performance-tier="high"] :is(
   border-radius: 40px;
   border-left: 3px solid rgba(255,255,255,0.16);
   border-right: 3px solid rgba(255,255,255,0.16);
-  border-bottom: 3px solid rgba(255,255,255,0.01);
+  border-bottom: none;
+  border-top: none;
   position: absolute;
   top: 5px;
   left: 50%;
@@ -180,7 +181,7 @@ html[data-performance-tier="high"] :is(
 /* ── Bottom navbar shell ── */
 .pager-controls-shell {
   width: calc(100% - 24px);
-  max-width: 500px;
+  max-width: 570px;
 
   position: absolute;
   bottom: 10px;
@@ -198,9 +199,9 @@ html[data-performance-tier="high"] :is(
   padding-bottom: env(safe-area-inset-bottom, 0px);
 
   border-radius: 40px;
-  border-bottom: 3px solid rgba(255,255,255,0.01);
+  border-bottom: none;
 
-  border-top: 3px solid rgba(255,255,255,0.16);
+  border-top: none;
   border-left: 3px solid rgba(255,255,255,0.16);
   border-right: 3px solid rgba(255,255,255,0.16);
 

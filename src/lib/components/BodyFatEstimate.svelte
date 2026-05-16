@@ -232,7 +232,7 @@
   }
 
   .sex-btn.active {
-    background: var(--cosmic-purple);
+    background: var(--btn-bg-hover);
     color: var(--stellar-white);
   }
 
