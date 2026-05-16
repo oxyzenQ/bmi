@@ -170,22 +170,10 @@
     border-color: var(--violet-22) !important;
   }
 
-  /* T-22: Neutralize remaining color-mix() in borders/backgrounds
-     on key interactive elements. color-mix() forces GPU color
-     interpolation on every style recalc. Replace with static rgba. */
+  /* T-22: Neutralize remaining color-mix() on key interactive elements.
+     color-mix() forces GPU color interpolation on every style recalc. */
   .tdee-activity-badge {
     border-color: var(--amber-gold-40) !important;
-  }
-
-  .age-advisory {
-    background: var(--coreblue-12) !important;
-    border-color: rgba(130, 130, 130, 0.30) !important;
-  }
-
-  .age-advisory:hover {
-    background: var(--coreblue-16) !important;
-    border-color: rgba(130, 130, 130, 0.35) !important;
-
   }
 
   .btn-primary {
@@ -303,8 +291,8 @@
     -webkit-backdrop-filter: none !important;
   }
 
-  /* T-GLASS: REMOVED (v19.1) — glass visual rules moved to
-     responsive-content.css as the single source of truth.
+  /* T-GLASS: REMOVED (v19.1) — glass visual rules live in
+     components.css as the central container policy.
      This file now ONLY handles performance: transitions, animations,
      transforms, will-change, hover effects, and pseudo-elements. */
 

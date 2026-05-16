@@ -108,17 +108,13 @@
 
 /* Health advice — clean slide entrance */
 .health-advice {
-  background: var(--sd-40);
-  border-radius: var(--radius-lg);
   padding: 1.75rem;
   margin-bottom: 1.75rem;
-  border: 3px solid rgba(130, 130, 130, 0.30);
   animation: slideInLeft var(--dur-panel) var(--easing-smooth) 0.25s both;
   transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease;
 }
 
 .health-advice:hover {
-  background: var(--sd-60);
   border-color: rgba(130, 130, 130, 0.40);
   transform: translateY(-2px);
 
@@ -154,9 +150,6 @@
 
 /* Age advisory — clean slide entrance */
 .age-advisory {
-  background: var(--coreblue-12);
-  border: 3px solid rgba(130, 130, 130, 0.30);
-  border-radius: var(--radius-lg);
   padding: 1.75rem;
   margin-bottom: 1.75rem;
   animation: slideInRight var(--dur-panel) var(--easing-smooth) 0.35s both;
@@ -164,7 +157,6 @@
 }
 
 .age-advisory:hover {
-  background: var(--coreblue-16);
   border-color: rgba(130, 130, 130, 0.40);
   transform: translateY(-2px);
 
@@ -201,16 +193,12 @@
 
 /* BMI explanation — clean entrance */
 .bmi-explanation {
-  background: var(--sd-40);
-  border-radius: var(--radius-md);
   padding: 1.75rem;
-  border: 3px solid rgba(130, 130, 130, 0.30);
   animation: fadeInUp var(--dur-panel) var(--easing-smooth) 0.45s both;
   transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease;
 }
 
 .bmi-explanation:hover {
-  background: var(--sd-60);
   border-color: rgba(130, 130, 130, 0.40);
   transform: translateY(-2px);
 

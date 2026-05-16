@@ -27,6 +27,47 @@
 :root {
   --icon-card-lg: clamp(2.25rem, 9vw, 3.25rem);
   --icon-card-md: clamp(1.75rem, 7vw, 2.5rem);
+  --container-radius: 40px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONTAINER RADIUS POLICY — one radius for page containers
+   ═══════════════════════════════════════════════════════════════ */
+.hero-content,
+.form-card,
+.bmi-card,
+.bmi-results-card,
+.gauge-container,
+.reference-table,
+.about-card,
+.section-header-v2,
+.footer-disclaimer,
+.github-footer,
+.github-link,
+.tdee-card,
+.stat-block,
+.health-advice,
+.age-advisory,
+.bmi-explanation,
+.snapshot-card,
+.progress-section,
+.sparkline-container,
+.risk-result,
+.health-tips,
+.bf-info-box,
+.bf-ranges,
+.goal-stat {
+  border-radius: var(--container-radius) !important;
+}
+
+.reference-table .ref-header {
+  border-top-left-radius: var(--container-radius) !important;
+  border-top-right-radius: var(--container-radius) !important;
+}
+
+.reference-table .ref-row.ref-row-obese {
+  border-bottom-left-radius: var(--container-radius) !important;
+  border-bottom-right-radius: var(--container-radius) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -233,35 +274,6 @@
 
   .hero-content {
     padding: 1.25rem 1rem;
-  }
-}
-
-@media (max-width: 600px) {
-  html body .main-container .form-card,
-  html body .main-container .about-card,
-  html body .main-container .gauge-container,
-  html body .main-container .section-header-v2,
-  html body .main-container .github-link,
-  html body .main-container .footer-disclaimer,
-  html body .main-container .reference-table,
-  html body .main-container .bmi-card {
-    background: var(--glass-bg-nightky) !important;
-    -webkit-backdrop-filter: blur(10px) saturate(140%) brightness(1.02) !important;
-    backdrop-filter: blur(10px) saturate(140%) brightness(1.02) !important;
-    border: 3px solid rgba(130, 130, 130, 0.30) !important;
-    outline: 1px solid rgba(255, 255, 255, 0.04);
-    outline-offset: -2px;
-  }
-
-  html body .hero-section .hero-content,
-  html body main .hero-content {
-    background:
-    var(--glass-bg-nightky) !important;
-    -webkit-backdrop-filter: blur(10px) saturate(140%) brightness(1.02) !important;
-    backdrop-filter: blur(10px) saturate(140%) brightness(1.02) !important;
-    border: 3px solid rgba(130, 130, 130, 0.30) !important;
-    outline: 1px solid rgba(255, 255, 255, 0.04);
-    outline-offset: -2px;
   }
 }
 

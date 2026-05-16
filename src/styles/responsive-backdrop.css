@@ -1,4 +1,4 @@
-/* ── responsive-backdrop.css — Backdrop-filter fallback ── */
+/* ── responsive-backdrop.css — Non-container backdrop fallbacks ── */
 /* v18.0 refactor: Extracted from responsive.css.
    Contains: @supports not backdrop-filter fallback block.
    Must load AFTER component styles so !important overrides take effect. */
@@ -6,12 +6,9 @@
 /* ═══════════════════════════════════════════════════════════════
    BACKDROP-FILTER FEATURE DETECTION (Enhancement 4 — Bug 1)
    ─────────────────────────────────────────────────────────────
-   On browsers that do NOT support backdrop-filter at all,
-   the semi-transparent backgrounds (var(--k-50)) render without
-   blur — creating a "dirty glass" / fully transparent look.
-
-   This @supports block provides a rich solid fallback that
-   maintains the premium feel without requiring blur support.
+   Container background and border are centralized in components.css.
+   This file only handles non-container overlays and controls that still
+   need a stronger fallback when blur is unavailable.
 
    Why at the END of the file:
    - Touch media query (above) already disables backdrop-filter
@@ -21,20 +18,6 @@
      fall through to this fallback.
    ═══════════════════════════════════════════════════════════════ */
 @supports not (backdrop-filter: blur(1px)) {
-  .bmi-card,
-  .footer-disclaimer,
-  .about-card,
-  .gauge-container,
-  .reference-table,
-  .form-card,
-  .github-link,
-  .section-header-v2,
-  .hero-content {
-    background: var(--glass-bg-nightky) !important;
-    border: 3px solid rgba(130, 130, 130, 0.30) !important;
-    
-  }
-
   .pager-nav-shell,
   .pager-controls-shell {
     /* Liquid glass navbar fallback: solid dark background matching

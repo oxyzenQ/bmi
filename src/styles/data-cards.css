@@ -47,15 +47,11 @@
 }
 
 .stat-block {
-  background: var(--sd-40);
-  border: 3px solid rgba(130, 130, 130, 0.30);
-  border-radius: var(--radius-lg);
   padding: 1.25rem;
   transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease;
 }
 
 .stat-block:hover {
-  background: var(--sd-60);
   border-color: rgba(130, 130, 130, 0.40);
   transform: translateY(-2px);
 
@@ -254,9 +250,6 @@
    TDEE ESTIMATOR CARD
    ============================== */
 .tdee-card {
-  background: var(--sd-40);
-  border: 3px solid rgba(130, 130, 130, 0.30);
-  border-radius: var(--radius-lg);
   padding: 1.25rem;
   margin-bottom: 1.75rem;
   animation: fadeInUp var(--dur-panel) var(--easing-smooth) 0.25s both;
@@ -264,7 +257,6 @@
 }
 
 .tdee-card:hover {
-  background: var(--sd-60);
   border-color: rgba(130, 130, 130, 0.40);
   transform: translateY(-2px);
 
@@ -433,7 +425,6 @@
 .gauge-container {
   position: relative;
   padding: 10px 16px 12px;
-  border-radius: var(--radius-lg);
   isolation: isolate;
   width: min(92vw, 420px);
   margin-inline: auto;
@@ -616,7 +607,6 @@
       REFERENCE TABLE COMPONENT
       ============================== */
 .reference-table {
-  border-radius: var(--radius-xl);
   overflow: hidden;
   margin-bottom: clamp(40px, 40vh, 180px) !important;
 }

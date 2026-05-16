@@ -1,83 +1,34 @@
 /* ── components.css — Glassmorphism containers, button system, hero section, bounce/pulse keyframes ── */
 /* ==============================
       GLASSMORPHISM COMPONENTS
-      Bug #19 fix: @supports progressive enhancement.
-      Fallback: strong semi-transparent background (no blur needed).
-      Enhancement: lighter background + backdrop-filter where supported.
-      This ensures containers NEVER look transparent, even on browsers
-      that don't support backdrop-filter (some mobile WebViews).
+      One source for page container background, blur, and border.
+      If backdrop-filter is unsupported, background and border still render.
       ============================== */
 
-/* ── Glass fallback: strong background always present ── */
+/* ── Central container glass policy ── */
+.hero-content,
+.form-card,
 .bmi-card,
 .footer-disclaimer,
+.github-footer,
 .about-card,
 .gauge-container,
-.form-card,
+.goal-tracker,
 .section-header-v2,
-.github-link,
-.reference-table {
-  background: var(--glass-bg-nightky);
-  border: var(--border-by-rezky);
-  border-radius: var(--radius-lg);
+.reference-table,
+.stat-block,
+.tdee-card,
+.health-advice,
+.age-advisory,
+.bmi-explanation {
+  background: var(--container-glass-bg);
+  -webkit-backdrop-filter: var(--container-glass-filter);
+  backdrop-filter: var(--container-glass-filter);
+  border: var(--container-glass-border);
+  border-radius: var(--container-radius, var(--radius-lg));
   transition: transform var(--dur-slow) var(--easing-smooth),
     border-color var(--dur-slow) var(--easing-smooth);
 }
-
-/* ── Glass enhancement: blur where supported (Stellar v15: Moonshot Glass) ──
-     Design principle: REDUCE background opacity when backdrop-filter is
-     available — the blur softens wallpaper content, compensating for
-     readability. This creates a TRUE glass effect where wallpaper colors
-     bleed through containers.
-
-     saturate(180%) boosts subtle nebula/purple tones in dark wallpapers.
-     brightness(1.15) prevents dark-on-dark invisibility.
-     blur(16px) provides enough depth without excessive GPU cost.
-
-     On touch devices, T-GLASS rules in responsive.css override with
-     !important using stronger opacity for varied mobile GPUs. */
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-  .bmi-card,
-  .footer-disclaimer,
-  .about-card,
-  .gauge-container,
-  .form-card,
-  .section-header-v2,
-  .github-link,
-  .reference-table {
-    background: var(--glass-bg-nightky);
-    -webkit-backdrop-filter: blur(8px) saturate(100%) brightness(1);
-    backdrop-filter: blur(8px) saturate(100%) brightness(1);
-    /* Stronger border + inset highlight compensate for lower opacity,
-       ensuring clear container edges on any wallpaper. */
-    border: 3px solid rgba(130, 130, 130, 0.30);
-
-  }
-}
-
-/* ── Hero content fallback ── */
-.hero-content {
-  background: var(--glass-bg-nightky);
-  border: var(--border-by-rezky);
-  border-radius: var(--radius-3xl);
-  transition: transform var(--dur-slow) var(--easing-smooth),
-    border-color var(--dur-slow) var(--easing-smooth);
-}
-
-/* ── Hero content enhancement: blur where supported (Stellar v15) ──
-     Hero uses slightly lighter opacity for maximum glass impact.
-     The hero is the first visual element — make it feel premium. */
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-  .hero-content {
-    background: var(--glass-bg-nightky);
-    -webkit-backdrop-filter: blur(8px) saturate(100%) brightness(1);
-    backdrop-filter: blur(8px) saturate(100%) brightness(1);
-    border: 3px solid rgba(130, 130, 130, 0.30);
-
-  }
-}
-
-
 
 /* ==============================
       BUTTON SYSTEM

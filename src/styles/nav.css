@@ -145,9 +145,9 @@ html[data-performance-tier="high"] :is(
 
   border: none;
   border-radius: 40px;
-  border-left: 1px solid rgba(255,255,255,0.16);
-  border-right: 1px solid rgba(255,255,255,0.16);
-  border-bottom: 1px solid rgba(255,255,255,0.01);
+  border-left: 3px solid rgba(255,255,255,0.16);
+  border-right: 3px solid rgba(255,255,255,0.16);
+  border-bottom: 3px solid rgba(255,255,255,0.01);
   position: absolute;
   top: 5px;
   left: 50%;
@@ -198,11 +198,11 @@ html[data-performance-tier="high"] :is(
   padding-bottom: env(safe-area-inset-bottom, 0px);
 
   border-radius: 40px;
-  border-bottom: 1px solid rgba(255,255,255,0.01);
+  border-bottom: 3px solid rgba(255,255,255,0.01);
 
-  border-top: 1px solid rgba(255,255,255,0.16);
-  border-left: 1px solid rgba(255,255,255,0.16);
-  border-right: 1px solid rgba(255,255,255,0.16);
+  border-top: 3px solid rgba(255,255,255,0.16);
+  border-left: 3px solid rgba(255,255,255,0.16);
+  border-right: 3px solid rgba(255,255,255,0.16);
 
   transition:
     opacity var(--dur-content) ease,

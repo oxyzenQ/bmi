@@ -4,29 +4,60 @@
 
 /* Comfortable and tall viewports: restate the container baseline so the
    short-screen overrides below have an obvious counterpart. */
-@media (min-height: 769px) {
+@media (min-width: 769px) and (min-height: 769px) {
+  :root {
+    --rsp-tall-section-y: 64px;
+    --rsp-tall-container-y: 64px;
+    --rsp-tall-card-min: clamp(460px, 58vh, 620px);
+    --rsp-tall-card-padding-y: clamp(1rem, 2vh, 1.5rem);
+  }
+
   .hero-section {
-    min-height: 50vh;
+    min-height: min(50vh, 520px);
+  }
+
+  .hero-content {
+    margin-top: var(--rsp-tall-container-y) !important;
+    margin-bottom: var(--rsp-tall-container-y) !important;
+    padding-top: var(--rsp-tall-card-padding-y);
+    padding-bottom: var(--rsp-tall-card-padding-y);
   }
 
   .bmi-section,
   .charts-section {
-    margin-top: var(--section-margin-y);
-    margin-bottom: var(--section-margin-y);
+    margin-top: var(--rsp-tall-section-y);
+    margin-bottom: var(--rsp-tall-section-y);
+  }
+
+  .bmi-grid,
+  .about-bmi-grid,
+  .reference-table,
+  .footer-disclaimer {
+    margin-top: var(--rsp-tall-container-y) !important;
+    margin-bottom: var(--rsp-tall-container-y) !important;
   }
 
   .form-card,
   .bmi-card {
-    min-height: clamp(560px, 70vh, 750px);
+    min-height: var(--rsp-tall-card-min);
+    padding-top: var(--rsp-tall-card-padding-y);
+    padding-bottom: var(--rsp-tall-card-padding-y);
   }
 
   .bmi-results-card {
-    min-height: 450px;
+    min-height: 380px;
+    padding-top: var(--rsp-tall-card-padding-y);
+    padding-bottom: var(--rsp-tall-card-padding-y);
   }
 
   .gauge-container {
-    margin-top: clamp(24px, 3vh, 48px);
-    margin-bottom: 100px;
+    margin-top: var(--rsp-tall-container-y) !important;
+    margin-bottom: var(--rsp-tall-container-y) !important;
+  }
+
+  .goal-tracker,
+  .github-footer {
+    margin-bottom: var(--rsp-tall-container-y) !important;
   }
 }
 

@@ -8,30 +8,85 @@
    Keep width-driven sizing here; height-driven compression lives in
    responsive-height.css. */
 @media (min-width: 769px) {
+  :root {
+    --rsp-desktop-page-max: 1040px;
+    --rsp-desktop-section-y: 64px;
+    --rsp-desktop-container-y: 64px;
+    --rsp-desktop-card-min: clamp(460px, 58vh, 620px);
+    --rsp-desktop-card-padding: clamp(1rem, 2vw, 1.5rem);
+    --rsp-desktop-panel-padding: clamp(1.25rem, 2.5vw, 2rem);
+    --rsp-desktop-results-padding: clamp(1.5rem, 2.5vw, 2rem);
+    --rsp-desktop-gauge-width: min(82vw, 520px);
+  }
+
   .main-container {
-    max-width: min(96vw, 1200px);
-    padding-inline: clamp(0.75rem, 2vw, 1.25rem);
+    max-width: min(94vw, var(--rsp-desktop-page-max));
+    padding-inline: clamp(0.875rem, 1.5vw, 1.25rem);
+  }
+
+  .hero-content {
+    max-width: 720px;
+    padding: var(--rsp-desktop-panel-padding);
+    margin-top: var(--rsp-desktop-container-y) !important;
+    margin-bottom: var(--rsp-desktop-container-y) !important;
+    border-radius: var(--radius-xl);
+  }
+
+  .bmi-section,
+  .charts-section {
+    margin-top: var(--rsp-desktop-section-y);
+    margin-bottom: var(--rsp-desktop-section-y);
+  }
+
+  .bmi-grid {
+    gap: 1rem;
+    margin-top: var(--rsp-desktop-container-y) !important;
+    margin-bottom: var(--rsp-desktop-container-y) !important;
   }
 
   .form-card,
   .bmi-card {
-    min-height: clamp(560px, 70vh, 750px);
-    padding: clamp(1.25rem, 4vw, 2rem);
+    min-height: var(--rsp-desktop-card-min);
+    padding: var(--rsp-desktop-card-padding);
+    border-radius: var(--radius-xl);
   }
 
   .bmi-results-card {
-    min-height: 450px;
-    padding: 2.5rem;
+    min-height: 380px;
+    padding: var(--rsp-desktop-results-padding);
+    border-radius: var(--radius-lg);
   }
 
   .about-card:not(.about-card-merged),
   .main-container .section-header-v2,
   .footer-disclaimer {
-    padding: clamp(2rem, 4vw, 4rem);
+    padding: var(--rsp-desktop-panel-padding);
+    border-radius: var(--radius-xl);
   }
 
   .gauge-container {
-    width: min(96vw, 550px);
+    width: var(--rsp-desktop-gauge-width);
+    margin-top: var(--rsp-desktop-container-y) !important;
+    margin-bottom: var(--rsp-desktop-container-y) !important;
+    border-radius: var(--radius-xl);
+  }
+
+  .reference-table,
+  .about-bmi-grid,
+  .footer-disclaimer {
+    margin-top: var(--rsp-desktop-container-y) !important;
+    margin-bottom: var(--rsp-desktop-container-y) !important;
+  }
+
+  .goal-tracker,
+  .github-footer {
+    margin-bottom: var(--rsp-desktop-container-y) !important;
+  }
+
+  .github-footer {
+    max-width: 840px;
+    padding: 1rem;
+    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -916,9 +971,9 @@
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 769px) {
   :root {
-    --rsp-gauge-width: min(96vw, 550px);
+    --rsp-gauge-width: var(--rsp-desktop-gauge-width, min(82vw, 520px));
   }
 
   .gauge-container {
@@ -928,7 +983,7 @@
 
 @media (min-width: 1100px) {
   :root {
-    --rsp-gauge-width: min(96vw, 760px);
+    --rsp-gauge-width: min(72vw, 560px);
   }
 
   .gauge-container {
@@ -1070,18 +1125,18 @@
      Optimize layout for screens wider than 1400px. */
 @media (min-width: 1400px) {
   .main-container {
-    max-width: min(92vw, 1200px);
+    max-width: min(90vw, 1080px);
   }
 
   .bmi-grid {
-    gap: 2rem;
+    gap: 1.25rem;
   }
 
   .gauge-container {
-    width: min(80vw, 760px);
+    width: min(68vw, 600px);
   }
 
   .about-bmi-grid {
-    gap: 2.5rem;
+    gap: 1.5rem;
   }
 }

@@ -486,7 +486,7 @@
   --modal-backdrop-blur: 24px;
   --modal-backdrop-sat: 180%;
   --modal-panel-radius: var(--radius-xl);
-  --modal-panel-bg: var(--glass-bg-dialog);
+  --modal-panel-bg: var(--glass-bg-nightky);
   --modal-panel-shadow: 0 25px 50px -12px var(--k-50);
   --modal-dur: 0.22s;
   --modal-ease: var(--easing-spring);
@@ -558,29 +558,9 @@
   --delay-close: 100ms;
   --delay-shimmer: 80ms;
 
-  /* ── GLASSMORPHISM DESIGN TOKENS (Stellar v15: Moonshot Glass) ──
-     Centralized glass effect values for consistency across
-     desktop, mobile, and fallback rendering contexts.
-
-     Design principle: when backdrop-filter is available, REDUCE
-     background opacity — the blur compensates for readability.
-     This lets the wallpaper bleed through for a true glass effect.
-
-     saturate(180%) + brightness(1.15) boost subtle nebula colors
-     in dark wallpapers so they remain visible through the glass.
-
-     Fallback (no blur support): strong solid background (0.85).
-     Enhanced (blur supported): lighter background + blur filters. */
-  --glass-bg-nightky: rgba(0, 0, 0, 0.70);
-  --glass-bg-fallback: var(--glass-bg-nightky);
-  --glass-bg-enhanced: var(--glass-bg-nightky);
-  --glass-bg-calc: var(--glass-bg-nightky);
-  --glass-bg-hero: var(--glass-bg-nightky);
-  --glass-bg-card: var(--glass-bg-nightky);
-  --glass-bg-results: var(--glass-bg-nightky);
-  --glass-bg-dialog: var(--glass-bg-nightky);
-  --glass-bg-backdrop: var(--glass-bg-nightky);
-  --glass-bg-strong: var(--glass-bg-nightky);
+  /* ── GLASSMORPHISM DESIGN TOKENS ──
+     Container glass is controlled through --container-glass-* below. */
+  --glass-bg-nightky: rgba(0, 0, 0, 0.65);
   --glass-blur: 16px;
   --glass-blur-heavy: 20px;
   --glass-blur-light: 10px;
@@ -593,6 +573,9 @@
   --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --glass-brightness: brightness(1.15);
+  --container-glass-bg: var(--glass-bg-nightky);
+  --container-glass-border: var(--glass-border);
+  --container-glass-filter: blur(8px) saturate(100%) brightness(1);
 
   /* ── SEMANTIC COLOR TOKENS ── */
   /* Used across components for consistent category/status colors */
