@@ -6,6 +6,8 @@
  * P1: Star field decoration, health insight text, grain overlay, personal data row.
  * P2: Corner accent decorations, mini radial gauge, bottom accent line,
  *     category color dot, dual-format export (PNG + JPEG).
+ * P3: Gradient BMI value text, floating particles, card depth shadow,
+ *     scale bar tick marks, header diamond decoration.
  */
 
 import { t, getLocale } from '$lib/i18n';
@@ -35,6 +37,14 @@ function hexToRgba(hex: string, alpha: number): string {
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
   return `rgba(${r},${g},${b},${alpha})`;
+}
+
+/** Helper: lighten a hex color by mixing toward white */
+function lightenHex(hex: string, amount: number): string {
+  const r = Math.min(255, parseInt(hex.slice(1, 3), 16) + Math.round(255 * amount));
+  const g = Math.min(255, parseInt(hex.slice(3, 5), 16) + Math.round(255 * amount));
+  const b = Math.min(255, parseInt(hex.slice(5, 7), 16) + Math.round(255 * amount));
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
 function getCategoryColor(cat: string): string {
@@ -111,9 +121,7 @@ function drawStatCell(
 }
 
 /**
- * P1: Draw star field on the background.
- * Renders tiny dots of varying brightness to simulate a cosmic star field.
- * Uses a seeded pseudo-random generator for reproducibility across renders.
+ * Draw star field on the background.
  */
 function drawStarField(
   ctx: CanvasRenderingContext2D,
@@ -122,14 +130,13 @@ function drawStarField(
   accent: string,
   seed: number = 42
 ) {
-  // Simple seeded PRNG for deterministic star positions
   let s = seed;
   function rand(): number {
     s = (s * 16807 + 0) % 2147483647;
     return s / 2147483647;
   }
 
-  // Layer 1: Dim distant stars (small, low alpha)
+  // Layer 1: Dim distant stars
   for (let i = 0; i < 120; i++) {
     const x = rand() * w;
     const y = rand() * h;
@@ -141,7 +148,7 @@ function drawStarField(
     ctx.fill();
   }
 
-  // Layer 2: Medium stars (slightly brighter)
+  // Layer 2: Medium stars
   for (let i = 0; i < 40; i++) {
     const x = rand() * w;
     const y = rand() * h;
@@ -153,7 +160,7 @@ function drawStarField(
     ctx.fill();
   }
 
-  // Layer 3: Accent-tinted bright stars (rare, colored)
+  // Layer 3: Accent-tinted bright stars
   for (let i = 0; i < 12; i++) {
     const x = rand() * w;
     const y = rand() * h;
@@ -164,7 +171,6 @@ function drawStarField(
     ctx.fillStyle = hexToRgba(accent, alpha);
     ctx.fill();
 
-    // Subtle glow around accent stars
     if (alpha > 0.2) {
       const glow = ctx.createRadialGradient(x, y, 0, x, y, r * 4);
       glow.addColorStop(0, hexToRgba(accent, 0.06));
@@ -176,8 +182,7 @@ function drawStarField(
 }
 
 /**
- * P1: Draw subtle grain/noise texture overlay on a region.
- * Uses a deterministic pattern of semi-transparent pixels for texture.
+ * Draw subtle grain/noise texture overlay on a region.
  */
 function drawGrainOverlay(
   ctx: CanvasRenderingContext2D,
@@ -188,19 +193,16 @@ function drawGrainOverlay(
   r: number,
   seed: number = 137
 ) {
-  // Simple seeded PRNG
   let s = seed;
   function rand(): number {
     s = (s * 16807 + 0) % 2147483647;
     return s / 2147483647;
   }
 
-  // Clip to rounded rect
   ctx.save();
   roundRect(ctx, x, y, w, h, r);
   ctx.clip();
 
-  // Sparse grain dots — very subtle
   for (let i = 0; i < 800; i++) {
     const dx = rand() * w;
     const dy = rand() * h;
@@ -210,7 +212,6 @@ function drawGrainOverlay(
     ctx.fillRect(x + dx, y + dy, size, size);
   }
 
-  // Dark grain dots — even more subtle
   for (let i = 0; i < 400; i++) {
     const dx = rand() * w;
     const dy = rand() * h;
@@ -223,7 +224,7 @@ function drawGrainOverlay(
 }
 
 /**
- * P1: Draw a compact personal data row (height/weight) as small pill badges.
+ * Draw a compact personal data row (height/weight) as small pill badges.
  */
 function drawPersonalDataRow(
   ctx: CanvasRenderingContext2D,
@@ -248,7 +249,7 @@ function drawPersonalDataRow(
     });
   }
 
-  if (items.length === 0) return y; // no data to show, return unchanged Y
+  if (items.length === 0) return y;
 
   const pillW = 180;
   const pillH = 52;
@@ -261,7 +262,6 @@ function drawPersonalDataRow(
     const px = startX + i * (pillW + gap);
     const pillR = 14;
 
-    // Pill background
     const pillGrad = ctx.createLinearGradient(px, y, px + pillW, y + pillH);
     pillGrad.addColorStop(0, 'rgba(255,255,255,0.05)');
     pillGrad.addColorStop(1, 'rgba(255,255,255,0.02)');
@@ -269,13 +269,11 @@ function drawPersonalDataRow(
     ctx.fillStyle = pillGrad;
     ctx.fill();
 
-    // Pill border
     roundRect(ctx, px, y, pillW, pillH, pillR);
     ctx.strokeStyle = hexToRgba(accent, 0.12);
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Label + Value inline
     ctx.textAlign = 'center';
     ctx.fillStyle = 'rgba(255,255,255,0.4)';
     ctx.font = '500 16px system-ui, sans-serif';
@@ -286,12 +284,11 @@ function drawPersonalDataRow(
     ctx.fillText(item.value, px + pillW / 2 + 30, y + 33);
   }
 
-  return y + pillH + 20; // return Y after this row
+  return y + pillH + 20;
 }
 
 /**
  * P2: Draw corner accent decorations — L-shaped accent lines at each card corner.
- * Creates a premium "frame" effect with geometric accent marks.
  */
 function drawCornerAccents(
   ctx: CanvasRenderingContext2D,
@@ -308,28 +305,28 @@ function drawCornerAccents(
   ctx.lineWidth = 2;
   ctx.lineCap = 'round';
 
-  // Top-left corner
+  // Top-left
   ctx.beginPath();
   ctx.moveTo(cardX + inset, cardY + inset + lineLen);
   ctx.lineTo(cardX + inset, cardY + inset);
   ctx.lineTo(cardX + inset + lineLen, cardY + inset);
   ctx.stroke();
 
-  // Top-right corner
+  // Top-right
   ctx.beginPath();
   ctx.moveTo(cardX + cardW - inset - lineLen, cardY + inset);
   ctx.lineTo(cardX + cardW - inset, cardY + inset);
   ctx.lineTo(cardX + cardW - inset, cardY + inset + lineLen);
   ctx.stroke();
 
-  // Bottom-left corner
+  // Bottom-left
   ctx.beginPath();
   ctx.moveTo(cardX + inset, cardY + cardH - inset - lineLen);
   ctx.lineTo(cardX + inset, cardY + cardH - inset);
   ctx.lineTo(cardX + inset + lineLen, cardY + cardH - inset);
   ctx.stroke();
 
-  // Bottom-right corner
+  // Bottom-right
   ctx.beginPath();
   ctx.moveTo(cardX + cardW - inset - lineLen, cardY + cardH - inset);
   ctx.lineTo(cardX + cardW - inset, cardY + cardH - inset);
@@ -341,7 +338,6 @@ function drawCornerAccents(
 
 /**
  * P2: Draw a mini radial gauge showing BMI position visually.
- * A small circular arc gauge that complements the BMI number.
  */
 function drawMiniGauge(
   ctx: CanvasRenderingContext2D,
@@ -356,22 +352,21 @@ function drawMiniGauge(
   const bmiRange = bmiMax - bmiMin;
   const pct = Math.max(0, Math.min(1, (bmi - bmiMin) / bmiRange));
 
-  // Gauge track arc — full circle, very subtle
+  // Gauge track arc
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.strokeStyle = 'rgba(255,255,255,0.06)';
   ctx.lineWidth = 6;
   ctx.stroke();
 
-  // Gauge segment colors — map to BMI range
   const segDefs = [
-    { from: 0, to: 0.217, color: '#4A90E2' },       // Underweight: 12-18.5
-    { from: 0.217, to: 0.433, color: '#00C853' },    // Normal: 18.5-25
-    { from: 0.433, to: 0.600, color: '#FFD600' },    // Overweight: 25-30
-    { from: 0.600, to: 1.0, color: '#D50000' },      // Obese: 30-42
+    { from: 0, to: 0.217, color: '#4A90E2' },
+    { from: 0.217, to: 0.433, color: '#00C853' },
+    { from: 0.433, to: 0.600, color: '#FFD600' },
+    { from: 0.600, to: 1.0, color: '#D50000' },
   ];
 
-  const startAngle = -Math.PI / 2; // top of circle
+  const startAngle = -Math.PI / 2;
 
   for (const seg of segDefs) {
     const a1 = startAngle + seg.from * Math.PI * 2;
@@ -386,7 +381,6 @@ function drawMiniGauge(
     ctx.stroke();
   }
 
-  // Active segment — draw the arc up to current BMI
   const activeAngle = startAngle + pct * Math.PI * 2;
   ctx.beginPath();
   ctx.arc(cx, cy, radius, startAngle, activeAngle);
@@ -395,11 +389,9 @@ function drawMiniGauge(
   ctx.lineCap = 'round';
   ctx.stroke();
 
-  // Needle/marker dot at current position
   const dotX = cx + Math.cos(activeAngle) * radius;
   const dotY = cy + Math.sin(activeAngle) * radius;
 
-  // Outer glow
   ctx.save();
   ctx.shadowColor = hexToRgba(accent, 0.50);
   ctx.shadowBlur = 12;
@@ -409,13 +401,11 @@ function drawMiniGauge(
   ctx.fill();
   ctx.restore();
 
-  // Inner dot
   ctx.beginPath();
   ctx.arc(dotX, dotY, 4, 0, Math.PI * 2);
   ctx.fillStyle = accent;
   ctx.fill();
 
-  // Center text — small BMI value
   ctx.textAlign = 'center';
   ctx.fillStyle = hexToRgba(accent, 0.50);
   ctx.font = '700 18px system-ui, sans-serif';
@@ -423,6 +413,103 @@ function drawMiniGauge(
   ctx.fillStyle = 'rgba(255,255,255,0.30)';
   ctx.font = '500 12px system-ui, sans-serif';
   ctx.fillText(bmi.toFixed(1), cx, cy + 14);
+}
+
+/**
+ * P3: Draw floating decorative particles around the BMI value area.
+ * Small orbiting accent dots that create a "living" premium feel.
+ */
+function drawFloatingParticles(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  accent: string,
+  seed: number = 77
+) {
+  let s = seed;
+  function rand(): number {
+    s = (s * 16807 + 0) % 2147483647;
+    return s / 2147483647;
+  }
+
+  // Generate 8 floating particles at various distances and angles
+  const count = 8;
+  for (let i = 0; i < count; i++) {
+    const angle = rand() * Math.PI * 2;
+    const dist = rand() * 140 + 120; // 120-260px from center
+    const x = cx + Math.cos(angle) * dist;
+    const y = cy + Math.sin(angle) * dist * 0.6; // slight vertical compression
+    const r = rand() * 2.5 + 1;
+    const alpha = rand() * 0.20 + 0.08;
+
+    // Soft glow behind particle
+    const glow = ctx.createRadialGradient(x, y, 0, x, y, r * 6);
+    glow.addColorStop(0, hexToRgba(accent, alpha * 0.5));
+    glow.addColorStop(1, 'transparent');
+    ctx.fillStyle = glow;
+    ctx.fillRect(x - r * 6, y - r * 6, r * 12, r * 12);
+
+    // Particle dot
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = hexToRgba(accent, alpha);
+    ctx.fill();
+
+    // Tiny bright core
+    ctx.beginPath();
+    ctx.arc(x, y, r * 0.4, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${alpha * 0.8})`;
+    ctx.fill();
+  }
+
+  // A couple of larger "bokeh" circles — very subtle
+  for (let i = 0; i < 3; i++) {
+    const angle = rand() * Math.PI * 2;
+    const dist = rand() * 180 + 80;
+    const x = cx + Math.cos(angle) * dist;
+    const y = cy + Math.sin(angle) * dist * 0.5;
+    const r = rand() * 15 + 8;
+    const alpha = rand() * 0.03 + 0.01;
+
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.strokeStyle = hexToRgba(accent, alpha);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+}
+
+/**
+ * P3: Draw a small diamond shape for header decoration.
+ */
+function drawDiamond(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  size: number,
+  accent: string
+) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - size);      // top
+  ctx.lineTo(cx + size, cy);      // right
+  ctx.lineTo(cx, cy + size);      // bottom
+  ctx.lineTo(cx - size, cy);      // left
+  ctx.closePath();
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(cx - size, cy - size, cx + size, cy + size);
+  grad.addColorStop(0, hexToRgba(accent, 0.40));
+  grad.addColorStop(0.5, hexToRgba(accent, 0.20));
+  grad.addColorStop(1, hexToRgba(accent, 0.40));
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Border
+  ctx.strokeStyle = hexToRgba(accent, 0.50);
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.restore();
 }
 
 export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
@@ -477,6 +564,27 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   const cardW = CARD_W - 120;
   const cardH = CARD_H - 400;
 
+  // P3: Card depth shadow — soft diffused glow beneath the card
+  const depthGlow = ctx.createRadialGradient(
+    CARD_W / 2, cardY + cardH + 40, 0,
+    CARD_W / 2, cardY + cardH + 40, cardW * 0.6
+  );
+  depthGlow.addColorStop(0, hexToRgba(accent, 0.08));
+  depthGlow.addColorStop(0.5, hexToRgba(accent, 0.03));
+  depthGlow.addColorStop(1, 'transparent');
+  ctx.fillStyle = depthGlow;
+  ctx.fillRect(0, cardY + cardH - 60, CARD_W, 300);
+
+  // Also a subtle top glow for symmetry
+  const topGlow = ctx.createRadialGradient(
+    CARD_W / 2, cardY - 20, 0,
+    CARD_W / 2, cardY - 20, cardW * 0.4
+  );
+  topGlow.addColorStop(0, hexToRgba(accent, 0.04));
+  topGlow.addColorStop(1, 'transparent');
+  ctx.fillStyle = topGlow;
+  ctx.fillRect(0, cardY - 200, CARD_W, 200);
+
   // Card background — layered glass gradient
   const cardBg = ctx.createLinearGradient(cardX, cardY, cardX, cardY + cardH);
   cardBg.addColorStop(0, 'rgba(255,255,255,0.08)');
@@ -504,11 +612,10 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   // ── Grain/noise texture overlay on card ──
   drawGrainOverlay(ctx, cardX, cardY, cardW, cardH, RADIUS);
 
-  // ── P2: Corner accent decorations ──
+  // ── Corner accent decorations ──
   drawCornerAccents(ctx, cardX, cardY, cardW, cardH, accent);
 
   // ── Top accent line — gradient with glow ──
-  // Wide glow line
   const accentGlowGrad = ctx.createLinearGradient(cardX + RADIUS, 0, cardX + cardW - RADIUS, 0);
   accentGlowGrad.addColorStop(0, 'transparent');
   accentGlowGrad.addColorStop(0.2, hexToRgba(accent, 0.15));
@@ -522,7 +629,6 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.lineWidth = 8;
   ctx.stroke();
 
-  // Sharp accent line on top
   const accentSharpGrad = ctx.createLinearGradient(cardX + RADIUS, 0, cardX + cardW - RADIUS, 0);
   accentSharpGrad.addColorStop(0, 'transparent');
   accentSharpGrad.addColorStop(0.25, accent);
@@ -535,7 +641,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  // ── P2: Bottom accent line — matching bottom edge glow ──
+  // ── Bottom accent line ──
   const bottomGlowGrad = ctx.createLinearGradient(cardX + RADIUS, 0, cardX + cardW - RADIUS, 0);
   bottomGlowGrad.addColorStop(0, 'transparent');
   bottomGlowGrad.addColorStop(0.2, hexToRgba(accent, 0.08));
@@ -561,14 +667,25 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  // ── Header text — accent tinted ──
+  // ── P3: Header diamond decoration ──
+  const headerY = cardY + 100;
+  const headerText = t('share.card_header');
+  ctx.textAlign = 'center';
+  ctx.font = '600 28px system-ui, sans-serif';
+  const headerMetrics = ctx.measureText(headerText);
+
+  // Left diamond
+  drawDiamond(ctx, CARD_W / 2 - headerMetrics.width / 2 - 28, headerY - 9, 8, accent);
+  // Right diamond
+  drawDiamond(ctx, CARD_W / 2 + headerMetrics.width / 2 + 28, headerY - 9, 8, accent);
+
+  // Header text — accent tinted
   ctx.textAlign = 'center';
   ctx.fillStyle = hexToRgba(accent, 0.55);
   ctx.font = '600 28px system-ui, sans-serif';
-  ctx.fillText(t('share.card_header'), CARD_W / 2, cardY + 100);
+  ctx.fillText(headerText, CARD_W / 2, headerY);
 
   // ── BMI Value — large with glow ──
-  // Large radial glow behind the number
   const valueGlow = ctx.createRadialGradient(
     CARD_W / 2, cardY + 330, 0,
     CARD_W / 2, cardY + 330, 280
@@ -579,7 +696,10 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.fillStyle = valueGlow;
   ctx.fillRect(cardX, cardY + 100, cardW, 500);
 
-  // Canvas shadow for the BMI value
+  // P3: Floating decorative particles around BMI value
+  drawFloatingParticles(ctx, CARD_W / 2, cardY + 330, accent);
+
+  // Canvas shadow for the BMI value (glow pass)
   ctx.save();
   ctx.shadowColor = hexToRgba(accent, 0.50);
   ctx.shadowBlur = 60;
@@ -591,13 +711,29 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.fillText(data.bmi.toFixed(1), CARD_W / 2, cardY + 360);
   ctx.restore();
 
-  // Second pass without shadow for crisp text on top
-  ctx.fillStyle = accent;
+  // P3: Gradient fill on BMI value text — premium gradient instead of solid
+  const bmiText = data.bmi.toFixed(1);
   ctx.font = '800 160px system-ui, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(data.bmi.toFixed(1), CARD_W / 2, cardY + 360);
+  const bmiMetrics = ctx.measureText(bmiText);
+  const bmiTextX = CARD_W / 2;
+  const bmiTextY = cardY + 360;
 
-  // ── P2: Mini radial gauge — positioned to the right of BMI value ──
+  // Create vertical gradient for text fill
+  const textGrad = ctx.createLinearGradient(
+    bmiTextX - bmiMetrics.width / 2, bmiTextY - 120,
+    bmiTextX + bmiMetrics.width / 2, bmiTextY + 20
+  );
+  const accentLight = lightenHex(accent, 0.25);
+  textGrad.addColorStop(0, accentLight);
+  textGrad.addColorStop(0.4, accent);
+  textGrad.addColorStop(0.7, accent);
+  textGrad.addColorStop(1, hexToRgba(accent, 0.80));
+
+  ctx.fillStyle = textGrad;
+  ctx.fillText(bmiText, bmiTextX, bmiTextY);
+
+  // ── Mini radial gauge ──
   const gaugeCx = cardX + cardW - 110;
   const gaugeCy = cardY + 320;
   drawMiniGauge(ctx, gaugeCx, gaugeCy, 45, data.bmi, accent);
@@ -611,14 +747,13 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.textAlign = 'center';
   const categoryText = data.category.toUpperCase();
 
-  // P2: Measure category text width to position color dot
   const catMetrics = ctx.measureText(categoryText);
   const catTextX = CARD_W / 2;
   const catTextY = cardY + 440;
   ctx.fillText(categoryText, catTextX, catTextY);
   ctx.restore();
 
-  // ── P2: Category color dot — small colored indicator before category text ──
+  // ── Category color dot ──
   const dotRadius = 8;
   const dotX = catTextX - catMetrics.width / 2 - 24;
   const dotY = catTextY - 16;
@@ -632,7 +767,6 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.fill();
   ctx.restore();
 
-  // Small white ring around the dot
   ctx.beginPath();
   ctx.arc(dotX, dotY, dotRadius, 0, Math.PI * 2);
   ctx.strokeStyle = 'rgba(255,255,255,0.30)';
@@ -673,7 +807,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
     drawStatCell(ctx, cardX + colW * 2.5, statsY, t('share.card_tdee'), `${Math.round(data.tdee)} ${t('share.card_kcal')}`, accent);
   }
 
-  // ── BMI Scale bar — upgraded with gradient segments, glow, labels ──
+  // ── BMI Scale bar ──
   const barY = statsY + 170;
   const barX = cardX + 80;
   const barW = cardW - 160;
@@ -688,7 +822,6 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.fillStyle = 'rgba(255,255,255,0.04)';
   ctx.fill();
 
-  // Bar segments — gradient fills with rounded clipping
   const segments = [
     { start: 12, end: 18.5, color: '#4A90E2', label: 'UW' },
     { start: 18.5, end: 25, color: '#00C853', label: 'NW' },
@@ -704,20 +837,29 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   let segX = barX;
   for (const seg of segments) {
     const segW = ((seg.end - seg.start) / bmiRange) * barW;
-
-    // Gradient fill per segment (darker at edges, brighter in center)
     const segGrad = ctx.createLinearGradient(segX, barY, segX + segW, barY);
     segGrad.addColorStop(0, hexToRgba(seg.color, 0.40));
     segGrad.addColorStop(0.5, hexToRgba(seg.color, 0.65));
     segGrad.addColorStop(1, hexToRgba(seg.color, 0.40));
     ctx.fillStyle = segGrad;
     ctx.fillRect(segX, barY, segW, barH);
-
     segX += segW;
   }
   ctx.restore();
 
-  // Active segment glow — overlay glow at the marker position
+  // P3: Scale bar tick marks — small vertical ticks at category boundaries
+  const boundaries = [18.5, 25, 30];
+  for (const b of boundaries) {
+    const bx = barX + ((b - bmiMin) / bmiRange) * barW;
+    ctx.beginPath();
+    ctx.moveTo(bx, barY - 6);
+    ctx.lineTo(bx, barY + barH + 6);
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Active segment glow
   const markerPct = Math.max(0, Math.min(1, (data.bmi - bmiMin) / bmiRange));
   const markerX = barX + markerPct * barW;
   const activeGlow = ctx.createRadialGradient(markerX, barY + barH / 2, 0, markerX, barY + barH / 2, 100);
@@ -731,13 +873,11 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.shadowColor = hexToRgba(accent, 0.60);
   ctx.shadowBlur = 20;
 
-  // Outer ring
   ctx.beginPath();
   ctx.arc(markerX, barY + barH / 2, 18, 0, Math.PI * 2);
   ctx.fillStyle = '#ffffff';
   ctx.fill();
 
-  // Inner accent circle
   ctx.beginPath();
   ctx.arc(markerX, barY + barH / 2, 13, 0, Math.PI * 2);
   ctx.fillStyle = accent;
@@ -776,16 +916,13 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   const insightKey = getCategoryInsightKey(data.category);
   const insightText = t(insightKey);
 
-  // Insight container — subtle glass pill
   const insightPadX = 60;
   const insightPadY = 24;
   const insightMaxW = cardW - insightPadX * 2;
 
-  // Measure text to determine container height
   ctx.font = '400 22px system-ui, sans-serif';
   ctx.textAlign = 'center';
 
-  // Word-wrap insight text manually
   const words = insightText.split(' ');
   const lines: string[] = [];
   let currentLine = '';
@@ -807,7 +944,6 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   const insightBoxY = insightY;
   const insightBoxW = insightMaxW;
 
-  // Insight box background
   const insightGrad = ctx.createLinearGradient(insightBoxX, insightBoxY, insightBoxX, insightBoxY + insightBoxH);
   insightGrad.addColorStop(0, hexToRgba(accent, 0.05));
   insightGrad.addColorStop(1, hexToRgba(accent, 0.02));
@@ -815,22 +951,18 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.fillStyle = insightGrad;
   ctx.fill();
 
-  // Insight box border
   roundRect(ctx, insightBoxX, insightBoxY, insightBoxW, insightBoxH, 16);
   ctx.strokeStyle = hexToRgba(accent, 0.10);
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  // Insight text start position
   const textStartY = insightBoxY + insightPadY + 22;
 
-  // Left accent dot/bar
   const barDotX = insightBoxX + 24;
   roundRect(ctx, barDotX, insightBoxY + insightPadY, 3, lines.length * lineHeight, 1.5);
   ctx.fillStyle = hexToRgba(accent, 0.40);
   ctx.fill();
 
-  // Draw insight text lines
   ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(255,255,255,0.60)';
   ctx.font = '400 22px system-ui, sans-serif';
@@ -856,7 +988,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.font = '400 18px system-ui, sans-serif';
   ctx.fillText(timestamp, CARD_W / 2, CARD_H - 80);
 
-  // Convert canvas to blob — support JPEG format for smaller file sizes
+  // Convert canvas to blob
   const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
   const quality = format === 'jpeg' ? 0.92 : undefined;
 
@@ -907,11 +1039,9 @@ export async function shareBmiCard(data: BmiCardData): Promise<{ ok: boolean; me
       if (err instanceof DOMException && err.name === 'AbortError') {
         return { ok: false, method: 'none' };
       }
-      // Fall through to download
     }
   }
 
-  // Download fallback
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
