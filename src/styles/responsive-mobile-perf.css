@@ -32,20 +32,21 @@
      too bright (Bug: mobile wallpaper too bright).
      Also remove translateZ(0) compositor layer promotion. */
   body::before {
-    filter: brightness(0.35) contrast(1) saturate(1);
+    opacity: 0.42;
+    filter: none !important;
     transform: none !important;
   }
 
-  /* T-1b: Strengthen body::after gradient overlay on touch.
-     Previously display:none removed ALL darkening, making wallpaper
-     too bright on mobile. Now keeps the overlay with stronger opacity
-     to compensate for smaller screens where the gradient covers less
-     visual area. The dark wallpaper needs this overlay for depth.
+  /* T-1b: Darken wallpaper through a cheap overlay instead of a
+     full-screen filtered fixed image. This keeps the same black-premium
+     mood with less work during long section scrolls. */
   body::after {
-    background: linear-gradient(180deg,
-      rgba(2, 6, 23, 0.70),
-      rgba(2, 6, 23, 0.92)) !important;
-  }*/
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.72),
+      rgba(0, 0, 0, 0.88)
+    ) !important;
+  }
 
   /* T-2: Keep .pager-section on native compositor scrolling without
      forcing a permanent scroll-position layer.
@@ -60,17 +61,31 @@
   .pager-section {
     will-change: auto !important;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    overflow-anchor: none;
     contain: style;
     touch-action: pan-y pinch-zoom;
   }
 
-  /* T-3: Permanently simplify .about-card,
+  /* T-3: Heavy page containers on mobile keep the same matte glass
+     color/border, but drop backdrop-filter. Large blurred scroll surfaces
+     are the main source of slow touch response on calculator/about pages. */
+  .form-card,
+  .bmi-card,
+  .about-card,
   .gauge-container,
   .reference-table,
-  .github-link,
-  .section-header-v2 {
-
-    contain: layout style paint;
+  .goal-tracker,
+  .footer-disclaimer,
+  .github-footer,
+  .section-header-v2,
+  .stat-block,
+  .tdee-card,
+  .health-advice,
+  .age-advisory,
+  .bmi-explanation {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
   }
 
   /* T-3b: Calculator cards — simplified shadow, NO contain.
@@ -101,6 +116,7 @@
      bmi-results-card has 500ms transitions + ::before gradient
      overlay (another compositing layer). Remove all of them. */
   .bmi-results-card {
+    animation: none !important;
     transition: none !important;
   }
   .bmi-results-card::before {
@@ -120,6 +136,7 @@
   .health-advice,
   .age-advisory,
   .bmi-explanation {
+    animation: none !important;
     transition: none !important;
     transform: none !important;
   }
@@ -143,7 +160,20 @@
      when results are showing). */
   .stat-block,
   .tdee-card {
+    animation: none !important;
     transition: none !important;
+  }
+
+  .results-content,
+  .bmi-display,
+  .share-toast {
+    animation: none !important;
+  }
+
+  .about-section-block,
+  .about-card-content,
+  .app-info {
+    contain: layout style;
   }
 
   /* T-20: Neutralize :hover on ALL calculator inner elements.
@@ -235,7 +265,12 @@
   .scale-dot,
   .reference-table .icon-col,
   .reference-table .ref-row,
-  .bmi-value {
+  .bmi-value,
+  .about-card-header :is(svg),
+  .footer-disclaimer .warn-ic,
+  .footer-disclaimer .warn-ic-lg,
+  .category-icon,
+  .icon-container :is(svg) {
     filter: none !important;
     text-shadow: none !important;
   }

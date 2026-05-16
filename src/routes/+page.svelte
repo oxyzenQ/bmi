@@ -173,6 +173,11 @@
   let switchingTimer: ReturnType<typeof setTimeout> | null = null;
   let pageDestroyed = $state(false);
   let showScrollTopFab = $state(false);
+  let isTouchDevice = false;
+  let activeScroller: HTMLElement | null = null;
+  let scrollRafId: number | null = null;
+  let pendingScrollTarget: HTMLElement | null = null;
+  let pendingScrollY = 0;
 
 
   function triggerHaptic(pattern: number | number[] = HAPTIC.NAV) {
@@ -185,12 +190,11 @@
   function scrollToTop() {
     if (!browser) return;
     const activeId = sections[activeIndex].id;
-    const scroller = pagerEl?.querySelector<HTMLElement>(
+    const scroller = activeScroller ?? pagerEl?.querySelector<HTMLElement>(
       `[data-pager-scroll="true"][data-section-id="${activeId}"]`
     );
     if (!scroller) return;
 
-    const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
     scroller.scrollTo({
       top: 0,
       behavior: isTouchDevice || reducedMotionEffective ? 'auto' : 'smooth'
@@ -520,6 +524,80 @@
     };
   }
 
+  function flushScrollState() {
+    scrollRafId = null;
+    if (!pendingScrollTarget) return;
+
+    const currentScrollY = pendingScrollY;
+    const delta = currentScrollY - lastScrollY;
+
+    if (Math.abs(delta) < SCROLL.SCROLL_DELTA_EPSILON) {
+      pendingScrollTarget = null;
+      return;
+    }
+
+    const shouldShowFab = currentScrollY > SCROLL.SCROLL_TOP_THRESHOLD;
+    if (showScrollTopFab !== shouldShowFab) {
+      showScrollTopFab = shouldShowFab;
+    }
+
+    if (!isTouchDevice) {
+      const scrollingUp = currentScrollY < lastScrollY;
+
+      if (!scrollingUp && currentScrollY > 50) {
+        pagerControlsVisible = false;
+      } else if (scrollingUp) {
+        pagerControlsVisible = true;
+      }
+
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        pagerControlsVisible = true;
+      }, SCROLL.SCROLL_IDLE_DELAY);
+    } else if (!pagerControlsVisible) {
+      pagerControlsVisible = true;
+    }
+
+    lastScrollY = currentScrollY;
+    pendingScrollTarget = null;
+  }
+
+  function onActiveScroll(event: Event) {
+    const target = event.currentTarget as HTMLElement | null;
+    if (!target) return;
+
+    pendingScrollTarget = target;
+    pendingScrollY = target.scrollTop;
+    if (scrollRafId === null) {
+      scrollRafId = requestAnimationFrame(flushScrollState);
+    }
+  }
+
+  function detachActiveScroller() {
+    if (!activeScroller) return;
+    activeScroller.removeEventListener('scroll', onActiveScroll);
+    activeScroller = null;
+  }
+
+  function attachActiveScroller() {
+    if (!browser || !pagerEl) return;
+
+    const activeId = sections[activeIndex].id;
+    const nextScroller = pagerEl.querySelector<HTMLElement>(
+      `[data-pager-scroll="true"][data-section-id="${activeId}"]`
+    );
+
+    if (activeScroller === nextScroller) return;
+
+    detachActiveScroller();
+    activeScroller = nextScroller;
+    lastScrollY = activeScroller?.scrollTop ?? 0;
+
+    if (activeScroller) {
+      activeScroller.addEventListener('scroll', onActiveScroll, { passive: true });
+    }
+  }
+
   function schedulePagerNavAlignment() {
     if (!browser) return;
     if (pagerNavAlignRaf !== null) return;
@@ -556,6 +634,14 @@
       void goalTrackerLoader.ensure();
     }
     if (activeIndex === 3) void referenceLoader.ensure();
+  });
+
+  $effect(() => {
+    if (!browser) return;
+    const currentActiveIndex = activeIndex;
+    void tick().then(() => {
+      if (currentActiveIndex === activeIndex) attachActiveScroller();
+    });
   });
 
   onMount(() => {
@@ -627,77 +713,21 @@
     pagerEl?.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     // Unified scroll listener: is-scrolling class + pager-controls auto-hide
-    const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-    let scrollRafId: number | null = null;
-    let pendingScrollTarget: HTMLElement | null = null;
-    let pendingScrollY = 0;
+    isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 
     if (isTouchDevice) {
       pagerControlsVisible = true;
     }
 
-    const flushScrollState = () => {
-      scrollRafId = null;
-      if (!pendingScrollTarget) return;
-
-      const currentScrollY = pendingScrollY;
-      const delta = currentScrollY - lastScrollY;
-
-      if (Math.abs(delta) < SCROLL.SCROLL_DELTA_EPSILON) {
-        pendingScrollTarget = null;
-        return;
-      }
-
-      const shouldShowFab = currentScrollY > SCROLL.SCROLL_TOP_THRESHOLD;
-      if (showScrollTopFab !== shouldShowFab) {
-        showScrollTopFab = shouldShowFab;
-      }
-
-      if (!isTouchDevice) {
-        const scrollingUp = currentScrollY < lastScrollY;
-
-        if (!scrollingUp && currentScrollY > 50) {
-          pagerControlsVisible = false;
-        } else if (scrollingUp) {
-          pagerControlsVisible = true;
-        }
-
-        if (scrollTimeout) clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-          pagerControlsVisible = true;
-        }, SCROLL.SCROLL_IDLE_DELAY);
-      } else if (!pagerControlsVisible) {
-        pagerControlsVisible = true;
-      }
-
-      lastScrollY = currentScrollY;
-      pendingScrollTarget = null;
-    };
-
-    const onScroll = (event: Event) => {
-      // Pager-controls auto-hide: only for pager-section scroll
-      // Debounce state updates via rAF to avoid triggering Svelte re-renders every frame
-      const target = event.target as HTMLElement;
-      if (!target.classList.contains('pager-section')) return;
-
-      pendingScrollTarget = target;
-      pendingScrollY = target.scrollTop;
-      if (scrollRafId === null) {
-        scrollRafId = requestAnimationFrame(flushScrollState);
-      }
-    };
-
-    // Use event delegation on document for all scroll events
-    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
-
     void tick().then(schedulePagerNavAlignment);
+    void tick().then(attachActiveScroller);
 
     return () => {
       motionQuery.removeEventListener('change', onMotionChange);
       window.removeEventListener('hashchange', onHashChange);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('storage', onStorage);
-      document.removeEventListener('scroll', onScroll, { capture: true });
+      detachActiveScroller();
       pagerEl?.removeEventListener('touchstart', handleTouchStart);
       pagerEl?.removeEventListener('touchend', handleTouchEnd);
       if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
