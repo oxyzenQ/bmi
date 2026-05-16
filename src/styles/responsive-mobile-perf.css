@@ -112,6 +112,31 @@
     transform: none !important;
   }
 
+  /* Calculator page is the densest touch surface. On mobile, remove
+     rounded-card clipping layers that were only needed for shine overlays,
+     and isolate layout without paint containment so dynamic result height
+     can still settle naturally. */
+  #calculator .form-card,
+  #calculator .bmi-card,
+  #calculator .bmi-results-card {
+    overflow: visible !important;
+    contain: none !important;
+    isolation: auto;
+    content-visibility: visible;
+  }
+
+  #calculator :is(
+    button,
+    .btn,
+    .unit-toggle-segment,
+    .seg-btn,
+    .act-btn,
+    .form-input,
+    .bmi-drop-zone
+  ) {
+    touch-action: manipulation;
+  }
+
   /* T-3d: Kill results card transitions and overflow layer.
      bmi-results-card has 500ms transitions + ::before gradient
      overlay (another compositing layer). Remove all of them. */
@@ -160,6 +185,17 @@
      when results are showing). */
   .stat-block,
   .tdee-card {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .stat-row-grid,
+  .prime-bar-fill,
+  .tdee-stat,
+  .tdee-range,
+  .stat-badge,
+  .tdee-activity-badge,
+  .tdee-gender-badge {
     animation: none !important;
     transition: none !important;
   }

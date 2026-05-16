@@ -919,4 +919,78 @@
     min-width: 120px;
     flex: 0 0 auto;
   }
+
+  @media (hover: none) and (pointer: coarse) {
+    :global(#calculator .form-card) {
+      min-height: auto !important;
+      overflow: visible !important;
+      contain: none !important;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+      touch-action: pan-y pinch-zoom;
+    }
+
+    :global(#calculator .form-card::before),
+    :global(#calculator .form-card::after),
+    :global(#calculator .pill-indicator::after) {
+      content: none !important;
+      display: none !important;
+    }
+
+    .form-inner,
+    :global(#calculator .bmi-form),
+    :global(#calculator .input-group) {
+      contain: none !important;
+      touch-action: pan-y pinch-zoom;
+    }
+
+    .unit-toggle,
+    .segmented-control,
+    .activity-grid,
+    .history-actions,
+    .main-actions {
+      contain: layout style;
+    }
+
+    .unit-toggle-segment,
+    .seg-btn,
+    .act-btn,
+    :global(#calculator .btn),
+    :global(#calculator .form-input),
+    :global(#calculator .pill-indicator),
+    :global(#calculator .bmi-drop-zone),
+    :global(#calculator .bmi-drop-zone__icon),
+    :global(#calculator .bmi-drop-zone__text),
+    :global(#calculator .bmi-drop-zone__subtext) {
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
+      filter: none !important;
+      text-shadow: none !important;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+    }
+
+    .unit-toggle-segment,
+    .seg-btn,
+    .act-btn,
+    :global(#calculator .btn),
+    :global(#calculator .bmi-drop-zone) {
+      touch-action: manipulation;
+    }
+
+    :global(#calculator .form-input) {
+      touch-action: pan-y pinch-zoom;
+    }
+
+    .unit-toggle-segment:hover,
+    .seg-btn:hover,
+    .act-btn:hover,
+    :global(#calculator .btn:hover),
+    :global(#calculator .pill-indicator:hover),
+    :global(#calculator .bmi-drop-zone:hover),
+    :global(#calculator .bmi-drop-zone--active) {
+      transform: none !important;
+    }
+  }
 </style>

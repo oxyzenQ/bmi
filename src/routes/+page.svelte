@@ -173,7 +173,7 @@
   let switchingTimer: ReturnType<typeof setTimeout> | null = null;
   let pageDestroyed = $state(false);
   let showScrollTopFab = $state(false);
-  let isTouchDevice = false;
+  let isTouchDevice = $state(false);
   let activeScroller: HTMLElement | null = null;
   let scrollRafId: number | null = null;
   let pendingScrollTarget: HTMLElement | null = null;
@@ -203,6 +203,7 @@
   }
 
   let reducedMotionEffective = $derived(prefersReducedMotion);
+  let contentReducedMotion = $derived(reducedMotionEffective || isTouchDevice || perfTier !== 'high');
 
   // Wallpaper theme toggle
   type ThemeKey = 'blackhole' | 'spaceship' | 'space';
@@ -968,7 +969,7 @@
                         age={age === '' ? null : parseInt(age)}
                         gender={gender || null}
                         activity={activity || null}
-                        reducedMotion={reducedMotionEffective}
+                        reducedMotion={contentReducedMotion}
                       />
                     {:else}
                       <div class="skeleton-card">
