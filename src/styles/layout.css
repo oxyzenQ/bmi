@@ -162,7 +162,7 @@
   line-height: 1.2;
 }
 
-.about-hero-subtitle {
+.about-card .about-hero-subtitle {
   color: var(--text-secondary-bright);
   font-size: 1.1rem;
   line-height: 1.6;
