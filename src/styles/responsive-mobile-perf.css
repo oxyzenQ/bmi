@@ -32,7 +32,7 @@
      too bright (Bug: mobile wallpaper too bright).
      Also remove translateZ(0) compositor layer promotion. */
   body::before {
-    opacity: 0.42;
+    opacity: 0.68;
     filter: none !important;
     transform: none !important;
   }
@@ -43,8 +43,8 @@
   body::after {
     background: linear-gradient(
       180deg,
-      rgba(0, 0, 0, 0.72),
-      rgba(0, 0, 0, 0.88)
+      rgba(0, 0, 0, 0.48),
+      rgba(0, 0, 0, 0.66)
     ) !important;
   }
 
@@ -67,9 +67,9 @@
     touch-action: pan-y pinch-zoom;
   }
 
-  /* T-3: Heavy page containers on mobile keep the same matte glass
-     color/border, but drop backdrop-filter. Large blurred scroll surfaces
-     are the main source of slow touch response on calculator/about pages. */
+  /* T-3: Keep mobile containers glassy, but lighter than desktop.
+     The earlier full removal made page surfaces look flat black.
+     Heavy nested result cells remain simplified below. */
   .form-card,
   .bmi-card,
   .about-card,
@@ -78,7 +78,12 @@
   .goal-tracker,
   .footer-disclaimer,
   .github-footer,
-  .section-header-v2,
+  .section-header-v2 {
+    background: rgba(0, 0, 0, 0.52) !important;
+    -webkit-backdrop-filter: blur(3px) saturate(110%) brightness(0.98) !important;
+    backdrop-filter: blur(3px) saturate(110%) brightness(0.98) !important;
+  }
+
   .stat-block,
   .tdee-card,
   .health-advice,
@@ -350,6 +355,9 @@
   .pager-nav-shell,
   .pager-controls-shell {
     background: rgba(0, 0, 0, 0.58) !important;
+  }
+
+  .pager-nav-shell {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
   }
@@ -362,6 +370,9 @@
   }
 
   .pager-controls-shell {
+    background: rgba(0, 0, 0, 0.24) !important;
+    -webkit-backdrop-filter: blur(8px) saturate(130%) brightness(1.02) !important;
+    backdrop-filter: blur(8px) saturate(130%) brightness(1.02) !important;
     transition: opacity 140ms ease, transform 140ms ease !important;
     will-change: transform, opacity;
     touch-action: manipulation;

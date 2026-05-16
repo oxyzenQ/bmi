@@ -234,13 +234,23 @@
   }
   @media (hover: none) and (pointer: coarse) {
     .modal-shell-backdrop {
-      -webkit-backdrop-filter: blur(10px) saturate(130%) !important;
-      backdrop-filter: blur(10px) saturate(130%) !important;
+      background: rgba(0, 0, 0, 0.74) !important;
+      -webkit-backdrop-filter: blur(3px) saturate(110%) !important;
+      backdrop-filter: blur(3px) saturate(110%) !important;
+      transition: none !important;
     }
 
     .modal-shell-panel {
-      -webkit-backdrop-filter: blur(8px) saturate(120%) !important;
-      backdrop-filter: blur(8px) saturate(120%) !important;
+      background: rgba(0, 0, 0, 0.76) !important;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+      transform: none !important;
+      transition: none !important;
+      contain: none !important;
+    }
+
+    .modal-shell-backdrop.visible .modal-shell-panel {
+      transform: none !important;
     }
   }
 </style>

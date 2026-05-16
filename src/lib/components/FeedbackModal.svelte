@@ -158,4 +158,16 @@
     background: var(--btn-danger-bg-hover);
     border: var(--btn-danger-border-hover);
   }
+
+  @media (hover: none) and (pointer: coarse) {
+    .feedback-btn,
+    .feedback-btn:hover,
+    .feedback-btn:active {
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+      transition: none !important;
+      transform: none !important;
+      touch-action: manipulation;
+    }
+  }
 </style>

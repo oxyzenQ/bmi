@@ -62,6 +62,7 @@
   let localError = $state('');
   let loading = $state(false);
   let focusTrapHandler: ((e: KeyboardEvent) => void) | null = null;
+  let isTouchDevice = $state(false);
 
   // Passphrase visibility toggles (separate states for each field)
   let showPassphrase = $state(false);
@@ -81,7 +82,11 @@
       strengthResult = null;
       return;
     }
-    // Debounce 200ms
+    if (isTouchDevice && pw.length < 8) {
+      strengthResult = null;
+      return;
+    }
+    const delay = isTouchDevice ? 700 : 200;
     strengthTimer = setTimeout(async () => {
       try {
         strengthResult = await analyzeStrength(pw);
@@ -89,13 +94,14 @@
         warnDev('EncryptionModal', 'strengthEffect', 'Strength analysis failed', err);
         strengthResult = null;
       }
-    }, 200);
+    }, delay);
 
     return () => { if (strengthTimer) clearTimeout(strengthTimer); };
   });
 
   // Load hint on mount
   onMount(() => {
+    isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
     passphraseHint = getPassphraseHint();
   });
 
@@ -709,8 +715,8 @@
   .eye-btn {
     position: absolute;
     right: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
+    top: calc(50% - 1rem);
+    transform: none;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -747,7 +753,7 @@
   }
 
   .eye-btn:active {
-    transform: translateY(-50%) scale(0.95);
+    transform: none;
   }
 
   .encrypt-input:focus {
@@ -905,13 +911,60 @@
 
   @media (hover: none) and (pointer: coarse) {
     .encrypt-backdrop {
-      -webkit-backdrop-filter: blur(10px) saturate(130%) !important;
-      backdrop-filter: blur(10px) saturate(130%) !important;
+      background: rgba(0, 0, 0, 0.74) !important;
+      -webkit-backdrop-filter: blur(3px) saturate(110%) !important;
+      backdrop-filter: blur(3px) saturate(110%) !important;
+      transition: none !important;
     }
 
     .encrypt-box {
-      -webkit-backdrop-filter: blur(8px) saturate(120%) !important;
-      backdrop-filter: blur(8px) saturate(120%) !important;
+      background: rgba(0, 0, 0, 0.76) !important;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+      transform: none !important;
+      transition: opacity 120ms ease !important;
+      contain: none !important;
+      overflow-y: auto;
+    }
+
+    .encrypt-backdrop.visible .encrypt-box {
+      transform: none !important;
+    }
+
+    .encrypt-input,
+    .eye-btn,
+    .encrypt-btn,
+    .import-meta,
+    .hint-display,
+    .encrypt-error,
+    .bmi-export-summary,
+    .bmi-encryption-badge {
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+      transition: none !important;
+      transform: none !important;
+      filter: none !important;
+      text-shadow: none !important;
+    }
+
+    .encrypt-input {
+      background: rgba(255, 255, 255, 0.055) !important;
+      font-size: 16px;
+      touch-action: manipulation;
+    }
+
+    .eye-btn {
+      top: calc(50% - 1rem);
+      transform: none !important;
+      touch-action: manipulation;
+    }
+
+    .eye-btn:active {
+      transform: none !important;
+    }
+
+    .encrypt-btn {
+      touch-action: manipulation;
     }
   }
 </style>
