@@ -1,13 +1,6 @@
 /**
- * C-3: Canvas-based BMI result card image generator.
+ * Canvas-based premium black BMI result card generator.
  * Produces a shareable PNG for Instagram Story / X / etc.
- *
- * P0: Glassmorphism card, BMI value glow, upgraded scale bar, accent consistency.
- * P1: Star field decoration, health insight text, grain overlay, personal data row.
- * P2: Corner accent decorations, mini radial gauge, bottom accent line,
- *     category color dot, dual-format export (PNG + JPEG).
- * P3: Gradient BMI value text, floating particles, card depth shadow,
- *     scale bar tick marks, header diamond decoration.
  */
 
 import { t, getLocale } from '$lib/i18n';
@@ -24,12 +17,23 @@ export interface BmiCardData {
   height?: number | null;
   weight?: number | null;
   heightUnit?: string;
-  format?: 'png' | 'jpeg';
 }
 
 const CARD_W = 1080;
-const CARD_H = 1920;
-const RADIUS = 64;
+const CARD_H = 1080;
+const RADIUS = 56;
+
+const PREMIUM = {
+  bg: '#000000',
+  panelBottom: 'rgba(255,255,255,0.045)',
+  border: 'rgba(255,255,255,0.105)',
+  borderMuted: 'rgba(255,255,255,0.065)',
+  text: '#F7F8FA',
+  textSoft: 'rgba(255,255,255,0.72)',
+  textMuted: 'rgba(255,255,255,0.45)',
+  emerald: '#18D26E',
+  emeraldLine: 'rgba(24,210,110,0.42)'
+} as const;
 
 /** Helper: convert hex (#RRGGBB) to rgba string */
 function hexToRgba(hex: string, alpha: number): string {
@@ -79,148 +83,86 @@ function roundRect(
   ctx.closePath();
 }
 
+function drawGradientCenteredText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  font: string,
+  gradientStops: Array<[number, string]>
+): void {
+  ctx.save();
+  ctx.font = font;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+
+  const metrics = ctx.measureText(text);
+  const grad = ctx.createLinearGradient(x - metrics.width / 2, y, x + metrics.width / 2, y);
+
+  for (const [stop, color] of gradientStops) {
+    grad.addColorStop(stop, color);
+  }
+
+  ctx.fillStyle = grad;
+  ctx.fillText(text, x, y);
+  ctx.restore();
+}
+
+function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+  const useWords = /\s/.test(text);
+  const units = useWords ? text.trim().split(/\s+/) : Array.from(text);
+  const lines: string[] = [];
+  let currentLine = '';
+
+  for (const unit of units) {
+    const testLine = currentLine ? (useWords ? `${currentLine} ${unit}` : `${currentLine}${unit}`) : unit;
+    if (ctx.measureText(testLine).width > maxWidth && currentLine) {
+      lines.push(currentLine);
+      currentLine = unit;
+    } else {
+      currentLine = testLine;
+    }
+  }
+
+  if (currentLine) lines.push(currentLine);
+  return lines;
+}
+
 /** Draw a pill-shaped stat cell with label above and value below */
 function drawStatCell(
   ctx: CanvasRenderingContext2D,
   cx: number, // center x
   y: number,  // top of cell
   label: string,
-  value: string,
-  accent: string
+  value: string
 ) {
   const pillW = 260;
-  const pillH = 120;
+  const pillH = 108;
   const pillX = cx - pillW / 2;
   const pillR = 20;
 
-  // Pill background — subtle glass
   const pillGrad = ctx.createLinearGradient(pillX, y, pillX + pillW, y + pillH);
-  pillGrad.addColorStop(0, 'rgba(255,255,255,0.06)');
-  pillGrad.addColorStop(1, 'rgba(255,255,255,0.02)');
+  pillGrad.addColorStop(0, 'rgba(255,255,255,0.052)');
+  pillGrad.addColorStop(1, 'rgba(255,255,255,0.022)');
   roundRect(ctx, pillX, y, pillW, pillH, pillR);
   ctx.fillStyle = pillGrad;
   ctx.fill();
 
-  // Pill border — accent tinted
   roundRect(ctx, pillX, y, pillW, pillH, pillR);
-  ctx.strokeStyle = hexToRgba(accent, 0.18);
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = PREMIUM.borderMuted;
+  ctx.lineWidth = 1;
   ctx.stroke();
 
-  // Label (above value)
   ctx.textAlign = 'center';
-  ctx.fillStyle = 'rgba(255,255,255,0.45)';
-  ctx.font = '600 20px system-ui, sans-serif';
+  ctx.fillStyle = PREMIUM.textMuted;
+  ctx.font = '700 20px system-ui, sans-serif';
   ctx.letterSpacing = '0.05em';
-  ctx.fillText(label, cx, y + 42);
+  ctx.fillText(label, cx, y + 38);
+  ctx.letterSpacing = '0px';
 
-  // Value (large, white with accent tint)
-  ctx.fillStyle = '#ffffff';
-  ctx.font = '700 36px system-ui, sans-serif';
-  ctx.fillText(value, cx, y + 90);
-}
-
-/**
- * Draw star field on the background.
- */
-function drawStarField(
-  ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
-  accent: string,
-  seed: number = 42
-) {
-  let s = seed;
-  function rand(): number {
-    s = (s * 16807 + 0) % 2147483647;
-    return s / 2147483647;
-  }
-
-  // Layer 1: Dim distant stars
-  for (let i = 0; i < 120; i++) {
-    const x = rand() * w;
-    const y = rand() * h;
-    const r = rand() * 1.2 + 0.3;
-    const alpha = rand() * 0.25 + 0.05;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-    ctx.fill();
-  }
-
-  // Layer 2: Medium stars
-  for (let i = 0; i < 40; i++) {
-    const x = rand() * w;
-    const y = rand() * h;
-    const r = rand() * 1.5 + 0.8;
-    const alpha = rand() * 0.35 + 0.15;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-    ctx.fill();
-  }
-
-  // Layer 3: Accent-tinted bright stars
-  for (let i = 0; i < 12; i++) {
-    const x = rand() * w;
-    const y = rand() * h;
-    const r = rand() * 1.8 + 1.0;
-    const alpha = rand() * 0.3 + 0.1;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fillStyle = hexToRgba(accent, alpha);
-    ctx.fill();
-
-    if (alpha > 0.2) {
-      const glow = ctx.createRadialGradient(x, y, 0, x, y, r * 4);
-      glow.addColorStop(0, hexToRgba(accent, 0.06));
-      glow.addColorStop(1, 'transparent');
-      ctx.fillStyle = glow;
-      ctx.fillRect(x - r * 4, y - r * 4, r * 8, r * 8);
-    }
-  }
-}
-
-/**
- * Draw subtle grain/noise texture overlay on a region.
- */
-function drawGrainOverlay(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  r: number,
-  seed: number = 137
-) {
-  let s = seed;
-  function rand(): number {
-    s = (s * 16807 + 0) % 2147483647;
-    return s / 2147483647;
-  }
-
-  ctx.save();
-  roundRect(ctx, x, y, w, h, r);
-  ctx.clip();
-
-  for (let i = 0; i < 800; i++) {
-    const dx = rand() * w;
-    const dy = rand() * h;
-    const alpha = rand() * 0.04 + 0.01;
-    const size = rand() < 0.3 ? 1.5 : 1;
-    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-    ctx.fillRect(x + dx, y + dy, size, size);
-  }
-
-  for (let i = 0; i < 400; i++) {
-    const dx = rand() * w;
-    const dy = rand() * h;
-    const alpha = rand() * 0.03 + 0.005;
-    ctx.fillStyle = `rgba(0,0,0,${alpha})`;
-    ctx.fillRect(x + dx, y + dy, 1, 1);
-  }
-
-  ctx.restore();
+  ctx.fillStyle = PREMIUM.text;
+  ctx.font = '800 34px system-ui, sans-serif';
+  ctx.fillText(value, cx, y + 82);
 }
 
 /**
@@ -230,8 +172,7 @@ function drawPersonalDataRow(
   ctx: CanvasRenderingContext2D,
   cx: number,
   y: number,
-  data: BmiCardData,
-  accent: string
+  data: BmiCardData
 ) {
   const items: { label: string; value: string }[] = [];
 
@@ -251,7 +192,7 @@ function drawPersonalDataRow(
 
   if (items.length === 0) return y;
 
-  const pillW = 180;
+  const pillW = 182;
   const pillH = 52;
   const gap = 24;
   const totalW = items.length * pillW + (items.length - 1) * gap;
@@ -263,23 +204,23 @@ function drawPersonalDataRow(
     const pillR = 14;
 
     const pillGrad = ctx.createLinearGradient(px, y, px + pillW, y + pillH);
-    pillGrad.addColorStop(0, 'rgba(255,255,255,0.05)');
-    pillGrad.addColorStop(1, 'rgba(255,255,255,0.02)');
+    pillGrad.addColorStop(0, 'rgba(255,255,255,0.055)');
+    pillGrad.addColorStop(1, 'rgba(255,255,255,0.025)');
     roundRect(ctx, px, y, pillW, pillH, pillR);
     ctx.fillStyle = pillGrad;
     ctx.fill();
 
     roundRect(ctx, px, y, pillW, pillH, pillR);
-    ctx.strokeStyle = hexToRgba(accent, 0.12);
+    ctx.strokeStyle = PREMIUM.borderMuted;
     ctx.lineWidth = 1;
     ctx.stroke();
 
     ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.fillStyle = PREMIUM.textMuted;
     ctx.font = '500 16px system-ui, sans-serif';
     ctx.fillText(item.label, px + pillW / 2 - 30, y + 33);
 
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = PREMIUM.text;
     ctx.font = '600 18px system-ui, sans-serif';
     ctx.fillText(item.value, px + pillW / 2 + 30, y + 33);
   }
@@ -288,56 +229,7 @@ function drawPersonalDataRow(
 }
 
 /**
- * P2: Draw corner accent decorations — L-shaped accent lines at each card corner.
- */
-function drawCornerAccents(
-  ctx: CanvasRenderingContext2D,
-  cardX: number,
-  cardY: number,
-  cardW: number,
-  cardH: number,
-  accent: string,
-  inset: number = 20,
-  lineLen: number = 50
-) {
-  ctx.save();
-  ctx.strokeStyle = hexToRgba(accent, 0.30);
-  ctx.lineWidth = 2;
-  ctx.lineCap = 'round';
-
-  // Top-left
-  ctx.beginPath();
-  ctx.moveTo(cardX + inset, cardY + inset + lineLen);
-  ctx.lineTo(cardX + inset, cardY + inset);
-  ctx.lineTo(cardX + inset + lineLen, cardY + inset);
-  ctx.stroke();
-
-  // Top-right
-  ctx.beginPath();
-  ctx.moveTo(cardX + cardW - inset - lineLen, cardY + inset);
-  ctx.lineTo(cardX + cardW - inset, cardY + inset);
-  ctx.lineTo(cardX + cardW - inset, cardY + inset + lineLen);
-  ctx.stroke();
-
-  // Bottom-left
-  ctx.beginPath();
-  ctx.moveTo(cardX + inset, cardY + cardH - inset - lineLen);
-  ctx.lineTo(cardX + inset, cardY + cardH - inset);
-  ctx.lineTo(cardX + inset + lineLen, cardY + cardH - inset);
-  ctx.stroke();
-
-  // Bottom-right
-  ctx.beginPath();
-  ctx.moveTo(cardX + cardW - inset - lineLen, cardY + cardH - inset);
-  ctx.lineTo(cardX + cardW - inset, cardY + cardH - inset);
-  ctx.lineTo(cardX + cardW - inset, cardY + cardH - inset - lineLen);
-  ctx.stroke();
-
-  ctx.restore();
-}
-
-/**
- * P2: Draw a mini radial gauge showing BMI position visually.
+ * Draw a mini radial gauge showing BMI position visually.
  */
 function drawMiniGauge(
   ctx: CanvasRenderingContext2D,
@@ -356,7 +248,7 @@ function drawMiniGauge(
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-  ctx.lineWidth = 6;
+  ctx.lineWidth = 7;
   ctx.stroke();
 
   const segDefs = [
@@ -375,8 +267,8 @@ function drawMiniGauge(
 
     ctx.beginPath();
     ctx.arc(cx, cy, radius, a1, a2);
-    ctx.strokeStyle = hexToRgba(seg.color, 0.50);
-    ctx.lineWidth = 6;
+    ctx.strokeStyle = hexToRgba(seg.color, 0.36);
+    ctx.lineWidth = 7;
     ctx.lineCap = 'round';
     ctx.stroke();
   }
@@ -384,132 +276,32 @@ function drawMiniGauge(
   const activeAngle = startAngle + pct * Math.PI * 2;
   ctx.beginPath();
   ctx.arc(cx, cy, radius, startAngle, activeAngle);
-  ctx.strokeStyle = hexToRgba(accent, 0.70);
-  ctx.lineWidth = 6;
+  ctx.strokeStyle = hexToRgba(accent, 0.48);
+  ctx.lineWidth = 7;
   ctx.lineCap = 'round';
   ctx.stroke();
 
   const dotX = cx + Math.cos(activeAngle) * radius;
   const dotY = cy + Math.sin(activeAngle) * radius;
 
-  ctx.save();
-  ctx.shadowColor = hexToRgba(accent, 0.50);
-  ctx.shadowBlur = 12;
   ctx.beginPath();
   ctx.arc(dotX, dotY, 7, 0, Math.PI * 2);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = PREMIUM.bg;
   ctx.fill();
-  ctx.restore();
 
   ctx.beginPath();
-  ctx.arc(dotX, dotY, 4, 0, Math.PI * 2);
-  ctx.fillStyle = accent;
-  ctx.fill();
+  ctx.arc(dotX, dotY, 6, 0, Math.PI * 2);
+  ctx.strokeStyle = hexToRgba(accent, 0.85);
+  ctx.lineWidth = 2;
+  ctx.stroke();
 
   ctx.textAlign = 'center';
-  ctx.fillStyle = hexToRgba(accent, 0.50);
-  ctx.font = '700 18px system-ui, sans-serif';
+  ctx.fillStyle = hexToRgba(accent, 0.46);
+  ctx.font = '800 18px system-ui, sans-serif';
   ctx.fillText('BMI', cx, cy - 4);
-  ctx.fillStyle = 'rgba(255,255,255,0.30)';
-  ctx.font = '500 12px system-ui, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.34)';
+  ctx.font = '600 13px system-ui, sans-serif';
   ctx.fillText(bmi.toFixed(1), cx, cy + 14);
-}
-
-/**
- * P3: Draw floating decorative particles around the BMI value area.
- * Small orbiting accent dots that create a "living" premium feel.
- */
-function drawFloatingParticles(
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  accent: string,
-  seed: number = 77
-) {
-  let s = seed;
-  function rand(): number {
-    s = (s * 16807 + 0) % 2147483647;
-    return s / 2147483647;
-  }
-
-  // Generate 8 floating particles at various distances and angles
-  const count = 8;
-  for (let i = 0; i < count; i++) {
-    const angle = rand() * Math.PI * 2;
-    const dist = rand() * 140 + 120; // 120-260px from center
-    const x = cx + Math.cos(angle) * dist;
-    const y = cy + Math.sin(angle) * dist * 0.6; // slight vertical compression
-    const r = rand() * 2.5 + 1;
-    const alpha = rand() * 0.20 + 0.08;
-
-    // Soft glow behind particle
-    const glow = ctx.createRadialGradient(x, y, 0, x, y, r * 6);
-    glow.addColorStop(0, hexToRgba(accent, alpha * 0.5));
-    glow.addColorStop(1, 'transparent');
-    ctx.fillStyle = glow;
-    ctx.fillRect(x - r * 6, y - r * 6, r * 12, r * 12);
-
-    // Particle dot
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fillStyle = hexToRgba(accent, alpha);
-    ctx.fill();
-
-    // Tiny bright core
-    ctx.beginPath();
-    ctx.arc(x, y, r * 0.4, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255,255,255,${alpha * 0.8})`;
-    ctx.fill();
-  }
-
-  // A couple of larger "bokeh" circles — very subtle
-  for (let i = 0; i < 3; i++) {
-    const angle = rand() * Math.PI * 2;
-    const dist = rand() * 180 + 80;
-    const x = cx + Math.cos(angle) * dist;
-    const y = cy + Math.sin(angle) * dist * 0.5;
-    const r = rand() * 15 + 8;
-    const alpha = rand() * 0.03 + 0.01;
-
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.strokeStyle = hexToRgba(accent, alpha);
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  }
-}
-
-/**
- * P3: Draw a small diamond shape for header decoration.
- */
-function drawDiamond(
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  size: number,
-  accent: string
-) {
-  ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(cx, cy - size);      // top
-  ctx.lineTo(cx + size, cy);      // right
-  ctx.lineTo(cx, cy + size);      // bottom
-  ctx.lineTo(cx - size, cy);      // left
-  ctx.closePath();
-
-  // Gradient fill
-  const grad = ctx.createLinearGradient(cx - size, cy - size, cx + size, cy + size);
-  grad.addColorStop(0, hexToRgba(accent, 0.40));
-  grad.addColorStop(0.5, hexToRgba(accent, 0.20));
-  grad.addColorStop(1, hexToRgba(accent, 0.40));
-  ctx.fillStyle = grad;
-  ctx.fill();
-
-  // Border
-  ctx.strokeStyle = hexToRgba(accent, 0.50);
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  ctx.restore();
 }
 
 export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
@@ -522,304 +314,168 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   if (!ctx) return null;
 
   const accent = getCategoryColor(data.category);
-  const format = data.format === 'jpeg' ? 'jpeg' : 'png';
+  const centerX = CARD_W / 2;
 
-  // ── Background — deep cosmic gradient ──
-  const bgGrad = ctx.createLinearGradient(0, 0, CARD_W, CARD_H);
-  bgGrad.addColorStop(0, '#0a0818');
-  bgGrad.addColorStop(0.35, '#140428');
-  bgGrad.addColorStop(0.65, '#1a0533');
-  bgGrad.addColorStop(1, '#0a0818');
-  roundRect(ctx, 0, 0, CARD_W, CARD_H, 0);
-  ctx.fillStyle = bgGrad;
-  ctx.fill();
-
-  // ── Star field decoration ──
-  drawStarField(ctx, CARD_W, CARD_H, accent);
-
-  // ── Accent radial glow — large, behind BMI value area ──
-  const glow1 = ctx.createRadialGradient(
-    CARD_W / 2, CARD_H * 0.30, 0,
-    CARD_W / 2, CARD_H * 0.30, 600
-  );
-  glow1.addColorStop(0, hexToRgba(accent, 0.12));
-  glow1.addColorStop(0.5, hexToRgba(accent, 0.04));
-  glow1.addColorStop(1, 'transparent');
-  ctx.fillStyle = glow1;
+  ctx.fillStyle = PREMIUM.bg;
   ctx.fillRect(0, 0, CARD_W, CARD_H);
 
-  // ── Secondary glow — subtle, lower ──
-  const glow2 = ctx.createRadialGradient(
-    CARD_W / 2, CARD_H * 0.55, 0,
-    CARD_W / 2, CARD_H * 0.55, 400
+  const bgDepth = ctx.createRadialGradient(
+    CARD_W / 2, CARD_H * 0.42, 0,
+    CARD_W / 2, CARD_H * 0.42, 520
   );
-  glow2.addColorStop(0, hexToRgba(accent, 0.06));
-  glow2.addColorStop(1, 'transparent');
-  ctx.fillStyle = glow2;
+  bgDepth.addColorStop(0, 'rgba(255,255,255,0.030)');
+  bgDepth.addColorStop(0.55, 'rgba(255,255,255,0.010)');
+  bgDepth.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = bgDepth;
   ctx.fillRect(0, 0, CARD_W, CARD_H);
 
-  // ── Card container ──
-  const cardX = 60;
-  const cardY = 200;
-  const cardW = CARD_W - 120;
-  const cardH = CARD_H - 400;
+  const cardX = 58;
+  const cardY = 88;
+  const cardW = CARD_W - 116;
+  const cardH = 828;
+  const headerY = cardY + 86;
+  const bmiY = cardY + 262;
+  const categoryY = cardY + 352;
+  const pillsY = cardY + 400;
+  const statsY = cardY + 506;
+  const scaleY = cardY + 632;
+  const insightY = cardY + 720;
+  const footerBrandY = cardY + cardH + 40;
+  const footerDomainY = footerBrandY + 34;
+  const footerTimeY = footerDomainY + 30;
 
-  // P3: Card depth shadow — soft diffused glow beneath the card
-  const depthGlow = ctx.createRadialGradient(
-    CARD_W / 2, cardY + cardH + 40, 0,
-    CARD_W / 2, cardY + cardH + 40, cardW * 0.6
-  );
-  depthGlow.addColorStop(0, hexToRgba(accent, 0.08));
-  depthGlow.addColorStop(0.5, hexToRgba(accent, 0.03));
-  depthGlow.addColorStop(1, 'transparent');
-  ctx.fillStyle = depthGlow;
-  ctx.fillRect(0, cardY + cardH - 60, CARD_W, 300);
-
-  // Also a subtle top glow for symmetry
-  const topGlow = ctx.createRadialGradient(
-    CARD_W / 2, cardY - 20, 0,
-    CARD_W / 2, cardY - 20, cardW * 0.4
-  );
-  topGlow.addColorStop(0, hexToRgba(accent, 0.04));
-  topGlow.addColorStop(1, 'transparent');
-  ctx.fillStyle = topGlow;
-  ctx.fillRect(0, cardY - 200, CARD_W, 200);
-
-  // Card background — layered glass gradient
   const cardBg = ctx.createLinearGradient(cardX, cardY, cardX, cardY + cardH);
-  cardBg.addColorStop(0, 'rgba(255,255,255,0.08)');
-  cardBg.addColorStop(0.15, 'rgba(255,255,255,0.05)');
-  cardBg.addColorStop(0.85, 'rgba(255,255,255,0.03)');
-  cardBg.addColorStop(1, 'rgba(255,255,255,0.06)');
+  cardBg.addColorStop(0, 'rgba(255,255,255,0.065)');
+  cardBg.addColorStop(0.42, 'rgba(255,255,255,0.026)');
+  cardBg.addColorStop(1, PREMIUM.panelBottom);
   roundRect(ctx, cardX, cardY, cardW, cardH, RADIUS);
   ctx.fillStyle = cardBg;
   ctx.fill();
 
-  // Card inner glow — top edge highlight
-  const innerGlow = ctx.createLinearGradient(cardX, cardY, cardX, cardY + 200);
-  innerGlow.addColorStop(0, hexToRgba(accent, 0.06));
-  innerGlow.addColorStop(1, 'transparent');
-  roundRect(ctx, cardX, cardY, cardW, 200, RADIUS);
-  ctx.fillStyle = innerGlow;
-  ctx.fill();
-
-  // Card border — accent tinted, thicker
   roundRect(ctx, cardX, cardY, cardW, cardH, RADIUS);
-  ctx.strokeStyle = hexToRgba(accent, 0.20);
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = PREMIUM.border;
+  ctx.lineWidth = 1.2;
   ctx.stroke();
 
-  // ── Grain/noise texture overlay on card ──
-  drawGrainOverlay(ctx, cardX, cardY, cardW, cardH, RADIUS);
-
-  // ── Corner accent decorations ──
-  drawCornerAccents(ctx, cardX, cardY, cardW, cardH, accent);
-
-  // ── Top accent line — gradient with glow ──
-  const accentGlowGrad = ctx.createLinearGradient(cardX + RADIUS, 0, cardX + cardW - RADIUS, 0);
-  accentGlowGrad.addColorStop(0, 'transparent');
-  accentGlowGrad.addColorStop(0.2, hexToRgba(accent, 0.15));
-  accentGlowGrad.addColorStop(0.5, hexToRgba(accent, 0.30));
-  accentGlowGrad.addColorStop(0.8, hexToRgba(accent, 0.15));
-  accentGlowGrad.addColorStop(1, 'transparent');
-  ctx.beginPath();
-  ctx.moveTo(cardX + RADIUS, cardY);
-  ctx.lineTo(cardX + cardW - RADIUS, cardY);
-  ctx.strokeStyle = accentGlowGrad;
-  ctx.lineWidth = 8;
-  ctx.stroke();
-
-  const accentSharpGrad = ctx.createLinearGradient(cardX + RADIUS, 0, cardX + cardW - RADIUS, 0);
-  accentSharpGrad.addColorStop(0, 'transparent');
-  accentSharpGrad.addColorStop(0.25, accent);
-  accentSharpGrad.addColorStop(0.75, accent);
-  accentSharpGrad.addColorStop(1, 'transparent');
-  ctx.beginPath();
-  ctx.moveTo(cardX + RADIUS, cardY);
-  ctx.lineTo(cardX + cardW - RADIUS, cardY);
-  ctx.strokeStyle = accentSharpGrad;
-  ctx.lineWidth = 3;
-  ctx.stroke();
-
-  // ── Bottom accent line ──
-  const bottomGlowGrad = ctx.createLinearGradient(cardX + RADIUS, 0, cardX + cardW - RADIUS, 0);
-  bottomGlowGrad.addColorStop(0, 'transparent');
-  bottomGlowGrad.addColorStop(0.2, hexToRgba(accent, 0.08));
-  bottomGlowGrad.addColorStop(0.5, hexToRgba(accent, 0.15));
-  bottomGlowGrad.addColorStop(0.8, hexToRgba(accent, 0.08));
-  bottomGlowGrad.addColorStop(1, 'transparent');
-  ctx.beginPath();
-  ctx.moveTo(cardX + RADIUS, cardY + cardH);
-  ctx.lineTo(cardX + cardW - RADIUS, cardY + cardH);
-  ctx.strokeStyle = bottomGlowGrad;
-  ctx.lineWidth = 6;
-  ctx.stroke();
-
-  const bottomSharpGrad = ctx.createLinearGradient(cardX + RADIUS, 0, cardX + cardW - RADIUS, 0);
-  bottomSharpGrad.addColorStop(0, 'transparent');
-  bottomSharpGrad.addColorStop(0.3, hexToRgba(accent, 0.35));
-  bottomSharpGrad.addColorStop(0.7, hexToRgba(accent, 0.35));
-  bottomSharpGrad.addColorStop(1, 'transparent');
-  ctx.beginPath();
-  ctx.moveTo(cardX + RADIUS, cardY + cardH);
-  ctx.lineTo(cardX + cardW - RADIUS, cardY + cardH);
-  ctx.strokeStyle = bottomSharpGrad;
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  // ── P3: Header diamond decoration ──
-  const headerY = cardY + 100;
-  const headerText = t('share.card_header');
-  ctx.textAlign = 'center';
-  ctx.font = '600 28px system-ui, sans-serif';
-  const headerMetrics = ctx.measureText(headerText);
-
-  // Left diamond
-  drawDiamond(ctx, CARD_W / 2 - headerMetrics.width / 2 - 28, headerY - 9, 8, accent);
-  // Right diamond
-  drawDiamond(ctx, CARD_W / 2 + headerMetrics.width / 2 + 28, headerY - 9, 8, accent);
-
-  // Header text — accent tinted
-  ctx.textAlign = 'center';
-  ctx.fillStyle = hexToRgba(accent, 0.55);
-  ctx.font = '600 28px system-ui, sans-serif';
-  ctx.fillText(headerText, CARD_W / 2, headerY);
-
-  // ── BMI Value — large with glow ──
-  const valueGlow = ctx.createRadialGradient(
-    CARD_W / 2, cardY + 330, 0,
-    CARD_W / 2, cardY + 330, 280
-  );
-  valueGlow.addColorStop(0, hexToRgba(accent, 0.18));
-  valueGlow.addColorStop(0.4, hexToRgba(accent, 0.06));
-  valueGlow.addColorStop(1, 'transparent');
-  ctx.fillStyle = valueGlow;
-  ctx.fillRect(cardX, cardY + 100, cardW, 500);
-
-  // P3: Floating decorative particles around BMI value
-  drawFloatingParticles(ctx, CARD_W / 2, cardY + 330, accent);
-
-  // Canvas shadow for the BMI value (glow pass)
+  const rim = ctx.createLinearGradient(cardX, cardY, cardX, cardY + 150);
+  rim.addColorStop(0, 'rgba(255,255,255,0.090)');
+  rim.addColorStop(1, 'rgba(255,255,255,0)');
   ctx.save();
-  ctx.shadowColor = hexToRgba(accent, 0.50);
-  ctx.shadowBlur = 60;
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 0;
-  ctx.fillStyle = accent;
-  ctx.font = '800 160px system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText(data.bmi.toFixed(1), CARD_W / 2, cardY + 360);
+  roundRect(ctx, cardX, cardY, cardW, cardH, RADIUS);
+  ctx.clip();
+  ctx.fillStyle = rim;
+  ctx.fillRect(cardX, cardY, cardW, 150);
   ctx.restore();
 
-  // P3: Gradient fill on BMI value text — premium gradient instead of solid
-  const bmiText = data.bmi.toFixed(1);
-  ctx.font = '800 160px system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  const bmiMetrics = ctx.measureText(bmiText);
-  const bmiTextX = CARD_W / 2;
-  const bmiTextY = cardY + 360;
-
-  // Create vertical gradient for text fill
-  const textGrad = ctx.createLinearGradient(
-    bmiTextX - bmiMetrics.width / 2, bmiTextY - 120,
-    bmiTextX + bmiMetrics.width / 2, bmiTextY + 20
-  );
-  const accentLight = lightenHex(accent, 0.25);
-  textGrad.addColorStop(0, accentLight);
-  textGrad.addColorStop(0.4, accent);
-  textGrad.addColorStop(0.7, accent);
-  textGrad.addColorStop(1, hexToRgba(accent, 0.80));
-
-  ctx.fillStyle = textGrad;
-  ctx.fillText(bmiText, bmiTextX, bmiTextY);
-
-  // ── Mini radial gauge ──
-  const gaugeCx = cardX + cardW - 110;
-  const gaugeCy = cardY + 320;
-  drawMiniGauge(ctx, gaugeCx, gaugeCy, 45, data.bmi, accent);
-
-  // ── Category — white with subtle accent glow ──
-  ctx.save();
-  ctx.shadowColor = hexToRgba(accent, 0.25);
-  ctx.shadowBlur = 20;
-  ctx.fillStyle = '#ffffff';
-  ctx.font = '700 52px system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  const categoryText = data.category.toUpperCase();
-
-  const catMetrics = ctx.measureText(categoryText);
-  const catTextX = CARD_W / 2;
-  const catTextY = cardY + 440;
-  ctx.fillText(categoryText, catTextX, catTextY);
-  ctx.restore();
-
-  // ── Category color dot ──
-  const dotRadius = 8;
-  const dotX = catTextX - catMetrics.width / 2 - 24;
-  const dotY = catTextY - 16;
-
-  ctx.save();
-  ctx.shadowColor = hexToRgba(accent, 0.40);
-  ctx.shadowBlur = 8;
+  const topLine = ctx.createLinearGradient(cardX + 80, 0, cardX + cardW - 80, 0);
+  topLine.addColorStop(0, 'rgba(24,210,110,0)');
+  topLine.addColorStop(0.5, PREMIUM.emeraldLine);
+  topLine.addColorStop(1, 'rgba(24,210,110,0)');
   ctx.beginPath();
-  ctx.arc(dotX, dotY, dotRadius, 0, Math.PI * 2);
-  ctx.fillStyle = accent;
-  ctx.fill();
-  ctx.restore();
-
-  ctx.beginPath();
-  ctx.arc(dotX, dotY, dotRadius, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(255,255,255,0.30)';
+  ctx.moveTo(cardX + 96, cardY + 1);
+  ctx.lineTo(cardX + cardW - 96, cardY + 1);
+  ctx.strokeStyle = topLine;
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  // ── Personal data row (height/weight) ──
-  const afterPersonalY = drawPersonalDataRow(ctx, CARD_W / 2, cardY + 470, data, accent);
+  const headerText = t('share.card_header');
+  drawGradientCenteredText(
+    ctx,
+    headerText,
+    centerX,
+    headerY,
+    '800 28px system-ui, sans-serif',
+    [
+      [0, '#F6FFF9'],
+      [0.35, '#73F2A6'],
+      [0.72, PREMIUM.emerald],
+      [1, '#0B8F4A']
+    ]
+  );
 
-  // ── Divider — accent tinted ──
-  const divY = Math.max(cardY + 500, afterPersonalY);
+  const valueAura = ctx.createRadialGradient(
+    centerX, bmiY - 30, 0,
+    centerX, bmiY - 30, 220
+  );
+  valueAura.addColorStop(0, hexToRgba(accent, 0.055));
+  valueAura.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = valueAura;
+  ctx.fillRect(cardX, bmiY - 210, cardW, 300);
+
+  const bmiText = data.bmi.toFixed(1);
+  ctx.font = '800 148px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+
+  const textGrad = ctx.createLinearGradient(
+    centerX, bmiY - 130,
+    centerX, bmiY + 20
+  );
+  textGrad.addColorStop(0, lightenHex(accent, 0.18));
+  textGrad.addColorStop(0.55, accent);
+  textGrad.addColorStop(1, hexToRgba(accent, 0.82));
+
+  ctx.fillStyle = textGrad;
+  ctx.fillText(bmiText, centerX, bmiY);
+
+  const gaugeCx = cardX + cardW - 118;
+  const gaugeCy = bmiY - 44;
+  drawMiniGauge(ctx, gaugeCx, gaugeCy, 48, data.bmi, accent);
+
+  ctx.fillStyle = PREMIUM.text;
+  ctx.font = '800 48px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  const categoryText = data.category.toUpperCase();
+  const catMetrics = ctx.measureText(categoryText);
+  const catTextX = centerX;
+  const catTextY = categoryY;
+  ctx.fillText(categoryText, catTextX, catTextY);
+
+  const dotX = catTextX - catMetrics.width / 2 - 24;
+  const dotY = catTextY - 16;
+  ctx.beginPath();
+  ctx.arc(dotX, dotY, 7, 0, Math.PI * 2);
+  ctx.fillStyle = hexToRgba(accent, 0.90);
+  ctx.fill();
+
+  const afterPersonalY = drawPersonalDataRow(ctx, centerX, pillsY, data);
+
+  const divY = Math.min(statsY - 24, Math.max(pillsY + 72, afterPersonalY + 18));
   const divGrad = ctx.createLinearGradient(cardX + 80, 0, cardX + cardW - 80, 0);
-  divGrad.addColorStop(0, 'transparent');
-  divGrad.addColorStop(0.3, hexToRgba(accent, 0.15));
-  divGrad.addColorStop(0.5, hexToRgba(accent, 0.25));
-  divGrad.addColorStop(0.7, hexToRgba(accent, 0.15));
-  divGrad.addColorStop(1, 'transparent');
+  divGrad.addColorStop(0, 'rgba(255,255,255,0)');
+  divGrad.addColorStop(0.5, 'rgba(255,255,255,0.10)');
+  divGrad.addColorStop(1, 'rgba(255,255,255,0)');
   ctx.beginPath();
   ctx.moveTo(cardX + 80, divY);
   ctx.lineTo(cardX + cardW - 80, divY);
   ctx.strokeStyle = divGrad;
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = 1;
   ctx.stroke();
 
-  // ── Stats grid — pill cells ──
-  const statsY = divY + 60;
   const colW = cardW / 3;
 
   if (data.bmiPrime !== null && data.bmiPrime !== undefined) {
-    drawStatCell(ctx, cardX + colW * 0.5, statsY, t('share.card_prime'), data.bmiPrime.toFixed(2), accent);
+    drawStatCell(ctx, cardX + colW * 0.5, statsY, t('share.card_prime'), data.bmiPrime.toFixed(2));
   }
 
   if (data.idealMin !== null && data.idealMax !== null && data.weightUnit) {
-    drawStatCell(ctx, cardX + colW * 1.5, statsY, t('share.card_ideal'), `${data.idealMin}\u2013${data.idealMax} ${data.weightUnit}`, accent);
+    drawStatCell(ctx, cardX + colW * 1.5, statsY, t('share.card_ideal'), `${data.idealMin}\u2013${data.idealMax} ${data.weightUnit}`);
   }
 
   if (data.tdee !== null && data.tdee !== undefined) {
-    drawStatCell(ctx, cardX + colW * 2.5, statsY, t('share.card_tdee'), `${Math.round(data.tdee)} ${t('share.card_kcal')}`, accent);
+    drawStatCell(ctx, cardX + colW * 2.5, statsY, t('share.card_tdee'), `${Math.round(data.tdee)} ${t('share.card_kcal')}`);
   }
 
-  // ── BMI Scale bar ──
-  const barY = statsY + 170;
-  const barX = cardX + 80;
-  const barW = cardW - 160;
+  const barY = scaleY;
+  const barX = cardX + 78;
+  const barW = cardW - 156;
   const barH = 24;
   const barR = 12;
   const bmiMin = 12;
   const bmiMax = 42;
   const bmiRange = bmiMax - bmiMin;
 
-  // Bar track background
   roundRect(ctx, barX, barY, barW, barH, barR);
-  ctx.fillStyle = 'rgba(255,255,255,0.04)';
+  ctx.fillStyle = 'rgba(255,255,255,0.055)';
   ctx.fill();
 
   const segments = [
@@ -838,16 +494,15 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   for (const seg of segments) {
     const segW = ((seg.end - seg.start) / bmiRange) * barW;
     const segGrad = ctx.createLinearGradient(segX, barY, segX + segW, barY);
-    segGrad.addColorStop(0, hexToRgba(seg.color, 0.40));
-    segGrad.addColorStop(0.5, hexToRgba(seg.color, 0.65));
-    segGrad.addColorStop(1, hexToRgba(seg.color, 0.40));
+    segGrad.addColorStop(0, hexToRgba(seg.color, 0.45));
+    segGrad.addColorStop(0.5, hexToRgba(seg.color, 0.58));
+    segGrad.addColorStop(1, hexToRgba(seg.color, 0.45));
     ctx.fillStyle = segGrad;
     ctx.fillRect(segX, barY, segW, barH);
     segX += segW;
   }
   ctx.restore();
 
-  // P3: Scale bar tick marks — small vertical ticks at category boundaries
   const boundaries = [18.5, 25, 30];
   for (const b of boundaries) {
     const bx = barX + ((b - bmiMin) / bmiRange) * barW;
@@ -859,36 +514,29 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
     ctx.stroke();
   }
 
-  // Active segment glow
   const markerPct = Math.max(0, Math.min(1, (data.bmi - bmiMin) / bmiRange));
   const markerX = barX + markerPct * barW;
   const activeGlow = ctx.createRadialGradient(markerX, barY + barH / 2, 0, markerX, barY + barH / 2, 100);
-  activeGlow.addColorStop(0, hexToRgba(accent, 0.35));
-  activeGlow.addColorStop(1, 'transparent');
+  activeGlow.addColorStop(0, hexToRgba(accent, 0.08));
+  activeGlow.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = activeGlow;
   ctx.fillRect(markerX - 100, barY - 10, 200, barH + 20);
 
-  // BMI marker — outer glow ring + filled circle
-  ctx.save();
-  ctx.shadowColor = hexToRgba(accent, 0.60);
-  ctx.shadowBlur = 20;
-
   ctx.beginPath();
-  ctx.arc(markerX, barY + barH / 2, 18, 0, Math.PI * 2);
-  ctx.fillStyle = '#ffffff';
+  ctx.arc(markerX, barY + barH / 2, 17, 0, Math.PI * 2);
+  ctx.fillStyle = PREMIUM.bg;
   ctx.fill();
 
   ctx.beginPath();
-  ctx.arc(markerX, barY + barH / 2, 13, 0, Math.PI * 2);
-  ctx.fillStyle = accent;
-  ctx.fill();
-  ctx.restore();
+  ctx.arc(markerX, barY + barH / 2, 14, 0, Math.PI * 2);
+  ctx.strokeStyle = hexToRgba(accent, 0.95);
+  ctx.lineWidth = 4;
+  ctx.stroke();
 
-  // Scale numeric labels
   ctx.textAlign = 'center';
-  ctx.fillStyle = 'rgba(255,255,255,0.30)';
-  ctx.font = '500 18px system-ui, sans-serif';
-  const labelY = barY + barH + 32;
+  ctx.fillStyle = 'rgba(255,255,255,0.54)';
+  ctx.font = '600 18px system-ui, sans-serif';
+  const labelY = barY + barH + 30;
 
   ctx.fillText('12', barX, labelY);
   ctx.fillText('18.5', barX + ((18.5 - bmiMin) / bmiRange) * barW, labelY);
@@ -896,8 +544,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.fillText('30', barX + ((30 - bmiMin) / bmiRange) * barW, labelY);
   ctx.fillText('42', barX + barW, labelY);
 
-  // Category labels below the scale
-  ctx.font = '600 14px system-ui, sans-serif';
+  ctx.font = '700 15px system-ui, sans-serif';
   const catLabelY = labelY + 24;
   const segColors = ['#4A90E2', '#00C853', '#FFD600', '#D50000'];
   const catCenters = [
@@ -907,52 +554,44 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
     barX + ((36 - bmiMin) / bmiRange) * barW
   ];
   for (let i = 0; i < segments.length; i++) {
-    ctx.fillStyle = hexToRgba(segColors[i], 0.55);
+    ctx.fillStyle = hexToRgba(segColors[i], 0.62);
     ctx.fillText(segments[i].label, catCenters[i], catLabelY);
   }
 
-  // ── Health insight text ──
-  const insightY = catLabelY + 50;
   const insightKey = getCategoryInsightKey(data.category);
   const insightText = t(insightKey);
 
-  const insightPadX = 60;
-  const insightPadY = 24;
+  const insightPadX = 58;
+  const insightPadY = 18;
   const insightMaxW = cardW - insightPadX * 2;
 
-  ctx.font = '400 22px system-ui, sans-serif';
+  ctx.font = '400 23px system-ui, sans-serif';
   ctx.textAlign = 'center';
 
-  const words = insightText.split(' ');
-  const lines: string[] = [];
-  let currentLine = '';
-  for (const word of words) {
-    const testLine = currentLine ? `${currentLine} ${word}` : word;
-    const metrics = ctx.measureText(testLine);
-    if (metrics.width > insightMaxW - 40 && currentLine) {
-      lines.push(currentLine);
-      currentLine = word;
-    } else {
-      currentLine = testLine;
-    }
+  let insightFontSize = 23;
+  let lineHeight = 32;
+  let lines = wrapText(ctx, insightText, insightMaxW - 56);
+  if (lines.length > 2) {
+    insightFontSize = 21;
+    lineHeight = 29;
+    ctx.font = `${insightFontSize}px system-ui, sans-serif`;
+    lines = wrapText(ctx, insightText, insightMaxW - 56);
   }
-  if (currentLine) lines.push(currentLine);
 
-  const lineHeight = 30;
   const insightBoxH = lines.length * lineHeight + insightPadY * 2;
   const insightBoxX = cardX + insightPadX;
   const insightBoxY = insightY;
   const insightBoxW = insightMaxW;
 
   const insightGrad = ctx.createLinearGradient(insightBoxX, insightBoxY, insightBoxX, insightBoxY + insightBoxH);
-  insightGrad.addColorStop(0, hexToRgba(accent, 0.05));
-  insightGrad.addColorStop(1, hexToRgba(accent, 0.02));
+  insightGrad.addColorStop(0, 'rgba(255,255,255,0.050)');
+  insightGrad.addColorStop(1, 'rgba(255,255,255,0.022)');
   roundRect(ctx, insightBoxX, insightBoxY, insightBoxW, insightBoxH, 16);
   ctx.fillStyle = insightGrad;
   ctx.fill();
 
   roundRect(ctx, insightBoxX, insightBoxY, insightBoxW, insightBoxH, 16);
-  ctx.strokeStyle = hexToRgba(accent, 0.10);
+  ctx.strokeStyle = PREMIUM.borderMuted;
   ctx.lineWidth = 1;
   ctx.stroke();
 
@@ -960,40 +599,34 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 
   const barDotX = insightBoxX + 24;
   roundRect(ctx, barDotX, insightBoxY + insightPadY, 3, lines.length * lineHeight, 1.5);
-  ctx.fillStyle = hexToRgba(accent, 0.40);
+  ctx.fillStyle = hexToRgba(accent, 0.55);
   ctx.fill();
 
   ctx.textAlign = 'left';
-  ctx.fillStyle = 'rgba(255,255,255,0.60)';
-  ctx.font = '400 22px system-ui, sans-serif';
+  ctx.fillStyle = PREMIUM.textSoft;
+  ctx.font = `400 ${insightFontSize}px system-ui, sans-serif`;
   const textX = insightBoxX + 40;
   for (let i = 0; i < lines.length; i++) {
     ctx.fillText(lines[i], textX, textStartY + i * lineHeight);
   }
 
-  // ── Footer branding — accent tinted ──
   ctx.textAlign = 'center';
-  ctx.fillStyle = hexToRgba(accent, 0.30);
-  ctx.font = '600 22px system-ui, sans-serif';
-  ctx.fillText(t('share.card_branding'), CARD_W / 2, CARD_H - 160);
+  ctx.fillStyle = hexToRgba(PREMIUM.emerald, 0.52);
+  ctx.font = '700 21px system-ui, sans-serif';
+  ctx.fillText(t('share.card_branding'), centerX, footerBrandY);
 
-  ctx.fillStyle = 'rgba(255,255,255,0.15)';
-  ctx.font = '400 20px system-ui, sans-serif';
-  ctx.fillText('bmi-stellar.vercel.app', CARD_W / 2, CARD_H - 120);
+  ctx.fillStyle = 'rgba(255,255,255,0.30)';
+  ctx.font = '400 18px system-ui, sans-serif';
+  ctx.fillText('bmi-stellar.vercel.app', centerX, footerDomainY);
 
-  // Timestamp
   const now = new Date();
   const timestamp = now.toLocaleString(getLocale() === 'zh' ? 'zh-CN' : getLocale(), { dateStyle: 'medium', timeStyle: 'short' });
-  ctx.fillStyle = 'rgba(255,255,255,0.12)';
-  ctx.font = '400 18px system-ui, sans-serif';
-  ctx.fillText(timestamp, CARD_W / 2, CARD_H - 80);
-
-  // Convert canvas to blob
-  const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
-  const quality = format === 'jpeg' ? 0.92 : undefined;
+  ctx.fillStyle = 'rgba(255,255,255,0.24)';
+  ctx.font = '400 16px system-ui, sans-serif';
+  ctx.fillText(timestamp, centerX, footerTimeY);
 
   return new Promise<Blob | null>((resolve) => {
-    canvas.toBlob((blob) => resolve(blob), mimeType, quality);
+    canvas.toBlob((blob) => resolve(blob), 'image/png');
   });
 }
 
@@ -1004,11 +637,10 @@ export async function downloadBmiCard(data: BmiCardData): Promise<boolean> {
   const blob = await generateBmiCard(data);
   if (!blob) return false;
 
-  const ext = data.format === 'jpeg' ? 'jpg' : 'png';
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `bmi-result-${data.bmi.toFixed(1)}.${ext}`;
+  a.download = `bmi-stellar-${data.bmi.toFixed(1)}.png`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -1023,14 +655,13 @@ export async function shareBmiCard(data: BmiCardData): Promise<{ ok: boolean; me
   const blob = await generateBmiCard(data);
   if (!blob) return { ok: false, method: 'none' };
 
-  const ext = data.format === 'jpeg' ? 'jpg' : 'png';
-  const mimeType = data.format === 'jpeg' ? 'image/jpeg' : 'image/png';
-  const file = new File([blob], `bmi-result-${data.bmi.toFixed(1)}.${ext}`, { type: mimeType });
+  const filename = `bmi-stellar-${data.bmi.toFixed(1)}.png`;
+  const file = new File([blob], filename, { type: 'image/png' });
 
   if (navigator.share && navigator.canShare?.({ files: [file] })) {
     try {
       await navigator.share({
-        title: 'BMI Stellar Result',
+        title: t('share.title'),
         text: t('share.card_text', { n: data.bmi.toFixed(1), category: data.category }),
         files: [file]
       });
@@ -1045,7 +676,7 @@ export async function shareBmiCard(data: BmiCardData): Promise<{ ok: boolean; me
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `bmi-result-${data.bmi.toFixed(1)}.${ext}`;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

@@ -131,17 +131,16 @@ describe('generateBmiCard', () => {
     ).resolves.not.toThrow();
   });
 
-  it('does not crash with jpeg format', async () => {
+  it('does not crash with PNG-only card data', async () => {
     await expect(
       generateBmiCard({
         bmi: 24.5,
         category: 'Normal Weight',
-        format: 'jpeg',
       })
     ).resolves.not.toThrow();
   });
 
-  it('does not crash with all fields and jpeg format', async () => {
+  it('does not crash with all fields', async () => {
     await expect(
       generateBmiCard({
         bmi: 22.1,
@@ -154,7 +153,6 @@ describe('generateBmiCard', () => {
         height: 175,
         weight: 68,
         heightUnit: 'cm',
-        format: 'jpeg',
       })
     ).resolves.not.toThrow();
   });
