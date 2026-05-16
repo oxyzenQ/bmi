@@ -234,14 +234,14 @@
   }
   @media (hover: none) and (pointer: coarse) {
     .modal-shell-backdrop {
-      background: rgba(0, 0, 0, 0.74) !important;
-      -webkit-backdrop-filter: blur(3px) saturate(110%) !important;
-      backdrop-filter: blur(3px) saturate(110%) !important;
+      background: rgba(0, 0, 0, 0.68) !important;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
       transition: none !important;
     }
 
     .modal-shell-panel {
-      background: rgba(0, 0, 0, 0.76) !important;
+      background: rgba(0, 0, 0, 0.80) !important;
       -webkit-backdrop-filter: none !important;
       backdrop-filter: none !important;
       transform: none !important;

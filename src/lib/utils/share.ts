@@ -18,6 +18,16 @@ export interface BmiShareData {
   tdee?: number | null;
 }
 
+function getCategoryLabel(cat: string): string {
+  switch (cat.toLowerCase()) {
+    case 'underweight': return t('category.underweight');
+    case 'normal weight': return t('category.normal');
+    case 'overweight': return t('category.overweight');
+    case 'obese': return t('category.obese');
+    default: return cat;
+  }
+}
+
 /**
  * Build a formatted plain-text summary of BMI results.
  */
@@ -25,23 +35,24 @@ export function formatBmiText(data: BmiShareData): string {
   const unit = data.unitSystem === 'imperial' ? 'imperial' : 'metric';
   const wUnit = unit === 'imperial' ? 'lbs' : 'kg';
   const hUnit = unit === 'imperial' ? 'in' : 'cm';
+  const categoryLabel = getCategoryLabel(data.category);
 
   let text = `${t('share.title')}\n`;
-  text += `BMI: ${data.bmi.toFixed(2)} (${data.category})\n`;
+  text += `${t('share.bmi_line', { n: data.bmi.toFixed(2), category: categoryLabel })}\n`;
 
   if (data.bmiPrime !== null && data.bmiPrime !== undefined) {
-    text += `BMI Prime: ${data.bmiPrime.toFixed(2)}\n`;
+    text += `${t('share.prime_line', { n: data.bmiPrime.toFixed(2) })}\n`;
   }
 
   if (data.weight !== null && data.weight !== undefined) {
-    text += `Weight: ${data.weight} ${wUnit}\n`;
+    text += `${t('share.weight_line', { n: data.weight, unit: wUnit })}\n`;
   }
   if (data.height !== null && data.height !== undefined) {
-    text += `Height: ${data.height} ${hUnit}\n`;
+    text += `${t('share.height_line', { n: data.height, unit: hUnit })}\n`;
   }
 
   if (data.tdee !== null && data.tdee !== undefined) {
-    text += `TDEE: ${Math.round(data.tdee)} kcal/day\n`;
+    text += `${t('share.tdee_line', { n: Math.round(data.tdee) })}\n`;
   }
 
   text += `\n${t('share.footer')}`;

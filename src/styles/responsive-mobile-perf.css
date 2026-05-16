@@ -67,9 +67,10 @@
     touch-action: pan-y pinch-zoom;
   }
 
-  /* T-3: Keep mobile containers glassy, but lighter than desktop.
-     The earlier full removal made page surfaces look flat black.
-     Heavy nested result cells remain simplified below. */
+  /* T-3: Mobile fake-glass policy.
+     Real backdrop blur is expensive on touch scroll. Use a simple
+     translucent black surface with the shared border/radius so it still
+     reads as glass without paying the per-frame blur cost. */
   .form-card,
   .bmi-card,
   .about-card,
@@ -79,9 +80,9 @@
   .footer-disclaimer,
   .github-footer,
   .section-header-v2 {
-    background: rgba(0, 0, 0, 0.52) !important;
-    -webkit-backdrop-filter: blur(3px) saturate(110%) brightness(0.98) !important;
-    backdrop-filter: blur(3px) saturate(110%) brightness(0.98) !important;
+    background: rgba(0, 0, 0, 0.64) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
   }
 
   .stat-block,
@@ -439,28 +440,44 @@
     contain: layout style;
   }
 
-  /* T-23: Dialog backdrop and panels (Stellar v15: Moonshot Glass).
-     NO brightness() on mobile. */
+  /* T-23: Dialog/floating surfaces use the same mobile fake-glass rule.
+     Keep the wallpaper visible through black alpha, but avoid blur layers
+     inside panels/buttons while the user scrolls or types. */
   .lang-backdrop,
   .notify-backdrop {
-    background: rgba(0, 0, 0, 0.80) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
-    backdrop-filter: blur(16px) saturate(150%) !important;
+    background: rgba(0, 0, 0, 0.68) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    transition: none !important;
   }
 
   .lang-panel,
   .notify-float-box {
-    background: rgba(0, 0, 0, 0.60) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
-    backdrop-filter: blur(16px) saturate(150%) !important;
+    background: rgba(0, 0, 0, 0.78) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    transform: none !important;
+    transition: none !important;
+    contain: none !important;
   }
 
   .notify-close,
+  .notify-btn,
+  .lang-close,
+  .lang-option,
   .btn-success,
   .btn-delete,
   .btn-cancel,
   .btn-warn {
-    -webkit-backdrop-filter: blur(6px) !important;
-    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    transition: none !important;
+    transform: none !important;
+    touch-action: manipulation;
+  }
+
+  .lang-backdrop.visible .lang-panel,
+  .notify-backdrop.visible .notify-float-box {
+    transform: none !important;
   }
 }

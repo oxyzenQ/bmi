@@ -32,7 +32,10 @@ const PREMIUM = {
   textSoft: 'rgba(255,255,255,0.72)',
   textMuted: 'rgba(255,255,255,0.45)',
   emerald: '#18D26E',
-  emeraldLine: 'rgba(24,210,110,0.42)'
+  brandViolet: '#4e3383',
+  brandBlue: '#5b4ce0',
+  brandPurple: '#8000ff',
+  brandHighlight: '#e2c7ff'
 } as const;
 
 /** Helper: convert hex (#RRGGBB) to rgba string */
@@ -53,6 +56,17 @@ function lightenHex(hex: string, amount: number): string {
 
 function getCategoryColor(cat: string): string {
   return isBmiCategory(cat) ? CATEGORY_COLORS[cat] : COLORS.SLATE;
+}
+
+/** Map canonical English category to localized display text */
+function getCategoryLabel(cat: string): string {
+  switch (cat.toLowerCase()) {
+    case 'underweight': return t('category.underweight');
+    case 'normal weight': return t('category.normal');
+    case 'overweight': return t('category.overweight');
+    case 'obese': return t('category.obese');
+    default: return cat;
+  }
 }
 
 /** Map English category to insight i18n key */
@@ -368,9 +382,11 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.restore();
 
   const topLine = ctx.createLinearGradient(cardX + 80, 0, cardX + cardW - 80, 0);
-  topLine.addColorStop(0, 'rgba(24,210,110,0)');
-  topLine.addColorStop(0.5, PREMIUM.emeraldLine);
-  topLine.addColorStop(1, 'rgba(24,210,110,0)');
+  topLine.addColorStop(0, 'rgba(128,0,255,0)');
+  topLine.addColorStop(0.32, 'rgba(91,76,224,0.32)');
+  topLine.addColorStop(0.5, 'rgba(226,199,255,0.46)');
+  topLine.addColorStop(0.68, 'rgba(128,0,255,0.34)');
+  topLine.addColorStop(1, 'rgba(128,0,255,0)');
   ctx.beginPath();
   ctx.moveTo(cardX + 96, cardY + 1);
   ctx.lineTo(cardX + cardW - 96, cardY + 1);
@@ -386,10 +402,11 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
     headerY,
     '800 28px system-ui, sans-serif',
     [
-      [0, '#F6FFF9'],
-      [0.35, '#73F2A6'],
-      [0.72, PREMIUM.emerald],
-      [1, '#0B8F4A']
+      [0, PREMIUM.brandViolet],
+      [0.28, PREMIUM.brandBlue],
+      [0.56, PREMIUM.brandPurple],
+      [0.78, '#9b5cff'],
+      [1, PREMIUM.brandHighlight]
     ]
   );
 
@@ -424,7 +441,8 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.fillStyle = PREMIUM.text;
   ctx.font = '800 48px system-ui, sans-serif';
   ctx.textAlign = 'center';
-  const categoryText = data.category.toUpperCase();
+  const categoryLabel = getCategoryLabel(data.category);
+  const categoryText = categoryLabel.toUpperCase();
   const catMetrics = ctx.measureText(categoryText);
   const catTextX = centerX;
   const catTextY = categoryY;
@@ -662,7 +680,7 @@ export async function shareBmiCard(data: BmiCardData): Promise<{ ok: boolean; me
     try {
       await navigator.share({
         title: t('share.title'),
-        text: t('share.card_text', { n: data.bmi.toFixed(1), category: data.category }),
+        text: t('share.card_text', { n: data.bmi.toFixed(1), category: getCategoryLabel(data.category) }),
         files: [file]
       });
       return { ok: true, method: 'share' };

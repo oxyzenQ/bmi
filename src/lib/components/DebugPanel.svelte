@@ -760,6 +760,38 @@
     }
   }
 
+  @media (hover: none) and (pointer: coarse) {
+    .dp-overlay {
+      background: rgba(0, 0, 0, 0.68);
+      backdrop-filter: none;
+    }
+
+    .dp-panel {
+      background: rgba(0, 0, 0, 0.80);
+      animation: none;
+      transform: none;
+      transition: none;
+      contain: none;
+    }
+
+    .dp-close,
+    .dp-tab,
+    .dp-btn-clear,
+    .dp-storage-key {
+      transition: none;
+      transform: none;
+      touch-action: manipulation;
+    }
+
+    .dp-content,
+    .dp-logs-list,
+    .dp-storage-value {
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y pinch-zoom;
+    }
+  }
+
   /* ── Responsive: on wider screens, dock to bottom-right ── */
   @media (min-width: 640px) {
     .dp-panel {

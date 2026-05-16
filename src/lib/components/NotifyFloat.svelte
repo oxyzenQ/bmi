@@ -354,4 +354,26 @@
       min-width: 140px;
     }
   }
+
+  @media (hover: none) and (pointer: coarse) {
+    :global(.notify-float-box) {
+      background: rgba(0, 0, 0, 0.80) !important;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+      transform: none !important;
+      transition: none !important;
+      contain: none !important;
+    }
+
+    .notify-close,
+    .notify-btn,
+    .notify-btn:hover,
+    .notify-btn:active {
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+      transition: none !important;
+      transform: none !important;
+      touch-action: manipulation;
+    }
+  }
 </style>

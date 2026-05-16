@@ -911,18 +911,18 @@
 
   @media (hover: none) and (pointer: coarse) {
     .encrypt-backdrop {
-      background: rgba(0, 0, 0, 0.74) !important;
-      -webkit-backdrop-filter: blur(3px) saturate(110%) !important;
-      backdrop-filter: blur(3px) saturate(110%) !important;
+      background: rgba(0, 0, 0, 0.68) !important;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
       transition: none !important;
     }
 
     .encrypt-box {
-      background: rgba(0, 0, 0, 0.76) !important;
+      background: rgba(0, 0, 0, 0.80) !important;
       -webkit-backdrop-filter: none !important;
       backdrop-filter: none !important;
       transform: none !important;
-      transition: opacity 120ms ease !important;
+      transition: none !important;
       contain: none !important;
       overflow-y: auto;
     }
@@ -965,6 +965,10 @@
 
     .encrypt-btn {
       touch-action: manipulation;
+    }
+
+    .encrypt-btn:active {
+      transform: none !important;
     }
   }
 </style>
