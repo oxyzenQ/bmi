@@ -96,6 +96,7 @@
 	height: 18px !important;
 	display: block;
 	pointer-events: none;
+	stroke: currentColor;
 }
 
 /* ── Globe icon ── */

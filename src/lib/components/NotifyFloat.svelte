@@ -222,6 +222,7 @@
 		height: 18px;
 		display: block;
 		pointer-events: none;
+		stroke: currentColor;
 	}
 
 	.notify-icon {
