@@ -255,10 +255,6 @@
     background: rgba(255, 255, 255, 0.055) !important;
   }
 
-  #calculator :is(.action-btn, .btn-primary, .btn-secondary, .btn-danger) {
-    background: rgba(91, 33, 182, 0.62) !important;
-  }
-
   .about-section-block,
   .about-card-content,
   .app-info {

@@ -585,7 +585,7 @@ a.button {
   z-index: var(--z-inner-control);
   pointer-events: auto;
   border: 2px dashed rgba(140, 140, 140, 0.30);
-  border-radius: var(--radius-md);
+  border-radius: var(--container-radius);
   padding: var(--space-5) var(--space-4);
   text-align: center;
   transition: all var(--dur-fast) var(--easing-smooth);
