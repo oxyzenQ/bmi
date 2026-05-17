@@ -67,6 +67,10 @@
     touch-action: pan-y pinch-zoom;
   }
 
+  .pager-shell {
+    touch-action: pan-y pinch-zoom !important;
+  }
+
   /* T-3: Mobile fake-glass policy.
      Real backdrop blur is expensive on touch scroll. Use a simple
      translucent black surface with the shared border/radius so it still
@@ -220,6 +224,9 @@
     .results-content,
     .bmi-display,
     .stat-row-grid,
+    .stat-block,
+    .tdee-stat,
+    .tdee-range,
     .health-advice,
     .age-advisory,
     .bmi-explanation,
@@ -237,6 +244,29 @@
     filter: none !important;
   }
 
+  #calculator :is(
+    .stat-block,
+    .tdee-card,
+    .tdee-stat,
+    .tdee-range,
+    .health-advice,
+    .age-advisory,
+    .bmi-explanation
+  ) {
+    background: rgba(255, 255, 255, 0.045) !important;
+    border-color: rgba(255, 255, 255, 0.075) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  #calculator :is(.tdee-highlight, .tdee-cut, .tdee-maintain, .tdee-gain) {
+    background: rgba(255, 255, 255, 0.055) !important;
+  }
+
+  #calculator :is(.action-btn, .btn-primary, .btn-secondary, .btn-danger) {
+    background: rgba(91, 33, 182, 0.62) !important;
+  }
+
   .about-section-block,
   .about-card-content,
   .app-info {
@@ -252,6 +282,8 @@
     .snapshot-card,
     .progress-fill,
     .comp-fill,
+    .range-fill,
+    .goal-progress .progress-fill,
     .spark-point,
     .chart-tooltip
   ) {
@@ -267,6 +299,76 @@
   #gauge .sparkline-svg {
     pointer-events: none !important;
     touch-action: pan-y pinch-zoom !important;
+  }
+
+  /* Page-3 below-fold virtualization:
+     Disabled for scroll feel. content-visibility saved initial paint, but
+     caused first-paint work while scrolling into lower cards on devices. */
+  #gauge .charts-section > .gauge-container:not(:first-child) {
+    content-visibility: visible;
+    contain: none;
+    contain-intrinsic-size: none;
+  }
+
+  #gauge :is(
+    .gauge-container,
+    .risk-result,
+    .health-tips,
+    .snapshot-card,
+    .progress-section,
+    .insight-item,
+    .body-fat-container,
+    .bf-info-box,
+    .bf-ranges,
+    .range-row,
+    .goal-stat,
+    .goal-progress,
+    .goal-achieved,
+    .sparkline-container,
+    .scale-item
+  ) {
+    background: rgba(0, 0, 0, 0.62) !important;
+    border-color: rgba(255, 255, 255, 0.075) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  #gauge .gauge-container {
+    overflow: visible !important;
+    isolation: auto;
+  }
+
+  #gauge :is(
+    .progress-fill,
+    .comp-fill,
+    .range-fill,
+    .prime-bar-fill
+  ) {
+    background-image: none !important;
+  }
+
+  #gauge .progress-fill {
+    background-color: var(--cat-green-90) !important;
+  }
+
+  #gauge .comp-fill.fat {
+    background-color: var(--cat-amber-90) !important;
+  }
+
+  #gauge .comp-fill.lean {
+    background-color: var(--cat-green-90) !important;
+  }
+
+  #gauge :is(
+    .gauge-reflection,
+    .empty-glow
+  ) {
+    display: none !important;
+  }
+
+  #gauge :is(.bf-value, .gauge-center .bmi-value, .card-value) {
+    text-shadow: none !important;
+    filter: none !important;
   }
 
   /* T-20: Neutralize :hover on ALL calculator inner elements.
@@ -466,6 +568,22 @@
     transition: opacity 140ms ease, transform 140ms ease !important;
     will-change: transform, opacity;
     touch-action: manipulation;
+  }
+
+  body.is-touch-scrolling .pager-controls-shell {
+    background: rgba(0, 0, 0, 0.48) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    transition: none !important;
+    will-change: auto !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateX(-50%) translateY(100%) !important;
+  }
+
+  body.is-touch-scrolling .pager-btn-futuristic {
+    transition: none !important;
+    transform: none !important;
   }
 
   .pager-tab {

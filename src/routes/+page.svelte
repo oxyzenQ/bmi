@@ -181,7 +181,8 @@
   let scrollRafId: number | null = null;
   let pendingScrollTarget: HTMLElement | null = null;
   let pendingScrollY = 0;
-  let lastTouchNavTimerScheduleAt = 0;
+  let touchScrollModeTimeout: ReturnType<typeof setTimeout> | null = null;
+  let lastTouchScrollY = 0;
 
 
   function triggerHaptic(pattern: number | number[] = HAPTIC.NAV) {
@@ -529,6 +530,22 @@
     };
   }
 
+  function markTouchScrolling(currentScrollY: number) {
+    if (!browser || !isTouchDevice) return;
+    lastTouchScrollY = currentScrollY;
+    document.body.classList.add('is-touch-scrolling');
+    if (touchScrollModeTimeout) clearTimeout(touchScrollModeTimeout);
+    touchScrollModeTimeout = setTimeout(() => {
+      document.body.classList.remove('is-touch-scrolling');
+      const shouldShowFab = lastTouchScrollY > SCROLL.SCROLL_TOP_THRESHOLD;
+      if (showScrollTopFab !== shouldShowFab) {
+        showScrollTopFab = shouldShowFab;
+      }
+      if (!pagerControlsVisible) pagerControlsVisible = true;
+      touchScrollModeTimeout = null;
+    }, SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY);
+  }
+
   function flushScrollState() {
     scrollRafId = null;
     if (!pendingScrollTarget) return;
@@ -545,48 +562,28 @@
       return;
     }
 
+    if (isTouchDevice) {
+      markTouchScrolling(currentScrollY);
+      lastScrollY = currentScrollY;
+      pendingScrollTarget = null;
+      return;
+    }
+
     const shouldShowFab = currentScrollY > SCROLL.SCROLL_TOP_THRESHOLD;
     if (showScrollTopFab !== shouldShowFab) {
       showScrollTopFab = shouldShowFab;
     }
 
-    if (!isTouchDevice) {
-      if (!scrollingUp && currentScrollY > 50) {
-        pagerControlsVisible = false;
-      } else if (scrollingUp) {
-        pagerControlsVisible = true;
-      }
-
-      if (scrollTimeout) clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        pagerControlsVisible = true;
-      }, SCROLL.SCROLL_IDLE_DELAY);
-    } else {
-      if (
-        !scrollingUp &&
-        currentScrollY > SCROLL.TOUCH_NAV_HIDE_THRESHOLD &&
-        delta > SCROLL.TOUCH_NAV_HIDE_DELTA
-      ) {
-        if (pagerControlsVisible) pagerControlsVisible = false;
-      } else if (scrollingUp && Math.abs(delta) > SCROLL.TOUCH_NAV_SHOW_DELTA) {
-        if (!pagerControlsVisible) pagerControlsVisible = true;
-      }
-
-      const now = Date.now();
-      const shouldRescheduleTimer =
-        !scrollTimeout ||
-        !pagerControlsVisible ||
-        now - lastTouchNavTimerScheduleAt >= SCROLL.TOUCH_NAV_TIMER_THROTTLE;
-
-      if (shouldRescheduleTimer) {
-        if (scrollTimeout) clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-          pagerControlsVisible = true;
-          scrollTimeout = null;
-        }, SCROLL.TOUCH_NAV_IDLE_DELAY);
-        lastTouchNavTimerScheduleAt = now;
-      }
+    if (!scrollingUp && currentScrollY > 50) {
+      pagerControlsVisible = false;
+    } else if (scrollingUp) {
+      pagerControlsVisible = true;
     }
+
+    if (scrollTimeout) clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      pagerControlsVisible = true;
+    }, SCROLL.SCROLL_IDLE_DELAY);
 
     lastScrollY = currentScrollY;
     pendingScrollTarget = null;
@@ -757,12 +754,14 @@
       window.removeEventListener('hashchange', onHashChange);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('storage', onStorage);
+      document.body.classList.remove('is-touch-scrolling');
       detachActiveScroller();
       pagerEl?.removeEventListener('touchstart', handleTouchStart);
       pagerEl?.removeEventListener('touchend', handleTouchEnd);
       if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
       if (scrollRafId !== null) cancelAnimationFrame(scrollRafId);
       if (scrollTimeout !== null) clearTimeout(scrollTimeout);
+      if (touchScrollModeTimeout !== null) clearTimeout(touchScrollModeTimeout);
     };
   });
 
@@ -1230,7 +1229,7 @@
     gap: 0;
     padding-top: 0;
     overflow: hidden;
-    touch-action: pan-y pan-x pinch-zoom;
+    touch-action: pan-y pinch-zoom;
     position: relative;
     --pager-top-inset: calc(env(safe-area-inset-top, 0px) + 54px);
     --pager-edge-fade: 100px;
