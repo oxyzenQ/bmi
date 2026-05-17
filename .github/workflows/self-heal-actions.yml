@@ -7,7 +7,7 @@
 # - Update files, commit as repository owner, and push to default branch
 #
 # Security/minimality notes:
-# - Uses the built-in GITHUB_TOKEN to update workflow files (no custom PAT needed).
+# - Uses a Personal Access Token (PAT) with `workflow` scope to update workflow files.
 # - Runs on ubuntu-latest.
 # - Avoids infinite loops by not running on push events (schedule/manual only).
 # - Skips if there are no actual file changes.
@@ -27,7 +27,6 @@ concurrency:
 
 permissions:
   contents: write
-  workflows: write
 
 env:
   # Repository owner identity (must match the owner so contributions show up).
@@ -52,7 +51,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.branch.outputs.name }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_WORKFLOW }}
           fetch-depth: 1
           fetch-tags: false
 
