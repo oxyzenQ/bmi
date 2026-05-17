@@ -1074,6 +1074,7 @@
                 <BodyFatEstimateComponent
                   bmi={bmiValue}
                   age={age === '' ? null : parseInt(age)}
+                  gender={gender || null}
                 />
               {:else}
                 <div class="skeleton-card">

@@ -9,11 +9,19 @@
   interface Props {
     bmi?: number | null;
     age?: number | null;
+    gender?: 'male' | 'female' | null;
   }
 
-  let { bmi = null, age = null }: Props = $props();
+  let { bmi = null, age = null, gender = null }: Props = $props();
 
   let sex = $state<'male' | 'female'>('male');
+
+  // Keep body-fat sex toggle aligned with calculator input when provided.
+  $effect(() => {
+    if (gender === 'male' || gender === 'female') {
+      sex = gender;
+    }
+  });
 
   // BMI-based body fat estimation using Deurenberg formula (1991):
   // Adult Body Fat % = (1.20 × BMI) + (0.23 × Age) − (10.8 × Sex) − 5.4
