@@ -3,7 +3,6 @@ name: CI
 
 on:
   push:
-    branches: [main, dev]
     paths:
       # Source code — always run CI
       - "src/**"
@@ -25,7 +24,6 @@ on:
       - "src/types/**"
       - "*.d.ts"
   pull_request:
-    branches: [main]
 
 permissions:
   contents: read
@@ -43,15 +41,39 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Resolve Node.js version
+        id: node-version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./package.json').engines?.node || ''")"
+          if [ -z "$version" ]; then
+            echo "package.json engines.node is required" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ steps.node-version.outputs.version }}
+
+      - name: Resolve Bun version
+        id: bun-version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./package.json').packageManager?.match(/^bun@(.+)$/)?.[1] || ''")"
+          if [ -z "$version" ]; then
+            echo "package.json packageManager must be bun@<version>" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: "1.3.11"
+          bun-version: ${{ steps.bun-version.outputs.version }}
 
       - name: Cache Bun dependencies
         uses: actions/cache@v4

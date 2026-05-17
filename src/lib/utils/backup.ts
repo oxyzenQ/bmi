@@ -23,10 +23,10 @@ import {
 import { t } from '$lib/i18n';
 import { STORAGE_KEYS, storageGet } from './storage';
 import { warnDev } from './warn-dev';
+import { getAppVersionRaw } from './app-version';
 
 // ── Constants ──
 const MAX_BACKUPS = 3;
-const APP_VERSION = '19.0.0';
 
 // ── Types ──
 export interface BackupStatus {
@@ -76,7 +76,7 @@ export async function createBackup(_trigger: 'data_change' | 'before_import' = '
 
     await dbBackupSave({
       timestamp: Date.now(),
-      appVersion: APP_VERSION,
+      appVersion: getAppVersionRaw(),
       recordCount,
       data,
     });

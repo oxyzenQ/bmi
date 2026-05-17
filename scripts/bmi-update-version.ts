@@ -13,7 +13,6 @@
  *
  * Canonical version sources after dynamic-version refactor:
  *   - package.json                    (version)
- *   - src/lib/utils/backup.ts         (APP_VERSION)
  *   - README.md                       (display title)
  *   - LICENSE.md                      (display title)
  */
@@ -70,26 +69,14 @@ function replaceOrWarn(
   dryRun: boolean
 ): void {
   const original = read(relPath);
-  const updated = original.replace(pattern, replacement);
-  if (updated === original) {
+  if (!pattern.test(original)) {
     console.log(`    \x1b[33m⚠ ${label} not found in ${relPath} — skipped\x1b[0m`);
     return;
   }
-  if (!dryRun) write(relPath, updated);
-  console.log(`    \x1b[32m✓\x1b[0m ${label} updated`);
-}
-
-function replaceOrFail(
-  relPath: string,
-  pattern: RegExp,
-  replacement: string,
-  label: string,
-  dryRun: boolean
-): void {
-  const original = read(relPath);
   const updated = original.replace(pattern, replacement);
   if (updated === original) {
-    die(`${label} not found in ${relPath}`);
+    console.log(`    \x1b[36m•\x1b[0m ${label} already current`);
+    return;
   }
   if (!dryRun) write(relPath, updated);
   console.log(`    \x1b[32m✓\x1b[0m ${label} updated`);
@@ -155,15 +142,6 @@ function main(): void {
 
   console.log('  \x1b[33m→\x1b[0m package.json');
   updatePackageJson(nextVersion, dryRun);
-
-  console.log('  \x1b[33m→\x1b[0m src/lib/utils/backup.ts');
-  replaceOrFail(
-    'src/lib/utils/backup.ts',
-    /APP_VERSION\s*=\s*['"`][^'"`]+['"`]/,
-    `APP_VERSION = '${nextVersion}'`,
-    'APP_VERSION',
-    dryRun
-  );
 
   console.log('  \x1b[33m→\x1b[0m README.md');
   replaceOrWarn(

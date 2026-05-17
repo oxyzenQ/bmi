@@ -128,8 +128,8 @@ GitHub workflows live in `.github/workflows/`.
 Use the version script instead of manually editing version strings.
 
 ```bash
-bun run bmi-update-version --dry-run 19.1.0
-bun run bmi-update-version 19.1.0
+bun run bmi-update-version --dry-run <version>
+bun run bmi-update-version <version>
 bun run check
 bun run build
 ```
@@ -137,8 +137,7 @@ bun run build
 Release tags use the visible version format:
 
 ```txt
-Stellar-v19.0
-Stellar-v19.1
+Stellar-v<major>.<minor>
 ```
 
 ## Known Constraints

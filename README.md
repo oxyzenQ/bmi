@@ -58,8 +58,8 @@ Open the local URL printed in your terminal, usually `http://localhost:5173`.
 | `bun run test:ci` | CI-friendly test run |
 | `bun run build` | Production build |
 | `bun run verify` | check + lint + test + build |
-| `bun run bmi-update-version 19.1.0` | Sync app version across canonical files |
-| `bun run bmi-update-version --dry-run 19.1.0` | Preview a version update |
+| `bun run bmi-update-version <version>` | Sync app version across canonical files |
+| `bun run bmi-update-version --dry-run <version>` | Preview a version update |
 
 ## Project Layout
 

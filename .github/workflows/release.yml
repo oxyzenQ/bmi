@@ -9,6 +9,9 @@ on:
 permissions:
   contents: write
 
+env:
+  RELEASE_TAG_PREFIX: Stellar
+
 jobs:
   validate-tag:
     runs-on: ubuntu-latest
@@ -22,19 +25,19 @@ jobs:
           TAG="${{ steps.tag.outputs.TAG_NAME }}"
           echo "Tag: $TAG"
 
-          # Strict format: Stellar-v<major>.<minor> (e.g., Stellar-v12.0)
-          if [[ ! "$TAG" =~ ^Stellar-v[0-9]+\.[0-9]+$ ]]; then
+          # Strict format: <prefix>-v<major>.<minor> (e.g., Stellar-v12.0)
+          if [[ ! "$TAG" =~ ^${RELEASE_TAG_PREFIX}-v[0-9]+\.[0-9]+$ ]]; then
             echo "❌ Invalid tag format: $TAG"
             echo ""
-            echo "Expected format: Stellar-v<major>.<minor>"
+            echo "Expected format: ${RELEASE_TAG_PREFIX}-v<major>.<minor>"
             echo "Examples:"
-            echo "  ✅ Stellar-v12.0"
-            echo "  ✅ Stellar-v10.5"
+            echo "  ✅ ${RELEASE_TAG_PREFIX}-v12.0"
+            echo "  ✅ ${RELEASE_TAG_PREFIX}-v10.5"
             echo ""
             echo "Invalid examples:"
-            echo "  ❌ Stellar-12.0    (missing 'v' before version)"
-            echo "  ❌ Stellar v12.0   (space instead of hyphen)"
-            echo "  ❌ v12.0          (missing 'Stellar-' prefix)"
+            echo "  ❌ ${RELEASE_TAG_PREFIX}-12.0    (missing 'v' before version)"
+            echo "  ❌ ${RELEASE_TAG_PREFIX} v12.0   (space instead of hyphen)"
+            echo "  ❌ v12.0          (missing '${RELEASE_TAG_PREFIX}-' prefix)"
             exit 1
           fi
 
@@ -55,10 +58,22 @@ jobs:
         id: tag
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
 
+      - name: Resolve Bun version
+        id: bun-version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./package.json').packageManager?.match(/^bun@(.+)$/)?.[1] || ''")"
+          if [ -z "$version" ]; then
+            echo "package.json packageManager must be bun@<version>" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: "1.3.11"
+          bun-version: ${{ steps.bun-version.outputs.version }}
 
       - name: Install dependencies (frozen)
         run: bun install --frozen-lockfile

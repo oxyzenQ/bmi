@@ -10,9 +10,9 @@ on:
         description: How to publish updates
         type: choice
         options:
-          - pr
           - direct
-        default: pr
+          - pr
+        default: direct
       force_update:
         description: Continue even if checks fail
         type: boolean
@@ -24,10 +24,10 @@ permissions:
   pull-requests: write
 
 env:
-  UPDATE_STRATEGY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.strategy || 'pr' }}
+  UPDATE_STRATEGY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.strategy || 'direct' }}
   FORCE_UPDATE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_update || 'false' }}
   OWNER_NAME: ${{ github.repository_owner }}
-  OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
+  OWNER_EMAIL: ${{ github.repository_owner }}@users.noreply.github.com
   BASE_BRANCH: ${{ github.event.repository.default_branch }}
 
 jobs:
@@ -44,10 +44,22 @@ jobs:
           fetch-depth: 1
           fetch-tags: false
 
+      - name: Resolve Bun version
+        id: bun-version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./package.json').packageManager?.match(/^bun@(.+)$/)?.[1] || ''")"
+          if [ -z "$version" ]; then
+            echo "package.json packageManager must be bun@<version>" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: "1.3.11"
+          bun-version: ${{ steps.bun-version.outputs.version }}
 
       - name: Cache Bun dependencies
         uses: actions/cache@v4
