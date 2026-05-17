@@ -1,16 +1,8 @@
 [codespell]
-skip = node_modules,reports,.svelte-kit,build,dist,bun.lock,package-lock.json,*.lock,*.min.js,*.min.css
+skip = node_modules,reports,.svelte-kit,build,dist,bun.lock,package-lock.json,*.lock,*.min.js,*.min.css,id.ts
 
 # Indonesian locale false positives — valid Bahasa Indonesia words
 ignore-words-list =
-  progres,
-  profesional,
-  simbol,
-  faktor,
-  Faktor,
-  lokal,
-  maks,
-  poin,
   afterAll,
   re-use
 
