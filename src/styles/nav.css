@@ -172,7 +172,7 @@ html[data-performance-tier='high'] :is(.hero-content, .bmi-card) {
 /* ── Bottom navbar shell ── */
 .pager-controls-shell {
 	width: calc(100% - 24px);
-	max-width: 570px;
+	max-width: 555px;
 
 	position: absolute;
 	bottom: 10px;
