@@ -39,7 +39,7 @@ export const handle: Handle = async ({ event, resolve }) => {
                         "font-src 'self' data:",
                         "img-src 'self' data: blob: https:",
                         "media-src 'self'",
-                        "connect-src 'self'",
+                        "connect-src 'self' https://raw.githubusercontent.com https://api.github.com",
                         "manifest-src 'self'",
                         "worker-src 'self' blob:",
                         "frame-ancestors 'none'",

@@ -88,7 +88,8 @@ export default function config({ mode }: { mode: string }): UserConfig {
                 define: {
                         __GIT_COMMIT_ID__: JSON.stringify(commitInfo.sha),
                         __GIT_BRANCH__: JSON.stringify(commitInfo.branch),
-                        __BUILD_TIME__: JSON.stringify(new Date().toISOString())
+                        __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+                        __IS_VERCEL_DEPLOYMENT__: JSON.stringify(process.env.VERCEL === '1')
                 },
                 build: {
                         target: 'es2022',

@@ -14,6 +14,7 @@ declare global {
 	const __GIT_COMMIT_ID__: string;
 	const __GIT_BRANCH__: string;
 	const __BUILD_TIME__: string;
+	const __IS_VERCEL_DEPLOYMENT__: boolean;
 }
 
 export { };

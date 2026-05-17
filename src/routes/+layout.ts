@@ -1,9 +1,9 @@
 // Copyright (c) 2025 - 2026 rezky_nightky
-import { dev } from '$app/environment';
+import { browser, dev } from '$app/environment';
 
-// Only inject Vercel telemetry in production builds.
-// Avoids unnecessary network requests and JS overhead in development.
-if (!dev) {
+// Only inject Vercel telemetry on real Vercel deployments.
+// Local production preview does not expose /_vercel/* endpoints.
+if (!dev && browser && __IS_VERCEL_DEPLOYMENT__) {
 	const { injectSpeedInsights } = await import('@vercel/speed-insights/sveltekit');
 	const { injectAnalytics } = await import('@vercel/analytics/sveltekit');
 
