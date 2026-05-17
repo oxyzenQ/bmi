@@ -15,19 +15,19 @@
         "prefer_related_applications": false,
         "icons": [
                 {
-                        "src": "/assets/icon-192.webp",
+                        "src": "/assets/new_bmi_logo_192.webp",
                         "sizes": "192x192",
                         "type": "image/webp",
                         "purpose": "any"
                 },
                 {
-                        "src": "/assets/icon-512.webp",
+                        "src": "/assets/new_bmi_logo_2026.webp",
                         "sizes": "512x512",
                         "type": "image/webp",
                         "purpose": "any"
                 },
                 {
-                        "src": "/assets/icon-maskable-512.webp",
+                        "src": "/assets/new_bmi_logo_2026.webp",
                         "sizes": "512x512",
                         "type": "image/webp",
                         "purpose": "maskable"
