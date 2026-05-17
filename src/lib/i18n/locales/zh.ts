@@ -14,10 +14,10 @@ const zh: TranslationDict = {
   // ── Navigation ──
   'nav.aria_label': 'BMI \u8ba1\u7b97\u5668',
   'nav.sections_aria': '\u5206\u9875',
-  'nav.theme_aria': '\u5207\u6362\u58c1\u7eb8\u4e3b\u9898',
+  'nav.theme_aria': '\u5207\u6362\u58c1\u7eb8\u827a\u672f',
   'nav.on': '\u5f00',
   'nav.off': '\u5173',
-  'nav.theme': '\u4e3b\u9898\uff1a',
+  'nav.theme': '\u827a\u672f\uff1a',
   'nav.blackhole': '\u9ed1\u6d1e',
   'nav.spaceship': '\u5b87\u5b99\u98de\u8239',
   'nav.space': '\u592a\u7a7a',

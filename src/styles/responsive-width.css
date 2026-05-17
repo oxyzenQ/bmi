@@ -229,7 +229,9 @@
 
   /* Scale down large card header icons on mobile */
   .Orbit,
+  .Calculator,
   .CircleSlash2,
+  .ScanHeart,
   .FileChartColumn,
   .BarChart3,
   .X,
@@ -260,7 +262,9 @@
   .about-card-header .ListChecks,
   .about-card-header .Database,
   .about-card-header .LockKeyhole,
-  .about-card-header .HeartPulse {
+  .about-card-header .HeartPulse,
+  .about-card-header .BicepsFlexed,
+  .about-card-header .Info {
     width: 36px !important;
     height: 36px !important;
   }
@@ -429,7 +433,9 @@
 
   /* Even smaller card header icons at 360px */
   .Orbit,
+  .Calculator,
   .CircleSlash2,
+  .ScanHeart,
   .FileChartColumn,
   .BarChart3,
   .X,
@@ -474,7 +480,9 @@
   .about-card-header .ListChecks,
   .about-card-header .Database,
   .about-card-header .LockKeyhole,
-  .about-card-header .HeartPulse {
+  .about-card-header .HeartPulse,
+  .about-card-header .BicepsFlexed,
+  .about-card-header .Info {
     width: 30px !important;
     height: 30px !important;
   }

@@ -14,10 +14,10 @@ const id: TranslationDict = {
   // ── Navigation ──
   'nav.aria_label': 'Kalkulator BMI',
   'nav.sections_aria': 'Bagian',
-  'nav.theme_aria': 'Toggle tema wallpaper',
+  'nav.theme_aria': 'Toggle art wallpaper',
   'nav.on': 'Nyala',
   'nav.off': 'Mati',
-  'nav.theme': 'Tema :',
+  'nav.theme': 'Art :',
   'nav.blackhole': 'Lubang Hitam',
   'nav.spaceship': 'Pesawat Luar Angkasa',
   'nav.space': 'Ruang Angkasa',

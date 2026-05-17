@@ -1,6 +1,6 @@
 <!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
 <script lang="ts">
-  import { Target, TrendingDown, TrendingUp, Award, Scale, Activity } from 'lucide-svelte';
+  import { TrendingDown, TrendingUp, Award, Scale, Activity, ClipboardList } from 'lucide-svelte';
   import { browser } from '$app/environment';
   import BmiHistorySparkline from './BmiHistorySparkline.svelte';
   import { COLORS, BMI_THRESHOLDS } from '$lib/utils/bmi-category';
@@ -125,7 +125,7 @@
 <div class="gauge-container bmi-snapshot">
   <div class="gauge-header">
     <div class="gauge-title">
-      <Target class="Gauge" />
+      <ClipboardList class="Gauge" />
       <h3>{t('snapshot.title')}</h3>
     </div>
     <div class="gauge-subtitle">{t('snapshot.subtitle')}</div>

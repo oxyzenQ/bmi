@@ -371,7 +371,9 @@
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 600px) {
   .Orbit,
+  .Calculator,
   .CircleSlash2,
+  .ScanHeart,
   .FileChartColumn,
   .BarChart3,
   .X,

@@ -15,10 +15,10 @@ const en: TranslationDict = {
   // ── Navigation ──
   'nav.aria_label': 'BMI Calculator',
   'nav.sections_aria': 'Sections',
-  'nav.theme_aria': 'Toggle wallpaper theme',
+  'nav.theme_aria': 'Toggle wallpaper art',
   'nav.on': 'On',
   'nav.off': 'Off',
-  'nav.theme': 'Theme :',
+  'nav.theme': 'Art :',
   'nav.blackhole': 'Black Hole',
   'nav.spaceship': 'Spaceship',
   'nav.space': 'Space',

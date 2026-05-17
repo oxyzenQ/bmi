@@ -21,7 +21,7 @@
   import SettingsSection from '$lib/components/sections/SettingsSection.svelte';
   import StagingSpinner from '$lib/components/StagingSpinner.svelte';
   import {
-    Sparkles,
+    Wallpaper,
     ChevronLeft,
     ChevronRight,
     ChevronUp
@@ -916,7 +916,7 @@
           aria-pressed={currentTheme !== 'blackhole'}
           onclick={toggleWallpaperTheme}
         >
-          <Sparkles class="render-spark" aria-hidden="true" />
+          <Wallpaper class="render-wallpaper" aria-hidden="true" />
           {t('nav.theme')}
           <span class:theme-blackhole={currentTheme === 'blackhole'} class:theme-spaceship={currentTheme === 'spaceship'} class:theme-space={currentTheme === 'space'}>
             {themeLabel}
@@ -1276,7 +1276,7 @@
   /* .pager-nav, .pager-nav-shell, .pager-nav::-webkit-scrollbar styles
      moved to global nav.css for unified navbar maintenance */
 
-  .pager-theme :global(.render-spark) {
+  .pager-theme :global(.render-wallpaper) {
     color: var(--aurora-glow, #b266ff) !important;
     transition: color var(--dur-content) ease, filter var(--dur-content) ease;
   }

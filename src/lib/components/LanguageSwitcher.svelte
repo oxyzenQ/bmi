@@ -1,7 +1,7 @@
 <!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
-  import { Globe, X } from 'lucide-svelte';
+  import { Languages, X } from 'lucide-svelte';
   import { browser } from '$app/environment';
   import { t as _t, locales, setLocale, localeVersion, locale } from '$lib/i18n';
   import type { Locale, TParams } from '$lib/i18n';
@@ -77,7 +77,7 @@
   aria-expanded={open}
   onclick={handleToggle}
 >
-  <Globe size={14} aria-hidden="true" />
+  <Languages size={14} aria-hidden="true" />
   {currentLabel}
 </button>
 
@@ -104,7 +104,7 @@
       </button>
 
       <div class="lang-panel-icon">
-        <Globe size={32} aria-hidden="true" />
+        <Languages size={32} aria-hidden="true" />
       </div>
 
       <h3 class="lang-panel-title">{t('lang.title')}</h3>

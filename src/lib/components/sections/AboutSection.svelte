@@ -2,8 +2,9 @@
 <script lang="ts">
   import {
     Lightbulb, AlertTriangle, ListChecks, Database,
-    LockKeyhole, HeartPulse, GitBranch, GitCompare,
-    PackageCheck, ShieldCheck, Scale, Download
+    LockKeyhole, GitBranch, GitCompare,
+    PackageCheck, PackagePlus, ShieldCheck, Scale,
+    HardDriveDownload, BicepsFlexed, Info
   } from 'lucide-svelte';
   import NotifyFloat from '$lib/components/NotifyFloat.svelte';
   import StagingSpinner from '$lib/components/StagingSpinner.svelte';
@@ -76,7 +77,7 @@
         <!-- About BMI Stellar -->
         <div class="about-section-block">
           <div class="about-card-header">
-            <HeartPulse class="HeartPulse" />
+            <Info class="Info" />
             <h3>{t('about.app_title')}</h3>
           </div>
           <div class="about-card-content">
@@ -147,7 +148,7 @@
             {#if $pwaInstallState.isInstalled}
               <PackageCheck size={30} />
             {:else}
-              <Download size={30} />
+              <HardDriveDownload size={30} />
             {/if}
           </div>
           <div class="pwa-install-copy">
@@ -166,14 +167,14 @@
               </div>
             {:else}
               <button class="pwa-install-action" onclick={handleInstallClick}>
-                <Download size={18} aria-hidden="true" />
+                <HardDriveDownload size={18} aria-hidden="true" />
                 <span>{t('pwa.install_btn')}</span>
               </button>
             {/if}
 
             {#if $pwaUpdateState.updateAvailable}
               <button class="pwa-install-action pwa-update-action" onclick={applyPwaUpdate}>
-                <PackageCheck size={18} aria-hidden="true" />
+                <PackagePlus size={18} aria-hidden="true" />
                 <span>{t('pwa.update_now')}</span>
               </button>
             {:else}
@@ -189,7 +190,7 @@
       <!-- Open Source & Release (separate card) -->
       <div class="about-card">
         <div class="about-card-header">
-          <HeartPulse class="HeartPulse" />
+          <BicepsFlexed class="BicepsFlexed" />
           <h3>{t('about.opensource_title')}</h3>
         </div>
         <div class="about-card-content">

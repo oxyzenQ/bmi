@@ -4,7 +4,9 @@
 
 /* Bmi form icons and other biggest icons — fluid sizing for responsiveness */
 .Orbit,
+.Calculator,
 .CircleSlash2,
+.ScanHeart,
 .FileChartColumn,
 .Gauge {
   color: var(--cosmic-purple) !important;
@@ -26,7 +28,9 @@
 .about-card-header .ListChecks,
 .about-card-header .Database,
 .about-card-header .LockKeyhole,
-.about-card-header .HeartPulse {
+.about-card-header .HeartPulse,
+.about-card-header .BicepsFlexed,
+.about-card-header .Info {
   color: var(--cosmic-purple) !important;
   width: clamp(30px, 6vw, 48px) !important;
   height: clamp(30px, 6vw, 48px) !important;

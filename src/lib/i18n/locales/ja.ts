@@ -14,10 +14,10 @@ const ja: TranslationDict = {
   // ── Navigation ──
   'nav.aria_label': 'BMI \u8a08\u7b97\u30c4\u30fc\u30eb',
   'nav.sections_aria': '\u30bb\u30af\u30b7\u30e7\u30f3',
-  'nav.theme_aria': '\u58c1\u7d19\u30c6\u30fc\u30de\u3092\u5207\u308a\u66ff\u3048',
+  'nav.theme_aria': '\u58c1\u7d19\u30a2\u30fc\u30c8\u3092\u5207\u308a\u66ff\u3048',
   'nav.on': '\u30aa\u30f3',
   'nav.off': '\u30aa\u30d5',
-  'nav.theme': '\u30c6\u30fc\u30de\uff1a',
+  'nav.theme': '\u30a2\u30fc\u30c8\uff1a',
   'nav.blackhole': '\u30d6\u30e9\u30c3\u30af\u30db\u30fc\u30eb',
   'nav.spaceship': '\u5b87\u5b99\u8239',
   'nav.space': '\u30b9\u30da\u30fc\u30b9',

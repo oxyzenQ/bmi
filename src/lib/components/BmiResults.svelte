@@ -1,6 +1,6 @@
 <!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
 <script lang="ts">
-  import { BarChart3, CircleSlash2, TrendingUp, Info, AlertCircle, CheckCircle, Activity, Target, Scale, Flame, Share2, Copy, ImageDown } from 'lucide-svelte';
+  import { BarChart3, ScanSearch, TrendingUp, Info, AlertCircle, CheckCircle, Activity, Target, Scale, Flame, Share2, Copy, ImageDown } from 'lucide-svelte';
   import { onDestroy } from 'svelte';
   import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
@@ -292,7 +292,7 @@
 <div class="bmi-results-card {catClass}">
   <div class="card-header">
     <div class="icon-container">
-      <CircleSlash2 class="CircleSlash2" />
+      <ScanSearch class="ScanHeart" />
     </div>
     <h2 class="card-title">{t('results.title')}</h2>
     <p class="card-subtitle">{t('results.subtitle')}</p>

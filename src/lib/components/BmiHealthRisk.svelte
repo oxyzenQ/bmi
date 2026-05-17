@@ -1,6 +1,6 @@
 <!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
 <script lang="ts">
-  import { Shield, AlertTriangle, Activity, Heart } from 'lucide-svelte';
+  import { Shield, AlertTriangle, Activity, Heart, HeartPulse } from 'lucide-svelte';
   import { COLORS } from '$lib/utils/bmi-category';
   import { t as _t, localeVersion } from '$lib/i18n';
   let _rv = $derived($localeVersion);
@@ -87,7 +87,7 @@
 <div class="gauge-container bmi-health-risk">
   <div class="gauge-header">
     <div class="gauge-title">
-      <Shield class="Gauge" />
+      <HeartPulse class="Gauge" />
       <h3>{t('risk.title')}</h3>
     </div>
     <div class="gauge-subtitle">{t('risk.subtitle')}</div>
