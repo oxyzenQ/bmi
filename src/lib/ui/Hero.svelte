@@ -1,3 +1,4 @@
+<!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
 <script lang="ts">
   import { Activity, Gem, Target } from 'lucide-svelte';
   import { onMount, onDestroy } from 'svelte';

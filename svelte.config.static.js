@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 

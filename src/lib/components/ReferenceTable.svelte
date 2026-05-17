@@ -1,3 +1,4 @@
+<!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
 <script lang="ts">
   import { FileChartColumn, Info, AlertTriangle, CheckCircle, TrendingUp, Activity } from 'lucide-svelte';
   import { t as _t, localeVersion } from '$lib/i18n';

@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /**
  * Auto Backup System for BMI Stellar.
  *

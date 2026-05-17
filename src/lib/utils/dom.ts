@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /** Check if an event target is an editable form element */
 export function isEditableTarget(el: EventTarget | null): boolean {
   const t = el as HTMLElement | null;

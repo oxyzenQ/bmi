@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /**
  * Canvas-based premium black BMI result card generator.
  * Produces a shareable PNG for Instagram Story / X / etc.

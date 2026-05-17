@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /**
  * Chinese (zh) \u4e2d\u6587 \u7ffb\u8bd1
  */

@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /**
  * Regression tests for storage utility error handling paths (v15.3).
  *

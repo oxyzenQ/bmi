@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/svelte';
 import { afterEach, beforeAll, vi } from 'vitest';

@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /**
  * Generic lazy-loader for Svelte 5 dynamic component imports.
  *

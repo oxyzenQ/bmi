@@ -1,3 +1,4 @@
+<!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
 <script lang="ts">
   import { BarChart3, CircleSlash2, TrendingUp, Info, AlertCircle, CheckCircle, Activity, Target, Scale, Flame, Share2, Copy, ImageDown } from 'lucide-svelte';
   import { onDestroy } from 'svelte';

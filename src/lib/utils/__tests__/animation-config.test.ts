@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /**
  * Phase 3 — Regression Fortress: animation-config.ts tests
  *

@@ -1,59 +1,43 @@
 <p align="center">
-  <img src="static/assets/new_bmi_logo_2026.webp" alt="BMI Stellar" width="280" />
+  <img src="static/assets/new_bmi_logo_2026.webp" alt="BMI Stellar" width="240" />
 </p>
 
 <h1 align="center">BMI Stellar v19.0</h1>
 
 <p align="center">
-  A privacy-first <strong>BMI companion</strong> built with <strong>SvelteKit 2 + Svelte 5 (Runes) + TypeScript</strong>. Calculate BMI, TDEE, body-fat estimates, ideal weight range, and track progress locally with offline support, encrypted backups, and a polished Stellar interface.
+  Privacy-first BMI, TDEE, body-fat, and progress tracking app built with SvelteKit, Svelte 5, TypeScript, and Bun.
 </p>
 
 <p align="center">
-  <a href="https://bmi-stellar.vercel.app"><strong>Live Demo</strong></a> ·
-  <a href="LICENSE.md">GPL-3.0</a>
+  <a href="https://bmi-stellar.vercel.app"><strong>Live Demo</strong></a> |
+  <a href="LICENSE.md">GPL-3.0</a> |
+  <a href="docs/furthermore.md">Further Docs</a>
 </p>
 
 ---
 
-## Highlights
+## What It Does
 
-- **Instant BMI results** — Category classification, health advice, BMI Prime, ideal weight range, and body-fat estimates.
-- **TDEE estimator** — Total Daily Energy Expenditure with gender toggle and 5 activity levels.
-- **Goal tracker** — Set target BMI, track progress with current/best/target comparison and sparkline chart.
-- **Interactive radial gauge** — SVG gauge with tiered animations (ultra-smooth on high-end, instant on low-end).
-- **BMI history sparkline** — Interactive SVG chart with tooltips and BMI zone highlighting; stores up to 1 year locally.
-- **Passphrase-encrypted backup** — AES-256-GCM encryption with Argon2id key derivation. SHA-256 checksum for tamper detection. Import/export with passphrase protection.
-- **Multi-language (i18n)** — English, Indonesian (Bahasa), Japanese, Chinese. Floating language switcher panel.
-- **Stellar visual system** — Centralized container surfaces, desktop glass enhancement, touch-optimized mobile surfaces, cosmic wallpaper, and skeleton loading.
-- **Keyboard shortcuts** — Arrow keys for navigation, Enter to calculate, Escape to clear.
-- **Drag & drop import** — Drop a JSON backup file directly onto the import zone for quick restore.
-- **Encryption badge** — Visual trust indicator showing AES-256-GCM encryption status on export.
-- **Export summary** — Preview card showing record count, encryption method, and format version before export.
-- **Strong warning UX** — Prominent warning block for destructive actions (passphrase loss, data override).
-- **Progress indicators** — Indeterminate progress bar during encryption/decryption operations.
-- **Render Mode toggle** — Switch between rich visuals and basic mode for performance or battery.
-- **Reduced motion support** — Respects `prefers-reduced-motion` and `prefers-contrast`; motion settings disable animations without stripping visual identity.
-- **Privacy-first** — Health data stays local. No account required. Analytics, if enabled in deployment, does not collect BMI history, passphrases, or personal measurements.
-- **Offline ready** — Service worker caches assets; installable PWA with offline badge.
-- **Fully accessible** — ARIA labels, roles, focus trap, keyboard navigation, screen reader support.
-- **Responsive** — Stable breakpoints down to 320px, compact container caps, touch-safe scrolling, anti-zoom protection, and fluid typography.
-- **Web Vitals** — LCP, CLS, INP monitoring; performance tier auto-detection.
+- Calculates BMI, category, BMI Prime, ideal weight range, and health guidance.
+- Estimates TDEE and body fat with gender-aware inputs.
+- Tracks BMI history, goal progress, snapshots, and trend charts locally.
+- Exports/imports encrypted backups with AES-256-GCM and Argon2id.
+- Supports English, Indonesian, Japanese, and Chinese.
+- Runs as an installable offline-ready PWA.
+- Uses compact responsive containers and touch-safe mobile scrolling.
+
+For furthermore read this file: [docs/furthermore.md](docs/furthermore.md).
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Framework | SvelteKit 2.59 + Svelte 5.55 Runes |
-| Language | TypeScript (strict mode) |
-| Styling | Modular CSS with CSS custom properties (17 files in `src/styles/`) |
-| Icons | lucide-svelte |
-| Fonts | Inter Variable + JetBrains Mono Variable (bundled locally) |
-| Runtime / tooling | Bun |
-| Linting | ESLint 9 + eslint-plugin-svelte |
-| Formatting | Prettier + prettier-plugin-svelte |
-| Testing | Vitest + @testing-library/svelte |
-| Analytics | Vercel Analytics + Speed Insights |
-| Deployment | Vercel (Node.js 22 runtime) |
+| Framework | SvelteKit 2 + Svelte 5 Runes |
+| Language | TypeScript |
+| Runtime | Bun |
+| Styling | Modular CSS custom properties |
+| Tests | Vitest + Testing Library |
+| Deployment | Vercel |
 
 ## Quick Start
 
@@ -62,113 +46,47 @@ bun install
 bun run dev
 ```
 
-Open the local URL printed in your terminal (default: `http://localhost:5173`).
+Open the local URL printed in your terminal, usually `http://localhost:5173`.
 
-## Scripts
+## Core Scripts
 
 | Command | Description |
 |---|---|
-| `bun run dev` | Start dev server with HMR |
-| `bun run check` | Type-check via svelte-check |
-| `bun run lint` | Lint with ESLint |
-| `bun run test:run` | Run tests (Vitest) |
+| `bun run dev` | Start local dev server |
+| `bun run check` | Svelte and TypeScript diagnostics |
+| `bun run lint` | ESLint |
+| `bun run test:ci` | CI-friendly test run |
 | `bun run build` | Production build |
-| `bun run preview` | Preview production build |
-| `bun run verify` | Full verification: check -> lint -> test -> build |
-| `./verify.sh` | Full verification: check -> lint -> test -> build |
-| `bun run bmi-update-version 19.1.0` | Update package, app backup version, README title, and LICENSE title |
-| `bun run bmi-update-version --dry-run 19.1.0` | Preview a version update without writing files |
-| `bun run bmi-bump:patch` | Increment patch version |
-| `bun run bmi-bump:minor` | Increment minor version |
-| `bun run bmi-bump:major` | Increment major version |
+| `bun run verify` | check + lint + test + build |
+| `bun run bmi-update-version 19.1.0` | Sync app version across canonical files |
+| `bun run bmi-update-version --dry-run 19.1.0` | Preview a version update |
+
+## Project Layout
+
+```txt
+src/lib/components/     UI components and floating windows
+src/lib/components/sections/
+                        Page-level sections
+src/lib/utils/          BMI, storage, crypto, share image, version utilities
+src/lib/i18n/           Locale system and translation files
+src/styles/             Modular CSS layers
+scripts/                Maintenance scripts
+docs/                   Long-form documentation
+.github/workflows/      CI, release, security, and maintenance workflows
+```
 
 ## Versioning
 
-The canonical app version starts in `package.json` and is synced with the backup format version plus visible docs by `scripts/bmi-update-version.ts`. Use the dry-run command before release bumps, then run `bun run check` and `bun run build` after version updates.
+The canonical version starts in `package.json`. Use `scripts/bmi-update-version.ts` through the npm scripts above so `package.json`, backup metadata, README, and LICENSE stay aligned.
 
-## Architecture Notes
+## Security Model
 
-### Pager Navigation
-Single-page architecture with `{#key activeIndex}` for structural transitions between 6 sections (Welcome, Calculator, Results/Gauge, History, Reference, About). Navigation via keyboard arrows, pointer swipe, wheel, navbar tabs, or prev/next buttons.
-
-### Lazy Loading
-Heavy components (BmiForm, BmiResults, BmiRadialGauge, BmiHealthRisk, BmiSnapshot, BmiGoalTracker, BodyFatEstimate, ReferenceTable) are loaded on-demand when their section becomes active, reducing initial bundle size. Uses `lazy-load.ts` utility for dynamic imports.
-
-### Svelte 5 Runes API
-- `$state` / `$derived` / `$effect` used throughout (no legacy stores)
-- `$derived.by()` kept pure; all side effects (localStorage reads) are in `$effect` blocks
-- `$props()` for component props (Svelte 5 rune syntax)
-- `$bindable()` for two-way bound props
-
-### CSS Architecture
-Styles split into 17 focused modules under `src/styles/`, imported in cascade order in `+layout.svelte`:
-
-1. **tokens.css** — All CSS custom properties (colors, opacity tokens, spacing, elevation, micro-delay, glassmorphism tokens)
-2. **base.css** — Global resets, typography, utility classes
-3. **components.css** — Glassmorphism containers with `@supports` progressive enhancement
-4. **form.css** — BMI form layout, inputs, validation
-5. **results.css** — BMI results card, share/action buttons
-6. **data-cards.css** — Stat grid, TDEE, radial gauge, reference table
-7. **layout.css** — About section, cosmic particles, footer
-8. **icons.css** — Icon styling and alignment utilities
-9. **nav.css** — Pager navigation, performance tier optimizations
-10. **lang-switcher.css** — Language switcher panel (portaled to body)
-11. **animation.css** — Skeleton loading, shooting stars, micro-interactions
-12. **responsive-base.css** — Base responsive breakpoints and layout shifts
-13. **responsive-width.css** — Width-based responsive rules, ref-table mobile stacking
-14. **responsive-height.css** — Height-based responsive rules
-15. **responsive-backdrop.css** — No-backdrop fallback for unsupported browsers
-16. **responsive-mobile-perf.css** — Touch-device scroll, tap, and rendering performance overrides
-17. **responsive-content.css** — Final responsive content correction layer for widths, rhythm, radius, and shadow policy
-
-### Encryption System
-Backup data is encrypted using a layered security architecture:
-
-- **Key derivation (primary)**: Argon2id (RFC 9106) — memory-hard KDF, resistant to GPU/ASIC attacks
-  - Memory: 32 MB (32,768 KiB), Time cost: 2, Parallelism: 1 (mobile-safe), Output: 256-bit key
-- **Key derivation (legacy)**: PBKDF2 with SHA-256, 600,000 iterations — still supported for older exports
-- **Encryption cipher**: AES-256-GCM with random 12-byte IV
-- **Integrity**: SHA-256 checksum of plaintext (constant-time comparison) — explicit tamper detection
-- **Hint**: Stored in `localStorage` only, never in the encrypted file
-- **No passphrase storage**: Users must remember their passphrase — no recovery mechanism
-- **Format**: `bmi-encrypted-v1` with `cipher`, `kdf`, and `kdfParams` metadata
-
-### Data Persistence
-All user data stored in `localStorage` under namespaced keys (via centralized `storage.ts`):
-- `bmi.history` — BMI calculation history (max 1 year)
-- `bmi.unitSystem` — metric/imperial preference
-- `bmi.renderMode` — render quality preference
-- Cross-tab sync via `StorageEvent`
-
-### Internationalization (i18n)
-4 languages supported: English, Indonesian, Japanese, Chinese. Translation files in `src/lib/i18n/locales/`. Language switcher is portaled to `document.body` via `use:portal` action. Locale detection from browser `navigator.language` on first visit.
-
-## Security
-
-- **CSP**: Strict Content-Security-Policy in production (no inline scripts)
-- **HSTS**: Preload-ready (max-age=63072000, includeSubDomains)
-- **COOP/CORP/COEP**: Cross-origin isolation with `credentialless`
-- **Permissions-Policy**: Disables camera, mic, geolocation, etc.
-- **isSecureContext check**: Health data only stored in secure contexts
-- **Import validation**: HMAC-SHA256 signature + SHA-256 checksum on all data imports
-- **Tamper detection**: Explicit checksum verification distinguishes tampered files from wrong passphrases
-- **Encryption**: AES-256-GCM with Argon2id key derivation (PBKDF2 legacy support)
-
-## Known Constraints
-
-- Some older mobile browsers (Android Chrome < 76, older WebViews) may not support `backdrop-filter`. The `@supports` progressive enhancement ensures these fall back to strong opaque surfaces instead of appearing transparent.
-- `prefers-reduced-motion` disables animations and transitions but preserves visual identity such as glass backgrounds, color, border, and contrast for consistent appearance.
-- Touch devices use simpler dark transparent surfaces for heavy scroll areas so mobile scrolling stays responsive without losing the premium black visual tone.
-- Performance tier "low" keeps background and border clarity while simplifying GPU-intensive effects.
-- Encrypted backups require the user to remember their passphrase — there is no recovery mechanism (by design, for privacy).
-
-## Contributing
-
-1. Fork the repo
-2. Create a feature branch: `git checkout -b feat/my-feature`
-3. Make changes, run `./verify.sh` before committing
-4. Push and open a PR
+- Health data stays local.
+- Backups use AES-256-GCM encryption.
+- Argon2id is the primary key derivation function.
+- PBKDF2 backup imports remain supported for older exports.
+- Passphrases are never stored.
 
 ## License
 
-GPL-3.0 — see [`LICENSE.md`](LICENSE.md).
+GPL-3.0. See [LICENSE.md](LICENSE.md).

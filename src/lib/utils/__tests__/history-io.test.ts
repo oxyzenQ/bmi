@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 // @vitest-environment node
 //
 // This test file uses the node environment instead of jsdom because:

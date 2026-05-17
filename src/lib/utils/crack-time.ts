@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /**
  * Format crack time (in seconds) to a localized human-readable string.
  * @param seconds - Crack time in seconds

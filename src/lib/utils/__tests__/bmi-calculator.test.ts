@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 import { describe, it, expect } from 'vitest';
 import type { BmiError, BmiResult } from '../bmi-calculator';
 import {

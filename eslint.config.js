@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 import { includeIgnoreFile } from '@eslint/compat';
 import js from '@eslint/js';
 import prettier from 'eslint-config-prettier';

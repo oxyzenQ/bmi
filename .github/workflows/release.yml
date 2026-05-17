@@ -43,12 +43,10 @@ jobs:
   release:
     needs: validate-tag
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -58,27 +56,29 @@ jobs:
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v2.2.0
+        uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: "1.3.11"
 
       - name: Install dependencies (frozen)
         run: bun install --frozen-lockfile
 
-      - name: Use static build config
-        run: cp svelte.config.js svelte.config.js.vercel && cp svelte.config.static.js svelte.config.js
-
-      - name: Enable prerendering for static build
-        run: echo "export const prerender = true;" >> src/routes/+layout.ts
-
-      - name: Build project
-        run: bun run build
-
-      - name: Restore original config
+      - name: Build static project
+        shell: bash
         run: |
-          cp svelte.config.js.vercel svelte.config.js
-          rm svelte.config.js.vercel
-          sed -i '/^export const prerender = true;$/d' src/routes/+layout.ts
+          set -euo pipefail
+          cp svelte.config.js svelte.config.js.vercel
+
+          cleanup() {
+            cp svelte.config.js.vercel svelte.config.js
+            rm -f svelte.config.js.vercel
+            sed -i '/^export const prerender = true;$/d' src/routes/+layout.ts
+          }
+          trap cleanup EXIT
+
+          cp svelte.config.static.js svelte.config.js
+          printf '\nexport const prerender = true;\n' >> src/routes/+layout.ts
+          bun run build
 
       - name: Generate changelog
         id: changelog
@@ -116,6 +116,7 @@ jobs:
           cp -r static "$STAGE/"
           cp -r scripts "$STAGE/"
           cp -r .github "$STAGE/"
+          cp -r docs "$STAGE/" 2>/dev/null || true
 
           # Copy config files needed to rebuild
           cp package.json "$STAGE/"
@@ -160,6 +161,7 @@ jobs:
           cp -r build "$STAGE/"
           cp package.json "$STAGE/"
           cp README.md "$STAGE/" 2>/dev/null || true
+          cp -r docs "$STAGE/" 2>/dev/null || true
           cp LICENSE.md "$STAGE/" 2>/dev/null || true
 
           # Create build zip

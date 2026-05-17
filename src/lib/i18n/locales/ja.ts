@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /**
  * Japanese (ja) \u65e5\u672c\u8a9e\u7ffb\u8a33
  */

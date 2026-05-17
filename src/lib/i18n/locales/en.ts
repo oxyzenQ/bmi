@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /**
  * English (en) — Master translation dictionary
  * All keys are organized by component/section for easy navigation.

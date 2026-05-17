@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 import { dev } from '$app/environment';
 
 // Only inject Vercel telemetry in production builds.

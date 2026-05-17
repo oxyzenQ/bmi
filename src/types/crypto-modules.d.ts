@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /**
  * Type declarations for dynamically-imported crypto modules.
  *

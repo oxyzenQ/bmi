@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /**
  * Unit tests for logger.ts — v16.0 Observability
  */

@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /**
  * Lightweight IndexedDB wrapper for BMI Stellar.
  *

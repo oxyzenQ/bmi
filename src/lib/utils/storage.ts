@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /**
  * Centralized storage utility with in-memory caching, IndexedDB durability,
  * and automatic localStorage → IndexedDB migration.

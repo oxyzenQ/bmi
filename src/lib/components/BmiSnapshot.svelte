@@ -1,3 +1,4 @@
+<!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
 <script lang="ts">
   import { Target, TrendingDown, TrendingUp, Award, Scale, Activity } from 'lucide-svelte';
   import { browser } from '$app/environment';

@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /**
  * lazy-load utility tests — generic lazy-loader and paired-loader.
  */

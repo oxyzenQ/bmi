@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /**
  * Dev-only diagnostics helpers — v16.0 Observability
  *
