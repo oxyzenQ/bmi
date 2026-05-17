@@ -39,7 +39,7 @@
   import { fade } from 'svelte/transition';
   import { WifiOff } from 'lucide-svelte';
   import { initStorage } from '$lib/utils/storage';
-  import { hydratePwaInstallState, registerPwaInstallPrompt } from '$lib/stores/pwa-install';
+  import { hydratePwaInstallState, markPwaInstalled, registerPwaInstallPrompt } from '$lib/stores/pwa-install';
   import { t as _t, localeVersion } from '$lib/i18n';
   import { warnDevOnce } from '$lib/utils/warn-dev';
   let _rv = $derived($localeVersion);
@@ -118,10 +118,13 @@
     if (browser) {
       hydratePwaInstallState();
       const handleBeforeInstall = (e: Event) => registerPwaInstallPrompt(e);
+      const handleAppInstalled = () => markPwaInstalled();
       window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.addEventListener('appinstalled', handleAppInstalled);
       cleanupFns.push(() => {
         window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
       });
+      cleanupFns.push(() => window.removeEventListener('appinstalled', handleAppInstalled));
 
       // Online/offline detection
       const handleOnline = () => { isOffline = false; };

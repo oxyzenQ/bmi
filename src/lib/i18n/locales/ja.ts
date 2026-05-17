@@ -462,6 +462,10 @@ const ja: TranslationDict = {
   // ── PWA ──
   'pwa.install_title': 'BMI Stellar をインストール',
   'pwa.install_description': 'BMI Stellar をデバイスに追加して、すばやく起動し、オフラインでもアプリのように利用できます。',
+  'pwa.not_installed_description': 'BMI アプリはまだこのデバイスにインストールされていません。BMI Stellar を追加すると、すばやく起動し、オフラインでも利用できます。',
+  'pwa.installed_title': 'BMI Stellar はインストール済み',
+  'pwa.installed_description': 'BMI アプリはこのデバイスにインストールされています。',
+  'pwa.installed_btn': 'インストール済み',
   'pwa.install_text': '\u30a2\u30d7\u30ea\u3092\u30a4\u30f3\u30b9\u30c8\u30fc\u30eb\u3057\u3066\u7c21\u5358\u30a2\u30af\u30bb\u30b9',
   'pwa.install_btn': '\u30a4\u30f3\u30b9\u30c8\u30fc\u30eb',
   'pwa.dismiss': '\u9589\u3058\u308b',

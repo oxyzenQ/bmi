@@ -233,6 +233,11 @@
   margin-inline: auto;
 }
 
+.pwa-install-icon.pwa-installed {
+  background: rgba(24, 210, 110, 0.16);
+  border-color: rgba(24, 210, 110, 0.35);
+}
+
 .pwa-install-copy {
   min-width: 0;
   max-width: 58ch;
@@ -257,6 +262,22 @@
   white-space: nowrap;
   background: var(--btn-bg-hover);
   border: var(--btn-border-hover);
+  margin-top: 0.15rem;
+}
+
+.pwa-install-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: var(--btn-height);
+  padding-inline: var(--btn-padding-x);
+  border-radius: var(--btn-radius);
+  color: var(--stellar-white);
+  background: rgba(24, 210, 110, 0.12);
+  border: 1px solid rgba(24, 210, 110, 0.30);
+  font: var(--btn-font);
+  white-space: nowrap;
   margin-top: 0.15rem;
 }
 

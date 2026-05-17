@@ -463,6 +463,10 @@ const en: TranslationDict = {
   // ── PWA ──
   'pwa.install_title': 'Install BMI Stellar',
   'pwa.install_description': 'Add BMI Stellar to your device for faster launch, offline access, and an app-like experience.',
+  'pwa.not_installed_description': "BMI apps haven't installed on your devices. Install BMI Stellar for faster launch, offline access, and an app-like experience.",
+  'pwa.installed_title': 'BMI Stellar installed',
+  'pwa.installed_description': 'BMI apps has been installed on your devices.',
+  'pwa.installed_btn': 'Installed',
   'pwa.install_text': 'Install this app for quick access',
   'pwa.install_btn': 'Install',
   'pwa.dismiss': 'Dismiss',

@@ -462,6 +462,10 @@ const id: TranslationDict = {
   // ── PWA ──
   'pwa.install_title': 'Instal BMI Stellar',
   'pwa.install_description': 'Tambahkan BMI Stellar ke perangkat Anda untuk akses lebih cepat, dukungan luring, dan pengalaman seperti aplikasi.',
+  'pwa.not_installed_description': 'Aplikasi BMI belum terinstal di perangkat Anda. Instal BMI Stellar untuk akses lebih cepat, dukungan luring, dan pengalaman seperti aplikasi.',
+  'pwa.installed_title': 'BMI Stellar sudah terinstal',
+  'pwa.installed_description': 'Aplikasi BMI sudah terinstal di perangkat Anda.',
+  'pwa.installed_btn': 'Terinstal',
   'pwa.install_text': 'Instal aplikasi ini untuk akses cepat',
   'pwa.install_btn': 'Instal',
   'pwa.dismiss': 'Tutup',

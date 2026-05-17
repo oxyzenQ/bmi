@@ -120,19 +120,34 @@
         </div>
       </div>
 
-      {#if $pwaInstallState.checked && !$pwaInstallState.isInstalled}
+      {#if $pwaInstallState.checked}
         <section class="pwa-install-card" aria-labelledby="pwa-install-title">
-          <div class="pwa-install-icon" aria-hidden="true">
-            <Download size={30} />
+          <div class="pwa-install-icon" class:pwa-installed={$pwaInstallState.isInstalled} aria-hidden="true">
+            {#if $pwaInstallState.isInstalled}
+              <PackageCheck size={30} />
+            {:else}
+              <Download size={30} />
+            {/if}
           </div>
           <div class="pwa-install-copy">
-            <h3 id="pwa-install-title">{t('pwa.install_title')}</h3>
-            <p>{t('pwa.install_description')}</p>
+            <h3 id="pwa-install-title">
+              {$pwaInstallState.isInstalled ? t('pwa.installed_title') : t('pwa.install_title')}
+            </h3>
+            <p>
+              {$pwaInstallState.isInstalled ? t('pwa.installed_description') : t('pwa.not_installed_description')}
+            </p>
           </div>
-          <button class="pwa-install-action" onclick={promptPwaInstall} disabled={!$pwaInstallState.canInstall}>
-            <Download size={18} aria-hidden="true" />
-            <span>{t('pwa.install_btn')}</span>
-          </button>
+          {#if $pwaInstallState.isInstalled}
+            <div class="pwa-install-status" aria-label={t('pwa.installed_title')}>
+              <PackageCheck size={18} aria-hidden="true" />
+              <span>{t('pwa.installed_btn')}</span>
+            </div>
+          {:else}
+            <button class="pwa-install-action" onclick={promptPwaInstall} disabled={!$pwaInstallState.canInstall}>
+              <Download size={18} aria-hidden="true" />
+              <span>{t('pwa.install_btn')}</span>
+            </button>
+          {/if}
         </section>
       {/if}
 

@@ -38,6 +38,14 @@ export function hydratePwaInstallState(): void {
   }));
 }
 
+export function markPwaInstalled(): void {
+  pwaInstallState.set({
+    checked: true,
+    canInstall: false,
+    isInstalled: true
+  });
+}
+
 export function registerPwaInstallPrompt(event: Event): void {
   event.preventDefault();
   deferredPrompt = event as BeforeInstallPromptEvent;
@@ -56,11 +64,7 @@ export async function promptPwaInstall(): Promise<void> {
   const { outcome } = await deferredPrompt.userChoice;
 
   if (outcome === 'accepted') {
-    pwaInstallState.set({
-      checked: true,
-      canInstall: false,
-      isInstalled: true
-    });
+    markPwaInstalled();
   }
 
   deferredPrompt = null;
