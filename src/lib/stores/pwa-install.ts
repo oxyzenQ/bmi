@@ -57,8 +57,8 @@ export function registerPwaInstallPrompt(event: Event): void {
   }));
 }
 
-export async function promptPwaInstall(): Promise<void> {
-  if (!deferredPrompt) return;
+export async function promptPwaInstall(): Promise<boolean> {
+  if (!deferredPrompt) return false;
 
   await deferredPrompt.prompt();
   const { outcome } = await deferredPrompt.userChoice;
@@ -68,4 +68,5 @@ export async function promptPwaInstall(): Promise<void> {
   }
 
   deferredPrompt = null;
+  return true;
 }

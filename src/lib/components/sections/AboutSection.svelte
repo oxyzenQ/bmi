@@ -5,6 +5,7 @@
     LockKeyhole, HeartPulse, GitBranch, GitCompare,
     PackageCheck, ShieldCheck, Scale, Download
   } from 'lucide-svelte';
+  import NotifyFloat from '$lib/components/NotifyFloat.svelte';
   import StagingSpinner from '$lib/components/StagingSpinner.svelte';
   import { promptPwaInstall, pwaInstallState } from '$lib/stores/pwa-install';
   import { applyPwaUpdate, checkForPwaUpdate, pwaUpdateState } from '$lib/stores/pwa-update';
@@ -14,8 +15,14 @@
   let { gitCommitId, gitBranch }: { gitCommitId: string; gitBranch: string } = $props();
   const appVersionTag = `v${getAppVersionShort()}`;
   let updateCheckingOverlay = $state(false);
+  let showInstallHelp = $state(false);
   let _rv = $derived($localeVersion);
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
+
+  async function handleInstallClick(): Promise<void> {
+    const didPrompt = await promptPwaInstall();
+    if (!didPrompt) showInstallHelp = true;
+  }
 
   async function handleManualUpdateCheck(): Promise<void> {
     if (updateCheckingOverlay) return;
@@ -158,7 +165,7 @@
                 <span>{t('pwa.installed_btn')}</span>
               </div>
             {:else}
-              <button class="pwa-install-action" onclick={promptPwaInstall} disabled={!$pwaInstallState.canInstall}>
+              <button class="pwa-install-action" onclick={handleInstallClick}>
                 <Download size={18} aria-hidden="true" />
                 <span>{t('pwa.install_btn')}</span>
               </button>
@@ -226,5 +233,15 @@
 
   </div>
 </section>
+{#if showInstallHelp}
+  <NotifyFloat
+    show={showInstallHelp}
+    type="success"
+    message={t('pwa.install_fallback')}
+    buttonText={t('notify.ok')}
+    onContinue={() => { showInstallHelp = false; }}
+    onClose={() => { showInstallHelp = false; }}
+  />
+{/if}
 <StagingSpinner show={updateCheckingOverlay} label={t('pwa.update_checking')} />
 {/key}

@@ -470,6 +470,7 @@ const zh: TranslationDict = {
   'pwa.update_checking': '检查中...',
   'pwa.update_available': 'BMI Stellar 有新版本可用。立即重新加载以启用最新更新。',
   'pwa.update_now': '立即更新',
+  'pwa.install_fallback': '请使用浏览器地址栏中的安装图标，或打开浏览器菜单并选择安装应用。',
   'pwa.install_text': '\u5b89\u88c5\u6b64\u5e94\u7528\u4ee5\u4fbf\u5feb\u901f\u8bbf\u95ee',
   'pwa.install_btn': '\u5b89\u88c5',
   'pwa.dismiss': '\u5173\u95ed',
