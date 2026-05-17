@@ -101,4 +101,3 @@
     }
   }
 </style>
-  const appVersionTag = `v${getAppVersionShort()}`;

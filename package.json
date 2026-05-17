@@ -1,7 +1,7 @@
 {
   "name": "bmi-stellar",
   "private": true,
-  "version": "20.0.0",
+  "version": "19.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite dev --host",
@@ -29,7 +29,9 @@
     "analyze": "vite build --mode analyze",
     "verify": "bun run check && bun run lint && bun run test:run && bun run build",
     "bmi-update-version": "bun run scripts/bmi-update-version.ts",
-    "bmi-update-version-to": "bun run scripts/bmi-update-version.ts"
+    "bmi-bump:patch": "bun run scripts/bmi-update-version.ts patch",
+    "bmi-bump:minor": "bun run scripts/bmi-update-version.ts minor",
+    "bmi-bump:major": "bun run scripts/bmi-update-version.ts major"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.1",

@@ -2,7 +2,7 @@
   <img src="static/assets/new_bmi_logo_2026.webp" alt="BMI Stellar" width="280" />
 </p>
 
-<h1 align="center">BMI Stellar v20.0</h1>
+<h1 align="center">BMI Stellar v19.0</h1>
 
 <p align="center">
   A privacy-first <strong>BMI companion</strong> built with <strong>SvelteKit 2 + Svelte 5 (Runes) + TypeScript</strong>. Calculate BMI, TDEE, body-fat estimates, ideal weight range, and track progress locally with offline support, encrypted backups, and a polished Stellar interface.
