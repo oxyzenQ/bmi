@@ -1,5 +1,5 @@
 ---
-name: CI
+name: 🛠️ CI
 
 on:
   push:
@@ -32,6 +32,9 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   ci:
     name: Build & Test
@@ -41,22 +44,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Resolve Node.js version
-        id: node-version
-        shell: bash
-        run: |
-          set -euo pipefail
-          version="$(node -p "require('./package.json').engines?.node || ''")"
-          if [ -z "$version" ]; then
-            echo "package.json engines.node is required" >&2
-            exit 1
-          fi
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ steps.node-version.outputs.version }}
+          node-version: 'lts/*'
 
       - name: Resolve Bun version
         id: bun-version

@@ -11,6 +11,7 @@ permissions:
 
 env:
   RELEASE_TAG_PREFIX: Stellar
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   validate-tag:
