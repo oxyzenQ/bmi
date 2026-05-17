@@ -76,6 +76,7 @@
 				'button, .btn, a.button, .action-btn, .gauge-cta-btn, .sex-btn'
 			) as HTMLElement | null;
 			if (!btn) return;
+			if (btn.matches('.notify-close, .lang-close, .dp-close')) return;
 			// Don't ripple on disabled buttons
 			if (btn.hasAttribute('disabled') || btn.hasAttribute('aria-disabled')) return;
 

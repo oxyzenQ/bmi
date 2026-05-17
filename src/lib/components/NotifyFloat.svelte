@@ -144,7 +144,7 @@
 	panelClass="notify-float-box"
 >
 	<button class="notify-close" onclick={handleModalClose} aria-label={t('notify.close_aria')}>
-		<span class="close-icon-text">✕</span>
+		<X size={18} strokeWidth={2.4} />
 	</button>
 
 	<div class="notify-icon" style="color: {iconColor}">
@@ -185,46 +185,42 @@
 		position: absolute;
 		top: 0.75rem;
 		right: 0.75rem;
-		background: var(--btn-bg);
-		border: 1px solid rgba(130, 130, 130, 0.3);
+		background: var(--btn-danger-bg);
+		border: var(--btn-danger-border);
 		border-radius: 50%;
 		width: 36px;
 		height: 36px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: var(--w-80);
+		color: var(--stellar-white);
 		cursor: pointer;
 		transition:
 			background var(--dur-micro) ease,
 			color var(--dur-micro) ease,
-			transform var(--dur-micro) ease,
 			border-color var(--dur-micro) ease;
 		-webkit-backdrop-filter: blur(10px);
 		backdrop-filter: blur(10px);
 		z-index: var(--z-inner-control);
+		overflow: hidden;
 	}
 
 	.notify-close:hover {
-		background: var(--btn-bg-hover);
+		background: var(--btn-danger-bg-hover);
 		color: var(--stellar-white);
-		transform: rotate(90deg) scale(1.1);
-		border-color: rgba(130, 130, 130, 0.45);
+		border: var(--btn-danger-border-hover);
 	}
 
-	.close-icon-text {
-		font-family:
-			system-ui,
-			-apple-system,
-			sans-serif;
-		font-size: 22px;
-		font-weight: 400;
-		line-height: 1;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		margin-top: -2px; /* Visual center adjustment */
-		color: inherit;
+	.notify-close:active {
+		background: var(--btn-danger-bg-hover);
+		color: var(--stellar-white);
+		border: var(--btn-danger-border-hover);
+	}
+
+	:global(.notify-close svg) {
+		width: 18px;
+		height: 18px;
+		display: block;
 		pointer-events: none;
 	}
 
@@ -380,7 +376,6 @@
 		.notify-btn:active {
 			-webkit-backdrop-filter: none !important;
 			backdrop-filter: none !important;
-			transition: none !important;
 			transform: none !important;
 			touch-action: manipulation;
 		}

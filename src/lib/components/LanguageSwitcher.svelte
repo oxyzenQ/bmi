@@ -89,7 +89,7 @@
 	<div use:portal class="lang-backdrop" class:visible role="presentation">
 		<div class="lang-panel" role="dialog" aria-label={t('lang.select')} tabindex="-1">
 			<button type="button" class="lang-close" onclick={closePanel} aria-label={t('lang.close')}>
-				<X size={16} />
+				<X size={18} strokeWidth={2.4} />
 			</button>
 
 			<div class="lang-panel-icon">

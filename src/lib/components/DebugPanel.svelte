@@ -197,7 +197,7 @@
 					<span class="dp-badge">v16.0</span>
 				</div>
 				<button class="dp-close" onclick={togglePanel} aria-label="Close">
-					<X size={14} />
+					<X size={18} strokeWidth={2.4} />
 				</button>
 			</div>
 
@@ -470,26 +470,42 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 28px;
-		height: 28px;
-		border: none;
-		border-radius: var(--radius-xs);
-		background: transparent;
-		color: var(--w-50, #94a3b8);
+		width: 36px;
+		height: 36px;
+		border: var(--btn-danger-border);
+		border-radius: 50%;
+		background: var(--btn-danger-bg);
+		color: var(--stellar-white);
 		cursor: pointer;
 		transition:
 			background var(--dur-micro) ease,
-			color var(--dur-micro) ease;
+			color var(--dur-micro) ease,
+			border-color var(--dur-micro) ease;
+		overflow: hidden;
 	}
 
 	.dp-close:hover {
-		background: var(--w-10, rgba(255, 255, 255, 0.06));
-		color: var(--w-90, #f1f5f9);
+		background: var(--btn-danger-bg-hover);
+		color: var(--stellar-white);
+		border: var(--btn-danger-border-hover);
+	}
+
+	.dp-close:active {
+		background: var(--btn-danger-bg-hover);
+		color: var(--stellar-white);
+		border: var(--btn-danger-border-hover);
 	}
 
 	.dp-close:focus-visible {
 		outline: 2px solid var(--violet-42);
 		outline-offset: 1px;
+	}
+
+	:global(.dp-close svg) {
+		width: 18px;
+		height: 18px;
+		display: block;
+		pointer-events: none;
 	}
 
 	/* ── Tabs ── */

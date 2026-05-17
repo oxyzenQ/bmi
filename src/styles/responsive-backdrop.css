@@ -39,11 +39,14 @@
 		background: var(--cosmic-dark-82) !important;
 	}
 
-	.notify-close,
 	.btn-success,
 	.btn-delete,
 	.btn-cancel,
 	.btn-warn {
 		background: var(--cosmic-dark-70) !important;
+	}
+
+	.notify-close {
+		background: var(--btn-danger-bg) !important;
 	}
 }

@@ -609,9 +609,25 @@
 	.btn-warn {
 		-webkit-backdrop-filter: none !important;
 		backdrop-filter: none !important;
-		transition: none !important;
 		transform: none !important;
 		touch-action: manipulation;
+	}
+
+	.notify-close,
+	.lang-close {
+		background: var(--btn-danger-bg) !important;
+		border: var(--btn-danger-border) !important;
+		color: var(--stellar-white) !important;
+	}
+
+	.notify-close:hover,
+	.notify-close:active,
+	.lang-close:hover,
+	.lang-close:active {
+		background: var(--btn-danger-bg-hover) !important;
+		border: var(--btn-danger-border-hover) !important;
+		color: var(--stellar-white) !important;
+		transform: none !important;
 	}
 
 	.lang-backdrop.visible .lang-panel,

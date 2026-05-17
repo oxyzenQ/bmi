@@ -52,14 +52,14 @@
 	position: absolute;
 	top: 0.75rem;
 	right: 0.75rem;
-	width: 32px;
-	height: 32px;
+	width: 36px;
+	height: 36px;
 	padding: 0 !important;
 	margin: 0;
 	border-radius: 50%;
-	border: 1px solid rgba(130, 130, 130, 0.3);
-	background: var(--btn-bg);
-	color: var(--w-80);
+	border: var(--btn-danger-border);
+	background: var(--btn-danger-bg);
+	color: var(--stellar-white);
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -79,21 +79,23 @@
 }
 
 .lang-close:hover {
-	background: var(--btn-bg-hover);
+	background: var(--btn-danger-bg-hover);
 	color: var(--stellar-white);
-	transform: rotate(90deg) scale(1.1);
-	border-color: rgba(130, 130, 130, 0.45);
+	border: var(--btn-danger-border-hover);
 }
 
 .lang-close:active {
-	transform: rotate(90deg) scale(0.95);
+	background: var(--btn-danger-bg-hover);
+	color: var(--stellar-white);
+	border: var(--btn-danger-border-hover);
 	transition-duration: var(--dur-instant);
 }
 
 .lang-close svg {
-	width: 16px !important;
-	height: 16px !important;
+	width: 18px !important;
+	height: 18px !important;
 	display: block;
+	pointer-events: none;
 }
 
 /* ── Globe icon ── */
