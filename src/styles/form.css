@@ -177,7 +177,7 @@
   background: var(--sd-75);
   border-top: 1px solid var(--w-14);
   border-left: 1px solid var(--w-14);
-  border-bottom: 2px solid var(--text-muted);
+  border-bottom: 1px solid var(--text-muted);
   border-right: 1px solid var(--w-14);
   color: var(--stellar-white);
   font-size: 1rem;
@@ -220,7 +220,7 @@
   padding: 0 14px;
   min-width: 140px;
   border-radius: var(--control-radius);
-  border: 2px solid var(--text-muted);
+  border: 1px solid var(--text-muted);
   background: var(--sd-55);
   color: var(--pill-text-blue);
   font-weight: 600;

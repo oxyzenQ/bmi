@@ -27,7 +27,6 @@
     padding: var(--rsp-desktop-panel-padding);
     margin-top: var(--rsp-desktop-container-y) !important;
     margin-bottom: var(--rsp-desktop-container-y) !important;
-    border-radius: var(--radius-xl);
   }
 
   .bmi-section,
@@ -180,7 +179,7 @@
 
   .hero-bottom {
     padding: 1.25rem;
-    margin-bottom: -20px;
+    margin-bottom: -40px;
   }
 
   .gauge-container {

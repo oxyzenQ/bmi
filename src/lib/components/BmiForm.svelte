@@ -841,7 +841,7 @@
     width: 100%;
     max-width: 320px;
     border: var(--btn-border);
-    border-radius: var(--control-radius);
+    border-radius: var(--radius-xl);
     padding: 3px;
     background: var(--sd-55);
   }

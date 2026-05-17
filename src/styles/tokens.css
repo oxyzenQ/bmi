@@ -521,7 +521,7 @@
        Prefer --container-radius and --control-radius for new UI. */
   --radius-xs: 6px;
   --radius-sm: 8px;
-  --radius-md: 12px;
+  --radius-md: 40px;
   --radius-lg: 16px;
   --radius-xl: 20px;
   --radius-2xl: 24px;
