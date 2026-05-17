@@ -74,6 +74,13 @@
 
   // Hover state
   let hoveredIndex: number | null = $state(null);
+  let isTouchDevice = $state(false);
+
+  $effect(() => {
+    if (!browser) return;
+    isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    if (isTouchDevice) hoveredIndex = null;
+  });
 
   function getBmiColor(bmi: number): string {
     if (bmi < 18.5) return 'var(--cat-blue-solid)';
@@ -180,6 +187,7 @@
   });
 
   function handlePointerMove(e: PointerEvent) {
+    if (isTouchDevice) return;
     if (!chartData || !chartData.points.length) return;
     const svg = (e.currentTarget as SVGSVGElement);
     const rect = svg.getBoundingClientRect();
@@ -217,6 +225,7 @@
   });
 
   function handlePointerLeave() {
+    if (isTouchDevice) return;
     hoveredIndex = null;
   }
 
@@ -319,7 +328,7 @@
         {/each}
 
         <!-- Hover crosshair -->
-        {#if hoveredPoint}
+        {#if hoveredPoint && !isTouchDevice}
           <line
             x1={hoveredPoint.x}
             y1={PAD_TOP}
@@ -342,7 +351,7 @@
       </svg>
 
       <!-- Tooltip -->
-      {#if hoveredPoint}
+      {#if hoveredPoint && !isTouchDevice}
         <div
           class="chart-tooltip"
           style={tooltipStyle}

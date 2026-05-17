@@ -212,10 +212,61 @@
     animation: none !important;
   }
 
+  /* Page-2 hardening (calculator after results):
+     disable remaining result-card micro-animations/transitions that can
+     still trigger per-frame style work while user scrolls. */
+  #calculator :is(
+    .bmi-results-card,
+    .results-content,
+    .bmi-display,
+    .stat-row-grid,
+    .health-advice,
+    .age-advisory,
+    .bmi-explanation,
+    .tdee-card,
+    .share-toast,
+    .prime-bar-fill
+  ) {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
+  #calculator :is(.bmi-value, .category-icon, .bmi-category) {
+    text-shadow: none !important;
+    filter: none !important;
+  }
+
   .about-section-block,
   .about-card-content,
   .app-info {
     contain: layout style;
+  }
+
+  /* Page-3 hardening (gauge/details):
+     stop continuous/infinite animations and interactive hover work
+     during touch scrolling. */
+  #gauge :is(
+    .risk-indicator,
+    .risk-marker,
+    .snapshot-card,
+    .progress-fill,
+    .comp-fill,
+    .spark-point,
+    .chart-tooltip
+  ) {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
+  #gauge .risk-marker {
+    animation: none !important;
+  }
+
+  #gauge .sparkline-svg {
+    pointer-events: none !important;
+    touch-action: pan-y pinch-zoom !important;
   }
 
   /* T-20: Neutralize :hover on ALL calculator inner elements.

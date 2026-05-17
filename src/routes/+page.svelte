@@ -1012,7 +1012,7 @@
                 <BmiRadialGaugeComponent
                   bmi={bmiValue || 0}
                   category={category}
-                  ultraSmooth={true}
+                  ultraSmooth={!isTouchDevice}
                 />
               {:else}
                 <div class="skeleton-card">
