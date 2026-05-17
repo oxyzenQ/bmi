@@ -132,7 +132,7 @@ button[aria-disabled="true"] {
   /* animation removed for GPU performance */
 }
 
-/* Elegant danger variant — red-tinted glass for destructive actions (v19.0) */
+/* Red-tinted glass for destructive actions. */
 .btn-danger {
   color: var(--stellar-white);
   background: var(--btn-danger-bg);
@@ -165,7 +165,7 @@ button[aria-disabled="true"] {
 }
 
 .btn-secondary:hover {
-  background: linear-gradient(1805deg, var(--deep-void-65), rgba(91, 33, 182, 0.55));
+  background: linear-gradient(180deg, var(--deep-void-65), rgba(91, 33, 182, 0.55));
   border-color: rgba(130, 130, 130, 0.45);
 }
 

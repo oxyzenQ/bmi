@@ -31,7 +31,7 @@
   import '../styles/animation.css';
   /* ── Touch device scroll performance (MUST load last — uses !important overrides) ── */
   import '../styles/responsive-mobile-perf.css';
-  /* ── v19 Mobile Premium Layout — final correction layer (loads after mobile-perf) ── */
+  /* ── Final responsive content correction layer (loads after mobile-perf) ── */
   import '../styles/responsive-content.css';
   import { onMount, type Snippet } from 'svelte';
   import { browser } from '$app/environment';

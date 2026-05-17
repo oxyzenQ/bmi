@@ -1,7 +1,5 @@
 /* ── icons.css — Lucide icon sizing: fluid clamp() for large icons, fixed 24px for small icons ── */
-/* Extracted from responsive.css in v18.0 maintainability refactor */
-
-/* Icon sizing */
+/* Central icon sizing and semantic icon colors. */
 
 /* Bmi form icons and other biggest icons — fluid sizing for responsiveness */
 .Orbit,

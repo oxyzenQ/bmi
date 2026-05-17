@@ -2,10 +2,7 @@
 /* ==============================
    REDUCED MOTION
    Disable ANIMATIONS and TRANSITIONS for accessibility.
-   Bug #19 fix: Do NOT strip backdrop-filter here — visual effects
-   are not animations. Stripping backdrop-filter makes glass
-   containers fully transparent on mobile devices that have
-   prefers-reduced-motion enabled (e.g. iOS Reduce Motion).
+   Keep visual effects intact; backdrop/filter styling is not motion.
    ============================== */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -455,7 +452,7 @@ a.button {
 }
 
 /* ==============================
-      A-4: PROGRESS BAR (Phase 1)
+      PROGRESS BAR
       Determinate progress indicator for async operations
       (export, import, encryption). Uses micro-delay tokens.
       ============================== */
@@ -508,7 +505,7 @@ a.button {
 }
 
 /* ==============================
-      A-5: ENCRYPTION BADGE (Phase 2)
+      ENCRYPTION BADGE
       Visual trust indicator showing encryption status
       and algorithm details.
       ============================== */
@@ -579,7 +576,7 @@ a.button {
 
 
 /* ==============================
-      A-7: DRAG & DROP ZONE (Phase 4)
+      DRAG & DROP ZONE
       Visual feedback for file drag-and-drop import.
       ============================== */
 .bmi-drop-zone {
@@ -636,7 +633,7 @@ a.button {
 }
 
 /* ==============================
-      A-8: EXPORT SUMMARY (Phase 2)
+      EXPORT SUMMARY
       Summary card shown after successful export
       showing record count, encryption status, format.
       ============================== */
@@ -674,7 +671,7 @@ a.button {
 }
 
 /* ==============================
-      A-9: STRONG WARNING (Phase 2)
+      STRONG WARNING
       Prominent warning block for destructive actions.
       ============================== */
 .bmi-strong-warning {

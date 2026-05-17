@@ -2,8 +2,7 @@
 /* ==============================
    PERFORMANCE TIER OPTIMIZATIONS
    Reduce expensive effects on low-end devices
-   Bug #19 fix: Low tier keeps glass backgrounds but removes
-   backdrop-filter. Containers still look solid and premium.
+   while keeping solid premium backgrounds and borders.
    ============================== */
 
 html[data-performance-tier="low"] :is(

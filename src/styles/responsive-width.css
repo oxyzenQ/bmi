@@ -1,8 +1,5 @@
 /* ── responsive-width.css — Width-based breakpoints ── */
-/* v18.0 refactor: Extracted from responsive.css.
-   Contains: tablet 768px, mobile 480px, compact 520px,
-   ultra-compact 360px, extreme-narrow 300px, very extreme 250px,
-   gauge width breakpoints, and ultrawide 1400px. */
+/* Width-driven layout rules from tablet through narrow mobile and ultrawide. */
 
 /* Container width contract.
    Keep width-driven sizing here; height-driven compression lives in
@@ -179,9 +176,6 @@
     width: 100%;
     max-width: 420px;
   }
-
-  /* NOTE: duplicate img/svg rule removed in v18.0 —
-     see responsive-base.css for the global fluid-media rule. */
 
   .hero-bottom {
     padding: 1.25rem;

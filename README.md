@@ -24,7 +24,7 @@
 - **BMI history sparkline** — Interactive SVG chart with tooltips and BMI zone highlighting; stores up to 1 year locally.
 - **Passphrase-encrypted backup** — AES-256-GCM encryption with Argon2id key derivation. SHA-256 checksum for tamper detection. Import/export with passphrase protection.
 - **Multi-language (i18n)** — English, Indonesian (Bahasa), Japanese, Chinese. Floating language switcher panel.
-- **Luxury space theme** — Glassmorphism containers with `@supports` progressive enhancement, cosmic particles, shooting stars, aurora effects, skeleton loading.
+- **Stellar visual system** — Centralized container surfaces, desktop glass enhancement, touch-optimized mobile surfaces, cosmic wallpaper, and skeleton loading.
 - **Keyboard shortcuts** — Arrow keys for navigation, Enter to calculate, Escape to clear.
 - **Drag & drop import** — Drop a JSON backup file directly onto the import zone for quick restore.
 - **Encryption badge** — Visual trust indicator showing AES-256-GCM encryption status on export.
@@ -32,11 +32,11 @@
 - **Strong warning UX** — Prominent warning block for destructive actions (passphrase loss, data override).
 - **Progress indicators** — Indeterminate progress bar during encryption/decryption operations.
 - **Render Mode toggle** — Switch between rich visuals and basic mode for performance or battery.
-- **Reduced motion support** — Respects `prefers-reduced-motion` and `prefers-contrast` system settings (Bug #19 fix: reduced motion disables animations, not visual effects like backdrop-filter).
+- **Reduced motion support** — Respects `prefers-reduced-motion` and `prefers-contrast`; motion settings disable animations without stripping visual identity.
 - **Privacy-first** — Health data stays local. No account required. Analytics, if enabled in deployment, does not collect BMI history, passphrases, or personal measurements.
 - **Offline ready** — Service worker caches assets; installable PWA with offline badge.
 - **Fully accessible** — ARIA labels, roles, focus trap, keyboard navigation, screen reader support.
-- **Responsive** — Aggressive breakpoints down to 320px; anti-zoom protection; font clamps. Consistent glassmorphism across desktop and mobile (Bug #19 fix).
+- **Responsive** — Stable breakpoints down to 320px, compact container caps, touch-safe scrolling, anti-zoom protection, and fluid typography.
 - **Web Vitals** — LCP, CLS, INP monitoring; performance tier auto-detection.
 
 ## Tech Stack
@@ -74,7 +74,17 @@ Open the local URL printed in your terminal (default: `http://localhost:5173`).
 | `bun run test:run` | Run tests (Vitest) |
 | `bun run build` | Production build |
 | `bun run preview` | Preview production build |
+| `bun run verify` | Full verification: check -> lint -> test -> build |
 | `./verify.sh` | Full verification: check -> lint -> test -> build |
+| `bun run bmi-update-version 19.1.0` | Update package, app backup version, README title, and LICENSE title |
+| `bun run bmi-update-version --dry-run 19.1.0` | Preview a version update without writing files |
+| `bun run bmi-bump:patch` | Increment patch version |
+| `bun run bmi-bump:minor` | Increment minor version |
+| `bun run bmi-bump:major` | Increment major version |
+
+## Versioning
+
+The canonical app version starts in `package.json` and is synced with the backup format version plus visible docs by `scripts/bmi-update-version.ts`. Use the dry-run command before release bumps, then run `bun run check` and `bun run build` after version updates.
 
 ## Architecture Notes
 
@@ -108,8 +118,8 @@ Styles split into 17 focused modules under `src/styles/`, imported in cascade or
 13. **responsive-width.css** — Width-based responsive rules, ref-table mobile stacking
 14. **responsive-height.css** — Height-based responsive rules
 15. **responsive-backdrop.css** — No-backdrop fallback for unsupported browsers
-16. **responsive-mobile-perf.css** — Touch-device GPU optimizations (T-rules)
-17. **responsive-content.css** — Mobile content overrides, glass tuning (final correction layer, loads LAST)
+16. **responsive-mobile-perf.css** — Touch-device scroll, tap, and rendering performance overrides
+17. **responsive-content.css** — Final responsive content correction layer for widths, rhythm, radius, and shadow policy
 
 ### Encryption System
 Backup data is encrypted using a layered security architecture:
@@ -146,9 +156,10 @@ All user data stored in `localStorage` under namespaced keys (via centralized `s
 
 ## Known Constraints
 
-- Some older mobile browsers (Android Chrome < 76, older WebViews) may not support `backdrop-filter`. The `@supports` progressive enhancement ensures these fall back to a strong opaque background instead of appearing transparent.
+- Some older mobile browsers (Android Chrome < 76, older WebViews) may not support `backdrop-filter`. The `@supports` progressive enhancement ensures these fall back to strong opaque surfaces instead of appearing transparent.
 - `prefers-reduced-motion` disables animations and transitions but preserves visual identity such as glass backgrounds, color, border, and contrast for consistent appearance.
-- Performance tier "low" keeps glass backgrounds and border clarity while simplifying GPU-intensive effects.
+- Touch devices use simpler dark transparent surfaces for heavy scroll areas so mobile scrolling stays responsive without losing the premium black visual tone.
+- Performance tier "low" keeps background and border clarity while simplifying GPU-intensive effects.
 - Encrypted backups require the user to remember their passphrase — there is no recovery mechanism (by design, for privacy).
 
 ## Contributing

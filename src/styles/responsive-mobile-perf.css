@@ -1,19 +1,16 @@
 /* ── responsive-mobile-perf.css — Touch device scroll performance optimizations ── */
-/* Extracted from responsive.css in v18.0 maintainability refactor.
-   MUST load AFTER all component CSS to properly override with !important.
-   Contains: T-0 through T-23 rules for mobile GPU performance. */
+/* Loaded late to protect touch scrolling from expensive visual effects,
+   gesture conflicts, and transition work. */
 
 /* ═══════════════════════════════════════════════════════════════
-   MOBILE SCROLL PERFORMANCE (Bug 13)
+   MOBILE SCROLL PERFORMANCE
    ─────────────────────────────────────────────────────────────
-   Strategy: Apply heavy optimizations PERMANENTLY on touch devices.
-   This eliminates massive per-frame style recalculation on mobile.
+   Strategy: use native vertical scrolling, reduce per-frame paint work,
+   and keep horizontal navigation from competing with diagonal swipes.
    ═══════════════════════════════════════════════════════════════ */
 @media (hover: none) and (pointer: coarse) {
 
-  /* T-0: Scroll smoothness optimizations for mobile.
-     Enable momentum scrolling, prevent overscroll bounce,
-     and optimize touch response. */
+  /* Native momentum scroll with predictable vertical intent. */
   html {
     scroll-behavior: auto;
     overscroll-behavior-y: none; /* Prevent bounce on body */
@@ -24,20 +21,18 @@
     touch-action: pan-y pinch-zoom; /* Optimize touch response */
   }
 
-  /* T-1: Simplify body::before filter on touch devices.
+  /* Simplify body::before filter on touch devices.
      Full filter chain (brightness(1) contrast(1.25) saturate(1)) costs
      GPU cycles even when values look "neutral".
      Replace with a single brightness reduction to keep wallpaper
-     dark on mobile — removing the filter entirely made wallpaper
-     too bright (Bug: mobile wallpaper too bright).
-     Also remove translateZ(0) compositor layer promotion. */
+     visible without compositor layer promotion. */
   body::before {
     opacity: 0.68;
     filter: none !important;
     transform: none !important;
   }
 
-  /* T-1b: Darken wallpaper through a cheap overlay instead of a
+  /* Darken wallpaper through a cheap overlay instead of a
      full-screen filtered fixed image. This keeps the same black-premium
      mood with less work during long section scrolls. */
   body::after {
@@ -48,10 +43,9 @@
     ) !important;
   }
 
-  /* T-2: Keep .pager-section on native compositor scrolling without
+  /* Keep .pager-section on native compositor scrolling without
      forcing a permanent scroll-position layer.
-     Bug-17 follow-up: downgraded from contain: layout style paint to
-     contain: style only. Layout+paint containment on the PRIMARY scroll
+     Layout+paint containment on the primary scroll
      target with dynamic content (BMI results change height) forces the
      browser to maintain separate isolation boundaries, causing measurable
      interaction lag on mobile. Style containment alone prevents outside
@@ -71,7 +65,7 @@
     touch-action: pan-y pinch-zoom !important;
   }
 
-  /* T-3: Mobile fake-glass policy.
+  /* Mobile fake-glass policy.
      Real backdrop blur is expensive on touch scroll. Use a simple
      translucent black surface with the shared border/radius so it still
      reads as glass without paying the per-frame blur cost. */
@@ -98,17 +92,15 @@
     backdrop-filter: none !important;
   }
 
-  /* T-3b: Calculator cards — simplified shadow, NO contain.
+  /* Calculator cards: simplified surfaces, no containment.
      form-card and bmi-card hold dynamic content (results
      change height after calculate). ANY containment (even style+paint)
      forces browser to maintain separate isolation boundaries on the
-     PRIMARY scroll targets. This overhead is negligible when cards
+     primary scroll targets. This overhead is negligible when cards
      are small (empty state) but costly when they're tall (results showing).
-     Bug-17 follow-up: removed contain: style paint that was causing
-     jank specifically when values were inputted. */
+     Keep these cards on normal layout flow. */
 
-
-  /* T-3c: Kill ALL transitions on calculator cards permanently.
+  /* Disable transitions on calculator cards.
      The base CSS sets 800ms transitions on these cards.
      Even though they don't visually animate during scroll,
      the browser still maintains transition state computation,
@@ -132,7 +124,6 @@
     overflow: visible !important;
     contain: none !important;
     isolation: auto;
-    content-visibility: visible;
   }
 
   #calculator :is(
@@ -147,7 +138,7 @@
     touch-action: manipulation;
   }
 
-  /* T-3d: Kill results card transitions and overflow layer.
+  /* Disable results card transitions and overflow layer.
      bmi-results-card has 500ms transitions + ::before gradient
      overlay (another compositing layer). Remove all of them. */
   .bmi-results-card {
@@ -158,14 +149,14 @@
     display: none !important;
   }
 
-  /* T-3e: Kill form-input double transition.
+  /* Disable form-input double transition.
      form.css sets 0.3s transitions, animation.css adds another.
      Remove all permanently on touch. */
   .form-input {
     transition: none !important;
   }
 
-  /* T-3f: Kill transitions on health-advice, age-advisory, bmi-explanation.
+  /* Disable transitions on health-advice, age-advisory, bmi-explanation.
      Each has 0.3s transitions + hover transforms that add
      compositor cost during scroll inside the tall bmi-card. */
   .health-advice,
@@ -176,19 +167,19 @@
     transform: none !important;
   }
 
-  /* T-3g: Kill action-btn transitions permanently. */
+  /* Disable action button transitions on touch. */
   .action-btn {
     transition: none !important;
   }
 
-  /* T-3h: Kill pill-indicator transitions. */
+  /* Disable pill indicator transitions on touch. */
   .pill-indicator {
     transition: none !important;
   }
 
-  /* T-3i: Kill transitions on stat-block and tdee-card.
+  /* Disable transitions on stat-block and tdee-card.
      These inner result elements have 0.3s transitions + hover states
-     that are NOT killed by any earlier T-rule. During slow touch scroll,
+     that need to stay inert on touch. During slow touch scroll,
      mobile browsers fire :hover on elements passing under the finger,
      triggering expensive style recalc per frame. Only relevant after
      values are inputted (these elements only exist inside bmi-card
@@ -301,15 +292,6 @@
     touch-action: pan-y pinch-zoom !important;
   }
 
-  /* Page-3 below-fold virtualization:
-     Disabled for scroll feel. content-visibility saved initial paint, but
-     caused first-paint work while scrolling into lower cards on devices. */
-  #gauge .charts-section > .gauge-container:not(:first-child) {
-    content-visibility: visible;
-    contain: none;
-    contain-intrinsic-size: none;
-  }
-
   #gauge :is(
     .gauge-container,
     .risk-result,
@@ -371,7 +353,7 @@
     filter: none !important;
   }
 
-  /* T-20: Neutralize :hover on ALL calculator inner elements.
+  /* Neutralize :hover on calculator inner elements.
      During slow touch scroll, some mobile browsers fire :hover on
      elements passing under the finger. These inner result elements
      have hover transforms that trigger expensive style recalc + repaint.
@@ -389,11 +371,10 @@
   }
 
   .action-btn {
-
     border-color: var(--violet-22) !important;
   }
 
-  /* T-22: Neutralize remaining color-mix() on key interactive elements.
+  /* Neutralize remaining color-mix() on key interactive elements.
      color-mix() forces GPU color interpolation on every style recalc. */
   .tdee-activity-badge {
     border-color: var(--amber-gold-40) !important;
@@ -419,10 +400,7 @@
     background: linear-gradient(180deg, var(--deep-void-55), rgba(91, 33, 182, 0.70)) !important;
   }
 
-  /* T-8b: Button hover shadows removed — clean purple glass design. */
-
-
-  /* T-4: Permanently disable transitions on glass cards.
+  /* Permanently disable transitions on glass cards.
      Touch devices don't benefit from hover transitions anyway. */
   .footer-disclaimer,
   .about-card,
@@ -431,7 +409,7 @@
     transition: none !important;
   }
 
-  /* T-5: Permanently hide card pseudo-elements (shine sweep).
+  /* Permanently hide card pseudo-elements (shine sweep).
      The 200%×200% positioned ::before is expensive to composite. */
   .bmi-card::before,
   .footer-disclaimer::before,
@@ -442,7 +420,7 @@
     display: none !important;
   }
 
-  /* T-6: Permanently disable transitions on buttons.
+  /* Permanently disable transitions on buttons.
      Prevents the browser from maintaining transition state. */
   .btn,
   button,
@@ -488,7 +466,7 @@
     transition-duration: 80ms !important;
   }
 
-  /* T-7: Permanently simplify filters on inputs and gauge elements. */
+  /* Permanently simplify filters on inputs and gauge elements. */
   .form-input,
   .empty-glow,
   .gauge-reflection,
@@ -508,53 +486,33 @@
     text-shadow: none !important;
   }
 
-  /* T-8: Button shadows permanently removed — clean purple glass design. */
-
-
-  /* T-9: Permanently remove pager-shell::before and ::after.
+  /* Permanently remove pager-shell::before and ::after.
      Fixed overlay elements cause compositing cost per frame. */
   .pager-shell::before,
   .pager-shell::after {
     display: none !important;
   }
 
-  /* T-10: REMOVED — content-visibility: auto caused small layout jumps
-     when scrolling slowly (elements at viewport edge toggling skip/render
-     state). The contain rules in T-2/T-3 already isolate layout cost. */
-
-  /* T-11: REMOVED — navbar glass styles now universal in nav.css.
-     Liquid glass navbar (blur(10px) saturate(140%) brightness(1.08)
-     + layered gradient) works on ALL devices — desktop, mobile, touch.
-     No per-device override needed. Old T-11 was overriding with
-     blur(6px) + var(--glass-bg-nightky) which broke the liquid glass. */
-
-  /* T-12: will-change: auto on cards — avoid unnecessary compositor layers */
+  /* Avoid unnecessary compositor layers. */
   .bmi-card {
     will-change: auto !important;
   }
 
-  /* T-13: Background and wallpaper optimizations */
+  /* Background and wallpaper optimizations. */
   body {
     background-attachment: scroll;
   }
 
-  /* T-14: Disable hover transforms on touch devices */
+  /* Disable hover transforms on touch devices. */
   :is(.btn, button, a.button):hover {
     transform: none;
   }
 
-  /* T-15: Buttons stay solid for tap responsiveness. */
-  .pager-nav-shell,
-  .pager-controls-shell {
-    background: rgba(0, 0, 0, 0.58) !important;
-  }
-
+  /* Buttons stay solid for tap responsiveness. */
   .pager-nav-shell {
+    background: rgba(0, 0, 0, 0.58) !important;
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
-  }
-
-  .pager-nav-shell {
     transition: none !important;
     will-change: auto !important;
     contain: paint style;
@@ -610,12 +568,7 @@
     transform: none !important;
   }
 
-  /* T-GLASS: REMOVED (v19.1) — glass visual rules live in
-     components.css as the central container policy.
-     This file now ONLY handles performance: transitions, animations,
-     transforms, will-change, hover effects, and pseudo-elements. */
-
-  /* T-16: Remove ALL pseudo-element shine sweeps permanently on touch.
+  /* Remove pseudo-element shine sweeps permanently on touch.
      Even when not scrolling, these oversized elements waste memory. */
   .bmi-card::after,
   .footer-disclaimer::after,
@@ -626,17 +579,12 @@
     display: none !important;
   }
 
-  /* T-17: Simplify .orb blur on touch — reduce from 10px to 4px. */
+  /* Simplify .orb blur on touch. */
   .orb {
     filter: blur(4px) !important;
   }
 
-  /* T-18: Moved to base.css — font-feature-settings: none and
-     text-rendering: optimizeSpeed are now applied globally for
-     all devices, not just touch. This improves text rendering
-     performance across all platforms without visual regression. */
-
-  /* T-19: GPU compositing isolation on pager-shell.
+  /* GPU compositing isolation on pager-shell.
      Changed from contain:strict to contain:layout style —
      strict includes 'size' containment which forces the browser
      to compute bounds independently, causing initial-scroll lag
@@ -647,7 +595,7 @@
     contain: layout style;
   }
 
-  /* T-23: Dialog/floating surfaces use the same mobile fake-glass rule.
+  /* Dialog/floating surfaces use the same mobile fake-glass rule.
      Keep the wallpaper visible through black alpha, but avoid blur layers
      inside panels/buttons while the user scrolls or types. */
   .lang-backdrop,

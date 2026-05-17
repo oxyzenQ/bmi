@@ -732,7 +732,7 @@
     window.addEventListener('resize', onResize, { passive: true });
 
     // Mobile touch swipe listeners for horizontal page navigation.
-    // All listeners use { passive: true } — Bug-13 fix.
+    // Passive listeners keep native vertical scroll off the JS critical path.
     // Vertical scrolling is handled natively by the browser via
     // CSS touch-action on .pager-shell. We detect horizontal swipes
     // purely in touchstart/touchend without blocking the scroll thread.

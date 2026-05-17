@@ -1,10 +1,8 @@
 /* ── responsive-backdrop.css — Non-container backdrop fallbacks ── */
-/* v18.0 refactor: Extracted from responsive.css.
-   Contains: @supports not backdrop-filter fallback block.
-   Must load AFTER component styles so !important overrides take effect. */
+/* Must load after component styles so no-backdrop fallbacks win when needed. */
 
 /* ═══════════════════════════════════════════════════════════════
-   BACKDROP-FILTER FEATURE DETECTION (Enhancement 4 — Bug 1)
+   BACKDROP-FILTER FEATURE DETECTION
    ─────────────────────────────────────────────────────────────
    Container background and border are centralized in components.css.
    This file only handles non-container overlays and controls that still

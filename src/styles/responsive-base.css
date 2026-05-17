@@ -1,12 +1,8 @@
 /* ── responsive-base.css — Base responsive rules ── */
-/* v18.0 refactor: Extracted from responsive.css.
-   Contains: focus-visible, fluid media, .main-container,
-   fluid typography (h1-h4, p), and form width reduction section. */
+/* Shared accessibility, fluid media, container, typography, and form width rules. */
 
 /* Focus styles for accessibility
-   T-22-pre: Replaced color-mix() with static rgba for mobile perf.
-   color-mix() on * selector means every tap triggers expensive
-   color computation on low-end mobile GPUs. */
+   Static color tokens avoid repeated color interpolation on touch devices. */
 *:focus-visible {
   outline: 2px solid var(--violet-42);
   outline-offset: 2px;

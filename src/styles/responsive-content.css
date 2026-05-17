@@ -1,11 +1,9 @@
-/* ── responsive-content.css — v19 Mobile Premium Layout Hardening ──
+/* ── responsive-content.css — Final responsive content correction layer ──
  *
- * Final responsive correction layer. Loaded AFTER all other CSS
- * (including responsive-mobile-perf.css) to ensure these rules win.
+ * Loaded after all other CSS, including responsive-mobile-perf.css.
  *
  * Purpose:
  *   - Override cramped mobile container widths from responsive-width.css
- *   - Restore premium glass depth (handled in responsive-mobile-perf.css)
  *   - Normalize content spacing for mobile breathability
  *   - Protect text wrapping for large font sizes / accessibility zoom
  *   - Fix gauge container to never be smaller than SVG content
@@ -408,9 +406,9 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   ZERO SHADOW POLICY — v19.1 cleanup
-   No box-shadow anywhere. Glass depth via blur/border/gradient.
-   This must be the ABSOLUTE LAST rule in the LAST CSS file.
+   ZERO SHADOW POLICY
+   No box-shadow anywhere. Depth comes from surface color, border, and gradient.
+   Keep this as the last rule in the last CSS file.
    ═══════════════════════════════════════════════════════════════ */
 *,
 *::before,

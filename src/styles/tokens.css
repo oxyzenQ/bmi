@@ -42,7 +42,6 @@
 
   /* Aurora beam colors */
   --aurora-bright: #8000ff;
-  /* --aurora-core removed in Phase 4 — duplicate of --aurora-bright */
   --aurora-glow: #b266ff;
 
   /* Accent colors */
@@ -177,9 +176,6 @@
 
   /* Deep-void-8 (2,8,23) */
   --dv8-25: rgba(2, 8, 23, 0.25);
-
-  /* Cosmic-base — PURE BLACK */
-  /* --cbase-82 removed in Phase 4 — duplicate of --cosmic-dark-82 */
 
   /* Core-blue (59,130,246) — accent blue */
   --coreblue-0: rgba(59, 130, 246, 0);
@@ -355,14 +351,12 @@
   --cat-amber-20: rgba(251, 191, 36, 0.2);
   --cat-slate-30: rgba(148, 163, 184, 0.3);
   --cat-slate-30-light: rgba(148, 163, 184, 0.45);
-  /* --white-15, --white-10 removed in Phase 4 — duplicates of --w-15, --w-10 */
   --cat-green-40: rgba(74, 222, 128, 0.4);
   --sd-92: rgba(15, 23, 42, 0.92);
-  /* --shadow-heavy removed in Phase 4 — duplicate of --k-50 */
   --cosmic-base-95: rgba(0, 0, 0, 0.95);
   --darkred-85: rgba(183, 28, 28, 0.85);
 
-  /* ── SHARE IMAGE CANVAS COLORS (v18.0) ──
+  /* ── SHARE IMAGE CANVAS COLOR NOTES ──
        Used by share-image.ts canvas rendering.
        CSS custom properties can't be read from Canvas API,
        so these are documented here for reference only. */
@@ -370,7 +364,7 @@
   /* Canvas mid gradient: #1a0533 (deep purple) */
   /* Canvas white: #ffffff */
 
-  /* ── MODAL ERROR COLORS (v18.0) ── */
+  /* ── MODAL ERROR COLORS ── */
   --error-bg-default: rgba(213, 0, 0, 0.08);
   --error-border-default: rgba(213, 0, 0, 0.15);
   --error-bg-danger: rgba(239, 68, 68, 0.10);
@@ -425,15 +419,14 @@
   --btn-shadow: none;
   --btn-shadow-hover: none;
 
-  /* ── DANGER BUTTON VARIANT (v19.0) ──
-       Red-tinted glass for destructive actions.
-       Previously btn-danger was identical to btn-primary. */
+  /* ── DANGER BUTTON VARIANT ──
+       Red-tinted glass for destructive actions. */
   --btn-danger-bg: linear-gradient(135deg, rgba(30, 8, 8, 0.80), rgba(127, 29, 29, 0.60));
   --btn-danger-bg-hover: linear-gradient(135deg, rgba(50, 10, 10, 0.90), rgba(153, 27, 27, 0.70));
   --btn-danger-border: 1px solid rgba(239, 68, 68, 0.20);
   --btn-danger-border-hover: 1px solid rgba(239, 68, 68, 0.35);
 
-  /* ── TYPOGRAPHY SCALE (v17.0) ──
+  /* ── TYPOGRAPHY SCALE ──
        Consistent font-size tokens for predictable type hierarchy.
        Usage: component text, labels, headings across all views. */
   --text-xs: 0.65rem;       /* ~10px — TDEE labels, tiny badges */
@@ -453,7 +446,7 @@
   --font-mono-short: 'JetBrains Mono Variable', ui-monospace, monospace;
   --font-sans: 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
-  /* ── Z-INDEX HIERARCHY (v18.1 — Phase 1 Hardening) ──
+  /* ── Z-INDEX HIERARCHY ──
        Documented elevation stack for all layered elements.
        Always use these tokens — never hardcode z-index values.
 
@@ -479,7 +472,7 @@
   --z-modal-top: 10000;
   --z-staging: 10001;
 
-  /* ── MODAL SYSTEM TOKENS (v17.0) ──
+  /* ── MODAL SYSTEM TOKENS ──
        Consistent z-index, backdrop, panel, and transition values
        for all modal/floating window components.
        Usage: NotifyFloat, EncryptionModal, FeedbackModal, LanguageSwitcher. */
@@ -498,9 +491,9 @@
   --modal-panel-scale-to: scale(1) translateY(0);
   --modal-backdrop-dur: 0.15s;
 
-  /* ── DEEP-VOID GRADIENT SYSTEM (v17.0) ──
+  /* ── DEEP-VOID GRADIENT SYSTEM ──
        Centralizes rgba(20, 8, 38, ...) used in button gradients.
-       Previously hardcoded in components.css, nav.css, responsive.css. */
+       Used by components, navigation, and responsive overrides. */
   --deep-void-base: #140826;
   --deep-void-30: rgba(20, 8, 38, 0.30);
   --deep-void-40: rgba(20, 8, 38, 0.40);
@@ -509,21 +502,17 @@
   --deep-void-65: rgba(20, 8, 38, 0.65);
   --deep-void-70: rgba(20, 8, 38, 0.70);
 
-  /* ── COSMIC DEEP (v17.0) ──
-       Fallback background for html element.
-       Previously hardcoded as #0a0e1a in base.css. */
+  /* ── COSMIC DEEP ──
+       Fallback background for html element. */
   --cosmic-deep: #0a0e1a;
 
-  /* ── SUCCESS SEMANTIC (v17.0) ──
-       Green semantic for CheckCircle and success states.
-       Previously used bare 'green' CSS keyword. */
+  /* ── SUCCESS SEMANTIC ──
+       Green semantic for CheckCircle and success states. */
   --success-solid: #4ade80;
   --success-bg: rgba(74, 222, 128, 0.08);
   --success-border: rgba(74, 222, 128, 0.20);
 
-  /* ── AMBER WARNING SYSTEM (v17.0) ──
-       Previously rgba(245, 158, 11, ...) was partially tokenized.
-       Now fully centralized. */
+  /* ── AMBER WARNING SYSTEM ── */
   --warn-bg: rgba(245, 158, 11, 0.08);
   --warn-border: rgba(245, 158, 11, 0.20);
 
@@ -542,7 +531,7 @@
   --section-margin-y: clamp(40px, 5vh, 120px);
   --container-padding-x: clamp(1rem, 3vw, 2rem);
 
-  /* ── SPACING SYSTEM (Phase 3: Design System Solidification) ──
+  /* ── SPACING SYSTEM ──
        Consistent spacing scale for predictable visual rhythm.
        Usage: padding, margin, gap across all components. */
   --space-1: 0.25rem;   /* 4px  — tight inner gaps */
@@ -553,7 +542,7 @@
   --space-6: 2rem;      /* 32px — section gaps */
   --space-7: 3rem;      /* 48px — major section separation */
 
-  /* ── MICRO-DELAY SYSTEM (Phase 1: Perceived Performance) ──
+  /* ── MICRO-DELAY SYSTEM ──
        Consistent timing for modal transitions and async feedback.
        Usage: modal open/close, success confirmation, loading staging. */
   --delay-open: 120ms;
