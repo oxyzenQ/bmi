@@ -38,8 +38,10 @@
   import { browser } from '$app/environment';
   import { fade } from 'svelte/transition';
   import { WifiOff } from 'lucide-svelte';
+  import NotifyFloat from '$lib/components/NotifyFloat.svelte';
   import { initStorage } from '$lib/utils/storage';
   import { hydratePwaInstallState, markPwaInstalled, registerPwaInstallPrompt } from '$lib/stores/pwa-install';
+  import { applyPwaUpdate, bindPwaUpdateRegistration, checkForPwaUpdate, pwaUpdateState } from '$lib/stores/pwa-update';
   import { t as _t, localeVersion } from '$lib/i18n';
   import { warnDevOnce } from '$lib/utils/warn-dev';
   let _rv = $derived($localeVersion);
@@ -83,6 +85,8 @@
 
   // PWA state
   let isOffline = $state(false);
+  let updateNotifyDismissed = $state(false);
+  let showUpdateNotify = $derived($pwaUpdateState.updateAvailable && !updateNotifyDismissed);
 
   onMount(() => {
     let cleanupFns: Array<() => void> = [];
@@ -109,9 +113,11 @@
 
     // Register service worker for caching (only in production)
     if (browser && 'serviceWorker' in navigator && import.meta.env.PROD) {
-      navigator.serviceWorker.register('/service-worker.js', { type: 'module' }).catch((err) => {
-        warnDevOnce('layout', 'serviceWorker', 'Service worker registration failed', err);
-      });
+      navigator.serviceWorker.register('/service-worker.js', { type: 'module' })
+        .then((registration) => bindPwaUpdateRegistration(registration))
+        .catch((err) => {
+          warnDevOnce('layout', 'serviceWorker', 'Service worker registration failed', err);
+        });
     }
 
     // PWA: install prompt handler
@@ -134,6 +140,11 @@
       cleanupFns.push(() => window.removeEventListener('online', handleOnline));
       cleanupFns.push(() => window.removeEventListener('offline', handleOffline));
       isOffline = !navigator.onLine;
+
+      const updateCheckTimer = setTimeout(() => {
+        void checkForPwaUpdate('auto');
+      }, 3000);
+      cleanupFns.push(() => clearTimeout(updateCheckTimer));
     }
 
     // B-3: Set canonical URL from current location
@@ -198,6 +209,21 @@
     <WifiOff size={14} aria-hidden="true" />
     <span>{t('pwa.offline')}</span>
   </div>
+{/if}
+
+{#if showUpdateNotify}
+  <NotifyFloat
+    show={showUpdateNotify}
+    type="success"
+    message={t('pwa.update_available')}
+    buttonText={t('pwa.update_now')}
+    onContinue={() => {
+      updateNotifyDismissed = true;
+      applyPwaUpdate();
+    }}
+    onCancel={() => { updateNotifyDismissed = true; }}
+    onClose={() => { updateNotifyDismissed = true; }}
+  />
 {/if}
 
 <!-- v16.0 Observability: Debug Panel (dev-only, lazy-loaded) -->

@@ -258,11 +258,28 @@
   line-height: 1.55;
 }
 
+.pwa-install-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 0.15rem;
+}
+
 .pwa-install-action {
   white-space: nowrap;
   background: var(--btn-bg-hover);
   border: var(--btn-border-hover);
-  margin-top: 0.15rem;
+}
+
+.pwa-update-action {
+  background: linear-gradient(135deg, rgba(5, 46, 22, 0.82), rgba(22, 101, 52, 0.62));
+  border-color: rgba(74, 222, 128, 0.34);
+}
+
+.pwa-update-action:hover {
+  background: linear-gradient(135deg, rgba(5, 46, 22, 0.92), rgba(22, 101, 52, 0.72));
+  border-color: rgba(74, 222, 128, 0.48);
 }
 
 .pwa-install-status {
@@ -278,7 +295,6 @@
   border: 1px solid rgba(24, 210, 110, 0.30);
   font: var(--btn-font);
   white-space: nowrap;
-  margin-top: 0.15rem;
 }
 
 @media (max-width: 640px) {
@@ -291,6 +307,7 @@
     padding-inline: 0.25rem;
   }
 
+  .pwa-install-actions,
   .pwa-install-action {
     width: min(100%, 260px);
   }

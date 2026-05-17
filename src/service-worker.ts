@@ -20,6 +20,12 @@ const MAX_RUNTIME_ENTRIES = 60;
 
 let runtimeTrimInProgress = false;
 
+sw.addEventListener('message', (event) => {
+        if (event.data?.type === 'SKIP_WAITING') {
+                event.waitUntil(sw.skipWaiting());
+        }
+});
+
 async function trimCache(cacheName: string, maxEntries: number) {
         const cache = await caches.open(cacheName);
         const keys = await cache.keys();

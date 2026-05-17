@@ -5,14 +5,28 @@
     LockKeyhole, HeartPulse, GitBranch, GitCompare,
     PackageCheck, ShieldCheck, Scale, Download
   } from 'lucide-svelte';
+  import StagingSpinner from '$lib/components/StagingSpinner.svelte';
   import { promptPwaInstall, pwaInstallState } from '$lib/stores/pwa-install';
+  import { applyPwaUpdate, checkForPwaUpdate, pwaUpdateState } from '$lib/stores/pwa-update';
   import { t as _t, localeVersion } from '$lib/i18n';
   import { getStellarVersionLabel, getAppVersionShort } from '$lib/utils/app-version';
 
   let { gitCommitId, gitBranch }: { gitCommitId: string; gitBranch: string } = $props();
   const appVersionTag = `v${getAppVersionShort()}`;
+  let updateCheckingOverlay = $state(false);
   let _rv = $derived($localeVersion);
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
+
+  async function handleManualUpdateCheck(): Promise<void> {
+    if (updateCheckingOverlay) return;
+
+    updateCheckingOverlay = true;
+    await Promise.all([
+      checkForPwaUpdate('manual'),
+      new Promise((resolve) => setTimeout(resolve, 3000))
+    ]);
+    updateCheckingOverlay = false;
+  }
 </script>
 
 {#key $localeVersion}
@@ -137,17 +151,31 @@
               {$pwaInstallState.isInstalled ? t('pwa.installed_description') : t('pwa.not_installed_description')}
             </p>
           </div>
-          {#if $pwaInstallState.isInstalled}
-            <div class="pwa-install-status" aria-label={t('pwa.installed_title')}>
-              <PackageCheck size={18} aria-hidden="true" />
-              <span>{t('pwa.installed_btn')}</span>
-            </div>
-          {:else}
-            <button class="pwa-install-action" onclick={promptPwaInstall} disabled={!$pwaInstallState.canInstall}>
-              <Download size={18} aria-hidden="true" />
-              <span>{t('pwa.install_btn')}</span>
-            </button>
-          {/if}
+          <div class="pwa-install-actions">
+            {#if $pwaInstallState.isInstalled}
+              <div class="pwa-install-status" aria-label={t('pwa.installed_title')}>
+                <PackageCheck size={18} aria-hidden="true" />
+                <span>{t('pwa.installed_btn')}</span>
+              </div>
+            {:else}
+              <button class="pwa-install-action" onclick={promptPwaInstall} disabled={!$pwaInstallState.canInstall}>
+                <Download size={18} aria-hidden="true" />
+                <span>{t('pwa.install_btn')}</span>
+              </button>
+            {/if}
+
+            {#if $pwaUpdateState.updateAvailable}
+              <button class="pwa-install-action pwa-update-action" onclick={applyPwaUpdate}>
+                <PackageCheck size={18} aria-hidden="true" />
+                <span>{t('pwa.update_now')}</span>
+              </button>
+            {:else}
+              <button class="pwa-install-action" onclick={handleManualUpdateCheck} disabled={$pwaUpdateState.checking || updateCheckingOverlay}>
+                <PackageCheck size={18} aria-hidden="true" />
+                <span>{$pwaUpdateState.checking || updateCheckingOverlay ? t('pwa.update_checking') : t('pwa.check_update')}</span>
+              </button>
+            {/if}
+          </div>
         </section>
       {/if}
 
@@ -198,4 +226,5 @@
 
   </div>
 </section>
+<StagingSpinner show={updateCheckingOverlay} label={t('pwa.update_checking')} />
 {/key}
