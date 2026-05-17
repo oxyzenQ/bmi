@@ -3,8 +3,9 @@
   import {
     Lightbulb, AlertTriangle, ListChecks, Database,
     LockKeyhole, HeartPulse, GitBranch, GitCompare,
-    PackageCheck, ShieldCheck, Scale
+    PackageCheck, ShieldCheck, Scale, Download
   } from 'lucide-svelte';
+  import { promptPwaInstall, pwaInstallState } from '$lib/stores/pwa-install';
   import { t as _t, localeVersion } from '$lib/i18n';
   import { getStellarVersionLabel, getAppVersionShort } from '$lib/utils/app-version';
 
@@ -118,6 +119,22 @@
           </div>
         </div>
       </div>
+
+      {#if $pwaInstallState.checked && !$pwaInstallState.isInstalled}
+        <section class="pwa-install-card" aria-labelledby="pwa-install-title">
+          <div class="pwa-install-icon" aria-hidden="true">
+            <Download size={30} />
+          </div>
+          <div class="pwa-install-copy">
+            <h3 id="pwa-install-title">{t('pwa.install_title')}</h3>
+            <p>{t('pwa.install_description')}</p>
+          </div>
+          <button class="pwa-install-action" onclick={promptPwaInstall} disabled={!$pwaInstallState.canInstall}>
+            <Download size={18} aria-hidden="true" />
+            <span>{t('pwa.install_btn')}</span>
+          </button>
+        </section>
+      {/if}
 
       <!-- Open Source & Release (separate card) -->
       <div class="about-card">

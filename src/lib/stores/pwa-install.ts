@@ -2,8 +2,6 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
-const DISMISS_KEY = 'bmi.pwaInstallDismissed';
-
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
@@ -13,24 +11,17 @@ interface PwaInstallState {
   checked: boolean;
   canInstall: boolean;
   isInstalled: boolean;
-  dismissed: boolean;
 }
 
 const initialState: PwaInstallState = {
   checked: false,
   canInstall: false,
-  isInstalled: false,
-  dismissed: false
+  isInstalled: false
 };
 
 let deferredPrompt: BeforeInstallPromptEvent | null = null;
 
 export const pwaInstallState = writable<PwaInstallState>(initialState);
-
-function readDismissed(): boolean {
-  if (!browser) return false;
-  return localStorage.getItem(DISMISS_KEY) === '1';
-}
 
 function isStandaloneDisplay(): boolean {
   if (!browser) return false;
@@ -43,7 +34,6 @@ export function hydratePwaInstallState(): void {
   pwaInstallState.update((state) => ({
     ...state,
     checked: true,
-    dismissed: readDismissed(),
     isInstalled: isStandaloneDisplay()
   }));
 }
@@ -55,7 +45,6 @@ export function registerPwaInstallPrompt(event: Event): void {
     ...state,
     checked: true,
     canInstall: true,
-    dismissed: readDismissed(),
     isInstalled: isStandaloneDisplay()
   }));
 }
@@ -67,21 +56,12 @@ export async function promptPwaInstall(): Promise<void> {
   const { outcome } = await deferredPrompt.userChoice;
 
   if (outcome === 'accepted') {
-    localStorage.removeItem(DISMISS_KEY);
     pwaInstallState.set({
       checked: true,
       canInstall: false,
-      isInstalled: true,
-      dismissed: false
+      isInstalled: true
     });
-  } else {
-    dismissPwaInstallCard();
   }
 
   deferredPrompt = null;
-}
-
-export function dismissPwaInstallCard(): void {
-  if (browser) localStorage.setItem(DISMISS_KEY, '1');
-  pwaInstallState.update((state) => ({ ...state, dismissed: true }));
 }
