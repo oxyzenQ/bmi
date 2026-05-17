@@ -137,7 +137,6 @@ jobs:
           # Copy config files needed to rebuild
           cp package.json "$STAGE/"
           cp bun.lock "$STAGE/" 2>/dev/null || true
-          cp package-lock.json "$STAGE/" 2>/dev/null || true
           cp svelte.config.js "$STAGE/" 2>/dev/null || true
           cp svelte.config.static.js "$STAGE/" 2>/dev/null || true
           cp vite.config.ts "$STAGE/" 2>/dev/null || true
@@ -234,7 +233,7 @@ jobs:
             echo ""
             echo "# Serve the static build with any HTTP server"
             echo "cd bmi-stellar-deploy"
-            echo "npx serve build"
+            echo "bunx serve build"
             echo "\`\`\`"
             echo ""
             echo "## 📋 Changelog"

@@ -8,9 +8,7 @@ const config = {
         // for more information about preprocessors
         preprocess: vitePreprocess(),
         kit: {
-                adapter: adapter({
-                        runtime: 'nodejs22.x'
-                }),
+                adapter: adapter(),
                 serviceWorker: {
                         register: false // We register manually for better control
                 }

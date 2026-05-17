@@ -10,7 +10,6 @@ on:
       # Config files that affect build
       - "package.json"
       - "bun.lock"
-      - "package-lock.json"
       - "tsconfig.json"
       - "svelte.config.js"
       - "svelte.config.static.js"

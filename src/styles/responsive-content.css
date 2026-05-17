@@ -370,9 +370,7 @@
    FLUID ICONS — replace manual 52px/40px breakpoint shrink
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 600px) {
-  .Orbit,
   .Calculator,
-  .CircleSlash2,
   .ScanHeart,
   .FileChartColumn,
   .BarChart3,
@@ -384,7 +382,6 @@
 
   .AlertTriangle,
   .Lightbulb,
-  .Users,
   .Info2 {
     width: var(--icon-card-md) !important;
     height: var(--icon-card-md) !important;
