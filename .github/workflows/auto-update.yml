@@ -3,8 +3,10 @@ name: ⛑️ Auto Update Dependencies
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Daily at 00:00 UTC (08:00 SGT)
-  workflow_dispatch: # Manual trigger option
+    # Daily at 00:00 UTC (08:00 SGT)
+    - cron: '0 0 * * *'
+  # Manual trigger option
+  workflow_dispatch:
     inputs:
       strategy:
         description: How to publish updates
@@ -30,6 +32,8 @@ env:
   OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
   BASE_BRANCH: ${{ github.ref_name }}
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  NODE_VERSION: 22
+  VERCEL_NODE_RUNTIME: nodejs22.x
 
 jobs:
   auto-update:
@@ -44,6 +48,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 1
           fetch-tags: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Resolve Bun version
         id: bun-version
