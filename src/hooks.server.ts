@@ -13,6 +13,7 @@ export const handle: Handle = async ({ event, resolve }) => {
         // Content Security Policy (CSP) - Protects against XSS attacks
         // More permissive in dev mode for Vite HMR
         const isDev = dev;
+        const isHttpsRequest = event.url.protocol === 'https:';
 
         const cspDirectives = isDev
                 ? [
@@ -46,7 +47,7 @@ export const handle: Handle = async ({ event, resolve }) => {
                         "base-uri 'self'",
                         "form-action 'self'",
                         "object-src 'none'",
-                        "upgrade-insecure-requests"
+                        ...(isHttpsRequest ? ["upgrade-insecure-requests"] : [])
                 ];
 
         if (!isDev && !response.headers.has('content-security-policy')) {
@@ -62,7 +63,7 @@ export const handle: Handle = async ({ event, resolve }) => {
         }
 
         // Skip HTTPS-only headers in development
-        if (!isDev) {
+        if (!isDev && isHttpsRequest) {
                 // HTTP Strict Transport Security (HSTS) - Forces HTTPS
                 response.headers.set(
                         'Strict-Transport-Security',
@@ -101,8 +102,13 @@ export const handle: Handle = async ({ event, resolve }) => {
         // Referrer-Policy - Controls referrer information
         response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-        // Cache control for static assets
-        if (event.url.pathname.startsWith('/_app/immutable/')) {
+        // Cache control: keep HTML/service worker fresh; long-cache hashed assets only.
+        const contentType = response.headers.get('content-type') ?? '';
+        if (event.url.pathname === '/service-worker.js' || event.url.pathname === '/manifest.json') {
+                response.headers.set('Cache-Control', 'no-cache, max-age=0, must-revalidate');
+        } else if (contentType.includes('text/html')) {
+                response.headers.set('Cache-Control', 'private, no-cache, max-age=0, must-revalidate');
+        } else if (event.url.pathname.startsWith('/_app/immutable/')) {
                 // Immutable assets - cache for 1 year
                 response.headers.set('Cache-Control', 'public, immutable, max-age=31536000');
         } else if (event.url.pathname.startsWith('/assets/')) {
