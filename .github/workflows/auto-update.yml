@@ -48,7 +48,7 @@ jobs:
           bun-version: latest
 
       - name: Cache Bun dependencies
-        uses: actions/cache@v5.0.4
+        uses: actions/cache@v5.0.5
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
@@ -146,7 +146,7 @@ jobs:
       - name: Create pull request (pr)
         id: cpr
         if: steps.check_changes.outputs.changes == 'true' && env.UPDATE_STRATEGY == 'pr'
-        uses: peter-evans/create-pull-request@v8.1.0
+        uses: peter-evans/create-pull-request@v8.1.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: ${{ steps.commit_msg.outputs.commit_message }}
