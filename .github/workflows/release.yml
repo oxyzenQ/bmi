@@ -84,16 +84,25 @@ jobs:
         run: |
           set -euo pipefail
           cp svelte.config.js svelte.config.js.vercel
+          had_layout_ts=0
+          if [ -f src/routes/+layout.ts ]; then
+            had_layout_ts=1
+            cp src/routes/+layout.ts src/routes/+layout.ts.vercel
+          fi
 
           cleanup() {
             cp svelte.config.js.vercel svelte.config.js
             rm -f svelte.config.js.vercel
-            sed -i '/^export const prerender = true;$/d' src/routes/+layout.ts
+            if [ "$had_layout_ts" -eq 1 ]; then
+              mv src/routes/+layout.ts.vercel src/routes/+layout.ts
+            else
+              rm -f src/routes/+layout.ts
+            fi
           }
           trap cleanup EXIT
 
           cp svelte.config.static.js svelte.config.js
-          printf '\nexport const prerender = true;\n' >> src/routes/+layout.ts
+          printf 'export const prerender = true;\n' > src/routes/+layout.ts
           bun run build
 
       - name: Generate changelog

@@ -89,7 +89,7 @@ export function startSpan(name: string): string {
 		parentId,
 		spanId,
 		name,
-		startTime: performance.now(),
+		startTime: performance.now()
 	});
 
 	return spanId;
@@ -143,7 +143,7 @@ export function getTraceContext(): {
 	return {
 		sessionTraceId: getSessionTraceId(),
 		spanId: getCurrentSpanId(),
-		seq: nextTraceSeq(),
+		seq: nextTraceSeq()
 	};
 }
 

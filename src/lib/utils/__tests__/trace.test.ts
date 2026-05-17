@@ -13,7 +13,7 @@ vi.stubGlobal('crypto', {
 	getRandomValues: (arr: Uint8Array) => {
 		for (let i = 0; i < arr.length; i++) arr[i] = (i * 37 + 13) % 256;
 		return arr;
-	},
+	}
 });
 
 describe('trace', () => {

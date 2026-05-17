@@ -17,33 +17,33 @@
      fall through to this fallback.
    ═══════════════════════════════════════════════════════════════ */
 @supports not (backdrop-filter: blur(1px)) {
-  .pager-nav-shell,
-  .pager-controls-shell {
-    /* Liquid glass navbar fallback: solid dark background matching
+	.pager-nav-shell,
+	.pager-controls-shell {
+		/* Liquid glass navbar fallback: solid dark background matching
        the rgba(8,8,12,0.52) base when blur is not supported.
        Preserve the subtle white border for depth. */
-    background: rgba(8, 8, 12, 0.82) !important;
-  }
+		background: rgba(8, 8, 12, 0.82) !important;
+	}
 
-  .lang-backdrop,
-  .notify-backdrop {
-    background: var(--cosmic-dark-92) !important;
-  }
+	.lang-backdrop,
+	.notify-backdrop {
+		background: var(--cosmic-dark-92) !important;
+	}
 
-  .lang-panel,
-  .notify-float-box {
-    background: var(--glass-bg-nightky) !important;
-  }
+	.lang-panel,
+	.notify-float-box {
+		background: var(--glass-bg-nightky) !important;
+	}
 
-  .chart-tooltip {
-    background: var(--cosmic-dark-82) !important;
-  }
+	.chart-tooltip {
+		background: var(--cosmic-dark-82) !important;
+	}
 
-  .notify-close,
-  .btn-success,
-  .btn-delete,
-  .btn-cancel,
-  .btn-warn {
-    background: var(--cosmic-dark-70) !important;
-  }
+	.notify-close,
+	.btn-success,
+	.btn-delete,
+	.btn-cancel,
+	.btn-warn {
+		background: var(--cosmic-dark-70) !important;
+	}
 }

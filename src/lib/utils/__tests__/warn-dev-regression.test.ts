@@ -24,7 +24,7 @@ import {
 	storageSet,
 	storageRemove,
 	storageGetJSON,
-	storageInvalidateAll,
+	storageInvalidateAll
 } from '$lib/utils/storage';
 
 // ── Mock localStorage ──────────────────────────────────────────────────────
@@ -40,7 +40,7 @@ const mockLocalStorage = {
 	}),
 	clear: vi.fn(() => {
 		for (const k of Object.keys(store)) delete store[k];
-	}),
+	})
 };
 
 // ── Mock IndexedDB ─────────────────────────────────────────────────────────
@@ -59,20 +59,20 @@ const mockIndexedDb = {
 					put: vi.fn().mockReturnValue({ onsuccess: null, onerror: null }),
 					delete: vi.fn().mockReturnValue({ onsuccess: null, onerror: null }),
 					getAll: vi.fn().mockReturnValue({ onsuccess: null, onerror: null, result: [] }),
-					getAllKeys: vi.fn().mockReturnValue({ onsuccess: null, onerror: null, result: [] }),
+					getAllKeys: vi.fn().mockReturnValue({ onsuccess: null, onerror: null, result: [] })
 				}),
 				complete: null,
-				onerror: null,
+				onerror: null
 			}),
 			createObjectStore: vi.fn().mockReturnValue({
-				createIndex: vi.fn(),
+				createIndex: vi.fn()
 			}),
 			objectStoreNames: {
-				contains: vi.fn().mockReturnValue(false),
+				contains: vi.fn().mockReturnValue(false)
 			},
-			close: vi.fn(),
-		},
-	}),
+			close: vi.fn()
+		}
+	})
 };
 
 Object.defineProperty(globalThis, 'localStorage', { value: mockLocalStorage, writable: true });
@@ -84,9 +84,12 @@ Object.defineProperty(globalThis, 'indexedDB', { value: mockIndexedDb, writable:
  * Find a console.warn call whose arguments contain the given substring.
  * Returns the matching call array or undefined.
  */
-function findWarnCall(warnSpy: ReturnType<typeof vi.spyOn>, substring: string): unknown[] | undefined {
+function findWarnCall(
+	warnSpy: ReturnType<typeof vi.spyOn>,
+	substring: string
+): unknown[] | undefined {
 	return warnSpy.mock.calls.find((call) =>
-		call.some((arg) => typeof arg === 'string' && arg.includes(substring)),
+		call.some((arg) => typeof arg === 'string' && arg.includes(substring))
 	);
 }
 
@@ -117,7 +120,9 @@ describe('v15.2 warnDev regression — storage error paths', () => {
 
 			const call = findWarnCall(warnSpy, '[storage:storageGet]');
 			expect(call).toBeDefined();
-			expect(call!.some((a) => typeof a === 'string' && a.includes('Failed to read key: fail-key'))).toBe(true);
+			expect(
+				call!.some((a) => typeof a === 'string' && a.includes('Failed to read key: fail-key'))
+			).toBe(true);
 		});
 
 		it('includes the error in warnDev output when getItem throws', () => {
@@ -149,9 +154,9 @@ describe('v15.2 warnDev regression — storage error paths', () => {
 
 			const call = findWarnCall(warnSpy, '[storage:storageSet]');
 			expect(call).toBeDefined();
-			expect(call!.some((a) => typeof a === 'string' && a.includes('Failed to write key: quota-key'))).toBe(
-				true,
-			);
+			expect(
+				call!.some((a) => typeof a === 'string' && a.includes('Failed to write key: quota-key'))
+			).toBe(true);
 		});
 
 		it('returns false on SecurityError from setItem', () => {
@@ -178,7 +183,7 @@ describe('v15.2 warnDev regression — storage error paths', () => {
 			const call = findWarnCall(warnSpy, '[storage:storageRemove]');
 			expect(call).toBeDefined();
 			expect(
-				call!.some((a) => typeof a === 'string' && a.includes('Failed to remove key: rm-key')),
+				call!.some((a) => typeof a === 'string' && a.includes('Failed to remove key: rm-key'))
 			).toBe(true);
 		});
 	});
@@ -201,7 +206,9 @@ describe('v15.2 warnDev regression — JSON parse errors', () => {
 		const call = findWarnCall(warnSpy, '[storage:storageGetJSON]');
 		expect(call).toBeDefined();
 		expect(
-			call!.some((a) => typeof a === 'string' && a.includes('Failed to parse JSON for key: bad-json')),
+			call!.some(
+				(a) => typeof a === 'string' && a.includes('Failed to parse JSON for key: bad-json')
+			)
 		).toBe(true);
 	});
 
@@ -241,7 +248,7 @@ describe('v15.2 warnDev regression — warnDevOnce deduplication', () => {
 		}
 
 		const dedupCalls = warnSpy.mock.calls.filter((call) =>
-			call.some((arg) => typeof arg === 'string' && arg.includes('[dedup-default:poll]')),
+			call.some((arg) => typeof arg === 'string' && arg.includes('[dedup-default:poll]'))
 		);
 
 		expect(dedupCalls).toHaveLength(5);
@@ -255,21 +262,23 @@ describe('v15.2 warnDev regression — warnDevOnce deduplication', () => {
 		}
 
 		const dedupCalls = warnSpy.mock.calls.filter((call) =>
-			call.some((arg) => typeof arg === 'string' && arg.includes('[dedup-msg:stream]')),
+			call.some((arg) => typeof arg === 'string' && arg.includes('[dedup-msg:stream]'))
 		);
 
 		// The 5th (last) call should carry the suppression notice
 		const lastCall = dedupCalls[dedupCalls.length - 1];
 		expect(
-			lastCall.some((arg) => typeof arg === 'string' && arg.includes('(further warnings suppressed)')),
+			lastCall.some(
+				(arg) => typeof arg === 'string' && arg.includes('(further warnings suppressed)')
+			)
 		).toBe(true);
 
 		// Earlier calls should NOT have the suppression notice
 		for (let i = 0; i < dedupCalls.length - 1; i++) {
 			expect(
 				dedupCalls[i].some(
-					(arg) => typeof arg === 'string' && arg.includes('(further warnings suppressed)'),
-				),
+					(arg) => typeof arg === 'string' && arg.includes('(further warnings suppressed)')
+				)
 			).toBe(false);
 		}
 	});
@@ -281,7 +290,7 @@ describe('v15.2 warnDev regression — warnDevOnce deduplication', () => {
 		warnDevOnce('dedup-custom1', 'send', 'Rate limited', undefined, 1);
 
 		const dedupCalls = warnSpy.mock.calls.filter((call) =>
-			call.some((arg) => typeof arg === 'string' && arg.includes('[dedup-custom1:send]')),
+			call.some((arg) => typeof arg === 'string' && arg.includes('[dedup-custom1:send]'))
 		);
 
 		expect(dedupCalls).toHaveLength(1);
@@ -293,14 +302,14 @@ describe('v15.2 warnDev regression — warnDevOnce deduplication', () => {
 		warnDevOnce('dedup-custom1b', 'post', 'Timeout', undefined, 1);
 
 		const dedupCalls = warnSpy.mock.calls.filter((call) =>
-			call.some((arg) => typeof arg === 'string' && arg.includes('[dedup-custom1b:post]')),
+			call.some((arg) => typeof arg === 'string' && arg.includes('[dedup-custom1b:post]'))
 		);
 
 		expect(dedupCalls).toHaveLength(1);
 		expect(
 			dedupCalls[0].some(
-				(arg) => typeof arg === 'string' && arg.includes('(further warnings suppressed)'),
-			),
+				(arg) => typeof arg === 'string' && arg.includes('(further warnings suppressed)')
+			)
 		).toBe(true);
 	});
 
@@ -312,7 +321,7 @@ describe('v15.2 warnDev regression — warnDevOnce deduplication', () => {
 		}
 
 		const dedupCalls = warnSpy.mock.calls.filter((call) =>
-			call.some((arg) => typeof arg === 'string' && arg.includes('[dedup-custom3:retry]')),
+			call.some((arg) => typeof arg === 'string' && arg.includes('[dedup-custom3:retry]'))
 		);
 
 		expect(dedupCalls).toHaveLength(3);
@@ -362,9 +371,7 @@ describe('v15.2 warnDev regression — error detail formatting', () => {
 		expect(baseCall).toBeDefined();
 
 		// The "Details:" call should be a separate console.warn
-		const detailCall = warnSpy.mock.calls.find(
-			(call) => call[0] === '  Details:',
-		);
+		const detailCall = warnSpy.mock.calls.find((call) => call[0] === '  Details:');
 		expect(detailCall).toBeDefined();
 		expect(detailCall![1]).toBe('unexpected token at position 42');
 	});
@@ -376,9 +383,7 @@ describe('v15.2 warnDev regression — error detail formatting', () => {
 
 		expect(warnSpy).toHaveBeenCalled();
 
-		const detailCall = warnSpy.mock.calls.find(
-			(call) => call[0] === '  Details:',
-		);
+		const detailCall = warnSpy.mock.calls.find((call) => call[0] === '  Details:');
 		expect(detailCall).toBeDefined();
 		expect(detailCall![1]).toBe('404');
 	});

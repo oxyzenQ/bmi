@@ -30,14 +30,14 @@ For furthermore read this file: [docs/furthermore.md](docs/furthermore.md).
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | SvelteKit 2 + Svelte 5 Runes |
-| Language | TypeScript |
-| Runtime | Bun |
-| Styling | Modular CSS custom properties |
-| Tests | Vitest + Testing Library |
-| Deployment | Vercel |
+| Layer      | Technology                    |
+| ---------- | ----------------------------- |
+| Framework  | SvelteKit 2 + Svelte 5 Runes  |
+| Language   | TypeScript                    |
+| Runtime    | Bun                           |
+| Styling    | Modular CSS custom properties |
+| Tests      | Vitest + Testing Library      |
+| Deployment | Vercel                        |
 
 ## Quick Start
 
@@ -50,16 +50,16 @@ Open the local URL printed in your terminal, usually `http://localhost:5173`.
 
 ## Core Scripts
 
-| Command | Description |
-|---|---|
-| `bun run dev` | Start local dev server |
-| `bun run check` | Svelte and TypeScript diagnostics |
-| `bun run lint` | ESLint |
-| `bun run test:ci` | CI-friendly test run |
-| `bun run build` | Production build |
-| `bun run verify` | check + lint + test + build |
-| `bun run bmi-update-version <version>` | Sync app version across canonical files |
-| `bun run bmi-update-version --dry-run <version>` | Preview a version update |
+| Command                                          | Description                             |
+| ------------------------------------------------ | --------------------------------------- |
+| `bun run dev`                                    | Start local dev server                  |
+| `bun run check`                                  | Svelte and TypeScript diagnostics       |
+| `bun run lint`                                   | ESLint                                  |
+| `bun run test:ci`                                | CI-friendly test run                    |
+| `bun run build`                                  | Production build                        |
+| `bun run verify`                                 | check + lint + test + build             |
+| `bun run bmi-update-version <version>`           | Sync app version across canonical files |
+| `bun run bmi-update-version --dry-run <version>` | Preview a version update                |
 
 ## Project Layout
 

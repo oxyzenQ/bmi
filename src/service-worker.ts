@@ -21,121 +21,121 @@ const MAX_RUNTIME_ENTRIES = 60;
 let runtimeTrimInProgress = false;
 
 sw.addEventListener('message', (event) => {
-        if (event.data?.type === 'SKIP_WAITING') {
-                event.waitUntil(sw.skipWaiting());
-        }
+	if (event.data?.type === 'SKIP_WAITING') {
+		event.waitUntil(sw.skipWaiting());
+	}
 });
 
 async function trimCache(cacheName: string, maxEntries: number) {
-        const cache = await caches.open(cacheName);
-        const keys = await cache.keys();
-        if (keys.length <= maxEntries) return;
-        const excess = keys.length - maxEntries;
-        await Promise.all(keys.slice(0, excess).map((k) => cache.delete(k)));
+	const cache = await caches.open(cacheName);
+	const keys = await cache.keys();
+	if (keys.length <= maxEntries) return;
+	const excess = keys.length - maxEntries;
+	await Promise.all(keys.slice(0, excess).map((k) => cache.delete(k)));
 }
 
 async function trimRuntimeCacheOnce() {
-        if (runtimeTrimInProgress) return;
-        runtimeTrimInProgress = true;
-        try {
-                await trimCache(RUNTIME_CACHE, MAX_RUNTIME_ENTRIES);
-        } finally {
-                runtimeTrimInProgress = false;
-        }
+	if (runtimeTrimInProgress) return;
+	runtimeTrimInProgress = true;
+	try {
+		await trimCache(RUNTIME_CACHE, MAX_RUNTIME_ENTRIES);
+	} finally {
+		runtimeTrimInProgress = false;
+	}
 }
 
 // Install event - cache core assets
 sw.addEventListener('install', (event) => {
-        event.waitUntil(
-                caches
-                        .open(CACHE_NAME)
-                        .then((cache) => cache.addAll(PRECACHE_URLS))
-                        .then(() => sw.skipWaiting())
-        );
+	event.waitUntil(
+		caches
+			.open(CACHE_NAME)
+			.then((cache) => cache.addAll(PRECACHE_URLS))
+			.then(() => sw.skipWaiting())
+	);
 });
 
 // Activate event - clean up old caches
 sw.addEventListener('activate', (event) => {
-        event.waitUntil(
-                caches
-                        .keys()
-                        .then((keys) => {
-                                return Promise.all(
-                                        keys
-                                                .filter((key) => key !== CACHE_NAME && key !== RUNTIME_CACHE)
-                                                .map((key) => caches.delete(key))
-                                );
-                        })
-                        .then(() => sw.clients.claim())
-        );
+	event.waitUntil(
+		caches
+			.keys()
+			.then((keys) => {
+				return Promise.all(
+					keys
+						.filter((key) => key !== CACHE_NAME && key !== RUNTIME_CACHE)
+						.map((key) => caches.delete(key))
+				);
+			})
+			.then(() => sw.clients.claim())
+	);
 });
 
 // Fetch event - serve from cache, fallback to network
 sw.addEventListener('fetch', (event) => {
-        const { request } = event;
-        const url = new URL(request.url);
+	const { request } = event;
+	const url = new URL(request.url);
 
-        // Ignore non-GET requests
-        if (request.method !== 'GET') return;
+	// Ignore non-GET requests
+	if (request.method !== 'GET') return;
 
-        // Ignore cross-origin requests
-        if (url.origin !== sw.location.origin) return;
+	// Ignore cross-origin requests
+	if (url.origin !== sw.location.origin) return;
 
-        // Let partial-content/media range requests pass through untouched.
-        if (request.headers.has('range')) return;
+	// Let partial-content/media range requests pass through untouched.
+	if (request.headers.has('range')) return;
 
-        // Navigation requests: network-first for HTML pages to avoid stale content
-        if (request.mode === 'navigate') {
-                event.respondWith(
-                        fetch(request)
-                                .then((response) => {
-                                        // Cache successful responses for offline fallback
-                                        if (response && response.status === 200) {
-                                                const responseToCache = response.clone();
-                                                caches.open(CACHE_NAME).then((cache) => {
-                                                        cache.put(request, responseToCache);
-                                                });
-                                        }
-                                        return response;
-                                })
-                                .catch(() => {
-                                        // Fallback to cache when offline
-                                        return caches.match(request).then((cachedResponse) => {
-                                                return cachedResponse || caches.match('/');
-                                        });
-                                })
-                );
-                return;
-        }
+	// Navigation requests: network-first for HTML pages to avoid stale content
+	if (request.mode === 'navigate') {
+		event.respondWith(
+			fetch(request)
+				.then((response) => {
+					// Cache successful responses for offline fallback
+					if (response && response.status === 200) {
+						const responseToCache = response.clone();
+						caches.open(CACHE_NAME).then((cache) => {
+							cache.put(request, responseToCache);
+						});
+					}
+					return response;
+				})
+				.catch(() => {
+					// Fallback to cache when offline
+					return caches.match(request).then((cachedResponse) => {
+						return cachedResponse || caches.match('/');
+					});
+				})
+		);
+		return;
+	}
 
-        event.respondWith(
-                caches.match(request).then((cachedResponse) => {
-                        if (cachedResponse) {
-                                return cachedResponse;
-                        }
+	event.respondWith(
+		caches.match(request).then((cachedResponse) => {
+			if (cachedResponse) {
+				return cachedResponse;
+			}
 
-                        // Clone the request
-                        return fetch(request.clone()).then((response) => {
-                                // Don't cache non-successful responses
-                                if (!response || response.status !== 200 || response.type === 'error') {
-                                        return response;
-                                }
+			// Clone the request
+			return fetch(request.clone()).then((response) => {
+				// Don't cache non-successful responses
+				if (!response || response.status !== 200 || response.type === 'error') {
+					return response;
+				}
 
-                                // Cache runtime assets
-                                if (
-                                        url.pathname.startsWith('/_app/') ||
-                                        url.pathname.startsWith('/assets/') ||
-                                        url.pathname.endsWith('.woff2') ||
-                                        url.pathname.endsWith('.webp')
-                                ) {
-                                        const responseToCache = response.clone();
-                                        caches.open(RUNTIME_CACHE).then((cache) => {
-                                                cache.put(request, responseToCache).then(() => trimRuntimeCacheOnce());
-                                        });
-                                }
+				// Cache runtime assets
+				if (
+					url.pathname.startsWith('/_app/') ||
+					url.pathname.startsWith('/assets/') ||
+					url.pathname.endsWith('.woff2') ||
+					url.pathname.endsWith('.webp')
+				) {
+					const responseToCache = response.clone();
+					caches.open(RUNTIME_CACHE).then((cache) => {
+						cache.put(request, responseToCache).then(() => trimRuntimeCacheOnce());
+					});
+				}
 
-                                return response;
-                        });
-                })
-        );
+				return response;
+			});
+		})
+	);
 });

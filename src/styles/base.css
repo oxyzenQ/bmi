@@ -6,122 +6,121 @@
 *,
 *::before,
 *::after {
-  box-sizing: border-box;
-  box-shadow: none !important;
+	box-sizing: border-box;
+	box-shadow: none !important;
 }
 
 html {
-  height: 100%;
-  scrollbar-width: none;
-  overscroll-behavior: none;
-  background-color: var(--cosmic-deep);
-  max-width: 100%;
-  /* A: Prevent browser auto-zoom on small font sizes (iOS Safari) */
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
+	height: 100%;
+	scrollbar-width: none;
+	overscroll-behavior: none;
+	background-color: var(--cosmic-deep);
+	max-width: 100%;
+	/* A: Prevent browser auto-zoom on small font sizes (iOS Safari) */
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
 }
 
 html::-webkit-scrollbar,
 body::-webkit-scrollbar,
 *::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
+	display: none;
+	width: 0;
+	height: 0;
 }
 
 /* Fix for mobile Safari viewport height */
 @supports (-webkit-touch-callout: none) {
-  html {
-    height: -webkit-fill-available;
-  }
+	html {
+		height: -webkit-fill-available;
+	}
 
-  body {
-    min-height: -webkit-fill-available;
-  }
+	body {
+		min-height: -webkit-fill-available;
+	}
 }
 
 body {
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-  background-color: transparent;
-  color: var(--text-primary);
-  font-family: var(--font-sans);
-  font-size: clamp(0.875rem, 0.85rem + 0.3vw, 1rem);
-  position: relative;
-  z-index: var(--z-base);
-  max-width: 100%;
-  overflow-x: hidden;
-  scrollbar-width: none;
-  overscroll-behavior-y: none;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeSpeed;
-  font-feature-settings: none;
-  font-variation-settings: 'wght' 400;
+	min-height: 100vh;
+	margin: 0;
+	padding: 0;
+	background-color: transparent;
+	color: var(--text-primary);
+	font-family: var(--font-sans);
+	font-size: clamp(0.875rem, 0.85rem + 0.3vw, 1rem);
+	position: relative;
+	z-index: var(--z-base);
+	max-width: 100%;
+	overflow-x: hidden;
+	scrollbar-width: none;
+	overscroll-behavior-y: none;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeSpeed;
+	font-feature-settings: none;
+	font-variation-settings: 'wght' 400;
 }
 
 .app-root {
-  display: contents;
+	display: contents;
 }
 
 /* stellar background image */
 body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  min-height: 100vh;
-  z-index: var(--z-base);
-  /* Negative z-index: intentional — renders behind all content */
-  background-color: transparent;
-  background-image: var(--wallpaper-current);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 1;
-  filter: brightness(0.35) contrast(1) saturate(1);
-  transform: translateZ(0);
-  pointer-events: none;
+	content: '';
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	min-height: 100vh;
+	z-index: var(--z-base);
+	/* Negative z-index: intentional — renders behind all content */
+	background-color: transparent;
+	background-image: var(--wallpaper-current);
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	opacity: 1;
+	filter: brightness(0.35) contrast(1) saturate(1);
+	transform: translateZ(0);
+	pointer-events: none;
 }
 
 @media (max-width: 480px) {
-  body::before {
-    background-size: cover;
-    background-position: center top;
-  }
+	body::before {
+		background-size: cover;
+		background-position: center top;
+	}
 }
 
 @media (max-width: 480px) and (orientation: landscape) {
-  body::before {
-    background-size: cover;
-    background-position: center;
-  }
+	body::before {
+		background-size: cover;
+		background-position: center;
+	}
 }
 
 /* Gradient overlay for depth */
 body::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  min-height: 100vh;
-  z-index: var(--z-base);
-  /* Negative z-index: intentional — gradient overlay behind content */
-  pointer-events: none;
+	content: '';
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	min-height: 100vh;
+	z-index: var(--z-base);
+	/* Negative z-index: intentional — gradient overlay behind content */
+	pointer-events: none;
 }
 
 @supports (height: 100svh) {
-
-  body::before,
-  body::after {
-    height: 100svh;
-    min-height: 100svh;
-  }
+	body::before,
+	body::after {
+		height: 100svh;
+		min-height: 100svh;
+	}
 }
 
 /* ==============================
@@ -133,48 +132,50 @@ code,
 pre,
 kbd,
 samp,
-input[type="number"],
+input[type='number'],
 .bmi-value {
-  font-family: var(--font-mono);
-  font-feature-settings: 'tnum' 1, 'lnum' 1;
+	font-family: var(--font-mono);
+	font-feature-settings:
+		'tnum' 1,
+		'lnum' 1;
 }
 
 pre {
-  background: var(--w-4);
-  border: 1px solid rgba(140, 140, 140, 0.22);
-  border-radius: var(--radius-md);
-  padding: 0.85rem 1rem;
-  overflow: auto;
+	background: var(--w-4);
+	border: 1px solid rgba(140, 140, 140, 0.22);
+	border-radius: var(--radius-md);
+	padding: 0.85rem 1rem;
+	overflow: auto;
 }
 
 /* CJK compact layout — tighter line-height and spacing
    for Chinese/Japanese/Korean text where characters are uniform width */
 :lang(zh),
 :lang(ja) {
-  line-height: 1.6;
-  letter-spacing: 0.02em;
+	line-height: 1.6;
+	letter-spacing: 0.02em;
 }
 
 /* Container utilities */
 .main-container {
-  max-width: 1200px;
-  margin-inline: auto;
-  /* center */
-  padding-inline: clamp(1rem, 2vw, 2rem);
-  /* gutter fleksibel */
-  position: relative;
-  z-index: var(--z-content);
+	max-width: 1200px;
+	margin-inline: auto;
+	/* center */
+	padding-inline: clamp(1rem, 2vw, 2rem);
+	/* gutter fleksibel */
+	position: relative;
+	z-index: var(--z-content);
 }
 
 /* ── Screen reader only (accessibility utility) ── */
 .sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
 }

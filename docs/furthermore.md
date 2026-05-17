@@ -17,25 +17,25 @@ This file holds the long-form notes that used to live in README.md. Keep README.
 
 Styles are split into focused modules under `src/styles/` and imported in cascade order from `src/routes/+layout.svelte`.
 
-| File | Responsibility |
-|---|---|
-| `tokens.css` | Fonts, colors, spacing, radius, timing, z-index, glass, and semantic tokens |
-| `base.css` | Global reset, typography, utility classes |
-| `icons.css` | Icon sizing and semantic icon colors |
-| `components.css` | Central container surfaces, button system, hero base styles |
-| `form.css` | BMI form layout, inputs, validation |
-| `results.css` | BMI results card, share/action buttons, empty states |
-| `data-cards.css` | Stat grid, TDEE, radial gauge, reference table |
-| `layout.css` | About section, wallpaper-related layout, footer |
-| `responsive-base.css` | Base responsive contracts and fluid media |
-| `responsive-width.css` | Width breakpoints and surface sizing |
-| `responsive-height.css` | Height-based compression rules |
-| `responsive-backdrop.css` | No-backdrop fallback for unsupported browsers |
-| `nav.css` | Top/bottom pager navigation |
-| `lang-switcher.css` | Floating language switcher panel |
-| `animation.css` | Skeleton loading and micro-interactions |
-| `responsive-mobile-perf.css` | Touch-device scroll/tap/rendering overrides |
-| `responsive-content.css` | Final correction layer for widths, rhythm, radius, and shadow policy |
+| File                         | Responsibility                                                              |
+| ---------------------------- | --------------------------------------------------------------------------- |
+| `tokens.css`                 | Fonts, colors, spacing, radius, timing, z-index, glass, and semantic tokens |
+| `base.css`                   | Global reset, typography, utility classes                                   |
+| `icons.css`                  | Icon sizing and semantic icon colors                                        |
+| `components.css`             | Central container surfaces, button system, hero base styles                 |
+| `form.css`                   | BMI form layout, inputs, validation                                         |
+| `results.css`                | BMI results card, share/action buttons, empty states                        |
+| `data-cards.css`             | Stat grid, TDEE, radial gauge, reference table                              |
+| `layout.css`                 | About section, wallpaper-related layout, footer                             |
+| `responsive-base.css`        | Base responsive contracts and fluid media                                   |
+| `responsive-width.css`       | Width breakpoints and surface sizing                                        |
+| `responsive-height.css`      | Height-based compression rules                                              |
+| `responsive-backdrop.css`    | No-backdrop fallback for unsupported browsers                               |
+| `nav.css`                    | Top/bottom pager navigation                                                 |
+| `lang-switcher.css`          | Floating language switcher panel                                            |
+| `animation.css`              | Skeleton loading and micro-interactions                                     |
+| `responsive-mobile-perf.css` | Touch-device scroll/tap/rendering overrides                                 |
+| `responsive-content.css`     | Final correction layer for widths, rhythm, radius, and shadow policy        |
 
 ## Pager Navigation
 
@@ -67,11 +67,11 @@ Main lazy-loaded areas include:
 
 Data is stored locally through centralized storage utilities.
 
-| Key | Purpose |
-|---|---|
-| `bmi.history` | BMI calculation history |
+| Key              | Purpose                    |
+| ---------------- | -------------------------- |
+| `bmi.history`    | BMI calculation history    |
 | `bmi.unitSystem` | Metric/imperial preference |
-| `bmi.renderMode` | Render quality preference |
+| `bmi.renderMode` | Render quality preference  |
 
 The app uses cross-tab synchronization where appropriate and keeps health data client-side.
 
@@ -115,12 +115,12 @@ The language switcher is portaled to `document.body` so it can float above the p
 
 GitHub workflows live in `.github/workflows/`.
 
-| Workflow | Purpose |
-|---|---|
-| `ci.yml` | Type-check, lint, test, and build |
-| `codeql.yml` | Security analysis |
-| `release.yml` | Tagged release artifact publishing |
-| `auto-update.yml` | Dependency update PR automation |
+| Workflow                | Purpose                                     |
+| ----------------------- | ------------------------------------------- |
+| `ci.yml`                | Type-check, lint, test, and build           |
+| `codeql.yml`            | Security analysis                           |
+| `release.yml`           | Tagged release artifact publishing          |
+| `auto-update.yml`       | Dependency update PR automation             |
 | `self-heal-actions.yml` | Optional patch/minor action version updater |
 
 ## Release Notes

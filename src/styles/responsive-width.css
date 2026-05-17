@@ -6,1130 +6,1128 @@
    Keep width-driven sizing here; height-driven compression lives in
    responsive-height.css. */
 @media (min-width: 769px) {
-  :root {
-    --rsp-desktop-page-max: 1040px;
-    --rsp-desktop-section-y: 64px;
-    --rsp-desktop-container-y: 64px;
-    --rsp-desktop-card-min: clamp(460px, 58vh, 620px);
-    --rsp-desktop-card-padding: clamp(1rem, 2vw, 1.5rem);
-    --rsp-desktop-panel-padding: clamp(1.25rem, 2.5vw, 2rem);
-    --rsp-desktop-results-padding: clamp(1.5rem, 2.5vw, 2rem);
-    --rsp-desktop-gauge-width: min(82vw, 520px);
-  }
+	:root {
+		--rsp-desktop-page-max: 1040px;
+		--rsp-desktop-section-y: 64px;
+		--rsp-desktop-container-y: 64px;
+		--rsp-desktop-card-min: clamp(460px, 58vh, 620px);
+		--rsp-desktop-card-padding: clamp(1rem, 2vw, 1.5rem);
+		--rsp-desktop-panel-padding: clamp(1.25rem, 2.5vw, 2rem);
+		--rsp-desktop-results-padding: clamp(1.5rem, 2.5vw, 2rem);
+		--rsp-desktop-gauge-width: min(82vw, 520px);
+	}
 
-  .main-container {
-    max-width: min(94vw, var(--rsp-desktop-page-max));
-    padding-inline: clamp(0.875rem, 1.5vw, 1.25rem);
-  }
+	.main-container {
+		max-width: min(94vw, var(--rsp-desktop-page-max));
+		padding-inline: clamp(0.875rem, 1.5vw, 1.25rem);
+	}
 
-  .hero-content {
-    max-width: 720px;
-    padding: var(--rsp-desktop-panel-padding);
-    margin-top: var(--rsp-desktop-container-y) !important;
-    margin-bottom: var(--rsp-desktop-container-y) !important;
-  }
+	.hero-content {
+		max-width: 720px;
+		padding: var(--rsp-desktop-panel-padding);
+		margin-top: var(--rsp-desktop-container-y) !important;
+		margin-bottom: var(--rsp-desktop-container-y) !important;
+	}
 
-  .bmi-section,
-  .charts-section {
-    margin-top: var(--rsp-desktop-section-y);
-    margin-bottom: var(--rsp-desktop-section-y);
-  }
+	.bmi-section,
+	.charts-section {
+		margin-top: var(--rsp-desktop-section-y);
+		margin-bottom: var(--rsp-desktop-section-y);
+	}
 
-  .bmi-grid {
-    gap: 1rem;
-    margin-top: var(--rsp-desktop-container-y) !important;
-    margin-bottom: var(--rsp-desktop-container-y) !important;
-  }
+	.bmi-grid {
+		gap: 1rem;
+		margin-top: var(--rsp-desktop-container-y) !important;
+		margin-bottom: var(--rsp-desktop-container-y) !important;
+	}
 
-  .form-card,
-  .bmi-card {
-    min-height: var(--rsp-desktop-card-min);
-    padding: var(--rsp-desktop-card-padding);
-    border-radius: var(--radius-xl);
-  }
+	.form-card,
+	.bmi-card {
+		min-height: var(--rsp-desktop-card-min);
+		padding: var(--rsp-desktop-card-padding);
+		border-radius: var(--radius-xl);
+	}
 
-  .bmi-results-card {
-    min-height: 380px;
-    padding: var(--rsp-desktop-results-padding);
-    border-radius: var(--radius-lg);
-  }
+	.bmi-results-card {
+		min-height: 380px;
+		padding: var(--rsp-desktop-results-padding);
+		border-radius: var(--radius-lg);
+	}
 
-  .about-card:not(.about-card-merged),
-  .main-container .section-header-v2,
-  .footer-disclaimer {
-    padding: var(--rsp-desktop-panel-padding);
-    border-radius: var(--radius-xl);
-  }
+	.about-card:not(.about-card-merged),
+	.main-container .section-header-v2,
+	.footer-disclaimer {
+		padding: var(--rsp-desktop-panel-padding);
+		border-radius: var(--radius-xl);
+	}
 
-  .gauge-container {
-    width: var(--rsp-desktop-gauge-width);
-    margin-top: var(--rsp-desktop-container-y) !important;
-    margin-bottom: var(--rsp-desktop-container-y) !important;
-    border-radius: var(--radius-xl);
-  }
+	.gauge-container {
+		width: var(--rsp-desktop-gauge-width);
+		margin-top: var(--rsp-desktop-container-y) !important;
+		margin-bottom: var(--rsp-desktop-container-y) !important;
+		border-radius: var(--radius-xl);
+	}
 
-  .reference-table,
-  .about-bmi-grid,
-  .footer-disclaimer {
-    margin-top: var(--rsp-desktop-container-y) !important;
-    margin-bottom: var(--rsp-desktop-container-y) !important;
-  }
+	.reference-table,
+	.about-bmi-grid,
+	.footer-disclaimer {
+		margin-top: var(--rsp-desktop-container-y) !important;
+		margin-bottom: var(--rsp-desktop-container-y) !important;
+	}
 
-  .goal-tracker,
-  .github-footer {
-    margin-bottom: var(--rsp-desktop-container-y) !important;
-  }
+	.goal-tracker,
+	.github-footer {
+		margin-bottom: var(--rsp-desktop-container-y) !important;
+	}
 
-  .github-footer {
-    max-width: 840px;
-    padding: 1rem;
-  }
+	.github-footer {
+		max-width: 840px;
+		padding: 1rem;
+	}
 }
 
 /* Media queries: tablet and below - all major containers respond together */
 @media (max-width: 768px) {
-  :root {
-    --rsp-page-max: 660px;
-    --rsp-page-gutter: clamp(0.75rem, 2vw, 1.25rem);
-    --rsp-section-y: clamp(24px, 6vh, 90px);
-    --rsp-container-y: 100px;
-    --rsp-grid-padding: 14px;
-    --rsp-grid-gap: 1rem;
-    --rsp-card-padding: 1.25rem;
-    --rsp-results-padding: 1.75rem;
-    --rsp-gauge-width: min(96vw, 400px);
-  }
+	:root {
+		--rsp-page-max: 660px;
+		--rsp-page-gutter: clamp(0.75rem, 2vw, 1.25rem);
+		--rsp-section-y: clamp(24px, 6vh, 90px);
+		--rsp-container-y: 100px;
+		--rsp-grid-padding: 14px;
+		--rsp-grid-gap: 1rem;
+		--rsp-card-padding: 1.25rem;
+		--rsp-results-padding: 1.75rem;
+		--rsp-gauge-width: min(96vw, 400px);
+	}
 
-  .main-container {
-    max-width: var(--rsp-page-max);
-    margin-inline: auto;
-    padding-inline: var(--rsp-page-gutter);
-  }
+	.main-container {
+		max-width: var(--rsp-page-max);
+		margin-inline: auto;
+		padding-inline: var(--rsp-page-gutter);
+	}
 
-  .bmi-section,
-  .charts-section {
-    margin-top: var(--rsp-section-y);
-    margin-bottom: var(--rsp-section-y);
-  }
+	.bmi-section,
+	.charts-section {
+		margin-top: var(--rsp-section-y);
+		margin-bottom: var(--rsp-section-y);
+	}
 
-  .bmi-grid {
-    gap: var(--rsp-grid-gap);
-  }
+	.bmi-grid {
+		gap: var(--rsp-grid-gap);
+	}
 
-  .hero-content,
-  .bmi-grid,
-  .gauge-container,
-  .reference-table,
-  .about-bmi-grid,
-  .footer-disclaimer {
-    margin-top: var(--rsp-container-y) !important;
-    margin-bottom: var(--rsp-container-y) !important;
-  }
+	.hero-content,
+	.bmi-grid,
+	.gauge-container,
+	.reference-table,
+	.about-bmi-grid,
+	.footer-disclaimer {
+		margin-top: var(--rsp-container-y) !important;
+		margin-bottom: var(--rsp-container-y) !important;
+	}
 
-  .bmi-card,
-  .goal-tracker,
-  .github-footer {
-    margin-bottom: var(--rsp-container-y) !important;
-  }
+	.bmi-card,
+	.goal-tracker,
+	.github-footer {
+		margin-bottom: var(--rsp-container-y) !important;
+	}
 
-  .form-card,
-  .bmi-card,
-  .about-card:not(.about-card-merged),
-  .main-container .section-header-v2,
-  .footer-disclaimer {
-    min-height: auto;
-    padding: var(--rsp-card-padding);
-  }
+	.form-card,
+	.bmi-card,
+	.about-card:not(.about-card-merged),
+	.main-container .section-header-v2,
+	.footer-disclaimer {
+		min-height: auto;
+		padding: var(--rsp-card-padding);
+	}
 
-  .about-card-merged {
-    min-height: auto;
-    padding: 0;
-  }
+	.about-card-merged {
+		min-height: auto;
+		padding: 0;
+	}
 
-  .reference-table,
-  .gauge-container,
-  .github-footer,
-  .github-link {
-    min-height: auto;
-  }
+	.reference-table,
+	.gauge-container,
+	.github-footer,
+	.github-link {
+		min-height: auto;
+	}
 
-  .bmi-card {
-    margin-top: 0;
-  }
+	.bmi-card {
+		margin-top: 0;
+	}
 
-  .bmi-results-card {
-    min-height: 0;
-    padding: var(--rsp-results-padding);
-  }
+	.bmi-results-card {
+		min-height: 0;
+		padding: var(--rsp-results-padding);
+	}
 
-  .form-input {
-    width: 100%;
-  }
+	.form-input {
+		width: 100%;
+	}
 
-  .input-error {
-    width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-  }
+	.input-error {
+		width: 100%;
+		margin-left: 0;
+		margin-right: 0;
+	}
 
-  .button-group .btn {
-    width: 100%;
-    max-width: 420px;
-  }
+	.button-group .btn {
+		width: 100%;
+		max-width: 420px;
+	}
 
-  .hero-bottom {
-    padding: 1.25rem;
-    margin-bottom: -40px;
-  }
+	.hero-bottom {
+		padding: 1.25rem;
+		margin-bottom: -40px;
+	}
 
-  .gauge-container {
-    width: var(--rsp-gauge-width);
-  }
-
+	.gauge-container {
+		width: var(--rsp-gauge-width);
+	}
 }
 
 @media (max-width: 600px) {
-
-  .hero-bottom {
-    margin-bottom: -25px;
-  }
+	.hero-bottom {
+		margin-bottom: -25px;
+	}
 }
 
 /* Media queries: mobile (incl. 1080x2340 logical CSS px density-aware) */
 @media (max-width: 480px) {
-  :root {
-    --rsp-page-max: 400px;
-    --rsp-page-gutter: clamp(0.75rem, 4vw, 0.9rem);
-    --rsp-results-padding: 1.5rem;
-    --rsp-gauge-width: min(96vw, 260px);
-  }
+	:root {
+		--rsp-page-max: 400px;
+		--rsp-page-gutter: clamp(0.75rem, 4vw, 0.9rem);
+		--rsp-results-padding: 1.5rem;
+		--rsp-gauge-width: min(96vw, 260px);
+	}
 
-  .main-container {
-    max-width: var(--rsp-page-max);
-    margin-inline: auto;
-    padding-inline: var(--rsp-page-gutter);
-  }
+	.main-container {
+		max-width: var(--rsp-page-max);
+		margin-inline: auto;
+		padding-inline: var(--rsp-page-gutter);
+	}
 
-  /* Slightly reduce headings for smaller screens */
-  h1 {
-    font-size: clamp(1.5rem, 6vw, 2.25rem);
-  }
+	/* Slightly reduce headings for smaller screens */
+	h1 {
+		font-size: clamp(1.5rem, 6vw, 2.25rem);
+	}
 
-  h2 {
-    font-size: clamp(1.35rem, 5vw, 1.9rem);
-  }
+	h2 {
+		font-size: clamp(1.35rem, 5vw, 1.9rem);
+	}
 
-  h3 {
-    font-size: clamp(1.15rem, 4vw, 1.5rem);
-  }
+	h3 {
+		font-size: clamp(1.15rem, 4vw, 1.5rem);
+	}
 
-  .gauge-container {
-    width: var(--rsp-gauge-width);
-  }
+	.gauge-container {
+		width: var(--rsp-gauge-width);
+	}
 
-  /* Scale down large card header icons on mobile */
-  .Calculator,
-  .ScanHeart,
-  .FileChartColumn,
-  .BarChart3,
-  .X,
-  .Gauge {
-    width: 52px !important;
-    height: 52px !important;
-  }
+	/* Scale down large card header icons on mobile */
+	.Calculator,
+	.ScanHeart,
+	.FileChartColumn,
+	.BarChart3,
+	.X,
+	.Gauge {
+		width: 52px !important;
+		height: 52px !important;
+	}
 
-  /* Body fat value responsive */
-  .bf-value {
-    font-size: 2.25rem;
-  }
+	/* Body fat value responsive */
+	.bf-value {
+		font-size: 2.25rem;
+	}
 
-  /* Snapshot card values */
-  .card-value {
-    font-size: 2rem;
-  }
+	/* Snapshot card values */
+	.card-value {
+		font-size: 2rem;
+	}
 
-  /* Risk marker compact */
-  .risk-marker {
-    width: 32px;
-    height: 32px;
-  }
+	/* Risk marker compact */
+	.risk-marker {
+		width: 32px;
+		height: 32px;
+	}
 
-  /* Footer / about header icons compact (scoped to card header) */
-  .about-card-header .Lightbulb,
-  .about-card-header .ListChecks,
-  .about-card-header .Database,
-  .about-card-header .LockKeyhole,
-  .about-card-header .BicepsFlexed,
-  .about-card-header .Info {
-    width: 36px !important;
-    height: 36px !important;
-  }
+	/* Footer / about header icons compact (scoped to card header) */
+	.about-card-header .Lightbulb,
+	.about-card-header .ListChecks,
+	.about-card-header .Database,
+	.about-card-header .LockKeyhole,
+	.about-card-header .BicepsFlexed,
+	.about-card-header .Info {
+		width: 36px !important;
+		height: 36px !important;
+	}
 
-  .AlertTriangle {
-    width: 36px !important;
-    height: 36px !important;
-  }
+	.AlertTriangle {
+		width: 36px !important;
+		height: 36px !important;
+	}
 
-  /* Reference disclaimer icon compact */
-  .Info2 {
-    padding: 1.5rem;
-    width: 36px !important;
-    height: 36px !important;
-  }
+	/* Reference disclaimer icon compact */
+	.Info2 {
+		padding: 1.5rem;
+		width: 36px !important;
+		height: 36px !important;
+	}
 
-  /* B: Compact results card on mobile — reduce padding */
-  .bmi-results-card {
-    padding: var(--rsp-results-padding);
-    border-radius: var(--radius-md);
-    min-height: auto;
-  }
+	/* B: Compact results card on mobile — reduce padding */
+	.bmi-results-card {
+		padding: var(--rsp-results-padding);
+		border-radius: var(--radius-md);
+		min-height: auto;
+	}
 
-  .card-header {
-    margin-top: 1.5rem;
-    margin-bottom: 2rem;
-  }
+	.card-header {
+		margin-top: 1.5rem;
+		margin-bottom: 2rem;
+	}
 
-  .bmi-value {
-    font-size: clamp(2.75rem, 12vw, 3.75rem);
-  }
+	.bmi-value {
+		font-size: clamp(2.75rem, 12vw, 3.75rem);
+	}
 
-  .bmi-category {
-    font-size: 1.15rem;
-  }
+	.bmi-category {
+		font-size: 1.15rem;
+	}
 
-  .bmi-display {
-    margin-bottom: 1.5rem;
-  }
+	.bmi-display {
+		margin-bottom: 1.5rem;
+	}
 
-  .stat-number {
-    font-size: 1.25rem;
-  }
+	.stat-number {
+		font-size: 1.25rem;
+	}
 
-  .stat-number.range-num {
-    font-size: 1.1rem;
-  }
+	.stat-number.range-num {
+		font-size: 1.1rem;
+	}
 
-  .health-advice,
-  .age-advisory,
-  .bmi-explanation {
-    padding: 1.15rem;
-  }
+	.health-advice,
+	.age-advisory,
+	.bmi-explanation {
+		padding: 1.15rem;
+	}
 
-  .action-btn {
-    padding: 0.4rem 0.65rem;
-    font-size: 0.7rem;
-    gap: 0.3rem;
-  }
+	.action-btn {
+		padding: 0.4rem 0.65rem;
+		font-size: 0.7rem;
+		gap: 0.3rem;
+	}
 
-  .action-buttons-row {
-    gap: 0.4rem;
-  }
+	.action-buttons-row {
+		gap: 0.4rem;
+	}
 }
 
 /* Media queries: compact phones (<=520px) */
 @media (max-width: 520px) {
-  .reference-table .ref-header {
-    display: none;
-  }
+	.reference-table .ref-header {
+		display: none;
+	}
 
-  .reference-table .ref-row {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-    padding: 0.85rem 1rem;
-    border-radius: 12px;
-    border-top: 3px solid rgba(130, 130, 130, 0.30);
-  }
+	.reference-table .ref-row {
+		grid-template-columns: 1fr;
+		gap: 0.75rem;
+		padding: 0.85rem 1rem;
+		border-radius: 12px;
+		border-top: 3px solid rgba(130, 130, 130, 0.3);
+	}
 
-  .reference-table .ref-col {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-  }
+	.reference-table .ref-col {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+	}
 
-  .reference-table .ref-col::before {
-    content: attr(data-label);
-    font-size: 0.68rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-muted-slate);
-  }
+	.reference-table .ref-col::before {
+		content: attr(data-label);
+		font-size: 0.68rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--text-muted-slate);
+	}
 
-  .reference-table .muted {
-    font-size: 0.85rem;
-    line-height: 1.4;
-  }
+	.reference-table .muted {
+		font-size: 0.85rem;
+		line-height: 1.4;
+	}
 }
 
 /* Media queries: ultra-compact width (<=360px) */
 @media (max-width: 360px) {
-  :root {
-    --rsp-section-y: clamp(16px, 6vh, 50px);
-    --rsp-grid-padding: 8px;
-    --rsp-grid-gap: 0.6rem;
-    --rsp-gauge-width: min(96vw, 220px);
-  }
+	:root {
+		--rsp-section-y: clamp(16px, 6vh, 50px);
+		--rsp-grid-padding: 8px;
+		--rsp-grid-gap: 0.6rem;
+		--rsp-gauge-width: min(96vw, 220px);
+	}
 
-  .hero-content {
-    padding: 2rem 1rem;
-  }
+	.hero-content {
+		padding: 2rem 1rem;
+	}
 
-  .hero-avatar {
-    width: 80px;
-    height: 80px;
-    padding: 0.4rem;
-  }
+	.hero-avatar {
+		width: 80px;
+		height: 80px;
+		padding: 0.4rem;
+	}
 
-  .hero-title {
-    font-size: clamp(1.25rem, 7vw, 1.75rem);
-    gap: 0.4rem;
-  }
+	.hero-title {
+		font-size: clamp(1.25rem, 7vw, 1.75rem);
+		gap: 0.4rem;
+	}
 
-  .hero-subtitle {
-    font-size: 0.9rem;
-    padding: 0.4rem;
-    margin-bottom: 1rem;
-  }
+	.hero-subtitle {
+		font-size: 0.9rem;
+		padding: 0.4rem;
+		margin-bottom: 1rem;
+	}
 
-  .hero-features {
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    flex-direction: column;
-    align-items: stretch;
-  }
+	.hero-features {
+		gap: 0.5rem;
+		margin-bottom: 1rem;
+		flex-direction: column;
+		align-items: stretch;
+	}
 
-  .feature {
-    padding: 0.35rem 0.65rem;
-    font-size: 0.75rem;
-  }
+	.feature {
+		padding: 0.35rem 0.65rem;
+		font-size: 0.75rem;
+	}
 
-  .hero-bottom {
-    margin-left: -8px;
-    margin-right: -8px;
-    margin-bottom: -20px;
-  }
+	.hero-bottom {
+		margin-left: -8px;
+		margin-right: -8px;
+		margin-bottom: -20px;
+	}
 
-  .hero-bottom-text {
-    font-size: 0.8rem;
-  }
+	.hero-bottom-text {
+		font-size: 0.8rem;
+	}
 
-  .bmi-section,
-  .charts-section {
-    margin-top: var(--rsp-section-y);
-    margin-bottom: var(--rsp-section-y);
-  }
+	.bmi-section,
+	.charts-section {
+		margin-top: var(--rsp-section-y);
+		margin-bottom: var(--rsp-section-y);
+	}
 
-  .bmi-grid {
-    padding: var(--rsp-grid-padding);
-    gap: var(--rsp-grid-gap);
-  }
+	.bmi-grid {
+		padding: var(--rsp-grid-padding);
+		gap: var(--rsp-grid-gap);
+	}
 
-  .gauge-container {
-    width: var(--rsp-gauge-width);
-  }
+	.gauge-container {
+		width: var(--rsp-gauge-width);
+	}
 
-  /* Even smaller card header icons at 360px */
-  .Calculator,
-  .ScanHeart,
-  .FileChartColumn,
-  .BarChart3,
-  .X,
-  .Gauge {
-    width: 40px !important;
-    height: 40px !important;
-  }
+	/* Even smaller card header icons at 360px */
+	.Calculator,
+	.ScanHeart,
+	.FileChartColumn,
+	.BarChart3,
+	.X,
+	.Gauge {
+		width: 40px !important;
+		height: 40px !important;
+	}
 
-  /* Body fat value further reduced */
-  .bf-value {
-    font-size: 1.75rem;
-  }
+	/* Body fat value further reduced */
+	.bf-value {
+		font-size: 1.75rem;
+	}
 
-  .bf-category {
-    font-size: 0.9rem;
-  }
+	.bf-category {
+		font-size: 0.9rem;
+	}
 
-  /* Snapshot card values further reduced */
-  .card-value {
-    font-size: 1.5rem;
-  }
+	/* Snapshot card values further reduced */
+	.card-value {
+		font-size: 1.5rem;
+	}
 
-  .card-label {
-    font-size: 0.65rem;
-  }
+	.card-label {
+		font-size: 0.65rem;
+	}
 
-  /* Risk marker further reduced */
-  .risk-marker {
-    width: 28px;
-    height: 28px;
-  }
+	/* Risk marker further reduced */
+	.risk-marker {
+		width: 28px;
+		height: 28px;
+	}
 
-  /* Risk labels compact */
-  .risk-label {
-    font-size: 0.55rem;
-    letter-spacing: 0.3px;
-  }
+	/* Risk labels compact */
+	.risk-label {
+		font-size: 0.55rem;
+		letter-spacing: 0.3px;
+	}
 
-  /* Footer / about header icons further reduced (scoped to card header) */
-  .about-card-header .Lightbulb,
-  .about-card-header .ListChecks,
-  .about-card-header .Database,
-  .about-card-header .LockKeyhole,
-  .about-card-header .BicepsFlexed,
-  .about-card-header .Info {
-    width: 30px !important;
-    height: 30px !important;
-  }
+	/* Footer / about header icons further reduced (scoped to card header) */
+	.about-card-header .Lightbulb,
+	.about-card-header .ListChecks,
+	.about-card-header .Database,
+	.about-card-header .LockKeyhole,
+	.about-card-header .BicepsFlexed,
+	.about-card-header .Info {
+		width: 30px !important;
+		height: 30px !important;
+	}
 
-  .AlertTriangle {
-    width: 30px !important;
-    height: 30px !important;
-  }
+	.AlertTriangle {
+		width: 30px !important;
+		height: 30px !important;
+	}
 
-  /* Reference disclaimer icon further reduced */
-  .Info2 {
-    padding: 1rem;
-    width: 28px !important;
-    height: 28px !important;
-  }
+	/* Reference disclaimer icon further reduced */
+	.Info2 {
+		padding: 1rem;
+		width: 28px !important;
+		height: 28px !important;
+	}
 
-  /* Ref title smaller */
-  .ref-card .title {
-    font-size: 1.75rem;
-  }
+	/* Ref title smaller */
+	.ref-card .title {
+		font-size: 1.75rem;
+	}
 
-  /* About card h3 smaller */
-  .about-card h3 {
-    font-size: 1.25rem;
-  }
+	/* About card h3 smaller */
+	.about-card h3 {
+		font-size: 1.25rem;
+	}
 
-  /* Merged about card section blocks compact */
-  .about-section-block {
-    padding: 1.25rem;
-  }
+	/* Merged about card section blocks compact */
+	.about-section-block {
+		padding: 1.25rem;
+	}
 
-  .about-section-hero {
-    padding-top: 1.5rem;
-    padding-bottom: 1rem;
-  }
+	.about-section-hero {
+		padding-top: 1.5rem;
+		padding-bottom: 1rem;
+	}
 
-  .about-hero-title {
-    font-size: 1.5rem;
-  }
+	.about-hero-title {
+		font-size: 1.5rem;
+	}
 
-  .about-hero-subtitle {
-    font-size: 0.95rem;
-  }
+	.about-hero-subtitle {
+		font-size: 0.95rem;
+	}
 
-  .about-section-divider {
-    margin: 0 1.25rem;
-  }
+	.about-section-divider {
+		margin: 0 1.25rem;
+	}
 
-  /* Composition bar compact */
-  .comp-track {
-    height: 12px;
-  }
+	/* Composition bar compact */
+	.comp-track {
+		height: 12px;
+	}
 
-  /* Bf ranges compact */
-  .bf-ranges {
-    padding: 0.75rem;
-  }
+	/* Bf ranges compact */
+	.bf-ranges {
+		padding: 0.75rem;
+	}
 
-  .range-row {
-    gap: 0.35rem;
-  }
+	.range-row {
+		gap: 0.35rem;
+	}
 
-  .range-label {
-    width: 50px;
-    font-size: 0.65rem;
-  }
+	.range-label {
+		width: 50px;
+		font-size: 0.65rem;
+	}
 
-  .range-val {
-    width: 36px;
-    font-size: 0.6rem;
-  }
+	.range-val {
+		width: 36px;
+		font-size: 0.6rem;
+	}
 
-  /* Goal tracker compact */
-  .goal-stat .stat-value {
-    font-size: 0.95rem;
-  }
+	/* Goal tracker compact */
+	.goal-stat .stat-value {
+		font-size: 0.95rem;
+	}
 
-  .goal-input-row .form-input {
-    max-width: 90px;
-  }
+	.goal-input-row .form-input {
+		max-width: 90px;
+	}
 }
 
 /* Media queries: extreme-narrow (<=300px) */
 @media (max-width: 300px) {
-  :root {
-    --rsp-page-gutter: clamp(0.5rem, 3vw, 0.75rem);
-    --rsp-grid-padding: 6px;
-    --rsp-grid-gap: 0.5rem;
-    --rsp-card-padding: clamp(0.75rem, 3vw, 1rem);
-    --rsp-results-padding: 0.75rem 0.625rem;
-    --rsp-gauge-width: min(96vw, 200px);
-  }
-
-  .main-container {
-    padding-inline: var(--rsp-page-gutter);
-  }
-
-  .hero-content {
-    padding: 1.5rem 0.75rem;
-  }
-
-  .hero-avatar {
-    width: 64px;
-    height: 64px;
-    padding: 0.35rem;
-  }
-
-  .hero-title {
-    font-size: clamp(1.1rem, 6.5vw, 1.5rem);
-    gap: 0.35rem;
-  }
-
-  .hero-subtitle {
-    font-size: 0.8rem;
-    padding: 0.3rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .hero-features {
-    gap: 0.4rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .feature {
-    padding: 0.3rem 0.5rem;
-    font-size: 0.7rem;
-  }
-
-  .hero-bottom {
-    margin-left: -6px;
-    margin-right: -6px;
-    margin-bottom: -20px;
-  }
-
-  .hero-bottom-text {
-    font-size: 0.7rem;
-  }
-
-  .bmi-grid {
-    padding: var(--rsp-grid-padding);
-    gap: var(--rsp-grid-gap);
-  }
-
-  .form-card,
-  .bmi-card {
-    min-height: auto;
-    padding: var(--rsp-card-padding);
-    border-radius: var(--radius-md);
-  }
-
-  .form-input {
-    max-width: 100%;
-  }
-
-  .input-error {
-    max-width: 100%;
-  }
-
-  .pill-indicator {
-    min-width: auto;
-    padding: 0 10px;
-    font-size: 0.75rem;
-  }
-
-  .bmi-results-card {
-    padding: var(--rsp-results-padding);
-    border-radius: var(--radius-sm);
-  }
-
-  .card-header {
-    margin-top: 0.75rem;
-    margin-bottom: 1rem;
-  }
-
-  .bmi-value {
-    font-size: clamp(2rem, 10vw, 2.75rem);
-    margin-bottom: 0.5rem;
-  }
-
-  .bmi-category {
-    font-size: 0.9rem;
-  }
-
-  .action-buttons-row {
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .action-btn {
-    font-size: 0.6rem;
-    padding: 0.3rem 0.4rem;
-    gap: 0.15rem;
-  }
-
-  .action-btn svg {
-    width: 10px;
-    height: 10px;
-  }
-
-  .stat-block {
-    padding: 0.6rem;
-    border-radius: var(--radius-sm);
-  }
-
-  .health-advice,
-  .age-advisory,
-  .bmi-explanation {
-    padding: 0.6rem;
-    border-radius: var(--radius-sm);
-    margin-bottom: 0.6rem;
-  }
-
-  .gauge-container {
-    width: var(--rsp-gauge-width);
-  }
-
-  .tdee-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .scale-indicators {
-    grid-template-columns: 1fr;
-  }
-
-  .lang-panel {
-    min-width: auto;
-    width: calc(100vw - 2rem);
-    padding: 1.25rem 1rem;
-    border-radius: var(--modal-panel-radius);
-  }
-
-  .about-card {
-    padding: 0.875rem;
-    border-radius: var(--radius-sm);
-  }
-
-  .about-card h3 {
-    font-size: 0.9rem;
-  }
-
-  /* Merged about card section blocks compact at 300px */
-  .about-section-block {
-    padding: 0.875rem;
-  }
-
-  .about-section-hero {
-    padding-top: 1rem;
-    padding-bottom: 0.75rem;
-  }
-
-  .about-hero-title {
-    font-size: 1.25rem;
-  }
-
-  .about-hero-subtitle {
-    font-size: 0.85rem;
-  }
-
-  .about-section-divider {
-    margin: 0 0.875rem;
-  }
-
-  /* About info rows — extreme compact at 300px */
-  .about-card .app-info {
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
-  }
-
-  .about-card .info-row {
-    gap: 0.2rem;
-    font-size: 0.65rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .about-card .info-row strong {
-    font-size: 0.65rem;
-  }
-
-  .about-card .commit-id {
-    font-size: 0.55rem;
-  }
-
-  .button-group .btn {
-    max-width: 100%;
-  }
-
-  /* Body fat extreme compact at 300px */
-  .bf-value {
-    font-size: 1.5rem;
-  }
-
-  .bf-category {
-    font-size: 0.75rem;
-  }
-
-  .comp-track {
-    height: 10px;
-  }
-
-  .bf-info-box {
-    padding: 0.5rem 0.65rem;
-    font-size: 0.7rem;
-    border-radius: 8px;
-  }
-
-  .bf-ranges {
-    padding: 0.5rem;
-    border-radius: 8px;
-  }
-
-  .bf-ranges h4 {
-    font-size: 0.75rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .range-row {
-    gap: 0.25rem;
-    margin-bottom: 0.3rem;
-  }
-
-  .range-label {
-    width: 44px;
-    font-size: 0.6rem;
-  }
-
-  .range-val {
-    width: 32px;
-    font-size: 0.55rem;
-  }
-
-  /* Snapshot extreme compact at 300px */
-  .card-value {
-    font-size: 1.25rem;
-  }
-
-  .card-category {
-    font-size: 0.75rem;
-  }
-
-  .card-label {
-    font-size: 0.6rem;
-    gap: 0.3rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .snapshot-card {
-    padding: 0.65rem 0.4rem;
-    border-radius: 10px;
-  }
-
-  .progress-section {
-    padding: 0.75rem;
-    border-radius: 10px;
-  }
-
-  .progress-label {
-    font-size: 0.75rem;
-  }
-
-  .progress-value {
-    font-size: 1rem;
-  }
-
-  .insight-item {
-    padding: 0.65rem 0.75rem;
-    font-size: 0.78rem;
-    border-radius: 8px;
-  }
-
-  /* Risk extreme compact at 300px */
-  .risk-marker {
-    width: 24px;
-    height: 24px;
-  }
-
-  .risk-result {
-    padding: 0.85rem;
-    gap: 0.5rem;
-    border-radius: 10px;
-    margin-bottom: 1rem;
-  }
-
-  .risk-level {
-    font-size: 0.95rem;
-  }
-
-  .risk-description {
-    font-size: 0.78rem;
-  }
-
-  .risk-bmi {
-    font-size: 1.15rem;
-  }
-
-  .risk-label {
-    font-size: 0.5rem;
-    letter-spacing: 0.2px;
-  }
-
-  .health-tips {
-    padding: 0.65rem;
-    border-radius: 10px;
-  }
-
-  .health-tips h4 {
-    font-size: 0.78rem;
-  }
-
-  .health-tips li {
-    font-size: 0.72rem;
-  }
-
-  /* Goal tracker extreme compact at 300px */
-  .goal-stats {
-    gap: 0.35rem;
-  }
-
-  .goal-stat {
-    padding: 0.35rem;
-    border-radius: var(--radius-sm);
-  }
-
-  .goal-stat .stat-label {
-    font-size: 0.58rem;
-  }
-
-  .goal-stat .stat-value {
-    font-size: 0.85rem;
-  }
-
-  .goal-actions .btn {
-    font-size: 0.7rem;
-    padding: 0.25rem 0.5rem;
-  }
-
-  /* Sparkline compact */
-  .interactive-chart {
-    height: 140px;
-  }
-
-  /* Scale indicators compact */
-  .scale-item {
-    padding: 6px 8px;
-    gap: 6px;
-    border-radius: 8px;
-  }
-
-  .scale-label {
-    font-size: 0.65rem;
-  }
-
-  .scale-range {
-    font-size: 0.65rem;
-  }
-
-  /* Ref title extreme compact */
-  .ref-card .title {
-    font-size: 1.4rem;
-  }
-
-  .ref-card .subtitle {
-    font-size: 0.85rem;
-  }
-
-  /* TDEE compact */
-  .tdee-card {
-    border-radius: 0.6rem;
-  }
-
-  .tdee-stat-value {
-    font-size: 0.95rem;
-  }
-
-  .tdee-range-value {
-    font-size: 0.8rem;
-  }
+	:root {
+		--rsp-page-gutter: clamp(0.5rem, 3vw, 0.75rem);
+		--rsp-grid-padding: 6px;
+		--rsp-grid-gap: 0.5rem;
+		--rsp-card-padding: clamp(0.75rem, 3vw, 1rem);
+		--rsp-results-padding: 0.75rem 0.625rem;
+		--rsp-gauge-width: min(96vw, 200px);
+	}
+
+	.main-container {
+		padding-inline: var(--rsp-page-gutter);
+	}
+
+	.hero-content {
+		padding: 1.5rem 0.75rem;
+	}
+
+	.hero-avatar {
+		width: 64px;
+		height: 64px;
+		padding: 0.35rem;
+	}
+
+	.hero-title {
+		font-size: clamp(1.1rem, 6.5vw, 1.5rem);
+		gap: 0.35rem;
+	}
+
+	.hero-subtitle {
+		font-size: 0.8rem;
+		padding: 0.3rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.hero-features {
+		gap: 0.4rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.feature {
+		padding: 0.3rem 0.5rem;
+		font-size: 0.7rem;
+	}
+
+	.hero-bottom {
+		margin-left: -6px;
+		margin-right: -6px;
+		margin-bottom: -20px;
+	}
+
+	.hero-bottom-text {
+		font-size: 0.7rem;
+	}
+
+	.bmi-grid {
+		padding: var(--rsp-grid-padding);
+		gap: var(--rsp-grid-gap);
+	}
+
+	.form-card,
+	.bmi-card {
+		min-height: auto;
+		padding: var(--rsp-card-padding);
+		border-radius: var(--radius-md);
+	}
+
+	.form-input {
+		max-width: 100%;
+	}
+
+	.input-error {
+		max-width: 100%;
+	}
+
+	.pill-indicator {
+		min-width: auto;
+		padding: 0 10px;
+		font-size: 0.75rem;
+	}
+
+	.bmi-results-card {
+		padding: var(--rsp-results-padding);
+		border-radius: var(--radius-sm);
+	}
+
+	.card-header {
+		margin-top: 0.75rem;
+		margin-bottom: 1rem;
+	}
+
+	.bmi-value {
+		font-size: clamp(2rem, 10vw, 2.75rem);
+		margin-bottom: 0.5rem;
+	}
+
+	.bmi-category {
+		font-size: 0.9rem;
+	}
+
+	.action-buttons-row {
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.action-btn {
+		font-size: 0.6rem;
+		padding: 0.3rem 0.4rem;
+		gap: 0.15rem;
+	}
+
+	.action-btn svg {
+		width: 10px;
+		height: 10px;
+	}
+
+	.stat-block {
+		padding: 0.6rem;
+		border-radius: var(--radius-sm);
+	}
+
+	.health-advice,
+	.age-advisory,
+	.bmi-explanation {
+		padding: 0.6rem;
+		border-radius: var(--radius-sm);
+		margin-bottom: 0.6rem;
+	}
+
+	.gauge-container {
+		width: var(--rsp-gauge-width);
+	}
+
+	.tdee-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.scale-indicators {
+		grid-template-columns: 1fr;
+	}
+
+	.lang-panel {
+		min-width: auto;
+		width: calc(100vw - 2rem);
+		padding: 1.25rem 1rem;
+		border-radius: var(--modal-panel-radius);
+	}
+
+	.about-card {
+		padding: 0.875rem;
+		border-radius: var(--radius-sm);
+	}
+
+	.about-card h3 {
+		font-size: 0.9rem;
+	}
+
+	/* Merged about card section blocks compact at 300px */
+	.about-section-block {
+		padding: 0.875rem;
+	}
+
+	.about-section-hero {
+		padding-top: 1rem;
+		padding-bottom: 0.75rem;
+	}
+
+	.about-hero-title {
+		font-size: 1.25rem;
+	}
+
+	.about-hero-subtitle {
+		font-size: 0.85rem;
+	}
+
+	.about-section-divider {
+		margin: 0 0.875rem;
+	}
+
+	/* About info rows — extreme compact at 300px */
+	.about-card .app-info {
+		margin-top: 0.5rem;
+		padding-top: 0.5rem;
+	}
+
+	.about-card .info-row {
+		gap: 0.2rem;
+		font-size: 0.65rem;
+		margin-bottom: 0.25rem;
+	}
+
+	.about-card .info-row strong {
+		font-size: 0.65rem;
+	}
+
+	.about-card .commit-id {
+		font-size: 0.55rem;
+	}
+
+	.button-group .btn {
+		max-width: 100%;
+	}
+
+	/* Body fat extreme compact at 300px */
+	.bf-value {
+		font-size: 1.5rem;
+	}
+
+	.bf-category {
+		font-size: 0.75rem;
+	}
+
+	.comp-track {
+		height: 10px;
+	}
+
+	.bf-info-box {
+		padding: 0.5rem 0.65rem;
+		font-size: 0.7rem;
+		border-radius: 8px;
+	}
+
+	.bf-ranges {
+		padding: 0.5rem;
+		border-radius: 8px;
+	}
+
+	.bf-ranges h4 {
+		font-size: 0.75rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.range-row {
+		gap: 0.25rem;
+		margin-bottom: 0.3rem;
+	}
+
+	.range-label {
+		width: 44px;
+		font-size: 0.6rem;
+	}
+
+	.range-val {
+		width: 32px;
+		font-size: 0.55rem;
+	}
+
+	/* Snapshot extreme compact at 300px */
+	.card-value {
+		font-size: 1.25rem;
+	}
+
+	.card-category {
+		font-size: 0.75rem;
+	}
+
+	.card-label {
+		font-size: 0.6rem;
+		gap: 0.3rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.snapshot-card {
+		padding: 0.65rem 0.4rem;
+		border-radius: 10px;
+	}
+
+	.progress-section {
+		padding: 0.75rem;
+		border-radius: 10px;
+	}
+
+	.progress-label {
+		font-size: 0.75rem;
+	}
+
+	.progress-value {
+		font-size: 1rem;
+	}
+
+	.insight-item {
+		padding: 0.65rem 0.75rem;
+		font-size: 0.78rem;
+		border-radius: 8px;
+	}
+
+	/* Risk extreme compact at 300px */
+	.risk-marker {
+		width: 24px;
+		height: 24px;
+	}
+
+	.risk-result {
+		padding: 0.85rem;
+		gap: 0.5rem;
+		border-radius: 10px;
+		margin-bottom: 1rem;
+	}
+
+	.risk-level {
+		font-size: 0.95rem;
+	}
+
+	.risk-description {
+		font-size: 0.78rem;
+	}
+
+	.risk-bmi {
+		font-size: 1.15rem;
+	}
+
+	.risk-label {
+		font-size: 0.5rem;
+		letter-spacing: 0.2px;
+	}
+
+	.health-tips {
+		padding: 0.65rem;
+		border-radius: 10px;
+	}
+
+	.health-tips h4 {
+		font-size: 0.78rem;
+	}
+
+	.health-tips li {
+		font-size: 0.72rem;
+	}
+
+	/* Goal tracker extreme compact at 300px */
+	.goal-stats {
+		gap: 0.35rem;
+	}
+
+	.goal-stat {
+		padding: 0.35rem;
+		border-radius: var(--radius-sm);
+	}
+
+	.goal-stat .stat-label {
+		font-size: 0.58rem;
+	}
+
+	.goal-stat .stat-value {
+		font-size: 0.85rem;
+	}
+
+	.goal-actions .btn {
+		font-size: 0.7rem;
+		padding: 0.25rem 0.5rem;
+	}
+
+	/* Sparkline compact */
+	.interactive-chart {
+		height: 140px;
+	}
+
+	/* Scale indicators compact */
+	.scale-item {
+		padding: 6px 8px;
+		gap: 6px;
+		border-radius: 8px;
+	}
+
+	.scale-label {
+		font-size: 0.65rem;
+	}
+
+	.scale-range {
+		font-size: 0.65rem;
+	}
+
+	/* Ref title extreme compact */
+	.ref-card .title {
+		font-size: 1.4rem;
+	}
+
+	.ref-card .subtitle {
+		font-size: 0.85rem;
+	}
+
+	/* TDEE compact */
+	.tdee-card {
+		border-radius: 0.6rem;
+	}
+
+	.tdee-stat-value {
+		font-size: 0.95rem;
+	}
+
+	.tdee-range-value {
+		font-size: 0.8rem;
+	}
 }
 
 /* ── Gauge width breakpoints ── */
 @media (min-width: 720px) and (max-width: 767px) {
-  :root {
-    --rsp-gauge-width: min(92vw, 520px);
-  }
+	:root {
+		--rsp-gauge-width: min(92vw, 520px);
+	}
 
-  .gauge-container {
-    width: var(--rsp-gauge-width);
-  }
+	.gauge-container {
+		width: var(--rsp-gauge-width);
+	}
 }
 
 @media (min-width: 769px) {
-  :root {
-    --rsp-gauge-width: var(--rsp-desktop-gauge-width, min(82vw, 520px));
-  }
+	:root {
+		--rsp-gauge-width: var(--rsp-desktop-gauge-width, min(82vw, 520px));
+	}
 
-  .gauge-container {
-    width: var(--rsp-gauge-width);
-  }
+	.gauge-container {
+		width: var(--rsp-gauge-width);
+	}
 }
 
 @media (min-width: 1100px) {
-  :root {
-    --rsp-gauge-width: min(72vw, 560px);
-  }
+	:root {
+		--rsp-gauge-width: min(72vw, 560px);
+	}
 
-  .gauge-container {
-    width: var(--rsp-gauge-width) !important;
-  }
+	.gauge-container {
+		width: var(--rsp-gauge-width) !important;
+	}
 }
 
 /* Media queries: very extreme narrow (<=250px) */
 @media (max-width: 250px) {
-  :root {
-    --rsp-card-padding: 0.5rem;
-    --rsp-results-padding: 0.5rem;
-    --rsp-gauge-width: min(96vw, 170px);
-  }
+	:root {
+		--rsp-card-padding: 0.5rem;
+		--rsp-results-padding: 0.5rem;
+		--rsp-gauge-width: min(96vw, 170px);
+	}
 
-  .form-card,
-  .bmi-card,
-  .bmi-results-card {
-    padding: var(--rsp-card-padding);
-    border-radius: 0.625rem;
-  }
+	.form-card,
+	.bmi-card,
+	.bmi-results-card {
+		padding: var(--rsp-card-padding);
+		border-radius: 0.625rem;
+	}
 
-  .card-header {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
+	.card-header {
+		margin-top: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
 
-  .card-title {
-    font-size: 0.95rem;
-  }
+	.card-title {
+		font-size: 0.95rem;
+	}
 
-  .card-subtitle {
-    font-size: 0.7rem;
-  }
+	.card-subtitle {
+		font-size: 0.7rem;
+	}
 
-  .bmi-value {
-    font-size: clamp(1.75rem, 8vw, 2.5rem);
-  }
+	.bmi-value {
+		font-size: clamp(1.75rem, 8vw, 2.5rem);
+	}
 
-  .bmi-category {
-    font-size: 0.8rem;
-  }
+	.bmi-category {
+		font-size: 0.8rem;
+	}
 
-  .stat-number {
-    font-size: 0.95rem;
-  }
+	.stat-number {
+		font-size: 0.95rem;
+	}
 
-  .stat-label {
-    font-size: 0.58rem;
-  }
+	.stat-label {
+		font-size: 0.58rem;
+	}
 
-  .stat-desc {
-    font-size: 0.65rem;
-  }
+	.stat-desc {
+		font-size: 0.65rem;
+	}
 
-  .bf-value {
-    font-size: 1.25rem;
-  }
+	.bf-value {
+		font-size: 1.25rem;
+	}
 
-  .card-value {
-    font-size: 1rem;
-  }
+	.card-value {
+		font-size: 1rem;
+	}
 
-  .risk-marker {
-    width: 20px;
-    height: 20px;
-  }
+	.risk-marker {
+		width: 20px;
+		height: 20px;
+	}
 
-  .goal-stat .stat-value {
-    font-size: 0.75rem;
-  }
+	.goal-stat .stat-value {
+		font-size: 0.75rem;
+	}
 
-  .scale-item {
-    padding: 4px 6px;
-    gap: 4px;
-  }
+	.scale-item {
+		padding: 4px 6px;
+		gap: 4px;
+	}
 
-  .gauge-container {
-    width: var(--rsp-gauge-width);
-  }
+	.gauge-container {
+		width: var(--rsp-gauge-width);
+	}
 
-  .ref-card .title {
-    font-size: 1.1rem;
-  }
+	.ref-card .title {
+		font-size: 1.1rem;
+	}
 
-  .ref-card .subtitle {
-    font-size: 0.75rem;
-  }
+	.ref-card .subtitle {
+		font-size: 0.75rem;
+	}
 
-  .about-card {
-    padding: 0.65rem;
-    border-radius: 0.625rem;
-  }
+	.about-card {
+		padding: 0.65rem;
+		border-radius: 0.625rem;
+	}
 
-  .about-card h3 {
-    font-size: 0.78rem;
-  }
+	.about-card h3 {
+		font-size: 0.78rem;
+	}
 
-  /* Merged about card section blocks minimal at 250px */
-  .about-section-block {
-    padding: 0.65rem;
-  }
+	/* Merged about card section blocks minimal at 250px */
+	.about-section-block {
+		padding: 0.65rem;
+	}
 
-  .about-section-hero {
-    padding-top: 0.75rem;
-    padding-bottom: 0.5rem;
-  }
+	.about-section-hero {
+		padding-top: 0.75rem;
+		padding-bottom: 0.5rem;
+	}
 
-  .about-hero-title {
-    font-size: 1.1rem;
-  }
+	.about-hero-title {
+		font-size: 1.1rem;
+	}
 
-  .about-hero-subtitle {
-    font-size: 0.78rem;
-  }
+	.about-hero-subtitle {
+		font-size: 0.78rem;
+	}
 
-  .about-section-divider {
-    margin: 0 0.65rem;
-  }
+	.about-section-divider {
+		margin: 0 0.65rem;
+	}
 
-  /* About info rows — minimal at 250px */
-  .about-card .app-info {
-    margin-top: 0.35rem;
-    padding-top: 0.35rem;
-  }
+	/* About info rows — minimal at 250px */
+	.about-card .app-info {
+		margin-top: 0.35rem;
+		padding-top: 0.35rem;
+	}
 
-  .about-card .info-row {
-    gap: 0.15rem;
-    font-size: 0.6rem;
-    margin-bottom: 0.2rem;
-  }
+	.about-card .info-row {
+		gap: 0.15rem;
+		font-size: 0.6rem;
+		margin-bottom: 0.2rem;
+	}
 
-  .about-card .info-row strong {
-    font-size: 0.6rem;
-  }
+	.about-card .info-row strong {
+		font-size: 0.6rem;
+	}
 }
 
 /* ── Ultrawide breakpoint (v17.0) ──
      Optimize layout for screens wider than 1400px. */
 @media (min-width: 1400px) {
-  .main-container {
-    max-width: min(90vw, 1080px);
-  }
+	.main-container {
+		max-width: min(90vw, 1080px);
+	}
 
-  .bmi-grid {
-    gap: 1.25rem;
-  }
+	.bmi-grid {
+		gap: 1.25rem;
+	}
 
-  .gauge-container {
-    width: min(68vw, 600px);
-  }
+	.gauge-container {
+		width: min(68vw, 600px);
+	}
 
-  .about-bmi-grid {
-    gap: 1.5rem;
-  }
+	.about-bmi-grid {
+		gap: 1.5rem;
+	}
 }

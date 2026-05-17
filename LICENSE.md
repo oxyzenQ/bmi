@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 
------------------------------------------------------------------------
+---
 
 GNU GENERAL PUBLIC LICENSE
 Version 3, 29 June 2007
@@ -109,7 +109,7 @@ a computer network, with no transfer of a copy, is not conveying.
 
 [ … FULL TEXT CONTINUES UNMODIFIED … ]
 
------------------------------------------------------------------------
+---
 
 For the complete license text, see:
 <https://www.gnu.org/licenses/gpl-3.0.en.html>

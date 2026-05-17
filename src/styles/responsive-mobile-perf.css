@@ -10,41 +10,36 @@
    and keep horizontal navigation from competing with diagonal swipes.
    ═══════════════════════════════════════════════════════════════ */
 @media (hover: none) and (pointer: coarse) {
+	/* Native momentum scroll with predictable vertical intent. */
+	html {
+		scroll-behavior: auto;
+		overscroll-behavior-y: none; /* Prevent bounce on body */
+	}
 
-  /* Native momentum scroll with predictable vertical intent. */
-  html {
-    scroll-behavior: auto;
-    overscroll-behavior-y: none; /* Prevent bounce on body */
-  }
+	body {
+		-webkit-overflow-scrolling: touch; /* Momentum scrolling on iOS */
+		touch-action: pan-y pinch-zoom; /* Optimize touch response */
+	}
 
-  body {
-    -webkit-overflow-scrolling: touch; /* Momentum scrolling on iOS */
-    touch-action: pan-y pinch-zoom; /* Optimize touch response */
-  }
-
-  /* Simplify body::before filter on touch devices.
+	/* Simplify body::before filter on touch devices.
      Full filter chain (brightness(1) contrast(1.25) saturate(1)) costs
      GPU cycles even when values look "neutral".
      Replace with a single brightness reduction to keep wallpaper
      visible without compositor layer promotion. */
-  body::before {
-    opacity: 0.68;
-    filter: none !important;
-    transform: none !important;
-  }
+	body::before {
+		opacity: 0.68;
+		filter: none !important;
+		transform: none !important;
+	}
 
-  /* Darken wallpaper through a cheap overlay instead of a
+	/* Darken wallpaper through a cheap overlay instead of a
      full-screen filtered fixed image. This keeps the same black-premium
      mood with less work during long section scrolls. */
-  body::after {
-    background: linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0.48),
-      rgba(0, 0, 0, 0.66)
-    ) !important;
-  }
+	body::after {
+		background: linear-gradient(180deg, rgba(0, 0, 0, 0.48), rgba(0, 0, 0, 0.66)) !important;
+	}
 
-  /* Keep .pager-section on native compositor scrolling without
+	/* Keep .pager-section on native compositor scrolling without
      forcing a permanent scroll-position layer.
      Layout+paint containment on the primary scroll
      target with dynamic content (BMI results change height) forces the
@@ -53,47 +48,47 @@
      CSS changes from triggering recalc inside the scroll container.
      touch-action is vertical-only so diagonal scrolls do not compete
      with horizontal page navigation. */
-  .pager-section {
-    will-change: auto !important;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    overflow-anchor: none;
-    contain: style;
-    touch-action: pan-y pinch-zoom;
-  }
+	.pager-section {
+		will-change: auto !important;
+		-webkit-overflow-scrolling: touch;
+		overscroll-behavior: contain;
+		overflow-anchor: none;
+		contain: style;
+		touch-action: pan-y pinch-zoom;
+	}
 
-  .pager-shell {
-    touch-action: pan-y pinch-zoom !important;
-  }
+	.pager-shell {
+		touch-action: pan-y pinch-zoom !important;
+	}
 
-  /* Mobile fake-glass policy.
+	/* Mobile fake-glass policy.
      Real backdrop blur is expensive on touch scroll. Use a simple
      translucent black surface with the shared border/radius so it still
      reads as glass without paying the per-frame blur cost. */
-  .form-card,
-  .bmi-card,
-  .about-card,
-  .gauge-container,
-  .reference-table,
-  .goal-tracker,
-  .footer-disclaimer,
-  .github-footer,
-  .section-header-v2 {
-    background: rgba(0, 0, 0, 0.64) !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
+	.form-card,
+	.bmi-card,
+	.about-card,
+	.gauge-container,
+	.reference-table,
+	.goal-tracker,
+	.footer-disclaimer,
+	.github-footer,
+	.section-header-v2 {
+		background: rgba(0, 0, 0, 0.64) !important;
+		-webkit-backdrop-filter: none !important;
+		backdrop-filter: none !important;
+	}
 
-  .stat-block,
-  .tdee-card,
-  .health-advice,
-  .age-advisory,
-  .bmi-explanation {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
+	.stat-block,
+	.tdee-card,
+	.health-advice,
+	.age-advisory,
+	.bmi-explanation {
+		-webkit-backdrop-filter: none !important;
+		backdrop-filter: none !important;
+	}
 
-  /* Calculator cards: simplified surfaces, no containment.
+	/* Calculator cards: simplified surfaces, no containment.
      form-card and bmi-card hold dynamic content (results
      change height after calculate). ANY containment (even style+paint)
      forces browser to maintain separate isolation boundaries on the
@@ -101,535 +96,526 @@
      are small (empty state) but costly when they're tall (results showing).
      Keep these cards on normal layout flow. */
 
-  /* Disable transitions on calculator cards.
+	/* Disable transitions on calculator cards.
      The base CSS sets 800ms transitions on these cards.
      Even though they don't visually animate during scroll,
      the browser still maintains transition state computation,
      which adds to per-frame cost when many elements are involved.
      Touch devices don't benefit from hover transitions anyway. */
-  .form-card,
-  .bmi-card,
-  .bmi-card:hover,
-  .form-card:hover {
-    transition: none !important;
-    transform: none !important;
-  }
+	.form-card,
+	.bmi-card,
+	.bmi-card:hover,
+	.form-card:hover {
+		transition: none !important;
+		transform: none !important;
+	}
 
-  /* Calculator page is the densest touch surface. On mobile, remove
+	/* Calculator page is the densest touch surface. On mobile, remove
      rounded-card clipping layers that were only needed for shine overlays,
      and isolate layout without paint containment so dynamic result height
      can still settle naturally. */
-  #calculator .form-card,
-  #calculator .bmi-card,
-  #calculator .bmi-results-card {
-    overflow: visible !important;
-    contain: none !important;
-    isolation: auto;
-  }
+	#calculator .form-card,
+	#calculator .bmi-card,
+	#calculator .bmi-results-card {
+		overflow: visible !important;
+		contain: none !important;
+		isolation: auto;
+	}
 
-  #calculator :is(
-    button,
-    .btn,
-    .unit-toggle-segment,
-    .seg-btn,
-    .act-btn,
-    .form-input,
-    .bmi-drop-zone
-  ) {
-    touch-action: manipulation;
-  }
+	#calculator
+		:is(button, .btn, .unit-toggle-segment, .seg-btn, .act-btn, .form-input, .bmi-drop-zone) {
+		touch-action: manipulation;
+	}
 
-  /* Disable results card transitions and overflow layer.
+	/* Disable results card transitions and overflow layer.
      bmi-results-card has 500ms transitions + ::before gradient
      overlay (another compositing layer). Remove all of them. */
-  .bmi-results-card {
-    animation: none !important;
-    transition: none !important;
-  }
-  .bmi-results-card::before {
-    display: none !important;
-  }
+	.bmi-results-card {
+		animation: none !important;
+		transition: none !important;
+	}
+	.bmi-results-card::before {
+		display: none !important;
+	}
 
-  /* Disable form-input double transition.
+	/* Disable form-input double transition.
      form.css sets 0.3s transitions, animation.css adds another.
      Remove all permanently on touch. */
-  .form-input {
-    transition: none !important;
-  }
+	.form-input {
+		transition: none !important;
+	}
 
-  /* Disable transitions on health-advice, age-advisory, bmi-explanation.
+	/* Disable transitions on health-advice, age-advisory, bmi-explanation.
      Each has 0.3s transitions + hover transforms that add
      compositor cost during scroll inside the tall bmi-card. */
-  .health-advice,
-  .age-advisory,
-  .bmi-explanation {
-    animation: none !important;
-    transition: none !important;
-    transform: none !important;
-  }
+	.health-advice,
+	.age-advisory,
+	.bmi-explanation {
+		animation: none !important;
+		transition: none !important;
+		transform: none !important;
+	}
 
-  /* Disable action button transitions on touch. */
-  .action-btn {
-    transition: none !important;
-  }
+	/* Disable action button transitions on touch. */
+	.action-btn {
+		transition: none !important;
+	}
 
-  /* Disable pill indicator transitions on touch. */
-  .pill-indicator {
-    transition: none !important;
-  }
+	/* Disable pill indicator transitions on touch. */
+	.pill-indicator {
+		transition: none !important;
+	}
 
-  /* Disable transitions on stat-block and tdee-card.
+	/* Disable transitions on stat-block and tdee-card.
      These inner result elements have 0.3s transitions + hover states
      that need to stay inert on touch. During slow touch scroll,
      mobile browsers fire :hover on elements passing under the finger,
      triggering expensive style recalc per frame. Only relevant after
      values are inputted (these elements only exist inside bmi-card
      when results are showing). */
-  .stat-block,
-  .tdee-card {
-    animation: none !important;
-    transition: none !important;
-  }
+	.stat-block,
+	.tdee-card {
+		animation: none !important;
+		transition: none !important;
+	}
 
-  .stat-row-grid,
-  .prime-bar-fill,
-  .tdee-stat,
-  .tdee-range,
-  .stat-badge,
-  .tdee-activity-badge,
-  .tdee-gender-badge {
-    animation: none !important;
-    transition: none !important;
-  }
+	.stat-row-grid,
+	.prime-bar-fill,
+	.tdee-stat,
+	.tdee-range,
+	.stat-badge,
+	.tdee-activity-badge,
+	.tdee-gender-badge {
+		animation: none !important;
+		transition: none !important;
+	}
 
-  .results-content,
-  .bmi-display,
-  .share-toast {
-    animation: none !important;
-  }
+	.results-content,
+	.bmi-display,
+	.share-toast {
+		animation: none !important;
+	}
 
-  /* Page-2 hardening (calculator after results):
+	/* Page-2 hardening (calculator after results):
      disable remaining result-card micro-animations/transitions that can
      still trigger per-frame style work while user scrolls. */
-  #calculator :is(
-    .bmi-results-card,
-    .results-content,
-    .bmi-display,
-    .stat-row-grid,
-    .stat-block,
-    .tdee-stat,
-    .tdee-range,
-    .health-advice,
-    .age-advisory,
-    .bmi-explanation,
-    .tdee-card,
-    .share-toast,
-    .prime-bar-fill
-  ) {
-    animation: none !important;
-    transition: none !important;
-    transform: none !important;
-  }
+	#calculator
+		:is(
+			.bmi-results-card,
+			.results-content,
+			.bmi-display,
+			.stat-row-grid,
+			.stat-block,
+			.tdee-stat,
+			.tdee-range,
+			.health-advice,
+			.age-advisory,
+			.bmi-explanation,
+			.tdee-card,
+			.share-toast,
+			.prime-bar-fill
+		) {
+		animation: none !important;
+		transition: none !important;
+		transform: none !important;
+	}
 
-  #calculator :is(.bmi-value, .category-icon, .bmi-category) {
-    text-shadow: none !important;
-    filter: none !important;
-  }
+	#calculator :is(.bmi-value, .category-icon, .bmi-category) {
+		text-shadow: none !important;
+		filter: none !important;
+	}
 
-  #calculator :is(
-    .stat-block,
-    .tdee-card,
-    .tdee-stat,
-    .tdee-range,
-    .health-advice,
-    .age-advisory,
-    .bmi-explanation
-  ) {
-    background: rgba(255, 255, 255, 0.045) !important;
-    border-color: rgba(255, 255, 255, 0.075) !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
+	#calculator
+		:is(
+			.stat-block,
+			.tdee-card,
+			.tdee-stat,
+			.tdee-range,
+			.health-advice,
+			.age-advisory,
+			.bmi-explanation
+		) {
+		background: rgba(255, 255, 255, 0.045) !important;
+		border-color: rgba(255, 255, 255, 0.075) !important;
+		-webkit-backdrop-filter: none !important;
+		backdrop-filter: none !important;
+	}
 
-  #calculator :is(.tdee-highlight, .tdee-cut, .tdee-maintain, .tdee-gain) {
-    background: rgba(255, 255, 255, 0.055) !important;
-  }
+	#calculator :is(.tdee-highlight, .tdee-cut, .tdee-maintain, .tdee-gain) {
+		background: rgba(255, 255, 255, 0.055) !important;
+	}
 
-  .about-section-block,
-  .about-card-content,
-  .app-info {
-    contain: layout style;
-  }
+	.about-section-block,
+	.about-card-content,
+	.app-info {
+		contain: layout style;
+	}
 
-  /* Page-3 hardening (gauge/details):
+	/* Page-3 hardening (gauge/details):
      stop continuous/infinite animations and interactive hover work
      during touch scrolling. */
-  #gauge :is(
-    .risk-indicator,
-    .risk-marker,
-    .snapshot-card,
-    .progress-fill,
-    .comp-fill,
-    .range-fill,
-    .goal-progress .progress-fill,
-    .spark-point,
-    .chart-tooltip
-  ) {
-    animation: none !important;
-    transition: none !important;
-    transform: none !important;
-  }
+	#gauge
+		:is(
+			.risk-indicator,
+			.risk-marker,
+			.snapshot-card,
+			.progress-fill,
+			.comp-fill,
+			.range-fill,
+			.goal-progress .progress-fill,
+			.spark-point,
+			.chart-tooltip
+		) {
+		animation: none !important;
+		transition: none !important;
+		transform: none !important;
+	}
 
-  #gauge .risk-marker {
-    animation: none !important;
-  }
+	#gauge .risk-marker {
+		animation: none !important;
+	}
 
-  #gauge .sparkline-svg {
-    pointer-events: none !important;
-    touch-action: pan-y pinch-zoom !important;
-  }
+	#gauge .sparkline-svg {
+		pointer-events: none !important;
+		touch-action: pan-y pinch-zoom !important;
+	}
 
-  #gauge :is(
-    .gauge-container,
-    .risk-result,
-    .health-tips,
-    .snapshot-card,
-    .progress-section,
-    .insight-item,
-    .body-fat-container,
-    .bf-info-box,
-    .bf-ranges,
-    .range-row,
-    .goal-stat,
-    .goal-progress,
-    .goal-achieved,
-    .sparkline-container,
-    .scale-item
-  ) {
-    background: rgba(0, 0, 0, 0.62) !important;
-    border-color: rgba(255, 255, 255, 0.075) !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
+	#gauge
+		:is(
+			.gauge-container,
+			.risk-result,
+			.health-tips,
+			.snapshot-card,
+			.progress-section,
+			.insight-item,
+			.body-fat-container,
+			.bf-info-box,
+			.bf-ranges,
+			.range-row,
+			.goal-stat,
+			.goal-progress,
+			.goal-achieved,
+			.sparkline-container,
+			.scale-item
+		) {
+		background: rgba(0, 0, 0, 0.62) !important;
+		border-color: rgba(255, 255, 255, 0.075) !important;
+		-webkit-backdrop-filter: none !important;
+		backdrop-filter: none !important;
+	}
 
-  #gauge .gauge-container {
-    overflow: visible !important;
-    isolation: auto;
-  }
+	#gauge .gauge-container {
+		overflow: visible !important;
+		isolation: auto;
+	}
 
-  #gauge :is(
-    .progress-fill,
-    .comp-fill,
-    .range-fill,
-    .prime-bar-fill
-  ) {
-    background-image: none !important;
-  }
+	#gauge :is(.progress-fill, .comp-fill, .range-fill, .prime-bar-fill) {
+		background-image: none !important;
+	}
 
-  #gauge .progress-fill {
-    background-color: var(--cat-green-90) !important;
-  }
+	#gauge .progress-fill {
+		background-color: var(--cat-green-90) !important;
+	}
 
-  #gauge .comp-fill.fat {
-    background-color: var(--cat-amber-90) !important;
-  }
+	#gauge .comp-fill.fat {
+		background-color: var(--cat-amber-90) !important;
+	}
 
-  #gauge .comp-fill.lean {
-    background-color: var(--cat-green-90) !important;
-  }
+	#gauge .comp-fill.lean {
+		background-color: var(--cat-green-90) !important;
+	}
 
-  #gauge :is(
-    .gauge-reflection,
-    .empty-glow
-  ) {
-    display: none !important;
-  }
+	#gauge :is(.gauge-reflection, .empty-glow) {
+		display: none !important;
+	}
 
-  #gauge :is(.bf-value, .gauge-center .bmi-value, .card-value) {
-    text-shadow: none !important;
-    filter: none !important;
-  }
+	#gauge :is(.bf-value, .gauge-center .bmi-value, .card-value) {
+		text-shadow: none !important;
+		filter: none !important;
+	}
 
-  /* Neutralize :hover on calculator inner elements.
+	/* Neutralize :hover on calculator inner elements.
      During slow touch scroll, some mobile browsers fire :hover on
      elements passing under the finger. These inner result elements
      have hover transforms that trigger expensive style recalc + repaint.
      Touch devices don't need hover feedback anyway. */
-  .stat-block:hover,
-  .tdee-card:hover,
-  .bmi-results-card:hover,
-  .bmi-value:hover,
-  .bmi-category:hover,
-  .bmi-display:hover,
-  .health-advice:hover,
-  .age-advisory:hover,
-  .bmi-explanation:hover {
-    transform: none !important;
-  }
+	.stat-block:hover,
+	.tdee-card:hover,
+	.bmi-results-card:hover,
+	.bmi-value:hover,
+	.bmi-category:hover,
+	.bmi-display:hover,
+	.health-advice:hover,
+	.age-advisory:hover,
+	.bmi-explanation:hover {
+		transform: none !important;
+	}
 
-  .action-btn {
-    border-color: var(--violet-22) !important;
-  }
+	.action-btn {
+		border-color: var(--violet-22) !important;
+	}
 
-  /* Neutralize remaining color-mix() on key interactive elements.
+	/* Neutralize remaining color-mix() on key interactive elements.
      color-mix() forces GPU color interpolation on every style recalc. */
-  .tdee-activity-badge {
-    border-color: var(--amber-gold-40) !important;
-  }
+	.tdee-activity-badge {
+		border-color: var(--amber-gold-40) !important;
+	}
 
-  .btn-primary {
-    border-color: var(--violet-22) !important;
-  }
+	.btn-primary {
+		border-color: var(--violet-22) !important;
+	}
 
-  .btn-danger {
-    border-color: var(--violet-22) !important;
-  }
+	.btn-danger {
+		border-color: var(--violet-22) !important;
+	}
 
-  .btn-primary:hover {
-    border-color: var(--violet-34) !important;
-  }
+	.btn-primary:hover {
+		border-color: var(--violet-34) !important;
+	}
 
-  .btn-danger:hover {
-    border-color: var(--violet-32) !important;
-  }
+	.btn-danger:hover {
+		border-color: var(--violet-32) !important;
+	}
 
-  .btn-secondary {
-    background: linear-gradient(180deg, var(--deep-void-55), rgba(91, 33, 182, 0.70)) !important;
-  }
+	.btn-secondary {
+		background: linear-gradient(180deg, var(--deep-void-55), rgba(91, 33, 182, 0.7)) !important;
+	}
 
-  /* Permanently disable transitions on glass cards.
+	/* Permanently disable transitions on glass cards.
      Touch devices don't benefit from hover transitions anyway. */
-  .footer-disclaimer,
-  .about-card,
-  .gauge-container,
-  .reference-table {
-    transition: none !important;
-  }
+	.footer-disclaimer,
+	.about-card,
+	.gauge-container,
+	.reference-table {
+		transition: none !important;
+	}
 
-  /* Permanently hide card pseudo-elements (shine sweep).
+	/* Permanently hide card pseudo-elements (shine sweep).
      The 200%×200% positioned ::before is expensive to composite. */
-  .bmi-card::before,
-  .footer-disclaimer::before,
-  .about-card::before,
-  .gauge-container::before,
-  .reference-table::before,
-  .form-card::before {
-    display: none !important;
-  }
+	.bmi-card::before,
+	.footer-disclaimer::before,
+	.about-card::before,
+	.gauge-container::before,
+	.reference-table::before,
+	.form-card::before {
+		display: none !important;
+	}
 
-  /* Permanently disable transitions on buttons.
+	/* Permanently disable transitions on buttons.
      Prevents the browser from maintaining transition state. */
-  .btn,
-  button,
-  a.button {
-    transition: none !important;
-    transition-delay: 0ms !important;
-    touch-action: manipulation !important;
-  }
+	.btn,
+	button,
+	a.button {
+		transition: none !important;
+		transition-delay: 0ms !important;
+		touch-action: manipulation !important;
+	}
 
-  /* Mobile tap response: force immediate active feedback on all
+	/* Mobile tap response: force immediate active feedback on all
      interactive button-like controls without waiting for long effects. */
-  :is(
-    .btn,
-    button,
-    a.button,
-    .pager-tab,
-    .pager-btn-futuristic,
-    .sex-btn,
-    .seg-btn,
-    .act-btn,
-    .unit-toggle-segment,
-    .notify-btn,
-    .lang-option
-  ) {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation !important;
-    transition-delay: 0ms !important;
-  }
+	:is(
+		.btn,
+		button,
+		a.button,
+		.pager-tab,
+		.pager-btn-futuristic,
+		.sex-btn,
+		.seg-btn,
+		.act-btn,
+		.unit-toggle-segment,
+		.notify-btn,
+		.lang-option
+	) {
+		-webkit-tap-highlight-color: transparent;
+		touch-action: manipulation !important;
+		transition-delay: 0ms !important;
+	}
 
-  :is(
-    .btn,
-    button,
-    a.button,
-    .pager-tab,
-    .pager-btn-futuristic,
-    .sex-btn,
-    .seg-btn,
-    .act-btn,
-    .unit-toggle-segment,
-    .notify-btn,
-    .lang-option
-  ):active {
-    transition-duration: 80ms !important;
-  }
+	:is(
+		.btn,
+		button,
+		a.button,
+		.pager-tab,
+		.pager-btn-futuristic,
+		.sex-btn,
+		.seg-btn,
+		.act-btn,
+		.unit-toggle-segment,
+		.notify-btn,
+		.lang-option
+	):active {
+		transition-duration: 80ms !important;
+	}
 
-  /* Permanently simplify filters on inputs and gauge elements. */
-  .form-input,
-  .empty-glow,
-  .gauge-reflection,
-  .gauge-title .Gauge,
-  .gauge-progress,
-  .scale-item,
-  .scale-dot,
-  .reference-table .icon-col,
-  .reference-table .ref-row,
-  .bmi-value,
-  .about-card-header :is(svg),
-  .footer-disclaimer .warn-ic,
-  .footer-disclaimer .warn-ic-lg,
-  .category-icon,
-  .icon-container :is(svg) {
-    filter: none !important;
-    text-shadow: none !important;
-  }
+	/* Permanently simplify filters on inputs and gauge elements. */
+	.form-input,
+	.empty-glow,
+	.gauge-reflection,
+	.gauge-title .Gauge,
+	.gauge-progress,
+	.scale-item,
+	.scale-dot,
+	.reference-table .icon-col,
+	.reference-table .ref-row,
+	.bmi-value,
+	.about-card-header :is(svg),
+	.footer-disclaimer .warn-ic,
+	.footer-disclaimer .warn-ic-lg,
+	.category-icon,
+	.icon-container :is(svg) {
+		filter: none !important;
+		text-shadow: none !important;
+	}
 
-  /* Permanently remove pager-shell::before and ::after.
+	/* Permanently remove pager-shell::before and ::after.
      Fixed overlay elements cause compositing cost per frame. */
-  .pager-shell::before,
-  .pager-shell::after {
-    display: none !important;
-  }
+	.pager-shell::before,
+	.pager-shell::after {
+		display: none !important;
+	}
 
-  /* Avoid unnecessary compositor layers. */
-  .bmi-card {
-    will-change: auto !important;
-  }
+	/* Avoid unnecessary compositor layers. */
+	.bmi-card {
+		will-change: auto !important;
+	}
 
-  /* Background and wallpaper optimizations. */
-  body {
-    background-attachment: scroll;
-  }
+	/* Background and wallpaper optimizations. */
+	body {
+		background-attachment: scroll;
+	}
 
-  /* Disable hover transforms on touch devices. */
-  :is(.btn, button, a.button):hover {
-    transform: none;
-  }
+	/* Disable hover transforms on touch devices. */
+	:is(.btn, button, a.button):hover {
+		transform: none;
+	}
 
-  /* Buttons stay solid for tap responsiveness. */
-  .pager-nav-shell {
-    background: rgba(0, 0, 0, 0.58) !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-    transition: none !important;
-    will-change: auto !important;
-    contain: paint style;
-    touch-action: pan-x pinch-zoom;
-  }
+	/* Buttons stay solid for tap responsiveness. */
+	.pager-nav-shell {
+		background: rgba(0, 0, 0, 0.58) !important;
+		-webkit-backdrop-filter: none !important;
+		backdrop-filter: none !important;
+		transition: none !important;
+		will-change: auto !important;
+		contain: paint style;
+		touch-action: pan-x pinch-zoom;
+	}
 
-  .pager-controls-shell {
-    background: rgba(0, 0, 0, 0.24) !important;
-    -webkit-backdrop-filter: blur(8px) saturate(130%) brightness(1.02) !important;
-    backdrop-filter: blur(8px) saturate(130%) brightness(1.02) !important;
-    transition: opacity 140ms ease, transform 140ms ease !important;
-    will-change: transform, opacity;
-    touch-action: manipulation;
-  }
+	.pager-controls-shell {
+		background: rgba(0, 0, 0, 0.24) !important;
+		-webkit-backdrop-filter: blur(8px) saturate(130%) brightness(1.02) !important;
+		backdrop-filter: blur(8px) saturate(130%) brightness(1.02) !important;
+		transition:
+			opacity 140ms ease,
+			transform 140ms ease !important;
+		will-change: transform, opacity;
+		touch-action: manipulation;
+	}
 
-  body.is-touch-scrolling .pager-controls-shell {
-    background: rgba(0, 0, 0, 0.48) !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-    transition: none !important;
-    will-change: auto !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-    transform: translateX(-50%) translateY(100%) !important;
-  }
+	body.is-touch-scrolling .pager-controls-shell {
+		background: rgba(0, 0, 0, 0.48) !important;
+		-webkit-backdrop-filter: none !important;
+		backdrop-filter: none !important;
+		transition: none !important;
+		will-change: auto !important;
+		opacity: 0 !important;
+		pointer-events: none !important;
+		transform: translateX(-50%) translateY(100%) !important;
+	}
 
-  body.is-touch-scrolling .pager-btn-futuristic {
-    transition: none !important;
-    transform: none !important;
-  }
+	body.is-touch-scrolling .pager-btn-futuristic {
+		transition: none !important;
+		transform: none !important;
+	}
 
-  .pager-tab {
-    transition: none !important;
-    transform: none !important;
-    touch-action: manipulation;
-  }
+	.pager-tab {
+		transition: none !important;
+		transform: none !important;
+		touch-action: manipulation;
+	}
 
-  .pager-tab:hover,
-  .pager-tab.active {
-    transform: none !important;
-  }
+	.pager-tab:hover,
+	.pager-tab.active {
+		transform: none !important;
+	}
 
-  .pager-btn-futuristic {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    transition: none !important;
-    transform: none !important;
-    touch-action: manipulation;
-  }
+	.pager-btn-futuristic {
+		backdrop-filter: none !important;
+		-webkit-backdrop-filter: none !important;
+		transition: none !important;
+		transform: none !important;
+		touch-action: manipulation;
+	}
 
-  .pager-btn-futuristic:hover,
-  .pager-btn-futuristic:active {
-    transform: none !important;
-  }
+	.pager-btn-futuristic:hover,
+	.pager-btn-futuristic:active {
+		transform: none !important;
+	}
 
-  /* Remove pseudo-element shine sweeps permanently on touch.
+	/* Remove pseudo-element shine sweeps permanently on touch.
      Even when not scrolling, these oversized elements waste memory. */
-  .bmi-card::after,
-  .footer-disclaimer::after,
-  .about-card::after,
-  .gauge-container::after,
-  .reference-table::after,
-  .form-card::after {
-    display: none !important;
-  }
+	.bmi-card::after,
+	.footer-disclaimer::after,
+	.about-card::after,
+	.gauge-container::after,
+	.reference-table::after,
+	.form-card::after {
+		display: none !important;
+	}
 
-  /* Simplify .orb blur on touch. */
-  .orb {
-    filter: blur(4px) !important;
-  }
+	/* Simplify .orb blur on touch. */
+	.orb {
+		filter: blur(4px) !important;
+	}
 
-  /* GPU compositing isolation on pager-shell.
+	/* GPU compositing isolation on pager-shell.
      Changed from contain:strict to contain:layout style —
      strict includes 'size' containment which forces the browser
      to compute bounds independently, causing initial-scroll lag
      ("first touch lag then smooth") on long scrollable containers.
      Removed translateZ(0) since contain already creates a
      compositing context — double-layering was redundant. */
-  .pager-shell {
-    contain: layout style;
-  }
+	.pager-shell {
+		contain: layout style;
+	}
 
-  /* Dialog/floating surfaces use the same mobile fake-glass rule.
+	/* Dialog/floating surfaces use the same mobile fake-glass rule.
      Keep the wallpaper visible through black alpha, but avoid blur layers
      inside panels/buttons while the user scrolls or types. */
-  .lang-backdrop,
-  .notify-backdrop {
-    background: rgba(0, 0, 0, 0.68) !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-    transition: none !important;
-  }
+	.lang-backdrop,
+	.notify-backdrop {
+		background: rgba(0, 0, 0, 0.68) !important;
+		-webkit-backdrop-filter: none !important;
+		backdrop-filter: none !important;
+		transition: none !important;
+	}
 
-  .lang-panel,
-  .notify-float-box {
-    background: rgba(0, 0, 0, 0.78) !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-    transform: none !important;
-    transition: none !important;
-    contain: none !important;
-  }
+	.lang-panel,
+	.notify-float-box {
+		background: rgba(0, 0, 0, 0.78) !important;
+		-webkit-backdrop-filter: none !important;
+		backdrop-filter: none !important;
+		transform: none !important;
+		transition: none !important;
+		contain: none !important;
+	}
 
-  .notify-close,
-  .notify-btn,
-  .lang-close,
-  .lang-option,
-  .btn-success,
-  .btn-delete,
-  .btn-cancel,
-  .btn-warn {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-    transition: none !important;
-    transform: none !important;
-    touch-action: manipulation;
-  }
+	.notify-close,
+	.notify-btn,
+	.lang-close,
+	.lang-option,
+	.btn-success,
+	.btn-delete,
+	.btn-cancel,
+	.btn-warn {
+		-webkit-backdrop-filter: none !important;
+		backdrop-filter: none !important;
+		transition: none !important;
+		transform: none !important;
+		touch-action: manipulation;
+	}
 
-  .lang-backdrop.visible .lang-panel,
-  .notify-backdrop.visible .notify-float-box {
-    transform: none !important;
-  }
+	.lang-backdrop.visible .lang-panel,
+	.notify-backdrop.visible .notify-float-box {
+		transform: none !important;
+	}
 }

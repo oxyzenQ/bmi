@@ -3,20 +3,20 @@ import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
 interface BeforeInstallPromptEvent extends Event {
-  prompt(): Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+	prompt(): Promise<void>;
+	userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
 interface PwaInstallState {
-  checked: boolean;
-  canInstall: boolean;
-  isInstalled: boolean;
+	checked: boolean;
+	canInstall: boolean;
+	isInstalled: boolean;
 }
 
 const initialState: PwaInstallState = {
-  checked: false,
-  canInstall: false,
-  isInstalled: false
+	checked: false,
+	canInstall: false,
+	isInstalled: false
 };
 
 let deferredPrompt: BeforeInstallPromptEvent | null = null;
@@ -24,49 +24,52 @@ let deferredPrompt: BeforeInstallPromptEvent | null = null;
 export const pwaInstallState = writable<PwaInstallState>(initialState);
 
 function isStandaloneDisplay(): boolean {
-  if (!browser) return false;
-  const standaloneNavigator = navigator as Navigator & { standalone?: boolean };
-  return window.matchMedia('(display-mode: standalone)').matches || standaloneNavigator.standalone === true;
+	if (!browser) return false;
+	const standaloneNavigator = navigator as Navigator & { standalone?: boolean };
+	return (
+		window.matchMedia('(display-mode: standalone)').matches ||
+		standaloneNavigator.standalone === true
+	);
 }
 
 export function hydratePwaInstallState(): void {
-  if (!browser) return;
-  pwaInstallState.update((state) => ({
-    ...state,
-    checked: true,
-    isInstalled: isStandaloneDisplay()
-  }));
+	if (!browser) return;
+	pwaInstallState.update((state) => ({
+		...state,
+		checked: true,
+		isInstalled: isStandaloneDisplay()
+	}));
 }
 
 export function markPwaInstalled(): void {
-  pwaInstallState.set({
-    checked: true,
-    canInstall: false,
-    isInstalled: true
-  });
+	pwaInstallState.set({
+		checked: true,
+		canInstall: false,
+		isInstalled: true
+	});
 }
 
 export function registerPwaInstallPrompt(event: Event): void {
-  event.preventDefault();
-  deferredPrompt = event as BeforeInstallPromptEvent;
-  pwaInstallState.update((state) => ({
-    ...state,
-    checked: true,
-    canInstall: true,
-    isInstalled: isStandaloneDisplay()
-  }));
+	event.preventDefault();
+	deferredPrompt = event as BeforeInstallPromptEvent;
+	pwaInstallState.update((state) => ({
+		...state,
+		checked: true,
+		canInstall: true,
+		isInstalled: isStandaloneDisplay()
+	}));
 }
 
 export async function promptPwaInstall(): Promise<boolean> {
-  if (!deferredPrompt) return false;
+	if (!deferredPrompt) return false;
 
-  await deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
+	await deferredPrompt.prompt();
+	const { outcome } = await deferredPrompt.userChoice;
 
-  if (outcome === 'accepted') {
-    markPwaInstalled();
-  }
+	if (outcome === 'accepted') {
+		markPwaInstalled();
+	}
 
-  deferredPrompt = null;
-  return true;
+	deferredPrompt = null;
+	return true;
 }

@@ -27,22 +27,27 @@
  * @param error   - Optional caught value for stack trace / details
  */
 export function warnDev(module: string, fn: string, message: string, error?: unknown): void {
-  if (import.meta.env.PROD) return;
+	if (import.meta.env.PROD) return;
 
-  const tag = `[${module}:${fn}]`;
-  console.warn(`%c[warn] %c${tag}`, 'color:#f59e0b;font-weight:bold', 'color:#a78bfa;font-weight:bold', message);
+	const tag = `[${module}:${fn}]`;
+	console.warn(
+		`%c[warn] %c${tag}`,
+		'color:#f59e0b;font-weight:bold',
+		'color:#a78bfa;font-weight:bold',
+		message
+	);
 
-  if (error !== undefined) {
-    if (error instanceof Error) {
-      console.groupCollapsed(`  ${error.message}`);
-      console.trace('  Stack');
-      console.groupEnd();
-    } else if (typeof error === 'string') {
-      console.warn('  Details:', error);
-    } else {
-      console.warn('  Details:', String(error));
-    }
-  }
+	if (error !== undefined) {
+		if (error instanceof Error) {
+			console.groupCollapsed(`  ${error.message}`);
+			console.trace('  Stack');
+			console.groupEnd();
+		} else if (typeof error === 'string') {
+			console.warn('  Details:', error);
+		} else {
+			console.warn('  Details:', String(error));
+		}
+	}
 }
 
 /**
@@ -63,14 +68,25 @@ const MAX_LOGS_PER_SITE = 5;
  * @param error   - Optional caught value
  * @param maxLogs - Max occurrences before suppressing (default 5)
  */
-export function warnDevOnce(module: string, fn: string, message: string, error?: unknown, maxLogs = MAX_LOGS_PER_SITE): void {
-  if (import.meta.env.PROD) return;
+export function warnDevOnce(
+	module: string,
+	fn: string,
+	message: string,
+	error?: unknown,
+	maxLogs = MAX_LOGS_PER_SITE
+): void {
+	if (import.meta.env.PROD) return;
 
-  const key = `${module}:${fn}:${message}`;
-  const count = (_dedup.get(key) ?? 0) + 1;
-  _dedup.set(key, count);
+	const key = `${module}:${fn}:${message}`;
+	const count = (_dedup.get(key) ?? 0) + 1;
+	_dedup.set(key, count);
 
-  if (count <= maxLogs) {
-    warnDev(module, fn, count === maxLogs ? `${message} (further warnings suppressed)` : message, error);
-  }
+	if (count <= maxLogs) {
+		warnDev(
+			module,
+			fn,
+			count === maxLogs ? `${message} (further warnings suppressed)` : message,
+			error
+		);
+	}
 }

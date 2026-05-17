@@ -5,23 +5,23 @@ on:
   push:
     paths:
       # Source code — always run CI
-      - "src/**"
-      - "scripts/**"
+      - 'src/**'
+      - 'scripts/**'
       # Config files that affect build
-      - "package.json"
-      - "bun.lock"
-      - "tsconfig.json"
-      - "svelte.config.js"
-      - "svelte.config.static.js"
-      - "vite.config.ts"
-      - "vitest.config.ts"
-      - "postcss.config.js"
-      - "static/**"
-      - ".github/workflows/**"
+      - 'package.json'
+      - 'bun.lock'
+      - 'tsconfig.json'
+      - 'svelte.config.js'
+      - 'svelte.config.static.js'
+      - 'vite.config.ts'
+      - 'vitest.config.ts'
+      - 'postcss.config.js'
+      - 'static/**'
+      - '.github/workflows/**'
       # Type definitions
-      - "src/app.d.ts"
-      - "src/types/**"
-      - "*.d.ts"
+      - 'src/app.d.ts'
+      - 'src/types/**'
+      - '*.d.ts'
   pull_request:
 
 permissions:

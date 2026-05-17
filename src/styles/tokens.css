@@ -6,448 +6,450 @@
   ============================== */
 
 @font-face {
-  font-family: 'Inter Variable';
-  font-style: normal;
-  font-display: swap;
-  font-weight: 100 900;
-  src: url('@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') format('woff2-variations');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
-    U+FEFF, U+FFFD;
+	font-family: 'Inter Variable';
+	font-style: normal;
+	font-display: swap;
+	font-weight: 100 900;
+	src: url('@fontsource-variable/inter/files/inter-latin-wght-normal.woff2')
+		format('woff2-variations');
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+		U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
-  font-family: 'JetBrains Mono Variable';
-  font-style: normal;
-  font-display: swap;
-  font-weight: 100 800;
-  src: url('@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2') format('woff2-variations');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
-    U+FEFF, U+FFFD;
+	font-family: 'JetBrains Mono Variable';
+	font-style: normal;
+	font-display: swap;
+	font-weight: 100 800;
+	src: url('@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2')
+		format('woff2-variations');
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+		U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 /* ==============================
       CSS VARIABLES
       ============================== */
 :root {
-  /* Primary cosmic colors */
-  --cosmic-void: #120824;
-  --cosmic-blue: #9a4dff;
-  --cosmic-purple: #8000ff;
+	/* Primary cosmic colors */
+	--cosmic-void: #120824;
+	--cosmic-blue: #9a4dff;
+	--cosmic-purple: #8000ff;
 
-  /* Plasma theme (splash screen) */
-  --plasma-glow: var(--coreblue-15);
-  --plasma-text-primary: #e2e8f0;
-  --plasma-text-secondary: var(--slate-400-solid);
+	/* Plasma theme (splash screen) */
+	--plasma-glow: var(--coreblue-15);
+	--plasma-text-primary: #e2e8f0;
+	--plasma-text-secondary: var(--slate-400-solid);
 
-  /* Aurora beam colors */
-  --aurora-bright: #8000ff;
-  --aurora-glow: #b266ff;
+	/* Aurora beam colors */
+	--aurora-bright: #8000ff;
+	--aurora-glow: #b266ff;
 
-  /* Accent colors */
-  --stellar-white: #ffffff;
-  --cosmic-silver: #d6ccff;
+	/* Accent colors */
+	--stellar-white: #ffffff;
+	--cosmic-silver: #d6ccff;
 
-  /* Wallpaper system */
-  --wallpaper-current: url('/images/blackhole.webp');
-  --wallpaper-blackhole: url('/images/blackhole.webp');
-  --wallpaper-spaceship: url('/images/spaceshipx.webp');
-  --wallpaper-space: url('/images/oxyzen-zenlysium.webp');
+	/* Wallpaper system */
+	--wallpaper-current: url('/images/blackhole.webp');
+	--wallpaper-blackhole: url('/images/blackhole.webp');
+	--wallpaper-spaceship: url('/images/spaceshipx.webp');
+	--wallpaper-space: url('/images/oxyzen-zenlysium.webp');
 
-  /* Text & accents */
-  --text-primary: var(--stellar-white);
-  --text-secondary: var(--cosmic-silver);
-  --text-muted: var(--slate-400-solid);
-  --accent-blue: var(--aurora-bright);
+	/* Text & accents */
+	--text-primary: var(--stellar-white);
+	--text-secondary: var(--cosmic-silver);
+	--text-muted: var(--slate-400-solid);
+	--accent-blue: var(--aurora-bright);
 
-  /* Glassmorphism & branding */
-  --bg-by-rezky: linear-gradient(135deg, #140826cc, #5b21b6cc);
-  --bg-last-by-rezky: linear-gradient(135deg, #1a0d33, #6d28d9);
-  --border-by-rezky: 3px solid rgba(130, 130, 130, 0.30);
-  --bg-cosmic: linear-gradient(135deg,
-      #4e3383,
-      /* deep space violet */
-      #5b4ce0,
-      /* nebula core */
-      #8000ffda,
-      /* aurora violet */
-      #8000ff,
-      /* plasma purple */
-      #e2c7ff
-      /* starlight highlight */
-    );
+	/* Glassmorphism & branding */
+	--bg-by-rezky: linear-gradient(135deg, #140826cc, #5b21b6cc);
+	--bg-last-by-rezky: linear-gradient(135deg, #1a0d33, #6d28d9);
+	--border-by-rezky: 3px solid rgba(130, 130, 130, 0.3);
+	--bg-cosmic: linear-gradient(
+		135deg,
+		#4e3383,
+		/* deep space violet */ #5b4ce0,
+		/* nebula core */ #8000ffda,
+		/* aurora violet */ #8000ff,
+		/* plasma purple */ #e2c7ff /* starlight highlight */
+	);
 
-  /* Animation/transition tuning */
-  --easing-smooth: cubic-bezier(0.22, 1, 0.36, 1);
-  --easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --easing-material: cubic-bezier(0.4, 0, 0.2, 1);
-  --easing-gauge: cubic-bezier(.16, 1, .3, 1);
-  --dur-fast: 280ms;
-  --dur-normal: 500ms;
-  --dur-slow: 600ms;
+	/* Animation/transition tuning */
+	--easing-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+	--easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+	--easing-material: cubic-bezier(0.4, 0, 0.2, 1);
+	--easing-gauge: cubic-bezier(0.16, 1, 0.3, 1);
+	--dur-fast: 280ms;
+	--dur-normal: 500ms;
+	--dur-slow: 600ms;
 
-  /* ── HARMONIZED DURATION SCALE (v17.0) ──
+	/* ── HARMONIZED DURATION SCALE (v17.0) ──
        Standardized timing tokens replacing ad-hoc values.
        Components should prefer these over magic ms values. */
-  --dur-instant: 80ms;      /* haptic active, active-state snap */
-  --dur-micro: 150ms;       /* backdrop opacity, toast fade, micro-feedback */
-  --dur-interactive: 200ms; /* button hover, input focus, modal backdrop */
-  --dur-content: 300ms;     /* card hover, content transitions */
-  --dur-panel: 400ms;       /* about card hover, heavier content */
-  --dur-slower: 600ms;      /* glass card transitions (alias) */
-  --dur-shimmer: 2.2s;     /* skeleton shimmer sweep */
-  --dur-breathe: 2s;       /* skeleton breathing pulse */
-  --dur-spin: 1.6s;        /* loading spinner full rotation */
-  --dur-spin-fast: 0.8s;   /* button spinner rotation */
-  --dur-dust-orbit: 30s;   /* atmospheric dust orbital drift (default) */
+	--dur-instant: 80ms; /* haptic active, active-state snap */
+	--dur-micro: 150ms; /* backdrop opacity, toast fade, micro-feedback */
+	--dur-interactive: 200ms; /* button hover, input focus, modal backdrop */
+	--dur-content: 300ms; /* card hover, content transitions */
+	--dur-panel: 400ms; /* about card hover, heavier content */
+	--dur-slower: 600ms; /* glass card transitions (alias) */
+	--dur-shimmer: 2.2s; /* skeleton shimmer sweep */
+	--dur-breathe: 2s; /* skeleton breathing pulse */
+	--dur-spin: 1.6s; /* loading spinner full rotation */
+	--dur-spin-fast: 0.8s; /* button spinner rotation */
+	--dur-dust-orbit: 30s; /* atmospheric dust orbital drift (default) */
 
-  /* ── Opacity token system ── */
+	/* ── Opacity token system ── */
 
-  /* White opacity */
-  --w-0: rgba(255, 255, 255, 0);
-  --w-1-8: rgba(255, 255, 255, 0.018);
-  --w-2: rgba(255, 255, 255, 0.02);
-  --w-2-5: rgba(255, 255, 255, 0.025);
-  --w-3: rgba(255, 255, 255, 0.03);
-  --w-3-5: rgba(255, 255, 255, 0.035);
-  --w-4: rgba(255, 255, 255, 0.04);
-  --w-5: rgba(255, 255, 255, 0.05);
-  --w-6: rgba(255, 255, 255, 0.06);
-  --w-7: rgba(255, 255, 255, 0.07);
-  --w-8: rgba(255, 255, 255, 0.08);
-  --w-9: rgba(255, 255, 255, 0.09);
-  --w-10: rgba(255, 255, 255, 0.1);
-  --w-12: rgba(255, 255, 255, 0.12);
-  --w-13: rgba(255, 255, 255, 0.13);
-  --w-14: rgba(255, 255, 255, 0.14);
-  --w-15: rgba(255, 255, 255, 0.15);
-  --w-16: rgba(255, 255, 255, 0.16);
-  --w-18: rgba(255, 255, 255, 0.18);
-  --w-20: rgba(255, 255, 255, 0.2);
-  --w-22: rgba(255, 255, 255, 0.22);
-  --w-24: rgba(255, 255, 255, 0.24);
-  --w-25: rgba(255, 255, 255, 0.25);
-  --w-30: rgba(255, 255, 255, 0.3);
-  --w-50: rgba(255, 255, 255, 0.5);
-  --w-60: rgba(255, 255, 255, 0.6);
-  --w-70: rgba(255, 255, 255, 0.7);
-  --w-80: rgba(255, 255, 255, 0.8);
-  --w-90: rgba(255, 255, 255, 0.9);
-  --w-95: rgba(255, 255, 255, 0.95);
+	/* White opacity */
+	--w-0: rgba(255, 255, 255, 0);
+	--w-1-8: rgba(255, 255, 255, 0.018);
+	--w-2: rgba(255, 255, 255, 0.02);
+	--w-2-5: rgba(255, 255, 255, 0.025);
+	--w-3: rgba(255, 255, 255, 0.03);
+	--w-3-5: rgba(255, 255, 255, 0.035);
+	--w-4: rgba(255, 255, 255, 0.04);
+	--w-5: rgba(255, 255, 255, 0.05);
+	--w-6: rgba(255, 255, 255, 0.06);
+	--w-7: rgba(255, 255, 255, 0.07);
+	--w-8: rgba(255, 255, 255, 0.08);
+	--w-9: rgba(255, 255, 255, 0.09);
+	--w-10: rgba(255, 255, 255, 0.1);
+	--w-12: rgba(255, 255, 255, 0.12);
+	--w-13: rgba(255, 255, 255, 0.13);
+	--w-14: rgba(255, 255, 255, 0.14);
+	--w-15: rgba(255, 255, 255, 0.15);
+	--w-16: rgba(255, 255, 255, 0.16);
+	--w-18: rgba(255, 255, 255, 0.18);
+	--w-20: rgba(255, 255, 255, 0.2);
+	--w-22: rgba(255, 255, 255, 0.22);
+	--w-24: rgba(255, 255, 255, 0.24);
+	--w-25: rgba(255, 255, 255, 0.25);
+	--w-30: rgba(255, 255, 255, 0.3);
+	--w-50: rgba(255, 255, 255, 0.5);
+	--w-60: rgba(255, 255, 255, 0.6);
+	--w-70: rgba(255, 255, 255, 0.7);
+	--w-80: rgba(255, 255, 255, 0.8);
+	--w-90: rgba(255, 255, 255, 0.9);
+	--w-95: rgba(255, 255, 255, 0.95);
 
-  /* Black opacity */
-  --k-0: rgba(0, 0, 0, 0);
-  --k-20: rgba(0, 0, 0, 0.2);
-  --k-25: rgba(0, 0, 0, 0.25);
-  --k-30: rgba(0, 0, 0, 0.3);
-  --k-32: rgba(0, 0, 0, 0.32);
-  --k-38: rgba(0, 0, 0, 0.38);
-  --k-40: rgba(0, 0, 0, 0.4);
-  --k-42: rgba(0, 0, 0, 0.42);
-  --k-45: rgba(0, 0, 0, 0.45);
-  --k-50: rgba(0, 0, 0, 0.5);
-  --k-55: rgba(0, 0, 0, 0.55);
-  --k-65: rgba(0, 0, 0, 0.65);
-  --k-82: rgba(0, 0, 0, 0.82);
-  --k-98: rgba(0, 0, 0, 0.98);
+	/* Black opacity */
+	--k-0: rgba(0, 0, 0, 0);
+	--k-20: rgba(0, 0, 0, 0.2);
+	--k-25: rgba(0, 0, 0, 0.25);
+	--k-30: rgba(0, 0, 0, 0.3);
+	--k-32: rgba(0, 0, 0, 0.32);
+	--k-38: rgba(0, 0, 0, 0.38);
+	--k-40: rgba(0, 0, 0, 0.4);
+	--k-42: rgba(0, 0, 0, 0.42);
+	--k-45: rgba(0, 0, 0, 0.45);
+	--k-50: rgba(0, 0, 0, 0.5);
+	--k-55: rgba(0, 0, 0, 0.55);
+	--k-65: rgba(0, 0, 0, 0.65);
+	--k-82: rgba(0, 0, 0, 0.82);
+	--k-98: rgba(0, 0, 0, 0.98);
 
-  /* Slate-dark (15,23,42) */
-  --sd-40: rgba(15, 23, 42, 0.4);
-  --sd-55: rgba(15, 23, 42, 0.55);
-  --sd-60: rgba(15, 23, 42, 0.6);
-  --sd-70: rgba(15, 23, 42, 0.7);
-  --sd-75: rgba(15, 23, 42, 0.75);
-  --sd-80: rgba(15, 23, 42, 0.8);
-  --sd-90: rgba(15, 23, 42, 0.9);
+	/* Slate-dark (15,23,42) */
+	--sd-40: rgba(15, 23, 42, 0.4);
+	--sd-55: rgba(15, 23, 42, 0.55);
+	--sd-60: rgba(15, 23, 42, 0.6);
+	--sd-70: rgba(15, 23, 42, 0.7);
+	--sd-75: rgba(15, 23, 42, 0.75);
+	--sd-80: rgba(15, 23, 42, 0.8);
+	--sd-90: rgba(15, 23, 42, 0.9);
 
-  /* Slate-gray (148,163,184) */
-  --sg-5: rgba(148, 163, 184, 0.05);
-  --sg-8: rgba(148, 163, 184, 0.08);
-  --sg-10: rgba(148, 163, 184, 0.1);
-  --sg-15: rgba(148, 163, 184, 0.15);
-  --sg-16: rgba(148, 163, 184, 0.16);
-  --sg-25: rgba(148, 163, 184, 0.25);
-  --sg-30: rgba(148, 163, 184, 0.3);
+	/* Slate-gray (148,163,184) */
+	--sg-5: rgba(148, 163, 184, 0.05);
+	--sg-8: rgba(148, 163, 184, 0.08);
+	--sg-10: rgba(148, 163, 184, 0.1);
+	--sg-15: rgba(148, 163, 184, 0.15);
+	--sg-16: rgba(148, 163, 184, 0.16);
+	--sg-25: rgba(148, 163, 184, 0.25);
+	--sg-30: rgba(148, 163, 184, 0.3);
 
-  /* Deep-void (2,6,23) */
-  --dv-40: rgba(2, 6, 23, 0.4);
-  --dv-58: rgba(2, 6, 23, 0.58);
-  --dv-90: rgba(2, 6, 23, 0.9);
+	/* Deep-void (2,6,23) */
+	--dv-40: rgba(2, 6, 23, 0.4);
+	--dv-58: rgba(2, 6, 23, 0.58);
+	--dv-90: rgba(2, 6, 23, 0.9);
 
-  /* Deep-void-8 (2,8,23) */
-  --dv8-25: rgba(2, 8, 23, 0.25);
+	/* Deep-void-8 (2,8,23) */
+	--dv8-25: rgba(2, 8, 23, 0.25);
 
-  /* Core-blue (59,130,246) — accent blue */
-  --coreblue-0: rgba(59, 130, 246, 0);
-  --coreblue-12: rgba(59, 130, 246, 0.12);
-  --coreblue-15: rgba(59, 130, 246, 0.15);
-  --coreblue-16: rgba(59, 130, 246, 0.16);
-  --coreblue-22: rgba(59, 130, 246, 0.22);
-  --coreblue-30: rgba(59, 130, 246, 0.30);
-  --coreblue-32: rgba(59, 130, 246, 0.32);
-  --coreblue-35: rgba(59, 130, 246, 0.35);
-  --coreblue-40: rgba(59, 130, 246, 0.40);
-  --coreblue-50: rgba(59, 130, 246, 0.5);
+	/* Core-blue (59,130,246) — accent blue */
+	--coreblue-0: rgba(59, 130, 246, 0);
+	--coreblue-12: rgba(59, 130, 246, 0.12);
+	--coreblue-15: rgba(59, 130, 246, 0.15);
+	--coreblue-16: rgba(59, 130, 246, 0.16);
+	--coreblue-22: rgba(59, 130, 246, 0.22);
+	--coreblue-30: rgba(59, 130, 246, 0.3);
+	--coreblue-32: rgba(59, 130, 246, 0.32);
+	--coreblue-35: rgba(59, 130, 246, 0.35);
+	--coreblue-40: rgba(59, 130, 246, 0.4);
+	--coreblue-50: rgba(59, 130, 246, 0.5);
 
-  /* Blue (96,165,250) */
-  --blue-5: rgba(96, 165, 250, 0.05);
-  --blue-18: rgba(96, 165, 250, 0.18);
-  --blue-20: rgba(96, 165, 250, 0.20);
-  --blue-35: rgba(96, 165, 250, 0.35);
-  --blue-40: rgba(96, 165, 250, 0.4);
-  --blue-50: rgba(96, 165, 250, 0.5);
+	/* Blue (96,165,250) */
+	--blue-5: rgba(96, 165, 250, 0.05);
+	--blue-18: rgba(96, 165, 250, 0.18);
+	--blue-20: rgba(96, 165, 250, 0.2);
+	--blue-35: rgba(96, 165, 250, 0.35);
+	--blue-40: rgba(96, 165, 250, 0.4);
+	--blue-50: rgba(96, 165, 250, 0.5);
 
-  /* Sky (79,172,254) */
-  --sky-60: rgba(79, 172, 254, 0.6);
+	/* Sky (79,172,254) */
+	--sky-60: rgba(79, 172, 254, 0.6);
 
-  /* Cyan (6,182,212) */
-  --cyan-35: rgba(6, 182, 212, 0.35);
+	/* Cyan (6,182,212) */
+	--cyan-35: rgba(6, 182, 212, 0.35);
 
-  /* Cyan-accent (0,240,255) */
-  --cyan2-40: rgba(0, 240, 255, 0.4);
+	/* Cyan-accent (0,240,255) */
+	--cyan2-40: rgba(0, 240, 255, 0.4);
 
-  /* Indigo (99,102,241) */
-  --ink-18: rgba(99, 102, 241, 0.18);
+	/* Indigo (99,102,241) */
+	--ink-18: rgba(99, 102, 241, 0.18);
 
-  /* Violet (139,92,246) — primary purple glow */
-  --violet-10: rgba(139, 92, 246, 0.10);
-  --violet-12: rgba(139, 92, 246, 0.12);
-  --violet-15: rgba(139, 92, 246, 0.15);
-  --violet-18: rgba(139, 92, 246, 0.18);
-  --violet-20: rgba(139, 92, 246, 0.20);
-  --violet-22: rgba(139, 92, 246, 0.22);
-  --violet-24: rgba(139, 92, 246, 0.24);
-  --violet-25: rgba(139, 92, 246, 0.25);
-  --violet-26: rgba(139, 92, 246, 0.26);
-  --violet-30: rgba(139, 92, 246, 0.30);
-  --violet-32: rgba(139, 92, 246, 0.32);
-  --violet-34: rgba(139, 92, 246, 0.34);
-  --violet-35: rgba(139, 92, 246, 0.35);
-  --violet-36: rgba(139, 92, 246, 0.36);
-  --violet-42: rgba(139, 92, 246, 0.42);
-  --violet-45: rgba(139, 92, 246, 0.45);
-  --violet-50: rgba(139, 92, 246, 0.50);
+	/* Violet (139,92,246) — primary purple glow */
+	--violet-10: rgba(139, 92, 246, 0.1);
+	--violet-12: rgba(139, 92, 246, 0.12);
+	--violet-15: rgba(139, 92, 246, 0.15);
+	--violet-18: rgba(139, 92, 246, 0.18);
+	--violet-20: rgba(139, 92, 246, 0.2);
+	--violet-22: rgba(139, 92, 246, 0.22);
+	--violet-24: rgba(139, 92, 246, 0.24);
+	--violet-25: rgba(139, 92, 246, 0.25);
+	--violet-26: rgba(139, 92, 246, 0.26);
+	--violet-30: rgba(139, 92, 246, 0.3);
+	--violet-32: rgba(139, 92, 246, 0.32);
+	--violet-34: rgba(139, 92, 246, 0.34);
+	--violet-35: rgba(139, 92, 246, 0.35);
+	--violet-36: rgba(139, 92, 246, 0.36);
+	--violet-42: rgba(139, 92, 246, 0.42);
+	--violet-45: rgba(139, 92, 246, 0.45);
+	--violet-50: rgba(139, 92, 246, 0.5);
 
-  /* Plum (147,51,234) */
-  --plum-0: rgba(147, 51, 234, 0);
-  --plum-30: rgba(147, 51, 234, 0.3);
-  --plum-40: rgba(147, 51, 234, 0.4);
-  --plum-50: rgba(147, 51, 234, 0.5);
-  --plum-80: rgba(147, 51, 234, 0.8);
+	/* Plum (147,51,234) */
+	--plum-0: rgba(147, 51, 234, 0);
+	--plum-30: rgba(147, 51, 234, 0.3);
+	--plum-40: rgba(147, 51, 234, 0.4);
+	--plum-50: rgba(147, 51, 234, 0.5);
+	--plum-80: rgba(147, 51, 234, 0.8);
 
-  /* Purple (168,85,247) */
-  --purple-5: rgba(168, 85, 247, 0.05);
-  --purple-15: rgba(168, 85, 247, 0.15);
-  --purple-25: rgba(168, 85, 247, 0.25);
-  --purple-40: rgba(168, 85, 247, 0.4);
-  --purple-60: rgba(168, 85, 247, 0.6);
-  --purple-80: rgba(168, 85, 247, 0.8);
-  --purple-90: rgba(168, 85, 247, 0.9);
+	/* Purple (168,85,247) */
+	--purple-5: rgba(168, 85, 247, 0.05);
+	--purple-15: rgba(168, 85, 247, 0.15);
+	--purple-25: rgba(168, 85, 247, 0.25);
+	--purple-40: rgba(168, 85, 247, 0.4);
+	--purple-60: rgba(168, 85, 247, 0.6);
+	--purple-80: rgba(168, 85, 247, 0.8);
+	--purple-90: rgba(168, 85, 247, 0.9);
 
-  /* Magenta (142,45,226) */
-  --magenta-80: rgba(142, 45, 226, 0.8);
+	/* Magenta (142,45,226) */
+	--magenta-80: rgba(142, 45, 226, 0.8);
 
-  /* Orchid (147,112,219) */
-  --orchid-10: rgba(147, 112, 219, 0.1);
-  --orchid-15: rgba(147, 112, 219, 0.15);
-  --orchid-25: rgba(147, 112, 219, 0.25);
-  --orchid-30: rgba(147, 112, 219, 0.3);
+	/* Orchid (147,112,219) */
+	--orchid-10: rgba(147, 112, 219, 0.1);
+	--orchid-15: rgba(147, 112, 219, 0.15);
+	--orchid-25: rgba(147, 112, 219, 0.25);
+	--orchid-30: rgba(147, 112, 219, 0.3);
 
-  /* Neon-purple (128,0,255) */
-  --neon-15: rgba(128, 0, 255, 0.15);
+	/* Neon-purple (128,0,255) */
+	--neon-15: rgba(128, 0, 255, 0.15);
 
-  /* Ghost-blue (120,120,255) */
-  --ghost-6: rgba(120, 120, 255, 0.06);
-  --ghost-8: rgba(120, 120, 255, 0.08);
+	/* Ghost-blue (120,120,255) */
+	--ghost-6: rgba(120, 120, 255, 0.06);
+	--ghost-8: rgba(120, 120, 255, 0.08);
 
-  /* Category red (213,0,0) */
-  --cat-red-8: rgba(213, 0, 0, 0.08);
-  --cat-red-15: rgba(213, 0, 0, 0.15);
-  --cat-red-30: rgba(213, 0, 0, 0.3);
-  --cat-red-32: rgba(213, 0, 0, 0.32);
-  --cat-red-40: rgba(213, 0, 0, 0.4);
-  --cat-red-90: rgba(213, 0, 0, 0.9);
-  --cat-red-95: rgba(213, 0, 0, 0.95);
+	/* Category red (213,0,0) */
+	--cat-red-8: rgba(213, 0, 0, 0.08);
+	--cat-red-15: rgba(213, 0, 0, 0.15);
+	--cat-red-30: rgba(213, 0, 0, 0.3);
+	--cat-red-32: rgba(213, 0, 0, 0.32);
+	--cat-red-40: rgba(213, 0, 0, 0.4);
+	--cat-red-90: rgba(213, 0, 0, 0.9);
+	--cat-red-95: rgba(213, 0, 0, 0.95);
 
-  /* Dark-red (183,28,28) */
-  --darkred-90: rgba(183, 28, 28, 0.9);
-  --darkred-95: rgba(183, 28, 28, 0.95);
+	/* Dark-red (183,28,28) */
+	--darkred-90: rgba(183, 28, 28, 0.9);
+	--darkred-95: rgba(183, 28, 28, 0.95);
 
-  /* Category green (0,200,83) */
-  --cat-green-8: rgba(0, 200, 83, 0.08);
-  --cat-green-10: rgba(0, 200, 83, 0.1);
-  --cat-green-15: rgba(0, 200, 83, 0.15);
-  --cat-green-20: rgba(0, 200, 83, 0.2);
-  --cat-green-30: rgba(0, 200, 83, 0.3);
-  --cat-green-32: rgba(0, 200, 83, 0.32);
-  --cat-green-40: rgba(0, 200, 83, 0.4);
-  --cat-green-90: rgba(0, 200, 83, 0.9);
-  --cat-green-95: rgba(0, 200, 83, 0.95);
+	/* Category green (0,200,83) */
+	--cat-green-8: rgba(0, 200, 83, 0.08);
+	--cat-green-10: rgba(0, 200, 83, 0.1);
+	--cat-green-15: rgba(0, 200, 83, 0.15);
+	--cat-green-20: rgba(0, 200, 83, 0.2);
+	--cat-green-30: rgba(0, 200, 83, 0.3);
+	--cat-green-32: rgba(0, 200, 83, 0.32);
+	--cat-green-40: rgba(0, 200, 83, 0.4);
+	--cat-green-90: rgba(0, 200, 83, 0.9);
+	--cat-green-95: rgba(0, 200, 83, 0.95);
 
-  /* Dark-green (0,168,71) */
-  --dkgreen-90: rgba(0, 168, 71, 0.9);
-  --dkgreen-95: rgba(0, 168, 71, 0.95);
+	/* Dark-green (0,168,71) */
+	--dkgreen-90: rgba(0, 168, 71, 0.9);
+	--dkgreen-95: rgba(0, 168, 71, 0.95);
 
-  /* Emerald (16,185,129) */
-  --emerald-40: rgba(16, 185, 129, 0.4);
+	/* Emerald (16,185,129) */
+	--emerald-40: rgba(16, 185, 129, 0.4);
 
-  /* Category amber (245,158,11) */
-  --cat-amber-30: rgba(245, 158, 11, 0.3);
-  --cat-amber-40: rgba(245, 158, 11, 0.4);
-  --cat-amber-90: rgba(245, 158, 11, 0.9);
-  --cat-amber-95: rgba(245, 158, 11, 0.95);
+	/* Category amber (245,158,11) */
+	--cat-amber-30: rgba(245, 158, 11, 0.3);
+	--cat-amber-40: rgba(245, 158, 11, 0.4);
+	--cat-amber-90: rgba(245, 158, 11, 0.9);
+	--cat-amber-95: rgba(245, 158, 11, 0.95);
 
-  /* Dark-amber (217,119,6) */
-  --dkamber-90: rgba(217, 119, 6, 0.9);
-  --dkamber-95: rgba(217, 119, 6, 0.95);
+	/* Dark-amber (217,119,6) */
+	--dkamber-90: rgba(217, 119, 6, 0.9);
+	--dkamber-95: rgba(217, 119, 6, 0.95);
 
-  /* Category yellow (255,214,0) */
-  --cat-yellow-8: rgba(255, 214, 0, 0.08);
-  --cat-yellow-30: rgba(255, 214, 0, 0.3);
-  --cat-yellow-32: rgba(255, 214, 0, 0.32);
-  --cat-yellow-40: rgba(255, 214, 0, 0.4);
+	/* Category yellow (255,214,0) */
+	--cat-yellow-8: rgba(255, 214, 0, 0.08);
+	--cat-yellow-30: rgba(255, 214, 0, 0.3);
+	--cat-yellow-32: rgba(255, 214, 0, 0.32);
+	--cat-yellow-40: rgba(255, 214, 0, 0.4);
 
-  /* Gold (250,204,21) */
-  --gold-35: rgba(250, 204, 21, 0.35);
-  --gold-45: rgba(250, 204, 21, 0.45);
+	/* Gold (250,204,21) */
+	--gold-35: rgba(250, 204, 21, 0.35);
+	--gold-45: rgba(250, 204, 21, 0.45);
 
-  /* Danger (239,68,68) */
-  --danger-42: rgba(239, 68, 68, 0.42);
+	/* Danger (239,68,68) */
+	--danger-42: rgba(239, 68, 68, 0.42);
 
-  /* Category-blue (74,144,226) */
-  --cat-blue-8: rgba(74, 144, 226, 0.08);
-  --cat-blue-15: rgba(74, 144, 226, 0.15);
-  --cat-blue-30: rgba(74, 144, 226, 0.3);
-  --cat-blue-32: rgba(74, 144, 226, 0.32);
-  --cat-blue-40: rgba(74, 144, 226, 0.4);
+	/* Category-blue (74,144,226) */
+	--cat-blue-8: rgba(74, 144, 226, 0.08);
+	--cat-blue-15: rgba(74, 144, 226, 0.15);
+	--cat-blue-30: rgba(74, 144, 226, 0.3);
+	--cat-blue-32: rgba(74, 144, 226, 0.32);
+	--cat-blue-40: rgba(74, 144, 226, 0.4);
 
-  /* Category-slate (156,163,175) */
-  --cat-slate-32: rgba(156, 163, 175, 0.32);
+	/* Category-slate (156,163,175) */
+	--cat-slate-32: rgba(156, 163, 175, 0.32);
 
-  /* Zinc (161,161,170) */
-  --zinc-36: rgba(161, 161, 170, 0.36);
+	/* Zinc (161,161,170) */
+	--zinc-36: rgba(161, 161, 170, 0.36);
 
-  /* Cool-gray (100,116,139) */
-  --coolgray-30: rgba(100, 116, 139, 0.3);
-  --coolgray-40: rgba(100, 116, 139, 0.4);
-  --coolgray-90: rgba(100, 116, 139, 0.9);
-  --coolgray-95: rgba(100, 116, 139, 0.95);
+	/* Cool-gray (100,116,139) */
+	--coolgray-30: rgba(100, 116, 139, 0.3);
+	--coolgray-40: rgba(100, 116, 139, 0.4);
+	--coolgray-90: rgba(100, 116, 139, 0.9);
+	--coolgray-95: rgba(100, 116, 139, 0.95);
 
-  /* Dark-gray (71,85,105) */
-  --dkgray-90: rgba(71, 85, 105, 0.9);
-  --dkgray-95: rgba(71, 85, 105, 0.95);
+	/* Dark-gray (71,85,105) */
+	--dkgray-90: rgba(71, 85, 105, 0.9);
+	--dkgray-95: rgba(71, 85, 105, 0.95);
 
-  /* Zinc-200 (229,231,235) */
-  --zinc2-20: rgba(229, 231, 235, 0.2);
-  --zinc2-22: rgba(229, 231, 235, 0.22);
+	/* Zinc-200 (229,231,235) */
+	--zinc2-20: rgba(229, 231, 235, 0.2);
+	--zinc2-22: rgba(229, 231, 235, 0.22);
 
-  /* Category colors for BMI ranges */
-  --cat-blue-6: rgba(96, 165, 250, 0.06);
-  --cat-green-6: rgba(74, 222, 128, 0.06);
-  --cat-amber-6: rgba(251, 191, 36, 0.06);
-  --cat-red-6: rgba(248, 113, 113, 0.06);
-  --cat-blue-20: rgba(96, 165, 250, 0.2);
-  --cat-green-20: rgba(74, 222, 128, 0.2);
-  --cat-amber-20: rgba(251, 191, 36, 0.2);
-  --cat-slate-30: rgba(148, 163, 184, 0.3);
-  --cat-slate-30-light: rgba(148, 163, 184, 0.45);
-  --cat-green-40: rgba(74, 222, 128, 0.4);
-  --sd-92: rgba(15, 23, 42, 0.92);
-  --cosmic-base-95: rgba(0, 0, 0, 0.95);
-  --darkred-85: rgba(183, 28, 28, 0.85);
+	/* Category colors for BMI ranges */
+	--cat-blue-6: rgba(96, 165, 250, 0.06);
+	--cat-green-6: rgba(74, 222, 128, 0.06);
+	--cat-amber-6: rgba(251, 191, 36, 0.06);
+	--cat-red-6: rgba(248, 113, 113, 0.06);
+	--cat-blue-20: rgba(96, 165, 250, 0.2);
+	--cat-green-20: rgba(74, 222, 128, 0.2);
+	--cat-amber-20: rgba(251, 191, 36, 0.2);
+	--cat-slate-30: rgba(148, 163, 184, 0.3);
+	--cat-slate-30-light: rgba(148, 163, 184, 0.45);
+	--cat-green-40: rgba(74, 222, 128, 0.4);
+	--sd-92: rgba(15, 23, 42, 0.92);
+	--cosmic-base-95: rgba(0, 0, 0, 0.95);
+	--darkred-85: rgba(183, 28, 28, 0.85);
 
-  /* ── SHARE IMAGE CANVAS COLOR NOTES ──
+	/* ── SHARE IMAGE CANVAS COLOR NOTES ──
        Used by share-image.ts canvas rendering.
        CSS custom properties can't be read from Canvas API,
        so these are documented here for reference only. */
-  /* Canvas background: #0a0818 (deep cosmic dark) */
-  /* Canvas mid gradient: #1a0533 (deep purple) */
-  /* Canvas white: #ffffff */
+	/* Canvas background: #0a0818 (deep cosmic dark) */
+	/* Canvas mid gradient: #1a0533 (deep purple) */
+	/* Canvas white: #ffffff */
 
-  /* ── MODAL ERROR COLORS ── */
-  --error-bg-default: rgba(213, 0, 0, 0.08);
-  --error-border-default: rgba(213, 0, 0, 0.15);
-  --error-bg-danger: rgba(239, 68, 68, 0.10);
-  --error-border-danger: rgba(239, 68, 68, 0.30);
-  --error-bg-warning: rgba(245, 158, 11, 0.08);
-  --error-border-warning: rgba(245, 158, 11, 0.25);
+	/* ── MODAL ERROR COLORS ── */
+	--error-bg-default: rgba(213, 0, 0, 0.08);
+	--error-border-default: rgba(213, 0, 0, 0.15);
+	--error-bg-danger: rgba(239, 68, 68, 0.1);
+	--error-border-danger: rgba(239, 68, 68, 0.3);
+	--error-bg-warning: rgba(245, 158, 11, 0.08);
+	--error-border-warning: rgba(245, 158, 11, 0.25);
 
-  /* ── End opacity token system ── */
+	/* ── End opacity token system ── */
 
-  /* Void — PURE BLACK overlay/button backgrounds */
-  --void-44: rgba(0, 0, 0, 0.44);
-  --void-52: rgba(0, 0, 0, 0.52);
-  --void-58: rgba(0, 0, 0, 0.58);
-  --void-85: rgba(0, 0, 0, 0.85);
+	/* Void — PURE BLACK overlay/button backgrounds */
+	--void-44: rgba(0, 0, 0, 0.44);
+	--void-52: rgba(0, 0, 0, 0.52);
+	--void-58: rgba(0, 0, 0, 0.58);
+	--void-85: rgba(0, 0, 0, 0.85);
 
-  /* Cosmic-dark — PURE BLACK dialog/backdrop backgrounds (no purple tint) */
-  --cosmic-dark-78: rgba(0, 0, 0, 0.78);
-  --cosmic-dark-82: rgba(0, 0, 0, 0.82);
-  --cosmic-dark-70: rgba(0, 0, 0, 0.70);
-  --cosmic-dark-92: rgba(0, 0, 0, 0.92);
-  --cosmic-dark-94: rgba(0, 0, 0, 0.94);
+	/* Cosmic-dark — PURE BLACK dialog/backdrop backgrounds (no purple tint) */
+	--cosmic-dark-78: rgba(0, 0, 0, 0.78);
+	--cosmic-dark-82: rgba(0, 0, 0, 0.82);
+	--cosmic-dark-70: rgba(0, 0, 0, 0.7);
+	--cosmic-dark-92: rgba(0, 0, 0, 0.92);
+	--cosmic-dark-94: rgba(0, 0, 0, 0.94);
 
-  /* Cosmic-dk — PURE BLACK button gradient backgrounds */
-  --cosmic-dk-52: rgba(0, 0, 0, 0.52);
-  --cosmic-dk-58: rgba(0, 0, 0, 0.58);
+	/* Cosmic-dk — PURE BLACK button gradient backgrounds */
+	--cosmic-dk-52: rgba(0, 0, 0, 0.52);
+	--cosmic-dk-58: rgba(0, 0, 0, 0.58);
 
-  /* Amber-gold (251,191,36) — golden amber for badges */
-  --amber-gold-30: rgba(251, 191, 36, 0.30);
-  --amber-gold-40: rgba(251, 191, 36, 0.40);
-  --amber-gold-60: rgba(251, 191, 36, 0.60);
+	/* Amber-gold (251,191,36) — golden amber for badges */
+	--amber-gold-30: rgba(251, 191, 36, 0.3);
+	--amber-gold-40: rgba(251, 191, 36, 0.4);
+	--amber-gold-60: rgba(251, 191, 36, 0.6);
 
-  /* Goal-green (34,197,94) — goal tracker accent */
-  --goal-green-10: rgba(34, 197, 94, 0.10);
-  --goal-green-20: rgba(34, 197, 94, 0.20);
+	/* Goal-green (34,197,94) — goal tracker accent */
+	--goal-green-10: rgba(34, 197, 94, 0.1);
+	--goal-green-20: rgba(34, 197, 94, 0.2);
 
-  /* Unified radius policy */
-  --container-radius: 40px;
-  --control-radius: var(--container-radius);
+	/* Unified radius policy */
+	--container-radius: 40px;
+	--control-radius: var(--container-radius);
 
-  /* Button system — Premium Purple Glass */
-  --btn-radius: var(--control-radius);
-  --btn-height: 44px;
-  --btn-padding-x: 18px;
-  --btn-font: 600 0.95rem/1 'Inter Variable', system-ui, -apple-system, sans-serif;
-  --btn-bg: linear-gradient(135deg, var(--deep-void-base)cc, #5b21b6cc);
-  --btn-bg-hover: linear-gradient(135deg, #1a0d33, #6d28d9);
-  --btn-bg-active: linear-gradient(135deg, #10061f, #4c1d95);
-  --btn-surface: linear-gradient(135deg, var(--deep-void-70), rgba(91, 33, 182, 0.65));
+	/* Button system — Premium Purple Glass */
+	--btn-radius: var(--control-radius);
+	--btn-height: 44px;
+	--btn-padding-x: 18px;
+	--btn-font: 600 0.95rem/1 'Inter Variable', system-ui, -apple-system, sans-serif;
+	--btn-bg: linear-gradient(135deg, var(--deep-void-base) cc, #5b21b6cc);
+	--btn-bg-hover: linear-gradient(135deg, #1a0d33, #6d28d9);
+	--btn-bg-active: linear-gradient(135deg, #10061f, #4c1d95);
+	--btn-surface: linear-gradient(135deg, var(--deep-void-70), rgba(91, 33, 182, 0.65));
 
-  --btn-border: 1px solid rgba(130, 130, 130, 0.30);
-  --btn-border-hover: 1px solid rgba(130, 130, 130, 0.45);
-  --btn-shadow: none;
-  --btn-shadow-hover: none;
+	--btn-border: 1px solid rgba(130, 130, 130, 0.3);
+	--btn-border-hover: 1px solid rgba(130, 130, 130, 0.45);
+	--btn-shadow: none;
+	--btn-shadow-hover: none;
 
-  /* ── DANGER BUTTON VARIANT ──
+	/* ── DANGER BUTTON VARIANT ──
        Red-tinted glass for destructive actions. */
-  --btn-danger-bg: linear-gradient(135deg, rgba(30, 8, 8, 0.80), rgba(127, 29, 29, 0.60));
-  --btn-danger-bg-hover: linear-gradient(135deg, rgba(50, 10, 10, 0.90), rgba(153, 27, 27, 0.70));
-  --btn-danger-border: 1px solid rgba(239, 68, 68, 0.20);
-  --btn-danger-border-hover: 1px solid rgba(239, 68, 68, 0.35);
+	--btn-danger-bg: linear-gradient(135deg, rgba(30, 8, 8, 0.8), rgba(127, 29, 29, 0.6));
+	--btn-danger-bg-hover: linear-gradient(135deg, rgba(50, 10, 10, 0.9), rgba(153, 27, 27, 0.7));
+	--btn-danger-border: 1px solid rgba(239, 68, 68, 0.2);
+	--btn-danger-border-hover: 1px solid rgba(239, 68, 68, 0.35);
 
-  /* ── TYPOGRAPHY SCALE ──
+	/* ── TYPOGRAPHY SCALE ──
        Consistent font-size tokens for predictable type hierarchy.
        Usage: component text, labels, headings across all views. */
-  --text-xs: 0.65rem;       /* ~10px — TDEE labels, tiny badges */
-  --text-sm: 0.75rem;       /* 12px — label text, badge text, lang-code */
-  --text-base: 0.85rem;     /* ~14px — input labels, secondary text */
-  --text-md: 0.9rem;        /* ~14px — body text, nav text, stat-value */
-  --text-lg: 1rem;          /* 16px — primary text, card text, form label */
-  --text-xl: 1.125rem;      /* 18px — section titles, advice title */
-  --text-2xl: 1.25rem;      /* 20px — modal titles, gauge title, subtitle */
-  --text-3xl: 1.5rem;       /* 24px — card headings, BMI category */
-  --text-3-half-xl: 1.75rem;    /* 28px — about card headings */
-  --text-4xl: 2rem;         /* 32px — section sub-titles */
-  --text-5xl: 2.5rem;       /* 40px — section main titles */
-  --text-hero: 3.5rem;      /* 56px — hero title */
-  --text-display: 4.5rem;   /* 72px — BMI value display */
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-  --font-mono-short: 'JetBrains Mono Variable', ui-monospace, monospace;
-  --font-sans: 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+	--text-xs: 0.65rem; /* ~10px — TDEE labels, tiny badges */
+	--text-sm: 0.75rem; /* 12px — label text, badge text, lang-code */
+	--text-base: 0.85rem; /* ~14px — input labels, secondary text */
+	--text-md: 0.9rem; /* ~14px — body text, nav text, stat-value */
+	--text-lg: 1rem; /* 16px — primary text, card text, form label */
+	--text-xl: 1.125rem; /* 18px — section titles, advice title */
+	--text-2xl: 1.25rem; /* 20px — modal titles, gauge title, subtitle */
+	--text-3xl: 1.5rem; /* 24px — card headings, BMI category */
+	--text-3-half-xl: 1.75rem; /* 28px — about card headings */
+	--text-4xl: 2rem; /* 32px — section sub-titles */
+	--text-5xl: 2.5rem; /* 40px — section main titles */
+	--text-hero: 3.5rem; /* 56px — hero title */
+	--text-display: 4.5rem; /* 72px — BMI value display */
+	--font-mono:
+		'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+		'Liberation Mono', 'Courier New', monospace;
+	--font-mono-short: 'JetBrains Mono Variable', ui-monospace, monospace;
+	--font-sans:
+		'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+		'Helvetica Neue', Arial, sans-serif;
 
-  /* ── Z-INDEX HIERARCHY ──
+	/* ── Z-INDEX HIERARCHY ──
        Documented elevation stack for all layered elements.
        Always use these tokens — never hardcode z-index values.
 
@@ -462,146 +464,146 @@
        Layer 9999: Modal backdrops + panels (NotifyFloat, EncryptionModal)
        Layer 10000: Top-most modal (FeedbackModal confirm)
        Layer 10001: Staging spinner overlay (full-screen loading) */
-  --z-base: 0;
-  --z-content: 1;
-  --z-overlay: 2;
-  --z-inner-control: 10;
-  --z-nav-controls: 19;
-  --z-nav-shell: 20;
-  --z-fab: 999;
-  --z-modal: 9999;
-  --z-modal-top: 10000;
-  --z-staging: 10001;
+	--z-base: 0;
+	--z-content: 1;
+	--z-overlay: 2;
+	--z-inner-control: 10;
+	--z-nav-controls: 19;
+	--z-nav-shell: 20;
+	--z-fab: 999;
+	--z-modal: 9999;
+	--z-modal-top: 10000;
+	--z-staging: 10001;
 
-  /* ── MODAL SYSTEM TOKENS ──
+	/* ── MODAL SYSTEM TOKENS ──
        Consistent z-index, backdrop, panel, and transition values
        for all modal/floating window components.
        Usage: NotifyFloat, EncryptionModal, FeedbackModal, LanguageSwitcher. */
-  --modal-z: var(--z-modal);
-  --modal-z-top: var(--z-modal-top);
-  --modal-z-staging: var(--z-staging);
-  --modal-backdrop-bg: var(--k-50);
-  --modal-backdrop-blur: 24px;
-  --modal-backdrop-sat: 180%;
-  --modal-panel-radius: var(--container-radius);
-  --modal-panel-bg: var(--glass-bg-nightky);
-  --modal-panel-shadow: 0 25px 50px -12px var(--k-50);
-  --modal-dur: 0.22s;
-  --modal-ease: var(--easing-spring);
-  --modal-panel-scale-from: scale(0.96) translateY(8px);
-  --modal-panel-scale-to: scale(1) translateY(0);
-  --modal-backdrop-dur: 0.15s;
+	--modal-z: var(--z-modal);
+	--modal-z-top: var(--z-modal-top);
+	--modal-z-staging: var(--z-staging);
+	--modal-backdrop-bg: var(--k-50);
+	--modal-backdrop-blur: 24px;
+	--modal-backdrop-sat: 180%;
+	--modal-panel-radius: var(--container-radius);
+	--modal-panel-bg: var(--glass-bg-nightky);
+	--modal-panel-shadow: 0 25px 50px -12px var(--k-50);
+	--modal-dur: 0.22s;
+	--modal-ease: var(--easing-spring);
+	--modal-panel-scale-from: scale(0.96) translateY(8px);
+	--modal-panel-scale-to: scale(1) translateY(0);
+	--modal-backdrop-dur: 0.15s;
 
-  /* ── DEEP-VOID GRADIENT SYSTEM ──
+	/* ── DEEP-VOID GRADIENT SYSTEM ──
        Centralizes rgba(20, 8, 38, ...) used in button gradients.
        Used by components, navigation, and responsive overrides. */
-  --deep-void-base: #140826;
-  --deep-void-30: rgba(20, 8, 38, 0.30);
-  --deep-void-40: rgba(20, 8, 38, 0.40);
-  --deep-void-45: rgba(20, 8, 38, 0.45);
-  --deep-void-55: rgba(20, 8, 38, 0.55);
-  --deep-void-65: rgba(20, 8, 38, 0.65);
-  --deep-void-70: rgba(20, 8, 38, 0.70);
+	--deep-void-base: #140826;
+	--deep-void-30: rgba(20, 8, 38, 0.3);
+	--deep-void-40: rgba(20, 8, 38, 0.4);
+	--deep-void-45: rgba(20, 8, 38, 0.45);
+	--deep-void-55: rgba(20, 8, 38, 0.55);
+	--deep-void-65: rgba(20, 8, 38, 0.65);
+	--deep-void-70: rgba(20, 8, 38, 0.7);
 
-  /* ── COSMIC DEEP ──
+	/* ── COSMIC DEEP ──
        Fallback background for html element. */
-  --cosmic-deep: #0a0e1a;
+	--cosmic-deep: #0a0e1a;
 
-  /* ── SUCCESS SEMANTIC ──
+	/* ── SUCCESS SEMANTIC ──
        Green semantic for CheckCircle and success states. */
-  --success-solid: #4ade80;
-  --success-bg: rgba(74, 222, 128, 0.08);
-  --success-border: rgba(74, 222, 128, 0.20);
+	--success-solid: #4ade80;
+	--success-bg: rgba(74, 222, 128, 0.08);
+	--success-border: rgba(74, 222, 128, 0.2);
 
-  /* ── AMBER WARNING SYSTEM ── */
-  --warn-bg: rgba(245, 158, 11, 0.08);
-  --warn-border: rgba(245, 158, 11, 0.20);
+	/* ── AMBER WARNING SYSTEM ── */
+	--warn-bg: rgba(245, 158, 11, 0.08);
+	--warn-border: rgba(245, 158, 11, 0.2);
 
-  /* ── LEGACY BORDER RADIUS SCALE ──
+	/* ── LEGACY BORDER RADIUS SCALE ──
        Prefer --container-radius and --control-radius for new UI. */
-  --radius-xs: 6px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-2xl: 24px;
-  --radius-3xl: 32px;
-  --radius-pill: 9999px;
+	--radius-xs: 6px;
+	--radius-sm: 8px;
+	--radius-md: 12px;
+	--radius-lg: 16px;
+	--radius-xl: 20px;
+	--radius-2xl: 24px;
+	--radius-3xl: 32px;
+	--radius-pill: 9999px;
 
-  /* ── CONSISTENT SECTION SPACING ── */
-  --section-margin-y: clamp(40px, 5vh, 120px);
-  --container-padding-x: clamp(1rem, 3vw, 2rem);
+	/* ── CONSISTENT SECTION SPACING ── */
+	--section-margin-y: clamp(40px, 5vh, 120px);
+	--container-padding-x: clamp(1rem, 3vw, 2rem);
 
-  /* ── SPACING SYSTEM ──
+	/* ── SPACING SYSTEM ──
        Consistent spacing scale for predictable visual rhythm.
        Usage: padding, margin, gap across all components. */
-  --space-1: 0.25rem;   /* 4px  — tight inner gaps */
-  --space-2: 0.5rem;    /* 8px  — compact spacing */
-  --space-3: 0.75rem;   /* 12px — comfortable default */
-  --space-4: 1rem;      /* 16px — section inner padding */
-  --space-5: 1.5rem;    /* 24px — card padding */
-  --space-6: 2rem;      /* 32px — section gaps */
-  --space-7: 3rem;      /* 48px — major section separation */
+	--space-1: 0.25rem; /* 4px  — tight inner gaps */
+	--space-2: 0.5rem; /* 8px  — compact spacing */
+	--space-3: 0.75rem; /* 12px — comfortable default */
+	--space-4: 1rem; /* 16px — section inner padding */
+	--space-5: 1.5rem; /* 24px — card padding */
+	--space-6: 2rem; /* 32px — section gaps */
+	--space-7: 3rem; /* 48px — major section separation */
 
-  /* ── MICRO-DELAY SYSTEM ──
+	/* ── MICRO-DELAY SYSTEM ──
        Consistent timing for modal transitions and async feedback.
        Usage: modal open/close, success confirmation, loading staging. */
-  --delay-open: 120ms;
-  --delay-success: 150ms;
-  --delay-close: 100ms;
-  --delay-shimmer: 80ms;
+	--delay-open: 120ms;
+	--delay-success: 150ms;
+	--delay-close: 100ms;
+	--delay-shimmer: 80ms;
 
-  /* ── GLASSMORPHISM DESIGN TOKENS ──
+	/* ── GLASSMORPHISM DESIGN TOKENS ──
      Container glass is controlled through --container-glass-* below. */
-  --glass-bg-nightky: rgba(0, 0, 0, 0.65);
-  --glass-blur: 16px;
-  --glass-blur-heavy: 20px;
-  --glass-blur-light: 10px;
-  --glass-blur-subtle: 6px;
-  --glass-saturation: 180%;
-  --glass-saturation-high: 200%;
-  --glass-saturation-light: 150%;
-  --glass-border: 3px solid rgba(130, 130, 130, 0.30);
-  --glass-border-strong: 3px solid rgba(130, 130, 130, 0.35);
-  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  --glass-brightness: brightness(1.15);
-  --container-glass-bg: var(--glass-bg-nightky);
-  --container-glass-border: var(--glass-border);
-  --container-glass-filter: blur(8px) saturate(100%) brightness(1);
+	--glass-bg-nightky: rgba(0, 0, 0, 0.65);
+	--glass-blur: 16px;
+	--glass-blur-heavy: 20px;
+	--glass-blur-light: 10px;
+	--glass-blur-subtle: 6px;
+	--glass-saturation: 180%;
+	--glass-saturation-high: 200%;
+	--glass-saturation-light: 150%;
+	--glass-border: 3px solid rgba(130, 130, 130, 0.3);
+	--glass-border-strong: 3px solid rgba(130, 130, 130, 0.35);
+	--glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+	--glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+	--glass-brightness: brightness(1.15);
+	--container-glass-bg: var(--glass-bg-nightky);
+	--container-glass-border: var(--glass-border);
+	--container-glass-filter: blur(8px) saturate(100%) brightness(1);
 
-  /* ── SEMANTIC COLOR TOKENS ── */
-  /* Used across components for consistent category/status colors */
-  --text-secondary-bright: rgba(245, 245, 245, 1);      /* #f5f5f5 — about card, footer text */
-  --text-tertiary: rgba(209, 213, 219, 1);              /* #d1d5db — advice/explanation text */
-  --text-muted-slate: rgba(156, 163, 175, 1);           /* #9ca3af — empty state, muted text */
+	/* ── SEMANTIC COLOR TOKENS ── */
+	/* Used across components for consistent category/status colors */
+	--text-secondary-bright: rgba(245, 245, 245, 1); /* #f5f5f5 — about card, footer text */
+	--text-tertiary: rgba(209, 213, 219, 1); /* #d1d5db — advice/explanation text */
+	--text-muted-slate: rgba(156, 163, 175, 1); /* #9ca3af — empty state, muted text */
 
-  /* Category/accent solid colors */
-  --cat-blue-solid: rgba(96, 165, 250, 1);              /* #60a5fa — underweight accent */
-  --cat-blue-deep: rgba(59, 130, 246, 1);               /* #3b82f6 — plasma star blue */
-  --cat-green-solid: rgba(74, 222, 128, 1);             /* #4ade80 — normal/gain accent */
-  --cat-amber-solid: rgba(251, 191, 36, 1);             /* #fbbf24 — overweight/badge accent */
-  --cat-orange-solid: rgba(249, 115, 22, 1);            /* #f97316 — TDEE accent */
-  --cat-red-solid: rgba(248, 113, 113, 1);              /* #f87171 — obese accent */
-  --cat-red-bright: rgba(255, 107, 107, 1);             /* #ff6b6b — form error */
-  --cat-red-soft: rgba(252, 165, 165, 1);               /* #fca5a5 — TDEE gain range */
-  --neon-purple: rgba(89, 0, 233, 1);                   /* #5900e9 — focus border */
+	/* Category/accent solid colors */
+	--cat-blue-solid: rgba(96, 165, 250, 1); /* #60a5fa — underweight accent */
+	--cat-blue-deep: rgba(59, 130, 246, 1); /* #3b82f6 — plasma star blue */
+	--cat-green-solid: rgba(74, 222, 128, 1); /* #4ade80 — normal/gain accent */
+	--cat-amber-solid: rgba(251, 191, 36, 1); /* #fbbf24 — overweight/badge accent */
+	--cat-orange-solid: rgba(249, 115, 22, 1); /* #f97316 — TDEE accent */
+	--cat-red-solid: rgba(248, 113, 113, 1); /* #f87171 — obese accent */
+	--cat-red-bright: rgba(255, 107, 107, 1); /* #ff6b6b — form error */
+	--cat-red-soft: rgba(252, 165, 165, 1); /* #fca5a5 — TDEE gain range */
+	--neon-purple: rgba(89, 0, 233, 1); /* #5900e9 — focus border */
 
-  /* Extended semantic colors — commonly repeated hex values */
-  --blue-300-solid: rgba(147, 197, 253, 1);              /* #93c5fd — below/underweight tint */
-  --green-300-solid: rgba(134, 239, 172, 1);             /* #86efac — delta within range */
-  --emerald-solid: rgba(16, 185, 129, 1);                /* #10b981 — normal weight category */
-  --warn-amber: rgba(245, 158, 11, 1);                   /* #f59e0b — warning/overweight icon */
-  --red-500-solid: rgba(239, 68, 68, 1);                 /* #ef4444 — obese category */
-  --slate-500-solid: rgba(100, 116, 139, 1);             /* #64748b — disclaimer text */
-  --slate-200-solid: rgba(226, 232, 240, 1);             /* #e2e8f0 — scale label text */
-  --slate-50-solid: rgba(248, 250, 252, 1);              /* #f8fafc — strong text, ref bold */
-  --slate-400-solid: rgba(148, 163, 184, 1);             /* #94a3b8 — muted description text */
-  --warn-yellow: rgba(250, 204, 21, 1);                   /* #facc15 — warning icon yellow-400 */
-  --warn-yellow-light: rgba(253, 224, 71, 1);             /* #fde047 — warning icon yellow-300 */
-  --cat-green-toast: rgba(0, 200, 83, 1);                 /* #00C853 — success toast */
-  --pill-text-blue: rgba(230, 240, 255, 1);               /* #e6f0ff — pill indicator text */
-  --pill-dot-grey: rgba(161, 161, 170, 1);                /* #a1a1aa — pill grey dot */
-  --text-on-amber: rgba(26, 26, 46, 1);                    /* #1a1a2e — text on amber background */
-  --slate-600-solid: rgba(71, 85, 105, 1);                  /* #475569 — axis label, time text */
+	/* Extended semantic colors — commonly repeated hex values */
+	--blue-300-solid: rgba(147, 197, 253, 1); /* #93c5fd — below/underweight tint */
+	--green-300-solid: rgba(134, 239, 172, 1); /* #86efac — delta within range */
+	--emerald-solid: rgba(16, 185, 129, 1); /* #10b981 — normal weight category */
+	--warn-amber: rgba(245, 158, 11, 1); /* #f59e0b — warning/overweight icon */
+	--red-500-solid: rgba(239, 68, 68, 1); /* #ef4444 — obese category */
+	--slate-500-solid: rgba(100, 116, 139, 1); /* #64748b — disclaimer text */
+	--slate-200-solid: rgba(226, 232, 240, 1); /* #e2e8f0 — scale label text */
+	--slate-50-solid: rgba(248, 250, 252, 1); /* #f8fafc — strong text, ref bold */
+	--slate-400-solid: rgba(148, 163, 184, 1); /* #94a3b8 — muted description text */
+	--warn-yellow: rgba(250, 204, 21, 1); /* #facc15 — warning icon yellow-400 */
+	--warn-yellow-light: rgba(253, 224, 71, 1); /* #fde047 — warning icon yellow-300 */
+	--cat-green-toast: rgba(0, 200, 83, 1); /* #00C853 — success toast */
+	--pill-text-blue: rgba(230, 240, 255, 1); /* #e6f0ff — pill indicator text */
+	--pill-dot-grey: rgba(161, 161, 170, 1); /* #a1a1aa — pill grey dot */
+	--text-on-amber: rgba(26, 26, 46, 1); /* #1a1a2e — text on amber background */
+	--slate-600-solid: rgba(71, 85, 105, 1); /* #475569 — axis label, time text */
 }

@@ -17,4 +17,4 @@ declare global {
 	const __IS_VERCEL_DEPLOYMENT__: boolean;
 }
 
-export { };
+export {};

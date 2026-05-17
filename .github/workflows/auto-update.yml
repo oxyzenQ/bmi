@@ -3,8 +3,8 @@ name: ⛑️ Auto Update Dependencies
 
 on:
   schedule:
-    - cron: '0 0 * * *'   # Daily at 00:00 UTC (08:00 SGT)
-  workflow_dispatch:       # Manual trigger option
+    - cron: '0 0 * * *' # Daily at 00:00 UTC (08:00 SGT)
+  workflow_dispatch: # Manual trigger option
     inputs:
       strategy:
         description: How to publish updates
