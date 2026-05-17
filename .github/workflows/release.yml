@@ -17,6 +17,9 @@ jobs:
   validate-tag:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Get tag name
         id: tag
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
@@ -43,6 +46,26 @@ jobs:
           fi
 
           echo "✅ Tag format valid: $TAG"
+
+      - name: Validate tag matches package version
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.tag.outputs.TAG_NAME }}"
+          TAG_VERSION="${TAG#${RELEASE_TAG_PREFIX}-v}"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          PACKAGE_SHORT="$(node -e "const [major='0', minor='0'] = require('./package.json').version.split('.'); console.log(`${major}.${minor}`)")"
+
+          echo "Tag version:     $TAG_VERSION"
+          echo "Package version: $PACKAGE_VERSION"
+
+          if [ "$TAG_VERSION" != "$PACKAGE_SHORT" ]; then
+            echo "❌ Release tag ${TAG} does not match package.json version ${PACKAGE_VERSION}."
+            echo "Expected tag: ${RELEASE_TAG_PREFIX}-v${PACKAGE_SHORT}"
+            exit 1
+          fi
+
+          echo "✅ Tag matches package.json display version: v${PACKAGE_SHORT}"
 
   release:
     needs: validate-tag
