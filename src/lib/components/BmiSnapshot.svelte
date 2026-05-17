@@ -14,9 +14,10 @@
   interface Props {
     currentBmi?: number | null;
     category?: string | null;
+    refreshKey?: number;
   }
 
-  let { currentBmi = null, category = null }: Props = $props();
+  let { currentBmi = null, category = null, refreshKey = 0 }: Props = $props();
 
   interface BMIRecord {
     timestamp: number;
@@ -54,8 +55,9 @@
     }
   }
 
-  // Side-effect: read localStorage when currentBmi changes
+  // Side-effect: read localStorage when currentBmi or the persisted history changes
   $effect(() => {
+    void refreshKey;
     if (currentBmi === null) {
       bestBmiState = null;
     } else {
@@ -236,7 +238,7 @@
     </div>
 
     <!-- BMI History Trend Sparkline -->
-    <BmiHistorySparkline {currentBmi} />
+    <BmiHistorySparkline {currentBmi} {refreshKey} />
   {:else}
     <div class="empty-snapshot">
       <Activity size={48} />

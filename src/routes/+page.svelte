@@ -82,14 +82,27 @@
     importer: () => import('$lib/components/BmiGoalTracker.svelte'),
     onLoad: (comp) => { BmiGoalTrackerComponent = comp; }
   });
-  // Track if BMI was already saved to prevent duplicates
-  let lastSavedBmi: number | null = null;
+  // Track the last submitted metric values to prevent exact duplicate history rows.
+  // BMI alone is not enough because age-only changes should still create a record.
+  let lastSavedHistorySignature: string | null = null;
+
+  function buildHistorySignature(bmi: number, h: number, w: number, ageNum?: number): string {
+    return [
+      bmi.toFixed(4),
+      h.toFixed(2),
+      w.toFixed(2),
+      ageNum ?? ''
+    ].join('|');
+  }
 
   function saveBmiToHistory(bmi: number, h: number, w: number, a: string) {
     if (!browser) return;
     // Note: isSecureContext guard removed — localStorage is available regardless
     // of HTTPS. Only crypto operations (export encryption) need secure context.
-    if (lastSavedBmi === bmi) return;
+    const parsedAge = a !== '' ? parseInt(a) : undefined;
+    const ageNum = Number.isFinite(parsedAge) ? parsedAge : undefined;
+    const historySignature = buildHistorySignature(bmi, h, w, ageNum);
+    if (lastSavedHistorySignature === historySignature) return;
 
     let history: Array<{ timestamp: number; bmi: number; height: number; weight: number; age?: number }> = [];
     try {
@@ -98,8 +111,6 @@
       warnDev('page', 'saveBmi', 'Failed to read history — corrupted data removed', err);
       storageRemove(STORAGE_KEYS.HISTORY);
     }
-
-    const ageNum = a !== '' ? parseInt(a) : undefined;
 
     const newRecord = {
       timestamp: Date.now(),
@@ -116,7 +127,7 @@
     filtered.sort((a, b) => a.timestamp - b.timestamp);
 
     storageSetJSON(STORAGE_KEYS.HISTORY, filtered);
-    lastSavedBmi = bmi;
+    lastSavedHistorySignature = historySignature;
   }
 
   let bmiValue: number | null = $state(null);
@@ -837,7 +848,7 @@
 
     if (browser) {
       storageRemove(STORAGE_KEYS.HISTORY);
-      lastSavedBmi = null;
+      lastSavedHistorySignature = null;
     }
   }
 
@@ -1061,6 +1072,7 @@
                 <BmiSnapshotComponent
                   currentBmi={bmiValue}
                   category={category}
+                  refreshKey={resultsRunId}
                 />
               {:else}
                 <div class="skeleton-card">
@@ -1187,6 +1199,8 @@
           notifyType = 'success';
           notifyMessage = `Successfully imported ${result.count} record${result.count === 1 ? '' : 's'}!${integrityMsg}`;
           notifyButtonText = 'OK';
+          lastSavedHistorySignature = null;
+          resultsRunId += 1;
         } else {
           notifyType = 'delete';
           notifyMessage = result.error || 'Import failed.';

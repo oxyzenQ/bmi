@@ -26,9 +26,10 @@
 
   interface Props {
     currentBmi?: number | null;
+    refreshKey?: number;
   }
 
-  let { currentBmi = null }: Props = $props();
+  let { currentBmi = null, refreshKey = 0 }: Props = $props();
 
   interface BMIRecord {
     timestamp: number;
@@ -65,11 +66,11 @@
   // History state — intentionally $state + $effect instead of writable $derived
   // because loadHistory() reads localStorage (side effect). Using $derived here
   // would reintroduce the Svelte 5 reactive graph desync bug (see PERF-06 / Bug 3).
-  // eslint-disable-next-line svelte/prefer-writable-derived
   let historyState: BMIRecord[] = $state([]);
 
-  // Side-effect: read localStorage when currentBmi changes
+  // Side-effect: read localStorage when currentBmi or the persisted history changes
   $effect(() => {
+    void refreshKey;
     historyState = currentBmi === null ? [] : loadHistory();
   });
 
