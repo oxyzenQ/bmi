@@ -75,6 +75,9 @@ sw.addEventListener('fetch', (event) => {
         // Ignore cross-origin requests
         if (url.origin !== sw.location.origin) return;
 
+        // Let partial-content/media range requests pass through untouched.
+        if (request.headers.has('range')) return;
+
         // Navigation requests: network-first for HTML pages to avoid stale content
         if (request.mode === 'navigate') {
                 event.respondWith(

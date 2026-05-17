@@ -460,6 +460,8 @@ const zh: TranslationDict = {
   'lang.title': '\u8bed\u8a00',
 
   // ── PWA ──
+  'pwa.install_title': '安装 BMI Stellar',
+  'pwa.install_description': '将 BMI Stellar 添加到设备，获得更快启动、离线访问和接近原生应用的体验。',
   'pwa.install_text': '\u5b89\u88c5\u6b64\u5e94\u7528\u4ee5\u4fbf\u5feb\u901f\u8bbf\u95ee',
   'pwa.install_btn': '\u5b89\u88c5',
   'pwa.dismiss': '\u5173\u95ed',

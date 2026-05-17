@@ -37,8 +37,9 @@
   import { onMount, type Snippet } from 'svelte';
   import { browser } from '$app/environment';
   import { fade } from 'svelte/transition';
-  import { Download, WifiOff } from 'lucide-svelte';
+  import { WifiOff } from 'lucide-svelte';
   import { initStorage } from '$lib/utils/storage';
+  import { hydratePwaInstallState, registerPwaInstallPrompt } from '$lib/stores/pwa-install';
   import { t as _t, localeVersion } from '$lib/i18n';
   import { warnDevOnce } from '$lib/utils/warn-dev';
   let _rv = $derived($localeVersion);
@@ -81,34 +82,7 @@
   }
 
   // PWA state
-  let deferredPrompt: BeforeInstallPromptEvent | null = null;
-  let canInstall = $state(false);
-  let isInstalled = $state(false);
   let isOffline = $state(false);
-  let showInstallBanner = $state(false);
-  let installDismissed = false;
-
-  interface BeforeInstallPromptEvent extends Event {
-    prompt(): Promise<void>;
-    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-  }
-
-  async function handleInstallClick() {
-    if (!deferredPrompt) return;
-    await deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      isInstalled = true;
-      canInstall = false;
-      showInstallBanner = false;
-    }
-    deferredPrompt = null;
-  }
-
-  function dismissInstallBanner() {
-    showInstallBanner = false;
-    installDismissed = true;
-  }
 
   onMount(() => {
     let cleanupFns: Array<() => void> = [];
@@ -142,25 +116,12 @@
 
     // PWA: install prompt handler
     if (browser) {
-      let installTimer: ReturnType<typeof setTimeout> | undefined;
-      const handleBeforeInstall = (e: Event) => {
-        e.preventDefault();
-        deferredPrompt = e as BeforeInstallPromptEvent;
-        canInstall = true;
-        if (!installDismissed) {
-          installTimer = setTimeout(() => { showInstallBanner = true; }, 3000);
-        }
-      };
+      hydratePwaInstallState();
+      const handleBeforeInstall = (e: Event) => registerPwaInstallPrompt(e);
       window.addEventListener('beforeinstallprompt', handleBeforeInstall);
       cleanupFns.push(() => {
         window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
-        if (installTimer) clearTimeout(installTimer);
       });
-
-      // Check if already installed (standalone mode)
-      if (window.matchMedia('(display-mode: standalone)').matches || ('standalone' in navigator)) {
-        isInstalled = true;
-      }
 
       // Online/offline detection
       const handleOnline = () => { isOffline = false; };
@@ -228,18 +189,6 @@
   {@render children()}
 </div>
 
-<!-- PWA Install Banner -->
-{#if showInstallBanner && canInstall && !isInstalled}
-  <div class="pwa-install-bar" transition:fade={{ duration: 250 }}>
-    <div class="pwa-install-content">
-      <Download size={18} aria-hidden="true" />
-      <span class="pwa-install-text">{t('pwa.install_text')}</span>
-      <button class="pwa-install-btn" onclick={handleInstallClick}>{t('pwa.install_btn')}</button>
-      <button class="pwa-dismiss-btn" onclick={dismissInstallBanner} aria-label={t('pwa.dismiss')}>✕</button>
-    </div>
-  </div>
-{/if}
-
 <!-- Offline Badge -->
 {#if isOffline}
   <div class="pwa-offline-badge" transition:fade={{ duration: 250 }}>
@@ -258,70 +207,6 @@
   .main-content {
     position: relative;
     z-index: var(--z-content);
-  }
-
-  /* PWA Install Banner */
-  .pwa-install-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: var(--z-fab);
-    padding: 0.5rem;
-    background: var(--cosmic-base-95);
-    backdrop-filter: blur(16px) saturate(180%);
-    border-top: 1px solid var(--w-10);
-  }
-
-  .pwa-install-content {
-    max-width: 480px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.65rem;
-    color: var(--w-70);
-    font-size: 0.8rem;
-  }
-
-  .pwa-install-text {
-    flex: 1;
-    text-align: center;
-  }
-
-  .pwa-install-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    padding: 0.35rem 0.85rem;
-    border-radius: var(--radius-pill);
-    border: none;
-    background: var(--cosmic-purple);
-    color: var(--stellar-white);
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
-  .pwa-install-btn:hover {
-    filter: brightness(1.15);
-  }
-
-  .pwa-dismiss-btn {
-    background: none;
-    border: none;
-    color: var(--w-50);
-    cursor: pointer;
-    padding: 0.25rem 0.4rem;
-    font-size: 0.85rem;
-    border-radius: var(--radius-pill);
-    line-height: 1;
-  }
-
-  .pwa-dismiss-btn:hover {
-    color: var(--w-80);
-    background: var(--w-6);
   }
 
   /* Offline Badge */

@@ -206,6 +206,87 @@
   overflow-wrap: break-word;
 }
 
+.pwa-install-card {
+  width: min(100%, 760px);
+  margin: clamp(1rem, 3vh, 1.75rem) auto 0;
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  overflow: hidden;
+  contain: layout style;
+}
+
+.pwa-install-icon {
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  color: var(--stellar-white);
+  background: var(--btn-bg-hover);
+  border: var(--btn-border-hover);
+}
+
+.pwa-install-copy {
+  min-width: 0;
+}
+
+.pwa-install-copy h2 {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  line-height: 1.2;
+  color: var(--stellar-white);
+}
+
+.pwa-install-copy p {
+  margin: 0;
+  color: var(--text-secondary-bright);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.pwa-install-action {
+  white-space: nowrap;
+  background: var(--btn-bg-hover);
+  border: var(--btn-border-hover);
+}
+
+.pwa-install-dismiss {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  padding: 0;
+  border-radius: var(--radius-pill);
+  color: var(--w-70);
+  background: var(--w-6);
+  border: 1px solid var(--w-10);
+}
+
+@media (max-width: 640px) {
+  .pwa-install-card {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    width: min(100%, 560px);
+    padding: 1.5rem 1rem;
+  }
+
+  .pwa-install-copy {
+    padding-inline: 0.25rem;
+  }
+
+  .pwa-install-action {
+    width: min(100%, 260px);
+  }
+}
+
 @media (max-width: 1120px) {
   .footer-disclaimer {
     margin-left: 50px;

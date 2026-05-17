@@ -1,6 +1,7 @@
 {
         "name": "BMI Stellar — Privacy-First BMI Companion",
         "short_name": "BMI Stellar",
+        "id": "/",
         "description": "Calculate BMI, TDEE, body-fat estimates, and track progress locally with charts, offline support, and encrypted backups.",
         "start_url": "/",
         "scope": "/",
