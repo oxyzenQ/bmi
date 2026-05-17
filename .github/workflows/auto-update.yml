@@ -27,7 +27,7 @@ env:
   UPDATE_STRATEGY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.strategy || 'direct' }}
   FORCE_UPDATE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_update || 'false' }}
   OWNER_NAME: ${{ github.repository_owner }}
-  OWNER_EMAIL: ${{ github.repository_owner }}@users.noreply.github.com
+  OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
   BASE_BRANCH: ${{ github.event.repository.default_branch }}
 
 jobs:

@@ -31,7 +31,7 @@ permissions:
 env:
   # Repository owner identity (must match the owner so contributions show up).
   OWNER_NAME: ${{ github.repository_owner }}
-  OWNER_EMAIL: ${{ github.repository_owner }}@users.noreply.github.com
+  OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
 
 jobs:
   update-actions:
