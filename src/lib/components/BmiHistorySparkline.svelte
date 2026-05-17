@@ -50,16 +50,24 @@
   const BMI_MIN = 12;
   const BMI_MAX = 42;
 
-  function loadHistory(): BMIRecord[] {
-    if (!browser) return [];
+  interface HistoryView {
+    records: BMIRecord[];
+    totalCount: number;
+  }
+
+  function loadHistory(): HistoryView {
+    if (!browser) return { records: [], totalCount: 0 };
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.HISTORY);
-      if (!stored) return [];
+      if (!stored) return { records: [], totalCount: 0 };
       const history: BMIRecord[] = JSON.parse(stored);
-      return history.slice(-MAX_POINTS);
+      return {
+        records: history.slice(-MAX_POINTS),
+        totalCount: history.length
+      };
     } catch (err) {
       warnDev('BmiHistorySparkline', 'loadHistory', 'Failed to parse history data', err);
-      return [];
+      return { records: [], totalCount: 0 };
     }
   }
 
@@ -67,11 +75,20 @@
   // because loadHistory() reads localStorage (side effect). Using $derived here
   // would reintroduce the Svelte 5 reactive graph desync bug (see PERF-06 / Bug 3).
   let historyState: BMIRecord[] = $state([]);
+  let totalHistoryCount = $state(0);
 
   // Side-effect: read localStorage when currentBmi or the persisted history changes
   $effect(() => {
     void refreshKey;
-    historyState = currentBmi === null ? [] : loadHistory();
+    if (currentBmi === null) {
+      historyState = [];
+      totalHistoryCount = 0;
+      return;
+    }
+
+    const historyView = loadHistory();
+    historyState = historyView.records;
+    totalHistoryCount = historyView.totalCount;
   });
 
   // Hover state
@@ -185,7 +202,7 @@
       { min: 30, max: BMI_MAX, color: 'var(--cat-red-6)', label: '' }
     ];
 
-    return { points, pathD, areaD, trend, diff, first, last, count: values.length, zones };
+    return { points, pathD, areaD, trend, diff, first, last, count: totalHistoryCount, zones };
   });
 
   function handlePointerMove(e: PointerEvent) {
