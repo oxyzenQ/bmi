@@ -6,7 +6,7 @@ import type { TranslationDict } from '../types';
 
 const id: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': 'BMI Stellar v20.0 \u2014 Pendamping BMI Privacy-First',
+  'meta.title': 'BMI Stellar {version} \u2014 Pendamping BMI Privacy-First',
   'meta.description': 'Hitung BMI, TDEE, estimasi lemak tubuh, dan rentang berat ideal dengan BMI Stellar \u2014 aplikasi offline-ready dengan grafik dan backup terenkripsi.',
   'meta.og_description': 'Pendamping BMI privacy-first dengan TDEE, estimasi lemak tubuh, grafik progres, dukungan offline, dan backup terenkripsi.',
 
@@ -56,7 +56,7 @@ const id: TranslationDict = {
   'hero.feature1': 'BMI + TDEE',
   'hero.feature2': 'Progres Lokal',
   'hero.feature3': 'Backup Terenkripsi',
-  'hero.edition': 'Stellar v20.0',
+  'hero.edition': 'Stellar {version}',
 
   // ── Form ──
   'form.title': 'Kalkulator BMI',
@@ -501,7 +501,7 @@ const id: TranslationDict = {
 
   'about.opensource_title': 'Open Source & Rilis',
   'about.opensource_p1': 'BMI Stellar adalah project open-source yang dikelola oleh Rezky Nightky dengan fokus pada aksesibilitas, privasi, UI responsif, dan stabilitas jangka panjang.',
-  'about.opensource_p2': 'Rilis ini adalah bagian dari milestone Stellar v20.0.',
+  'about.opensource_p2': 'Rilis ini adalah bagian dari milestone Stellar {version}.',
 
   'about.data_model': 'Model Data',
   'about.local_first': 'Local-first',

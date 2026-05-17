@@ -6,7 +6,7 @@ import type { TranslationDict } from '../types';
 
 const zh: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': 'BMI Stellar v20.0 \u2014 \u9690\u79c1\u4f18\u5148\u7684BMI\u4f34\u4fa3',
+  'meta.title': 'BMI Stellar {version} \u2014 \u9690\u79c1\u4f18\u5148\u7684BMI\u4f34\u4fa3',
   'meta.description': '\u4f7f\u7528 BMI Stellar \u8ba1\u7b97 BMI\u3001TDEE\u3001\u4f53\u8102\u4f30\u7b97\u548c\u7406\u60f3\u4f53\u91cd\u8303\u56f4 \u2014 \u9690\u79c1\u4f18\u5148\u3001\u79bb\u7ebf\u53ef\u7528\u3001\u5e26\u56fe\u8868\u548c\u52a0\u5bc6\u5907\u4efd\u7684\u5065\u5eb7\u4f34\u4fa3\u3002',
   'meta.og_description': '\u9690\u79c1\u4f18\u5148\u7684BMI\u4f34\u4fa3\uff0c\u652f\u6301TDEE\u3001\u4f53\u8102\u4f30\u7b97\u3001\u8fdb\u5ea6\u56fe\u8868\u3001\u79bb\u7ebf\u4f7f\u7528\u548c\u52a0\u5bc6\u5907\u4efd\u3002',
 
@@ -56,7 +56,7 @@ const zh: TranslationDict = {
   'hero.feature1': 'BMI + TDEE',
   'hero.feature2': '\u672c\u5730\u8fdb\u5ea6',
   'hero.feature3': '\u52a0\u5bc6\u5907\u4efd',
-  'hero.edition': 'Stellar v20.0',
+  'hero.edition': 'Stellar {version}',
 
   // ── Form ──
   'form.title': 'BMI \u8ba1\u7b97\u5668',
@@ -501,7 +501,7 @@ const zh: TranslationDict = {
 
   'about.opensource_title': '\u5f00\u6e90\u4e0e\u53d1\u5e03',
   'about.opensource_p1': 'BMI Stellar \u662f\u7531 Rezky Nightky \u7ef4\u62a4\u7684\u5f00\u6e90\u9879\u76ee\uff0c\u4e13\u6ce8\u4e8e\u53ef\u8bbf\u95ee\u6027\u3001\u9690\u79c1\u3001\u54cd\u5e94\u5f0fUI\u548c\u957f\u671f\u7a33\u5b9a\u6027\u3002',
-  'about.opensource_p2': '\u672c\u7248\u672c\u662f Stellar v20.0 \u91cc\u7a0b\u7891\u7684\u4e00\u90e8\u5206\u3002',
+  'about.opensource_p2': '\u672c\u7248\u672c\u662f Stellar {version} \u91cc\u7a0b\u7891\u7684\u4e00\u90e8\u5206\u3002',
 
   'about.data_model': '\u6570\u636e\u6a21\u578b',
   'about.local_first': '\u672c\u5730\u4f18\u5148',

@@ -7,7 +7,7 @@ import type { TranslationDict } from '../types';
 
 const en: TranslationDict = {
   // ── Meta / SEO ──
-  'meta.title': 'BMI Stellar v20.0 \u2014 Privacy-First BMI Companion',
+  'meta.title': 'BMI Stellar {version} \u2014 Privacy-First BMI Companion',
   'meta.description': 'Calculate BMI, TDEE, body-fat estimates, and ideal weight range with BMI Stellar \u2014 a privacy-first, offline-ready health companion with charts and encrypted backups.',
   'meta.og_description': 'A privacy-first BMI companion with TDEE, body-fat estimates, progress charts, offline support, and encrypted backups.',
 
@@ -57,7 +57,7 @@ const en: TranslationDict = {
   'hero.feature1': 'BMI + TDEE',
   'hero.feature2': 'Local Progress',
   'hero.feature3': 'Encrypted Backup',
-  'hero.edition': 'Stellar v20.0',
+  'hero.edition': 'Stellar {version}',
 
   // ── Form ──
   'form.title': 'BMI Calculator',
@@ -502,7 +502,7 @@ const en: TranslationDict = {
 
   'about.opensource_title': 'Open Source & Release',
   'about.opensource_p1': 'BMI Stellar is an open-source project maintained by Rezky Nightky with a focus on accessibility, privacy, responsive UI, and long-term stability.',
-  'about.opensource_p2': 'This release is part of the Stellar v20.0 milestone.',
+  'about.opensource_p2': 'This release is part of the Stellar {version} milestone.',
 
   'about.data_model': 'Data Model',
   'about.local_first': 'Local-first',

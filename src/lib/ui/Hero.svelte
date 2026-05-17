@@ -2,9 +2,11 @@
   import { Activity, Gem, Target } from 'lucide-svelte';
   import { onMount, onDestroy } from 'svelte';
   import { t as _t, localeVersion } from '$lib/i18n';
+  import { getAppVersionShort } from '$lib/utils/app-version';
   let _rv = $derived($localeVersion);
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
+  const appVersionTag = `v${getAppVersionShort()}`;
 
   let animate = $state(false);
   let rafId: number | null = null;
@@ -68,7 +70,7 @@
 
     <div class="hero-bottom">
       <p class="hero-bottom-text">
-        {t('hero.edition')}
+        {t('hero.edition', { version: appVersionTag })}
       </p>
     </div>
   </div>
@@ -99,3 +101,4 @@
     }
   }
 </style>
+  const appVersionTag = `v${getAppVersionShort()}`;

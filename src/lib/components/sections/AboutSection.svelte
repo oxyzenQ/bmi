@@ -5,8 +5,10 @@
     PackageCheck, ShieldCheck, Scale
   } from 'lucide-svelte';
   import { t as _t, localeVersion } from '$lib/i18n';
+  import { getStellarVersionLabel, getAppVersionShort } from '$lib/utils/app-version';
 
   let { gitCommitId, gitBranch }: { gitCommitId: string; gitBranch: string } = $props();
+  const appVersionTag = `v${getAppVersionShort()}`;
   let _rv = $derived($localeVersion);
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
 </script>
@@ -124,11 +126,11 @@
         </div>
         <div class="about-card-content">
           <p>{@html t('about.opensource_p1')}</p>
-          <p>{@html t('about.opensource_p2')}</p>
+          <p>{@html t('about.opensource_p2', { version: appVersionTag })}</p>
           <div class="app-info">
             <p class="info-row">
               <PackageCheck class="PackageCheck" />
-              <strong>{t('about.version')}:</strong>Stellar v20.0 <span class="commit-id">({gitCommitId})</span>
+              <strong>{t('about.version')}:</strong>{getStellarVersionLabel()} <span class="commit-id">({gitCommitId})</span>
             </p>
             {#if gitBranch !== 'main'}
             <p class="info-row">

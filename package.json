@@ -28,6 +28,7 @@
     "build:optimized": "NODE_ENV=production vite build --mode production",
     "analyze": "vite build --mode analyze",
     "verify": "bun run check && bun run lint && bun run test:run && bun run build",
+    "bmi-update-version": "bun run scripts/bmi-update-version.ts",
     "bmi-update-version-to": "bun run scripts/bmi-update-version.ts"
   },
   "devDependencies": {

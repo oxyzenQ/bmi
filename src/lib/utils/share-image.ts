@@ -5,6 +5,7 @@
 
 import { t, getLocale } from '$lib/i18n';
 import { CATEGORY_COLORS, COLORS, isBmiCategory } from './bmi-category';
+import { getAppVersionShort } from './app-version';
 
 export interface BmiCardData {
   bmi: number;
@@ -37,6 +38,31 @@ const PREMIUM = {
   brandPurple: '#8000ff',
   brandHighlight: '#e2c7ff'
 } as const;
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function toFiniteNumber(value: number | null | undefined, fallback = 0): number {
+  if (typeof value !== 'number') return fallback;
+  return Number.isFinite(value) ? value : fallback;
+}
+
+function fitFontSize(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  fontWeight: number,
+  maxSize: number,
+  minSize: number,
+  maxWidth: number
+): string {
+  for (let size = maxSize; size >= minSize; size--) {
+    const font = `${fontWeight} ${size}px system-ui, sans-serif`;
+    ctx.font = font;
+    if (ctx.measureText(text).width <= maxWidth) return font;
+  }
+  return `${fontWeight} ${minSize}px system-ui, sans-serif`;
+}
 
 /** Helper: convert hex (#RRGGBB) to rgba string */
 function hexToRgba(hex: string, alpha: number): string {
@@ -106,12 +132,13 @@ function drawGradientCenteredText(
   gradientStops: Array<[number, string]>
 ): void {
   ctx.save();
-  ctx.font = font;
+  ctx.font = font || '700 24px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
 
   const metrics = ctx.measureText(text);
-  const grad = ctx.createLinearGradient(x - metrics.width / 2, y, x + metrics.width / 2, y);
+  const half = Math.max(metrics.width / 2, 1);
+  const grad = ctx.createLinearGradient(x - half, y, x + half, y);
 
   for (const [stop, color] of gradientStops) {
     grad.addColorStop(stop, color);
@@ -123,6 +150,7 @@ function drawGradientCenteredText(
 }
 
 function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+  const safeMaxWidth = Math.max(maxWidth, 1);
   const useWords = /\s/.test(text);
   const units = useWords ? text.trim().split(/\s+/) : Array.from(text);
   const lines: string[] = [];
@@ -130,7 +158,7 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
 
   for (const unit of units) {
     const testLine = currentLine ? (useWords ? `${currentLine} ${unit}` : `${currentLine}${unit}`) : unit;
-    if (ctx.measureText(testLine).width > maxWidth && currentLine) {
+    if (ctx.measureText(testLine).width > safeMaxWidth && currentLine) {
       lines.push(currentLine);
       currentLine = unit;
     } else {
@@ -170,9 +198,7 @@ function drawStatCell(
   ctx.textAlign = 'center';
   ctx.fillStyle = PREMIUM.textMuted;
   ctx.font = '700 20px system-ui, sans-serif';
-  ctx.letterSpacing = '0.05em';
   ctx.fillText(label, cx, y + 38);
-  ctx.letterSpacing = '0px';
 
   ctx.fillStyle = PREMIUM.text;
   ctx.font = '800 34px system-ui, sans-serif';
@@ -256,7 +282,8 @@ function drawMiniGauge(
   const bmiMin = 12;
   const bmiMax = 42;
   const bmiRange = bmiMax - bmiMin;
-  const pct = Math.max(0, Math.min(1, (bmi - bmiMin) / bmiRange));
+  const safeBmi = toFiniteNumber(bmi, bmiMin);
+  const pct = clamp((safeBmi - bmiMin) / bmiRange, 0, 1);
 
   // Gauge track arc
   ctx.beginPath();
@@ -315,7 +342,7 @@ function drawMiniGauge(
   ctx.fillText('BMI', cx, cy - 4);
   ctx.fillStyle = 'rgba(255,255,255,0.34)';
   ctx.font = '600 13px system-ui, sans-serif';
-  ctx.fillText(bmi.toFixed(1), cx, cy + 14);
+  ctx.fillText(safeBmi.toFixed(1), cx, cy + 14);
 }
 
 export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
@@ -327,6 +354,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
+  const safeBmi = clamp(toFiniteNumber(data.bmi, 0), 0, 99.9);
   const accent = getCategoryColor(data.category);
   const centerX = CARD_W / 2;
 
@@ -395,12 +423,13 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.stroke();
 
   const headerText = t('share.card_header');
+  const headerFont = fitFontSize(ctx, headerText, 800, 28, 22, cardW - 220);
   drawGradientCenteredText(
     ctx,
     headerText,
     centerX,
     headerY,
-    '800 28px system-ui, sans-serif',
+    headerFont,
     [
       [0, PREMIUM.brandViolet],
       [0.28, PREMIUM.brandBlue],
@@ -419,7 +448,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   ctx.fillStyle = valueAura;
   ctx.fillRect(cardX, bmiY - 210, cardW, 300);
 
-  const bmiText = data.bmi.toFixed(1);
+  const bmiText = safeBmi.toFixed(1);
   ctx.font = '800 148px system-ui, sans-serif';
   ctx.textAlign = 'center';
 
@@ -436,7 +465,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 
   const gaugeCx = cardX + cardW - 118;
   const gaugeCy = bmiY - 44;
-  drawMiniGauge(ctx, gaugeCx, gaugeCy, 48, data.bmi, accent);
+  drawMiniGauge(ctx, gaugeCx, gaugeCy, 48, safeBmi, accent);
 
   ctx.fillStyle = PREMIUM.text;
   ctx.font = '800 48px system-ui, sans-serif';
@@ -532,7 +561,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
     ctx.stroke();
   }
 
-  const markerPct = Math.max(0, Math.min(1, (data.bmi - bmiMin) / bmiRange));
+  const markerPct = clamp((safeBmi - bmiMin) / bmiRange, 0, 1);
   const markerX = barX + markerPct * barW;
   const activeGlow = ctx.createRadialGradient(markerX, barY + barH / 2, 0, markerX, barY + barH / 2, 100);
   activeGlow.addColorStop(0, hexToRgba(accent, 0.08));
@@ -629,16 +658,35 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
   }
 
   ctx.textAlign = 'center';
-  ctx.fillStyle = hexToRgba(PREMIUM.emerald, 0.52);
-  ctx.font = '700 21px system-ui, sans-serif';
-  ctx.fillText(t('share.card_branding'), centerX, footerBrandY);
+  const shareVersion = `v${getAppVersionShort()}`;
+  const brandLine = `${t('share.card_branding')} \u00b7 ${shareVersion}`;
+  const brandFont = fitFontSize(ctx, brandLine, 700, 21, 17, CARD_W - 120);
+  drawGradientCenteredText(
+    ctx,
+    brandLine,
+    centerX,
+    footerBrandY,
+    brandFont,
+    [
+      [0, PREMIUM.brandViolet],
+      [0.28, PREMIUM.brandBlue],
+      [0.56, PREMIUM.brandPurple],
+      [0.78, '#9b5cff'],
+      [1, PREMIUM.brandHighlight]
+    ]
+  );
 
   ctx.fillStyle = 'rgba(255,255,255,0.30)';
   ctx.font = '400 18px system-ui, sans-serif';
   ctx.fillText('bmi-stellar.vercel.app', centerX, footerDomainY);
 
   const now = new Date();
-  const timestamp = now.toLocaleString(getLocale() === 'zh' ? 'zh-CN' : getLocale(), { dateStyle: 'medium', timeStyle: 'short' });
+  let timestamp = '';
+  try {
+    timestamp = now.toLocaleString(getLocale() === 'zh' ? 'zh-CN' : getLocale(), { dateStyle: 'medium', timeStyle: 'short' });
+  } catch {
+    timestamp = now.toLocaleString('en', { dateStyle: 'medium', timeStyle: 'short' });
+  }
   ctx.fillStyle = 'rgba(255,255,255,0.24)';
   ctx.font = '400 16px system-ui, sans-serif';
   ctx.fillText(timestamp, centerX, footerTimeY);
@@ -658,7 +706,7 @@ export async function downloadBmiCard(data: BmiCardData): Promise<boolean> {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `bmi-stellar-${data.bmi.toFixed(1)}.png`;
+  a.download = `bmi-stellar-${clamp(toFiniteNumber(data.bmi, 0), 0, 99.9).toFixed(1)}.png`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -673,14 +721,15 @@ export async function shareBmiCard(data: BmiCardData): Promise<{ ok: boolean; me
   const blob = await generateBmiCard(data);
   if (!blob) return { ok: false, method: 'none' };
 
-  const filename = `bmi-stellar-${data.bmi.toFixed(1)}.png`;
+  const safeBmi = clamp(toFiniteNumber(data.bmi, 0), 0, 99.9);
+  const filename = `bmi-stellar-${safeBmi.toFixed(1)}.png`;
   const file = new File([blob], filename, { type: 'image/png' });
 
   if (navigator.share && navigator.canShare?.({ files: [file] })) {
     try {
       await navigator.share({
         title: t('share.title'),
-        text: t('share.card_text', { n: data.bmi.toFixed(1), category: getCategoryLabel(data.category) }),
+        text: t('share.card_text', { n: safeBmi.toFixed(1), category: getCategoryLabel(data.category) }),
         files: [file]
       });
       return { ok: true, method: 'share' };

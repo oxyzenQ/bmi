@@ -26,9 +26,12 @@
     ChevronUp
   } from 'lucide-svelte';
   import { t as _t, initLocale, localeVersion } from '$lib/i18n';
+  import { getAppVersionShort } from '$lib/utils/app-version';
   let _rv = $derived($localeVersion);
   // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
   function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
+  const appVersionTag = `v${getAppVersionShort()}`;
+  let metaTitle = $derived(t('meta.title', { version: appVersionTag }));
   type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
   type BmiResultsComponentType = typeof import('$lib/components/BmiResults.svelte').default;
   type BmiRadialGaugeComponentType = typeof import('$lib/components/BmiRadialGauge.svelte').default;
@@ -845,11 +848,11 @@
 </script>
 
 <svelte:head>
-  <title>{t('meta.title')}</title>
+  <title>{metaTitle}</title>
   <meta name="description" content={t('meta.description')} />
-  <meta property="og:title" content={t('meta.title')} />
+  <meta property="og:title" content={metaTitle} />
   <meta property="og:description" content={t('meta.og_description')} />
-  <meta name="twitter:title" content={t('meta.title')} />
+  <meta name="twitter:title" content={metaTitle} />
   <meta name="twitter:description" content={t('meta.og_description')} />
 </svelte:head>
 <div
