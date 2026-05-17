@@ -27,6 +27,7 @@ concurrency:
 
 permissions:
   contents: write
+  workflows: write
 
 env:
   # Repository owner identity (must match the owner so contributions show up).
