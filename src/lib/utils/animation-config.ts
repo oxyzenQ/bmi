@@ -60,6 +60,8 @@ export const SCROLL = {
   TOUCH_NAV_SHOW_DELTA: 18,
   TOUCH_NAV_HIDE_DELTA: 28,
   TOUCH_NAV_IDLE_DELAY: 900,
+  TOUCH_NAV_TIMER_THROTTLE: 220,
+  TOUCH_SCROLL_DELTA_EPSILON: 14,
 } as const;
 
 // ── Haptic patterns ──

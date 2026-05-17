@@ -181,6 +181,7 @@
   let scrollRafId: number | null = null;
   let pendingScrollTarget: HTMLElement | null = null;
   let pendingScrollY = 0;
+  let lastTouchNavTimerScheduleAt = 0;
 
 
   function triggerHaptic(pattern: number | number[] = HAPTIC.NAV) {
@@ -535,8 +536,11 @@
     const currentScrollY = pendingScrollY;
     const delta = currentScrollY - lastScrollY;
     const scrollingUp = delta < 0;
+    const deltaEpsilon = isTouchDevice
+      ? SCROLL.TOUCH_SCROLL_DELTA_EPSILON
+      : SCROLL.SCROLL_DELTA_EPSILON;
 
-    if (Math.abs(delta) < SCROLL.SCROLL_DELTA_EPSILON) {
+    if (Math.abs(delta) < deltaEpsilon) {
       pendingScrollTarget = null;
       return;
     }
@@ -558,8 +562,6 @@
         pagerControlsVisible = true;
       }, SCROLL.SCROLL_IDLE_DELAY);
     } else {
-      if (scrollTimeout) clearTimeout(scrollTimeout);
-
       if (
         !scrollingUp &&
         currentScrollY > SCROLL.TOUCH_NAV_HIDE_THRESHOLD &&
@@ -570,9 +572,20 @@
         if (!pagerControlsVisible) pagerControlsVisible = true;
       }
 
-      scrollTimeout = setTimeout(() => {
-        pagerControlsVisible = true;
-      }, SCROLL.TOUCH_NAV_IDLE_DELAY);
+      const now = Date.now();
+      const shouldRescheduleTimer =
+        !scrollTimeout ||
+        !pagerControlsVisible ||
+        now - lastTouchNavTimerScheduleAt >= SCROLL.TOUCH_NAV_TIMER_THROTTLE;
+
+      if (shouldRescheduleTimer) {
+        if (scrollTimeout) clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          pagerControlsVisible = true;
+          scrollTimeout = null;
+        }, SCROLL.TOUCH_NAV_IDLE_DELAY);
+        lastTouchNavTimerScheduleAt = now;
+      }
     }
 
     lastScrollY = currentScrollY;
