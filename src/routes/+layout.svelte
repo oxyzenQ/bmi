@@ -50,7 +50,11 @@
   // ── Button ripple effect (delegated on document) ──
   function initButtonRipple() {
     if (!browser) return () => {};
-    function handleClick(e: MouseEvent) {
+    const isCoarsePointer = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    if (isCoarsePointer) return () => {};
+
+    function handlePointerDown(e: PointerEvent) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
       const target = e.target as HTMLElement;
       const btn = target.closest('button, .btn, a.button, .action-btn, .gauge-cta-btn, .sex-btn') as HTMLElement | null;
       if (!btn) return;
@@ -71,8 +75,8 @@
         ripple.remove();
       });
     }
-    document.addEventListener('click', handleClick, { passive: true });
-    return () => document.removeEventListener('click', handleClick);
+    document.addEventListener('pointerdown', handlePointerDown, { passive: true });
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
   }
 
   // PWA state

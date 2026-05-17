@@ -295,6 +295,44 @@
   button,
   a.button {
     transition: none !important;
+    transition-delay: 0ms !important;
+    touch-action: manipulation !important;
+  }
+
+  /* Mobile tap response: force immediate active feedback on all
+     interactive button-like controls without waiting for long effects. */
+  :is(
+    .btn,
+    button,
+    a.button,
+    .pager-tab,
+    .pager-btn-futuristic,
+    .sex-btn,
+    .seg-btn,
+    .act-btn,
+    .unit-toggle-segment,
+    .notify-btn,
+    .lang-option
+  ) {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation !important;
+    transition-delay: 0ms !important;
+  }
+
+  :is(
+    .btn,
+    button,
+    a.button,
+    .pager-tab,
+    .pager-btn-futuristic,
+    .sex-btn,
+    .seg-btn,
+    .act-btn,
+    .unit-toggle-segment,
+    .notify-btn,
+    .lang-option
+  ):active {
+    transition-duration: 80ms !important;
   }
 
   /* T-7: Permanently simplify filters on inputs and gauge elements. */
