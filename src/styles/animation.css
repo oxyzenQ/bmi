@@ -1,19 +1,19 @@
+/* // Copyright (c) 2025 - 2026 rezky_nightky */
 /* ── animation.css — Skeleton loading, micro-interactions, shooting stars, gauge CTA, scroll-to-top, haptic feedback ── */
 /* ==============================
    REDUCED MOTION
    Disable ANIMATIONS and TRANSITIONS for accessibility.
-   Bug #19 fix: Do NOT strip backdrop-filter here — visual effects
-   are not animations. Stripping backdrop-filter makes glass
-   containers fully transparent on mobile devices that have
-   prefers-reduced-motion enabled (e.g. iOS Reduce Motion).
+   Keep visual effects intact; backdrop/filter styling is not motion.
    ============================== */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
 }
 
 /* ==============================
@@ -21,241 +21,241 @@
       Premium animated shimmer with staggered delays
       ============================== */
 .skeleton {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(
-    180deg,
-    var(--sd-40) 0%,
-    var(--sd-55) 50%,
-    var(--sd-40) 100%
-  );
-  background-size: 100% 200%;
-  border-radius: 0.75rem;
-  animation: skeleton-breathe var(--dur-breathe) ease-in-out infinite;
+	position: relative;
+	overflow: hidden;
+	background: linear-gradient(180deg, var(--sd-40) 0%, var(--sd-55) 50%, var(--sd-40) 100%);
+	background-size: 100% 200%;
+	border-radius: 0.75rem;
+	animation: skeleton-breathe var(--dur-breathe) ease-in-out infinite;
 }
 
 /* Shimmer sweep overlay */
 .skeleton::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    105deg,
-    transparent 0%,
-    var(--w-3) 15%,
-    var(--w-8) 30%,
-    var(--w-3) 45%,
-    transparent 60%
-  );
-  animation: skeleton-shimmer var(--dur-shimmer) var(--easing-material) infinite;
-  will-change: transform;
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		105deg,
+		transparent 0%,
+		var(--w-3) 15%,
+		var(--w-8) 30%,
+		var(--w-3) 45%,
+		transparent 60%
+	);
+	animation: skeleton-shimmer var(--dur-shimmer) var(--easing-material) infinite;
+	will-change: transform;
 }
 
 /* Gentle breathing pulse for depth */
 @keyframes skeleton-breathe {
-  0%, 100% {
-    background-position: 100% 0%;
-    opacity: 1;
-  }
-  50% {
-    background-position: 100% 100%;
-    opacity: 0.85;
-  }
+	0%,
+	100% {
+		background-position: 100% 0%;
+		opacity: 1;
+	}
+	50% {
+		background-position: 100% 100%;
+		opacity: 0.85;
+	}
 }
 
 @keyframes skeleton-shimmer {
-  0% {
-    transform: translateX(-120%);
-  }
-  100% {
-    transform: translateX(120%);
-  }
+	0% {
+		transform: translateX(-120%);
+	}
+	100% {
+		transform: translateX(120%);
+	}
 }
 
 /* Staggered delays for sequential skeleton lines */
-.skeleton-card > :nth-child(2) { animation-delay: 0.05s; }
-.skeleton-card > :nth-child(3) { animation-delay: 0.1s; }
-.skeleton-card > :nth-child(4) { animation-delay: 0.15s; }
-.skeleton-card > :nth-child(5) { animation-delay: 0.2s; }
-.skeleton-card > :nth-child(6) { animation-delay: 0.25s; }
-.skeleton-card > :nth-child(7) { animation-delay: 0.3s; }
+.skeleton-card > :nth-child(2) {
+	animation-delay: 0.05s;
+}
+.skeleton-card > :nth-child(3) {
+	animation-delay: 0.1s;
+}
+.skeleton-card > :nth-child(4) {
+	animation-delay: 0.15s;
+}
+.skeleton-card > :nth-child(5) {
+	animation-delay: 0.2s;
+}
+.skeleton-card > :nth-child(6) {
+	animation-delay: 0.25s;
+}
+.skeleton-card > :nth-child(7) {
+	animation-delay: 0.3s;
+}
 
-.skeleton-form > :nth-child(2) .skeleton::after { animation-delay: 0.05s; }
-.skeleton-form > :nth-child(3) .skeleton::after { animation-delay: 0.1s; }
-.skeleton-form > :nth-child(4) .skeleton::after { animation-delay: 0.15s; }
+.skeleton-form > :nth-child(2) .skeleton::after {
+	animation-delay: 0.05s;
+}
+.skeleton-form > :nth-child(3) .skeleton::after {
+	animation-delay: 0.1s;
+}
+.skeleton-form > :nth-child(4) .skeleton::after {
+	animation-delay: 0.15s;
+}
 
 /* Skeleton card container with subtle entrance */
 .skeleton-card {
-  background: var(--k-50);
-  border: var(--border-by-rezky);
-  border-radius: var(--radius-3xl);
-  padding: clamp(1.5rem, 4vw, 2rem);
-  animation: skeleton-card-enter var(--dur-panel) ease-out;
+	background: var(--k-50);
+	border: var(--border-by-rezky);
+	border-radius: var(--radius-3xl);
+	padding: clamp(1.5rem, 4vw, 2rem);
+	animation: skeleton-card-enter var(--dur-panel) ease-out;
 }
 
 @keyframes skeleton-card-enter {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 .skeleton-card .skeleton-line {
-  height: 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 0.75rem;
+	height: 1rem;
+	border-radius: 0.5rem;
+	margin-bottom: 0.75rem;
 }
 
 .skeleton-card .skeleton-line:last-child {
-  margin-bottom: 0;
+	margin-bottom: 0;
 }
 
 .skeleton-card .skeleton-line.w-60 {
-  width: 60%;
+	width: 60%;
 }
 
 .skeleton-card .skeleton-line.w-80 {
-  width: 80%;
+	width: 80%;
 }
 
 .skeleton-card .skeleton-line.w-40 {
-  width: 40%;
+	width: 40%;
 }
 
 .skeleton-card .skeleton-line.w-25 {
-  width: 25%;
+	width: 25%;
 }
 
 .skeleton-card .skeleton-line.w-full {
-  width: 100%;
+	width: 100%;
 }
 
 .skeleton-card .skeleton-line.h-lg {
-  height: 2.5rem;
+	height: 2.5rem;
 }
 
 .skeleton-card .skeleton-line.h-md {
-  height: 1.5rem;
+	height: 1.5rem;
 }
 
 .skeleton-card .skeleton-line.h-sm {
-  height: 0.75rem;
+	height: 0.75rem;
 }
 
 .skeleton-card .skeleton-circle {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  margin: 0 auto 1rem;
-  animation: skeleton-ring-pulse var(--dur-breathe) ease-in-out infinite;
+	width: 80px;
+	height: 80px;
+	border-radius: 50%;
+	margin: 0 auto 1rem;
+	animation: skeleton-ring-pulse var(--dur-breathe) ease-in-out infinite;
 }
 
 @keyframes skeleton-ring-pulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 var(--w-5);
-  }
-  50% {
-    box-shadow: 0 0 12px 2px var(--w-8);
-  }
+	0%,
+	100% {
+	}
+	50% {
+	}
 }
 
 /* Skeleton form skeleton */
 .skeleton-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: center;
-  padding: 1rem 0;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	align-items: center;
+	padding: 1rem 0;
 }
 
 .skeleton-form .skeleton-input {
-  width: 100%;
-  max-width: 320px;
-  height: 3.2rem;
-  border-radius: 0.75rem;
+	width: 100%;
+	max-width: 320px;
+	height: 3.2rem;
+	border-radius: 0.75rem;
 }
 
 /* Skeleton gauge skeleton */
 .skeleton-gauge {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 2rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	padding: 2rem;
 }
 
 .skeleton-gauge .skeleton-ring {
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  border: 4px solid var(--w-8);
-  animation: skeleton-ring-spin 3s linear infinite;
+	width: 200px;
+	height: 200px;
+	border-radius: 50%;
+	border: 4px solid var(--w-8);
+	animation: skeleton-ring-spin 3s linear infinite;
 }
 
 @keyframes skeleton-ring-spin {
-  0% {
-    border-color: var(--w-8);
-    box-shadow: inset 0 0 20px var(--w-5);
-  }
-  50% {
-    border-color: var(--w-14);
-    box-shadow: inset 0 0 20px var(--w-8);
-  }
-  100% {
-    border-color: var(--w-8);
-    box-shadow: inset 0 0 20px var(--w-5);
-  }
+	0% {
+		border-color: var(--w-8);
+	}
+	50% {
+		border-color: var(--w-14);
+	}
+	100% {
+		border-color: var(--w-8);
+	}
 }
 
 .skeleton-gauge .skeleton-bar {
-  display: flex;
-  gap: 0.5rem;
-  width: 100%;
-  margin-top: 1rem;
+	display: flex;
+	gap: 0.5rem;
+	width: 100%;
+	margin-top: 1rem;
 }
 
 .skeleton-gauge .skeleton-bar span {
-  flex: 1;
-  height: 0.75rem;
-  border-radius: 0.375rem;
+	flex: 1;
+	height: 0.75rem;
+	border-radius: 0.375rem;
 }
 
-.skeleton-gauge .skeleton-bar span:nth-child(1)::after { animation-delay: 0s; }
-.skeleton-gauge .skeleton-bar span:nth-child(2)::after { animation-delay: 0.15s; }
-.skeleton-gauge .skeleton-bar span:nth-child(3)::after { animation-delay: 0.3s; }
-.skeleton-gauge .skeleton-bar span:nth-child(4)::after { animation-delay: 0.45s; }
-
-/* Skeleton results skeleton */
-.skeleton-results {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 2rem;
-  text-align: center;
+.skeleton-gauge .skeleton-bar span:nth-child(1)::after {
+	animation-delay: 0s;
 }
-
-.skeleton-results .skeleton-value {
-  font-size: 3.5rem;
-  font-weight: 700;
-  height: 4rem;
-  width: 8rem;
-  border-radius: 0.75rem;
+.skeleton-gauge .skeleton-bar span:nth-child(2)::after {
+	animation-delay: 0.15s;
+}
+.skeleton-gauge .skeleton-bar span:nth-child(3)::after {
+	animation-delay: 0.3s;
+}
+.skeleton-gauge .skeleton-bar span:nth-child(4)::after {
+	animation-delay: 0.45s;
 }
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .skeleton::after,
-  .skeleton,
-  .skeleton-card,
-  .skeleton-card .skeleton-circle,
-  .skeleton-gauge .skeleton-ring {
-    animation: none;
-  }
+	.skeleton::after,
+	.skeleton,
+	.skeleton-card,
+	.skeleton-card .skeleton-circle,
+	.skeleton-gauge .skeleton-ring {
+		animation: none;
+	}
 }
 
 /* ==============================
@@ -267,54 +267,46 @@
 .btn,
 button,
 a.button {
-  position: relative;
-  overflow: hidden;
+	position: relative;
+	overflow: hidden;
 }
 
 .btn-ripple {
-  position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    var(--w-15) 0%,
-    var(--w-5) 40%,
-    transparent 70%
-  );
-  transform: scale(0);
-  animation: btn-ripple-expand var(--dur-slower) ease-out forwards;
-  pointer-events: none;
-  z-index: var(--z-content);
+	position: absolute;
+	border-radius: 50%;
+	background: radial-gradient(circle, var(--w-15) 0%, var(--w-5) 40%, transparent 70%);
+	transform: scale(0);
+	animation: btn-ripple-expand var(--dur-slower) ease-out forwards;
+	pointer-events: none;
+	z-index: var(--z-content);
 }
 
 @keyframes btn-ripple-expand {
-  0% {
-    transform: scale(0);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(4);
-    opacity: 0;
-  }
+	0% {
+		transform: scale(0);
+		opacity: 1;
+	}
+	100% {
+		transform: scale(4);
+		opacity: 0;
+	}
 }
 
 /* ── Input Focus Glow ── */
 .form-input {
-  transition: border-color var(--dur-interactive) ease,
-    box-shadow var(--dur-interactive) ease,
-    background-color var(--dur-interactive) ease;
+	transition:
+		border-color var(--dur-interactive) ease,
+		background-color var(--dur-interactive) ease;
 }
 
 .form-input:focus {
-  border-color: var(--violet-50);
-  box-shadow:
-    0 0 0 3px var(--violet-15),
-    0 0 16px var(--violet-20),
-    inset 0 1px 2px var(--w-5);
-  background-color: var(--void-85);
+	border-color: var(--violet-50);
+
+	background-color: var(--void-85);
 }
 
 .form-input:focus-visible {
-  outline: none;
+	outline: none;
 }
 
 /* ── Glass Card Shine Sweep on Hover ── */
@@ -324,8 +316,8 @@ a.button {
 .gauge-container,
 .reference-table,
 .form-card {
-  position: relative;
-  overflow: hidden;
+	position: relative;
+	overflow: hidden;
 }
 
 /* Aurora shine sweep effect */
@@ -335,24 +327,24 @@ a.button {
 .gauge-container::before,
 .reference-table::before,
 .form-card::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    105deg,
-    transparent 40%,
-    var(--w-2) 45%,
-    var(--w-5) 50%,
-    var(--w-2) 55%,
-    transparent 60%
-  );
-  transform: translateX(-100%) rotate(15deg);
-  transition: transform var(--dur-slow) var(--easing-smooth);
-  pointer-events: none;
-  z-index: var(--z-content);
+	content: '';
+	position: absolute;
+	top: -50%;
+	left: -50%;
+	width: 200%;
+	height: 200%;
+	background: linear-gradient(
+		105deg,
+		transparent 40%,
+		var(--w-2) 45%,
+		var(--w-5) 50%,
+		var(--w-2) 55%,
+		transparent 60%
+	);
+	transform: translateX(-100%) rotate(15deg);
+	transition: transform var(--dur-slow) var(--easing-smooth);
+	pointer-events: none;
+	z-index: var(--z-content);
 }
 
 .bmi-card:hover::before,
@@ -361,109 +353,38 @@ a.button {
 .gauge-container:hover::before,
 .reference-table:hover::before,
 .form-card:hover::before {
-  transform: translateX(50%) rotate(15deg);
+	transform: translateX(50%) rotate(15deg);
 }
 
 /* ── Pager Tab Active Glow Indicator ── */
 .pager-tab.active {
-  box-shadow:
-    0 0 20px var(--violet-22),
-    0 0 6px var(--violet-15),
-    inset 0 -2px 0 var(--violet-25);
 }
 
 /* ── NotifyFloat Button Hover Lift ── */
 .notify-btn:hover {
-  transform: translateY(-1px);
+	transform: translateY(-1px);
 }
 
 /* ── Action Button Subtle Glow (shadow removed for clean glass) ── */
 .action-btn:hover {
-  transform: translateY(-1px);
+	transform: translateY(-1px);
 }
 
 /* Reduced motion: disable all micro-interactions */
 @media (prefers-reduced-motion: reduce) {
-  .btn-ripple {
-    animation: none;
-    display: none;
-  }
-  .bmi-card::before,
-  .footer-disclaimer::before,
-  .about-card::before,
-  .gauge-container::before,
-  .reference-table::before,
-  .form-card::before {
-    transition: none;
-    display: none;
-  }
-}
-
-/* ==============================
-      SHOOTING STARS
-      ============================== */
-.shooting-star {
-  position: absolute;
-  top: 0;
-  width: 3px;
-  height: 3px;
-  background: radial-gradient(circle, var(--w-95) 0%, var(--aurora-glow) 40%, transparent 70%);
-  border-radius: 50%;
-  box-shadow: 0 0 6px var(--aurora-glow),
-              0 0 12px var(--purple-60),
-              0 0 20px var(--plum-30);
-  opacity: 0;
-  will-change: transform, opacity;
-  pointer-events: none;
-  animation-name: shootingStarFly;
-  animation-duration: var(--shoot-duration, 1.8s);
-  animation-delay: var(--shoot-delay, 0s);
-  animation-timing-function: ease-out;
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards;
-}
-
-@keyframes shootingStarFly {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, 0, 0) scale(0.5);
-    filter: blur(2px);
-  }
-  5% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-    filter: blur(0px);
-  }
-  15% {
-    opacity: 0.9;
-    transform: translate3d(calc(var(--shoot-dx, 30px)), calc(var(--shoot-dy, 20px)), 0) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(calc(var(--shoot-dx, 250px)), calc(var(--shoot-dy, 180px)), 0) scale(0.3);
-    filter: blur(1px);
-  }
-}
-
-/* Shooting star tail */
-.shooting-star::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  right: 100%;
-  width: 60px;
-  height: 1.5px;
-  transform: translateY(-50%) rotate(calc(var(--shoot-angle, 35deg)));
-  transform-origin: right center;
-  background: linear-gradient(90deg, var(--aurora-glow), transparent);
-  opacity: 0.6;
-  border-radius: var(--radius-pill);
-  pointer-events: none;
-}
-
-/* Hide shooting stars when not in render mode */
-html:not([data-graphics='render']) .shooting-star {
-  display: none;
+	.btn-ripple {
+		animation: none;
+		display: none;
+	}
+	.bmi-card::before,
+	.footer-disclaimer::before,
+	.about-card::before,
+	.gauge-container::before,
+	.reference-table::before,
+	.form-card::before {
+		transition: none;
+		display: none;
+	}
 }
 
 /* ==============================
@@ -471,324 +392,324 @@ html:not([data-graphics='render']) .shooting-star {
       ============================== */
 
 .gauge-empty-cta {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1.5rem 1rem 0.5rem;
-  text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 1.5rem 1rem 0.5rem;
+	text-align: center;
 }
 
 .gauge-empty-cta p {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--w-40);
-  line-height: 1.4;
+	margin: 0;
+	font-size: 0.85rem;
+	color: var(--w-40);
+	line-height: 1.4;
 }
 
 .gauge-cta-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 1.25rem;
-  border: 1px solid var(--violet-22);
-  border-radius: var(--radius-pill);
-  background: var(--bg-by-rezky);
-  color: var(--stellar-white);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background var(--dur-interactive) ease, border-color var(--dur-interactive) ease, transform var(--dur-interactive) ease;
-  letter-spacing: 0.02em;
-  box-shadow: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.5rem 1.25rem;
+	background: linear-gradient(180deg, var(--deep-void-55), rgba(91, 33, 182, 0.7));
+	border: 1px solid rgba(130, 130, 130, 0.3);
+	border-radius: var(--radius-pill);
+	color: var(--stellar-white);
+	font-size: 0.82rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition:
+		background var(--dur-interactive) ease,
+		border-color var(--dur-interactive) ease,
+		transform var(--dur-interactive) ease;
+	letter-spacing: 0.02em;
 }
 
 .gauge-cta-btn:hover {
-  background: var(--violet-25);
-  border-color: var(--aurora-glow);
-  transform: translateY(-1px);
+	background: linear-gradient(135deg, var(--deep-void-65), rgba(91, 33, 182, 0.55));
+	border-color: rgba(130, 130, 130, 0.45);
+	transform: translateY(-1px);
 }
 
 .gauge-cta-btn:active {
-  transform: translateY(0) scale(0.97);
+	transform: translateY(0) scale(0.97);
 }
 
 /* ==============================
       A-2: SCROLL-TO-TOP (in bottom navbar center)
       ============================== */
 .pager-btn-scroll-top {
-  opacity: 0;
-  transform: scale(0.7);
-  transition: opacity var(--dur-interactive) ease, transform var(--dur-interactive) ease, background var(--dur-micro) ease, border-color var(--dur-micro) ease;
-  pointer-events: none;
-  color: rgba(255, 255, 255, 0.7) !important;
+	opacity: 0;
+	transform: scale(0.7);
+	transition:
+		opacity var(--dur-interactive) ease,
+		transform var(--dur-interactive) ease,
+		background var(--dur-micro) ease,
+		border-color var(--dur-micro) ease;
+	pointer-events: none;
+	color: rgba(255, 255, 255, 0.7) !important;
 }
 
 .pager-btn-scroll-top.fab-visible {
-  opacity: 1;
-  transform: scale(1);
-  pointer-events: auto;
-  color: white !important;
-  border-color: var(--violet-18) !important;
-  background: var(--btn-bg-hover) !important;
-  box-shadow: none !important;
+	opacity: 1;
+	transform: scale(1);
+	pointer-events: auto;
+	color: white !important;
+	border-color: var(--violet-18) !important;
+	background: var(--btn-bg-hover) !important;
 }
 
 .pager-btn-scroll-top.fab-visible:hover {
-  background: var(--btn-bg-active) !important;
-  box-shadow: none !important;
-  color: white !important;
+	background: var(--btn-bg-active) !important;
+
+	color: white !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pager-btn-scroll-top {
-    transition: none;
-  }
+	.pager-btn-scroll-top {
+		transition: none;
+	}
 }
 
 /* ==============================
-      A-3: HAPTIC FEEDBACK
-      ============================== */
-.btn-haptic {
-  -webkit-tap-highlight-color: transparent;
-}
-
-.btn-haptic:active {
-  transform: scale(0.96);
-  transition: transform var(--dur-instant) ease;
-}
-
-/* ==============================
-      A-4: PROGRESS BAR (Phase 1)
+      PROGRESS BAR
       Determinate progress indicator for async operations
       (export, import, encryption). Uses micro-delay tokens.
       ============================== */
 .bmi-progress {
-  width: 100%;
-  height: 4px;
-  background: var(--w-10);
-  border-radius: 2px;
-  overflow: hidden;
-  margin: var(--space-3) 0;
+	width: 100%;
+	height: 4px;
+	background: var(--w-10);
+	border-radius: 2px;
+	overflow: hidden;
+	margin: var(--space-3) 0;
 }
 
 .bmi-progress__fill {
-  height: 100%;
-  border-radius: 2px;
-  background: linear-gradient(90deg, var(--cosmic-purple), var(--aurora-glow));
-  transition: width var(--dur-normal) var(--easing-smooth);
-  position: relative;
+	height: 100%;
+	border-radius: 2px;
+	background: linear-gradient(90deg, var(--cosmic-purple), var(--aurora-glow));
+	transition: width var(--dur-normal) var(--easing-smooth);
+	position: relative;
 }
 
 /* Shimmer overlay on the progress fill */
 .bmi-progress__fill::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--w-15) 50%,
-    transparent 100%
-  );
-  animation: progress-shimmer 1.5s ease-in-out infinite;
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(90deg, transparent 0%, var(--w-15) 50%, transparent 100%);
+	animation: progress-shimmer 1.5s ease-in-out infinite;
 }
 
 @keyframes progress-shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+	0% {
+		transform: translateX(-100%);
+	}
+	100% {
+		transform: translateX(100%);
+	}
 }
 
 /* Indeterminate variant for unknown-duration ops */
 .bmi-progress--indeterminate .bmi-progress__fill {
-  width: 40% !important;
-  animation: progress-indeterminate 1.4s ease-in-out infinite;
+	width: 40% !important;
+	animation: progress-indeterminate 1.4s ease-in-out infinite;
 }
 
 @keyframes progress-indeterminate {
-  0% { transform: translateX(-100%); }
-  50% { transform: translateX(200%); }
-  100% { transform: translateX(-100%); }
+	0% {
+		transform: translateX(-100%);
+	}
+	50% {
+		transform: translateX(200%);
+	}
+	100% {
+		transform: translateX(-100%);
+	}
 }
 
 /* ==============================
-      A-5: ENCRYPTION BADGE (Phase 2)
+      ENCRYPTION BADGE
       Visual trust indicator showing encryption status
       and algorithm details.
       ============================== */
 .bmi-encryption-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-1) var(--space-3);
-  background: var(--violet-12);
-  border: 1px solid var(--violet-22);
-  border-radius: var(--radius-pill);
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--aurora-glow);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  transition: background var(--dur-fast) var(--easing-smooth),
-    border-color var(--dur-fast) var(--easing-smooth);
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: var(--space-2);
+	max-width: 100%;
+	padding: var(--space-1) var(--space-3);
+	background: var(--violet-12);
+	border: 1px solid var(--violet-22);
+	border-radius: var(--radius-pill);
+	font-size: clamp(0.65rem, 1vw, 0.7rem);
+	font-weight: 600;
+	color: var(--aurora-glow);
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	white-space: normal;
+	transition:
+		background var(--dur-fast) var(--easing-smooth),
+		border-color var(--dur-fast) var(--easing-smooth);
 }
 
 .bmi-encryption-badge:hover {
-  background: var(--violet-20);
-  border-color: var(--violet-32);
+	background: var(--violet-20);
+	border-color: var(--violet-32);
 }
 
 .bmi-encryption-badge__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 14px;
-  height: 14px;
-  color: var(--cat-green-90);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 14px;
+	height: 14px;
+	color: var(--cat-green-90);
 }
 
 .bmi-encryption-badge__label {
-  color: var(--w-70);
-  font-weight: 500;
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 0.7rem;
+	color: var(--w-70);
+	font-weight: 500;
+	text-transform: none;
+	letter-spacing: 0;
+	font-size: 0.7rem;
 }
 
 .bmi-encryption-badge__algo {
-  color: var(--aurora-glow);
-  font-family: var(--font-mono-short);
-  font-size: 0.6rem;
+	color: var(--aurora-glow);
+	font-family: var(--font-mono-short);
+	font-size: 0.6rem;
 }
 
-
 /* ==============================
-      A-7: DRAG & DROP ZONE (Phase 4)
+      DRAG & DROP ZONE
       Visual feedback for file drag-and-drop import.
       ============================== */
 .bmi-drop-zone {
-  position: relative;
-  z-index: var(--z-inner-control);
-  pointer-events: auto;
-  border: 2px dashed var(--w-15);
-  border-radius: var(--radius-md);
-  padding: var(--space-5) var(--space-4);
-  text-align: center;
-  transition: all var(--dur-fast) var(--easing-smooth);
-  cursor: pointer;
-  background: transparent;
+	position: relative;
+	z-index: var(--z-inner-control);
+	pointer-events: auto;
+	border: 2px dashed rgba(140, 140, 140, 0.3);
+	border-radius: var(--container-radius);
+	padding: var(--space-5) var(--space-4);
+	text-align: center;
+	transition: all var(--dur-fast) var(--easing-smooth);
+	cursor: pointer;
+	background: transparent;
 }
 
 .bmi-drop-zone:hover {
-  border-color: var(--violet-25);
-  background: var(--violet-8);
+	border-color: var(--violet-25);
+	background: var(--violet-8);
 }
 
 .bmi-drop-zone--active {
-  border-color: var(--aurora-glow);
-  background: var(--violet-15);
-  box-shadow: 0 0 24px var(--violet-20),
-    inset 0 0 24px var(--violet-8);
-  transform: scale(1.01);
+	border-color: var(--aurora-glow);
+	background: var(--violet-15);
+
+	transform: scale(1.01);
 }
 
 .bmi-drop-zone__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto var(--space-2);
-  color: var(--w-30);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto var(--space-2);
+	color: var(--w-30);
 }
 
 .bmi-drop-zone--active .bmi-drop-zone__icon {
-  color: var(--aurora-glow);
+	color: var(--aurora-glow);
 }
 
 .bmi-drop-zone__text {
-  font-size: 0.85rem;
-  color: var(--w-50);
-  font-weight: 500;
+	font-size: 0.85rem;
+	color: var(--w-50);
+	font-weight: 500;
 }
 
 .bmi-drop-zone--active .bmi-drop-zone__text {
-  color: var(--aurora-glow);
+	color: var(--aurora-glow);
 }
 
 .bmi-drop-zone__subtext {
-  font-size: 0.75rem;
-  color: var(--w-30);
-  margin-top: var(--space-1);
+	font-size: 0.75rem;
+	color: var(--w-30);
+	margin-top: var(--space-1);
 }
 
 /* ==============================
-      A-8: EXPORT SUMMARY (Phase 2)
+      EXPORT SUMMARY
       Summary card shown after successful export
       showing record count, encryption status, format.
       ============================== */
 .bmi-export-summary {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  background: var(--w-6);
-  border: 1px solid var(--w-12);
-  border-radius: var(--radius-sm);
-  margin-top: var(--space-2);
-  margin-bottom: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	padding: var(--space-3) var(--space-4);
+	background: var(--w-6);
+	border: 1px solid rgba(140, 140, 140, 0.3);
+	border-radius: var(--radius-sm);
+	margin-top: var(--space-2);
+	margin-bottom: 0;
 }
 
 .bmi-export-summary__row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.78rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 0.78rem;
 }
 
 .bmi-export-summary__key {
-  color: var(--w-40);
-  font-weight: 500;
+	color: var(--w-40);
+	font-weight: 500;
 }
 
 .bmi-export-summary__val {
-  color: var(--w-80);
-  font-weight: 600;
+	color: var(--w-80);
+	font-weight: 600;
 }
 
 .bmi-export-summary__val--encrypted {
-  color: var(--cat-green-90);
+	color: var(--cat-green-90);
 }
 
 /* ==============================
-      A-9: STRONG WARNING (Phase 2)
+      STRONG WARNING
       Prominent warning block for destructive actions.
       ============================== */
 .bmi-strong-warning {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
-  padding: var(--space-3);
-  background: var(--warn-bg);
-  border: 1px solid var(--warn-border);
-  border-radius: var(--radius-sm);
-  margin-bottom: var(--space-4);
-  font-size: 0.82rem;
-  line-height: 1.5;
+	display: flex;
+	align-items: flex-start;
+	gap: var(--space-2);
+	padding: var(--space-3);
+	background: var(--warn-bg);
+	border: 1px solid var(--warn-border);
+	border-radius: var(--radius-sm);
+	margin-bottom: var(--space-4);
+	font-size: 0.82rem;
+	line-height: 1.5;
 }
 
 .bmi-strong-warning__icon {
-  color: var(--warn-amber);
-  flex-shrink: 0;
-  margin-top: 1px;
+	color: var(--warn-amber);
+	flex-shrink: 0;
+	margin-top: 1px;
 }
 
 .bmi-strong-warning__text {
-  color: var(--w-70);
+	color: var(--w-70);
 }
 
 .bmi-strong-warning__text strong {
-  color: var(--cat-amber-solid);
-  font-weight: 600;
+	color: var(--cat-amber-solid);
+	font-weight: 600;
 }
 
 /* ==============================
@@ -796,45 +717,45 @@ html:not([data-graphics='render']) .shooting-star {
       Full-screen loading overlay shown before/after modals
       ============================== */
 .staging-backdrop {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--glass-bg-backdrop);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  backdrop-filter: blur(16px) saturate(140%);
-  z-index: var(--z-staging);
-  opacity: 0;
-  transition: opacity var(--dur-interactive) ease;
-  pointer-events: none;
-  min-height: 100vh;
-  min-height: 100dvh;
-  min-width: 100vw;
+	position: fixed;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--glass-bg-nightky);
+	-webkit-backdrop-filter: blur(16px) saturate(140%);
+	backdrop-filter: blur(16px) saturate(140%);
+	z-index: var(--z-staging);
+	opacity: 0;
+	transition: opacity var(--dur-interactive) ease;
+	pointer-events: none;
+	min-height: 100vh;
+	min-height: 100dvh;
+	min-width: 100vw;
 }
 
 .staging-backdrop.staging-visible {
-  opacity: 1;
-  pointer-events: auto;
+	opacity: 1;
+	pointer-events: auto;
 }
 
 .staging-spinner-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
 }
 
 .staging-gear-icon {
-  color: var(--w-50);
-  animation: spin var(--dur-spin) linear infinite;
-  filter: drop-shadow(0 0 8px rgba(128, 0, 255, 0.3));
+	color: var(--w-50);
+	animation: spin var(--dur-spin) linear infinite;
+	filter: drop-shadow(0 0 8px rgba(128, 0, 255, 0.3));
 }
 
 .staging-text {
-  color: var(--w-70);
-  font-size: 0.9rem;
-  font-weight: 500;
+	color: var(--w-70);
+	font-size: 0.9rem;
+	font-weight: 500;
 }
 
 /* Global spin keyframe — used by staging gear icon and other spinners.
@@ -842,9 +763,9 @@ html:not([data-graphics='render']) .shooting-star {
    Loading indicators are FUNCTIONAL (not decorative), so they must
    always animate — even when prefers-reduced-motion is enabled. */
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 /* Override reduced-motion for functional loading spinners.
@@ -852,14 +773,14 @@ html:not([data-graphics='render']) .shooting-star {
    which would kill all animations including loading indicators.
    The gear spinner communicates "system is working" — it must move. */
 @media (prefers-reduced-motion: reduce) {
-  .staging-gear-icon {
-    animation-duration: var(--dur-spin) !important;
-    animation-iteration-count: infinite !important;
-  }
-  .btn-spinner {
-    animation-duration: var(--dur-spin-fast) !important;
-    animation-iteration-count: infinite !important;
-  }
+	.staging-gear-icon {
+		animation-duration: var(--dur-spin) !important;
+		animation-iteration-count: infinite !important;
+	}
+	.btn-spinner {
+		animation-duration: var(--dur-spin-fast) !important;
+		animation-iteration-count: infinite !important;
+	}
 }
 
 /* ==============================
@@ -868,27 +789,12 @@ html:not([data-graphics='render']) .shooting-star {
       spring is reserved for page-level transitions only.
       ============================== */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ==============================
-      COSMIC PARTICLES — REDUCED MOTION OVERRIDE
-      Extracted from responsive.css in v18.0.
-      Re-enables cosmic particles when global reduced-motion is active,
-      since they are ambient decoration (not functional animation).
-      ============================== */
-@media (prefers-reduced-motion: reduce) {
-  html[data-graphics='render'] .cosmic-particles .cosmic-particle {
-    animation-duration: var(--duration, 12s) !important;
-    animation-delay: var(--delay, 0s) !important;
-    animation-iteration-count: infinite !important;
-    animation-timing-function: linear !important;
-  }
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }

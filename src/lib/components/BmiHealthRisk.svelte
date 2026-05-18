@@ -1,415 +1,472 @@
+<!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
 <script lang="ts">
-  import { Shield, AlertTriangle, Activity, Heart } from 'lucide-svelte';
-  import { COLORS } from '$lib/utils/bmi-category';
-  import { t as _t, localeVersion } from '$lib/i18n';
-  let _rv = $derived($localeVersion);
-  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
-  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
+	import {
+		ShieldQuestion as ShieldQuestionMark,
+		AlertTriangle,
+		Activity,
+		Heart,
+		HeartPulse
+	} from 'lucide-svelte';
+	import { COLORS } from '$lib/utils/bmi-category';
+	import { t as _t, localeVersion } from '$lib/i18n';
+	let _rv = $derived($localeVersion);
+	// Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+	function t(key: string, params?: Record<string, string | number | undefined | null>): string {
+		void _rv;
+		return _t(key, params);
+	}
 
-  interface Props {
-    bmi?: number | null;
-    category?: string | null;
-  }
+	interface Props {
+		bmi?: number | null;
+		category?: string | null;
+	}
 
-  let { bmi = null, category = null }: Props = $props();
+	let { bmi = null, category = null }: Props = $props();
 
-  interface RiskLevel {
-    label: string;
-    color: string;
-    bgClass: string;
-    icon: typeof Shield;
-    description: string;
-    position: number; // 0-100 for meter position
-  }
+	interface RiskLevel {
+		label: string;
+		color: string;
+		bgClass: string;
+		icon: typeof ShieldQuestionMark;
+		description: string;
+		position: number; // 0-100 for meter position
+	}
 
-  function getRiskLevel(bmiVal: number | null, cat: string | null): RiskLevel {
-    if (bmiVal === null || cat === null) {
-      return {
-        label: t('risk.unknown'),
-        color: COLORS.SLATE,
-        bgClass: 'risk-unknown',
-        icon: Shield,
-        description: t('risk.calc_first'),
-        position: 50
-      };
-    }
+	function getRiskLevel(bmiVal: number | null, cat: string | null): RiskLevel {
+		if (bmiVal === null || cat === null) {
+			return {
+				label: t('risk.unknown'),
+				color: COLORS.SLATE,
+				bgClass: 'risk-unknown',
+				icon: ShieldQuestionMark,
+				description: t('risk.calc_first'),
+				position: 50
+			};
+		}
 
-    const lowerCat = cat.toLowerCase();
+		const lowerCat = cat.toLowerCase();
 
-    if (lowerCat === 'underweight') {
-      return {
-        label: t('risk.moderate_label'),
-        color: COLORS.BLUE,
-        bgClass: 'risk-moderate',
-        icon: AlertTriangle,
-        description: t('risk.moderate_desc'),
-        position: 25
-      };
-    }
+		if (lowerCat === 'underweight') {
+			return {
+				label: t('risk.moderate_label'),
+				color: COLORS.BLUE,
+				bgClass: 'risk-moderate',
+				icon: AlertTriangle,
+				description: t('risk.moderate_desc'),
+				position: 25
+			};
+		}
 
-    if (lowerCat === 'normal weight') {
-      return {
-        label: t('risk.low_label'),
-        color: COLORS.GREEN,
-        bgClass: 'risk-low',
-        icon: Heart,
-        description: t('risk.low_desc'),
-        position: ((bmiVal - 18.5) / (24.9 - 18.5)) * 25
-      };
-    }
+		if (lowerCat === 'normal weight') {
+			return {
+				label: t('risk.low_label'),
+				color: COLORS.GREEN,
+				bgClass: 'risk-low',
+				icon: Heart,
+				description: t('risk.low_desc'),
+				position: ((bmiVal - 18.5) / (24.9 - 18.5)) * 25
+			};
+		}
 
-    if (lowerCat === 'overweight') {
-      return {
-        label: t('risk.elevated_label'),
-        color: COLORS.YELLOW,
-        bgClass: 'risk-elevated',
-        icon: Activity,
-        description: t('risk.elevated_desc'),
-        position: 62.5 + ((bmiVal - 25) / (30 - 25)) * 12.5
-      };
-    }
+		if (lowerCat === 'overweight') {
+			return {
+				label: t('risk.elevated_label'),
+				color: COLORS.YELLOW,
+				bgClass: 'risk-elevated',
+				icon: Activity,
+				description: t('risk.elevated_desc'),
+				position: 62.5 + ((bmiVal - 25) / (30 - 25)) * 12.5
+			};
+		}
 
-    // Obese
-    return {
-      label: t('risk.high_label'),
-      color: COLORS.RED,
-      bgClass: 'risk-high',
-      icon: AlertTriangle,
-      description: t('risk.high_desc'),
-      position: Math.min(100, 75 + ((bmiVal - 30) / (50 - 30)) * 25)
-    };
-  }
+		// Obese
+		return {
+			label: t('risk.high_label'),
+			color: COLORS.RED,
+			bgClass: 'risk-high',
+			icon: AlertTriangle,
+			description: t('risk.high_desc'),
+			position: Math.min(100, 75 + ((bmiVal - 30) / (50 - 30)) * 25)
+		};
+	}
 
-  let risk = $derived(getRiskLevel(bmi, category));
-  let Icon = $derived(risk.icon);
+	let risk = $derived(getRiskLevel(bmi, category));
+	let Icon = $derived(risk.icon);
+	let riskProgress = $derived(bmi === null ? 0 : Math.max(0, Math.min(100, risk.position)));
 </script>
+
 <div class="gauge-container bmi-health-risk">
-  <div class="gauge-header">
-    <div class="gauge-title">
-      <Shield class="Gauge" />
-      <h3>{t('risk.title')}</h3>
-    </div>
-    <div class="gauge-subtitle">{t('risk.subtitle')}</div>
-  </div>
+	<div class="gauge-header">
+		<div class="gauge-title">
+			<HeartPulse class="Gauge" />
+			<h3>{t('risk.title')}</h3>
+		</div>
+		<div class="gauge-subtitle">{t('risk.subtitle')}</div>
+	</div>
 
-  <div class="risk-meter-container">
-    <!-- Risk meter track -->
-    <div class="risk-meter-track">
-      <div class="risk-segment risk-low-seg"></div>
-      <div class="risk-segment risk-moderate-seg"></div>
-      <div class="risk-segment risk-elevated-seg"></div>
-      <div class="risk-segment risk-high-seg"></div>
-    </div>
+	<div class="risk-meter-container">
+		<!-- Risk meter track -->
+		<div
+			class="risk-meter-track"
+			style="--risk-progress: {riskProgress}%; --risk-fill-color: {risk.color};"
+		>
+			<div class="risk-meter-fill"></div>
+			<div class="risk-segment risk-low-seg"></div>
+			<div class="risk-segment risk-moderate-seg"></div>
+			<div class="risk-segment risk-elevated-seg"></div>
+			<div class="risk-segment risk-high-seg"></div>
+		</div>
 
-    <!-- Risk indicator -->
-    <div class="risk-indicator" style="left: {risk.position}%">
-      <div class="risk-marker {risk.bgClass}">
-        <Icon size={20} />
-      </div>
-      <div class="risk-arrow"></div>
-    </div>
+		<!-- Risk indicator -->
+		<div class="risk-indicator" style="left: {risk.position}%">
+			<div class="risk-marker {risk.bgClass}">
+				<Icon size={20} />
+			</div>
+			<div class="risk-arrow"></div>
+		</div>
 
-    <!-- Risk labels -->
-    <div class="risk-labels">
-      <span class="risk-label">{t('risk.low')}</span>
-      <span class="risk-label">{t('risk.moderate')}</span>
-      <span class="risk-label">{t('risk.elevated')}</span>
-      <span class="risk-label">{t('risk.high')}</span>
-    </div>
-  </div>
+		<!-- Risk labels -->
+		<div class="risk-labels">
+			<span class="risk-label">{t('risk.low')}</span>
+			<span class="risk-label">{t('risk.moderate')}</span>
+			<span class="risk-label">{t('risk.elevated')}</span>
+			<span class="risk-label">{t('risk.high')}</span>
+		</div>
+	</div>
 
-  <!-- Risk result card -->
-  <div class="risk-result {risk.bgClass}">
-    <div class="risk-icon">
-      <Icon size={28} />
-    </div>
-    <div class="risk-info">
-      <div class="risk-level" style="color: {risk.color}">{risk.label}</div>
-      <div class="risk-description">{risk.description}</div>
-    </div>
-    {#if bmi !== null}
-      <div class="risk-bmi">{t('gauge.bmi')} {bmi.toFixed(2)}</div>
-    {/if}
-  </div>
+	<!-- Risk result card -->
+	<div class="risk-result {risk.bgClass}" style="--risk-color: {risk.color};">
+		<div class="risk-icon">
+			<Icon size={28} />
+		</div>
+		<div class="risk-info">
+			<div class="risk-level" style="color: {risk.color}">{risk.label}</div>
+			<div class="risk-description">{risk.description}</div>
+		</div>
+		{#if bmi !== null}
+			<div class="risk-bmi">{t('gauge.bmi')} {bmi.toFixed(2)}</div>
+		{/if}
+	</div>
 
-  <!-- Health tips -->
-  <div class="health-tips">
-    <h4>{t('risk.recommendations')}</h4>
-    {#if category?.toLowerCase() === 'normal weight'}
-      <ul>
-        <li>{t('risk.rec_normal_1')}</li>
-        <li>{t('risk.rec_normal_2')}</li>
-        <li>{t('risk.rec_normal_3')}</li>
-      </ul>
-    {:else if category?.toLowerCase() === 'underweight'}
-      <ul>
-        <li>{t('risk.rec_under_1')}</li>
-        <li>{t('risk.rec_under_2')}</li>
-        <li>{t('risk.rec_under_3')}</li>
-      </ul>
-    {:else if category?.toLowerCase() === 'overweight' || category?.toLowerCase() === 'obese'}
-      <ul>
-        <li>{t('risk.rec_over_1')}</li>
-        <li>{t('risk.rec_over_2')}</li>
-        <li>{t('risk.rec_over_3')}</li>
-      </ul>
-    {:else}
-      <div class="empty-health-risk">
-        <Shield size={28} style="opacity:0.3; margin-bottom:0.5rem" />
-        <p class="no-data">{t('risk.empty')}</p>
-      </div>
-    {/if}
-  </div>
+	<!-- Health tips -->
+	<div class="health-tips">
+		<h4>{t('risk.recommendations')}</h4>
+		{#if category?.toLowerCase() === 'normal weight'}
+			<ul>
+				<li>{t('risk.rec_normal_1')}</li>
+				<li>{t('risk.rec_normal_2')}</li>
+				<li>{t('risk.rec_normal_3')}</li>
+			</ul>
+		{:else if category?.toLowerCase() === 'underweight'}
+			<ul>
+				<li>{t('risk.rec_under_1')}</li>
+				<li>{t('risk.rec_under_2')}</li>
+				<li>{t('risk.rec_under_3')}</li>
+			</ul>
+		{:else if category?.toLowerCase() === 'overweight' || category?.toLowerCase() === 'obese'}
+			<ul>
+				<li>{t('risk.rec_over_1')}</li>
+				<li>{t('risk.rec_over_2')}</li>
+				<li>{t('risk.rec_over_3')}</li>
+			</ul>
+		{:else}
+			<div class="empty-health-risk">
+				<ShieldQuestionMark size={28} style="opacity:0.3; margin-bottom:0.5rem" />
+				<p class="no-data">{t('risk.empty')}</p>
+			</div>
+		{/if}
+	</div>
 </div>
 
 <style>
-  .bmi-health-risk {
-    padding-top: 20px !important;
-  }
+	.bmi-health-risk {
+		padding-top: 20px !important;
+	}
 
-  .risk-meter-container {
-    margin: 2rem 0;
-    position: relative;
-  }
+	.risk-meter-container {
+		margin: 2rem 0;
+		position: relative;
+	}
 
-  .risk-meter-track {
-    display: flex;
-    height: 12px;
-    border-radius: var(--radius-xs);
-    overflow: hidden;
-    background: var(--sg-10);
-  }
+	.risk-meter-track {
+		display: flex;
+		position: relative;
+		height: 12px;
+		border-radius: var(--radius-xs);
+		overflow: hidden;
+		background: var(--sg-10);
+	}
 
-  .risk-segment {
-    flex: 1;
-    height: 100%;
-  }
+	.risk-meter-fill {
+		position: absolute;
+		inset: 0 auto 0 0;
+		width: var(--risk-progress);
+		border-radius: inherit;
+		background: linear-gradient(
+			90deg,
+			color-mix(in srgb, var(--risk-fill-color) 55%, transparent),
+			color-mix(in srgb, var(--risk-fill-color) 92%, transparent)
+		);
+		transition: width var(--dur-normal) var(--easing-material);
+	}
 
-  .risk-low-seg {
-    background: var(--cat-green-50);
-    opacity: 0.6;
-  }
+	.risk-segment {
+		flex: 1;
+		height: 100%;
+		position: relative;
+		z-index: 1;
+	}
 
-  .risk-moderate-seg {
-    background: var(--cat-blue-50);
-    opacity: 0.6;
-  }
+	.risk-low-seg {
+		background: var(--cat-green-50);
+		opacity: 0.26;
+	}
 
-  .risk-elevated-seg {
-    background: var(--cat-amber-50);
-    opacity: 0.6;
-  }
+	.risk-moderate-seg {
+		background: var(--cat-blue-50);
+		opacity: 0.26;
+	}
 
-  .risk-high-seg {
-    background: var(--cat-red-50);
-    opacity: 0.6;
-  }
+	.risk-elevated-seg {
+		background: var(--cat-amber-50);
+		opacity: 0.26;
+	}
 
-  .risk-indicator {
-    position: absolute;
-    top: -14px;
-    transform: translateX(-50%);
-    transition: left var(--dur-normal) var(--easing-material);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+	.risk-high-seg {
+		background: var(--cat-red-50);
+		opacity: 0.26;
+	}
 
-  .risk-marker {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--stellar-white);
-    box-shadow: 0 4px 12px var(--k-30);
-    animation: pulse var(--dur-breathe) ease-in-out infinite;
-  }
+	.risk-indicator {
+		position: absolute;
+		top: -14px;
+		transform: translateX(-50%);
+		transition: left var(--dur-normal) var(--easing-material);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
 
-  .risk-marker.risk-low {
-    background: var(--cat-green-90);
-    box-shadow: 0 0 20px var(--cat-green-40);
-  }
+	.risk-marker {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--stellar-white);
 
-  .risk-marker.risk-moderate {
-    background: var(--cat-blue-90);
-    box-shadow: 0 0 20px var(--cat-blue-40);
-  }
+		animation: pulse var(--dur-breathe) ease-in-out infinite;
+	}
 
-  .risk-marker.risk-elevated {
-    background: var(--cat-amber-90);
-    box-shadow: 0 0 20px var(--cat-yellow-40);
-    color: var(--text-on-amber);
-  }
+	.risk-marker :global(svg) {
+		width: 20px !important;
+		height: 20px !important;
+		color: currentColor !important;
+		stroke: currentColor !important;
+	}
 
-  .risk-marker.risk-high {
-    background: var(--cat-red-90);
-    box-shadow: 0 0 20px var(--cat-red-40);
-  }
+	.risk-marker.risk-low {
+		background: var(--cat-green-90);
+	}
 
-  .risk-marker.risk-unknown {
-    background: var(--slate-500-solid);
-  }
+	.risk-marker.risk-moderate {
+		background: var(--cat-blue-solid);
+	}
 
-  .risk-arrow {
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-top: 8px solid currentColor;
-    margin-top: 4px;
-    color: inherit;
-  }
+	.risk-marker.risk-elevated {
+		background: var(--cat-amber-90);
 
-  .risk-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 0.75rem;
-    padding: 0 4px;
-  }
+		color: var(--text-on-amber);
+	}
 
-  .risk-label {
-    font-size: var(--text-sm);
-    color: var(--slate-400-solid);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
+	.risk-marker.risk-high {
+		background: var(--cat-red-90);
+	}
 
-  .risk-result {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.25rem;
-    border-radius: var(--radius-lg);
-    background: var(--sd-60);
-    border: 1px solid var(--sg-10);
-    margin-bottom: 1.5rem;
-  }
+	.risk-marker.risk-unknown {
+		background: var(--slate-500-solid);
+	}
 
-  .risk-result.risk-low {
-    border-color: var(--cat-green-30);
-    background: var(--cat-green-8);
-  }
+	.risk-arrow {
+		width: 0;
+		height: 0;
+		border-left: 8px solid transparent;
+		border-right: 8px solid transparent;
+		border-top: 8px solid currentColor;
+		margin-top: 4px;
+		color: inherit;
+	}
 
-  .risk-result.risk-moderate {
-    border-color: var(--cat-blue-30);
-    background: var(--cat-blue-8);
-  }
+	.risk-labels {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 0.75rem;
+		padding: 0 4px;
+	}
 
-  .risk-result.risk-elevated {
-    border-color: var(--cat-yellow-30);
-    background: var(--cat-yellow-8);
-  }
+	.risk-label {
+		font-size: var(--text-sm);
+		color: var(--slate-400-solid);
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
 
-  .risk-result.risk-high {
-    border-color: var(--cat-red-30);
-    background: var(--cat-red-8);
-  }
+	.risk-result {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		padding: 1.25rem;
+		border-radius: var(--radius-lg);
+		background: var(--sd-80);
+		border: 1px solid var(--sg-16);
+		margin-bottom: 1.5rem;
+	}
 
-  .risk-icon {
-    flex-shrink: 0;
-  }
+	.risk-result.risk-low {
+		border-color: var(--cat-green-30);
+		background: linear-gradient(180deg, var(--sd-80), var(--cat-green-15));
+	}
 
-  .risk-info {
-    flex: 1;
-  }
+	.risk-result.risk-moderate {
+		border-color: var(--cat-blue-30);
+		background: linear-gradient(180deg, var(--sd-80), var(--cat-blue-15));
+	}
 
-  .risk-level {
-    font-size: var(--text-xl);
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-  }
+	.risk-result.risk-elevated {
+		border-color: var(--cat-yellow-30);
+		background: linear-gradient(180deg, var(--sd-80), rgba(255, 214, 0, 0.14));
+	}
 
-  .risk-description {
-    font-size: 0.875rem;
-    color: var(--slate-400-solid);
-    line-height: 1.4;
-  }
+	.risk-result.risk-high {
+		border-color: var(--cat-red-30);
+		background: linear-gradient(180deg, var(--sd-80), var(--cat-red-15));
+	}
 
-  .risk-bmi {
-    font-size: var(--text-3xl);
-    font-weight: 700;
-    color: var(--stellar-white);
-    text-align: right;
-  }
+	.risk-icon {
+		flex-shrink: 0;
+		width: 46px;
+		height: 46px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--stellar-white);
+		background: color-mix(in srgb, var(--risk-color) 88%, black);
+		border: 1px solid color-mix(in srgb, var(--risk-color) 46%, transparent);
+	}
 
-  .health-tips {
-    padding: 1.25rem;
-    background: var(--sd-40);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--sg-10);
-  }
+	.risk-icon :global(svg) {
+		width: 28px !important;
+		height: 28px !important;
+		color: currentColor !important;
+		stroke: currentColor !important;
+	}
 
-  .health-tips h4 {
-    margin: 0 0 1rem;
-    font-size: var(--text-lg);
-    color: var(--slate-50-solid);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
+	.risk-result.risk-elevated .risk-icon {
+		color: var(--text-on-amber);
+	}
 
-  .health-tips ul {
-    margin: 0;
-    padding-left: 1.25rem;
-    color: var(--slate-400-solid);
-    font-size: 0.875rem;
-    line-height: 1.6;
-  }
+	.risk-info {
+		flex: 1;
+	}
 
-  .health-tips li {
-    margin-bottom: 0.5rem;
-  }
+	.risk-level {
+		font-size: var(--text-xl);
+		font-weight: 700;
+		margin-bottom: 0.25rem;
+	}
 
-  .health-tips li:last-child {
-    margin-bottom: 0;
-  }
+	.risk-description {
+		font-size: 0.875rem;
+		color: var(--slate-400-solid);
+		line-height: 1.4;
+	}
 
-  .no-data {
-    margin: 0;
-    color: var(--slate-400-solid);
-    font-size: 0.875rem;
-    font-style: italic;
-  }
+	.risk-bmi {
+		font-size: var(--text-3xl);
+		font-weight: 700;
+		color: var(--stellar-white);
+		text-align: right;
+	}
 
-  .empty-health-risk {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem;
-    text-align: center;
-  }
+	.health-tips {
+		padding: 1.25rem;
+		background: var(--sd-80);
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--sg-16);
+	}
 
-  @keyframes pulse {
-    0%, 100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
-  }
+	.health-tips h4 {
+		margin: 0 0 1rem;
+		font-size: var(--text-lg);
+		color: var(--slate-50-solid);
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
 
-  @media (prefers-reduced-motion: reduce) {
-    .risk-marker {
-      animation: none !important;
-    }
-  }
+	.health-tips ul {
+		margin: 0;
+		padding-left: 1.25rem;
+		color: var(--slate-400-solid);
+		font-size: 0.875rem;
+		line-height: 1.6;
+	}
 
-  @media (max-width: 640px) {
-    .risk-result {
-      flex-direction: column;
-      text-align: center;
-      gap: 0.75rem;
-    }
+	.health-tips li {
+		margin-bottom: 0.5rem;
+	}
 
-    .risk-bmi {
-      text-align: center;
-    }
+	.health-tips li:last-child {
+		margin-bottom: 0;
+	}
 
-    .risk-label {
-      font-size: 0.625rem;
-    }
-  }
+	.no-data {
+		margin: 0;
+		color: var(--slate-400-solid);
+		font-size: 0.875rem;
+		font-style: italic;
+	}
+
+	.empty-health-risk {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 1.5rem;
+		text-align: center;
+	}
+
+	@keyframes pulse {
+		0%,
+		100% {
+			transform: scale(1);
+		}
+		50% {
+			transform: scale(1.05);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.risk-marker {
+			animation: none !important;
+		}
+	}
+
+	@media (max-width: 640px) {
+		.risk-result {
+			flex-direction: column;
+			text-align: center;
+			gap: 0.75rem;
+		}
+
+		.risk-bmi {
+			text-align: center;
+		}
+
+		.risk-label {
+			font-size: 0.625rem;
+		}
+	}
 </style>

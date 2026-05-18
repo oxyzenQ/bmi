@@ -9,36 +9,71 @@ on:
 permissions:
   contents: write
 
+env:
+  RELEASE_TAG_PREFIX: Stellar
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  NODE_VERSION: 22
+  VERCEL_NODE_RUNTIME: nodejs22.x
+
 jobs:
   validate-tag:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Get tag name
         id: tag
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Validate tag format
         run: |
           TAG="${{ steps.tag.outputs.TAG_NAME }}"
           echo "Tag: $TAG"
 
-          # Strict format: Stellar-v<major>.<minor> (e.g., Stellar-v12.0)
-          if [[ ! "$TAG" =~ ^Stellar-v[0-9]+\.[0-9]+$ ]]; then
+          # Strict format: <prefix>-v<major>.<minor> (e.g., Stellar-v12.0)
+          if [[ ! "$TAG" =~ ^${RELEASE_TAG_PREFIX}-v[0-9]+\.[0-9]+$ ]]; then
             echo "❌ Invalid tag format: $TAG"
             echo ""
-            echo "Expected format: Stellar-v<major>.<minor>"
+            echo "Expected format: ${RELEASE_TAG_PREFIX}-v<major>.<minor>"
             echo "Examples:"
-            echo "  ✅ Stellar-v12.0"
-            echo "  ✅ Stellar-v10.5"
+            echo "  ✅ ${RELEASE_TAG_PREFIX}-v12.0"
+            echo "  ✅ ${RELEASE_TAG_PREFIX}-v10.5"
             echo ""
             echo "Invalid examples:"
-            echo "  ❌ Stellar-12.0    (missing 'v' before version)"
-            echo "  ❌ Stellar v12.0   (space instead of hyphen)"
-            echo "  ❌ v12.0          (missing 'Stellar-' prefix)"
+            echo "  ❌ ${RELEASE_TAG_PREFIX}-12.0    (missing 'v' before version)"
+            echo "  ❌ ${RELEASE_TAG_PREFIX} v12.0   (space instead of hyphen)"
+            echo "  ❌ v12.0          (missing '${RELEASE_TAG_PREFIX}-' prefix)"
             exit 1
           fi
 
           echo "✅ Tag format valid: $TAG"
+
+      - name: Validate tag matches package version
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.tag.outputs.TAG_NAME }}"
+          TAG_PREFIX="${RELEASE_TAG_PREFIX}-v"
+          TAG_VERSION="${TAG#"$TAG_PREFIX"}"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          PACKAGE_SHORT="$(node -e "const [major='0', minor='0'] = require('./package.json').version.split('.'); console.log(major + '.' + minor)")"
+
+          echo "Tag version:     $TAG_VERSION"
+          echo "Package version: $PACKAGE_VERSION"
+
+          if [ "$TAG_VERSION" != "$PACKAGE_SHORT" ]; then
+            echo "❌ Release tag ${TAG} does not match package.json version ${PACKAGE_VERSION}."
+            echo "Expected tag: ${RELEASE_TAG_PREFIX}-v${PACKAGE_SHORT}"
+            exit 1
+          fi
+
+          echo "✅ Tag matches package.json display version: v${PACKAGE_SHORT}"
 
   release:
     needs: validate-tag
@@ -46,7 +81,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -55,54 +90,56 @@ jobs:
         id: tag
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2.2.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          bun-version: latest
+          node-version: ${{ env.NODE_VERSION }}
 
-      - name: Install dependencies
-        run: bun install
-
-      - name: Install adapter-static
-        run: bun add -D @sveltejs/adapter-static
-
-      - name: Backup original config and create static build config
+      - name: Resolve Bun version
+        id: bun-version
+        shell: bash
         run: |
-          # Backup original config
-          mv svelte.config.js svelte.config.js.bak
+          set -euo pipefail
+          version="$(node -p "require('./package.json').packageManager?.match(/^bun@(.+)$/)?.[1] || ''")"
+          if [ -z "$version" ]; then
+            echo "package.json packageManager must be bun@<version>" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
-          # Create static build config
-          cat > svelte.config.js << 'EOF'
-          import adapter from '@sveltejs/adapter-static';
-          import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ steps.bun-version.outputs.version }}
 
-          const config = {
-            preprocess: vitePreprocess(),
-            kit: {
-              adapter: adapter({
-                pages: 'build',
-                assets: 'build',
-                fallback: 'index.html',
-                precompress: false,
-                strict: false
-              })
-            }
-          };
+      - name: Install dependencies (frozen)
+        run: bun install --frozen-lockfile
 
-          export default config;
-          EOF
-
-          # Enable prerendering for static build (append to existing +layout.ts)
-          echo "export const prerender = true;" >> src/routes/+layout.ts
-
-      - name: Build project with static adapter
-        run: bun run build
-
-      - name: Restore original config
+      - name: Build static project
+        shell: bash
         run: |
-          mv svelte.config.js.bak svelte.config.js
-          # Remove prerender line from +layout.ts (restore original)
-          sed -i '/^export const prerender = true;$/d' src/routes/+layout.ts
+          set -euo pipefail
+          cp svelte.config.js svelte.config.js.vercel
+          had_layout_ts=0
+          if [ -f src/routes/+layout.ts ]; then
+            had_layout_ts=1
+            cp src/routes/+layout.ts src/routes/+layout.ts.vercel
+          fi
+
+          cleanup() {
+            cp svelte.config.js.vercel svelte.config.js
+            rm -f svelte.config.js.vercel
+            if [ "$had_layout_ts" -eq 1 ]; then
+              mv src/routes/+layout.ts.vercel src/routes/+layout.ts
+            else
+              rm -f src/routes/+layout.ts
+            fi
+          }
+          trap cleanup EXIT
+
+          cp svelte.config.static.js svelte.config.js
+          printf 'export const prerender = true;\n' > src/routes/+layout.ts
+          bun run build
 
       - name: Generate changelog
         id: changelog
@@ -126,50 +163,122 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Create release package
+      - name: Create source archive
         run: |
-          # Create package directory
-          mkdir -p release-package
+          TAG="${{ steps.tag.outputs.TAG_NAME }}"
+          STAGE="release-source"
 
-          # Copy build artifacts
-          cp -r build release-package/
-          cp package.json release-package/
-          cp README.md release-package/
-          cp LICENSE.md release-package/
+          # Clean staging dir
+          rm -rf "$STAGE"
+          mkdir -p "$STAGE"
 
-          # Create zip file
-          cd release-package
-          zip -r ../bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip .
+          # Copy source code directories
+          cp -r src "$STAGE/"
+          cp -r static "$STAGE/"
+          cp -r scripts "$STAGE/"
+          cp -r .github "$STAGE/"
+          cp -r docs "$STAGE/" 2>/dev/null || true
+
+          # Copy config files needed to rebuild
+          cp package.json "$STAGE/"
+          cp bun.lock "$STAGE/" 2>/dev/null || true
+          cp svelte.config.js "$STAGE/" 2>/dev/null || true
+          cp svelte.config.static.js "$STAGE/" 2>/dev/null || true
+          cp vite.config.ts "$STAGE/" 2>/dev/null || true
+          cp tsconfig.json "$STAGE/" 2>/dev/null || true
+          cp vitest.config.ts "$STAGE/" 2>/dev/null || true
+          cp postcss.config.js "$STAGE/" 2>/dev/null || true
+          cp eslint.config.js "$STAGE/" 2>/dev/null || true
+          cp vercel.json "$STAGE/" 2>/dev/null || true
+          cp verify.sh "$STAGE/" 2>/dev/null || true
+
+          # Copy documentation
+          cp README.md "$STAGE/" 2>/dev/null || true
+          cp LICENSE.md "$STAGE/" 2>/dev/null || true
+          cp SECURITY.md "$STAGE/" 2>/dev/null || true
+
+          # Create source zip
+          cd "$STAGE"
+          zip -r "../bmi-stellar-source-${TAG}.zip" .
           cd ..
 
           # Generate SHA256 checksum
-          sha256sum bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip > bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
+          sha256sum "bmi-stellar-source-${TAG}.zip" > "bmi-stellar-source-${TAG}.zip.sha256"
+
+          # Clean up staging
+          rm -rf "$STAGE"
+
+      - name: Create build archive
+        run: |
+          TAG="${{ steps.tag.outputs.TAG_NAME }}"
+          STAGE="release-build"
+
+          # Clean staging dir
+          rm -rf "$STAGE"
+          mkdir -p "$STAGE"
+
+          # Copy build output only
+          cp -r build "$STAGE/"
+          cp package.json "$STAGE/"
+          cp README.md "$STAGE/" 2>/dev/null || true
+          cp -r docs "$STAGE/" 2>/dev/null || true
+          cp LICENSE.md "$STAGE/" 2>/dev/null || true
+
+          # Create build zip
+          cd "$STAGE"
+          zip -r "../bmi-stellar-build-${TAG}.zip" .
+          cd ..
+
+          # Generate SHA256 checksum
+          sha256sum "bmi-stellar-build-${TAG}.zip" > "bmi-stellar-build-${TAG}.zip.sha256"
+
+          # Clean up staging
+          rm -rf "$STAGE"
 
       - name: Create release notes
         id: release_notes
         run: |
           {
             echo "NOTES<<EOF"
-            echo "# BMI Calculator Stellar Edition - Release ${{ steps.tag.outputs.TAG_NAME }}"
+            echo "# BMI Stellar - Release ${{ steps.tag.outputs.TAG_NAME }}"
             echo ""
             echo "## 🎉 What's New"
             echo ""
-            echo "This release includes the latest improvements, bug fixes, and feature enhancements for the BMI Calculator Stellar Edition."
+            echo "This release includes the latest improvements, bug fixes, and feature enhancements for BMI Stellar."
             echo ""
-            echo "## 📦 Installation"
+            echo "## 📦 Download Packages"
             echo ""
-            echo "Download the package below and extract it to your desired location:"
+            echo "This release provides **two separate artifacts**:"
+            echo ""
+            echo "| Artifact | Description |"
+            echo "|----------|-------------|"
+            echo "| \`bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip\` | Full source code — rebuild from source |"
+            echo "| \`bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip\` | Pre-built static output — deploy ready |"
+            echo ""
+            echo "### From Source"
             echo ""
             echo "\`\`\`bash"
-            echo "# Extract the package"
-            echo "unzip bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip -d bmi-calculator"
+            echo "# Extract the source archive"
+            echo "unzip bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip -d bmi-stellar"
             echo ""
             echo "# Install dependencies"
-            echo "cd bmi-calculator"
+            echo "cd bmi-stellar"
             echo "bun install"
             echo ""
-            echo "# Start the application"
+            echo "# Build and preview"
+            echo "bun run build"
             echo "bun run preview"
+            echo "\`\`\`"
+            echo ""
+            echo "### From Build (Deploy Ready)"
+            echo ""
+            echo "\`\`\`bash"
+            echo "# Extract the build archive"
+            echo "unzip bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip -d bmi-stellar-deploy"
+            echo ""
+            echo "# Serve the static build with any HTTP server"
+            echo "cd bmi-stellar-deploy"
+            echo "bunx serve build"
             echo "\`\`\`"
             echo ""
             echo "## 📋 Changelog"
@@ -183,7 +292,11 @@ jobs:
             echo "Verify the integrity of the downloaded package using SHA256:"
             echo ""
             echo "\`\`\`bash"
-            echo "sha256sum -c bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256"
+            echo "# Verify source archive"
+            echo "sha256sum -c bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256"
+            echo ""
+            echo "# Verify build archive"
+            echo "sha256sum -c bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256"
             echo "\`\`\`"
             echo ""
             echo "## 📄 License"
@@ -197,17 +310,20 @@ jobs:
             echo "---"
             echo ""
             echo "**Built with:** SvelteKit + TypeScript + Vite"
-            echo "**Team:** LOGIGO"
+            echo "**Maintainer:** Rezky Nightky"
+            echo "**Project:** BMI Stellar"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2.6.2
         with:
-          name: BMI Stellar Edition ${{ steps.tag.outputs.TAG_NAME }}
+          name: BMI Stellar ${{ steps.tag.outputs.TAG_NAME }}
           body: ${{ steps.release_notes.outputs.NOTES }}
           files: |
-            bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip
-            bmi-stellar-edition-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
+            bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip
+            bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
+            bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip
+            bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
           draft: false
           prerelease: false

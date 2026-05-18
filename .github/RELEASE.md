@@ -51,9 +51,11 @@ The release package includes:
 ## 🔍 Changelog Generation
 
 ### First Release (e.g., 1.0)
+
 - Includes all commits from the first commit to the release tag
 
 ### Subsequent Releases (e.g., 1.1, 2.0)
+
 - Includes commits from the previous tag to the current tag
 - Example: If you have tags `1.0` and `1.1`, the changelog for `1.1` will include commits between `1.0` and `1.1`
 
@@ -63,7 +65,6 @@ Each release includes:
 
 1. **Package**: `bmi-stellar-edition-{version}.zip`
    - Contains the built application and necessary files
-   
 2. **Checksum**: `bmi-stellar-edition-{version}.zip.sha256`
    - SHA256 hash for package verification
 
@@ -100,6 +101,7 @@ Recommended tag formats:
 ### Release Failed?
 
 Check the Actions tab in GitHub to see error logs:
+
 1. Go to your repository on GitHub
 2. Click "Actions" tab
 3. Find the failed workflow run

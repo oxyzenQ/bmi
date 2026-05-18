@@ -6,7 +6,7 @@ if ! command -v bun >/dev/null 2>&1; then
 	exit 127
 fi
 
-echo "Running local deep verification (check -> lint -> test:run -> build)..."
+echo "Running local deep verification (format:check -> check -> lint -> test:run -> build)..."
 bun run verify
 
 echo "OK: verify passed"

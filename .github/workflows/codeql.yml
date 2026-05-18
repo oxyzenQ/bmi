@@ -1,20 +1,23 @@
 ---
-name: "🔒 CodeQL Security Scan"
+name: '🔒 CodeQL Security Scan'
 
 on:
   push:
-    branches: ["main"]
+    branches: [main, dev]
   pull_request:
-    branches: ["main"]
+    branches: [main, dev]
   schedule:
     # Run at 8 AM SGT (00:00 UTC) every Monday
     - cron: '0 0 * * 1'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   analyze:
     name: Analyze Code
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 60
     permissions:
       actions: read
       contents: read
@@ -27,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
           fetch-tags: false
@@ -46,6 +49,5 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4.35.5
         with:
-          category: "/language:${{matrix.language}}"
+          category: '/language:${{matrix.language}}'
           upload: true
-        continue-on-error: true

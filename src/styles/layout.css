@@ -1,297 +1,378 @@
-/* ── layout.css — Cosmic particles, footer, misc utility classes ── */
+/* // Copyright (c) 2025 - 2026 rezky_nightky */
+/* ── layout.css — Footer, misc utility classes ── */
 /* ==============================
       ABOUT BMI SECTION
   ============================== */
 .section-header-v2 {
-  margin-top: clamp(40px, 40vh, 120px) !important;
-  border-radius: var(--radius-lg);
+	margin-top: clamp(2rem, 10vh, 7rem) !important;
+	border-radius: var(--radius-lg);
 }
 
 .main-container .section-header-v2 {
-  color: var(--stellar-white);
-  padding: 4rem;
-  text-align: center;
-  margin-bottom: clamp(1rem, 4vw, 2rem);
+	color: var(--stellar-white);
+	padding: 4rem;
+	text-align: center;
+	margin-bottom: clamp(7rem, 10vw, 7rem) !important;
 }
 
 .about-bmi-section .title {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  width: 100%;
-  font-size: var(--text-5xl);
-  text-align: center;
-  color: var(--stellar-white);
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+	width: 100%;
+	font-size: var(--text-5xl);
+	text-align: center;
+	color: var(--stellar-white);
 }
 
 .about-bmi-section .subtitle {
-  text-align: center;
-  font-size: clamp(1.25rem, 2vw, 1.5rem);
+	text-align: center;
+	font-size: clamp(1.25rem, 2vw, 1.5rem);
 }
 
 .about-bmi-section {
-  padding: 4rem 0;
-  background: none;
-  position: relative;
+	background: none;
+	position: relative;
 }
 
 .about-bmi-section::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: none;
-  pointer-events: none;
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: none;
+	pointer-events: none;
 }
 
 .about-bmi-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  margin-top: auto;
-  margin-bottom: clamp(40px, 40vh, 180px) !important;
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 2rem;
 }
 
 .about-card {
-  border-radius: var(--radius-2xl);
-  padding: 2rem;
-  transition: transform var(--dur-slow) var(--easing-material), box-shadow var(--dur-slow) var(--easing-material), border-color var(--dur-slow) var(--easing-material);
-  position: relative;
-  overflow: hidden;
-  will-change: auto;
-  contain: layout style paint;
+	border-radius: var(--radius-2xl);
+	padding: 2rem;
+	transition:
+		transform var(--dur-slow) var(--easing-material),
+		border-color var(--dur-slow) var(--easing-material);
+	position: relative;
+	overflow: hidden;
+	will-change: auto;
+	contain: layout style paint;
 }
 
 .about-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px var(--k-40);
-  border-color: var(--w-12);
+	transform: translateY(-4px);
+
+	border-color: rgba(130, 130, 130, 0.4);
 }
 
 .about-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: var(--z-base);
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	pointer-events: none;
+	z-index: var(--z-base);
 }
 
 .about-card-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  position: relative;
-  z-index: var(--z-content);
-  justify-content: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1.75rem;
+	position: relative;
+	z-index: var(--z-content);
+	justify-content: center;
+}
+
+.about-card-header :is(svg) {
+	filter: drop-shadow(0 0 6px var(--coreblue-25, rgba(96, 165, 250, 0.25)));
 }
 
 .about-card-content {
-  position: relative;
-  z-index: var(--z-content);
+	position: relative;
+	z-index: var(--z-content);
+	max-width: 72ch;
+	margin-inline: auto;
 }
 
 .about-card p {
-  color: var(--text-secondary-bright);
-  font-size: 1rem;
-  line-height: 1.7;
-  margin-bottom: 1rem;
-
-  text-align: center;
-
-  overflow-wrap: break-word;
+	color: var(--text-secondary-bright);
+	font-size: 1rem;
+	line-height: 1.75;
+	margin-bottom: 1rem;
+	text-align: left;
+	overflow-wrap: break-word;
+	letter-spacing: 0.01em;
 }
 
 .about-card p:last-child {
-  margin-bottom: 0;
+	margin-bottom: 0;
 }
 
-/* ==============================
-      COSMIC PARTICLES & EFFECTS
-      ============================== */
-html:not([data-graphics='render']) .cosmic-particles {
-  display: none;
+/* Emphasized inline elements within about-card paragraphs */
+.about-card p em {
+	font-style: normal;
+	font-weight: 600;
+	color: var(--stellar-white);
 }
 
-html:not([data-graphics='render']) .orb,
-html:not([data-graphics='render']) .sparkle-icon,
-html:not([data-graphics='render']) .plasma-star {
-  animation: none !important;
+/* ── Merged about card: unified container for multiple sections ── */
+.about-card-merged {
+	padding: 0;
 }
 
-html:not([data-graphics='render']) .plasma-star {
-  filter: none !important;
+.about-section-block {
+	padding: 2rem;
+	position: relative;
+	z-index: var(--z-content);
 }
 
-.cosmic-particles {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-base);
-  pointer-events: none;
-  overflow: hidden;
-  contain: layout style paint;
-  will-change: transform;
-  isolation: isolate;
+.about-section-block:first-child {
+	padding-top: 2rem;
 }
 
-.cosmic-particles.is-paused .cosmic-particle {
-  animation-play-state: paused !important;
+.about-section-block:last-child {
+	padding-bottom: 2rem;
 }
 
-.cosmic-particles .cosmic-particle {
-  position: absolute;
-  top: -10vh;
-  left: 0;
-  opacity: 0;
-  border-radius: var(--radius-pill);
-  /* Blade Runner purple rain - elongated drops */
-  background: linear-gradient(180deg,
-      var(--plum-0) 0%,
-      var(--plum-80) 20%,
-      var(--purple-90) 50%,
-      var(--plum-80) 80%,
-      var(--plum-0) 100%);
-  box-shadow: 0 0 6px var(--purple-60),
-              0 0 12px var(--plum-40);
-  filter: blur(0.5px);
-  animation-name: rainFall;
-  animation-duration: var(--duration, 1.5s);
-  animation-delay: var(--delay, 0s);
-  animation-timing-function: ease-out;
-  animation-iteration-count: infinite;
-  /* will-change applied only when NOT scrolling — see responsive.css R-9 */
-  will-change: auto;
-  /* Rain drop shape - thin and tall */
-  width: 2px !important;
-  height: 24px !important;
+.about-section-divider {
+	height: 1px;
+	margin: 0 2rem;
+	background: rgba(130, 130, 130, 0.25);
+	border: none;
+	position: relative;
+	z-index: var(--z-content);
 }
 
-html[data-graphics='render'] .cosmic-particles .cosmic-particle {
-  animation-timing-function: ease-out !important;
-  /* Enhanced glow for render mode */
-  box-shadow: 0 0 8px var(--purple-80),
-              0 0 16px var(--plum-50),
-              0 0 24px var(--plum-30);
+.about-card-merged .about-card-header {
+	margin-bottom: 0.75rem;
 }
 
-@keyframes rainFall {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, -10vh, 0) scaleY(0.5);
-  }
-
-  5% {
-    opacity: var(--opacity, 0.85);
-    transform: translate3d(0, 0vh, 0) scaleY(1);
-  }
-
-  95% {
-    opacity: var(--opacity, 0.85);
-    transform: translate3d(0, 105vh, 0) scaleY(1);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate3d(0, 115vh, 0) scaleY(0.5);
-  }
+/* ── About section hero (page title inside merged card) ── */
+.about-section-hero {
+	text-align: center;
+	padding-top: 2.5rem;
+	padding-bottom: 2rem;
 }
 
-/* Plasma star effects */
-.plasma-star {
-  position: relative;
-  transition: transform var(--dur-content) var(--easing-material), filter var(--dur-content) var(--easing-material);
+.about-hero-title {
+	font-size: var(--text-4xl);
+	font-weight: 700;
+	color: var(--stellar-white);
+	margin-bottom: 0.75rem;
+	line-height: 1.2;
 }
 
-.plasma-star.star-1 {
-  color: var(--cat-blue-solid);
-  filter: drop-shadow(0 0 6px var(--blue-50));
-  /* animation removed for GPU performance */
+.about-card .about-hero-subtitle {
+	color: var(--text-secondary-bright);
+	font-size: 1.1rem;
+	line-height: 1.6;
+	max-width: 600px;
+	margin: 0 auto;
+	text-align: center;
 }
 
-.plasma-star.star-2 {
-  color: var(--cat-blue-deep);
-  filter: drop-shadow(0 0 6px var(--coreblue-50));
-  /* animation removed for GPU performance */
-}
+/* Merged card: section headers stay centered (icon above title) */
 
-.plasma-star.star-3 {
-  color: var(--cosmic-purple);
-  filter: drop-shadow(0 0 6px var(--violet-50));
-  /* animation removed for GPU performance */
+/* Merged card: no hover lift (too tall for translateY) */
+.about-card-merged:hover {
+	transform: none;
+	border-color: rgba(130, 130, 130, 0.4);
 }
-
 
 /* ==============================
       FOOTER COMPONENTS
       ============================== */
 .footer-disclaimer {
-  text-align: center;
-  color: var(--stellar-white);
-  font-size: var(--text-lg);
-  padding: clamp(2rem, 4vw, 4rem);
-  margin-top: clamp(40px, 40vh, 180px) !important;
-  margin-bottom: clamp(10px, 2vh, 10px) !important;
-  /* horizontal centering */
-  border-radius: var(--radius-3xl);
-  max-width: 100%;
+	text-align: center;
+	color: var(--stellar-white);
+	font-size: var(--text-lg);
+	padding: clamp(2rem, 4vw, 4rem);
+	margin-top: clamp(2rem, 10vh, 7rem) !important;
+	margin-bottom: clamp(10px, 2vh, 10px) !important;
+	/* horizontal centering */
+	border-radius: var(--radius-3xl);
+	max-width: 100%;
 }
 
 .footer-disclaimer p {
-  color: var(--text-secondary-bright);
-  font-size: 1rem;
-  line-height: 1.7;
-  margin-bottom: 1rem;
+	color: var(--text-secondary-bright);
+	font-size: 1rem;
+	line-height: 1.7;
+	margin-bottom: 1rem;
 
-  text-align: center;
+	text-align: center;
 
-  overflow-wrap: break-word;
+	overflow-wrap: break-word;
+}
+
+.pwa-install-card {
+	width: 100%;
+	margin: 0 auto;
+	padding: clamp(1.25rem, 3vw, 1.75rem);
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1.1rem;
+	text-align: center;
+	overflow: hidden;
+	contain: layout style;
+}
+
+.pwa-install-icon {
+	width: 58px;
+	height: 58px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--radius-pill);
+	color: var(--stellar-white);
+	background: var(--btn-bg-hover);
+	border: var(--btn-border-hover);
+	margin-inline: auto;
+}
+
+.pwa-install-icon.pwa-installed {
+	background: rgba(24, 210, 110, 0.16);
+	border-color: rgba(24, 210, 110, 0.35);
+}
+
+.pwa-install-copy {
+	min-width: 0;
+	max-width: 58ch;
+}
+
+.pwa-install-copy h2,
+.pwa-install-copy h3 {
+	margin: 0 0 0.35rem;
+	font-size: clamp(1.15rem, 2.3vw, 1.45rem);
+	line-height: 1.2;
+	color: var(--stellar-white);
+}
+
+.pwa-install-copy p {
+	margin: 0;
+	color: var(--text-secondary-bright);
+	font-size: 0.95rem;
+	line-height: 1.55;
+}
+
+.pwa-install-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.75rem;
+	margin-top: 0.15rem;
+}
+
+.pwa-install-action {
+	white-space: nowrap;
+	background: var(--btn-bg-hover);
+	border: var(--btn-border-hover);
+}
+
+.pwa-update-action {
+	background: linear-gradient(135deg, rgba(5, 46, 22, 0.82), rgba(22, 101, 52, 0.62));
+	border-color: rgba(74, 222, 128, 0.34);
+}
+
+.pwa-update-action:hover {
+	background: linear-gradient(135deg, rgba(5, 46, 22, 0.92), rgba(22, 101, 52, 0.72));
+	border-color: rgba(74, 222, 128, 0.48);
+}
+
+.pwa-install-status {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.55rem;
+	min-height: var(--btn-height);
+	padding-inline: var(--btn-padding-x);
+	border-radius: var(--btn-radius);
+	color: var(--stellar-white);
+	background: rgba(24, 210, 110, 0.12);
+	border: 1px solid rgba(24, 210, 110, 0.3);
+	font: var(--btn-font);
+	white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+	.pwa-install-card {
+		width: min(100%, 560px);
+		padding: 1.25rem 1rem;
+	}
+
+	.pwa-install-copy {
+		padding-inline: 0.25rem;
+	}
+
+	.pwa-install-actions,
+	.pwa-install-action {
+		width: min(100%, 260px);
+	}
+}
+
+@media (max-width: 480px) {
+	.pwa-install-action,
+	.pwa-install-status {
+		justify-content: center;
+		max-width: 100%;
+		text-align: center;
+		white-space: normal;
+	}
 }
 
 @media (max-width: 1120px) {
-  .footer-disclaimer {
-    margin-left: 50px;
-    margin-right: 50px;
-  }
+	.footer-disclaimer {
+		margin-left: 50px;
+		margin-right: 50px;
+	}
 
-  .github-footer {
-    margin-left: 10px;
-    margin-right: 10px;
-  }
+	.github-footer {
+		margin-left: 10px;
+		margin-right: 10px;
+	}
 }
 
 .github-footer {
-  text-align: center;
-  padding: 1.5rem;
-  margin: 1rem auto 0;
-  padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
-  max-width: 1000px;
-  position: relative;
-  overflow: hidden;
-  will-change: auto;
-  contain: layout style;
+	text-align: center;
+	padding: 1.5rem;
+	margin: 1rem auto 0;
+	max-width: 1000px;
+	position: relative;
+	overflow: hidden;
+	will-change: auto;
+	contain: layout style;
 }
 
 .github-footer span {
-  font-weight: 500;
-  color: var(--stellar-white);
+	font-weight: 500;
+	color: var(--stellar-white);
 }
 
 .github-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 1rem;
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: var(--text-lg);
-  font-weight: 500;
-  transition: color var(--dur-fast) var(--easing-smooth), background-color var(--dur-fast) var(--easing-smooth), border-color var(--dur-fast) var(--easing-smooth), transform var(--dur-fast) var(--easing-smooth), box-shadow var(--dur-fast) var(--easing-smooth);
-  padding: var(--space-4) 1.5rem;
-  border-radius: var(--radius-lg);
+	display: inline-flex;
+	align-items: center;
+	gap: 1rem;
+	color: var(--text-secondary);
+	text-decoration: none;
+	font-size: var(--text-lg);
+	font-weight: 500;
+	transition:
+		color var(--dur-fast) var(--easing-smooth),
+		background-color var(--dur-fast) var(--easing-smooth),
+		border-color var(--dur-fast) var(--easing-smooth),
+		transform var(--dur-fast) var(--easing-smooth);
+	padding: var(--space-4) 1.5rem;
+	border-radius: var(--radius-lg);
 }
 
 .github-link:hover {
-  color: var(--accent-blue);
-  background: var(--coreblue-12);
-  border-color: var(--coreblue-30);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px var(--coreblue-15);
+	color: var(--accent-blue);
+	background: var(--coreblue-12);
+	border-color: var(--coreblue-30);
+	transform: translateY(-2px);
 }

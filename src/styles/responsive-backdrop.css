@@ -1,17 +1,13 @@
-/* ── responsive-backdrop.css — Backdrop-filter fallback ── */
-/* v18.0 refactor: Extracted from responsive.css.
-   Contains: @supports not backdrop-filter fallback block.
-   Must load AFTER component styles so !important overrides take effect. */
+/* // Copyright (c) 2025 - 2026 rezky_nightky */
+/* ── responsive-backdrop.css — Non-container backdrop fallbacks ── */
+/* Must load after component styles so no-backdrop fallbacks win when needed. */
 
 /* ═══════════════════════════════════════════════════════════════
-   BACKDROP-FILTER FEATURE DETECTION (Enhancement 4 — Bug 1)
+   BACKDROP-FILTER FEATURE DETECTION
    ─────────────────────────────────────────────────────────────
-   On browsers that do NOT support backdrop-filter at all,
-   the semi-transparent backgrounds (var(--k-50)) render without
-   blur — creating a "dirty glass" / fully transparent look.
-
-   This @supports block provides a rich solid fallback that
-   maintains the premium feel without requiring blur support.
+   Container background and border are centralized in components.css.
+   This file only handles non-container overlays and controls that still
+   need a stronger fallback when blur is unavailable.
 
    Why at the END of the file:
    - Touch media query (above) already disables backdrop-filter
@@ -21,45 +17,36 @@
      fall through to this fallback.
    ═══════════════════════════════════════════════════════════════ */
 @supports not (backdrop-filter: blur(1px)) {
-  .bmi-card,
-  .footer-disclaimer,
-  .about-card,
-  .gauge-container,
-  .reference-table,
-  .form-card,
-  .github-link,
-  .section-header-v2,
-  .hero-content {
-    background: var(--glass-bg-fallback) !important;
-    border: 1px solid var(--w-8) !important;
-    box-shadow: 0 4px 16px var(--k-40), inset 0 1px 0 var(--w-6) !important;
-  }
+	.pager-nav-shell,
+	.pager-controls-shell {
+		/* Liquid glass navbar fallback: solid dark background matching
+       the rgba(8,8,12,0.52) base when blur is not supported.
+       Preserve the subtle white border for depth. */
+		background: rgba(8, 8, 12, 0.82) !important;
+	}
 
-  .pager-nav-shell,
-  .pager-controls-shell {
-    background: var(--cosmic-dark-94) !important;
-    box-shadow: none !important;
-  }
+	.lang-backdrop,
+	.notify-backdrop {
+		background: var(--cosmic-dark-92) !important;
+	}
 
-  .lang-backdrop,
-  .notify-backdrop {
-    background: var(--cosmic-dark-92) !important;
-  }
+	.lang-panel,
+	.notify-float-box {
+		background: var(--glass-bg-nightky) !important;
+	}
 
-  .lang-panel,
-  .notify-float-box {
-    background: var(--glass-bg-fallback) !important;
-  }
+	.chart-tooltip {
+		background: var(--cosmic-dark-82) !important;
+	}
 
-  .chart-tooltip {
-    background: var(--cosmic-dark-82) !important;
-  }
+	.btn-success,
+	.btn-delete,
+	.btn-cancel,
+	.btn-warn {
+		background: var(--cosmic-dark-70) !important;
+	}
 
-  .notify-close,
-  .btn-success,
-  .btn-delete,
-  .btn-cancel,
-  .btn-warn {
-    background: var(--cosmic-dark-70) !important;
-  }
+	.notify-close {
+		background: var(--btn-danger-bg) !important;
+	}
 }

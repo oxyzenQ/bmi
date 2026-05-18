@@ -1,202 +1,235 @@
+/* // Copyright (c) 2025 - 2026 rezky_nightky */
 /* ── lang-switcher.css — Language switcher floating panel (portaled to body) ── */
 /* These styles are global because the panel is portaled to document.body
    via use:portal action, escaping Svelte's scoped CSS. */
 
 /* ── Backdrop overlay ── */
 .lang-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: var(--modal-z);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--modal-backdrop-bg) !important;
-  -webkit-backdrop-filter: blur(var(--modal-backdrop-blur)) saturate(var(--modal-backdrop-sat)) !important;
-  backdrop-filter: blur(var(--modal-backdrop-blur)) saturate(var(--modal-backdrop-sat)) !important;
-  isolation: isolate;
-  opacity: 0;
-  transition: opacity var(--modal-backdrop-dur) ease;
-  pointer-events: none;
+	position: fixed;
+	inset: 0;
+	z-index: var(--modal-z);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--modal-backdrop-bg) !important;
+	-webkit-backdrop-filter: blur(var(--modal-backdrop-blur)) saturate(var(--modal-backdrop-sat)) !important;
+	backdrop-filter: blur(var(--modal-backdrop-blur)) saturate(var(--modal-backdrop-sat)) !important;
+	isolation: isolate;
+	opacity: 0;
+	transition: opacity var(--modal-backdrop-dur) ease;
+	pointer-events: none;
 }
 
 .lang-backdrop.visible {
-  opacity: 1;
-  pointer-events: auto;
+	opacity: 1;
+	pointer-events: auto;
 }
 
 /* ── Panel container ── */
 .lang-panel {
-  position: relative;
-  background: var(--k-50) !important;
-  border: var(--border-by-rezky);
-  border-radius: var(--modal-panel-radius);
-  padding: 2rem 1.75rem;
-  min-width: 280px;
-  max-width: 90vw;
-  text-align: center;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  box-shadow: 0 25px 50px -12px var(--k-50);
-  transform: scale(0.92) translateY(14px);
-  transition: transform var(--modal-dur) var(--modal-ease);
-  outline: none;
+	position: relative;
+	background: var(--k-50) !important;
+	border: var(--border-by-rezky);
+	border-radius: var(--modal-panel-radius);
+	padding: 2rem 1.75rem;
+	min-width: 280px;
+	max-width: 90vw;
+	text-align: center;
+	-webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+	backdrop-filter: blur(24px) saturate(180%) !important;
+
+	transform: scale(0.92) translateY(14px);
+	transition: transform var(--modal-dur) var(--modal-ease);
+	outline: none;
 }
 
 .lang-backdrop.visible .lang-panel {
-  transform: scale(1) translateY(0);
+	transform: scale(1) translateY(0);
 }
 
 /* ── Close (X) button — reset all global button styles ── */
 .lang-close {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  width: 32px;
-  height: 32px;
-  padding: 0 !important;
-  margin: 0;
-  border-radius: 50%;
-  border: 1px solid var(--w-20);
-  background: var(--w-10);
-  color: var(--w-80);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: var(--z-inner-control);
-  transition: background var(--dur-micro) ease, color var(--dur-micro) ease;
-  /* Reset global button styles */
-  font: inherit;
-  box-shadow: none;
-  gap: 0;
-  overflow: hidden;
+	position: absolute;
+	top: 0.75rem;
+	right: 0.75rem;
+	width: 36px;
+	height: 36px;
+	padding: 0 !important;
+	margin: 0;
+	border-radius: 50%;
+	border: var(--btn-danger-border);
+	background: var(--btn-danger-bg);
+	color: var(--stellar-white);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: var(--z-inner-control);
+	transition: none;
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+	/* Reset global button styles */
+	font: inherit;
+
+	gap: 0;
+	overflow: hidden;
+	-webkit-tap-highlight-color: transparent;
 }
 
 .lang-close:hover {
-  background: var(--w-15);
-  color: var(--stellar-white);
-  transform: rotate(90deg) scale(1.1);
-  border-color: var(--w-25);
+	background: var(--btn-danger-bg-hover);
+	color: var(--stellar-white);
+	border: var(--btn-danger-border-hover);
 }
 
 .lang-close:active {
-  transform: rotate(90deg) scale(0.95);
-  transition-duration: var(--dur-instant);
+	background: var(--btn-danger-bg-hover);
+	color: var(--stellar-white);
+	border: var(--btn-danger-border-hover);
 }
 
-.lang-close svg {
-  width: 16px !important;
-  height: 16px !important;
-  display: block;
+.lang-close:focus-visible {
+	outline: none !important;
+	box-shadow: none !important;
+}
+
+.close-icon-text {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	font-family:
+		system-ui,
+		-apple-system,
+		BlinkMacSystemFont,
+		'Segoe UI',
+		sans-serif;
+	font-size: 24px;
+	font-weight: 500;
+	line-height: 1;
+	color: var(--stellar-white) !important;
+	pointer-events: none;
+	transform: none;
+	user-select: none;
 }
 
 /* ── Globe icon ── */
 .lang-panel-icon {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: var(--cosmic-purple);
-  margin-bottom: 0.75rem;
-  animation: langIconPop var(--dur-panel) ease;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: var(--cosmic-purple);
+	margin-bottom: 0.75rem;
+	animation: langIconPop var(--dur-panel) ease;
 }
 
 .lang-panel-icon svg {
-  width: 32px !important;
-  height: 32px !important;
+	width: 32px !important;
+	height: 32px !important;
 }
 
 @keyframes langIconPop {
-  0% { transform: scale(0); opacity: 0; }
-  60% { transform: scale(1.15); }
-  100% { transform: scale(1); opacity: 1; }
+	0% {
+		transform: scale(0);
+		opacity: 0;
+	}
+	60% {
+		transform: scale(1.15);
+	}
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
 }
 
 /* ── Panel title ── */
 .lang-panel-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--w-95);
-  margin: 0 0 1.25rem;
-  letter-spacing: -0.01em;
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: var(--w-95);
+	margin: 0 0 1.25rem;
+	letter-spacing: -0.01em;
 }
 
 /* ── Options list ── */
 .lang-options {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
 }
 
 /* ── Individual option button — reset global button styles ── */
 .lang-option {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  width: 100%;
-  padding: 0.6rem 0.75rem;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--w-60);
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background var(--dur-micro) ease, color var(--dur-micro) ease, border-color var(--dur-micro) ease;
-  text-align: left;
-  /* Reset global button styles */
-  height: auto;
-  padding-inline: 0.75rem;
-  font: inherit;
-  box-shadow: none;
+	display: flex;
+	align-items: center;
+	gap: 0.65rem;
+	width: 100%;
+	padding: 0.6rem 0.75rem;
+	border: 1px solid transparent;
+	border-radius: var(--control-radius);
+	background: transparent;
+	color: var(--w-60);
+	font-size: 0.9rem;
+	cursor: pointer;
+	transition:
+		background var(--dur-micro) ease,
+		color var(--dur-micro) ease,
+		border-color var(--dur-micro) ease;
+	text-align: left;
+	/* Reset global button styles */
+	height: auto;
+	padding-inline: 0.75rem;
+	font: inherit;
 }
 
 .lang-option:hover {
-  background: var(--w-6);
-  color: var(--w-95);
-  border-color: var(--w-10);
+	background: var(--w-6);
+	color: var(--w-95);
+	border-color: rgba(130, 130, 130, 0.3);
 }
 
 .lang-option.active {
-  background: linear-gradient(135deg, var(--violet-20), var(--violet-10));
-  color: var(--stellar-white);
-  border-color: var(--cosmic-purple);
-  box-shadow: 0 0 12px var(--violet-25);
+	background: linear-gradient(135deg, var(--violet-20), var(--violet-10));
+	color: var(--stellar-white);
+	border-color: var(--cosmic-purple);
 }
 
 .lang-option:active {
-  transform: scale(0.98);
-  transition-duration: var(--dur-instant);
+	transform: scale(0.98);
+	transition-duration: var(--dur-instant);
 }
 
 /* ── Option inner elements ── */
 .lang-flag {
-  font-size: 1.25rem;
-  line-height: 1;
+	font-size: 1.25rem;
+	line-height: 1;
 }
 
 .lang-name {
-  flex: 1;
-  font-weight: 500;
+	flex: 1;
+	font-weight: 500;
 }
 
 .lang-code {
-  font-size: var(--text-xs);
-  font-family: var(--font-mono-short);
-  padding: 0.15rem 0.4rem;
-  border-radius: var(--radius-xs);
-  background: var(--w-6);
-  opacity: 0.6;
+	font-size: var(--text-xs);
+	font-family: var(--font-mono-short);
+	padding: 0.15rem 0.4rem;
+	border-radius: var(--control-radius);
+	background: var(--w-6);
+	opacity: 0.6;
 }
 
 .lang-option.active .lang-code {
-  background: var(--w-15);
-  opacity: 0.9;
+	background: var(--w-15);
+	opacity: 0.9;
 }
 
 /* ── Responsive ── */
 @media (max-width: 480px) {
-  .lang-panel {
-    min-width: 260px;
-    padding: 1.5rem 1.25rem;
-    border-radius: var(--radius-xl);
-  }
+	.lang-panel {
+		min-width: 260px;
+		padding: 1.5rem 1.25rem;
+		border-radius: var(--modal-panel-radius);
+	}
 }

@@ -1,770 +1,755 @@
+/* // Copyright (c) 2025 - 2026 rezky_nightky */
 /* ── data-cards.css — Stat row grid, TDEE display, radial gauge, reference table, about BMI section ── */
 /* ==============================
       EMPTY STATE
       ============================== */
 .empty-state {
-  text-align: center;
-  color: var(--text-muted-slate);
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+	text-align: center;
+	color: var(--text-muted-slate);
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 .empty-icon {
-  position: relative;
-  margin-bottom: 1.5rem;
+	position: relative;
+	margin-bottom: 1.5rem;
 }
 
 .empty-glow {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--sg-25), transparent 60%);
-  filter: blur(10px);
+	position: absolute;
+	inset: 0;
+	border-radius: 50%;
+	background: radial-gradient(circle, var(--sg-25), transparent 60%);
+	filter: blur(10px);
 }
 
 .empty-text {
-  color: var(--stellar-white);
+	color: var(--stellar-white);
 }
 
 /* ==============================
    STAT ROW GRID — BMI Prime & Ideal Weight
    ============================== */
 .stat-row-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-  margin-bottom: 1.75rem;
-  animation: fadeInUp var(--dur-panel) var(--easing-smooth) 0.2s both;
-}
-
-@media (max-width: 480px) {
-  .stat-row-grid {
-    grid-template-columns: 1fr;
-  }
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+	gap: 0.75rem;
+	margin-bottom: 1.75rem;
+	animation: fadeInUp var(--dur-panel) var(--easing-smooth) 0.2s both;
 }
 
 .stat-block {
-  background: var(--sd-40);
-  border: 1px solid var(--w-5);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
+	padding: 1.25rem;
+	transition:
+		transform var(--dur-content) ease,
+		background-color var(--dur-content) ease,
+		border-color var(--dur-content) ease;
 }
 
 .stat-block:hover {
-  background: var(--sd-60);
-  border-color: var(--w-10);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px var(--k-20);
+	border-color: rgba(130, 130, 130, 0.4);
+	transform: translateY(-2px);
 }
 
 .stat-block-header {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-bottom: 0.6rem;
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	margin-bottom: 0.6rem;
 }
 
 .stat-icon {
-  width: 1rem;
-  height: 1rem;
-  color: var(--cosmic-purple);
-  flex-shrink: 0;
+	width: 1rem;
+	height: 1rem;
+	color: var(--cosmic-purple);
+	flex-shrink: 0;
 }
 
 .stat-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--text-muted);
 }
 
 .stat-value-row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  margin-bottom: 0.35rem;
+	display: flex;
+	align-items: baseline;
+	gap: 0.4rem;
+	flex-wrap: wrap;
+	margin-bottom: 0.35rem;
 }
 
 .stat-number {
-  font-family: var(--font-mono);
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--stellar-white);
-  line-height: 1;
+	font-family: var(--font-mono);
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: var(--stellar-white);
+	line-height: 1;
 }
 
 .stat-number.range-num {
-  font-size: 1.25rem;
+	font-size: 1.25rem;
 }
 
 .range-sep {
-  color: var(--text-muted);
-  font-size: 1rem;
-  margin: 0 0.1rem;
+	color: var(--text-muted);
+	font-size: 1rem;
+	margin: 0 0.1rem;
 }
 
 .stat-unit {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  margin-left: 0.15rem;
+	font-size: 0.8rem;
+	font-weight: 500;
+	color: var(--text-muted);
+	margin-left: 0.15rem;
 }
 
 /* Percentage badge */
 .stat-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.15rem 0.45rem;
-  border-radius: var(--radius-pill);
-  font-size: 0.7rem;
-  font-weight: 700;
-  font-family: var(--font-mono-short);
-  letter-spacing: 0.02em;
+	display: inline-flex;
+	align-items: center;
+	padding: 0.15rem 0.45rem;
+	border-radius: var(--radius-pill);
+	font-size: 0.7rem;
+	font-weight: 700;
+	font-family: var(--font-mono-short);
+	letter-spacing: 0.02em;
 }
 
 .stat-badge.badge-above {
-  background: var(--cat-red-15);
-  color: var(--cat-red-soft);
-  border: 1px solid var(--cat-red-30);
+	background: var(--cat-red-15);
+	color: var(--cat-red-soft);
+	border: 1px solid var(--cat-red-30);
 }
 
 .stat-badge.badge-below {
-  background: var(--cat-blue-15);
-  color: var(--blue-300-solid);
-  border: 1px solid var(--cat-blue-30);
+	background: var(--cat-blue-15);
+	color: var(--blue-300-solid);
+	border: 1px solid var(--cat-blue-30);
 }
 
 .stat-desc {
-  font-size: 0.8rem;
-  color: var(--text-tertiary);
-  line-height: 1.4;
+	font-size: 0.8rem;
+	color: var(--text-tertiary);
+	line-height: 1.4;
 }
 
 /* Delta descriptions for ideal weight */
 .delta-desc {
-  font-weight: 600;
+	font-weight: 600;
 }
 
 .delta-desc.delta-above {
-  color: var(--cat-red-soft);
+	color: var(--cat-red-soft);
 }
 
 .delta-desc.delta-below {
-  color: var(--blue-300-solid);
+	color: var(--blue-300-solid);
 }
 
 .delta-desc.delta-within {
-  color: var(--green-300-solid);
+	color: var(--green-300-solid);
 }
 
 /* BMI Prime progress bar */
 .prime-bar-track {
-  position: relative;
-  width: 100%;
-  height: 6px;
-  background: var(--w-5);
-  border-radius: var(--radius-pill);
-  margin-top: 0.6rem;
-  overflow: visible;
+	position: relative;
+	width: 100%;
+	height: 6px;
+	background: var(--w-5);
+	border-radius: var(--radius-pill);
+	margin-top: 0.6rem;
+	overflow: visible;
 }
 
 .prime-bar-fill {
-  height: 100%;
-  border-radius: var(--radius-pill);
-  transition: width var(--dur-slow) var(--easing-smooth), background var(--dur-normal) ease;
-  min-width: 4px;
+	height: 100%;
+	border-radius: var(--radius-pill);
+	transition:
+		width var(--dur-slow) var(--easing-smooth),
+		background var(--dur-normal) ease;
+	min-width: 4px;
 }
 
 .prime-bar-fill.fill-under {
-  background: var(--cat-blue-solid);
+	background: var(--cat-blue-solid);
 }
 
 .prime-bar-fill.fill-normal {
-  background: var(--cat-green-solid);
+	background: var(--cat-green-solid);
 }
 
 .prime-bar-fill.fill-over {
-  background: var(--cat-amber-solid);
+	background: var(--cat-amber-solid);
 }
 
 .prime-bar-fill.fill-obese {
-  background: var(--cat-red-solid);
+	background: var(--cat-red-solid);
 }
 
 /* 1.0 marker on the bar */
 .prime-bar-marker {
-  position: absolute;
-  top: -3px;
-  width: 2px;
-  height: 12px;
-  background: white;
-  border-radius: 1px;
-  opacity: 0.6;
-  transform: translateX(-50%);
+	position: absolute;
+	top: -3px;
+	width: 2px;
+	height: 12px;
+	background: white;
+	border-radius: 1px;
+	opacity: 0.6;
+	transform: translateX(-50%);
 }
 
 .prime-bar-labels {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  margin-top: 0.25rem;
-  font-size: 0.6rem;
-  color: var(--text-muted);
-  font-family: var(--font-mono-short);
+	position: relative;
+	display: flex;
+	justify-content: space-between;
+	margin-top: 0.25rem;
+	font-size: 0.6rem;
+	color: var(--text-muted);
+	font-family: var(--font-mono-short);
 }
 
 .prime-bar-labels .label-marker {
-  position: absolute;
-  left: 62.5%;
-  transform: translateX(-50%);
+	position: absolute;
+	left: 62.5%;
+	transform: translateX(-50%);
 }
 
 /* Category color classes for BMI Results */
 .bmi-results-card.cat-underweight .bmi-value,
 .bmi-results-card.cat-underweight .bmi-category,
 .bmi-results-card.cat-underweight .category-icon {
-  color: var(--cat-blue-solid);
+	color: var(--cat-blue-solid);
 }
 
 .bmi-results-card.cat-normal .bmi-value,
 .bmi-results-card.cat-normal .bmi-category,
 .bmi-results-card.cat-normal .category-icon {
-  color: var(--emerald-solid);
+	color: var(--emerald-solid);
 }
 
 .bmi-results-card.cat-overweight .bmi-value,
 .bmi-results-card.cat-overweight .bmi-category,
 .bmi-results-card.cat-overweight .category-icon {
-  color: var(--warn-amber);
+	color: var(--warn-amber);
 }
 
 .bmi-results-card.cat-obese .bmi-value,
 .bmi-results-card.cat-obese .bmi-category,
 .bmi-results-card.cat-obese .category-icon {
-  color: var(--red-500-solid);
+	color: var(--red-500-solid);
 }
 
 /* ==============================
    TDEE ESTIMATOR CARD
    ============================== */
 .tdee-card {
-  background: var(--sd-40);
-  border: 1px solid var(--w-5);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  margin-bottom: 1.75rem;
-  animation: fadeInUp var(--dur-panel) var(--easing-smooth) 0.25s both;
-  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
+	padding: 1.25rem;
+	margin-bottom: 1.75rem;
+	animation: fadeInUp var(--dur-panel) var(--easing-smooth) 0.25s both;
+	transition:
+		transform var(--dur-content) ease,
+		background-color var(--dur-content) ease,
+		border-color var(--dur-content) ease;
 }
 
 .tdee-card:hover {
-  background: var(--sd-60);
-  border-color: var(--w-10);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px var(--k-20);
+	border-color: rgba(130, 130, 130, 0.4);
+	transform: translateY(-2px);
 }
 
 .tdee-header {
-  margin-bottom: 0.75rem;
+	margin-bottom: 0.75rem;
 }
 
 .tdee-icon {
-  color: var(--cat-orange-solid);
+	color: var(--cat-orange-solid);
 }
 
 .tdee-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.75rem;
+	margin-bottom: 0.75rem;
 }
 
 .tdee-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0.6rem;
-  border-radius: 0.75rem;
-  background: var(--w-3);
-  border: 1px solid var(--w-5);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 0.6rem;
+	border-radius: 0.75rem;
+	background: var(--w-3);
+	border: 1px solid var(--w-5);
 }
 
 .tdee-highlight {
-  background: linear-gradient(135deg, var(--neon-15), var(--plum-0));
-  border-color: var(--purple-5);
+	background: linear-gradient(135deg, var(--neon-15), var(--plum-0));
+	border-color: var(--purple-5);
 }
 
 .tdee-stat-label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
+	font-size: 0.65rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--text-muted);
 }
 
 .tdee-stat-value {
-  font-family: var(--font-mono-short);
-  font-size: var(--text-3xl);
-  font-weight: 700;
-  color: var(--stellar-white);
-  line-height: 1.2;
+	font-family: var(--font-mono-short);
+	font-size: var(--text-3xl);
+	font-weight: 700;
+	color: var(--stellar-white);
+	line-height: 1.2;
 }
 
 .tdee-highlight .tdee-stat-value {
-  color: var(--cat-orange-solid);
+	color: var(--cat-orange-solid);
 }
 
 .tdee-stat-unit {
-  font-size: 0.6rem;
-  color: var(--text-muted);
+	font-size: 0.6rem;
+	color: var(--text-muted);
 }
 
 .tdee-meta {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+	display: flex;
+	justify-content: center;
+	gap: 0.5rem;
+	margin-bottom: 0.75rem;
 }
 
 .tdee-activity-badge,
 .tdee-gender-badge {
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 0.15rem 0.5rem;
-  border-radius: var(--radius-pill);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+	font-size: 0.65rem;
+	font-weight: 600;
+	padding: 0.15rem 0.5rem;
+	border-radius: var(--radius-pill);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
 }
 
 .tdee-activity-badge {
-  background: var(--amber-gold-30);
-  color: var(--cat-amber-solid);
-  border: 1px solid var(--amber-gold-40);
+	background: var(--amber-gold-30);
+	color: var(--cat-amber-solid);
+	border: 1px solid var(--amber-gold-40);
 }
 
 .tdee-gender-badge {
-  background: var(--coreblue-15);
-  color: var(--blue-300-solid);
-  border: 1px solid var(--coreblue-35);
+	background: var(--coreblue-15);
+	color: var(--blue-300-solid);
+	border: 1px solid var(--coreblue-35);
 }
 
 .tdee-ranges {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.4rem;
-  margin-bottom: 0.75rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+	gap: 0.4rem;
+	margin-bottom: 0.75rem;
 }
 
 .tdee-range {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.1rem;
-  padding: 0.45rem 0.25rem;
-  border-radius: 0.5rem;
-  text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.1rem;
+	padding: 0.45rem 0.25rem;
+	border-radius: 0.5rem;
+	text-align: center;
 }
 
 .tdee-cut {
-  background: var(--cat-green-8);
-  border: 1px solid var(--cat-green-20);
+	background: var(--cat-green-8);
+	border: 1px solid var(--cat-green-20);
 }
 
 .tdee-maintain {
-  background: var(--w-3);
-  border: 1px solid var(--w-8);
+	background: var(--w-3);
+	border: 1px solid var(--w-8);
 }
 
 .tdee-gain {
-  background: var(--cat-red-8);
-  border: 1px solid var(--cat-red-30);
+	background: var(--cat-red-8);
+	border: 1px solid var(--cat-red-30);
 }
 
 .tdee-range-label {
-  font-size: 0.55rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
+	font-size: 0.55rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--text-muted);
 }
 
 .tdee-range-value {
-  font-family: var(--font-mono-short);
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--stellar-white);
+	font-family: var(--font-mono-short);
+	font-size: 0.9rem;
+	font-weight: 700;
+	color: var(--stellar-white);
 }
 
 .tdee-cut .tdee-range-value {
-  color: var(--cat-green-solid);
+	color: var(--cat-green-solid);
 }
 
 .tdee-gain .tdee-range-value {
-  color: var(--cat-red-soft);
+	color: var(--cat-red-soft);
 }
 
 .tdee-range-unit {
-  font-size: 0.5rem;
-  color: var(--text-muted);
+	font-size: 0.5rem;
+	color: var(--text-muted);
 }
 
 .tdee-disclaimer {
-  font-size: 0.65rem;
-  color: var(--slate-500-solid);
-  line-height: 1.4;
-  text-align: center;
-}
-
-@media (max-width: 380px) {
-  .tdee-ranges {
-    grid-template-columns: 1fr;
-  }
+	font-size: 0.65rem;
+	color: var(--slate-500-solid);
+	line-height: 1.4;
+	text-align: center;
 }
 
 /* ==============================
       RADIAL GAUGE COMPONENT
       ============================== */
 .gauge-container {
-  position: relative;
-  padding: 10px 16px 12px;
-  border-radius: var(--radius-lg);
-  isolation: isolate;
-  width: min(92vw, 420px);
-  margin-inline: auto;
-  margin-top: clamp(24px, 3vh, 48px);
-  margin-bottom: 100px;
+	position: relative;
+	padding: 10px 16px 12px;
+	isolation: isolate;
+	width: min(92vw, 420px);
+	margin-inline: auto;
+	margin-top: clamp(24px, 3vh, 48px);
+	margin-bottom: 100px;
 }
 
 /* Main gauge header container */
 .gauge-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  margin-bottom: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.25rem;
+	margin-bottom: 0.5rem;
 }
 
 /* Title container with icon and text */
 .gauge-title {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  justify-content: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.75rem;
+	justify-content: center;
 }
 
 /* Title text styling */
 .gauge-title h3 {
-  margin-top: 0.25rem;
-  margin-bottom: 0.25rem;
-  width: 100%;
-  font-size: var(--text-2xl);
-  text-align: center;
-  color: var(--stellar-white);
+	margin-top: 0.25rem;
+	margin-bottom: 0.25rem;
+	width: 100%;
+	font-size: var(--text-2xl);
+	text-align: center;
+	color: var(--stellar-white);
 }
 
 /* Icon styling */
 .gauge-title .Gauge {
-  width: 2rem;
-  height: 2rem;
-  color: var(--accent-blue);
-  filter: drop-shadow(0 0 8px var(--coreblue-40));
-  flex-shrink: 0;
+	width: 2rem;
+	height: 2rem;
+	color: var(--accent-blue);
+	filter: drop-shadow(0 0 8px var(--coreblue-40));
+	flex-shrink: 0;
 }
 
 /* Subtitle with elegant ligatures */
 .gauge-subtitle {
-  color: var(--text-muted);
-  text-align: center;
-  font-size: clamp(0.9rem, 1.5vw, 1rem);
-  margin-top: 0;
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  /* font-feature-settings removed — fights global optimizeSpeed */
-  font-variant-ligatures: common-ligatures discretionary-ligatures;
-  opacity: 0.9;
-  margin: 0;
-  padding: 1rem;
+	color: var(--text-muted);
+	text-align: center;
+	font-size: clamp(0.9rem, 1.5vw, 1rem);
+	margin-top: 0;
+	font-weight: 400;
+	letter-spacing: 0.01em;
+	/* font-feature-settings removed — fights global optimizeSpeed */
+	font-variant-ligatures: common-ligatures discretionary-ligatures;
+	opacity: 0.9;
+	margin: 0;
+	padding: 1rem;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .gauge-title h3 {
-    font-size: 2.5rem;
-  }
+	.gauge-title h3 {
+		font-size: 2.5rem;
+	}
 
-  .gauge-title .Gauge {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
+	.gauge-title .Gauge {
+		width: 2.5rem;
+		height: 2.5rem;
+	}
 }
 
 .gauge-wrapper {
-  display: grid;
-  grid-template-columns: 1fr;
-  place-items: center;
-  gap: 12px;
+	display: grid;
+	grid-template-columns: 1fr;
+	place-items: center;
+	gap: 12px;
 }
 
 .radial-gauge {
-  width: auto;
-  height: auto;
-  contain: layout paint style;
-  backface-visibility: hidden;
-  margin-bottom: 2rem;
-  margin-top: 2.5rem;
+	width: auto;
+	height: auto;
+	contain: layout paint style;
+	backface-visibility: hidden;
+	margin-bottom: 2rem;
+	margin-top: 2.5rem;
 }
 
 .gauge-progress {
-  transition: stroke-dashoffset var(--gauge-stroke-dur, 1200ms) var(--easing-gauge), stroke var(--dur-normal) ease;
+	transition:
+		stroke-dashoffset var(--gauge-stroke-dur, 1200ms) var(--easing-gauge),
+		stroke var(--dur-normal) ease;
 }
 
 .gauge-progress.filling {
-  transition: stroke-dashoffset var(--gauge-stroke-dur-fill, 1800ms) var(--easing-gauge) var(--gauge-stroke-delay-fill, 120ms), stroke var(--dur-content) ease;
+	transition:
+		stroke-dashoffset var(--gauge-stroke-dur-fill, 1800ms) var(--easing-gauge)
+			var(--gauge-stroke-delay-fill, 120ms),
+		stroke var(--dur-content) ease;
 }
-
-.gauge-progress.pulsing {
-  /* animation removed for GPU performance */
-}
-
 
 .gauge-reflection {
-  width: min(52vw, 280px);
-  height: 10px;
-  margin-top: -6px;
-  border-radius: 50% / 60%;
-  background: radial-gradient(60% 100% at 50% 0%, var(--coreblue-35), var(--coreblue-0) 70%);
-  filter: blur(6px);
-  opacity: 0.6;
+	width: min(52vw, 280px);
+	height: 10px;
+	margin-top: -6px;
+	border-radius: 50% / 60%;
+	background: radial-gradient(60% 100% at 50% 0%, var(--coreblue-35), var(--coreblue-0) 70%);
+	filter: blur(6px);
+	opacity: 0.6;
 }
 
 .gauge-center .bmi-value {
-  font: 700 36px/1.1 var(--font-sans) var(--font-sans), ui-sans-serif, system-ui;
-  text-shadow: 0 0 20px var(--coreblue-15);
+	font:
+		700 36px/1.1 var(--font-sans) var(--font-sans),
+		ui-sans-serif,
+		system-ui;
+	text-shadow: 0 0 20px var(--coreblue-15);
 }
 
 .gauge-center .bmi-label {
-  fill: var(--text-muted);
-  font: 600 12px/1 var(--font-sans), ui-sans-serif, system-ui;
-  letter-spacing: 1px;
+	fill: var(--text-muted);
+	font:
+		600 12px/1 var(--font-sans),
+		ui-sans-serif,
+		system-ui;
+	letter-spacing: 1px;
 }
 
 .gauge-center .category-label {
-  font: 600 12px/1 var(--font-sans), ui-sans-serif, system-ui;
+	font:
+		600 12px/1 var(--font-sans),
+		ui-sans-serif,
+		system-ui;
 }
 
 .scale-indicators {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 12px;
-  width: 100%;
-  padding-top: 14px;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 10px 12px;
+	width: 100%;
+	padding-top: 14px;
 }
 
 .scale-item {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: var(--radius-md);
-  background:
-    linear-gradient(180deg, var(--w-5), var(--w-2)) padding-box,
-    radial-gradient(100% 100% at 0% 0%, var(--w-12), var(--w-0)) border-box;
-  border: 1px solid var(--sg-16);
-  box-shadow:
-    inset 0 1px 0 var(--w-5),
-    0 8px 20px var(--dv8-25);
+	display: grid;
+	grid-template-columns: auto 1fr auto;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 12px;
+	border-radius: var(--radius-md);
+	background:
+		linear-gradient(180deg, var(--w-5), var(--w-2)) padding-box,
+		radial-gradient(100% 100% at 0% 0%, var(--w-12), var(--w-0)) border-box;
+	border: 1px solid var(--sg-16);
 }
 
 .scale-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: var(--category-color, var(--accent-blue));
-  box-shadow:
-    0 0 0 4px var(--blue-18),
-    0 0 14px var(--blue-20);
+	width: 10px;
+	height: 10px;
+	border-radius: 999px;
+	background: var(--category-color, var(--accent-blue));
 }
 
 .scale-label {
-  color: var(--slate-200-solid);
-  font: 600 12px/1 var(--font-sans), ui-sans-serif, system-ui;
+	color: var(--slate-200-solid);
+	font:
+		600 12px/1 var(--font-sans),
+		ui-sans-serif,
+		system-ui;
 }
 
 .scale-range {
-  color: var(--text-muted);
-  font: 500 12px/1 var(--font-sans), ui-sans-serif, system-ui;
+	color: var(--text-muted);
+	font:
+		500 12px/1 var(--font-sans),
+		ui-sans-serif,
+		system-ui;
 }
 
 /* Scale-item color variables */
 .scale-item.sc-underweight {
-  --category-color: var(--cat-blue-solid);
+	--category-color: var(--cat-blue-solid);
 }
 
 .scale-item.sc-normal {
-  --category-color: var(--cat-green-95);
+	--category-color: var(--cat-green-95);
 }
 
 .scale-item.sc-overweight {
-  --category-color: var(--cat-amber-solid);
+	--category-color: var(--cat-amber-solid);
 }
 
 .scale-item.sc-obese {
-  --category-color: var(--darkred-90);
+	--category-color: var(--darkred-90);
 }
 
 /* ==============================
       REFERENCE TABLE COMPONENT
       ============================== */
 .reference-table {
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  margin-top: clamp(40px, 40vh, 180px) !important;
-  margin-bottom: clamp(40px, 40vh, 180px) !important;
+	overflow: hidden;
+	margin-bottom: clamp(40px, 40vh, 180px) !important;
 }
 
 .reference-table .ref-header {
-  display: grid;
-  grid-template-columns: 1.2fr 0.9fr 1.1fr 1.3fr;
-  gap: 0.75rem;
-  align-items: center;
-  padding: 1.25rem 1.25rem;
-  background: linear-gradient(180deg, var(--w-6), var(--w-2));
-  border-bottom: 2px solid var(--w-8);
-  color: var(--stellar-white);
-  font-weight: 700;
-  border-top-left-radius: var(--radius-xl);
-  border-top-right-radius: var(--radius-xl);
-  border-top: 1px solid var(--text-muted);
-  border-left: 1px solid var(--text-muted);
-  border-right: 1px solid var(--text-muted);
+	display: grid;
+	grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 1.1fr) minmax(0, 1.3fr);
+	gap: 0.75rem;
+	align-items: center;
+	padding: 1.25rem 1.25rem;
+	background: black;
+	border-bottom: 2px solid var(--w-8);
+	color: var(--stellar-white);
+	font-weight: 700;
+	border-top-left-radius: var(--radius-xl);
+	border-top-right-radius: var(--radius-xl);
+	border-top: 3px solid rgba(130, 130, 130, 0.3);
+	border-left: 3px solid rgba(130, 130, 130, 0.3);
+	border-right: 3px solid rgba(130, 130, 130, 0.3);
+}
+
+.reference-table .ref-header > div,
+.reference-table .ref-col,
+.reference-table .ref-col > *,
+.reference-table .status-text {
+	min-width: 0;
+	max-width: 100%;
+	overflow-wrap: anywhere;
 }
 
 .reference-table .ref-body {
-  display: grid;
+	display: grid;
 }
 
 .reference-table .ref-row {
-  display: grid;
-  grid-template-columns: 1.2fr 0.9fr 1.1fr 1.3fr;
-  gap: 0.75rem;
-  align-items: start;
-  padding: 0.875rem 1.25rem;
-  color: var(--stellar-white);
-  border-bottom: 2px solid var(--w-6);
-  transition: background-color var(--dur-fast) var(--easing-smooth);
+	display: grid;
+	grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 1.1fr) minmax(0, 1.3fr);
+	gap: 0.75rem;
+	align-items: start;
+	padding: 0.875rem 1.25rem;
+	color: var(--stellar-white);
+	border-bottom: 2px solid var(--w-6);
+	transition: background-color var(--dur-fast) var(--easing-smooth);
 }
 
 .reference-table .ref-row:last-child {
-  border-bottom: none;
+	border-bottom: none;
 }
 
 .reference-table .ref-row:hover {
-  background: var(--w-4);
+	background: var(--w-4);
 }
 
 .reference-table .ref-row.ref-row-underweight {
-  --ref-row-accent: var(--blue-40);
+	--ref-row-accent: var(--blue-40);
 }
 
 .reference-table .ref-row.ref-row-normal {
-  --ref-row-accent: var(--emerald-40);
+	--ref-row-accent: var(--emerald-40);
 }
 
 .reference-table .ref-row.ref-row-overweight {
-  --ref-row-accent: var(--cat-amber-40);
+	--ref-row-accent: var(--cat-amber-40);
 }
 
 .reference-table .ref-row.ref-row-obese {
-  --ref-row-accent: var(--danger-42);
-  border-bottom-left-radius: var(--radius-xl);
-  border-bottom-right-radius: var(--radius-xl);
+	--ref-row-accent: var(--danger-42);
+	border-bottom-left-radius: var(--radius-xl);
+	border-bottom-right-radius: var(--radius-xl);
 }
 
 .reference-table .ref-row.ref-row-underweight,
 .reference-table .ref-row.ref-row-normal,
 .reference-table .ref-row.ref-row-overweight,
 .reference-table .ref-row.ref-row-obese {
-  position: relative;
-  background: linear-gradient(180deg,
-      var(--w-6),
-      var(--w-2));
-  border-bottom: 2px solid var(--w-10);
-  box-shadow:
-    inset 0 0 0 1px var(--zinc2-20),
-    inset 4px 0 0 var(--ref-row-accent),
-    0 0 0 1px var(--sg-8);
-}
-
-.reference-table .ref-row.ref-row-underweight:hover,
-.reference-table .ref-row.ref-row-normal:hover,
-.reference-table .ref-row.ref-row-overweight:hover,
-.reference-table .ref-row.ref-row-obese:hover {
-  background: linear-gradient(180deg,
-      var(--w-8),
-      var(--w-3));
-}
-
-.reference-table .ref-row.ref-row-obese {
-  box-shadow:
-    inset 0 0 0 1px var(--zinc2-22),
-    inset 4px 0 0 var(--ref-row-accent),
-    0 0 0 1px var(--sg-10);
+	position: relative;
+	background: black;
+	border-bottom: 2px solid var(--w-10);
+	border-left: 2px solid rgba(130, 130, 130, 0.3);
+	border-right: 2px solid rgba(130, 130, 130, 0.3);
 }
 
 .reference-table .ref-col strong {
-  color: var(--slate-50-solid);
-  font-weight: 700;
+	color: var(--slate-50-solid);
+	font-weight: 700;
 }
 
 .reference-table .muted {
-  color: var(--text-muted-slate);
+	color: var(--text-muted-slate);
+	overflow-wrap: anywhere;
 }
 
 .reference-table .icon-col {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--blue-300-solid);
-  filter: drop-shadow(0 0 8px var(--blue-35));
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	color: var(--blue-300-solid);
+	filter: drop-shadow(0 0 8px var(--blue-35));
 }
 
 .ref-card {
-  display: grid;
-  place-items: center;
-  margin-bottom: clamp(1.5rem, 4vw, 2rem);
+	display: grid;
+	place-items: center;
+	margin-bottom: clamp(1.5rem, 4vw, 2rem);
 }
 
 .ref-card .title {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  width: 100%;
-  font-size: var(--text-5xl);
-  text-align: center;
-  color: var(--stellar-white);
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+	width: 100%;
+	font-size: var(--text-5xl);
+	text-align: center;
+	color: var(--stellar-white);
 }
 
 .ref-card .subtitle {
-  color: var(--text-secondary-bright);
-  font-size: 1rem;
-  line-height: 1.7;
-  margin-bottom: 1rem;
+	color: var(--text-secondary-bright);
+	font-size: 1rem;
+	line-height: 1.7;
+	margin-bottom: 1rem;
 
-  text-align: center;
+	text-align: center;
 
-  overflow-wrap: break-word;
+	overflow-wrap: break-word;
 }
 
 .about-card h3 {
-  font-size: var(--text-3-half-xl);
-  font-weight: 700;
-  margin-bottom: 0.75rem;
-  color: var(--stellar-white);
+	font-size: var(--text-3-half-xl);
+	font-weight: 700;
+	margin-bottom: 0.75rem;
+	color: var(--stellar-white);
+	letter-spacing: 0.01em;
 }

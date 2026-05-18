@@ -1,123 +1,169 @@
+/* // Copyright (c) 2025 - 2026 rezky_nightky */
 /* ── icons.css — Lucide icon sizing: fluid clamp() for large icons, fixed 24px for small icons ── */
-/* Extracted from responsive.css in v18.0 maintainability refactor */
-
-/* Icon sizing */
+/* Central icon sizing and semantic icon colors. */
 
 /* Bmi form icons and other biggest icons — fluid sizing for responsiveness */
-.Orbit,
-.CircleSlash2,
+.Calculator,
+.ScanHeart,
 .FileChartColumn,
 .Gauge {
-  color: var(--cosmic-purple) !important;
-  width: clamp(40px, 8vw, 74px) !important;
-  height: clamp(40px, 8vw, 74px) !important;
+	color: var(--cosmic-purple) !important;
+	width: clamp(40px, 8vw, 74px) !important;
+	height: clamp(40px, 8vw, 74px) !important;
 }
 
 /* footer icons — fluid sizing */
 .AlertTriangle {
-  color: var(--warn-yellow) !important;
-  width: clamp(30px, 6vw, 48px) !important;
-  height: clamp(30px, 6vw, 48px) !important;
+	color: var(--warn-yellow) !important;
+	width: clamp(30px, 6vw, 48px) !important;
+	height: clamp(30px, 6vw, 48px) !important;
 }
 
-/* about icons — fluid sizing */
-.Lightbulb,
-.Users {
-  color: var(--cosmic-purple) !important;
-  width: clamp(30px, 6vw, 48px) !important;
-  height: clamp(30px, 6vw, 48px) !important;
+/* about header icons — fluid sizing (scoped to card header only) */
+.about-card-header .AlertTriangle,
+.about-card-header .Lightbulb,
+.about-card-header .ListChecks,
+.about-card-header .Database,
+.about-card-header .LockKeyhole,
+.about-card-header .BicepsFlexed,
+.about-card-header .Info {
+	color: var(--cosmic-purple) !important;
+	width: clamp(30px, 6vw, 48px) !important;
+	height: clamp(30px, 6vw, 48px) !important;
+}
+
+/* info-row icons — compact, independent from header icon sizing
+   Prevents Database/LockKeyhole in app-info rows from inheriting
+   the large header icon sizing above.
+   Uses higher specificity (.about-card .info-row) to guarantee win
+   over any .about-card-header .Database rule in responsive files.
+   Color tokens match each icon's semantic meaning. */
+.about-card
+	.info-row
+	:is(.Database, .LockKeyhole, .PackageCheck, .GitBranch, .GitCompare, .Scale, .ShieldCheck) {
+	width: 20px !important;
+	height: 20px !important;
+}
+
+/* info-row icon colors — semantic brand accents */
+.about-card .info-row .Database {
+	color: var(--cosmic-purple) !important;
+}
+
+.about-card .info-row .LockKeyhole {
+	color: var(--cat-green-90) !important;
+}
+
+.about-card .info-row .PackageCheck {
+	color: var(--cosmic-purple) !important;
+}
+
+.about-card .info-row .GitBranch {
+	color: var(--cosmic-purple) !important;
+}
+
+.about-card .info-row .GitCompare {
+	color: var(--cosmic-purple) !important;
+}
+
+.about-card .info-row .Scale {
+	color: var(--cosmic-purple) !important;
+}
+
+.about-card .info-row .ShieldCheck {
+	color: var(--cat-green-90) !important;
 }
 
 /* Hero icons */
 .Target {
-  color: var(--cosmic-blue) !important;
-  width: 24px !important;
-  height: 24px !important;
+	color: var(--cosmic-blue) !important;
+	width: 24px !important;
+	height: 24px !important;
 }
 
 /* .Activity: consolidated to single definition below (maintenance section) */
 
 .Gem {
-  color: var(--cosmic-purple) !important;
-  width: 24px !important;
-  height: 24px !important;
+	color: var(--cosmic-purple) !important;
+	width: 24px !important;
+	height: 24px !important;
 }
 
 .BarChart3,
 .X {
-  color: var(--cosmic-purple) !important;
-  width: clamp(40px, 8vw, 74px) !important;
-  height: clamp(40px, 8vw, 74px) !important;
+	color: var(--cosmic-purple) !important;
+	width: clamp(40px, 8vw, 74px) !important;
+	height: clamp(40px, 8vw, 74px) !important;
 }
 
 /* Bmi form icons */
 .Weight {
-  color: var(--stellar-white) !important;
-  width: 24px !important;
-  height: 24px !important;
+	color: var(--stellar-white) !important;
+	width: 24px !important;
+	height: 24px !important;
 }
 
 .User {
-  color: var(--stellar-white) !important;
-  width: 24px !important;
-  height: 24px !important;
+	color: var(--stellar-white) !important;
+	width: 24px !important;
+	height: 24px !important;
 }
 
 .Ruler {
-  color: var(--stellar-white) !important;
-  width: 24px !important;
-  height: 24px !important;
+	color: var(--stellar-white) !important;
+	width: 24px !important;
+	height: 24px !important;
 }
 
 .Trash2 {
-  color: var(--stellar-white) !important;
-  width: 24px !important;
-  height: 24px !important;
+	color: var(--stellar-white) !important;
+	width: 24px !important;
+	height: 24px !important;
 }
 
 .Zap {
-  color: var(--stellar-white) !important;
-  width: 24px !important;
-  height: 24px !important;
+	color: var(--stellar-white) !important;
+	width: 24px !important;
+	height: 24px !important;
 }
 
 /* Bmi result icons */
 .Info {
-  color: var(--warn-yellow) !important;
-  width: 24px !important;
-  height: 24px !important;
+	color: var(--warn-yellow) !important;
+	width: 24px !important;
+	height: 24px !important;
 }
 
 .AlertCircle {
-  color: var(--warn-yellow) !important;
-  width: 24px !important;
-  height: 24px !important;
+	color: var(--warn-yellow) !important;
+	width: 24px !important;
+	height: 24px !important;
 }
 
 /* BMI reference icon — fluid sizing */
 .Info2 {
-  padding: 2.5rem;
-  color: var(--warn-yellow) !important;
-  width: clamp(28px, 6vw, 48px) !important;
-  height: clamp(28px, 6vw, 48px) !important;
+	padding: 2.5rem;
+	color: var(--warn-yellow) !important;
+	width: clamp(28px, 6vw, 48px) !important;
+	height: clamp(28px, 6vw, 48px) !important;
 }
 
 .AlertTriangle2 {
-  color: var(--warn-yellow) !important;
-  width: 24px !important;
-  height: 24px !important;
+	color: var(--warn-yellow) !important;
+	width: 24px !important;
+	height: 24px !important;
 }
 
 .CheckCircle {
-  color: var(--success-solid) !important;
-  width: 24px !important;
-  height: 24px !important;
+	color: var(--success-solid) !important;
+	width: 24px !important;
+	height: 24px !important;
 }
 
 .TrendingUp {
-  color: var(--warn-yellow) !important;
-  width: 24px !important;
-  height: 24px !important;
+	color: var(--warn-yellow) !important;
+	width: 24px !important;
+	height: 24px !important;
 }
 
 /* icon about — brand accent */
@@ -125,15 +171,15 @@
 .PackageCheck,
 .GitCompare,
 .Scale {
-  color: var(--cosmic-purple);
+	color: var(--cosmic-purple);
 }
 
 /* Status: trust signal → green (semantic) */
 .ShieldCheck {
-  color: var(--cat-green-90);
+	color: var(--cat-green-90);
 }
 
 /* Maintenance: activity signal → grey */
 .Activity {
-  color: var(--text-muted);
+	color: var(--text-muted);
 }

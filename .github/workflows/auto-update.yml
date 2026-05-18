@@ -3,8 +3,10 @@ name: ⛑️ Auto Update Dependencies
 
 on:
   schedule:
-    - cron: '0 0 * * *'   # Daily at 00:00 UTC (08:00 SGT)
-  workflow_dispatch:       # Manual trigger option
+    # Daily at 00:00 UTC (08:00 SGT)
+    - cron: '0 0 * * *'
+  # Manual trigger option
+  workflow_dispatch:
     inputs:
       strategy:
         description: How to publish updates
@@ -28,6 +30,10 @@ env:
   FORCE_UPDATE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_update || 'false' }}
   OWNER_NAME: ${{ github.repository_owner }}
   OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
+  BASE_BRANCH: ${{ github.ref_name }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  NODE_VERSION: 22
+  VERCEL_NODE_RUNTIME: nodejs22.x
 
 jobs:
   auto-update:
@@ -36,27 +42,45 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v4
         with:
+          ref: ${{ env.BASE_BRANCH }}
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 1
           fetch-tags: false
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2.2.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          bun-version: latest
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Resolve Bun version
+        id: bun-version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./package.json').packageManager?.match(/^bun@(.+)$/)?.[1] || ''")"
+          if [ -z "$version" ]; then
+            echo "package.json packageManager must be bun@<version>" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ steps.bun-version.outputs.version }}
 
       - name: Cache Bun dependencies
         uses: actions/cache@v5.0.5
         with:
           path: ~/.bun/install/cache
-          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
           restore-keys: |
             ${{ runner.os }}-bun-
 
       - name: Install current dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Update all dependencies
         run: |
@@ -75,7 +99,7 @@ jobs:
           bun run lint
 
           echo "✅ Running tests..."
-          bun run test:run
+          bun run test:ci
         continue-on-error: ${{ env.FORCE_UPDATE == 'true' }}
 
       - name: Build project
@@ -100,31 +124,9 @@ jobs:
         id: commit_msg
         if: steps.check_changes.outputs.changes == 'true'
         run: |
-          # Array of creative commit messages
-          MESSAGES=(
-            "✨ chore(deps): sprinkle fresh dependency updates like cosmic stardust"
-            "🚀 chore(deps): boost dependencies to warp speed - all systems go!"
-            "🎨 chore(deps): polish dependencies to stellar perfection"
-            "⚡ chore(deps): supercharge packages with lightning-fast updates"
-            "🌟 chore(deps): elevate dependencies to new heights of excellence"
-            "🔮 chore(deps): enchant codebase with mystical dependency magic"
-            "🎯 chore(deps): hit bullseye with precision dependency updates"
-            "🌊 chore(deps): ride the wave of cutting-edge package versions"
-            "🎪 chore(deps): roll out the red carpet for fresh dependencies"
-            "🏆 chore(deps): crown packages with championship-worthy updates"
-            "🎭 chore(deps): orchestrate a symphony of updated dependencies"
-            "🚁 chore(deps): airlift dependencies to cloud nine"
-            "🎨 chore(deps): paint the town with vibrant new package colors"
-            "🔥 chore(deps): ignite performance with blazing dependency updates"
-            "💎 chore(deps): polish dependencies until they shine like diamonds"
-          )
-
-          # Select random message
-          RANDOM_MSG=${MESSAGES[$RANDOM % ${#MESSAGES[@]}]}
-
           {
-            echo "title=${RANDOM_MSG}"
-            echo "commit_message=${RANDOM_MSG}"
+            echo "title=chore(deps): update dependencies"
+            echo "commit_message=chore(deps): update dependencies"
           } >> "$GITHUB_OUTPUT"
 
       - name: Commit and push changes (direct)
@@ -139,9 +141,9 @@ jobs:
             -m "📦 Updated $(git status --porcelain | wc -l) file(s)" \
             -m "⏰ $(date -u '+%A, %B %d, %Y at %H:%M:%S UTC')" \
             -m "🎯 Workflow: auto-update.yml"
-          git push origin main
+          git push origin "HEAD:${BASE_BRANCH}"
 
-          echo "✅ Changes committed and pushed to main!"
+          echo "✅ Changes committed and pushed to ${BASE_BRANCH}!"
 
       - name: Create pull request (pr)
         id: cpr
@@ -153,6 +155,7 @@ jobs:
           title: ${{ steps.commit_msg.outputs.title }}
           body: ${{ steps.commit_msg.outputs.title }}
           branch: bot/auto-update-deps
+          base: ${{ env.BASE_BRANCH }}
           delete-branch: true
 
       - name: Summary
@@ -175,7 +178,7 @@ jobs:
               echo ""
 
               if [ "${{ env.UPDATE_STRATEGY }}" == "direct" ]; then
-                echo "✅ Changes pushed to main branch"
+                echo "✅ Changes pushed to ${{ env.BASE_BRANCH }} branch"
                 echo "📍 Commit: $(git rev-parse HEAD)"
               else
                 echo "✅ Pull request created"

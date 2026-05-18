@@ -1,0 +1,218 @@
+---
+name: 🧭 Runtime Probe
+
+on:
+  schedule:
+    # Weekly at 01:00 UTC on Sunday.
+    - cron: '0 1 * * 0'
+  workflow_dispatch:
+    inputs:
+      candidates:
+        description: Space-separated future Node majors to probe
+        type: string
+        default: '24 26 28'
+      strategy:
+        description: How to publish a passing runtime upgrade
+        type: choice
+        options:
+          - direct
+          - pr
+        default: direct
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: runtime-probe
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  OWNER_NAME: ${{ github.repository_owner }}
+  OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
+  UPDATE_STRATEGY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.strategy || 'direct' }}
+  RUNTIME_CANDIDATES: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.candidates || '24 26 28' }}
+
+jobs:
+  runtime-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Detect default branch
+        id: branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "name=${{ github.event.repository.default_branch }}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.branch.outputs.name }}
+          token: ${{ secrets.PAT_WORKFLOW || secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+          fetch-tags: false
+
+      - name: Detect current runtime
+        id: current
+        shell: bash
+        run: |
+          set -euo pipefail
+          current="$(grep -m1 -E '^[[:space:]]+NODE_VERSION:[[:space:]]+[0-9]+' .github/workflows/ci.yml | awk '{print $2}')"
+
+          if [ -z "$current" ]; then
+            echo "Unable to detect NODE_VERSION from .github/workflows/ci.yml" >&2
+            exit 1
+          fi
+
+          echo "node=$current" >> "$GITHUB_OUTPUT"
+          echo "Current Node runtime: $current"
+
+      - name: Setup current Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.current.outputs.node }}
+
+      - name: Resolve Bun version
+        id: bun-version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./package.json').packageManager?.match(/^bun@(.+)$/)?.[1] || ''")"
+          if [ -z "$version" ]; then
+            echo "package.json packageManager must be bun@<version>" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ steps.bun-version.outputs.version }}
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Probe future runtime
+        id: probe
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          current="${{ steps.current.outputs.node }}"
+          selected=""
+
+          for candidate in ${RUNTIME_CANDIDATES}; do
+            if ! [[ "$candidate" =~ ^[0-9]+$ ]]; then
+              echo "Skipping invalid candidate: $candidate"
+              continue
+            fi
+
+            if [ "$candidate" -le "$current" ]; then
+              echo "Skipping Node $candidate because current runtime is Node $current."
+              continue
+            fi
+
+            runtime="nodejs${candidate}.x"
+            echo "Probing ${runtime}..."
+
+            if VERCEL_NODE_RUNTIME="$runtime" bun run format:check \
+              && VERCEL_NODE_RUNTIME="$runtime" bun run check \
+              && VERCEL_NODE_RUNTIME="$runtime" bun run lint \
+              && VERCEL_NODE_RUNTIME="$runtime" bun run test:ci \
+              && VERCEL_NODE_RUNTIME="$runtime" bun run build; then
+              selected="$candidate"
+              break
+            fi
+
+            echo "Runtime ${runtime} is not ready yet."
+          done
+
+          if [ -z "$selected" ]; then
+            {
+              echo "upgraded=false"
+            } >> "$GITHUB_OUTPUT"
+            echo "No future runtime passed the quality gate."
+            exit 0
+          fi
+
+          runtime="nodejs${selected}.x"
+          echo "Selected future runtime: ${runtime}"
+
+          sed -i -E "s/(NODE_VERSION:[[:space:]]*)[0-9]+/\1${selected}/g" .github/workflows/*.yml
+          sed -i -E "s/(VERCEL_NODE_RUNTIME:[[:space:]]*)nodejs[0-9]+\.x/\1${runtime}/g" .github/workflows/*.yml
+
+          {
+            echo "node=$selected"
+            echo "runtime=$runtime"
+            echo "upgraded=true"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Format workflow files
+        if: steps.probe.outputs.upgraded == 'true'
+        run: bunx prettier --write .github/workflows/*.yml
+
+      - name: Check changed runtime files
+        if: steps.probe.outputs.upgraded == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff -- .github/workflows
+          git diff --check
+
+      - name: Commit runtime upgrade
+        if: steps.probe.outputs.upgraded == 'true' && env.UPDATE_STRATEGY == 'direct'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "${OWNER_NAME}"
+          git config user.email "${OWNER_EMAIL}"
+
+          git add .github/workflows
+
+          if git diff --cached --quiet; then
+            echo "No staged runtime changes."
+            exit 0
+          fi
+
+          git commit -m "ci: upgrade Node runtime to ${{ steps.probe.outputs.runtime }}"
+          git push origin "HEAD:${{ steps.branch.outputs.name }}"
+
+      - name: Create runtime upgrade pull request
+        if: steps.probe.outputs.upgraded == 'true' && env.UPDATE_STRATEGY == 'pr'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.PAT_WORKFLOW || secrets.GITHUB_TOKEN }}
+          commit-message: 'ci: upgrade Node runtime to ${{ steps.probe.outputs.runtime }}'
+          title: 'ci: upgrade Node runtime to ${{ steps.probe.outputs.runtime }}'
+          body: Automated runtime probe passed the full quality gate.
+          branch: bot/runtime-probe
+          base: ${{ steps.branch.outputs.name }}
+          delete-branch: true
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Runtime Probe"
+            echo ""
+            echo "Current Node: ${{ steps.current.outputs.node }}"
+            echo "Candidates: ${RUNTIME_CANDIDATES}"
+            echo "Strategy: ${UPDATE_STRATEGY}"
+            echo "Upgraded: ${{ steps.probe.outputs.upgraded || 'false' }}"
+
+            if [ "${{ steps.probe.outputs.upgraded || 'false' }}" = "true" ]; then
+              echo "Selected runtime: ${{ steps.probe.outputs.runtime }}"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

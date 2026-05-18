@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { createRequire } from 'node:module';
 import path from 'path';
@@ -14,45 +15,45 @@ import { defineConfig, type Plugin } from 'vitest/config';
  * parent node_modules directory.
  */
 function pinCryptoDeps(): Plugin {
-        // Scope require to project root — process.cwd() is always the project dir
-        const projectRoot = process.cwd();
-        const req = createRequire(path.resolve(projectRoot, 'package.json'));
+	// Scope require to project root — process.cwd() is always the project dir
+	const projectRoot = process.cwd();
+	const req = createRequire(path.resolve(projectRoot, 'package.json'));
 
-        return {
-                name: 'pin-crypto-deps',
-                enforce: 'pre',
-                resolveId(id) {
-                        if (id === '@noble/hashes/argon2.js') {
-                                return req.resolve('@noble/hashes/argon2.js');
-                        }
-                        if (id === '@zxcvbn-ts/core') {
-                                // Pin to ESM entry — CJS entry causes "exports is not defined" in browser
-                                return req.resolve('@zxcvbn-ts/core/dist/index.esm.js');
-                        }
-                        if (id === '@zxcvbn-ts/language-common') {
-                                return req.resolve('@zxcvbn-ts/language-common/dist/index.esm.js');
-                        }
-                }
-        };
+	return {
+		name: 'pin-crypto-deps',
+		enforce: 'pre',
+		resolveId(id) {
+			if (id === '@noble/hashes/argon2.js') {
+				return req.resolve('@noble/hashes/argon2.js');
+			}
+			if (id === '@zxcvbn-ts/core') {
+				// Pin to ESM entry — CJS entry causes "exports is not defined" in browser
+				return req.resolve('@zxcvbn-ts/core/dist/index.esm.js');
+			}
+			if (id === '@zxcvbn-ts/language-common') {
+				return req.resolve('@zxcvbn-ts/language-common/dist/index.esm.js');
+			}
+		}
+	};
 }
 
 export default defineConfig({
-        // @ts-expect-error - Vite version mismatch between vitest and project
-        plugins: [svelte({ hot: false }), pinCryptoDeps()],
-        test: {
-                environment: 'jsdom',
-                setupFiles: ['./src/test-setup.ts'],
-                globals: true,
-                include: ['src/**/*.{test,spec}.{js,ts}'],
-                testTimeout: 15000, // v16.0: increased for Argon2id (64 MiB, 3 iter) crypto operations
-        },
-        resolve: {
-                alias: {
-                        '$lib': path.resolve(__dirname, 'src/lib'),
-                        '$lib/*': path.resolve(__dirname, 'src/lib/*'),
-                        '$app': path.resolve(__dirname, 'src/__mocks__/$app'),
-                        '$app/*': path.resolve(__dirname, 'src/__mocks__/$app/*')
-                },
-                conditions: ['browser']
-        }
+	// @ts-expect-error - Vite version mismatch between vitest and project
+	plugins: [svelte({ hot: false }), pinCryptoDeps()],
+	test: {
+		environment: 'jsdom',
+		setupFiles: [path.resolve(__dirname, 'src/test-setup.ts')],
+		globals: true,
+		include: ['src/**/*.{test,spec}.{js,ts}'],
+		testTimeout: 10000 // v18.1: reduced — Argon2 uses lightweight params in test mode
+	},
+	resolve: {
+		alias: {
+			$lib: path.resolve(__dirname, 'src/lib'),
+			'$lib/*': path.resolve(__dirname, 'src/lib/*'),
+			$app: path.resolve(__dirname, 'src/__mocks__/$app'),
+			'$app/*': path.resolve(__dirname, 'src/__mocks__/$app/*')
+		},
+		conditions: ['browser']
+	}
 });

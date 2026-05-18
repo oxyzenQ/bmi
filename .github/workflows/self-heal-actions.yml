@@ -7,7 +7,7 @@
 # - Update files, commit as repository owner, and push to default branch
 #
 # Security/minimality notes:
-# - Uses the built-in GITHUB_TOKEN to update workflow files (no custom PAT needed).
+# - Uses a Personal Access Token (PAT) with `workflow` scope to update workflow files.
 # - Runs on ubuntu-latest.
 # - Avoids infinite loops by not running on push events (schedule/manual only).
 # - Skips if there are no actual file changes.
@@ -18,7 +18,7 @@ name: ❤️‍🩹 self-heal-actions
 # Equivalent to Sunday at 17:00 UTC
 on:
   schedule:
-    - cron: "0 17 * * 0"
+    - cron: '0 17 * * 0'
   workflow_dispatch: {}
 
 concurrency:
@@ -30,9 +30,9 @@ permissions:
 
 env:
   # Repository owner identity (must match the owner so contributions show up).
-  # user.name should be the account name; user.email should be your GitHub noreply email.
   OWNER_NAME: ${{ github.repository_owner }}
   OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   update-actions:
@@ -48,10 +48,10 @@ jobs:
           echo "name=${{ github.event.repository.default_branch }}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout repository
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v4
         with:
           ref: ${{ steps.branch.outputs.name }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_WORKFLOW }}
           fetch-depth: 1
           fetch-tags: false
 
@@ -72,7 +72,8 @@ jobs:
           fi
 
           # Collect unique action repos (owner/repo) and remember the majors we see.
-          # This handles action subpaths like github/codeql-action/analyze@v4.35.5 by mapping them to github/codeql-action.
+          # This handles action subpaths like github/codeql-action/analyze@vX.Y.Z
+          # by mapping them to github/codeql-action.
           declare -A seen_actions
           for f in "${files[@]}"; do
             while IFS= read -r line; do

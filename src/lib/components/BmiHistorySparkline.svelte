@@ -1,582 +1,687 @@
+<!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
 <script lang="ts">
-  import { browser } from '$app/environment';
-  import { TrendingUp, TrendingDown, Minus } from 'lucide-svelte';
-  import { STORAGE_KEYS } from '$lib/utils/storage';
-  import { t as _t, localeVersion } from '$lib/i18n';
-  import { warnDev } from '$lib/utils/warn-dev';
-  let _rv = $derived($localeVersion);
-  // Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
-  function t(key: string, params?: Record<string, string | number | undefined | null>): string { void _rv; return _t(key, params); }
+	import { browser } from '$app/environment';
+	import { onDestroy } from 'svelte';
+	import { TrendingUp, TrendingDown, Minus } from 'lucide-svelte';
+	import { STORAGE_KEYS } from '$lib/utils/storage';
+	import { t as _t, localeVersion } from '$lib/i18n';
+	import { warnDev } from '$lib/utils/warn-dev';
+	let _rv = $derived($localeVersion);
+	// Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
+	function t(key: string, params?: Record<string, string | number | undefined | null>): string {
+		void _rv;
+		return _t(key, params);
+	}
 
-  // Svelte action: attach pointermove with { passive: true } to prevent
-  // scroll jank on mobile when hovering over the chart during touch scroll.
-  // Svelte 5 on:pointermove does not support { passive } option directly.
-  function passivePointerMove(node: SVGElement) {
-    const handler = (e: PointerEvent) => {
-      // No-op handler — only ensures passive mode for the existing
-      // onpointermove in the template. Svelte 5 does not support
-      // { passive } on directive-based event listeners.
-    };
-    node.addEventListener('pointermove', handler, { passive: true });
-    return {
-      destroy() { node.removeEventListener('pointermove', handler); }
-    };
-  }
+	interface Props {
+		currentBmi?: number | null;
+		refreshKey?: number;
+	}
 
-  interface Props {
-    currentBmi?: number | null;
-  }
+	let { currentBmi = null, refreshKey = 0 }: Props = $props();
 
-  let { currentBmi = null }: Props = $props();
+	interface BMIRecord {
+		timestamp: number;
+		bmi: number;
+		height?: number;
+		weight?: number;
+		age?: number;
+	}
 
-  interface BMIRecord {
-    timestamp: number;
-    bmi: number;
-    height?: number;
-    weight?: number;
-    age?: number;
-  }
+	const MAX_POINTS = 20;
+	const CHART_WIDTH = 560;
+	const CHART_HEIGHT = 244;
+	const PAD_LEFT = 42;
+	const PAD_RIGHT = 20;
+	const PAD_TOP = 20;
+	const PAD_BOTTOM = 28;
 
-  const MAX_POINTS = 20;
-  const CHART_WIDTH = 380;
-  const CHART_HEIGHT = 300;
-  const PAD_LEFT = 26;
-  const PAD_RIGHT = 2;
-  const PAD_TOP = 24;
-  const PAD_BOTTOM = 24;
+	const BMI_MIN = 12;
+	const BMI_MAX = 42;
 
-  const BMI_MIN = 12;
-  const BMI_MAX = 42;
+	interface HistoryView {
+		records: BMIRecord[];
+		totalCount: number;
+	}
 
-  function loadHistory(): BMIRecord[] {
-    if (!browser) return [];
-    try {
-      const stored = localStorage.getItem(STORAGE_KEYS.HISTORY);
-      if (!stored) return [];
-      const history: BMIRecord[] = JSON.parse(stored);
-      return history.slice(-MAX_POINTS);
-    } catch (err) {
-      warnDev('BmiHistorySparkline', 'loadHistory', 'Failed to parse history data', err);
-      return [];
-    }
-  }
+	function loadHistory(): HistoryView {
+		if (!browser) return { records: [], totalCount: 0 };
+		try {
+			const stored = localStorage.getItem(STORAGE_KEYS.HISTORY);
+			if (!stored) return { records: [], totalCount: 0 };
+			const history: BMIRecord[] = JSON.parse(stored);
+			return {
+				records: history.slice(-MAX_POINTS),
+				totalCount: history.length
+			};
+		} catch (err) {
+			warnDev('BmiHistorySparkline', 'loadHistory', 'Failed to parse history data', err);
+			return { records: [], totalCount: 0 };
+		}
+	}
 
-  // History state — intentionally $state + $effect instead of writable $derived
-  // because loadHistory() reads localStorage (side effect). Using $derived here
-  // would reintroduce the Svelte 5 reactive graph desync bug (see PERF-06 / Bug 3).
-  // eslint-disable-next-line svelte/prefer-writable-derived
-  let historyState: BMIRecord[] = $state([]);
+	// History state — intentionally $state + $effect instead of writable $derived
+	// because loadHistory() reads localStorage (side effect). Using $derived here
+	// would reintroduce the Svelte 5 reactive graph desync bug (see PERF-06 / Bug 3).
+	let historyState: BMIRecord[] = $state([]);
+	let totalHistoryCount = $state(0);
 
-  // Side-effect: read localStorage when currentBmi changes
-  $effect(() => {
-    historyState = currentBmi === null ? [] : loadHistory();
-  });
+	// Side-effect: read localStorage when currentBmi or the persisted history changes
+	$effect(() => {
+		void refreshKey;
+		if (currentBmi === null) {
+			historyState = [];
+			totalHistoryCount = 0;
+			return;
+		}
 
-  // Hover state
-  let hoveredIndex: number | null = $state(null);
+		const historyView = loadHistory();
+		historyState = historyView.records;
+		totalHistoryCount = historyView.totalCount;
+	});
 
-  function getBmiColor(bmi: number): string {
-    if (bmi < 18.5) return 'var(--cat-blue-solid)';
-    if (bmi < 25) return 'var(--cat-green-solid)';
-    if (bmi < 30) return 'var(--cat-amber-solid)';
-    return 'var(--cat-red-solid)';
-  }
+	// Hover state
+	let hoveredIndex: number | null = $state(null);
+	let isTouchDevice = $state(false);
+	let hoverRafId: number | null = null;
+	let pendingHoverX = 0;
 
-  function getBmiLabel(bmi: number): string {
-    if (bmi < 18.5) return t('sparkline.underweight');
-    if (bmi < 25) return t('sparkline.normal');
-    if (bmi < 30) return t('sparkline.overweight');
-    return t('sparkline.obese');
-  }
+	$effect(() => {
+		if (!browser) return;
+		isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+		if (isTouchDevice) hoveredIndex = null;
+	});
 
-  function formatDate(ts: number): string {
-    const d = new Date(ts);
-    return `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()}`;
-  }
+	function getBmiColor(bmi: number): string {
+		if (bmi < 18.5) return 'var(--cat-blue-solid)';
+		if (bmi < 25) return 'var(--cat-green-solid)';
+		if (bmi < 30) return 'var(--cat-amber-solid)';
+		return 'var(--cat-red-solid)';
+	}
 
-  function formatTime(ts: number): string {
-    const d = new Date(ts);
-    return d.toLocaleTimeString('default', { hour: '2-digit', minute: '2-digit' });
-  }
+	function getBmiLabel(bmi: number): string {
+		if (bmi < 18.5) return t('sparkline.underweight');
+		if (bmi < 25) return t('sparkline.normal');
+		if (bmi < 30) return t('sparkline.overweight');
+		return t('sparkline.obese');
+	}
 
-  // BMI category zone boundaries (y positions)
-  const plotHeight = CHART_HEIGHT - PAD_TOP - PAD_BOTTOM;
-  const plotWidth = CHART_WIDTH - PAD_LEFT - PAD_RIGHT;
+	function formatDate(ts: number): string {
+		const d = new Date(ts);
+		return `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()}`;
+	}
 
-  function bmiToY(bmi: number): number {
-    return PAD_TOP + (1 - (bmi - BMI_MIN) / (BMI_MAX - BMI_MIN)) * plotHeight;
-  }
+	function formatTime(ts: number): string {
+		const d = new Date(ts);
+		return d.toLocaleTimeString('default', { hour: '2-digit', minute: '2-digit' });
+	}
 
-  function indexToX(i: number, total: number): number {
-    if (total <= 1) return PAD_LEFT + plotWidth / 2;
-    return PAD_LEFT + (i / (total - 1)) * plotWidth;
-  }
+	// BMI category zone boundaries (y positions)
+	const plotHeight = CHART_HEIGHT - PAD_TOP - PAD_BOTTOM;
+	const plotWidth = CHART_WIDTH - PAD_LEFT - PAD_RIGHT;
 
-  let chartData = $derived.by(() => {
-    if (historyState.length === 0) return null;
+	function bmiToY(bmi: number): number {
+		return PAD_TOP + (1 - (bmi - BMI_MIN) / (BMI_MAX - BMI_MIN)) * plotHeight;
+	}
 
-    const values = historyState.map(r => r.bmi);
-    const first = values[0];
-    const last = values[values.length - 1];
-    const diff = last - first;
-    let trend: 'up' | 'down' | 'stable' = 'stable';
-    if (diff > 0.3) trend = 'up';
-    else if (diff < -0.3) trend = 'down';
+	function indexToX(i: number, total: number): number {
+		if (total <= 1) return PAD_LEFT + plotWidth / 2;
+		return PAD_LEFT + (i / (total - 1)) * plotWidth;
+	}
 
-    // Build points
-    const points = values.map((v, i) => ({
-      x: indexToX(i, values.length),
-      y: bmiToY(v),
-      bmi: v,
-      record: historyState[i]
-    }));
+	let chartData = $derived.by(() => {
+		if (historyState.length === 0) return null;
 
-    // Build SVG path using smooth cubic bezier curves
-    let pathD = '';
-    let areaD = '';
-    // Clamp Y to prevent bezier overshoot escaping chart bounds
-    const minY = PAD_TOP;
-    const maxY = CHART_HEIGHT - PAD_BOTTOM;
-    const clampY = (y: number) => Math.max(minY, Math.min(maxY, y));
+		const values = historyState.map((r) => r.bmi);
+		const first = values[0];
+		const last = values[values.length - 1];
+		const diff = last - first;
+		let trend: 'up' | 'down' | 'stable' = 'stable';
+		if (diff > 0.3) trend = 'up';
+		else if (diff < -0.3) trend = 'down';
 
-    if (points.length > 1) {
-      pathD = `M ${points[0].x} ${clampY(points[0].y)}`;
-      areaD = `M ${points[0].x} ${maxY} L ${points[0].x} ${clampY(points[0].y)}`;
+		// Build points
+		const points = values.map((v, i) => ({
+			x: indexToX(i, values.length),
+			y: bmiToY(v),
+			bmi: v,
+			record: historyState[i]
+		}));
 
-      if (points.length === 2) {
-        // Only 2 points — simple line
-        pathD += ` L ${points[1].x} ${clampY(points[1].y)}`;
-        areaD += ` L ${points[1].x} ${clampY(points[1].y)}`;
-      } else {
-        // Catmull-Rom → cubic bezier for smooth curves through all points
-        const tension = 0.25;
-        for (let i = 0; i < points.length - 1; i++) {
-          const p0 = points[Math.max(0, i - 1)];
-          const p1 = points[i];
-          const p2 = points[i + 1];
-          const p3 = points[Math.min(points.length - 1, i + 2)];
+		// Build SVG path using smooth cubic bezier curves
+		let pathD = '';
+		let areaD = '';
+		// Clamp Y to prevent bezier overshoot escaping chart bounds
+		const minY = PAD_TOP;
+		const maxY = CHART_HEIGHT - PAD_BOTTOM;
+		const clampY = (y: number) => Math.max(minY, Math.min(maxY, y));
 
-          const cp1x = p1.x + (p2.x - p0.x) * tension;
-          const cp1y = clampY(p1.y + (p2.y - p0.y) * tension);
-          const cp2x = p2.x - (p3.x - p1.x) * tension;
-          const cp2y = clampY(p2.y - (p3.y - p1.y) * tension);
+		if (points.length > 1) {
+			pathD = `M ${points[0].x} ${clampY(points[0].y)}`;
+			areaD = `M ${points[0].x} ${maxY} L ${points[0].x} ${clampY(points[0].y)}`;
 
-          pathD += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${clampY(p2.y)}`;
-          areaD += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${clampY(p2.y)}`;
-        }
-      }
-      areaD += ` L ${points[points.length - 1].x} ${CHART_HEIGHT - PAD_BOTTOM} Z`;
-    }
+			if (points.length === 2) {
+				// Only 2 points — simple line
+				pathD += ` L ${points[1].x} ${clampY(points[1].y)}`;
+				areaD += ` L ${points[1].x} ${clampY(points[1].y)}`;
+			} else {
+				// Catmull-Rom → cubic bezier for smooth curves through all points
+				const tension = 0.25;
+				for (let i = 0; i < points.length - 1; i++) {
+					const p0 = points[Math.max(0, i - 1)];
+					const p1 = points[i];
+					const p2 = points[i + 1];
+					const p3 = points[Math.min(points.length - 1, i + 2)];
 
-    // BMI zone bands
-    const zones = [
-      { min: BMI_MIN, max: 18.5, color: 'var(--cat-blue-6)', label: '' },
-      { min: 18.5, max: 25, color: 'var(--cat-green-6)', label: t('sparkline.normal') },
-      { min: 25, max: 30, color: 'var(--cat-amber-6)', label: '' },
-      { min: 30, max: BMI_MAX, color: 'var(--cat-red-6)', label: '' }
-    ];
+					const cp1x = p1.x + (p2.x - p0.x) * tension;
+					const cp1y = clampY(p1.y + (p2.y - p0.y) * tension);
+					const cp2x = p2.x - (p3.x - p1.x) * tension;
+					const cp2y = clampY(p2.y - (p3.y - p1.y) * tension);
 
-    return { points, pathD, areaD, trend, diff, first, last, count: values.length, zones };
-  });
+					pathD += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${clampY(p2.y)}`;
+					areaD += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${clampY(p2.y)}`;
+				}
+			}
+			areaD += ` L ${points[points.length - 1].x} ${CHART_HEIGHT - PAD_BOTTOM} Z`;
+		}
 
-  function handlePointerMove(e: PointerEvent) {
-    if (!chartData || !chartData.points.length) return;
-    const svg = (e.currentTarget as SVGSVGElement);
-    const rect = svg.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-    const scaleX = CHART_WIDTH / rect.width;
-    const scaleY = CHART_HEIGHT / rect.height;
-    const svgX = mx * scaleX;
-    const svgY = my * scaleY;
+		// BMI zone bands
+		const zones = [
+			{ min: BMI_MIN, max: 18.5, color: 'var(--cat-blue-6)', label: '' },
+			{ min: 18.5, max: 25, color: 'var(--cat-green-6)', label: t('sparkline.normal') },
+			{ min: 25, max: 30, color: 'var(--cat-amber-6)', label: '' },
+			{ min: 30, max: BMI_MAX, color: 'var(--cat-red-6)', label: '' }
+		];
 
-    let closest = -1;
-    let closestDist = Infinity;
-    chartData.points.forEach((pt, i) => {
-      const dist = Math.abs(pt.x - svgX);
-      if (dist < closestDist && dist < 20) {
-        closestDist = dist;
-        closest = i;
-      }
-    });
-    hoveredIndex = closest >= 0 ? closest : null;
-  }
+		return { points, pathD, areaD, trend, diff, first, last, count: totalHistoryCount, zones };
+	});
 
-  // Clamp tooltip position to stay within chart bounds
-  let tooltipStyle = $derived.by(() => {
-    if (!hoveredPoint) return '';
-    const pctX = (hoveredPoint.x / CHART_WIDTH) * 100;
-    const pctY = (hoveredPoint.y / CHART_HEIGHT) * 100;
-    // Clamp horizontal: keep tooltip at least 20% from edges
-    const clampedX = Math.max(22, Math.min(78, pctX));
-    // If tooltip would go above chart, flip it below the point
-    const flipBelow = pctY < 25;
-    const clampedY = flipBelow ? pctY + 8 : pctY;
-    const transform = flipBelow ? 'translate(-50%, 12px)' : 'translate(-50%, -110%)';
-    return `left: ${clampedX}%; top: ${clampedY}%; transform: ${transform};`;
-  });
+	function handlePointerMove(e: PointerEvent) {
+		if (isTouchDevice) return;
+		if (!chartData || !chartData.points.length) return;
+		const svg = e.currentTarget as SVGSVGElement;
+		const rect = svg.getBoundingClientRect();
+		const mx = e.clientX - rect.left;
+		const scaleX = CHART_WIDTH / rect.width;
+		pendingHoverX = mx * scaleX;
 
-  function handlePointerLeave() {
-    hoveredIndex = null;
-  }
+		if (hoverRafId !== null) return;
+		hoverRafId = requestAnimationFrame(() => {
+			hoverRafId = null;
+			if (!chartData || !chartData.points.length) return;
 
-  let hoveredPoint = $derived.by(() => {
-    if (hoveredIndex === null || !chartData) return null;
-    return chartData.points[hoveredIndex] ?? null;
-  });
+			let closest = -1;
+			let closestDist = Infinity;
+			chartData.points.forEach((pt, i) => {
+				const dist = Math.abs(pt.x - pendingHoverX);
+				if (dist < closestDist && dist < 18) {
+					closestDist = dist;
+					closest = i;
+				}
+			});
+			hoveredIndex = closest >= 0 ? closest : null;
+		});
+	}
+
+	// Clamp tooltip position to stay within chart bounds
+	let tooltipStyle = $derived.by(() => {
+		if (!hoveredPoint) return '';
+		const pctX = (hoveredPoint.x / CHART_WIDTH) * 100;
+		const pctY = (hoveredPoint.y / CHART_HEIGHT) * 100;
+		// Clamp horizontal: keep tooltip at least 20% from edges
+		const clampedX = Math.max(22, Math.min(78, pctX));
+		// If tooltip would go above chart, flip it below the point
+		const flipBelow = pctY < 25;
+		const clampedY = flipBelow ? pctY + 8 : pctY;
+		const transform = flipBelow ? 'translate(-50%, 12px)' : 'translate(-50%, -110%)';
+		return `left: ${clampedX}%; top: ${clampedY}%; transform: ${transform};`;
+	});
+
+	function handlePointerLeave() {
+		if (isTouchDevice) return;
+		if (hoverRafId !== null) {
+			cancelAnimationFrame(hoverRafId);
+			hoverRafId = null;
+		}
+		hoveredIndex = null;
+	}
+
+	let hoveredPoint = $derived.by(() => {
+		if (hoveredIndex === null || !chartData) return null;
+		return chartData.points[hoveredIndex] ?? null;
+	});
+
+	onDestroy(() => {
+		if (hoverRafId !== null) {
+			cancelAnimationFrame(hoverRafId);
+			hoverRafId = null;
+		}
+	});
 </script>
+
 {#if chartData}
-  <div class="sparkline-container interactive">
-    <div class="sparkline-header">
-      <div class="sparkline-title">
-        <TrendingUp size={16} />
-        <span>{t('sparkline.title')}</span>
-      </div>
-      <div class="sparkline-badge" class:trend-up={chartData.trend === 'down'} class:trend-down={chartData.trend === 'up'}>
-        {#if chartData.trend === 'down'}
-          <TrendingDown size={14} />
-          <span>{chartData.diff.toFixed(1)}</span>
-        {:else if chartData.trend === 'up'}
-          <TrendingUp size={14} />
-          <span>+{chartData.diff.toFixed(1)}</span>
-        {:else}
-          <Minus size={14} />
-          <span>{t('sparkline.stable')}</span>
-        {/if}
-      </div>
-    </div>
+	<div class="sparkline-container interactive">
+		<div class="sparkline-header">
+			<div class="sparkline-title">
+				<TrendingUp size={16} />
+				<span>{t('sparkline.title')}</span>
+			</div>
+			<div
+				class="sparkline-badge"
+				class:trend-up={chartData.trend === 'down'}
+				class:trend-down={chartData.trend === 'up'}
+			>
+				{#if chartData.trend === 'down'}
+					<TrendingDown size={14} />
+					<span>{chartData.diff.toFixed(1)}</span>
+				{:else if chartData.trend === 'up'}
+					<TrendingUp size={14} />
+					<span>+{chartData.diff.toFixed(1)}</span>
+				{:else}
+					<Minus size={14} />
+					<span>{t('sparkline.stable')}</span>
+				{/if}
+			</div>
+		</div>
 
-    <div class="sparkline-chart interactive-chart">
-      <svg
-        viewBox="0 0 {CHART_WIDTH} {CHART_HEIGHT}"
-        preserveAspectRatio="xMidYMid meet"
-        class="sparkline-svg"
-        role="img"
-        aria-label={t('sparkline.aria')}
-        onpointermove={handlePointerMove}
-        onpointerleave={handlePointerLeave}
-        use:passivePointerMove
-      >
-        <!-- BMI zone bands -->
-        {#each chartData.zones as zone (zone.min)}
-          <rect
-            x={PAD_LEFT}
-            y={bmiToY(zone.max)}
-            width={plotWidth}
-            height={Math.max(0, bmiToY(zone.min) - bmiToY(zone.max))}
-            fill={zone.color}
-            rx="2"
-          />
-        {/each}
+		<div class="sparkline-chart interactive-chart">
+			<svg
+				viewBox="0 0 {CHART_WIDTH} {CHART_HEIGHT}"
+				preserveAspectRatio="xMidYMid meet"
+				class="sparkline-svg"
+				role="img"
+				aria-label={t('sparkline.aria')}
+				onpointermove={handlePointerMove}
+				onpointerleave={handlePointerLeave}
+			>
+				<!-- BMI zone bands -->
+				{#each chartData.zones as zone (zone.min)}
+					<rect
+						x={PAD_LEFT}
+						y={bmiToY(zone.max)}
+						width={plotWidth}
+						height={Math.max(0, bmiToY(zone.min) - bmiToY(zone.max))}
+						fill={zone.color}
+						rx="2"
+					/>
+				{/each}
 
-        <!-- BMI zone boundary lines -->
-        <line x1={PAD_LEFT} y1={bmiToY(18.5)} x2={CHART_WIDTH - PAD_RIGHT} y2={bmiToY(18.5)} stroke="var(--cat-blue-20)" stroke-width="1" stroke-dasharray="4 3" />
-        <line x1={PAD_LEFT} y1={bmiToY(25)} x2={CHART_WIDTH - PAD_RIGHT} y2={bmiToY(25)} stroke="var(--cat-green-20)" stroke-width="1" stroke-dasharray="4 3" />
-        <line x1={PAD_LEFT} y1={bmiToY(30)} x2={CHART_WIDTH - PAD_RIGHT} y2={bmiToY(30)} stroke="var(--cat-amber-20)" stroke-width="1" stroke-dasharray="4 3" />
+				<!-- BMI zone boundary lines -->
+				<line
+					x1={PAD_LEFT}
+					y1={bmiToY(18.5)}
+					x2={CHART_WIDTH - PAD_RIGHT}
+					y2={bmiToY(18.5)}
+					stroke="var(--cat-blue-20)"
+					stroke-width="1"
+					stroke-dasharray="4 3"
+				/>
+				<line
+					x1={PAD_LEFT}
+					y1={bmiToY(25)}
+					x2={CHART_WIDTH - PAD_RIGHT}
+					y2={bmiToY(25)}
+					stroke="var(--cat-green-20)"
+					stroke-width="1"
+					stroke-dasharray="4 3"
+				/>
+				<line
+					x1={PAD_LEFT}
+					y1={bmiToY(30)}
+					x2={CHART_WIDTH - PAD_RIGHT}
+					y2={bmiToY(30)}
+					stroke="var(--cat-amber-20)"
+					stroke-width="1"
+					stroke-dasharray="4 3"
+				/>
 
-        <!-- Y-axis labels -->
-        <text x={PAD_LEFT - 4} y={bmiToY(18.5) + 3} text-anchor="end" class="axis-label">18.5</text>
-        <text x={PAD_LEFT - 4} y={bmiToY(25) + 3} text-anchor="end" class="axis-label">25</text>
-        <text x={PAD_LEFT - 4} y={bmiToY(30) + 3} text-anchor="end" class="axis-label">30</text>
+				<!-- Y-axis labels -->
+				<text x={PAD_LEFT - 4} y={bmiToY(18.5) + 3} text-anchor="end" class="axis-label">18.5</text>
+				<text x={PAD_LEFT - 4} y={bmiToY(25) + 3} text-anchor="end" class="axis-label">25</text>
+				<text x={PAD_LEFT - 4} y={bmiToY(30) + 3} text-anchor="end" class="axis-label">30</text>
 
-        <!-- Zone labels (right side, inside plot) -->
-        <text x={CHART_WIDTH - PAD_RIGHT - 2} y={bmiToY(18.5) + (bmiToY(25) - bmiToY(18.5)) / 2 + 3} text-anchor="end" class="zone-label">{t('sparkline.normal')}</text>
+				<!-- Zone labels (right side, inside plot) -->
+				<text
+					x={CHART_WIDTH - PAD_RIGHT - 2}
+					y={bmiToY(18.5) + (bmiToY(25) - bmiToY(18.5)) / 2 + 3}
+					text-anchor="end"
+					class="zone-label">{t('sparkline.normal')}</text
+				>
 
-        <!-- Gradient fill + clip path -->
-        <defs>
-          <clipPath id="sparkClip">
-            <rect x={PAD_LEFT} y={PAD_TOP} width={plotWidth} height={plotHeight} />
-          </clipPath>
-          <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color={getBmiColor(chartData.last)} stop-opacity="0.25" />
-            <stop offset="100%" stop-color={getBmiColor(chartData.last)} stop-opacity="0.02" />
-          </linearGradient>
-        </defs>
+				<!-- Gradient fill + clip path -->
+				<defs>
+					<clipPath id="sparkClip">
+						<rect x={PAD_LEFT} y={PAD_TOP} width={plotWidth} height={plotHeight} />
+					</clipPath>
+					<linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="0%" stop-color={getBmiColor(chartData.last)} stop-opacity="0.25" />
+						<stop offset="100%" stop-color={getBmiColor(chartData.last)} stop-opacity="0.02" />
+					</linearGradient>
+				</defs>
 
-        {#if chartData.points.length > 1}
-          <!-- Clipped chart content -->
-          <g clip-path="url(#sparkClip)">
-            <!-- Area fill -->
-            <path d={chartData.areaD} fill="url(#sparkGrad)" />
+				{#if chartData.points.length > 1}
+					<!-- Clipped chart content -->
+					<g clip-path="url(#sparkClip)">
+						<!-- Area fill -->
+						<path d={chartData.areaD} fill="url(#sparkGrad)" />
 
-            <!-- Line -->
-            <path d={chartData.pathD} fill="none" stroke={getBmiColor(chartData.last)} stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-          </g>
-        {/if}
+						<!-- Line -->
+						<path
+							d={chartData.pathD}
+							fill="none"
+							stroke={getBmiColor(chartData.last)}
+							stroke-width="3"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+					</g>
+				{/if}
 
-        <!-- Data points -->
-        {#each chartData.points as pt, i (i)}
-          <circle
-            cx={pt.x}
-            cy={pt.y}
-            r={hoveredIndex === i ? 6 : (i === chartData.points.length - 1 ? 4 : 2.5)}
-            fill={getBmiColor(pt.bmi)}
-            stroke="var(--w-30)"
-            stroke-width={hoveredIndex === i ? 2 : 1}
-            class="spark-point"
-            opacity={hoveredIndex !== null && hoveredIndex !== i ? 0.4 : 1}
-          />
-        {/each}
+				<!-- Data points -->
+				{#each chartData.points as pt, i (i)}
+					<circle
+						cx={pt.x}
+						cy={pt.y}
+						r={hoveredIndex === i ? 6 : i === chartData.points.length - 1 ? 4.5 : 3}
+						fill={getBmiColor(pt.bmi)}
+						stroke="var(--w-30)"
+						stroke-width={hoveredIndex === i ? 2 : 1}
+						class="spark-point"
+						opacity={hoveredIndex !== null && hoveredIndex !== i ? 0.4 : 1}
+					/>
+				{/each}
 
-        <!-- Hover crosshair -->
-        {#if hoveredPoint}
-          <line
-            x1={hoveredPoint.x}
-            y1={PAD_TOP}
-            x2={hoveredPoint.x}
-            y2={CHART_HEIGHT - PAD_BOTTOM}
-            stroke="var(--white-15)"
-            stroke-width="1"
-            stroke-dasharray="3 3"
-          />
-          <line
-            x1={PAD_LEFT}
-            y1={hoveredPoint.y}
-            x2={CHART_WIDTH - PAD_RIGHT}
-            y2={hoveredPoint.y}
-            stroke="var(--white-10)"
-            stroke-width="1"
-            stroke-dasharray="3 3"
-          />
-        {/if}
-      </svg>
+				<!-- Hover crosshair -->
+				{#if hoveredPoint && !isTouchDevice}
+					<line
+						x1={hoveredPoint.x}
+						y1={PAD_TOP}
+						x2={hoveredPoint.x}
+						y2={CHART_HEIGHT - PAD_BOTTOM}
+						stroke="var(--white-15)"
+						stroke-width="1"
+						stroke-dasharray="3 3"
+					/>
+					<line
+						x1={PAD_LEFT}
+						y1={hoveredPoint.y}
+						x2={CHART_WIDTH - PAD_RIGHT}
+						y2={hoveredPoint.y}
+						stroke="var(--white-10)"
+						stroke-width="1"
+						stroke-dasharray="3 3"
+					/>
+				{/if}
+			</svg>
 
-      <!-- Tooltip -->
-      {#if hoveredPoint}
-        <div
-          class="chart-tooltip"
-          style={tooltipStyle}
-        >
-          <div class="tooltip-bmi" style="color: {getBmiColor(hoveredPoint.bmi)}">{hoveredPoint.bmi.toFixed(1)}</div>
-          <div class="tooltip-cat">{getBmiLabel(hoveredPoint.bmi)}</div>
-          <div class="tooltip-date">{formatDate(hoveredPoint.record.timestamp)}</div>
-          <div class="tooltip-time">{formatTime(hoveredPoint.record.timestamp)}</div>
-          <div class="tooltip-arrow"></div>
-        </div>
-      {/if}
-    </div>
+			<!-- Tooltip -->
+			{#if hoveredPoint && !isTouchDevice}
+				<div class="chart-tooltip" style={tooltipStyle}>
+					<div class="tooltip-bmi" style="color: {getBmiColor(hoveredPoint.bmi)}">
+						{hoveredPoint.bmi.toFixed(1)}
+					</div>
+					<div class="tooltip-cat">{getBmiLabel(hoveredPoint.bmi)}</div>
+					<div class="tooltip-date">{formatDate(hoveredPoint.record.timestamp)}</div>
+					<div class="tooltip-time">{formatTime(hoveredPoint.record.timestamp)}</div>
+					<div class="tooltip-arrow"></div>
+				</div>
+			{/if}
+		</div>
 
-    <!-- X-axis date labels (first, middle, last) -->
-    <div class="x-axis-labels">
-      {#if chartData.points.length >= 2}
-        <span class="x-label">{formatDate(chartData.points[0].record.timestamp)}</span>
-        {#if chartData.points.length >= 3}
-          <span class="x-label">{formatDate(chartData.points[Math.floor(chartData.points.length / 2)].record.timestamp)}</span>
-        {/if}
-        <span class="x-label">{formatDate(chartData.points[chartData.points.length - 1].record.timestamp)}</span>
-      {/if}
-    </div>
+		<!-- X-axis date labels (first, middle, last) -->
+		<div class="x-axis-labels">
+			{#if chartData.points.length >= 2}
+				<span class="x-label">{formatDate(chartData.points[0].record.timestamp)}</span>
+				{#if chartData.points.length >= 3}
+					<span class="x-label"
+						>{formatDate(
+							chartData.points[Math.floor(chartData.points.length / 2)].record.timestamp
+						)}</span
+					>
+				{/if}
+				<span class="x-label"
+					>{formatDate(chartData.points[chartData.points.length - 1].record.timestamp)}</span
+				>
+			{/if}
+		</div>
 
-    <!-- Bottom info -->
-    <div class="sparkline-footer">
-      <span class="sparkline-stat">
-        {t('sparkline.first', { n: chartData.first.toFixed(1) })}
-      </span>
-      <span class="sparkline-stat">
-        {t('sparkline.latest', { n: chartData.last.toFixed(1) })}
-      </span>
-      <span class="sparkline-stat">
-        {t('sparkline.entries', { n: chartData.count })}
-      </span>
-    </div>
-  </div>
+		<!-- Bottom info -->
+		<div class="sparkline-footer">
+			<span class="sparkline-stat">
+				{t('sparkline.first', { n: chartData.first.toFixed(1) })}
+			</span>
+			<span class="sparkline-stat">
+				{t('sparkline.latest', { n: chartData.last.toFixed(1) })}
+			</span>
+			<span class="sparkline-stat">
+				{t('sparkline.entries', { n: chartData.count })}
+			</span>
+		</div>
+	</div>
 {:else if currentBmi !== null}
-  <div class="sparkline-container sparkline-empty">
-    <p>{t('sparkline.empty')}</p>
-  </div>
+	<div class="sparkline-container sparkline-empty">
+		<p>{t('sparkline.empty')}</p>
+	</div>
 {/if}
 
 <style>
-  .sparkline-container.interactive {
-    cursor: crosshair;
-  }
+	.sparkline-container.interactive {
+		cursor: crosshair;
+	}
 
-  .sparkline-container {
-    background: var(--sd-40);
-    border: 1px solid var(--sg-10);
-    border-radius: var(--radius-lg);
-    padding: 0.75rem 0.5rem;
-    margin-top: 1rem;
-  }
+	.sparkline-container {
+		background: var(--sd-80);
+		border: 1px solid var(--sg-16);
+		border-radius: var(--radius-lg);
+		padding: 1rem 0.9rem 0.85rem;
+		margin-top: 1rem;
+	}
 
-  .sparkline-empty {
-    text-align: center;
-    color: var(--slate-500-solid);
-    font-size: 0.875rem;
-    padding: 1.5rem;
-  }
+	.sparkline-empty {
+		text-align: center;
+		color: var(--slate-500-solid);
+		font-size: 0.875rem;
+		padding: 1.5rem;
+	}
 
-  .sparkline-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.75rem;
-  }
+	.sparkline-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 0.55rem;
+	}
 
-  .sparkline-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: var(--slate-400-solid);
-    font-weight: 500;
-  }
+	.sparkline-title {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.92rem;
+		color: var(--slate-200-solid);
+		font-weight: 650;
+	}
 
-  .sparkline-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.2rem 0.6rem;
-    border-radius: var(--radius-pill);
-    background: var(--sg-15);
-    color: var(--slate-400-solid);
-  }
+	.sparkline-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		font-size: 0.78rem;
+		font-weight: 600;
+		padding: 0.24rem 0.65rem;
+		border-radius: var(--radius-pill);
+		background: var(--sg-15);
+		color: var(--slate-200-solid);
+	}
 
-  .sparkline-badge.trend-down {
-    background: var(--cat-green-15);
-    color: var(--cat-green-toast);
-  }
+	.sparkline-badge.trend-down {
+		background: var(--cat-green-15);
+		color: var(--cat-green-toast);
+	}
 
-  .sparkline-badge.trend-up {
-    background: var(--cat-red-15);
-    color: var(--darkred-90);
-  }
+	.sparkline-badge.trend-up {
+		background: var(--cat-red-15);
+		color: var(--darkred-90);
+	}
 
-  .sparkline-chart {
-    position: relative;
-    height: 60px;
-    margin: 0;
-  }
+	.sparkline-chart {
+		position: relative;
+		height: 60px;
+		margin: 0;
+	}
 
-  .interactive-chart {
-    height: 260px;
-    margin: 0;
-    overflow: hidden;
-  }
+	.interactive-chart {
+		height: 208px;
+		margin: 0;
+		overflow: hidden;
+	}
 
-  .sparkline-svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
+	.sparkline-svg {
+		width: 100%;
+		height: 100%;
+		display: block;
+	}
 
-  .spark-point {
-    transition: r var(--dur-micro) ease, opacity var(--dur-micro) ease;
-  }
+	.spark-point {
+		transition:
+			r var(--dur-micro) ease,
+			opacity var(--dur-micro) ease;
+	}
 
-  .axis-label {
-    font-size: 9px;
-    fill: var(--slate-600-solid);
-    font-family: var(--font-mono-short);
-    dominant-baseline: middle;
-  }
+	.axis-label {
+		font-size: 11px;
+		fill: var(--slate-400-solid);
+		font-family: var(--font-mono-short);
+		dominant-baseline: middle;
+	}
 
-  .zone-label {
-    font-size: 7px;
-    fill: var(--cat-green-40);
-    font-family: var(--font-mono-short);
-    dominant-baseline: middle;
-  }
+	.zone-label {
+		font-size: 9px;
+		font-weight: 700;
+		fill: var(--cat-green-90);
+		font-family: var(--font-mono-short);
+		dominant-baseline: middle;
+	}
 
-  .x-axis-labels {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.15rem 0 0;
-    margin: 0;
-  }
+	.x-axis-labels {
+		display: flex;
+		justify-content: space-between;
+		padding: 0.2rem 0.15rem 0;
+		margin: 0;
+	}
 
-  .x-label {
-    font-size: 0.55rem;
-    color: var(--slate-600-solid);
-    font-family: var(--font-mono-short);
-  }
+	.x-label {
+		font-size: 0.65rem;
+		color: var(--slate-400-solid);
+		font-family: var(--font-mono-short);
+	}
 
-  /* Tooltip */
-  .chart-tooltip {
-    position: absolute;
-    pointer-events: none;
-    z-index: var(--z-inner-control);
-    background: var(--sd-92);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--w-10);
-    border-radius: var(--btn-radius);
-    padding: 0.5rem 0.65rem;
-    text-align: center;
-    white-space: nowrap;
-    box-shadow: 0 8px 24px var(--k-50);
-    animation: tooltipIn var(--dur-micro) ease-out;
-  }
+	/* Tooltip */
+	.chart-tooltip {
+		position: absolute;
+		pointer-events: none;
+		z-index: var(--z-inner-control);
+		background: var(--sd-92);
+		-webkit-backdrop-filter: blur(8px);
+		backdrop-filter: blur(8px);
+		border: 1px solid var(--w-10);
+		border-radius: var(--btn-radius);
+		padding: 0.5rem 0.65rem;
+		text-align: center;
+		white-space: nowrap;
 
-  @keyframes tooltipIn {
-    from { opacity: 0; scale: 0.9; }
-    to { opacity: 1; scale: 1; }
-  }
+		animation: tooltipIn var(--dur-micro) ease-out;
+	}
 
-  .tooltip-arrow {
-    position: absolute;
-    bottom: -4px;
-    left: 50%;
-    transform: translateX(-50%) rotate(45deg);
-    width: 8px;
-    height: 8px;
-    background: var(--sd-92);
-    border-right: 1px solid var(--w-10);
-    border-bottom: 1px solid var(--w-10);
-  }
+	@keyframes tooltipIn {
+		from {
+			opacity: 0;
+			scale: 0.9;
+		}
+		to {
+			opacity: 1;
+			scale: 1;
+		}
+	}
 
-  .tooltip-bmi {
-    font-family: var(--font-mono-short);
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.2;
-  }
+	.tooltip-arrow {
+		position: absolute;
+		bottom: -4px;
+		left: 50%;
+		transform: translateX(-50%) rotate(45deg);
+		width: 8px;
+		height: 8px;
+		background: var(--sd-92);
+		border-right: 1px solid var(--w-10);
+		border-bottom: 1px solid var(--w-10);
+	}
 
-  .tooltip-cat {
-    font-size: 0.6rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--slate-400-solid);
-  }
+	.tooltip-bmi {
+		font-family: var(--font-mono-short);
+		font-size: 1rem;
+		font-weight: 700;
+		line-height: 1.2;
+	}
 
-  .tooltip-date {
-    font-size: 0.6rem;
-    color: var(--slate-500-solid);
-    margin-top: 0.15rem;
-  }
+	.tooltip-cat {
+		font-size: 0.6rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--slate-400-solid);
+	}
 
-  .tooltip-time {
-    font-size: 0.55rem;
-    color: var(--slate-600-solid);
-    font-family: var(--font-mono-short);
-  }
+	.tooltip-date {
+		font-size: 0.6rem;
+		color: var(--slate-500-solid);
+		margin-top: 0.15rem;
+	}
 
-  .sparkline-footer {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid var(--sg-8);
-  }
+	.tooltip-time {
+		font-size: 0.55rem;
+		color: var(--slate-600-solid);
+		font-family: var(--font-mono-short);
+	}
 
-  .sparkline-stat {
-    font-size: 0.75rem;
-    color: var(--slate-500-solid);
-  }
+	.sparkline-footer {
+		display: flex;
+		justify-content: space-between;
+		gap: 0.75rem;
+		margin-top: 0.45rem;
+		padding-top: 0.55rem;
+		border-top: 1px solid var(--sg-16);
+	}
 
+	.sparkline-stat {
+		font-size: 0.78rem;
+		color: var(--slate-300-solid);
+		line-height: 1.3;
+		font-variant-numeric: tabular-nums;
+	}
 
-  @media (max-width: 640px) {
-    .sparkline-footer {
-      flex-direction: column;
-      gap: 0.25rem;
-      align-items: center;
-    }
+	@media (max-width: 640px) {
+		.sparkline-container.interactive {
+			cursor: default;
+		}
 
-    .interactive-chart {
-      height: 200px;
-    }
-  }
+		.sparkline-footer {
+			flex-direction: column;
+			gap: 0.25rem;
+			align-items: center;
+		}
+
+		.interactive-chart {
+			height: 176px;
+		}
+
+		.axis-label {
+			font-size: 10px;
+		}
+
+		.zone-label {
+			font-size: 8px;
+		}
+
+		.x-label {
+			font-size: 0.62rem;
+		}
+	}
 </style>

@@ -1,283 +1,275 @@
+/* // Copyright (c) 2025 - 2026 rezky_nightky */
 /* ── results.css — BMI results card, category badges, share/action buttons, empty state, toast keyframes ── */
 /* ==============================
       BMI RESULTS COMPONENT
       ============================== */
 .bmi-results-card {
-  padding: 2.5rem;
-  border-radius: var(--radius-lg);
-  position: relative;
-  overflow: hidden;
-  min-height: 450px;
-  display: flex;
-  flex-direction: column;
-  transition: transform var(--dur-normal) var(--easing-smooth), box-shadow var(--dur-normal) var(--easing-smooth), border-color var(--dur-normal) var(--easing-smooth);
+	padding: 2.5rem;
+	border-radius: var(--radius-lg);
+	position: relative;
+	overflow: hidden;
+	min-height: 450px;
+	display: flex;
+	flex-direction: column;
+	transition:
+		transform var(--dur-normal) var(--easing-smooth),
+		border-color var(--dur-normal) var(--easing-smooth);
 }
 
 .bmi-results-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, var(--blue-5), var(--purple-5));
-  border-radius: inherit;
-  z-index: -1;
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(135deg, var(--blue-5), var(--purple-5));
+	border-radius: inherit;
+	z-index: -1;
 }
 
 .card-header {
-  text-align: center;
-  margin-top: 2.5rem;
-  margin-bottom: 3.5rem;
+	text-align: center;
+	margin-top: 2.5rem;
+	margin-bottom: 3.5rem;
 }
 
 .icon-container {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 1rem;
+	position: relative;
+	display: inline-block;
+	margin-bottom: 1rem;
 }
-
 
 /* Elegant gradient text utility using theme vars */
 .text-gradient-elegant {
-  background: var(--bg-cosmic);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
+	background: var(--bg-cosmic);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	color: transparent;
 }
 
 .card-subtitle {
-  color: var(--stellar-white);
-  font-size: var(--text-lg);
-  line-height: 1.5;
+	color: var(--stellar-white);
+	font-size: var(--text-lg);
+	line-height: 1.5;
 }
 
 /* Results content — clean entrance */
 .results-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  animation: fadeInUp var(--dur-panel) var(--easing-smooth);
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	animation: fadeInUp var(--dur-panel) var(--easing-smooth);
 }
 
 /* BMI display — clean scale entrance */
 .bmi-display {
-  text-align: center;
-  margin-bottom: 2.5rem;
-  animation: scaleIn var(--dur-panel) var(--easing-smooth) 0.15s both;
+	text-align: center;
+	margin-bottom: 2.5rem;
+	animation: scaleIn var(--dur-panel) var(--easing-smooth) 0.15s both;
 }
 
 @keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
+	from {
+		opacity: 0;
+		transform: scale(0.96);
+	}
 
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
 }
 
 .bmi-value {
-  font-size: var(--text-display);
-  font-weight: 700;
-  line-height: 1;
-  margin-bottom: 1rem;
-  text-shadow: 0 0 20px currentColor;
-  /* animation removed for GPU performance */
+	font-size: var(--text-display);
+	font-weight: 700;
+	line-height: 1;
+	margin-bottom: 1rem;
+	text-shadow: 0 0 20px currentColor;
+	/* animation removed for GPU performance */
 }
 
 .bmi-category-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.75rem;
 }
 
 .category-icon {
-  width: 1.5rem;
-  height: 1.5rem;
+	width: 1.5rem;
+	height: 1.5rem;
 }
 
 .bmi-category {
-  font-size: var(--text-3xl);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+	font-size: var(--text-3xl);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
 }
 
 /* Health advice — clean slide entrance */
 .health-advice {
-  background: var(--sd-40);
-  border-radius: var(--radius-lg);
-  padding: 1.75rem;
-  margin-bottom: 1.75rem;
-  border: 1px solid var(--w-5);
-  animation: slideInLeft var(--dur-panel) var(--easing-smooth) 0.25s both;
-  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
+	padding: 1.75rem;
+	margin-bottom: 1.75rem;
+	animation: slideInLeft var(--dur-panel) var(--easing-smooth) 0.25s both;
+	transition:
+		transform var(--dur-content) ease,
+		background-color var(--dur-content) ease,
+		border-color var(--dur-content) ease;
 }
 
 .health-advice:hover {
-  background: var(--sd-60);
-  border-color: var(--w-10);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px var(--k-20);
+	border-color: rgba(130, 130, 130, 0.4);
+	transform: translateY(-2px);
 }
 
 /* Clean directional slide — left */
 @keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-12px);
-  }
+	from {
+		opacity: 0;
+		transform: translateX(-12px);
+	}
 
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
 }
 
 .advice-title {
-  font-size: var(--text-xl);
-  font-weight: 600;
-  color: var(--stellar-white);
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-size: var(--text-xl);
+	font-weight: 600;
+	color: var(--stellar-white);
+	margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 }
 
 .advice-text {
-  color: var(--text-tertiary);
-  line-height: 1.6;
+	color: var(--text-tertiary);
+	line-height: 1.6;
 }
 
 /* Age advisory — clean slide entrance */
 .age-advisory {
-  background: var(--coreblue-12);
-  border: 1px solid var(--coreblue-22);
-  border-radius: var(--radius-lg);
-  padding: 1.75rem;
-  margin-bottom: 1.75rem;
-  animation: slideInRight var(--dur-panel) var(--easing-smooth) 0.35s both;
-  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
+	padding: 1.75rem;
+	margin-bottom: 1.75rem;
+	animation: slideInRight var(--dur-panel) var(--easing-smooth) 0.35s both;
+	transition:
+		transform var(--dur-content) ease,
+		background-color var(--dur-content) ease,
+		border-color var(--dur-content) ease;
 }
 
 .age-advisory:hover {
-  background: var(--coreblue-16);
-  border-color: var(--coreblue-32);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px var(--coreblue-16);
+	border-color: rgba(130, 130, 130, 0.4);
+	transform: translateY(-2px);
 }
 
 /* Clean directional slide — right */
 @keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(12px);
-  }
+	from {
+		opacity: 0;
+		transform: translateX(12px);
+	}
 
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
 }
 
 .advisory-title {
-  font-size: var(--text-lg);
-  font-weight: 600;
-  color: var(--accent-blue);
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-size: var(--text-lg);
+	font-weight: 600;
+	color: var(--accent-blue);
+	margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 }
 
 .advisory-text {
-  color: var(--text-tertiary);
-  line-height: 1.6;
-  font-size: 0.875rem;
+	color: var(--text-tertiary);
+	line-height: 1.6;
+	font-size: 0.875rem;
 }
 
 /* BMI explanation — clean entrance */
 .bmi-explanation {
-  background: var(--sd-40);
-  border-radius: var(--radius-md);
-  padding: 1.75rem;
-  border: 1px solid var(--w-5);
-  animation: fadeInUp var(--dur-panel) var(--easing-smooth) 0.45s both;
-  transition: transform var(--dur-content) ease, background-color var(--dur-content) ease, border-color var(--dur-content) ease, box-shadow var(--dur-content) ease;
+	padding: 1.75rem;
+	animation: fadeInUp var(--dur-panel) var(--easing-smooth) 0.45s both;
+	transition:
+		transform var(--dur-content) ease,
+		background-color var(--dur-content) ease,
+		border-color var(--dur-content) ease;
 }
 
 .bmi-explanation:hover {
-  background: var(--sd-60);
-  border-color: var(--w-10);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px var(--k-20);
+	border-color: rgba(130, 130, 130, 0.4);
+	transform: translateY(-2px);
 }
 
 .explanation-title {
-  font-size: var(--text-lg);
-  font-weight: 600;
-  color: var(--stellar-white);
-  margin-bottom: 1rem;
+	font-size: var(--text-lg);
+	font-weight: 600;
+	color: var(--stellar-white);
+	margin-bottom: 1rem;
 }
 
 .explanation-text {
-  color: var(--text-tertiary);
-  line-height: 1.6;
-  font-size: 0.875rem;
+	color: var(--text-tertiary);
+	line-height: 1.6;
+	font-size: 0.875rem;
 }
 
 /* ==============================
       SHARE & ACTION BUTTONS (C-1/C-2/C-3)
       ============================== */
 .action-buttons-row {
-  display: flex;
-  gap: 0.625rem;
-  margin: 1rem 0;
+	display: flex;
+	gap: 0.625rem;
+	margin: 1rem 0;
 }
 
 .action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.85rem;
-  border-radius: var(--btn-radius);
-  border: 1px solid var(--violet-22);
-  background: var(--bg-by-rezky);
-  color: var(--stellar-white);
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform var(--dur-interactive) ease, background var(--dur-interactive) ease, border-color var(--dur-interactive) ease;
-  flex: 1;
-  justify-content: center;
-  box-shadow: none;
+	font-size: 0.75rem;
+	font-weight: 600;
+	flex: 1;
+	justify-content: center;
+	background: linear-gradient(180deg, var(--deep-void-55), rgba(91, 33, 182, 0.7));
+	border: 1px solid rgba(130, 130, 130, 0.3);
 }
 
 .action-btn:hover {
-  background: var(--bg-last-by-rezky);
-  border-color: var(--violet-34);
-  color: var(--stellar-white);
-  transform: translateY(-1px);
+	background: linear-gradient(135deg, var(--deep-void-65), rgba(91, 33, 182, 0.55));
+	border-color: rgba(130, 130, 130, 0.45);
+	transform: translateY(-1px);
 }
 
 .action-btn:active {
-  transform: scale(0.97);
-  transition-duration: var(--dur-instant);
+	transform: scale(0.97);
+	transition-duration: var(--dur-instant);
 }
 
 .share-toast {
-  text-align: center;
-  padding: 0.5rem;
-  font-size: 0.75rem;
-  color: var(--cat-green-toast);
-  font-weight: 600;
-  animation: toastFade 0.25s ease;
+	text-align: center;
+	padding: 0.5rem;
+	font-size: 0.75rem;
+	color: var(--cat-green-toast);
+	font-weight: 600;
+	animation: toastFade 0.25s ease;
 }
 
 @keyframes toastFade {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }

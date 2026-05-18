@@ -1,3 +1,4 @@
+// Copyright (c) 2025 - 2026 rezky_nightky
 /**
  * Unit tests for trace.ts — v16.0 Observability
  */
@@ -12,7 +13,7 @@ vi.stubGlobal('crypto', {
 	getRandomValues: (arr: Uint8Array) => {
 		for (let i = 0; i < arr.length; i++) arr[i] = (i * 37 + 13) % 256;
 		return arr;
-	},
+	}
 });
 
 describe('trace', () => {
