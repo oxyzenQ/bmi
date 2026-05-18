@@ -40,6 +40,8 @@ const initialState: PwaUpdateState = {
 };
 
 let registrationRef: ServiceWorkerRegistration | null = null;
+let updateCheckInFlight: Promise<void> | null = null;
+const boundRegistrations = new WeakSet<ServiceWorkerRegistration>();
 
 export const pwaUpdateState = writable<PwaUpdateState>(initialState);
 
@@ -88,6 +90,9 @@ export function bindPwaUpdateRegistration(registration: ServiceWorkerRegistratio
 		markUpdateAvailable('service-worker', true);
 	}
 
+	if (boundRegistrations.has(registration)) return;
+	boundRegistrations.add(registration);
+
 	registration.addEventListener('updatefound', () => {
 		const installing = registration.installing;
 		if (!installing) return;
@@ -102,60 +107,67 @@ export function bindPwaUpdateRegistration(registration: ServiceWorkerRegistratio
 
 export async function checkForPwaUpdate(source: 'manual' | 'auto' = 'manual'): Promise<void> {
 	if (!browser || !navigator.onLine) return;
+	if (updateCheckInFlight) return updateCheckInFlight;
 
-	pwaUpdateState.update((state) => ({
-		...state,
-		checked: true,
-		checking: true,
-		source,
-		error: null
-	}));
-
-	try {
-		const registration = registrationRef ?? (await navigator.serviceWorker?.getRegistration?.());
-		await registration?.update?.();
-
-		const [pkgResponse, commitResponse] = await Promise.allSettled([
-			fetch(UPSTREAM_PACKAGE_URL, { cache: 'no-store' }),
-			fetch(UPSTREAM_COMMIT_URL, { cache: 'no-store' })
-		]);
-
-		let latestVersion: string | null = null;
-		let latestCommit: string | null = null;
-
-		if (pkgResponse.status === 'fulfilled' && pkgResponse.value.ok) {
-			const pkg = (await pkgResponse.value.json()) as UpstreamPackage;
-			latestVersion = typeof pkg.version === 'string' ? pkg.version.trim() : null;
-		}
-
-		if (commitResponse.status === 'fulfilled' && commitResponse.value.ok) {
-			const commit = (await commitResponse.value.json()) as UpstreamCommit;
-			latestCommit = typeof commit.sha === 'string' ? commit.sha.trim() : null;
-		}
-
-		const hasUpdate = isNewerUpstream(latestVersion, latestCommit);
-
+	updateCheckInFlight = (async () => {
 		pwaUpdateState.update((state) => ({
 			...state,
 			checked: true,
-			checking: false,
-			updateAvailable: state.updateAvailable || hasUpdate,
-			latestVersion,
-			latestCommit,
-			lastCheckedAt: Date.now(),
-			source: hasUpdate ? source : state.source,
+			checking: true,
+			source,
 			error: null
 		}));
-	} catch (err) {
-		warnDevOnce('pwa-update', 'checkForPwaUpdate', 'Failed to check upstream update', err);
-		pwaUpdateState.update((state) => ({
-			...state,
-			checked: true,
-			checking: false,
-			lastCheckedAt: Date.now(),
-			error: err instanceof Error ? err.message : 'Update check failed'
-		}));
-	}
+
+		try {
+			const registration = registrationRef ?? (await navigator.serviceWorker?.getRegistration?.());
+			await registration?.update?.();
+
+			const [pkgResponse, commitResponse] = await Promise.allSettled([
+				fetch(UPSTREAM_PACKAGE_URL, { cache: 'no-store' }),
+				fetch(UPSTREAM_COMMIT_URL, { cache: 'no-store' })
+			]);
+
+			let latestVersion: string | null = null;
+			let latestCommit: string | null = null;
+
+			if (pkgResponse.status === 'fulfilled' && pkgResponse.value.ok) {
+				const pkg = (await pkgResponse.value.json()) as UpstreamPackage;
+				latestVersion = typeof pkg.version === 'string' ? pkg.version.trim() : null;
+			}
+
+			if (commitResponse.status === 'fulfilled' && commitResponse.value.ok) {
+				const commit = (await commitResponse.value.json()) as UpstreamCommit;
+				latestCommit = typeof commit.sha === 'string' ? commit.sha.trim() : null;
+			}
+
+			const hasUpdate = isNewerUpstream(latestVersion, latestCommit);
+
+			pwaUpdateState.update((state) => ({
+				...state,
+				checked: true,
+				checking: false,
+				updateAvailable: state.updateAvailable || hasUpdate,
+				latestVersion,
+				latestCommit,
+				lastCheckedAt: Date.now(),
+				source: hasUpdate ? source : state.source,
+				error: null
+			}));
+		} catch (err) {
+			warnDevOnce('pwa-update', 'checkForPwaUpdate', 'Failed to check upstream update', err);
+			pwaUpdateState.update((state) => ({
+				...state,
+				checked: true,
+				checking: false,
+				lastCheckedAt: Date.now(),
+				error: err instanceof Error ? err.message : 'Update check failed'
+			}));
+		} finally {
+			updateCheckInFlight = null;
+		}
+	})();
+
+	return updateCheckInFlight;
 }
 
 export function applyPwaUpdate(): void {

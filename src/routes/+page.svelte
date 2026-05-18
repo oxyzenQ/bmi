@@ -918,6 +918,8 @@
 		navShell?.addEventListener('pointercancel', endNavPointerDrag);
 		navShell?.addEventListener('lostpointercapture', endNavPointerDrag);
 		navShell?.addEventListener('click', handleNavClickCapture, true);
+		window.addEventListener('pointerup', endNavPointerDrag);
+		window.addEventListener('pointercancel', endNavPointerDrag);
 
 		// Mobile touch swipe listeners for horizontal page navigation.
 		// Passive listeners keep native vertical scroll off the JS critical path.
@@ -948,6 +950,8 @@
 			navShell?.removeEventListener('pointercancel', endNavPointerDrag);
 			navShell?.removeEventListener('lostpointercapture', endNavPointerDrag);
 			navShell?.removeEventListener('click', handleNavClickCapture, true);
+			window.removeEventListener('pointerup', endNavPointerDrag);
+			window.removeEventListener('pointercancel', endNavPointerDrag);
 			navShell?.classList.remove('is-dragging');
 			document.body.classList.remove('is-touch-scrolling');
 			touchScrollingActive = false;

@@ -214,6 +214,19 @@
 		animation: none !important;
 	}
 
+	.snapshot-card,
+	.risk-result,
+	.health-tips,
+	.bf-info-box,
+	.bf-ranges,
+	.progress-section,
+	.sparkline-container,
+	.activity-grid {
+		animation: none !important;
+		transition: none !important;
+		transform: none !important;
+	}
+
 	/* Page-2 hardening (calculator after results):
      disable remaining result-card micro-animations/transitions that can
      still trigger per-frame style work while user scrolls. */

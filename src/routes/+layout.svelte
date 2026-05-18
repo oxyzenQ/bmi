@@ -196,6 +196,7 @@
 		// B-1: Web Vitals observer (LCP, CLS, INP)
 		if (browser && 'PerformanceObserver' in window) {
 			try {
+				const performanceObservers: PerformanceObserver[] = [];
 				const observe = (type: string, callback: (entry: PerformanceEntry) => void) => {
 					try {
 						const po = new PerformanceObserver((list) => {
@@ -203,10 +204,12 @@
 							po.disconnect();
 						});
 						po.observe({ type, buffered: true });
+						performanceObservers.push(po);
 					} catch (err) {
 						warnDevOnce('layout', 'WebVitals', `Metric '${type}' not supported`, err);
 					}
 				};
+				cleanupFns.push(() => performanceObservers.forEach((po) => po.disconnect()));
 
 				// Web Vitals observation (silent in production)
 				observe('largest-contentful-paint', () => {
