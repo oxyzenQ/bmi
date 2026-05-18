@@ -86,6 +86,7 @@
 
 	let risk = $derived(getRiskLevel(bmi, category));
 	let Icon = $derived(risk.icon);
+	let riskProgress = $derived(bmi === null ? 0 : Math.max(0, Math.min(100, risk.position)));
 </script>
 
 <div class="gauge-container bmi-health-risk">
@@ -99,7 +100,11 @@
 
 	<div class="risk-meter-container">
 		<!-- Risk meter track -->
-		<div class="risk-meter-track">
+		<div
+			class="risk-meter-track"
+			style="--risk-progress: {riskProgress}%; --risk-fill-color: {risk.color};"
+		>
+			<div class="risk-meter-fill"></div>
 			<div class="risk-segment risk-low-seg"></div>
 			<div class="risk-segment risk-moderate-seg"></div>
 			<div class="risk-segment risk-elevated-seg"></div>
@@ -124,7 +129,7 @@
 	</div>
 
 	<!-- Risk result card -->
-	<div class="risk-result {risk.bgClass}">
+	<div class="risk-result {risk.bgClass}" style="--risk-color: {risk.color};">
 		<div class="risk-icon">
 			<Icon size={28} />
 		</div>
@@ -179,35 +184,51 @@
 
 	.risk-meter-track {
 		display: flex;
+		position: relative;
 		height: 12px;
 		border-radius: var(--radius-xs);
 		overflow: hidden;
 		background: var(--sg-10);
 	}
 
+	.risk-meter-fill {
+		position: absolute;
+		inset: 0 auto 0 0;
+		width: var(--risk-progress);
+		border-radius: inherit;
+		background: linear-gradient(
+			90deg,
+			color-mix(in srgb, var(--risk-fill-color) 55%, transparent),
+			color-mix(in srgb, var(--risk-fill-color) 92%, transparent)
+		);
+		transition: width var(--dur-normal) var(--easing-material);
+	}
+
 	.risk-segment {
 		flex: 1;
 		height: 100%;
+		position: relative;
+		z-index: 1;
 	}
 
 	.risk-low-seg {
 		background: var(--cat-green-50);
-		opacity: 0.6;
+		opacity: 0.26;
 	}
 
 	.risk-moderate-seg {
 		background: var(--cat-blue-50);
-		opacity: 0.6;
+		opacity: 0.26;
 	}
 
 	.risk-elevated-seg {
 		background: var(--cat-amber-50);
-		opacity: 0.6;
+		opacity: 0.26;
 	}
 
 	.risk-high-seg {
 		background: var(--cat-red-50);
-		opacity: 0.6;
+		opacity: 0.26;
 	}
 
 	.risk-indicator {
@@ -232,12 +253,19 @@
 		animation: pulse var(--dur-breathe) ease-in-out infinite;
 	}
 
+	.risk-marker :global(svg) {
+		width: 20px !important;
+		height: 20px !important;
+		color: currentColor !important;
+		stroke: currentColor !important;
+	}
+
 	.risk-marker.risk-low {
 		background: var(--cat-green-90);
 	}
 
 	.risk-marker.risk-moderate {
-		background: var(--cat-blue-90);
+		background: var(--cat-blue-solid);
 	}
 
 	.risk-marker.risk-elevated {
@@ -311,6 +339,26 @@
 
 	.risk-icon {
 		flex-shrink: 0;
+		width: 46px;
+		height: 46px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--stellar-white);
+		background: color-mix(in srgb, var(--risk-color) 88%, black);
+		border: 1px solid color-mix(in srgb, var(--risk-color) 46%, transparent);
+	}
+
+	.risk-icon :global(svg) {
+		width: 28px !important;
+		height: 28px !important;
+		color: currentColor !important;
+		stroke: currentColor !important;
+	}
+
+	.risk-result.risk-elevated .risk-icon {
+		color: var(--text-on-amber);
 	}
 
 	.risk-info {

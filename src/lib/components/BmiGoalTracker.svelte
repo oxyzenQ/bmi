@@ -116,43 +116,6 @@
 	let isAchieved = $derived(hasGoal && hasBmi && diff !== null && diff <= 0.5);
 	let needToLose = $derived(hasGoal && hasBmi && (currentBmi ?? 0) > (goalBmi ?? 0));
 
-	// Progress: measured from startBmi toward goalBmi
-	// Formula: |currentBmi - startBmi| / |goalBmi - startBmi| * 100
-	// This gives 0% when currentBmi == startBmi (no progress yet)
-	// and 100% when currentBmi == goalBmi (goal reached)
-	let progressPercent = $derived.by(() => {
-		if (!hasGoal || !hasBmi || goalBmi === null || currentBmi === null) return 0;
-		if (isAchieved) return 100;
-		if (startBmi === null || startBmi === 0) return 0;
-
-		const totalDistance = Math.abs(startBmi - goalBmi);
-		if (totalDistance <= 0) return 100; // start == goal, already there
-
-		const traveledDistance = Math.abs(startBmi - currentBmi);
-		// Progress: how far we've come from start toward goal
-		let progress: number;
-		if (needToLose) {
-			// Losing weight: start > goal, progress increases as current decreases
-			progress = (startBmi - currentBmi) / (startBmi - goalBmi);
-		} else {
-			// Gaining weight: start < goal, progress increases as current increases
-			progress = (currentBmi - startBmi) / (goalBmi - startBmi);
-		}
-		// If user overshot the goal (went past it), cap at a minimum showing over-achievement
-		return Math.max(0, Math.min(100, Math.round(progress * 100)));
-	});
-
-	let progressColor = $derived.by(() => {
-		if (isAchieved) return 'var(--cat-green-90)';
-		const p = progressPercent;
-		if (p >= 70) return 'var(--cat-green-90)';
-		if (p >= 40) return 'var(--cat-yellow-40)';
-		return 'var(--cat-red-90)';
-	});
-
-	// Whether we have meaningful progress data (startBmi exists and differs from currentBmi)
-	let hasProgressData = $derived(startBmi !== null && startBmi !== 0 && hasBmi);
-
 	loadGoal();
 </script>
 
@@ -197,25 +160,13 @@
 			</div>
 
 			{#if !isAchieved && diff !== null}
-				<div class="goal-progress">
-					<div class="progress-header">
-						<span>{t('goal.progress_from_start')}</span>
-						<span>{progressPercent}%</span>
-					</div>
-					<div class="progress-bar">
-						<div
-							class="progress-fill"
-							style="width: {progressPercent}%; background: {progressColor};"
-						></div>
-					</div>
-					<p class="goal-insight">
-						{#if needToLose}
-							{t('snapshot.need_lose', { n: diff.toFixed(1) })}
-						{:else}
-							{t('snapshot.need_gain', { n: diff.toFixed(1) })}
-						{/if}
-					</p>
-				</div>
+				<p class="goal-insight">
+					{#if needToLose}
+						{t('snapshot.need_lose', { n: diff.toFixed(1) })}
+					{:else}
+						{t('snapshot.need_gain', { n: diff.toFixed(1) })}
+					{/if}
+				</p>
 			{/if}
 
 			<div class="goal-actions">
@@ -365,41 +316,6 @@
 
 	.goal-target {
 		color: var(--cosmic-purple);
-	}
-
-	.goal-progress {
-		display: flex;
-		flex-direction: column;
-		gap: 0.35rem;
-	}
-
-	.progress-header {
-		display: flex;
-		justify-content: space-between;
-		font-size: 0.75rem;
-		color: var(--text-muted);
-	}
-
-	.progress-header span:last-child {
-		font-weight: 600;
-		color: var(--w-80);
-		font-family: var(--font-mono-short);
-	}
-
-	.progress-bar {
-		height: 6px;
-		border-radius: var(--radius-pill);
-		background: var(--sd-75);
-		overflow: hidden;
-	}
-
-	.progress-fill {
-		height: 100%;
-		border-radius: var(--radius-pill);
-		min-width: 0;
-		transition:
-			width var(--dur-slower) var(--easing-gauge),
-			background var(--dur-content);
 	}
 
 	.goal-insight {
