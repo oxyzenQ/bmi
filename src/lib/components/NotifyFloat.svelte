@@ -144,7 +144,7 @@
 	panelClass="notify-float-box"
 >
 	<button class="notify-close" onclick={handleModalClose} aria-label={t('notify.close_aria')}>
-		<X size={18} strokeWidth={2.4} />
+		<span class="close-icon-text" aria-hidden="true">×</span>
 	</button>
 
 	<div class="notify-icon" style="color: {iconColor}">
@@ -195,14 +195,12 @@
 		justify-content: center;
 		color: var(--stellar-white);
 		cursor: pointer;
-		transition:
-			background var(--dur-micro) ease,
-			color var(--dur-micro) ease,
-			border-color var(--dur-micro) ease;
-		-webkit-backdrop-filter: blur(10px);
-		backdrop-filter: blur(10px);
+		transition: none;
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
 		z-index: var(--z-inner-control);
 		overflow: hidden;
+		-webkit-tap-highlight-color: transparent;
 	}
 
 	.notify-close:hover {
@@ -217,12 +215,30 @@
 		border: var(--btn-danger-border-hover);
 	}
 
-	:global(.notify-close svg) {
+	.notify-close:focus-visible {
+		outline: none !important;
+		box-shadow: none !important;
+	}
+
+	.close-icon-text {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		width: 18px;
 		height: 18px;
-		display: block;
+		font-family:
+			system-ui,
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			sans-serif;
+		font-size: 24px;
+		font-weight: 500;
+		line-height: 1;
+		color: var(--stellar-white) !important;
 		pointer-events: none;
-		stroke: currentColor;
+		transform: none;
+		user-select: none;
 	}
 
 	.notify-icon {

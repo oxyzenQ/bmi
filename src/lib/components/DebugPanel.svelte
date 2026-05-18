@@ -21,7 +21,7 @@
 	import { getEncryptionStatus } from '$lib/utils/crypto';
 	import { getBackupStatus } from '$lib/utils/backup';
 	import { getPerformanceTier } from '$lib/utils/animation-config';
-	import { FileText, Cpu, Database, Trash2, ChevronRight, X } from 'lucide-svelte';
+	import { FileText, Cpu, Database, Trash2, ChevronRight } from 'lucide-svelte';
 
 	// Guard: never render in production
 	if (import.meta.env.PROD || !browser) {
@@ -197,7 +197,7 @@
 					<span class="dp-badge">v16.0</span>
 				</div>
 				<button class="dp-close" onclick={togglePanel} aria-label="Close">
-					<X size={18} strokeWidth={2.4} />
+					<span class="close-icon-text" aria-hidden="true">×</span>
 				</button>
 			</div>
 
@@ -477,11 +477,9 @@
 		background: var(--btn-danger-bg);
 		color: var(--stellar-white);
 		cursor: pointer;
-		transition:
-			background var(--dur-micro) ease,
-			color var(--dur-micro) ease,
-			border-color var(--dur-micro) ease;
+		transition: none;
 		overflow: hidden;
+		-webkit-tap-highlight-color: transparent;
 	}
 
 	.dp-close:hover {
@@ -497,16 +495,29 @@
 	}
 
 	.dp-close:focus-visible {
-		outline: 2px solid var(--violet-42);
-		outline-offset: 1px;
+		outline: none !important;
+		box-shadow: none !important;
 	}
 
-	:global(.dp-close svg) {
+	.close-icon-text {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		width: 18px;
 		height: 18px;
-		display: block;
+		font-family:
+			system-ui,
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			sans-serif;
+		font-size: 24px;
+		font-weight: 500;
+		line-height: 1;
+		color: var(--stellar-white) !important;
 		pointer-events: none;
-		stroke: currentColor;
+		transform: none;
+		user-select: none;
 	}
 
 	/* ── Tabs ── */

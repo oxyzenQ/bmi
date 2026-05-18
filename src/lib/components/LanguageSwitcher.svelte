@@ -1,7 +1,7 @@
 <!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import { Languages, X } from 'lucide-svelte';
+	import { Languages } from 'lucide-svelte';
 	import { browser } from '$app/environment';
 	import { t as _t, locales, setLocale, localeVersion, locale } from '$lib/i18n';
 	import type { Locale, TParams } from '$lib/i18n';
@@ -89,7 +89,7 @@
 	<div use:portal class="lang-backdrop" class:visible role="presentation">
 		<div class="lang-panel" role="dialog" aria-label={t('lang.select')} tabindex="-1">
 			<button type="button" class="lang-close" onclick={closePanel} aria-label={t('lang.close')}>
-				<X size={18} strokeWidth={2.4} />
+				<span class="close-icon-text" aria-hidden="true">×</span>
 			</button>
 
 			<div class="lang-panel-icon">
