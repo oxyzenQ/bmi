@@ -65,6 +65,7 @@
      Real backdrop blur is expensive on touch scroll. Use a simple
      translucent black surface with the shared border/radius so it still
      reads as glass without paying the per-frame blur cost. */
+	.hero-content,
 	.form-card,
 	.bmi-card,
 	.about-card,
@@ -72,6 +73,7 @@
 	.reference-table,
 	.goal-tracker,
 	.footer-disclaimer,
+	.pwa-install-card,
 	.github-footer,
 	.section-header-v2 {
 		background: var(--sd-80) !important;
@@ -104,6 +106,15 @@
      Touch devices don't benefit from hover transitions anyway. */
 	.form-card,
 	.bmi-card,
+	.hero-content,
+	.about-card,
+	.gauge-container,
+	.reference-table,
+	.goal-tracker,
+	.footer-disclaimer,
+	.pwa-install-card,
+	.github-footer,
+	.section-header-v2,
 	.bmi-card:hover,
 	.form-card:hover {
 		transition: none !important;
@@ -325,6 +336,7 @@
 			.reference-table,
 			.about-card,
 			.footer-disclaimer,
+			.pwa-install-card,
 			.github-footer,
 			.snapshot-card,
 			.risk-result,
@@ -539,21 +551,23 @@
 	}
 
 	.pager-controls-shell {
-		background: rgba(0, 0, 0, 0.24) !important;
-		-webkit-backdrop-filter: blur(8px) saturate(130%) brightness(1.02) !important;
-		backdrop-filter: blur(8px) saturate(130%) brightness(1.02) !important;
+		background: var(--sd-80) !important;
+		-webkit-backdrop-filter: none !important;
+		backdrop-filter: none !important;
 		transition:
 			opacity 140ms ease,
 			transform 140ms ease !important;
-		will-change: transform, opacity;
+		will-change: auto;
 		touch-action: manipulation;
 	}
 
 	body.is-touch-scrolling .pager-controls-shell {
-		background: rgba(0, 0, 0, 0.48) !important;
+		background: var(--sd-80) !important;
 		-webkit-backdrop-filter: none !important;
 		backdrop-filter: none !important;
-		transition: none !important;
+		transition:
+			opacity 140ms ease,
+			transform 140ms ease !important;
 		will-change: auto !important;
 		opacity: 0 !important;
 		pointer-events: none !important;
