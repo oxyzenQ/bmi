@@ -12,8 +12,8 @@ permissions:
 env:
   RELEASE_TAG_PREFIX: Stellar
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  NODE_VERSION: 22
-  VERCEL_NODE_RUNTIME: nodejs22.x
+  NODE_VERSION: 24
+  VERCEL_NODE_RUNTIME: nodejs24.x
 
 jobs:
   validate-tag:

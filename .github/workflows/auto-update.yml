@@ -32,8 +32,8 @@ env:
   OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
   BASE_BRANCH: ${{ github.ref_name }}
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  NODE_VERSION: 22
-  VERCEL_NODE_RUNTIME: nodejs22.x
+  NODE_VERSION: 24
+  VERCEL_NODE_RUNTIME: nodejs24.x
 
 jobs:
   auto-update:
