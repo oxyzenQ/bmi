@@ -1,6 +1,7 @@
 <!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
 <script lang="ts">
 	import { browser } from '$app/environment';
+	import { onDestroy } from 'svelte';
 	import { TrendingUp, TrendingDown, Minus } from 'lucide-svelte';
 	import { STORAGE_KEYS } from '$lib/utils/storage';
 	import { t as _t, localeVersion } from '$lib/i18n';
@@ -10,23 +11,6 @@
 	function t(key: string, params?: Record<string, string | number | undefined | null>): string {
 		void _rv;
 		return _t(key, params);
-	}
-
-	// Svelte action: attach pointermove with { passive: true } to prevent
-	// scroll jank on mobile when hovering over the chart during touch scroll.
-	// Svelte 5 on:pointermove does not support { passive } option directly.
-	function passivePointerMove(node: SVGElement) {
-		const handler = (e: PointerEvent) => {
-			// No-op handler — only ensures passive mode for the existing
-			// onpointermove in the template. Svelte 5 does not support
-			// { passive } on directive-based event listeners.
-		};
-		node.addEventListener('pointermove', handler, { passive: true });
-		return {
-			destroy() {
-				node.removeEventListener('pointermove', handler);
-			}
-		};
 	}
 
 	interface Props {
@@ -46,11 +30,11 @@
 
 	const MAX_POINTS = 20;
 	const CHART_WIDTH = 560;
-	const CHART_HEIGHT = 260;
-	const PAD_LEFT = 34;
-	const PAD_RIGHT = 14;
-	const PAD_TOP = 18;
-	const PAD_BOTTOM = 22;
+	const CHART_HEIGHT = 244;
+	const PAD_LEFT = 42;
+	const PAD_RIGHT = 20;
+	const PAD_TOP = 20;
+	const PAD_BOTTOM = 28;
 
 	const BMI_MIN = 12;
 	const BMI_MAX = 42;
@@ -99,6 +83,8 @@
 	// Hover state
 	let hoveredIndex: number | null = $state(null);
 	let isTouchDevice = $state(false);
+	let hoverRafId: number | null = null;
+	let pendingHoverX = 0;
 
 	$effect(() => {
 		if (!browser) return;
@@ -216,22 +202,25 @@
 		const svg = e.currentTarget as SVGSVGElement;
 		const rect = svg.getBoundingClientRect();
 		const mx = e.clientX - rect.left;
-		const my = e.clientY - rect.top;
 		const scaleX = CHART_WIDTH / rect.width;
-		const scaleY = CHART_HEIGHT / rect.height;
-		const svgX = mx * scaleX;
-		const svgY = my * scaleY;
+		pendingHoverX = mx * scaleX;
 
-		let closest = -1;
-		let closestDist = Infinity;
-		chartData.points.forEach((pt, i) => {
-			const dist = Math.abs(pt.x - svgX);
-			if (dist < closestDist && dist < 20) {
-				closestDist = dist;
-				closest = i;
-			}
+		if (hoverRafId !== null) return;
+		hoverRafId = requestAnimationFrame(() => {
+			hoverRafId = null;
+			if (!chartData || !chartData.points.length) return;
+
+			let closest = -1;
+			let closestDist = Infinity;
+			chartData.points.forEach((pt, i) => {
+				const dist = Math.abs(pt.x - pendingHoverX);
+				if (dist < closestDist && dist < 18) {
+					closestDist = dist;
+					closest = i;
+				}
+			});
+			hoveredIndex = closest >= 0 ? closest : null;
 		});
-		hoveredIndex = closest >= 0 ? closest : null;
 	}
 
 	// Clamp tooltip position to stay within chart bounds
@@ -250,12 +239,23 @@
 
 	function handlePointerLeave() {
 		if (isTouchDevice) return;
+		if (hoverRafId !== null) {
+			cancelAnimationFrame(hoverRafId);
+			hoverRafId = null;
+		}
 		hoveredIndex = null;
 	}
 
 	let hoveredPoint = $derived.by(() => {
 		if (hoveredIndex === null || !chartData) return null;
 		return chartData.points[hoveredIndex] ?? null;
+	});
+
+	onDestroy(() => {
+		if (hoverRafId !== null) {
+			cancelAnimationFrame(hoverRafId);
+			hoverRafId = null;
+		}
 	});
 </script>
 
@@ -293,7 +293,6 @@
 				aria-label={t('sparkline.aria')}
 				onpointermove={handlePointerMove}
 				onpointerleave={handlePointerLeave}
-				use:passivePointerMove
 			>
 				<!-- BMI zone bands -->
 				{#each chartData.zones as zone (zone.min)}
@@ -371,7 +370,7 @@
 							d={chartData.pathD}
 							fill="none"
 							stroke={getBmiColor(chartData.last)}
-							stroke-width="2.5"
+							stroke-width="3"
 							stroke-linecap="round"
 							stroke-linejoin="round"
 						/>
@@ -383,7 +382,7 @@
 					<circle
 						cx={pt.x}
 						cy={pt.y}
-						r={hoveredIndex === i ? 6 : i === chartData.points.length - 1 ? 4 : 2.5}
+						r={hoveredIndex === i ? 6 : i === chartData.points.length - 1 ? 4.5 : 3}
 						fill={getBmiColor(pt.bmi)}
 						stroke="var(--w-30)"
 						stroke-width={hoveredIndex === i ? 2 : 1}
@@ -474,7 +473,7 @@
 		background: var(--sd-80);
 		border: 1px solid var(--sg-16);
 		border-radius: var(--container-radius);
-		padding: 0.9rem 0.75rem 0.75rem;
+		padding: 1rem 0.9rem 0.85rem;
 		margin-top: 1rem;
 	}
 
@@ -489,28 +488,28 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		margin-bottom: 0.35rem;
+		margin-bottom: 0.55rem;
 	}
 
 	.sparkline-title {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-		font-size: 0.875rem;
-		color: var(--slate-400-solid);
-		font-weight: 500;
+		font-size: 0.92rem;
+		color: var(--slate-200-solid);
+		font-weight: 650;
 	}
 
 	.sparkline-badge {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.25rem;
-		font-size: 0.75rem;
+		font-size: 0.78rem;
 		font-weight: 600;
-		padding: 0.2rem 0.6rem;
+		padding: 0.24rem 0.65rem;
 		border-radius: var(--radius-pill);
 		background: var(--sg-15);
-		color: var(--slate-400-solid);
+		color: var(--slate-200-solid);
 	}
 
 	.sparkline-badge.trend-down {
@@ -530,7 +529,7 @@
 	}
 
 	.interactive-chart {
-		height: 220px;
+		height: 208px;
 		margin: 0;
 		overflow: hidden;
 	}
@@ -548,15 +547,16 @@
 	}
 
 	.axis-label {
-		font-size: 9px;
-		fill: var(--slate-600-solid);
+		font-size: 11px;
+		fill: var(--slate-400-solid);
 		font-family: var(--font-mono-short);
 		dominant-baseline: middle;
 	}
 
 	.zone-label {
-		font-size: 7px;
-		fill: var(--cat-green-40);
+		font-size: 9px;
+		font-weight: 700;
+		fill: var(--cat-green-90);
 		font-family: var(--font-mono-short);
 		dominant-baseline: middle;
 	}
@@ -564,13 +564,13 @@
 	.x-axis-labels {
 		display: flex;
 		justify-content: space-between;
-		padding: 0.1rem 0.1rem 0;
+		padding: 0.2rem 0.15rem 0;
 		margin: 0;
 	}
 
 	.x-label {
-		font-size: 0.55rem;
-		color: var(--slate-600-solid);
+		font-size: 0.65rem;
+		color: var(--slate-400-solid);
 		font-family: var(--font-mono-short);
 	}
 
@@ -644,17 +644,24 @@
 	.sparkline-footer {
 		display: flex;
 		justify-content: space-between;
-		margin-top: 0.35rem;
-		padding-top: 0.45rem;
-		border-top: 1px solid var(--sg-8);
+		gap: 0.75rem;
+		margin-top: 0.45rem;
+		padding-top: 0.55rem;
+		border-top: 1px solid var(--sg-16);
 	}
 
 	.sparkline-stat {
-		font-size: 0.75rem;
-		color: var(--slate-500-solid);
+		font-size: 0.78rem;
+		color: var(--slate-300-solid);
+		line-height: 1.3;
+		font-variant-numeric: tabular-nums;
 	}
 
 	@media (max-width: 640px) {
+		.sparkline-container.interactive {
+			cursor: default;
+		}
+
 		.sparkline-footer {
 			flex-direction: column;
 			gap: 0.25rem;
@@ -662,7 +669,19 @@
 		}
 
 		.interactive-chart {
-			height: 190px;
+			height: 176px;
+		}
+
+		.axis-label {
+			font-size: 10px;
+		}
+
+		.zone-label {
+			font-size: 8px;
+		}
+
+		.x-label {
+			font-size: 0.62rem;
 		}
 	}
 </style>

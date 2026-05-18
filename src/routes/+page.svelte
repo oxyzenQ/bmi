@@ -228,6 +228,7 @@
 	let pendingScrollY = 0;
 	let touchScrollModeTimeout: ReturnType<typeof setTimeout> | null = null;
 	let lastTouchScrollY = 0;
+	let touchScrollingActive = false;
 
 	function triggerHaptic(pattern: number | number[] = HAPTIC.NAV) {
 		if (!browser) return;
@@ -418,7 +419,11 @@
 		if (browser && pagerNavEl) {
 			const activeTab = pagerNavEl.querySelector('.pager-tab.active') as HTMLElement | null;
 			if (activeTab) {
-				activeTab.scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
+				activeTab.scrollIntoView({
+					inline: 'center',
+					behavior: isTouchDevice || reducedMotionEffective ? 'auto' : 'smooth',
+					block: 'nearest'
+				});
 			}
 		}
 	}
@@ -602,9 +607,13 @@
 	function markTouchScrolling(currentScrollY: number) {
 		if (!browser || !isTouchDevice) return;
 		lastTouchScrollY = currentScrollY;
-		document.body.classList.add('is-touch-scrolling');
+		if (!touchScrollingActive) {
+			touchScrollingActive = true;
+			document.body.classList.add('is-touch-scrolling');
+		}
 		if (touchScrollModeTimeout) clearTimeout(touchScrollModeTimeout);
 		touchScrollModeTimeout = setTimeout(() => {
+			touchScrollingActive = false;
 			document.body.classList.remove('is-touch-scrolling');
 			const shouldShowFab = lastTouchScrollY > SCROLL.SCROLL_TOP_THRESHOLD;
 			if (showScrollTopFab !== shouldShowFab) {
@@ -828,6 +837,7 @@
 			window.removeEventListener('resize', onResize);
 			window.removeEventListener('storage', onStorage);
 			document.body.classList.remove('is-touch-scrolling');
+			touchScrollingActive = false;
 			detachActiveScroller();
 			pagerEl?.removeEventListener('touchstart', handleTouchStart);
 			pagerEl?.removeEventListener('touchend', handleTouchEnd);
