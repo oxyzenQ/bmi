@@ -21,6 +21,11 @@ const MAX_RUNTIME_ENTRIES = 60;
 let runtimeTrimInProgress = false;
 
 sw.addEventListener('message', (event) => {
+	const trustedOrigin = sw.location.origin;
+	if (event.origin && event.origin !== trustedOrigin) {
+		return;
+	}
+
 	if (event.data?.type === 'SKIP_WAITING') {
 		event.waitUntil(sw.skipWaiting());
 	}
