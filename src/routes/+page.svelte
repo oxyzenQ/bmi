@@ -204,8 +204,15 @@
 	let perfTier = $state<'high' | 'medium' | 'low'>('medium');
 
 	let pagerNavEl: HTMLElement | null = null;
+	let pagerNavShellEl: HTMLElement | null = null;
 	let pagerNavCentered = $state(false);
 	let pagerNavAlignRaf: number | null = null;
+	let navDragPointerId: number | null = null;
+	let navDragStartX = 0;
+	let navDragStartScrollLeft = 0;
+	let navDidDrag = false;
+	let suppressNextNavClick = false;
+	const NAV_DRAG_THRESHOLD = 6;
 
 	// Auto-hide navbar state
 	let lastScrollY = 0;
@@ -227,6 +234,7 @@
 	let pendingScrollTarget: HTMLElement | null = null;
 	let pendingScrollY = 0;
 	let touchScrollModeTimeout: ReturnType<typeof setTimeout> | null = null;
+	let lastTouchScrollAt = 0;
 	let lastTouchScrollY = 0;
 	let touchScrollingActive = false;
 
@@ -440,6 +448,65 @@
 		goTo(activeIndex + 1);
 	}
 
+	function handleNavPointerDown(event: PointerEvent) {
+		if (event.button !== 0 || event.pointerType === 'touch') return;
+		const shell = pagerNavShellEl;
+		if (!shell || shell.scrollWidth <= shell.clientWidth + 1) return;
+
+		navDragPointerId = event.pointerId;
+		navDragStartX = event.clientX;
+		navDragStartScrollLeft = shell.scrollLeft;
+		navDidDrag = false;
+
+		try {
+			shell.setPointerCapture(event.pointerId);
+		} catch (err) {
+			warnDevOnce('page', 'handleNavPointerDown', 'Navbar pointer capture failed', err);
+		}
+	}
+
+	function handleNavPointerMove(event: PointerEvent) {
+		if (navDragPointerId === null || event.pointerId !== navDragPointerId) return;
+		const shell = pagerNavShellEl;
+		if (!shell) return;
+
+		const dx = event.clientX - navDragStartX;
+		if (!navDidDrag && Math.abs(dx) < NAV_DRAG_THRESHOLD) return;
+
+		if (!navDidDrag) {
+			navDidDrag = true;
+			suppressNextNavClick = true;
+			shell.classList.add('is-dragging');
+		}
+
+		shell.scrollLeft = navDragStartScrollLeft - dx;
+		event.preventDefault();
+	}
+
+	function endNavPointerDrag(event?: PointerEvent) {
+		const shell = pagerNavShellEl;
+		if (event && navDragPointerId !== null && event.pointerId !== navDragPointerId) return;
+
+		if (shell && navDragPointerId !== null) {
+			try {
+				shell.releasePointerCapture(navDragPointerId);
+			} catch (err) {
+				void err;
+			}
+		}
+
+		shell?.classList.remove('is-dragging');
+		navDragPointerId = null;
+		navDidDrag = false;
+	}
+
+	function handleNavClickCapture(event: MouseEvent) {
+		if (!suppressNextNavClick) return;
+		suppressNextNavClick = false;
+		event.preventDefault();
+		event.stopPropagation();
+	}
+
 	function handlePointerDown(event: PointerEvent) {
 		// Touch is handled by dedicated touch handlers below;
 		// pointer events only manage mouse/stylus input.
@@ -606,22 +673,46 @@
 
 	function markTouchScrolling(currentScrollY: number) {
 		if (!browser || !isTouchDevice) return;
+		lastTouchScrollAt = Date.now();
 		lastTouchScrollY = currentScrollY;
 		if (!touchScrollingActive) {
 			touchScrollingActive = true;
 			document.body.classList.add('is-touch-scrolling');
 		}
-		if (touchScrollModeTimeout) clearTimeout(touchScrollModeTimeout);
-		touchScrollModeTimeout = setTimeout(() => {
+
+		if (touchScrollModeTimeout !== null) return;
+		touchScrollModeTimeout = setTimeout(
+			finishTouchScrollingIfIdle,
+			SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY
+		);
+	}
+
+	function finishTouchScrollingIfIdle() {
+		if (!browser) {
+			touchScrollModeTimeout = null;
+			return;
+		}
+
+		const elapsed = Date.now() - lastTouchScrollAt;
+		if (elapsed < SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY) {
+			touchScrollModeTimeout = setTimeout(
+				finishTouchScrollingIfIdle,
+				SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY - elapsed
+			);
+			return;
+		}
+
+		touchScrollModeTimeout = null;
+		if (touchScrollingActive) {
 			touchScrollingActive = false;
 			document.body.classList.remove('is-touch-scrolling');
-			const shouldShowFab = lastTouchScrollY > SCROLL.SCROLL_TOP_THRESHOLD;
-			if (showScrollTopFab !== shouldShowFab) {
-				showScrollTopFab = shouldShowFab;
-			}
-			if (!pagerControlsVisible) pagerControlsVisible = true;
-			touchScrollModeTimeout = null;
-		}, SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY);
+		}
+
+		const shouldShowFab = lastTouchScrollY > SCROLL.SCROLL_TOP_THRESHOLD;
+		if (showScrollTopFab !== shouldShowFab) {
+			showScrollTopFab = shouldShowFab;
+		}
+		if (!pagerControlsVisible) pagerControlsVisible = true;
 	}
 
 	function flushScrollState() {
@@ -718,7 +809,7 @@
 		if (!pagerNavEl) return;
 		/* Scroll is on the shell (.pager-nav-shell), not the inner nav.
        Check if the shell's content overflows. */
-		const shell = pagerNavEl.parentElement;
+		const shell = pagerNavShellEl ?? pagerNavEl.parentElement;
 		if (!shell) return;
 		const overflow = shell.scrollWidth > shell.clientWidth + 1;
 		const nextCentered = !overflow;
@@ -812,6 +903,13 @@
 
 		const onResize = () => schedulePagerNavAlignment();
 		window.addEventListener('resize', onResize, { passive: true });
+		const navShell = pagerNavShellEl;
+		navShell?.addEventListener('pointerdown', handleNavPointerDown);
+		navShell?.addEventListener('pointermove', handleNavPointerMove);
+		navShell?.addEventListener('pointerup', endNavPointerDrag);
+		navShell?.addEventListener('pointercancel', endNavPointerDrag);
+		navShell?.addEventListener('lostpointercapture', endNavPointerDrag);
+		navShell?.addEventListener('click', handleNavClickCapture, true);
 
 		// Mobile touch swipe listeners for horizontal page navigation.
 		// Passive listeners keep native vertical scroll off the JS critical path.
@@ -836,6 +934,13 @@
 			window.removeEventListener('hashchange', onHashChange);
 			window.removeEventListener('resize', onResize);
 			window.removeEventListener('storage', onStorage);
+			navShell?.removeEventListener('pointerdown', handleNavPointerDown);
+			navShell?.removeEventListener('pointermove', handleNavPointerMove);
+			navShell?.removeEventListener('pointerup', endNavPointerDrag);
+			navShell?.removeEventListener('pointercancel', endNavPointerDrag);
+			navShell?.removeEventListener('lostpointercapture', endNavPointerDrag);
+			navShell?.removeEventListener('click', handleNavClickCapture, true);
+			navShell?.classList.remove('is-dragging');
 			document.body.classList.remove('is-touch-scrolling');
 			touchScrollingActive = false;
 			detachActiveScroller();
@@ -959,7 +1064,7 @@
 	onpointercancel={handlePointerUp}
 	use:passiveWheel
 >
-	<div class="pager-nav-shell">
+	<div class="pager-nav-shell" bind:this={pagerNavShellEl}>
 		<nav
 			bind:this={pagerNavEl}
 			class="pager-nav"

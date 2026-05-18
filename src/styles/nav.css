@@ -158,6 +158,17 @@ html[data-performance-tier='high'] :is(.hero-content, .bmi-card) {
 		opacity var(--dur-content) ease,
 		transform var(--dur-content) ease;
 	touch-action: pan-x pinch-zoom;
+	cursor: grab;
+}
+
+.pager-nav-shell.is-dragging {
+	cursor: grabbing;
+	user-select: none;
+}
+
+.pager-nav-shell.is-dragging .pager-tab {
+	cursor: grabbing;
+	pointer-events: none;
 }
 
 .pager-nav-shell::-webkit-scrollbar {
