@@ -471,8 +471,8 @@
 	}
 
 	.sparkline-container {
-		background: var(--sd-40);
-		border: 1px solid var(--sg-10);
+		background: var(--sd-80);
+		border: 1px solid var(--sg-16);
 		border-radius: var(--container-radius);
 		padding: 0.9rem 0.75rem 0.75rem;
 		margin-top: 1rem;

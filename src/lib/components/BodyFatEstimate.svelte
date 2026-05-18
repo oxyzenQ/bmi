@@ -383,8 +383,8 @@
 		align-items: flex-start;
 		gap: 0.5rem;
 		padding: 0.75rem 1rem;
-		background: var(--cat-blue-8);
-		border: 1px solid var(--cat-blue-15);
+		background: linear-gradient(180deg, var(--sd-80), var(--cat-blue-15));
+		border: 1px solid var(--cat-blue-30);
 		border-radius: var(--control-radius);
 		margin-bottom: 1.25rem;
 		font-size: 0.78rem;
@@ -404,9 +404,9 @@
 
 	.bf-ranges {
 		padding: 1rem;
-		background: var(--sd-40);
+		background: var(--sd-80);
 		border-radius: var(--control-radius);
-		border: 1px solid var(--sg-10);
+		border: 1px solid var(--sg-16);
 	}
 
 	.bf-ranges h4 {

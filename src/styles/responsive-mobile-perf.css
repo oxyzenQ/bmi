@@ -298,8 +298,8 @@
 			.sparkline-container,
 			.scale-item
 		) {
-		background: rgba(0, 0, 0, 0.62) !important;
-		border-color: rgba(255, 255, 255, 0.075) !important;
+		background: rgba(0, 0, 0, 0.72) !important;
+		border-color: rgba(255, 255, 255, 0.09) !important;
 		-webkit-backdrop-filter: none !important;
 		backdrop-filter: none !important;
 	}

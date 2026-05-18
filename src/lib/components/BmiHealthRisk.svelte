@@ -312,29 +312,29 @@
 		gap: 1rem;
 		padding: 1.25rem;
 		border-radius: var(--radius-lg);
-		background: var(--sd-60);
-		border: 1px solid var(--sg-10);
+		background: var(--sd-80);
+		border: 1px solid var(--sg-16);
 		margin-bottom: 1.5rem;
 	}
 
 	.risk-result.risk-low {
 		border-color: var(--cat-green-30);
-		background: var(--cat-green-8);
+		background: linear-gradient(180deg, var(--sd-80), var(--cat-green-15));
 	}
 
 	.risk-result.risk-moderate {
 		border-color: var(--cat-blue-30);
-		background: var(--cat-blue-8);
+		background: linear-gradient(180deg, var(--sd-80), var(--cat-blue-15));
 	}
 
 	.risk-result.risk-elevated {
 		border-color: var(--cat-yellow-30);
-		background: var(--cat-yellow-8);
+		background: linear-gradient(180deg, var(--sd-80), rgba(255, 214, 0, 0.14));
 	}
 
 	.risk-result.risk-high {
 		border-color: var(--cat-red-30);
-		background: var(--cat-red-8);
+		background: linear-gradient(180deg, var(--sd-80), var(--cat-red-15));
 	}
 
 	.risk-icon {
@@ -386,9 +386,9 @@
 
 	.health-tips {
 		padding: 1.25rem;
-		background: var(--sd-40);
+		background: var(--sd-80);
 		border-radius: var(--radius-lg);
-		border: 1px solid var(--sg-10);
+		border: 1px solid var(--sg-16);
 	}
 
 	.health-tips h4 {

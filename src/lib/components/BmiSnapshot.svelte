@@ -279,8 +279,8 @@
 	}
 
 	.snapshot-card {
-		background: var(--sd-60);
-		border: 1px solid var(--sg-15);
+		background: var(--sd-80);
+		border: 1px solid var(--sg-16);
 		border-radius: var(--radius-lg);
 		padding: 1.25rem;
 		text-align: center;
@@ -294,22 +294,22 @@
 
 	.snapshot-card.status-underweight {
 		border-color: var(--cat-blue-30);
-		background: var(--cat-blue-8);
+		background: linear-gradient(180deg, var(--sd-80), var(--cat-blue-15));
 	}
 
 	.snapshot-card.status-normal {
 		border-color: var(--cat-green-30);
-		background: var(--cat-green-8);
+		background: linear-gradient(180deg, var(--sd-80), var(--cat-green-15));
 	}
 
 	.snapshot-card.status-overweight {
 		border-color: var(--cat-yellow-30);
-		background: var(--cat-yellow-8);
+		background: linear-gradient(180deg, var(--sd-80), rgba(255, 214, 0, 0.14));
 	}
 
 	.snapshot-card.status-obese {
 		border-color: var(--cat-red-30);
-		background: var(--cat-red-8);
+		background: linear-gradient(180deg, var(--sd-80), var(--cat-red-15));
 	}
 
 	.snapshot-card.status-unknown {
@@ -318,7 +318,7 @@
 
 	.snapshot-card.target {
 		border-color: var(--cat-green-30);
-		background: var(--cat-green-8);
+		background: linear-gradient(180deg, var(--sd-80), var(--cat-green-15));
 	}
 
 	.card-label {
@@ -347,8 +347,8 @@
 	}
 
 	.progress-section {
-		background: var(--sd-40);
-		border: 1px solid var(--sg-10);
+		background: var(--sd-80);
+		border: 1px solid var(--sg-16);
 		border-radius: var(--radius-lg);
 		padding: 1.5rem;
 	}

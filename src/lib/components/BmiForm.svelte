@@ -913,7 +913,7 @@
 		border: var(--btn-border);
 		border-radius: var(--radius-xl);
 		padding: 3px;
-		background: var(--sd-55);
+		background: var(--sd-80);
 	}
 
 	@media (max-width: 380px) {
