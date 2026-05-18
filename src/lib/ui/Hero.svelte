@@ -30,8 +30,7 @@
 </script>
 
 <header class="hero-section">
-	<div class="hero-background">
-	</div>
+	<div class="hero-background"></div>
 
 	<div class="hero-content" class:animate>
 		<div class="hero-avatar" aria-hidden="true">

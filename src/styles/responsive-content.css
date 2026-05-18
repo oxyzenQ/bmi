@@ -47,15 +47,18 @@
 .health-advice,
 .age-advisory,
 .bmi-explanation,
+.goal-stat {
+	border-radius: var(--container-radius) !important;
+}
+
 .snapshot-card,
 .progress-section,
 .sparkline-container,
 .risk-result,
 .health-tips,
 .bf-info-box,
-.bf-ranges,
-.goal-stat {
-	border-radius: var(--container-radius) !important;
+.bf-ranges {
+	border-radius: var(--radius-lg) !important;
 }
 
 .reference-table .ref-header {

@@ -212,6 +212,7 @@
 	let navDragStartScrollLeft = 0;
 	let navDidDrag = false;
 	let suppressNextNavClick = false;
+	let suppressNextNavClickTimer: ReturnType<typeof setTimeout> | null = null;
 	const NAV_DRAG_THRESHOLD = 6;
 
 	// Auto-hide navbar state
@@ -457,12 +458,6 @@
 		navDragStartX = event.clientX;
 		navDragStartScrollLeft = shell.scrollLeft;
 		navDidDrag = false;
-
-		try {
-			shell.setPointerCapture(event.pointerId);
-		} catch (err) {
-			warnDevOnce('page', 'handleNavPointerDown', 'Navbar pointer capture failed', err);
-		}
 	}
 
 	function handleNavPointerMove(event: PointerEvent) {
@@ -477,6 +472,12 @@
 			navDidDrag = true;
 			suppressNextNavClick = true;
 			shell.classList.add('is-dragging');
+
+			try {
+				shell.setPointerCapture(event.pointerId);
+			} catch (err) {
+				warnDevOnce('page', 'handleNavPointerMove', 'Navbar pointer capture failed', err);
+			}
 		}
 
 		shell.scrollLeft = navDragStartScrollLeft - dx;
@@ -496,6 +497,13 @@
 		}
 
 		shell?.classList.remove('is-dragging');
+		if (navDidDrag) {
+			if (suppressNextNavClickTimer) clearTimeout(suppressNextNavClickTimer);
+			suppressNextNavClickTimer = setTimeout(() => {
+				suppressNextNavClick = false;
+				suppressNextNavClickTimer = null;
+			}, 220);
+		}
 		navDragPointerId = null;
 		navDidDrag = false;
 	}
@@ -950,6 +958,7 @@
 			if (scrollRafId !== null) cancelAnimationFrame(scrollRafId);
 			if (scrollTimeout !== null) clearTimeout(scrollTimeout);
 			if (touchScrollModeTimeout !== null) clearTimeout(touchScrollModeTimeout);
+			if (suppressNextNavClickTimer !== null) clearTimeout(suppressNextNavClickTimer);
 		};
 	});
 

@@ -260,7 +260,7 @@ p {
 
 	.snapshot-card {
 		padding: 0.85rem 0.5rem;
-		border-radius: 0.75rem;
+		border-radius: var(--radius-lg);
 	}
 
 	.card-value {
@@ -269,13 +269,13 @@ p {
 
 	.progress-section {
 		padding: 1rem;
-		border-radius: 0.75rem;
+		border-radius: var(--radius-lg);
 	}
 
 	/* Sparkline compact */
 	.sparkline-container {
 		padding: 0.625rem 0.4rem;
-		border-radius: var(--container-radius);
+		border-radius: var(--radius-lg);
 	}
 
 	.interactive-chart {
@@ -290,7 +290,7 @@ p {
 	/* Health risk compact */
 	.health-tips {
 		padding: 0.85rem;
-		border-radius: 0.75rem;
+		border-radius: var(--radius-lg);
 	}
 
 	.health-tips h4 {

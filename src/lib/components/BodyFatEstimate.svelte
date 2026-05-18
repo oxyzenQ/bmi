@@ -385,7 +385,7 @@
 		padding: 0.75rem 1rem;
 		background: linear-gradient(180deg, var(--sd-80), var(--cat-blue-15));
 		border: 1px solid var(--cat-blue-30);
-		border-radius: var(--control-radius);
+		border-radius: var(--radius-lg);
 		margin-bottom: 1.25rem;
 		font-size: 0.78rem;
 		color: var(--slate-400-solid);
@@ -405,7 +405,7 @@
 	.bf-ranges {
 		padding: 1rem;
 		background: var(--sd-80);
-		border-radius: var(--control-radius);
+		border-radius: var(--radius-lg);
 		border: 1px solid var(--sg-16);
 	}
 

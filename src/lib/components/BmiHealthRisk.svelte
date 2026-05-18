@@ -1,6 +1,12 @@
 <!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
 <script lang="ts">
-	import { Shield, AlertTriangle, Activity, Heart, HeartPulse } from 'lucide-svelte';
+	import {
+		ShieldQuestion as ShieldQuestionMark,
+		AlertTriangle,
+		Activity,
+		Heart,
+		HeartPulse
+	} from 'lucide-svelte';
 	import { COLORS } from '$lib/utils/bmi-category';
 	import { t as _t, localeVersion } from '$lib/i18n';
 	let _rv = $derived($localeVersion);
@@ -21,7 +27,7 @@
 		label: string;
 		color: string;
 		bgClass: string;
-		icon: typeof Shield;
+		icon: typeof ShieldQuestionMark;
 		description: string;
 		position: number; // 0-100 for meter position
 	}
@@ -32,7 +38,7 @@
 				label: t('risk.unknown'),
 				color: COLORS.SLATE,
 				bgClass: 'risk-unknown',
-				icon: Shield,
+				icon: ShieldQuestionMark,
 				description: t('risk.calc_first'),
 				position: 50
 			};
@@ -165,7 +171,7 @@
 			</ul>
 		{:else}
 			<div class="empty-health-risk">
-				<Shield size={28} style="opacity:0.3; margin-bottom:0.5rem" />
+				<ShieldQuestionMark size={28} style="opacity:0.3; margin-bottom:0.5rem" />
 				<p class="no-data">{t('risk.empty')}</p>
 			</div>
 		{/if}

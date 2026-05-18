@@ -65,27 +65,27 @@
      Real backdrop blur is expensive on touch scroll. Use a simple
      translucent black surface with the shared border/radius so it still
      reads as glass without paying the per-frame blur cost. */
-.hero-content,
-.form-card,
-.bmi-card,
-.footer-disclaimer,
-.pwa-install-card,
-.github-footer,
-.about-card,
-.gauge-container,
-.goal-tracker,
-.section-header-v2,
-.reference-table,
-.stat-block,
-.tdee-card,
-.health-advice,
-.age-advisory,
-.bmi-explanation {
-	background: var(--sd-80) !important;
-	-webkit-backdrop-filter: none !important;
-	backdrop-filter: none !important;
-	border: var(--container-glass-border) !important;
-	border-radius: var(--container-radius, var(--radius-lg)) !important;
+	.hero-content,
+	.form-card,
+	.bmi-card,
+	.footer-disclaimer,
+	.pwa-install-card,
+	.github-footer,
+	.about-card,
+	.gauge-container,
+	.goal-tracker,
+	.section-header-v2,
+	.reference-table,
+	.stat-block,
+	.tdee-card,
+	.health-advice,
+	.age-advisory,
+	.bmi-explanation {
+		background: var(--sd-80) !important;
+		-webkit-backdrop-filter: none !important;
+		backdrop-filter: none !important;
+		border: var(--container-glass-border) !important;
+		border-radius: var(--container-radius, var(--radius-lg)) !important;
 	}
 
 	.stat-block,
