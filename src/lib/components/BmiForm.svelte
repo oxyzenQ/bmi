@@ -926,6 +926,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		justify-content: center;
 		gap: 0.1rem;
 		padding: 0.4rem 0.25rem;
 		border: none;
@@ -936,7 +937,8 @@
 		transition:
 			background var(--dur-interactive) ease,
 			color var(--dur-interactive) ease;
-		white-space: nowrap;
+		min-width: 0;
+		white-space: normal;
 	}
 
 	.act-btn:hover {
@@ -953,6 +955,9 @@
 		font-size: 0.7rem;
 		font-weight: 600;
 		letter-spacing: 0.01em;
+		line-height: 1.15;
+		text-align: center;
+		overflow-wrap: anywhere;
 	}
 
 	.act-factor {

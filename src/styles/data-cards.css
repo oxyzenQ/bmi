@@ -637,7 +637,7 @@
 
 .reference-table .ref-header {
 	display: grid;
-	grid-template-columns: 1.2fr 0.9fr 1.1fr 1.3fr;
+	grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 1.1fr) minmax(0, 1.3fr);
 	gap: 0.75rem;
 	align-items: center;
 	padding: 1.25rem 1.25rem;
@@ -652,13 +652,22 @@
 	border-right: 3px solid rgba(130, 130, 130, 0.3);
 }
 
+.reference-table .ref-header > div,
+.reference-table .ref-col,
+.reference-table .ref-col > *,
+.reference-table .status-text {
+	min-width: 0;
+	max-width: 100%;
+	overflow-wrap: anywhere;
+}
+
 .reference-table .ref-body {
 	display: grid;
 }
 
 .reference-table .ref-row {
 	display: grid;
-	grid-template-columns: 1.2fr 0.9fr 1.1fr 1.3fr;
+	grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 1.1fr) minmax(0, 1.3fr);
 	gap: 0.75rem;
 	align-items: start;
 	padding: 0.875rem 1.25rem;
@@ -711,11 +720,13 @@
 
 .reference-table .muted {
 	color: var(--text-muted-slate);
+	overflow-wrap: anywhere;
 }
 
 .reference-table .icon-col {
 	display: inline-flex;
 	align-items: center;
+	flex-wrap: wrap;
 	gap: 0.5rem;
 	color: var(--blue-300-solid);
 	filter: drop-shadow(0 0 8px var(--blue-35));

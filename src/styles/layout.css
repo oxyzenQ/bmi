@@ -315,6 +315,16 @@
 	}
 }
 
+@media (max-width: 480px) {
+	.pwa-install-action,
+	.pwa-install-status {
+		justify-content: center;
+		max-width: 100%;
+		text-align: center;
+		white-space: normal;
+	}
+}
+
 @media (max-width: 1120px) {
 	.footer-disclaimer {
 		margin-left: 50px;

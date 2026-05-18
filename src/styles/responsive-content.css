@@ -71,6 +71,13 @@
 	border-bottom-right-radius: var(--container-radius) !important;
 }
 
+@media (max-width: 600px) {
+	.reference-table .ref-row,
+	.reference-table .ref-row.ref-row-obese {
+		border-radius: var(--radius-lg) !important;
+	}
+}
+
 /* ═══════════════════════════════════════════════════════════════
    TEXT WRAPPING — resilient under large font sizes / zoom
    ═══════════════════════════════════════════════════════════════ */

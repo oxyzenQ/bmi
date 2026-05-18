@@ -324,8 +324,8 @@
 	}
 }
 
-/* Media queries: compact phones (<=520px) */
-@media (max-width: 520px) {
+/* Media queries: compact phones (<=600px) */
+@media (max-width: 600px) {
 	.reference-table .ref-header {
 		display: none;
 	}
@@ -334,7 +334,7 @@
 		grid-template-columns: 1fr;
 		gap: 0.75rem;
 		padding: 0.85rem 1rem;
-		border-radius: 12px;
+		border-radius: var(--radius-lg);
 		border-top: 3px solid rgba(130, 130, 130, 0.3);
 	}
 
@@ -350,11 +350,16 @@
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		color: var(--text-muted-slate);
+		overflow-wrap: anywhere;
 	}
 
 	.reference-table .muted {
 		font-size: 0.85rem;
 		line-height: 1.4;
+	}
+
+	.reference-table .icon-col {
+		align-items: flex-start;
 	}
 }
 
