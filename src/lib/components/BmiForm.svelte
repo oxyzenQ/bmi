@@ -995,12 +995,12 @@
 
 	@media (hover: none) and (pointer: coarse) {
 		:global(#calculator .form-card) {
-			min-height: auto !important;
-			overflow: visible !important;
-			contain: none !important;
-			background: var(--sd-80) !important;
-			-webkit-backdrop-filter: none !important;
-			backdrop-filter: none !important;
+			min-height: auto;
+			overflow: visible;
+			contain: none;
+			background: var(--sd-80);
+			-webkit-backdrop-filter: none;
+			backdrop-filter: none;
 			touch-action: pan-y pinch-zoom;
 		}
 

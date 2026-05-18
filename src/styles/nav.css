@@ -128,7 +128,6 @@ html[data-performance-tier='high'] :is(.hero-content, .bmi-card) {
 	scroll-behavior: auto;
 	scrollbar-width: none;
 	white-space: nowrap;
-	touch-action: pan-x pinch-zoom;
 
 	/* Override shared contain — layout containment blocks scroll */
 	contain: paint style;

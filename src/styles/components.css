@@ -23,11 +23,11 @@
 .health-advice,
 .age-advisory,
 .bmi-explanation {
-	background: var(--sd-80);
-	-webkit-backdrop-filter: var(--container-glass-filter);
-	backdrop-filter: var(--container-glass-filter);
-	border: var(--container-glass-border);
-	border-radius: var(--container-radius, var(--radius-lg));
+	background: var(--container-glass-bg) !important;
+	-webkit-backdrop-filter: var(--container-glass-filter) !important;
+	backdrop-filter: var(--container-glass-filter) !important;
+	border: var(--container-glass-border) !important;
+	border-radius: var(--container-radius, var(--radius-lg)) !important;
 	transition:
 		transform var(--dur-slow) var(--easing-smooth),
 		border-color var(--dur-slow) var(--easing-smooth);

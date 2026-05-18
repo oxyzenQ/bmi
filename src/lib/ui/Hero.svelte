@@ -31,7 +31,6 @@
 
 <header class="hero-section">
 	<div class="hero-background">
-		<!-- Bubbles and orbs removed for cleaner performance -->
 	</div>
 
 	<div class="hero-content" class:animate>

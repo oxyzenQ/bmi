@@ -65,20 +65,27 @@
      Real backdrop blur is expensive on touch scroll. Use a simple
      translucent black surface with the shared border/radius so it still
      reads as glass without paying the per-frame blur cost. */
-	.hero-content,
-	.form-card,
-	.bmi-card,
-	.about-card,
-	.gauge-container,
-	.reference-table,
-	.goal-tracker,
-	.footer-disclaimer,
-	.pwa-install-card,
-	.github-footer,
-	.section-header-v2 {
-		background: var(--sd-80) !important;
-		-webkit-backdrop-filter: none !important;
-		backdrop-filter: none !important;
+.hero-content,
+.form-card,
+.bmi-card,
+.footer-disclaimer,
+.pwa-install-card,
+.github-footer,
+.about-card,
+.gauge-container,
+.goal-tracker,
+.section-header-v2,
+.reference-table,
+.stat-block,
+.tdee-card,
+.health-advice,
+.age-advisory,
+.bmi-explanation {
+	background: var(--sd-80) !important;
+	-webkit-backdrop-filter: none !important;
+	backdrop-filter: none !important;
+	border: var(--container-glass-border) !important;
+	border-radius: var(--container-radius, var(--radius-lg)) !important;
 	}
 
 	.stat-block,
@@ -293,30 +300,6 @@
 
 	#gauge .sparkline-container {
 		touch-action: pan-y pinch-zoom !important;
-	}
-
-	#gauge
-		:is(
-			.gauge-container,
-			.risk-result,
-			.health-tips,
-			.snapshot-card,
-			.progress-section,
-			.insight-item,
-			.body-fat-container,
-			.bf-info-box,
-			.bf-ranges,
-			.range-row,
-			.goal-stat,
-			.goal-progress,
-			.goal-achieved,
-			.sparkline-container,
-			.scale-item
-		) {
-		background: var(--sd-80) !important;
-		border-color: var(--sg-16) !important;
-		-webkit-backdrop-filter: none !important;
-		backdrop-filter: none !important;
 	}
 
 	#gauge .gauge-container {
@@ -612,11 +595,6 @@
 	.reference-table::after,
 	.form-card::after {
 		display: none !important;
-	}
-
-	/* Simplify .orb blur on touch. */
-	.orb {
-		filter: blur(4px) !important;
 	}
 
 	/* GPU compositing isolation on pager-shell.

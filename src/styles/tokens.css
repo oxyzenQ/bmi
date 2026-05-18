@@ -98,7 +98,6 @@
 	--dur-breathe: 2s; /* skeleton breathing pulse */
 	--dur-spin: 1.6s; /* loading spinner full rotation */
 	--dur-spin-fast: 0.8s; /* button spinner rotation */
-	--dur-dust-orbit: 30s; /* atmospheric dust orbital drift (default) */
 
 	/* ── Opacity token system ── */
 
@@ -276,10 +275,10 @@
 	--cat-green-8: rgba(0, 200, 83, 0.08);
 	--cat-green-10: rgba(0, 200, 83, 0.1);
 	--cat-green-15: rgba(0, 200, 83, 0.15);
-	--cat-green-20: rgba(0, 200, 83, 0.2);
+	--cat-green-21: rgba(0, 200, 83, 0.2);
 	--cat-green-30: rgba(0, 200, 83, 0.3);
 	--cat-green-32: rgba(0, 200, 83, 0.32);
-	--cat-green-40: rgba(0, 200, 83, 0.4);
+	--cat-green-41: rgba(0, 200, 83, 0.4);
 	--cat-green-90: rgba(0, 200, 83, 0.9);
 	--cat-green-95: rgba(0, 200, 83, 0.95);
 
