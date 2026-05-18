@@ -998,7 +998,7 @@
 			min-height: auto !important;
 			overflow: visible !important;
 			contain: none !important;
-			background: rgba(0, 0, 0, 0.64) !important;
+			background: var(--sd-80) !important;
 			-webkit-backdrop-filter: none !important;
 			backdrop-filter: none !important;
 			touch-action: pan-y pinch-zoom;

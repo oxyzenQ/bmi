@@ -58,7 +58,7 @@ html[data-performance-tier='high'] :is(.hero-content, .bmi-card) {
 	border: 1px solid transparent;
 	-webkit-tap-highlight-color: transparent;
 	user-select: none;
-	touch-action: manipulation;
+	touch-action: pan-x pinch-zoom;
 	transition:
 		opacity var(--dur-interactive) ease,
 		background var(--dur-interactive) ease,
@@ -157,7 +157,7 @@ html[data-performance-tier='high'] :is(.hero-content, .bmi-card) {
 	transition:
 		opacity var(--dur-content) ease,
 		transform var(--dur-content) ease;
-	touch-action: manipulation;
+	touch-action: pan-x pinch-zoom;
 }
 
 .pager-nav-shell::-webkit-scrollbar {

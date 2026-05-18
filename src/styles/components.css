@@ -23,7 +23,7 @@
 .health-advice,
 .age-advisory,
 .bmi-explanation {
-	background: var(--container-glass-bg);
+	background: var(--sd-80);
 	-webkit-backdrop-filter: var(--container-glass-filter);
 	backdrop-filter: var(--container-glass-filter);
 	border: var(--container-glass-border);

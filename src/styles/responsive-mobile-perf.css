@@ -74,7 +74,7 @@
 	.footer-disclaimer,
 	.github-footer,
 	.section-header-v2 {
-		background: rgba(0, 0, 0, 0.64) !important;
+		background: var(--sd-80) !important;
 		-webkit-backdrop-filter: none !important;
 		backdrop-filter: none !important;
 	}
@@ -235,14 +235,14 @@
 			.age-advisory,
 			.bmi-explanation
 		) {
-		background: rgba(255, 255, 255, 0.045) !important;
-		border-color: rgba(255, 255, 255, 0.075) !important;
+		background: var(--sd-80) !important;
+		border-color: var(--sg-16) !important;
 		-webkit-backdrop-filter: none !important;
 		backdrop-filter: none !important;
 	}
 
 	#calculator :is(.tdee-highlight, .tdee-cut, .tdee-maintain, .tdee-gain) {
-		background: rgba(255, 255, 255, 0.055) !important;
+		background: var(--sd-80) !important;
 	}
 
 	.about-section-block,
@@ -302,8 +302,8 @@
 			.sparkline-container,
 			.scale-item
 		) {
-		background: rgba(0, 0, 0, 0.72) !important;
-		border-color: rgba(255, 255, 255, 0.09) !important;
+		background: var(--sd-80) !important;
+		border-color: var(--sg-16) !important;
 		-webkit-backdrop-filter: none !important;
 		backdrop-filter: none !important;
 	}
@@ -438,7 +438,15 @@
 	a.button {
 		transition: none !important;
 		transition-delay: 0ms !important;
+		-webkit-backdrop-filter: none !important;
+		backdrop-filter: none !important;
+		transform: none !important;
 		touch-action: manipulation !important;
+	}
+
+	.pager-nav-shell,
+	.pager-nav-shell :is(.pager-nav, .pager-tab) {
+		touch-action: pan-x pinch-zoom !important;
 	}
 
 	/* Mobile tap response: force immediate active feedback on all
@@ -521,7 +529,7 @@
 
 	/* Buttons stay solid for tap responsiveness. */
 	.pager-nav-shell {
-		background: rgba(0, 0, 0, 0.58) !important;
+		background: var(--sd-80) !important;
 		-webkit-backdrop-filter: none !important;
 		backdrop-filter: none !important;
 		transition: none !important;
@@ -560,7 +568,7 @@
 	.pager-tab {
 		transition: none !important;
 		transform: none !important;
-		touch-action: manipulation;
+		touch-action: pan-x pinch-zoom !important;
 	}
 
 	.pager-tab:hover,
