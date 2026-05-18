@@ -14,6 +14,12 @@
   <a href="docs/furthermore.md">Further Docs</a>
 </p>
 
+<p align="center">
+  <a href="https://ko-fi.com/rezky">
+    <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support me on Ko-fi" />
+  </a>
+</p>
+
 ---
 
 ## What It Does
@@ -86,6 +92,16 @@ The canonical version starts in `package.json`. Use `scripts/bmi-update-version.
 - Argon2id is the primary key derivation function.
 - PBKDF2 backup imports remain supported for older exports.
 - Passphrases are never stored.
+
+## Support
+
+BMI Stellar is an open-source project built and maintained independently.
+
+If this project helped you, inspired your own app, or saved development time, you can support future maintenance here:
+
+[![Support me on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/rezky)
+
+Support is optional. The project remains open-source.
 
 ## License
 
