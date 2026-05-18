@@ -472,7 +472,7 @@ const ja: TranslationDict = {
 	'share.height_line': '\u8eab\u9577: {n} {unit}',
 	'share.tdee_line': 'TDEE: {n} kcal/\u65e5',
 	'share.footer': 'BMI Stellar \u3067\u8a08\u7b97',
-	'share.card_header': 'BMI STELLAR',
+	'share.card_header': 'BMI Stellar',
 	'share.card_prime': 'BMI Prime',
 	'share.card_ideal': '\u7406\u60f3\u7bc4\u56f2',
 	'share.card_tdee': 'TDEE',

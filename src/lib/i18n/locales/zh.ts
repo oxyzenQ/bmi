@@ -448,7 +448,7 @@ const zh: TranslationDict = {
 	'share.height_line': '\u8eab\u9ad8: {n} {unit}',
 	'share.tdee_line': 'TDEE: {n} \u5343\u5361/\u5929',
 	'share.footer': '\u7531 BMI Stellar \u8ba1\u7b97',
-	'share.card_header': 'BMI STELLAR',
+	'share.card_header': 'BMI Stellar',
 	'share.card_prime': 'BMI Prime',
 	'share.card_ideal': '\u7406\u60f3\u8303\u56f4',
 	'share.card_tdee': 'TDEE',

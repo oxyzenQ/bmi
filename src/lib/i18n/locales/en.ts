@@ -419,7 +419,7 @@ const en: TranslationDict = {
 	'share.height_line': 'Height: {n} {unit}',
 	'share.tdee_line': 'TDEE: {n} kcal/day',
 	'share.footer': 'Calculated with BMI Stellar',
-	'share.card_header': 'BMI STELLAR',
+	'share.card_header': 'BMI Stellar',
 	'share.card_prime': 'BMI Prime',
 	'share.card_ideal': 'Ideal Range',
 	'share.card_tdee': 'TDEE',

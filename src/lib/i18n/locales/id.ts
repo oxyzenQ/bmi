@@ -420,7 +420,7 @@ const id: TranslationDict = {
 	'share.height_line': 'Tinggi: {n} {unit}',
 	'share.tdee_line': 'TDEE: {n} kkal/hari',
 	'share.footer': 'Dihitung dengan BMI Stellar',
-	'share.card_header': 'BMI STELLAR',
+	'share.card_header': 'BMI Stellar',
 	'share.card_prime': 'BMI Prime',
 	'share.card_ideal': 'Rentang Ideal',
 	'share.card_tdee': 'TDEE',
