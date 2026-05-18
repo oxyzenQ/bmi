@@ -906,7 +906,7 @@
 	/* Activity level grid */
 	.activity-grid {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 6.5rem), 1fr));
 		gap: 0.35rem;
 		width: 100%;
 		max-width: 320px;
@@ -914,12 +914,6 @@
 		border-radius: var(--radius-xl);
 		padding: 3px;
 		background: var(--sd-80);
-	}
-
-	@media (max-width: 380px) {
-		.activity-grid {
-			grid-template-columns: repeat(2, 1fr);
-		}
 	}
 
 	.act-btn {

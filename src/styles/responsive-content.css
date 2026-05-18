@@ -398,23 +398,6 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   EMERGENCY TINY SCREEN (<= 360px) — only essentials
-   ═══════════════════════════════════════════════════════════════ */
-@media (max-width: 360px) {
-	.form-card,
-	.bmi-card,
-	.about-card,
-	.main-container .section-header-v2,
-	.footer-disclaimer {
-		padding: 0.875rem;
-	}
-
-	.hero-content {
-		padding: 1.25rem 1rem;
-	}
-}
-
-/* ═══════════════════════════════════════════════════════════════
    ZERO SHADOW POLICY
    No box-shadow anywhere. Depth comes from surface color, border, and gradient.
    Keep this as the last rule in the last CSS file.

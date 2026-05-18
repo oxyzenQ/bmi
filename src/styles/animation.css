@@ -538,17 +538,20 @@ a.button {
 .bmi-encryption-badge {
 	display: inline-flex;
 	align-items: center;
+	flex-wrap: wrap;
+	justify-content: center;
 	gap: var(--space-2);
+	max-width: 100%;
 	padding: var(--space-1) var(--space-3);
 	background: var(--violet-12);
 	border: 1px solid var(--violet-22);
 	border-radius: var(--radius-pill);
-	font-size: 0.7rem;
+	font-size: clamp(0.65rem, 1vw, 0.7rem);
 	font-weight: 600;
 	color: var(--aurora-glow);
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
-	white-space: nowrap;
+	white-space: normal;
 	transition:
 		background var(--dur-fast) var(--easing-smooth),
 		border-color var(--dur-fast) var(--easing-smooth);
@@ -580,25 +583,6 @@ a.button {
 	color: var(--aurora-glow);
 	font-family: var(--font-mono-short);
 	font-size: 0.6rem;
-}
-
-/* ── Encryption badge: compact phones ── */
-@media (max-width: 400px) {
-	.bmi-encryption-badge {
-		flex-wrap: wrap;
-		white-space: normal;
-		justify-content: center;
-		gap: var(--space-1) var(--space-2);
-		max-width: 100%;
-	}
-
-	.bmi-encryption-badge__label {
-		font-size: 0.65rem;
-	}
-
-	.bmi-encryption-badge__algo {
-		font-size: 0.55rem;
-	}
 }
 
 /* ==============================
