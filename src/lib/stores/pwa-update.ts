@@ -42,6 +42,7 @@ const initialState: PwaUpdateState = {
 let registrationRef: ServiceWorkerRegistration | null = null;
 let updateCheckInFlight: Promise<void> | null = null;
 const boundRegistrations = new WeakSet<ServiceWorkerRegistration>();
+let controllerChangeHandler: (() => void) | null = null;
 
 export const pwaUpdateState = writable<PwaUpdateState>(initialState);
 
@@ -201,14 +202,21 @@ export function applyPwaUpdate(): void {
 
 	const waiting = registrationRef?.waiting;
 	if (waiting) {
+		/* Remove any previous controllerchange listener to prevent
+                   double-reload from accumulated handlers on repeated calls. */
+		if (controllerChangeHandler) {
+			navigator.serviceWorker.removeEventListener('controllerchange', controllerChangeHandler);
+		}
+
 		/* Listen for the new SW taking control before reloading.
                    This avoids a race where reload fires before the new SW activates,
                    causing the page to load with stale code and requiring a second tap. */
 		let controllerChanged = false;
-		navigator.serviceWorker.addEventListener('controllerchange', () => {
+		controllerChangeHandler = () => {
 			controllerChanged = true;
 			window.location.reload();
-		});
+		};
+		navigator.serviceWorker.addEventListener('controllerchange', controllerChangeHandler);
 
 		waiting.postMessage({ type: 'SKIP_WAITING' });
 

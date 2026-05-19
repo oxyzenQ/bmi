@@ -20,6 +20,8 @@
 	let open = $state(false);
 	let visible = $state(false);
 	let mounted = $state(false);
+	let panelEl: HTMLDivElement | undefined = $state(undefined);
+	let focusTrapHandler: ((e: KeyboardEvent) => void) | null = null;
 
 	function handleToggle() {
 		open = !open;
@@ -45,6 +47,25 @@
 		if (e.key === 'Escape') {
 			e.preventDefault();
 			closePanel();
+			return;
+		}
+		// Tab focus trap — prevents focus from escaping the dialog
+		if (e.key === 'Tab' && panelEl) {
+			const focusable = Array.from(
+				panelEl.querySelectorAll<HTMLElement>(
+					'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+				)
+			).filter((el) => !el.hasAttribute('disabled') && el.tabIndex >= 0);
+			if (focusable.length === 0) return;
+			const first = focusable[0];
+			const last = focusable[focusable.length - 1];
+			if (e.shiftKey && document.activeElement === first) {
+				e.preventDefault();
+				last.focus();
+			} else if (!e.shiftKey && document.activeElement === last) {
+				e.preventDefault();
+				first.focus();
+			}
 		}
 	}
 
@@ -55,6 +76,11 @@
 	onDestroy(() => {
 		// Clean up the closePanel timeout to prevent state updates after unmount
 		if (closePanelTimer) clearTimeout(closePanelTimer);
+		// Remove focus trap listener if still active
+		if (focusTrapHandler) {
+			document.removeEventListener('keydown', focusTrapHandler);
+			focusTrapHandler = null;
+		}
 	});
 
 	// Sync visibility with open state (with animation delay)
@@ -88,7 +114,13 @@
 
 {#if open}
 	<div use:portal class="lang-backdrop" class:visible role="presentation">
-		<div class="lang-panel" role="dialog" aria-label={t('lang.select')} tabindex="-1">
+		<div
+			bind:this={panelEl}
+			class="lang-panel"
+			role="dialog"
+			aria-label={t('lang.select')}
+			tabindex="-1"
+		>
 			<button type="button" class="lang-close" onclick={closePanel} aria-label={t('lang.close')}>
 				<span class="close-icon-text" aria-hidden="true">×</span>
 			</button>

@@ -168,7 +168,7 @@
 
 	// Handle focus trap when visible changes
 	$effect(() => {
-		if (!visible || !backdropEl) {
+		if (!visible || !backdropEl || !backdropEl.isConnected) {
 			if (focusTrapHandler) {
 				document.removeEventListener('keydown', focusTrapHandler);
 				focusTrapHandler = null;
@@ -300,7 +300,8 @@
 				{#if mode === 'export'}
 					<EncryptionTrustMeta
 						badgeLabel={t('crypto.encryption_badge')}
-						strongWarningHtml={t('crypto.strong_warning')}
+						warningLabel={t('crypto.strong_warning')}
+						warningHighlight={t('crypto.strong_warning_highlight')}
 					/>
 				{/if}
 

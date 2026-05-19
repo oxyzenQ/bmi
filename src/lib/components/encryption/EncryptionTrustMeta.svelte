@@ -4,10 +4,11 @@
 
 	interface Props {
 		badgeLabel: string;
-		strongWarningHtml: string;
+		warningLabel: string;
+		warningHighlight?: string;
 	}
 
-	let { badgeLabel, strongWarningHtml }: Props = $props();
+	let { badgeLabel, warningLabel, warningHighlight = '' }: Props = $props();
 </script>
 
 <div class="encrypt-meta">
@@ -18,7 +19,9 @@
 	</div>
 	<div class="bmi-strong-warning">
 		<span class="bmi-strong-warning__icon"><AlertCircle size={16} /></span>
-		<span class="bmi-strong-warning__text">{@html strongWarningHtml}</span>
+		<span class="bmi-strong-warning__text"
+			>{warningLabel}{#if warningHighlight}<strong> {warningHighlight}</strong>{/if}</span
+		>
 	</div>
 </div>
 

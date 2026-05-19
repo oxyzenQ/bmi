@@ -178,7 +178,8 @@ const id: TranslationDict = {
 	// ── Stellar v15: Trust & Transparency ──
 	'crypto.encryption_badge': 'Backup terenkripsi passphrase',
 	'crypto.strong_warning':
-		'<strong>Jangan sampai lupa passphrase Anda.</strong> Tidak dapat dipulihkan. Tanpa passphrase, backup terenkripsi Anda akan tidak dapat diakses secara permanen.',
+		'Tidak dapat dipulihkan. Tanpa passphrase, backup terenkripsi Anda akan tidak dapat diakses secara permanen.',
+	'crypto.strong_warning_highlight': 'Jangan sampai lupa passphrase Anda.',
 	'crypto.export_summary_records': 'Data',
 	'crypto.export_summary_encrypted': 'Enkripsi',
 	'crypto.export_summary_version': 'Format',

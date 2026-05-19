@@ -217,8 +217,8 @@
 	}
 
 	.notify-close:focus-visible {
-		outline: none !important;
-		box-shadow: none !important;
+		outline: 2px solid var(--violet-42, #c4b5fd);
+		outline-offset: 2px;
 	}
 
 	.close-icon-text {

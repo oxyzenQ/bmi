@@ -261,6 +261,7 @@
 	}
 
 	function handleFileInputChange(e: Event) {
+		if (stagingLoading) return; // prevent overlapping import flows
 		const input = e.target as HTMLInputElement;
 		const file = input.files?.[0];
 		if (file) {

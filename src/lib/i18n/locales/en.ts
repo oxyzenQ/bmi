@@ -179,7 +179,8 @@ const en: TranslationDict = {
 	// ── Stellar v15: Trust & Transparency ──
 	'crypto.encryption_badge': 'Passphrase-encrypted backup',
 	'crypto.strong_warning':
-		'<strong>Do not lose your passphrase.</strong> It cannot be recovered. Without it, your encrypted backup is permanently inaccessible.',
+		'It cannot be recovered. Without it, your encrypted backup is permanently inaccessible.',
+	'crypto.strong_warning_highlight': 'Do not lose your passphrase.',
 	'crypto.export_summary_records': 'Records',
 	'crypto.export_summary_encrypted': 'Encryption',
 	'crypto.export_summary_version': 'Format',
