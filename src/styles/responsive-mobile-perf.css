@@ -27,7 +27,6 @@
      Replace with a single brightness reduction to keep wallpaper
      visible without compositor layer promotion. */
 	body::before {
-		opacity: 0.68;
 		filter: none;
 		transform: none;
 	}
@@ -36,7 +35,7 @@
      full-screen filtered fixed image. This keeps the same black-premium
      mood with less work during long section scrolls. */
 	body::after {
-		background: linear-gradient(180deg, rgba(0, 0, 0, 0.48), rgba(0, 0, 0, 0.66));
+		background: linear-gradient(180deg, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.80));
 	}
 
 	/* Keep .pager-section on native compositor scrolling without
@@ -89,7 +88,7 @@
 	.health-advice,
 	.age-advisory,
 	.bmi-explanation {
-		background: var(--sd-80) !important;
+		background: var(--container-glass-bg) !important;
 		-webkit-backdrop-filter: none !important;
 		backdrop-filter: none !important;
 		border: var(--container-glass-border) !important;
@@ -274,14 +273,14 @@
 			.age-advisory,
 			.bmi-explanation
 		) {
-		background: var(--sd-80) !important;
+		background: var(--container-glass-bg) !important;
 		border-color: var(--sg-16) !important;
 		-webkit-backdrop-filter: none !important;
 		backdrop-filter: none !important;
 	}
 
 	#calculator :is(.tdee-highlight, .tdee-cut, .tdee-maintain, .tdee-gain) {
-		background: var(--sd-80) !important;
+		background: var(--container-glass-bg) !important;
 	}
 
 	.about-section-block,
@@ -307,7 +306,6 @@
 		) {
 		animation: none !important;
 		transition: none !important;
-		transform: none !important;
 	}
 
 	#gauge .risk-marker {
@@ -544,20 +542,16 @@
 	}
 
 	/* Buttons stay solid for tap responsiveness. */
+	/* Navbar top */
 	.pager-nav-shell {
-		background: var(--sd-80);
-		-webkit-backdrop-filter: none;
-		backdrop-filter: none;
 		transition: none;
 		will-change: auto;
 		contain: paint style;
 		touch-action: pan-x pinch-zoom;
 	}
 
+	/* Navbar bottom */
 	.pager-controls-shell {
-		background: var(--sd-80);
-		-webkit-backdrop-filter: none;
-		backdrop-filter: none;
 		transition:
 			opacity 140ms ease,
 			transform 140ms ease;
@@ -566,7 +560,7 @@
 	}
 
 	body.is-touch-scrolling .pager-controls-shell {
-		background: var(--sd-80);
+		background: none;
 		-webkit-backdrop-filter: none;
 		backdrop-filter: none;
 		transition:

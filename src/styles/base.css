@@ -81,10 +81,8 @@ body::before {
 	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;
-	opacity: 1;
-	filter: brightness(0.35) contrast(1) saturate(1);
-	transform: translateZ(0);
 	pointer-events: none;
+	filter: none;
 }
 
 @media (max-width: 480px) {
@@ -113,6 +111,7 @@ body::after {
 	z-index: var(--z-base);
 	/* Negative z-index: intentional — gradient overlay behind content */
 	pointer-events: none;
+	background: linear-gradient(180deg, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.80));
 }
 
 @supports (height: 100svh) {

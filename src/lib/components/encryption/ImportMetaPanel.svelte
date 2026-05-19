@@ -64,7 +64,7 @@
 		margin-bottom: 1rem;
 		background: var(--w-8);
 		border: 1px solid var(--w-15);
-		border-radius: var(--btn-radius);
+		border-radius: var(--radius-lg);
 	}
 
 	.meta-row {
