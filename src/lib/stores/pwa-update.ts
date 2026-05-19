@@ -201,8 +201,25 @@ export function applyPwaUpdate(): void {
 
 	const waiting = registrationRef?.waiting;
 	if (waiting) {
-		waiting.postMessage({ type: 'SKIP_WAITING' });
-	}
+		/* Listen for the new SW taking control before reloading.
+                   This avoids a race where reload fires before the new SW activates,
+                   causing the page to load with stale code and requiring a second tap. */
+		let controllerChanged = false;
+		navigator.serviceWorker.addEventListener('controllerchange', () => {
+			controllerChanged = true;
+			window.location.reload();
+		});
 
-	window.location.reload();
+		waiting.postMessage({ type: 'SKIP_WAITING' });
+
+		/* Fallback: if controllerchange never fires (e.g. SW already active
+                   or browser quirk), reload after a short grace period. */
+		setTimeout(() => {
+			if (!controllerChanged) {
+				window.location.reload();
+			}
+		}, 1500);
+	} else {
+		window.location.reload();
+	}
 }

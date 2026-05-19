@@ -162,7 +162,11 @@
 			tabindex="-1"
 			onclick={handleBackdropClick}
 			onkeydown={(e: KeyboardEvent) => {
-				if (e.key === 'Escape') onclose();
+				/* Escape is handled by the focus-trap document listener;
+                                   only stop propagation for other keys here */
+				if (e.key === 'Escape') {
+					e.stopPropagation();
+				}
 			}}
 			style="--ms-backdrop-blur: {backdropBlur}; --ms-backdrop-sat: {backdropSat};{zIndex
 				? ` z-index: ${zIndex};`

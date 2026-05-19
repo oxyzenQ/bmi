@@ -622,7 +622,8 @@
      Keep the wallpaper visible through black alpha, but avoid blur layers
      inside panels/buttons while the user scrolls or types. */
 	.lang-backdrop,
-	.notify-backdrop {
+	.notify-backdrop,
+	.staging-backdrop {
 		background: rgba(0, 0, 0, 0.68) !important;
 		-webkit-backdrop-filter: none !important;
 		backdrop-filter: none !important;

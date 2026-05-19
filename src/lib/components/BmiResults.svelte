@@ -20,7 +20,7 @@
 	import { cubicOut } from 'svelte/easing';
 	import { browser } from '$app/environment';
 	import { shareBmiResult, copyToClipboard, formatBmiText } from '$lib/utils/share';
-	import { downloadBmiCard, shareBmiCard } from '$lib/utils/share-image';
+	import { shareBmiCard } from '$lib/utils/share-image';
 	import { t as _t, localeVersion } from '$lib/i18n';
 	import {
 		computeIdealWeightRangeKg,
