@@ -30,7 +30,7 @@
 	import '../styles/lang-switcher.css';
 	/* ── Skeleton loading, shooting stars, haptic feedback ── */
 	import '../styles/animation.css';
-	/* ── Touch device scroll performance (MUST load last — uses !important overrides) ── */
+	/* ── Touch device scroll performance (loads after nav/animation) ── */
 	import '../styles/responsive-mobile-perf.css';
 	/* ── Final responsive content correction layer (loads after mobile-perf) ── */
 	import '../styles/responsive-content.css';
