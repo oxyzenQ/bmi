@@ -1,20 +1,6 @@
 <!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
 <script lang="ts">
-	import {
-		Calculator,
-		User,
-		Ruler,
-		Weight,
-		Zap,
-		Trash2,
-		ArrowLeftRight,
-		ArrowDownToLine,
-		ArrowUpFromLine,
-		PersonStanding,
-		Flame,
-		FileSpreadsheet,
-		Settings
-	} from 'lucide-svelte';
+	import { Settings } from 'lucide-svelte';
 	import {
 		exportBmiHistory,
 		exportBmiHistoryCsv,
@@ -22,14 +8,26 @@
 		importBmiHistory,
 		peekImportMeta,
 		MAX_IMPORT_SIZE,
-		type ImportFileMeta,
-		type ImportError
+		type ImportFileMeta
 	} from '$lib/utils/history-io';
 	import { STORAGE_KEYS, storageGetJSON } from '$lib/utils/storage';
+	import {
+		formatBmiExportDate,
+		importErrorKey,
+		sanitizeDecimal,
+		sanitizeInteger
+	} from '$lib/utils/bmi-form-helpers';
+	import type { Activity, Gender, ImportNotifyResult } from '$lib/types/bmi-form';
 	import { warnDev } from '$lib/utils/warn-dev';
 	import { portal } from '$lib/actions/portal';
 	import { tick } from 'svelte';
 	import { t as _t, localeVersion } from '$lib/i18n';
+	import BmiFormHeader from './form/BmiFormHeader.svelte';
+	import BmiInputField from './form/BmiInputField.svelte';
+	import FormActions from './form/FormActions.svelte';
+	import ImportExportActions from './form/ImportExportActions.svelte';
+	import OptionalMetrics from './form/OptionalMetrics.svelte';
+	import UnitSystemToggle from './form/UnitSystemToggle.svelte';
 	import EncryptionModal from './EncryptionModal.svelte';
 	import FeedbackModal from './FeedbackModal.svelte';
 	let _rv = $derived($localeVersion);
@@ -37,17 +35,6 @@
 	function t(key: string, params?: Record<string, string | number | undefined | null>): string {
 		void _rv;
 		return _t(key, params);
-	}
-
-	type Gender = 'male' | 'female' | '';
-	type Activity = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active' | '';
-
-	interface ImportNotifyResult {
-		action: 'import-validate' | 'import-success' | 'import-error';
-		text?: string;
-		recordCount?: number;
-		integrityVerified?: boolean;
-		error?: string;
 	}
 
 	interface Props {
@@ -120,26 +107,9 @@
 	let heightMax = $derived(unitSystem === 'metric' ? 300 : 120);
 	let weightMax = $derived(unitSystem === 'metric' ? 1000 : 1500);
 
-	// Sanitizers: age as integer, height/weight as decimals (one dot)
-	function sanitizeInteger(value: string): string {
-		return value.replace(/\D+/g, '').slice(0, 3);
-	}
-
-	function sanitizeDecimal(value: string): string {
-		let v = value.replace(/[^0-9.]/g, '');
-		const firstDot = v.indexOf('.');
-		if (firstDot !== -1) {
-			v = v.slice(0, firstDot + 1) + v.slice(firstDot + 1).replace(/\./g, '');
-		}
-		if (v.startsWith('00')) {
-			v = v.replace(/^0+/, '0');
-		}
-		return v.slice(0, 6);
-	}
-
-	let ageInputEl: HTMLInputElement;
-	let heightInputEl: HTMLInputElement;
-	let weightInputEl: HTMLInputElement;
+	let ageInputEl: HTMLInputElement | undefined = $state(undefined);
+	let heightInputEl: HTMLInputElement | undefined = $state(undefined);
+	let weightInputEl: HTMLInputElement | undefined = $state(undefined);
 	let fileInputEl: HTMLInputElement | null = $state(null);
 
 	let { parsedAge, parsedHeight, parsedWeight, ageValid, heightValid, weightValid, canCalculate } =
@@ -187,6 +157,18 @@
 		onClear();
 	}
 
+	function focusAgeIfDesktop() {
+		if (!ageValid && !window.matchMedia('(hover: none)').matches) {
+			ageInputEl?.focus();
+		}
+	}
+
+	function focusHeightIfDesktop() {
+		if (!heightValid && !window.matchMedia('(hover: none)').matches) {
+			heightInputEl?.focus();
+		}
+	}
+
 	// Encryption modal state
 	let showEncryptModal = $state(false);
 	let encryptModalMode = $state<'export' | 'import'>('export');
@@ -205,14 +187,6 @@
 	let showFeedbackModal = $state(false);
 	let feedbackType = $state<'success' | 'error'>('success');
 	let feedbackMessage = $state('');
-
-	function formatDate(): string {
-		const now = new Date();
-		const y = now.getFullYear();
-		const m = String(now.getMonth() + 1).padStart(2, '0');
-		const d = String(now.getDate()).padStart(2, '0');
-		return `${y}-${m}-${d}`;
-	}
 
 	async function handleExportClick() {
 		// Read current history count from storage for export summary
@@ -250,7 +224,7 @@
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = `bmi-history-${formatDate()}.json`;
+		a.download = `bmi-history-${formatBmiExportDate()}.json`;
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
@@ -264,7 +238,7 @@
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = `bmi-history-${formatDate()}.csv`;
+		a.download = `bmi-history-${formatBmiExportDate()}.csv`;
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
@@ -297,24 +271,6 @@
 			processFile(file);
 		}
 		input.value = ''; // Reset so same file can be re-selected
-	}
-
-	/** Map ImportError code → i18n key for user-friendly FeedbackModal message */
-	function importErrorKey(code: ImportError): string {
-		const map: Record<ImportError, string> = {
-			empty_file: 'history.empty_file',
-			file_too_large: 'history.file_too_large',
-			invalid_json: 'history.invalid_json',
-			invalid_format: 'history.invalid_format',
-			unsupported_version: 'history.unsupported_version',
-			encrypted_no_passphrase: 'history.encrypted_no_passphrase',
-			wrong_passphrase: 'history.wrong_passphrase',
-			corrupted_file: 'history.corrupted_file',
-			no_valid_records: 'history.no_valid_records',
-			integrity_failed: 'history.integrity_failed',
-			save_failed: 'history.save_failed'
-		};
-		return map[code] ?? 'form.import_failed';
 	}
 
 	async function handleFileChange(e: Event) {
@@ -481,57 +437,23 @@
 </script>
 
 <div class="form-inner">
-	<div class="card-header">
-		<div class="icon-container">
-			<Calculator class="Calculator" />
-		</div>
-		<h2 class="card-title">{t('form.title')}</h2>
+	<BmiFormHeader
+		ready={canCalculate}
+		title={t('form.title')}
+		readyLabel={t('form.ready')}
+		incompleteLabel={t('form.enter_all')}
+		readyAria={t('form.ready_aria')}
+		incompleteAria={t('form.incomplete_aria')}
+	/>
 
-		<div class="status-row">
-			<span
-				class="pill-indicator"
-				tabindex="0"
-				role="button"
-				aria-label={canCalculate ? t('form.ready_aria') : t('form.incomplete_aria')}
-				data-color={canCalculate ? 'green' : 'grey'}
-			>
-				<span class="dot" aria-hidden="true"></span>
-				{canCalculate ? t('form.ready') : t('form.enter_all')}
-			</span>
-		</div>
-	</div>
-
-	<div class="unit-toggle" role="radiogroup" aria-label={t('form.unit_system_aria')}>
-		<button
-			type="button"
-			class="unit-toggle-segment"
-			class:active={unitSystem === 'metric'}
-			role="radio"
-			aria-checked={unitSystem === 'metric'}
-			onclick={() => {
-				unitSystem = 'metric';
-				height = '';
-				weight = '';
-			}}
-		>
-			<ArrowLeftRight size={14} aria-hidden="true" />
-			{t('form.metric')}
-		</button>
-		<button
-			type="button"
-			class="unit-toggle-segment"
-			class:active={unitSystem === 'imperial'}
-			role="radio"
-			aria-checked={unitSystem === 'imperial'}
-			onclick={() => {
-				unitSystem = 'imperial';
-				height = '';
-				weight = '';
-			}}
-		>
-			{t('form.imperial')}
-		</button>
-	</div>
+	<UnitSystemToggle
+		bind:unitSystem
+		bind:height
+		bind:weight
+		ariaLabel={t('form.unit_system_aria')}
+		metricLabel={t('form.metric')}
+		imperialLabel={t('form.imperial')}
+	/>
 
 	<form
 		class="bmi-form"
@@ -540,238 +462,96 @@
 			if (canCalculate && !calculating) onCalculate();
 		}}
 	>
-		<div class="input-group">
-			<label for="age" class="input-label">
-				<User class="User" />
-				{t('form.age_label')}
-			</label>
-			<input
-				type="text"
-				id="age"
-				bind:this={ageInputEl}
-				bind:value={age}
-				class="form-input"
-				inputmode="numeric"
-				pattern="[0-9]*"
-				placeholder={t('form.age_placeholder')}
-				aria-label={t('form.age_aria')}
-				aria-invalid={age !== '' && !ageValid}
-				oninput={handleAgeInput}
-			/>
-			{#if age !== '' && !ageValid}
-				<div class="input-error" role="alert">{t('form.age_error')}</div>
-			{/if}
-		</div>
-
-		<div class="input-group">
-			<label for="height" class="input-label">
-				<Ruler class="Ruler" />
-				{heightLabel}
-			</label>
-			<input
-				type="text"
-				id="height"
-				bind:this={heightInputEl}
-				bind:value={height}
-				class="form-input"
-				inputmode="decimal"
-				placeholder={ageValid ? heightExample : t('form.enter_age_first')}
-				aria-label={heightAriaLabel}
-				aria-invalid={height !== '' && !heightValid}
-				disabled={!ageValid}
-				aria-disabled={!ageValid}
-				onfocus={() => {
-					if (!ageValid) {
-						// On touch devices, don't steal focus — just show the disabled state
-						// to avoid keyboard flash/jank from focus redirect
-						if (!window.matchMedia('(hover: none)').matches) {
-							ageInputEl?.focus();
-						}
-					}
-				}}
-				oninput={handleHeightInput}
-			/>
-			{#if height !== '' && !heightValid}
-				<div class="input-error" role="alert">{heightErrorText}</div>
-			{/if}
-		</div>
-
-		<div class="input-group">
-			<label for="weight" class="input-label">
-				<Weight class="Weight" />
-				{weightLabel}
-			</label>
-			<input
-				type="text"
-				id="weight"
-				bind:this={weightInputEl}
-				bind:value={weight}
-				class="form-input"
-				inputmode="decimal"
-				placeholder={heightValid ? weightExample : t('form.enter_height_first')}
-				aria-label={weightAriaLabel}
-				aria-invalid={weight !== '' && !weightValid}
-				disabled={!heightValid}
-				aria-disabled={!heightValid}
-				onfocus={() => {
-					if (!heightValid) {
-						if (!window.matchMedia('(hover: none)').matches) {
-							heightInputEl?.focus();
-						}
-					}
-				}}
-				oninput={handleWeightInput}
-			/>
-			{#if weight !== '' && !weightValid}
-				<div class="input-error" role="alert">{weightErrorText}</div>
-			{/if}
-		</div>
-
-		<!-- Optional: Gender toggle -->
-		<div class="input-group">
-			<label class="input-label">
-				<PersonStanding size={16} />
-				{t('form.gender')} <span class="optional-tag">{t('form.optional')}</span>
-			</label>
-			<div class="segmented-control" role="radiogroup" aria-label={t('form.gender_aria')}>
-				<button
-					type="button"
-					class="seg-btn"
-					class:seg-active={gender === 'male'}
-					role="radio"
-					aria-checked={gender === 'male'}
-					onclick={() => {
-						gender = gender === 'male' ? '' : 'male';
-					}}
-				>
-					{t('form.male')}
-				</button>
-				<button
-					type="button"
-					class="seg-btn"
-					class:seg-active={gender === 'female'}
-					role="radio"
-					aria-checked={gender === 'female'}
-					onclick={() => {
-						gender = gender === 'female' ? '' : 'female';
-					}}
-				>
-					{t('form.female')}
-				</button>
-			</div>
-		</div>
-
-		<!-- Optional: Activity level -->
-		<div class="input-group">
-			<label class="input-label">
-				<Flame size={16} />
-				{t('form.activity')} <span class="optional-tag">{t('form.optional')}</span>
-			</label>
-			<div class="activity-grid" role="radiogroup" aria-label={t('form.activity_aria')}>
-				{#each activityLevels as lvl (lvl.value)}
-					<button
-						type="button"
-						class="act-btn"
-						class:act-active={activity === lvl.value}
-						role="radio"
-						aria-checked={activity === lvl.value}
-						onclick={() => {
-							activity = activity === lvl.value ? '' : lvl.value;
-						}}
-					>
-						<span class="act-label">{lvl.label}</span>
-						<span class="act-factor">{lvl.factor}x</span>
-					</button>
-				{/each}
-			</div>
-		</div>
-
-		<div class="button-group main-actions">
-			<button
-				type="submit"
-				class="btn btn-primary"
-				class:is-calculating={calculating}
-				aria-label={t('form.calculate_aria')}
-				aria-disabled={!canCalculate || calculating}
-				aria-busy={calculating}
-				disabled={!canCalculate || calculating}
-			>
-				<Zap class="Zap" />
-				{#if calculating}
-					{t('form.calculating')}
-					<span class="btn-dots" aria-hidden="true">
-						<span class="btn-dot"></span>
-						<span class="btn-dot"></span>
-						<span class="btn-dot"></span>
-					</span>
-				{:else}
-					{t('form.calc_bmi')}
-				{/if}
-			</button>
-
-			<button
-				type="button"
-				onclick={handleClear}
-				onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClear()}
-				class="btn btn-danger"
-				aria-label={t('form.clear_aria')}
-			>
-				<Trash2 class="Trash2" />
-				{t('form.clear_all')}
-			</button>
-		</div>
-
-		<!-- Drag & Drop import zone (Phase 4) -->
-		<input
-			type="file"
-			accept=".json"
-			bind:this={fileInputEl}
-			onchange={handleFileInputChange}
-			class="sr-only"
-			tabindex="-1"
-			aria-hidden="true"
+		<BmiInputField
+			id="age"
+			icon="age"
+			bind:inputEl={ageInputEl}
+			bind:value={age}
+			label={t('form.age_label')}
+			placeholder={t('form.age_placeholder')}
+			ariaLabel={t('form.age_aria')}
+			inputmode="numeric"
+			pattern="[0-9]*"
+			showError={age !== '' && !ageValid}
+			errorText={t('form.age_error')}
+			onInput={handleAgeInput}
 		/>
-		<div
-			class="bmi-drop-zone"
-			class:bmi-drop-zone--active={isDragOver}
-			role="button"
-			tabindex="0"
-			ondragover={handleDragOver}
-			ondragleave={handleDragLeave}
-			ondrop={handleDrop}
-			onclick={handleDropZoneClick}
-			onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleDropZoneClick()}
-			aria-label={t('form.import_aria')}
-		>
-			<div class="bmi-drop-zone__icon">
-				<ArrowDownToLine size={28} />
-			</div>
-			<div class="bmi-drop-zone__text">
-				{isDragOver ? t('form.drop_file_here') : t('form.import')}
-			</div>
-			<div class="bmi-drop-zone__subtext">{t('form.or_choose_file')}</div>
-		</div>
 
-		<div class="history-actions">
-			<button
-				type="button"
-				class="btn btn-secondary"
-				onclick={handleExportClick}
-				aria-label={t('form.export_aria')}
-			>
-				<ArrowUpFromLine size={16} aria-hidden="true" />
-				{t('form.export')}
-			</button>
-			<button
-				type="button"
-				class="btn btn-secondary"
-				onclick={handleExportCsv}
-				aria-label={t('form.export_csv_aria')}
-			>
-				<FileSpreadsheet size={16} aria-hidden="true" />
-				{t('form.export_csv')}
-			</button>
-		</div>
+		<BmiInputField
+			id="height"
+			icon="height"
+			bind:inputEl={heightInputEl}
+			bind:value={height}
+			label={heightLabel}
+			placeholder={ageValid ? heightExample : t('form.enter_age_first')}
+			ariaLabel={heightAriaLabel}
+			inputmode="decimal"
+			disabled={!ageValid}
+			showError={height !== '' && !heightValid}
+			errorText={heightErrorText}
+			onInput={handleHeightInput}
+			onBlockedFocus={focusAgeIfDesktop}
+		/>
+
+		<BmiInputField
+			id="weight"
+			icon="weight"
+			bind:inputEl={weightInputEl}
+			bind:value={weight}
+			label={weightLabel}
+			placeholder={heightValid ? weightExample : t('form.enter_height_first')}
+			ariaLabel={weightAriaLabel}
+			inputmode="decimal"
+			disabled={!heightValid}
+			showError={weight !== '' && !weightValid}
+			errorText={weightErrorText}
+			onInput={handleWeightInput}
+			onBlockedFocus={focusHeightIfDesktop}
+		/>
+
+		<OptionalMetrics
+			bind:gender
+			bind:activity
+			{activityLevels}
+			genderLabel={t('form.gender')}
+			activityLabel={t('form.activity')}
+			optionalLabel={t('form.optional')}
+			genderAria={t('form.gender_aria')}
+			activityAria={t('form.activity_aria')}
+			maleLabel={t('form.male')}
+			femaleLabel={t('form.female')}
+		/>
+
+		<FormActions
+			{calculating}
+			{canCalculate}
+			calculateAria={t('form.calculate_aria')}
+			clearAria={t('form.clear_aria')}
+			calculatingLabel={t('form.calculating')}
+			calculateLabel={t('form.calc_bmi')}
+			clearLabel={t('form.clear_all')}
+			onClear={handleClear}
+		/>
+
+		<ImportExportActions
+			bind:fileInputEl
+			{isDragOver}
+			importLabel={t('form.import')}
+			dropFileHereLabel={t('form.drop_file_here')}
+			orChooseFileLabel={t('form.or_choose_file')}
+			importAria={t('form.import_aria')}
+			exportLabel={t('form.export')}
+			exportAria={t('form.export_aria')}
+			exportCsvLabel={t('form.export_csv')}
+			exportCsvAria={t('form.export_csv_aria')}
+			onFileInputChange={handleFileInputChange}
+			onDragOver={handleDragOver}
+			onDragLeave={handleDragLeave}
+			onDrop={handleDrop}
+			onDropZoneClick={handleDropZoneClick}
+			onExportClick={handleExportClick}
+			onExportCsv={handleExportCsv}
+		/>
 	</form>
 </div>
 
@@ -814,183 +594,6 @@
 {/if}
 
 <style>
-	.unit-toggle {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		gap: 2px;
-		border: var(--btn-border);
-		border-radius: var(--control-radius);
-		padding: 2px;
-		margin: 0 auto 1rem;
-		width: fit-content;
-	}
-
-	.unit-toggle-segment {
-		font-size: 0.8rem;
-		padding: 0.3rem 0.7rem;
-		border: none;
-		border-radius: var(--control-radius);
-		background: transparent;
-		color: var(--w-50);
-		cursor: pointer;
-		display: inline-flex;
-		align-items: center;
-		gap: 0.3rem;
-		transition:
-			background var(--dur-interactive) ease,
-			color var(--dur-interactive) ease;
-		white-space: nowrap;
-	}
-
-	.unit-toggle-segment:hover {
-		color: var(--w-70);
-	}
-
-	.unit-toggle-segment.active {
-		background: var(--btn-bg-hover);
-		color: var(--stellar-white);
-	}
-
-	/* Segmented control (gender) */
-	.segmented-control {
-		display: flex;
-		justify-content: center;
-		gap: 2px;
-		border: var(--btn-border);
-		border-radius: var(--control-radius);
-		padding: 2px;
-		width: fit-content;
-		max-width: 320px;
-	}
-
-	.seg-btn {
-		flex: 1;
-		font-size: 0.8rem;
-		padding: 0.35rem 0.8rem;
-		border: none;
-		border-radius: var(--control-radius);
-		background: transparent;
-		color: var(--w-50);
-		cursor: pointer;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.3rem;
-		transition:
-			background var(--dur-interactive) ease,
-			color var(--dur-interactive) ease;
-		white-space: nowrap;
-		min-width: 80px;
-	}
-
-	.seg-btn:hover {
-		color: var(--w-70);
-	}
-
-	.seg-btn.seg-active {
-		background: var(--btn-bg-hover);
-		color: var(--stellar-white);
-	}
-
-	.optional-tag {
-		font-size: var(--text-xs);
-		font-weight: 500;
-		color: var(--text-muted);
-		text-transform: uppercase;
-		letter-spacing: 0.06em;
-		opacity: 0.7;
-	}
-
-	/* Activity level grid */
-	.activity-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(min(100%, 6.5rem), 1fr));
-		gap: 0.35rem;
-		width: 100%;
-		max-width: 320px;
-		border: var(--btn-border);
-		border-radius: var(--radius-xl);
-		padding: 3px;
-		background: var(--sd-80);
-	}
-
-	.act-btn {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 0.1rem;
-		padding: 0.4rem 0.25rem;
-		border: none;
-		border-radius: var(--control-radius);
-		background: transparent;
-		color: var(--w-50);
-		cursor: pointer;
-		transition:
-			background var(--dur-interactive) ease,
-			color var(--dur-interactive) ease;
-		min-width: 0;
-		white-space: normal;
-	}
-
-	.act-btn:hover {
-		color: var(--w-70);
-		background: var(--w-4);
-	}
-
-	.act-btn.act-active {
-		background: var(--btn-bg-hover);
-		color: var(--stellar-white);
-	}
-
-	.act-label {
-		font-size: 0.7rem;
-		font-weight: 600;
-		letter-spacing: 0.01em;
-		line-height: 1.15;
-		text-align: center;
-		overflow-wrap: anywhere;
-	}
-
-	.act-factor {
-		font-size: 0.55rem;
-		font-family: var(--font-mono-short);
-		opacity: 0.6;
-	}
-
-	.act-btn.act-active .act-factor {
-		opacity: 0.8;
-	}
-
-	.history-actions {
-		display: flex;
-		gap: 0.75rem;
-		margin-top: 0.75rem;
-		justify-content: center;
-		flex-wrap: wrap;
-	}
-
-	.history-actions .btn {
-		min-width: 120px;
-		font-size: 0.8rem;
-	}
-
-	.main-actions {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		flex-wrap: wrap;
-		gap: 0.75rem;
-		width: 100%;
-	}
-
-	.main-actions .btn {
-		width: auto;
-		min-width: 120px;
-		flex: 0 0 auto;
-	}
-
 	@media (hover: none) and (pointer: coarse) {
 		:global(#calculator .form-card) {
 			min-height: auto;
@@ -1016,17 +619,6 @@
 			touch-action: pan-y pinch-zoom;
 		}
 
-		.unit-toggle,
-		.segmented-control,
-		.activity-grid,
-		.history-actions,
-		.main-actions {
-			contain: layout style;
-		}
-
-		.unit-toggle-segment,
-		.seg-btn,
-		.act-btn,
 		:global(#calculator .btn),
 		:global(#calculator .form-input),
 		:global(#calculator .pill-indicator),
@@ -1043,9 +635,6 @@
 			backdrop-filter: none !important;
 		}
 
-		.unit-toggle-segment,
-		.seg-btn,
-		.act-btn,
 		:global(#calculator .btn),
 		:global(#calculator .bmi-drop-zone) {
 			touch-action: manipulation;
@@ -1055,9 +644,6 @@
 			touch-action: pan-y pinch-zoom;
 		}
 
-		.unit-toggle-segment:hover,
-		.seg-btn:hover,
-		.act-btn:hover,
 		:global(#calculator .btn:hover),
 		:global(#calculator .pill-indicator:hover),
 		:global(#calculator .bmi-drop-zone:hover),
