@@ -9,46 +9,41 @@
 	 * Passphrase hint stored in localStorage only (never exported).
 	 */
 	import { tick, untrack, onMount } from 'svelte';
-	import {
-		Lock,
-		Unlock,
-		AlertCircle,
-		AlertTriangle,
-		ShieldX,
-		Eye,
-		EyeOff,
-		ShieldCheck,
-		Lightbulb
-	} from 'lucide-svelte';
 	import { t as _t, localeVersion } from '$lib/i18n';
 	import { analyzeStrength, getPassphraseHint, setPassphraseHint } from '$lib/utils/crypto';
 	import type { StrengthResult } from '$lib/utils/crypto';
+	import {
+		getEncryptionErrorDescriptionKey,
+		getEncryptionErrorSeverity
+	} from '$lib/utils/encryption-modal-helpers';
+	import type {
+		EncryptionErrorSeverity,
+		EncryptionImportMeta,
+		EncryptionMode
+	} from '$lib/types/encryption-modal';
 	import { warnDev } from '$lib/utils/warn-dev';
-	import StrengthMeter from './StrengthMeter.svelte';
+	import EncryptionActions from './encryption/EncryptionActions.svelte';
+	import EncryptionErrorMessage from './encryption/EncryptionErrorMessage.svelte';
+	import EncryptionModalHeader from './encryption/EncryptionModalHeader.svelte';
+	import EncryptionProgress from './encryption/EncryptionProgress.svelte';
+	import EncryptionTrustMeta from './encryption/EncryptionTrustMeta.svelte';
+	import ExportSummary from './encryption/ExportSummary.svelte';
+	import ImportHintDisplay from './encryption/ImportHintDisplay.svelte';
+	import ImportMetaPanel from './encryption/ImportMetaPanel.svelte';
+	import PasswordFields from './encryption/PasswordFields.svelte';
 	let _rv = $derived($localeVersion);
 	function t(key: string, params?: Record<string, string | number | undefined | null>): string {
 		void _rv;
 		return _t(key, params);
 	}
 
-	interface ImportMeta {
-		encrypted: boolean;
-		format?: string;
-		exportedAt?: string;
-		recordCount?: number;
-		version?: number;
-	}
-
-	/** Error severity levels for differentiated UX */
-	type ErrorSeverity = 'default' | 'warning' | 'danger';
-
 	interface Props {
 		show?: boolean;
-		mode: 'export' | 'import';
+		mode: EncryptionMode;
 		error?: string;
 		/** Structured error code for severity-based styling */
 		errorCode?: string;
-		importMeta?: ImportMeta;
+		importMeta?: EncryptionImportMeta;
 		/** Number of records that will be exported (shown in export summary) */
 		exportRecordCount?: number;
 		onConfirm: (passphrase: string) => void;
@@ -122,29 +117,14 @@
 	});
 
 	// Derive error severity from errorCode for differentiated UX
-	let errorSeverity: ErrorSeverity = $derived.by(() => {
-		if (localError) return 'default' as const;
-		if (!errorCode) return 'default' as const;
-		if (errorCode === 'integrity_failed' || errorCode === 'wrong_passphrase')
-			return 'danger' as const;
-		if (errorCode === 'corrupted_file') return 'warning' as const;
-		return 'default' as const;
-	});
-
-	// Error icon component class based on severity
-	let ErrorIcon = $derived.by(() => {
-		const sev = errorSeverity;
-		if (sev === 'danger') return ShieldX;
-		if (sev === 'warning') return AlertTriangle;
-		return AlertCircle;
-	});
+	let errorSeverity: EncryptionErrorSeverity = $derived(
+		getEncryptionErrorSeverity(errorCode, Boolean(localError))
+	);
 
 	let errorDescription = $derived.by(() => {
-		if (localError || !errorCode) return '';
-		if (errorCode === 'wrong_passphrase') return t('crypto.error_wrong_passphrase_desc');
-		if (errorCode === 'corrupted_file') return t('crypto.error_corrupted_desc');
-		if (errorCode === 'integrity_failed') return t('crypto.error_tampered_desc');
-		return '';
+		if (localError) return '';
+		const descriptionKey = getEncryptionErrorDescriptionKey(errorCode);
+		return descriptionKey ? t(descriptionKey) : '';
 	});
 
 	// Combine local error with parent error prop (reactive)
@@ -301,7 +281,6 @@
 	}
 
 	const title = $derived(mode === 'export' ? t('crypto.export_title') : t('crypto.import_title'));
-	const Icon = $derived(mode === 'export' ? Lock : Unlock);
 	const iconColor = $derived(mode === 'export' ? 'var(--cosmic-purple)' : 'var(--cat-green-90)');
 </script>
 
@@ -315,237 +294,84 @@
 			aria-modal="true"
 		>
 			<div class="encrypt-box">
-				<div class="encrypt-header">
-					<div class="encrypt-icon" style="color: {iconColor}">
-						<Icon size={32} strokeWidth={1.5} />
-					</div>
-					<h2 class="encrypt-title">{title}</h2>
-				</div>
+				<EncryptionModalHeader {mode} {title} {iconColor} />
 
 				{#if mode === 'export'}
-					<!-- Trust indicators: separate from form actions -->
-					<div class="encrypt-meta">
-						<div class="bmi-encryption-badge">
-							<span class="bmi-encryption-badge__icon"><ShieldCheck size={14} /></span>
-							<span class="bmi-encryption-badge__label">{t('crypto.encryption_badge')}</span>
-							<span class="bmi-encryption-badge__algo">AES-256-GCM + Argon2id</span>
-						</div>
-						<div class="bmi-strong-warning">
-							<span class="bmi-strong-warning__icon"><AlertCircle size={16} /></span>
-							<span class="bmi-strong-warning__text">{@html t('crypto.strong_warning')}</span>
-						</div>
-					</div>
+					<EncryptionTrustMeta
+						badgeLabel={t('crypto.encryption_badge')}
+						strongWarningHtml={t('crypto.strong_warning')}
+					/>
 				{/if}
 
 				<form onsubmit={handleSubmit} class="encrypt-form">
 					{#if mode === 'import' && importMeta}
-						<div class="import-meta">
-							{#if importMeta.encrypted}
-								<div class="meta-row">
-									<span class="meta-key">{t('crypto.meta_status')}</span>
-									<span class="meta-val meta-encrypted">{t('crypto.meta_encrypted')}</span>
-								</div>
-							{:else}
-								<div class="meta-row">
-									<span class="meta-key">{t('crypto.meta_status')}</span>
-									<span class="meta-val">{t('crypto.meta_unencrypted')}</span>
-								</div>
-							{/if}
-							{#if importMeta.exportedAt}
-								<div class="meta-row">
-									<span class="meta-key">{t('crypto.meta_date')}</span>
-									<span class="meta-val">{importMeta.exportedAt}</span>
-								</div>
-							{/if}
-							{#if importMeta.recordCount != null}
-								<div class="meta-row">
-									<span class="meta-key">{t('crypto.meta_records')}</span>
-									<span class="meta-val">{importMeta.recordCount}</span>
-								</div>
-							{/if}
-							{#if importMeta.version != null}
-								<div class="meta-row">
-									<span class="meta-key">{t('crypto.meta_version')}</span>
-									<span class="meta-val">v{importMeta.version}</span>
-								</div>
-							{/if}
-						</div>
+						<ImportMetaPanel
+							meta={importMeta}
+							statusLabel={t('crypto.meta_status')}
+							encryptedLabel={t('crypto.meta_encrypted')}
+							unencryptedLabel={t('crypto.meta_unencrypted')}
+							dateLabel={t('crypto.meta_date')}
+							recordsLabel={t('crypto.meta_records')}
+							versionLabel={t('crypto.meta_version')}
+						/>
 					{/if}
 
 					<!-- Import hint display (local only) -->
 					{#if mode === 'import' && passphraseHint}
-						<div class="hint-display">
-							<Lightbulb size={14} />
-							<span class="hint-display__label">{t('crypto.hint_import_label')}:</span>
-							<span class="hint-display__text">{passphraseHint}</span>
-						</div>
+						<ImportHintDisplay label={t('crypto.hint_import_label')} hint={passphraseHint} />
 					{/if}
 
-					<div class="encrypt-fields">
-						<!-- Hidden username field to prevent browser password warning -->
-						<input
-							type="text"
-							name="username"
-							autocomplete="username"
-							class="sr-only"
-							tabindex="-1"
-						/>
-						<div class="field-group">
-							<label for="passphrase">{t('crypto.passphrase_label')}</label>
-							<div class="input-wrapper">
-								<input
-									id="passphrase"
-									type={showPassphrase ? 'text' : 'password'}
-									bind:value={passphrase}
-									placeholder={t('crypto.passphrase_placeholder')}
-									class="encrypt-input"
-									autocomplete="new-password"
-									disabled={loading}
-								/>
-								<button
-									type="button"
-									class="eye-btn"
-									onclick={() => (showPassphrase = !showPassphrase)}
-									aria-label={showPassphrase
-										? t('crypto.hide_passphrase')
-										: t('crypto.show_passphrase')}
-								>
-									{#if showPassphrase}
-										<EyeOff size={18} />
-									{:else}
-										<Eye size={18} />
-									{/if}
-								</button>
-							</div>
-							<StrengthMeter
-								visible={Boolean(passphrase) && mode === 'export'}
-								score={strengthScore}
-								result={strengthResult}
-							/>
-						</div>
-
-						{#if mode === 'export'}
-							<div class="field-group">
-								<label for="confirm-passphrase">{t('crypto.confirm_label')}</label>
-								<div class="input-wrapper">
-									<input
-										id="confirm-passphrase"
-										type={showConfirmPassphrase ? 'text' : 'password'}
-										bind:value={confirmPassphrase}
-										placeholder={t('crypto.confirm_placeholder')}
-										class="encrypt-input"
-										autocomplete="new-password"
-										disabled={loading}
-									/>
-									<button
-										type="button"
-										class="eye-btn"
-										onclick={() => (showConfirmPassphrase = !showConfirmPassphrase)}
-										aria-label={showConfirmPassphrase
-											? t('crypto.hide_passphrase')
-											: t('crypto.show_passphrase')}
-									>
-										{#if showConfirmPassphrase}
-											<EyeOff size={18} />
-										{:else}
-											<Eye size={18} />
-										{/if}
-									</button>
-								</div>
-							</div>
-
-							<!-- Passphrase hint (local only, never exported) -->
-							<div class="field-group">
-								<label for="passphrase-hint">
-									<Lightbulb
-										size={14}
-										style="display: inline; vertical-align: -2px; margin-right: 4px;"
-									/>
-									{t('crypto.hint_label')}
-								</label>
-								<input
-									id="passphrase-hint"
-									type="text"
-									bind:value={passphraseHint}
-									placeholder={t('crypto.hint_placeholder')}
-									class="encrypt-input encrypt-input--hint"
-									disabled={loading}
-								/>
-							</div>
-						{/if}
-					</div>
+					<PasswordFields
+						{mode}
+						bind:passphrase
+						bind:confirmPassphrase
+						bind:passphraseHint
+						bind:showPassphrase
+						bind:showConfirmPassphrase
+						{loading}
+						{strengthScore}
+						{strengthResult}
+						passphraseLabel={t('crypto.passphrase_label')}
+						passphrasePlaceholder={t('crypto.passphrase_placeholder')}
+						confirmLabel={t('crypto.confirm_label')}
+						confirmPlaceholder={t('crypto.confirm_placeholder')}
+						hintLabel={t('crypto.hint_label')}
+						hintPlaceholder={t('crypto.hint_placeholder')}
+						showPassphraseLabel={t('crypto.show_passphrase')}
+						hidePassphraseLabel={t('crypto.hide_passphrase')}
+					/>
 
 					{#if errorMsg}
-						<div class="encrypt-error encrypt-error--{errorSeverity}">
-							{#if errorSeverity === 'danger'}
-								<ShieldX size={16} />
-							{:else if errorSeverity === 'warning'}
-								<AlertTriangle size={16} />
-							{:else}
-								<AlertCircle size={16} />
-							{/if}
-							<div class="encrypt-error__content">
-								<span class="encrypt-error__msg">{errorMsg}</span>
-								{#if errorDescription}
-									<span class="encrypt-error__desc">{errorDescription}</span>
-								{/if}
-							</div>
-						</div>
+						<EncryptionErrorMessage
+							message={errorMsg}
+							description={errorDescription}
+							severity={errorSeverity}
+						/>
 					{/if}
 
 					{#if loading}
-						<div class="encrypt-progress-wrap">
-							<div class="bmi-progress bmi-progress--indeterminate">
-								<div class="bmi-progress__fill" style="width: 100%;"></div>
-							</div>
-						</div>
+						<EncryptionProgress />
 					{/if}
 
 					{#if mode === 'export' && !loading}
-						<!-- Export summary: informational, separated from actions -->
-						<div class="encrypt-summary">
-							<div class="bmi-export-summary">
-								<div class="bmi-export-summary__row">
-									<span class="bmi-export-summary__key">{t('crypto.export_summary_records')}</span>
-									<span class="bmi-export-summary__val">{exportRecordCount}</span>
-								</div>
-								<div class="bmi-export-summary__row">
-									<span class="bmi-export-summary__key">{t('crypto.export_summary_encrypted')}</span
-									>
-									<span class="bmi-export-summary__val bmi-export-summary__val--encrypted"
-										>AES-256-GCM</span
-									>
-								</div>
-								<div class="bmi-export-summary__row">
-									<span class="bmi-export-summary__key">{t('crypto.export_summary_kdf')}</span>
-									<span class="bmi-export-summary__val">Argon2id</span>
-								</div>
-								<div class="bmi-export-summary__row">
-									<span class="bmi-export-summary__key">{t('crypto.export_summary_version')}</span>
-									<span class="bmi-export-summary__val">v3</span>
-								</div>
-							</div>
-						</div>
+						<ExportSummary
+							recordCount={exportRecordCount}
+							recordsLabel={t('crypto.export_summary_records')}
+							encryptedLabel={t('crypto.export_summary_encrypted')}
+							kdfLabel={t('crypto.export_summary_kdf')}
+							versionLabel={t('crypto.export_summary_version')}
+						/>
 					{/if}
 
-					<div class="encrypt-actions">
-						<button
-							type="button"
-							class="encrypt-btn btn-cancel"
-							onclick={handleCancel}
-							disabled={loading}
-						>
-							{t('notify.cancel')}
-						</button>
-						<button type="submit" class="encrypt-btn btn-confirm" disabled={loading}>
-							{#if loading}
-								<span class="btn-spinner"></span>
-								{t('crypto.processing')}
-							{:else}
-								{mode === 'export' ? t('form.export') : t('crypto.unlock_import')}
-							{/if}
-						</button>
-					</div>
+					<EncryptionActions
+						{mode}
+						{loading}
+						cancelLabel={t('notify.cancel')}
+						exportLabel={t('form.export')}
+						unlockImportLabel={t('crypto.unlock_import')}
+						processingLabel={t('crypto.processing')}
+						onCancel={handleCancel}
+					/>
 				</form>
 			</div>
 		</div>
@@ -618,321 +444,6 @@
 		display: none;
 	}
 
-	.encrypt-header {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 0.75rem;
-		margin-bottom: var(--space-3);
-	}
-
-	/* ── Meta section: trust indicators separated from form ── */
-	.encrypt-meta {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: var(--space-2);
-		margin-bottom: var(--space-4);
-	}
-
-	/* ── Summary section: informational, above actions ── */
-	.encrypt-summary {
-		margin-bottom: var(--space-4);
-	}
-
-	.encrypt-icon {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.encrypt-title {
-		font-size: var(--text-2xl);
-		font-weight: 600;
-		color: var(--w-95);
-		margin: 0;
-	}
-
-	.encrypt-fields {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		margin-bottom: 1.25rem;
-	}
-
-	.import-meta {
-		display: flex;
-		flex-direction: column;
-		gap: 0.35rem;
-		padding: 0.75rem 1rem;
-		margin-bottom: 1rem;
-		background: var(--w-8);
-		border: 1px solid var(--w-15);
-		border-radius: var(--btn-radius);
-	}
-
-	.meta-row {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		font-size: var(--text-base);
-	}
-
-	.meta-key {
-		color: var(--w-50);
-		font-weight: 500;
-	}
-
-	.meta-val {
-		color: var(--w-80);
-		font-weight: 600;
-	}
-
-	.meta-encrypted {
-		color: var(--cosmic-purple);
-	}
-
-	/* ── Hint display (import mode) ── */
-	.hint-display {
-		display: flex;
-		align-items: center;
-		gap: 0.4rem;
-		padding: 0.6rem 0.85rem;
-		margin-bottom: 0.75rem;
-		background: rgba(251, 191, 36, 0.08);
-		border: 1px solid rgba(251, 191, 36, 0.2);
-		border-radius: var(--control-radius);
-		font-size: var(--text-base);
-		color: var(--amber-gold-60);
-	}
-
-	.hint-display__label {
-		font-weight: 600;
-		white-space: nowrap;
-	}
-
-	.hint-display__text {
-		color: var(--w-80);
-		font-style: italic;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.field-group {
-		display: flex;
-		flex-direction: column;
-		gap: 0.35rem;
-	}
-
-	.field-group label {
-		font-size: var(--text-base);
-		font-weight: 500;
-		color: var(--w-70);
-	}
-
-	.input-wrapper {
-		position: relative;
-		display: flex;
-		align-items: center;
-	}
-
-	.encrypt-input {
-		width: 100%;
-		padding: var(--space-3) 1rem;
-		padding-right: 2.75rem;
-		font-size: var(--text-md);
-		line-height: 1.5;
-		border: 1px solid var(--w-20);
-		border-radius: var(--btn-radius);
-		background: var(--w-4);
-		color: var(--w-95);
-		transition: border-color var(--dur-micro) ease;
-	}
-
-	.encrypt-input--hint {
-		padding-right: 1rem;
-		font-size: var(--text-base);
-	}
-
-	.eye-btn {
-		position: absolute;
-		right: 0.5rem;
-		top: calc(50% - 1rem);
-		transform: none;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 2rem;
-		height: 2rem;
-		background: var(--btn-bg);
-		border: 1px solid rgba(130, 130, 130, 0.3);
-		border-radius: var(--control-radius);
-		color: var(--stellar-white);
-		cursor: pointer;
-		transition: all var(--dur-micro) ease;
-		z-index: var(--z-inner-control);
-		-webkit-backdrop-filter: blur(8px);
-		backdrop-filter: blur(8px);
-	}
-
-	/* Fix: ensure SVG icons render correctly - WHITE color for dark modal */
-	.eye-btn :global(svg) {
-		width: 18px !important;
-		height: 18px !important;
-		display: block !important;
-		visibility: visible !important;
-		stroke: white !important;
-		stroke-width: 2;
-		fill: none;
-		flex-shrink: 0;
-		overflow: visible;
-	}
-
-	.eye-btn:hover {
-		color: var(--stellar-white);
-		background: var(--btn-bg-hover);
-		border-color: rgba(130, 130, 130, 0.45);
-	}
-
-	.eye-btn:active {
-		transform: none;
-	}
-
-	.encrypt-input:focus {
-		outline: 2px solid var(--violet-42);
-		outline-offset: 1px;
-		border-color: var(--cosmic-purple);
-	}
-
-	.encrypt-input::placeholder {
-		color: var(--w-40);
-	}
-
-	.encrypt-error {
-		display: flex;
-		align-items: flex-start;
-		gap: 0.5rem;
-		padding: 0.75rem;
-		margin-bottom: 1.25rem;
-		background: var(--error-bg-default);
-		border: 1px solid var(--error-border-default);
-		border-radius: var(--control-radius);
-		color: var(--red-500-solid);
-		font-size: var(--text-base);
-	}
-
-	.encrypt-error__content {
-		display: flex;
-		flex-direction: column;
-		gap: 0.2rem;
-		min-width: 0;
-	}
-
-	.encrypt-error__msg {
-		font-weight: 600;
-	}
-
-	.encrypt-error__desc {
-		font-size: 0.78rem;
-		font-weight: 400;
-		opacity: 0.85;
-		line-height: 1.4;
-	}
-
-	/* Warning severity (corrupted file) — amber tone */
-	.encrypt-error--warning {
-		background: var(--error-bg-warning);
-		border-color: var(--error-border-warning);
-		color: var(--amber-gold-60);
-	}
-
-	/* Danger severity (wrong passphrase / tampered) — red tone */
-	.encrypt-error--danger {
-		background: var(--error-bg-danger);
-		border-color: var(--error-border-danger);
-		color: var(--red-500-solid);
-	}
-
-	.encrypt-progress-wrap {
-		margin-bottom: 1rem;
-	}
-
-	.encrypt-actions {
-		display: flex;
-		gap: 0.75rem;
-		justify-content: center;
-		margin-top: var(--space-3);
-	}
-
-	.encrypt-btn {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.5rem;
-		padding: 0 1.5rem;
-		height: var(--btn-height);
-		font-size: 0.95rem;
-		font-weight: 600;
-		border: 1px solid rgba(130, 130, 130, 0.3);
-		border-radius: var(--btn-radius);
-		cursor: pointer;
-		transition:
-			transform var(--dur-micro) ease,
-			background var(--dur-micro) ease,
-			border-color var(--dur-micro) ease;
-		min-width: 100px;
-		-webkit-backdrop-filter: blur(8px);
-		backdrop-filter: blur(8px);
-	}
-
-	.btn-cancel {
-		background: var(--btn-bg);
-		color: var(--stellar-white);
-		border: 1px solid rgba(130, 130, 130, 0.3);
-	}
-
-	.btn-cancel:hover {
-		background: var(--btn-bg-hover);
-		color: var(--stellar-white);
-		transform: translateY(-1px);
-		border-color: rgba(130, 130, 130, 0.45);
-	}
-
-	.btn-confirm {
-		background: var(--bg-by-rezky);
-		color: var(--stellar-white);
-		border: 1px solid rgba(139, 92, 246, 0.45);
-	}
-
-	.btn-confirm:hover {
-		background: var(--bg-last-by-rezky);
-		border-color: rgba(139, 92, 246, 0.6);
-		transform: translateY(-1px);
-	}
-
-	.btn-confirm:disabled,
-	.btn-cancel:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-
-	.encrypt-input:disabled {
-		opacity: 0.5;
-		background: var(--w-8);
-	}
-
-	.btn-spinner {
-		display: inline-block;
-		width: 14px;
-		height: 14px;
-		border: 2px solid rgba(255, 255, 255, 0.3);
-		border-top-color: var(--stellar-white);
-		border-radius: 50%;
-		animation: spin var(--dur-spin-fast) linear infinite;
-		margin-right: 6px;
-	}
-
 	@media (max-width: 480px) {
 		.encrypt-box {
 			min-width: auto;
@@ -940,18 +451,6 @@
 			max-height: calc(100dvh - 2rem);
 			margin: 0 1rem;
 			padding: 1.5rem;
-		}
-
-		.encrypt-title {
-			font-size: 1.1rem;
-		}
-
-		.encrypt-actions {
-			flex-direction: column;
-		}
-
-		.encrypt-btn {
-			width: 100%;
 		}
 	}
 
@@ -974,46 +473,6 @@
 		}
 
 		.encrypt-backdrop.visible .encrypt-box {
-			transform: none !important;
-		}
-
-		.encrypt-input,
-		.eye-btn,
-		.encrypt-btn,
-		.import-meta,
-		.hint-display,
-		.encrypt-error,
-		.bmi-export-summary,
-		.bmi-encryption-badge {
-			-webkit-backdrop-filter: none !important;
-			backdrop-filter: none !important;
-			transition: none !important;
-			transform: none !important;
-			filter: none !important;
-			text-shadow: none !important;
-		}
-
-		.encrypt-input {
-			background: rgba(255, 255, 255, 0.055) !important;
-			font-size: 16px;
-			touch-action: manipulation;
-		}
-
-		.eye-btn {
-			top: calc(50% - 1rem);
-			transform: none !important;
-			touch-action: manipulation;
-		}
-
-		.eye-btn:active {
-			transform: none !important;
-		}
-
-		.encrypt-btn {
-			touch-action: manipulation;
-		}
-
-		.encrypt-btn:active {
 			transform: none !important;
 		}
 	}
