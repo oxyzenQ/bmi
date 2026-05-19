@@ -46,7 +46,31 @@ const boundRegistrations = new WeakSet<ServiceWorkerRegistration>();
 export const pwaUpdateState = writable<PwaUpdateState>(initialState);
 
 function currentCommit(): string {
-	return typeof __GIT_COMMIT_ID__ !== 'undefined' ? __GIT_COMMIT_ID__ : 'unknown';
+	return typeof __GIT_COMMIT_ID__ !== 'undefined'
+		? normalizeCommitId(__GIT_COMMIT_ID__)
+		: 'unknown';
+}
+
+export function normalizeCommitId(commit: string | null | undefined): string {
+	const normalized = typeof commit === 'string' ? commit.trim().toLowerCase() : '';
+	return normalized || 'unknown';
+}
+
+export function commitsMatch(a: string | null | undefined, b: string | null | undefined): boolean {
+	const aa = normalizeCommitId(a);
+	const bb = normalizeCommitId(b);
+	if (aa === 'unknown' || bb === 'unknown' || aa === 'dev' || bb === 'dev') return false;
+	return aa.startsWith(bb) || bb.startsWith(aa);
+}
+
+export function hasNewerCommit(
+	latestCommit: string | null | undefined,
+	localCommit: string | null | undefined
+): boolean {
+	const latest = normalizeCommitId(latestCommit);
+	const local = normalizeCommitId(localCommit);
+	if (latest === 'unknown' || local === 'unknown' || local === 'dev') return false;
+	return !commitsMatch(latest, local);
 }
 
 function compareSemver(a: string, b: string): number {
@@ -63,31 +87,33 @@ function compareSemver(a: string, b: string): number {
 }
 
 function isNewerUpstream(latestVersion: string | null, latestCommit: string | null): boolean {
+	const localCommit = currentCommit();
+	if (commitsMatch(latestCommit, localCommit)) return false;
+	if (hasNewerCommit(latestCommit, localCommit)) return true;
+
 	const localVersion = getAppVersionRaw();
 	if (latestVersion && localVersion && compareSemver(latestVersion, localVersion) > 0) return true;
 
-	const localCommit = currentCommit();
-	if (!latestCommit || localCommit === 'dev' || localCommit === 'unknown') return false;
-
-	return !latestCommit.startsWith(localCommit);
+	return false;
 }
 
-function markUpdateAvailable(source: PwaUpdateState['source'], swUpdateReady = false): void {
+function noteServiceWorkerUpdateReady(): void {
 	pwaUpdateState.update((state) => ({
 		...state,
 		checked: true,
-		updateAvailable: true,
-		swUpdateReady: state.swUpdateReady || swUpdateReady,
-		source,
+		swUpdateReady: true,
+		source: 'service-worker',
 		error: null
 	}));
+
+	void checkForPwaUpdate('auto');
 }
 
 export function bindPwaUpdateRegistration(registration: ServiceWorkerRegistration): void {
 	registrationRef = registration;
 
-	if (registration.waiting) {
-		markUpdateAvailable('service-worker', true);
+	if (registration.waiting && navigator.serviceWorker.controller) {
+		noteServiceWorkerUpdateReady();
 	}
 
 	if (boundRegistrations.has(registration)) return;
@@ -99,7 +125,7 @@ export function bindPwaUpdateRegistration(registration: ServiceWorkerRegistratio
 
 		installing.addEventListener('statechange', () => {
 			if (installing.state === 'installed' && navigator.serviceWorker.controller) {
-				markUpdateAvailable('service-worker', true);
+				noteServiceWorkerUpdateReady();
 			}
 		});
 	});

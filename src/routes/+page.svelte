@@ -223,6 +223,7 @@
 	// Touch swipe state for mobile horizontal navigation
 	let touchStartX: number | null = null;
 	let touchStartY: number | null = null;
+	let touchStartTarget: HTMLElement | null = null;
 	let touchStartTime: number = 0;
 	let activePointerId: number | null = null;
 	let lastWheelNavAt = 0;
@@ -263,6 +264,46 @@
 			behavior: isTouchDevice || reducedMotionEffective ? 'auto' : 'smooth'
 		});
 		triggerHaptic(5);
+	}
+
+	function getActiveSectionScroller(): HTMLElement | null {
+		const activeId = sections[activeIndex].id;
+		return (
+			activeScroller ??
+			pagerEl?.querySelector<HTMLElement>(
+				`[data-pager-scroll="true"][data-section-id="${activeId}"]`
+			) ??
+			null
+		);
+	}
+
+	function isScrollableY(el: HTMLElement): boolean {
+		return el.scrollHeight > el.clientHeight + 2;
+	}
+
+	function isActiveScrollerMidScroll(): boolean {
+		const scroller = getActiveSectionScroller();
+		if (!scroller || !isScrollableY(scroller)) return false;
+		const maxY = scroller.scrollHeight - scroller.clientHeight;
+		return scroller.scrollTop > 2 && scroller.scrollTop < maxY - 2;
+	}
+
+	function targetHasVerticalScroller(target: HTMLElement | null): boolean {
+		for (let el = target; el && el !== pagerEl; el = el.parentElement) {
+			if (isScrollableY(el)) return true;
+		}
+		return isScrollableY(getActiveSectionScroller() ?? document.documentElement);
+	}
+
+	function shouldCancelTouchSwipeForVerticalScroll(absDy: number): boolean {
+		if (absDy < SCROLL.TOUCH_VERTICAL_CANCEL_PX) return false;
+		if (
+			touchScrollingActive ||
+			Date.now() - lastTouchScrollAt < SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY
+		)
+			return true;
+		if (isActiveScrollerMidScroll()) return true;
+		return targetHasVerticalScroller(touchStartTarget);
 	}
 
 	let reducedMotionEffective = $derived(prefersReducedMotion);
@@ -593,6 +634,7 @@
 			return;
 		touchStartX = touch.clientX;
 		touchStartY = touch.clientY;
+		touchStartTarget = target;
 		touchStartTime = Date.now();
 	}
 
@@ -604,12 +646,14 @@
 		if (touchStartX === null || touchStartY === null) {
 			touchStartX = null;
 			touchStartY = null;
+			touchStartTarget = null;
 			return;
 		}
 		const touch = e.changedTouches[0];
 		if (!touch) {
 			touchStartX = null;
 			touchStartY = null;
+			touchStartTarget = null;
 			return;
 		}
 		const dx = touch.clientX - touchStartX;
@@ -624,8 +668,16 @@
 		const isLongEnough = absDx >= SCROLL.TOUCH_SWIPE_DX_MIN;
 		const isFastEnough = elapsed < SCROLL.TOUCH_SWIPE_MAX_MS;
 		const verticalDidNotDominate = absDy < SCROLL.TOUCH_VERTICAL_CANCEL_PX || isHorizontal;
+		const verticalScrollInProgress = shouldCancelTouchSwipeForVerticalScroll(absDy);
+		touchStartTarget = null;
 
-		if (isHorizontal && isLongEnough && isFastEnough && verticalDidNotDominate) {
+		if (
+			isHorizontal &&
+			isLongEnough &&
+			isFastEnough &&
+			verticalDidNotDominate &&
+			!verticalScrollInProgress
+		) {
 			triggerHaptic(HAPTIC.NAV);
 			if (dx < 0) nextSection();
 			else prevSection();
@@ -1175,6 +1227,9 @@
 													});
 													notifyButtonText = t('notify.import_keep');
 													showNotify = true;
+												} else if (result.action === 'import-success') {
+													lastSavedHistorySignature = null;
+													resultsRunId += 1;
 												} else if (result.action === 'import-error') {
 													notifyType = 'error';
 													notifyMessage = result.error || t('notify.import_error');

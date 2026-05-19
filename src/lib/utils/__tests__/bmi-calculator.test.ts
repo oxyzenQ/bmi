@@ -5,6 +5,8 @@ import {
 	calculateBmi,
 	isBmiResult,
 	computeBmi,
+	computeIdealWeightRangeKg,
+	heightInputToMeters,
 	toMetric,
 	validateInputs,
 	IN_TO_CM,
@@ -56,6 +58,26 @@ describe('toMetric', () => {
 		const result = toMetric(0, 0, 'metric');
 		expect(result.heightCm).toBe(0);
 		expect(result.weightKg).toBe(0);
+	});
+});
+
+// ── ideal weight helpers ──
+
+describe('ideal weight helpers', () => {
+	it('keeps metric height in centimeters', () => {
+		expect(heightInputToMeters(170, 'metric')).toBeCloseTo(1.7, 4);
+
+		const range = computeIdealWeightRangeKg(170, 'metric');
+		expect(range?.min).toBeCloseTo(53.465, 3);
+		expect(range?.max).toBeCloseTo(72.25, 2);
+	});
+
+	it('converts imperial height from inches before BMI ideal weight math', () => {
+		expect(heightInputToMeters(67, 'imperial')).toBeCloseTo(1.7018, 4);
+
+		const range = computeIdealWeightRangeKg(67, 'imperial');
+		expect(range?.min).toBeCloseTo(53.58, 2);
+		expect(range?.max).toBeCloseTo(72.4, 1);
 	});
 });
 

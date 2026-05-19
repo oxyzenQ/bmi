@@ -43,7 +43,7 @@
 	type Activity = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active' | '';
 
 	interface ImportNotifyResult {
-		action: 'import-validate' | 'import-error';
+		action: 'import-validate' | 'import-success' | 'import-error';
 		text?: string;
 		recordCount?: number;
 		integrityVerified?: boolean;
@@ -424,8 +424,7 @@
 
 			// Also notify parent for any additional UI updates
 			onNotify?.({
-				action: 'import-validate',
-				text: '',
+				action: 'import-success',
 				recordCount: result.count,
 				integrityVerified: result.integrityVerified ?? false
 			});

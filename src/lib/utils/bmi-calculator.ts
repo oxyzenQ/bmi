@@ -81,6 +81,27 @@ export function toMetric(
 	return { heightCm: height, weightKg: weight };
 }
 
+export function heightInputToMeters(
+	height: number,
+	unitSystem: 'metric' | 'imperial'
+): number | null {
+	if (!Number.isFinite(height) || height <= 0) return null;
+	const heightCm = unitSystem === 'imperial' ? height * IN_TO_CM : height;
+	return heightCm / 100;
+}
+
+export function computeIdealWeightRangeKg(
+	height: number,
+	unitSystem: 'metric' | 'imperial'
+): { min: number; max: number } | null {
+	const heightM = heightInputToMeters(height, unitSystem);
+	if (heightM === null) return null;
+	return {
+		min: 18.5 * heightM * heightM,
+		max: 25.0 * heightM * heightM
+	};
+}
+
 /**
  * Validate that parsed height and weight fall within acceptable ranges.
  * The limits depend on the unit system so that imperial users see
