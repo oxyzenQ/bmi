@@ -19,6 +19,7 @@ export interface BmiCardData {
 	height?: number | null;
 	weight?: number | null;
 	heightUnit?: string;
+	tdeeContext?: string | null;
 }
 
 const CARD_W = 1080;
@@ -191,16 +192,17 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
 	return lines;
 }
 
-/** Draw a pill-shaped stat cell with label above and value below */
+/** Draw a pill-shaped stat cell with label above, value below, and optional compact caption */
 function drawStatCell(
 	ctx: CanvasRenderingContext2D,
 	cx: number, // center x
 	y: number, // top of cell
 	label: string,
-	value: string
+	value: string,
+	caption?: string
 ) {
 	const pillW = 262;
-	const pillH = 104;
+	const pillH = caption ? 118 : 104;
 	const pillX = cx - pillW / 2;
 	const pillR = 26;
 
@@ -240,11 +242,17 @@ function drawStatCell(
 	ctx.textAlign = 'center';
 	ctx.fillStyle = PREMIUM.textMuted;
 	ctx.font = '700 18px system-ui, sans-serif';
-	ctx.fillText(label, cx, y + 35);
+	ctx.fillText(label, cx, y + 33);
 
 	ctx.fillStyle = PREMIUM.text;
 	ctx.font = fitFontSize(ctx, value, 800, 32, 23, pillW - 28);
-	ctx.fillText(value, cx, y + 78);
+	ctx.fillText(value, cx, caption ? y + 70 : y + 78);
+
+	if (caption) {
+		ctx.fillStyle = PREMIUM.textFaint;
+		ctx.font = '500 13px system-ui, sans-serif';
+		ctx.fillText(caption, cx, y + 98);
+	}
 }
 
 /**
@@ -674,7 +682,8 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 			contentX + colW * 0.5,
 			statsY,
 			t('share.card_prime'),
-			data.bmiPrime.toFixed(2)
+			data.bmiPrime.toFixed(2),
+			t('share.card_prime_caption')
 		);
 	}
 
@@ -689,12 +698,14 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 	}
 
 	if (data.tdee !== null && data.tdee !== undefined) {
+		const tdeeCaption = data.tdeeContext ?? t('share.card_tdee_estimate');
 		drawStatCell(
 			ctx,
 			contentX + colW * 2.5,
 			statsY,
 			t('share.card_tdee'),
-			`${Math.round(data.tdee)} ${t('share.card_kcal')}`
+			`${Math.round(data.tdee)} ${t('share.card_kcal')}`,
+			tdeeCaption
 		);
 	}
 

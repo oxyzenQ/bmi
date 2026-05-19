@@ -436,6 +436,8 @@ const en: TranslationDict = {
 		'Seek professional medical advice for a comprehensive weight management plan.',
 	'share.card_height': 'Height',
 	'share.card_weight': 'Weight',
+	'share.card_prime_caption': 'BMI / 25',
+	'share.card_tdee_estimate': 'TDEE estimate',
 
 	// ── History IO ──
 	'history.invalid_json': 'Invalid JSON format.',

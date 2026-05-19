@@ -489,6 +489,8 @@ const ja: TranslationDict = {
 		'\u5305\u62ec\u7684\u306a\u4f53\u91cd\u7ba1\u7406\u8a08\u753b\u306b\u3064\u3044\u3066\u533b\u7697\u5c02\u9580\u5bb6\u306e\u30a2\u30c9\u30d0\u30a4\u30b9\u3092\u53d7\u3051\u3066\u304f\u3060\u3055\u3044\u3002',
 	'share.card_height': '\u8eab\u9577',
 	'share.card_weight': '\u4f53\u91cd',
+	'share.card_prime_caption': 'BMI / 25',
+	'share.card_tdee_estimate': 'TDEE \u63a8\u5b9a',
 
 	// ── History IO ──
 	'history.invalid_json': '\u7121\u52b9\u306a JSON \u5f62\u5f0f\u3067\u3059\u3002',

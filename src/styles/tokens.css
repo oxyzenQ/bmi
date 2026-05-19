@@ -554,7 +554,7 @@
 
 	/* ── GLASSMORPHISM DESIGN TOKENS ──
      Container glass is controlled through --container-glass-* below. */
-	--glass-bg-nightky: rgba(0, 0, 0, 0.70);
+	--glass-bg-nightky: rgba(0, 0, 0, 0.7);
 	--glass-blur: 16px;
 	--glass-blur-heavy: 20px;
 	--glass-blur-light: 10px;

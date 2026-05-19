@@ -437,6 +437,8 @@ const id: TranslationDict = {
 		'Carilah saran medis profesional untuk program pengelolaan berat badan yang komprehensif.',
 	'share.card_height': 'Tinggi',
 	'share.card_weight': 'Berat',
+	'share.card_prime_caption': 'BMI / 25',
+	'share.card_tdee_estimate': 'Estimasi TDEE',
 
 	// ── History IO ──
 	'history.invalid_json': 'Format JSON tidak valid.',

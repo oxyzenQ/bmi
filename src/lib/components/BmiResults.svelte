@@ -252,6 +252,19 @@
 
 	function getCardData() {
 		const hUnit = unitSystem === 'imperial' ? 'in' : 'cm';
+
+		// Build compact TDEE context caption from gender + activity
+		let tdeeContext: string | null = null;
+		if (tdee !== null) {
+			const parts: string[] = [];
+			if (gender === 'male') parts.push(t('results.male'));
+			else if (gender === 'female') parts.push(t('results.female'));
+			if (activity && activityLabels[activity]) {
+				parts.push(activityLabels[activity]);
+			}
+			tdeeContext = parts.length > 0 ? parts.join(' \u00b7 ') : null;
+		}
+
 		return {
 			bmi: bmiValue!,
 			category: category!,
@@ -262,7 +275,8 @@
 			weightUnit,
 			height,
 			weight,
-			heightUnit: hUnit
+			heightUnit: hUnit,
+			tdeeContext
 		};
 	}
 

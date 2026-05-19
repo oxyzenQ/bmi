@@ -465,6 +465,8 @@ const zh: TranslationDict = {
 		'\u8bf7\u5bfb\u6c42\u4e13\u4e1a\u533b\u7597\u5efa\u8bae\uff0c\u5236\u5b9a\u5168\u9762\u7684\u4f53\u91cd\u7ba1\u7406\u8ba1\u5212\u3002',
 	'share.card_height': '\u8eab\u9ad8',
 	'share.card_weight': '\u4f53\u91cd',
+	'share.card_prime_caption': 'BMI / 25',
+	'share.card_tdee_estimate': 'TDEE \u4f30\u7b97',
 
 	// ── History IO ──
 	'history.invalid_json': 'JSON \u683c\u5f0f\u65e0\u6548\u3002',

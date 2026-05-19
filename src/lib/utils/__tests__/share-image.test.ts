@@ -25,7 +25,9 @@ vi.mock('$lib/i18n', () => ({
 			'share.card_insight_overweight': 'Focus on gradual weight loss.',
 			'share.card_insight_obese': 'Seek professional medical advice.',
 			'share.card_height': 'Height',
-			'share.card_weight': 'Weight'
+			'share.card_weight': 'Weight',
+			'share.card_prime_caption': 'BMI / 25',
+			'share.card_tdee_estimate': 'TDEE estimate'
 		};
 		let result = translations[key] ?? key;
 		if (params) {
@@ -154,6 +156,28 @@ describe('generateBmiCard', () => {
 				height: 175,
 				weight: 68,
 				heightUnit: 'cm'
+			})
+		).resolves.not.toThrow();
+	});
+
+	it('does not crash with tdeeContext field', async () => {
+		await expect(
+			generateBmiCard({
+				bmi: 24.5,
+				category: 'Normal Weight',
+				tdee: 2100,
+				tdeeContext: 'Male \u00b7 Very Active'
+			})
+		).resolves.not.toThrow();
+	});
+
+	it('does not crash with null tdeeContext', async () => {
+		await expect(
+			generateBmiCard({
+				bmi: 24.5,
+				category: 'Normal Weight',
+				tdee: 2100,
+				tdeeContext: null
 			})
 		).resolves.not.toThrow();
 	});
