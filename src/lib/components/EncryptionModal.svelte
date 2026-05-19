@@ -292,6 +292,7 @@
 			class:visible
 			role="dialog"
 			aria-modal="true"
+			aria-label={title}
 		>
 			<div class="encrypt-box">
 				<EncryptionModalHeader {mode} {title} {iconColor} />

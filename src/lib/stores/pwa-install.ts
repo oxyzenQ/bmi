@@ -57,24 +57,6 @@ export function registerPwaInstallPrompt(event: Event): void {
 		canInstall: true,
 		isInstalled: isStandaloneDisplay()
 	}));
-
-	deferredPrompt.userChoice
-		.then(({ outcome }) => {
-			if (outcome === 'accepted') {
-				markPwaInstalled();
-			} else if (deferredPrompt === event) {
-				deferredPrompt = null;
-				pwaInstallState.update((state) => ({
-					...state,
-					checked: true,
-					canInstall: false,
-					isInstalled: isStandaloneDisplay()
-				}));
-			}
-		})
-		.catch(() => {
-			/* Browser may discard the event if the native prompt owns the flow. */
-		});
 }
 
 export async function promptPwaInstall(): Promise<boolean> {

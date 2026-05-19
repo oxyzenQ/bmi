@@ -54,11 +54,13 @@ describe('pwa install prompt store', () => {
 		expect(get(pwaInstallState)).toMatchObject({ canInstall: false, isInstalled: false });
 	});
 
-	it('clears availability when the native prompt flow is dismissed', async () => {
+	it('keeps canInstall true when event is registered but prompt not yet called', async () => {
 		registerPwaInstallPrompt(createInstallEvent('dismissed'));
 
 		await Promise.resolve();
 
-		expect(get(pwaInstallState)).toMatchObject({ canInstall: false, isInstalled: false });
+		// userChoice does not resolve until prompt() is called;
+		// canInstall remains true until promptPwaInstall handles the outcome
+		expect(get(pwaInstallState)).toMatchObject({ canInstall: true, isInstalled: false });
 	});
 });

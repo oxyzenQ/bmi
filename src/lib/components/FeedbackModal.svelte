@@ -48,6 +48,7 @@
 	panelClass="feedback-box"
 	backdropClass="feedback-shell"
 	zIndex="var(--z-modal-top)"
+	ariaLabel={displayTitle}
 >
 	<div class="feedback-content">
 		<div class="feedback-header">

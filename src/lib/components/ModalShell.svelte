@@ -27,6 +27,8 @@
 		autoFocus?: boolean;
 		/** Override z-index — default uses --modal-z */
 		zIndex?: string;
+		/** Accessible name for the dialog (screen readers announce this) */
+		ariaLabel?: string;
 		onclose?: () => void;
 		children?: Snippet;
 	}
@@ -44,6 +46,7 @@
 		closeOnBackdropClick = false,
 		autoFocus = true,
 		zIndex = undefined,
+		ariaLabel,
 		onclose = () => {},
 		children
 	}: Props = $props();
@@ -159,6 +162,7 @@
 			class:visible
 			role="dialog"
 			aria-modal="true"
+			aria-label={ariaLabel}
 			tabindex="-1"
 			onclick={handleBackdropClick}
 			onkeydown={(e: KeyboardEvent) => {

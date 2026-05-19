@@ -142,6 +142,7 @@
 	backdropSat="180%"
 	onclose={handleModalClose}
 	panelClass="notify-float-box"
+	ariaLabel={message}
 >
 	<button class="notify-close" onclick={handleModalClose} aria-label={t('notify.close_aria')}>
 		<span class="close-icon-text" aria-hidden="true">×</span>
