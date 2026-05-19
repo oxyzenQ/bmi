@@ -41,6 +41,7 @@
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
+		if (!open || e.defaultPrevented) return;
 		if (e.key === 'Escape') {
 			e.preventDefault();
 			closePanel();
