@@ -21,21 +21,24 @@
 		touch-action: pan-y pinch-zoom; /* Optimize touch response */
 	}
 
-	/* Simplify body::before filter on touch devices.
-     Full filter chain (brightness(1) contrast(1.25) saturate(1)) costs
-     GPU cycles even when values look "neutral".
-     Replace with a single brightness reduction to keep wallpaper
-     visible without compositor layer promotion. */
+	/* Simplify body::before on touch devices.
+     Desktop uses filter:brightness(0.4) to dim the wallpaper cheaply
+     (single cached texture). On mobile, opacity is even cheaper than
+     filter — no GPU filter pass, no compositing layer promotion.
+     Combined with the lighter body::after gradient, this achieves
+     the same dark mood with significantly less per-frame work. */
 	body::before {
+		opacity: 0.65;
 		filter: none;
 		transform: none;
 	}
 
-	/* Darken wallpaper through a cheap overlay instead of a
-     full-screen filtered fixed image. This keeps the same black-premium
-     mood with less work during long section scrolls. */
+	/* Lighter gradient overlay on mobile — the dimmed wallpaper
+     (opacity 0.65) already provides most of the darkening, so the
+     overlay can be much lighter. A heavy overlay over a fully-bright
+     wallpaper forced double compositing per frame during scroll. */
 	body::after {
-		background: linear-gradient(180deg, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.8));
+		background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.55));
 	}
 
 	/* Keep .pager-section on native compositor scrolling without
@@ -544,6 +547,9 @@
 	/* Buttons stay solid for tap responsiveness. */
 	/* Navbar top */
 	.pager-nav-shell {
+		background: var(--container-glass-bg);
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
 		transition: none;
 		will-change: auto;
 		contain: paint style;
@@ -552,6 +558,9 @@
 
 	/* Navbar bottom */
 	.pager-controls-shell {
+		background: var(--container-glass-bg);
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
 		transition:
 			opacity 140ms ease,
 			transform 140ms ease;
