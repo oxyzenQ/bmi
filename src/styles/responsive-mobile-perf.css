@@ -52,9 +52,17 @@
 		will-change: auto !important;
 		-webkit-overflow-scrolling: touch;
 		overscroll-behavior: contain;
+		overscroll-behavior-x: none;
+		overscroll-behavior-y: contain;
 		overflow-anchor: none;
 		contain: style;
 		touch-action: pan-y pinch-zoom;
+	}
+
+	@supports (overflow: clip) {
+		.pager-view {
+			overflow: clip;
+		}
 	}
 
 	.pager-shell {
