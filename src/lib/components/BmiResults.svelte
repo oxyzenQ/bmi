@@ -164,13 +164,13 @@
 		very_active: 1.9
 	};
 
-	// Reactive activity labels — re-evaluates when locale changes via _rv dependency
+	// Reactive activity labels — matches form option labels exactly
 	let activityLabels = $derived({
-		sedentary: t('results.activity_sedentary'),
-		light: t('results.activity_light'),
-		moderate: t('results.activity_moderate'),
-		active: t('results.activity_very'),
-		very_active: t('results.activity_extremely')
+		sedentary: t('form.sedentary'),
+		light: t('form.light'),
+		moderate: t('form.moderate'),
+		active: t('form.active'),
+		very_active: t('form.very_active')
 	});
 
 	let bmr = $derived.by(() => {
