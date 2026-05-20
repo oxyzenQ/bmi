@@ -1,6 +1,6 @@
 # Contributing to BMI Stellar
 
-Thank you for considering a contribution. This guide covers everything you need to set up, develop, and submit changes that meet the project's standards.
+Thank you for considering a contribution. This guide covers how to set up, develop, test, and submit changes that preserve BMI Stellar's core promises: correct health math, local-first privacy, smooth mobile interaction, accessible UI, and a polished dark premium identity.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ Thank you for considering a contribution. This guide covers everything you need 
    ```
 3. **Install** dependencies using Bun:
    ```bash
-   bun install
+   bun install --frozen-lockfile
    ```
 4. **Create** a branch for your work:
    ```bash
@@ -96,12 +96,26 @@ Styles follow a strict import order in `+layout.svelte`. Each layer builds on th
 6. `results.css` — Results card, share buttons
 7. `data-cards.css` — Stat grid, TDEE, gauge
 8. `layout.css` — Layout, footer
-9. `responsive-*.css` — Responsive overrides (base, width, height, backdrop, mobile-perf, content)
-10. `nav.css` — Pager navigation
-11. `lang-switcher.css` — Language switcher panel
-12. `animation.css` — Skeleton loading, micro-interactions
+9. `responsive-base.css` — Shared responsive contracts and component focus contracts
+10. `responsive-width.css` — Width breakpoints
+11. `responsive-height.css` — Height breakpoints
+12. `responsive-backdrop.css` — `backdrop-filter` feature fallbacks
+13. `nav.css` — Pager navigation and bottom controls
+14. `lang-switcher.css` — Language switcher panel
+15. `animation.css` — Skeleton loading and micro-interactions
+16. `responsive-mobile-perf.css` — Touch-device rendering and scroll performance overrides
+17. `responsive-content.css` — Final responsive correction layer
 
 See [Furthermore Docs](../docs/furthermore.md) for the full architecture diagram.
+
+### Non-Negotiable Guardrails
+
+- **BMI/TDEE/body-fat formulas:** Do not change calculation behavior without tests and a clear issue or PR rationale.
+- **Share image export:** Preserve PNG-only, 1:1 square output unless the change explicitly targets share rendering.
+- **Encrypted backups:** Do not change the encrypted backup envelope, KDF, cipher, or compatibility behavior casually.
+- **Mobile scroll:** Treat scroll/touch/wheel changes as high-risk. Preserve vertical scroll inside long sections and intentional horizontal section swipes.
+- **Visual identity:** Keep the dark premium Stellar language intact. Avoid broad redesigns in maintenance PRs.
+- **Dependencies:** Avoid new dependencies unless they remove substantial risk or complexity.
 
 ## Internationalization Guidelines
 
@@ -162,6 +176,19 @@ Before opening a PR, complete this checklist:
 5. **Description:** Your PR explains _why_ the change is needed, not just _what_ was changed.
 6. **Issues:** Related issues are referenced (e.g., "Fixes #123").
 
+### Suggested PR Verification Notes
+
+Include the commands you ran and any manual checks that matter for the changed area:
+
+| Change Area           | Manual QA to Mention                                               |
+| --------------------- | ------------------------------------------------------------------ |
+| BMI/results           | Metric and imperial calculation paths                              |
+| History/import/export | Unencrypted import/export and encrypted import/export              |
+| Mobile navigation     | Android Chrome/iOS Safari assumptions, slow scroll, diagonal swipe |
+| PWA                   | Install prompt, update prompt, offline refresh                     |
+| Share image           | PNG-only, 1:1 square output, readable social preview               |
+| Accessibility         | Keyboard focus, modal escape/close, reduced motion                 |
+
 ### PR Title Format
 
 Use the same conventional commit format:
@@ -174,10 +201,11 @@ fix(css): resolve backdrop-filter regression on iOS Safari
 ## Code Standards
 
 - **Type Safety First:** TypeScript strict mode is mandatory. Avoid `any` — use proper type definitions and generics.
-- **Svelte 5 Runes:** Embrace `$state`, `$derived`, `$effect`, and `$props` — do not use legacy Svelte 4 patterns.
-- **Styling:** Use existing CSS custom properties from `tokens.css`. Add new tokens when a value is reused across 2+ files. Avoid inline styles.
-- **Accessibility:** Every interactive element must have a visible `:focus-visible` indicator. Use ARIA attributes (`aria-label`, `role`, `aria-modal`, etc.) for screen reader support. Test keyboard navigation.
-- **Performance:** Profile new animations on mobile. The three-tier system (high/medium/low) in `animation-config.ts` must be respected.
+- **Svelte 5 Runes:** Use `$state`, `$derived`, `$effect`, and `$props` where they fit. Do not introduce legacy Svelte 4 patterns into new code.
+- **Styling:** Use existing CSS custom properties from `tokens.css`. Add new tokens only when a value is reused across files. Avoid inline styles and avoid `!important` unless the cascade genuinely requires it.
+- **Accessibility:** Every interactive element must have an intentional keyboard-visible state. Prefer component-owned `:focus-visible` styles over broad global outlines. Use ARIA attributes (`aria-label`, `role`, `aria-modal`, etc.) for screen reader support and test keyboard navigation.
+- **Performance:** Profile new animations on mobile. The three-tier system (high/medium/low) in `animation-config.ts` and touch-device CSS in `responsive-mobile-perf.css` must be respected.
+- **Security:** Never log health data, backup payloads, passphrases, encryption keys, verifier plaintext, or decrypted import contents.
 - **Clarity over Cleverness:** Write descriptive names, keep functions small and focused, and add comments for non-obvious logic.
 
 ## Questions

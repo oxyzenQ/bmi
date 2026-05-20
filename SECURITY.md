@@ -1,6 +1,6 @@
 # Security Policy
 
-Security and user privacy are foundational pillars of BMI Stellar. This document defines the scope of our security commitments, how to report vulnerabilities, and the cryptographic architecture that protects user data.
+Security and user privacy are foundational pillars of BMI Stellar. This document defines the scope of our security commitments, how to report vulnerabilities, and the privacy/cryptographic architecture that protects user data.
 
 ## Table of Contents
 
@@ -8,6 +8,7 @@ Security and user privacy are foundational pillars of BMI Stellar. This document
 - [Reporting a Vulnerability](#reporting-a-vulnerability)
 - [Expected Response Timeline](#expected-response-timeline)
 - [Scope](#scope)
+- [Privacy Boundary](#privacy-boundary)
 - [Security Architecture](#security-architecture)
 - [Cryptographic Details](#cryptographic-details)
 
@@ -68,12 +69,24 @@ Our maintenance team is committed to addressing security concerns promptly:
 - Theoretical vulnerabilities without a practical exploit
 - Issues in third-party services (Vercel, GitHub) outside our control
 
+## Privacy Boundary
+
+BMI Stellar is local-first. BMI inputs, BMI history, goals, body-composition values, encrypted verifier data, and backup contents are stored and processed in the browser.
+
+The hosted production demo may load Vercel Analytics and Speed Insights for aggregate product/performance telemetry. Those integrations must never receive BMI values, history records, passphrases, encryption keys, backup payloads, or decrypted import contents.
+
+Users can explicitly export or share data:
+
+- **PNG share cards** contain only the visible result information rendered into the image.
+- **Unencrypted exports** are portable history backups and should be treated like sensitive personal files by the user.
+- **Encrypted exports** protect backup contents with passphrase-derived encryption before download.
+
 ## Security Architecture
 
 BMI Stellar is engineered with a strict **Local-First, Zero-Trust** model:
 
-- **Data Locality:** All health metrics are computed and stored entirely on the user's device. There are no tracking pixels, no external telemetry servers, and no server-side storage of BMI data. The only network requests are for static assets (fonts, icons) and Vercel analytics (aggregated, non-personal).
-- **Export Encryption:** All backups are encrypted using AES-256-GCM authenticated encryption before leaving the browser. Unencrypted exports are never written to disk.
+- **Data Locality:** Health metrics are computed and stored on the user's device. There is no account system and no app backend that stores BMI data.
+- **Export Encryption:** Encrypted backups use AES-256-GCM authenticated encryption before download. Unencrypted export remains available for portability and is intentionally user-controlled.
 - **Key Derivation:** We use Argon2id (the winner of the Password Hashing Competition) to derive encryption keys from user passphrases. The production parameters (64 MiB memory, 3 iterations, parallelism 1) follow OWASP 2023 recommendations and are highly resistant to GPU-based cracking.
 - **Zero Knowledge:** Passphrases are never stored, cached, or transmitted. The passphrase verifier stored in IndexedDB is an AES-GCM ciphertext of a known plaintext — it can confirm a passphrase is correct but cannot be reversed to recover the passphrase.
 - **Integrity Verification:** Every backup includes a SHA-256 checksum of the ciphertext. Import validates this checksum before attempting decryption, rejecting tampered or corrupted payloads.
@@ -122,6 +135,13 @@ When encryption is enabled, a known verifier string (`BMI_STELLAR_VERIFIER_V1`) 
 ### Password Strength Estimation
 
 Uses `@zxcvbn-ts/core` with `@zxcvbn-ts/language-common` dictionary for realistic strength scoring. Falls back to basic length/character-class heuristics if zxcvbn is unavailable.
+
+### Operational Safety Rules
+
+- Never log passphrases, derived keys, verifier plaintext, decrypted backups, encrypted backup payloads, or raw health history.
+- Do not weaken Argon2id/AES-GCM parameters without a security-focused PR and test coverage.
+- Do not change the encrypted backup format without a compatibility plan.
+- Treat service worker changes as security-sensitive because stale caches and update prompts can affect what users run.
 
 ---
 

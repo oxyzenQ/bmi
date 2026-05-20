@@ -31,8 +31,8 @@ This document is the canonical technical reference for BMI Stellar. It covers ar
 - **Rich Visuals:** Interactive radial gauge, BMI history sparkline with hover tooltips, and premium share card generation via Canvas API.
 - **Secure Backups:** Passphrase-encrypted backups using AES-256-GCM with Argon2id key derivation, SHA-256 integrity checksums, and zero-knowledge passphrase verification.
 - **Global Reach:** Multi-language UI spanning English, Indonesian, Japanese, and Chinese — with universal unit symbols (kg, cm, lb, in, kcal) and locale-aware text rendering.
-- **Performance Optimized:** Three-tier animation system (high/medium/low) that adapts to device capability, custom touch-device scroll policies, and simplified visual effects during heavy scrolling.
-- **Accessibility First:** WCAG 2.1 compliant focus-visible indicators, ARIA dialog/radiogroup/alert patterns, keyboard navigation, `prefers-reduced-motion` support, and screen-reader-friendly labels throughout.
+- **Performance Optimized:** Three-tier animation system (high/medium/low) that adapts to device capability, strict touch intent detection, and touch-device CSS that reduces expensive paint work in scroll-heavy views.
+- **Accessibility First:** Keyboard-visible focus states, ARIA dialog/radiogroup/alert patterns, keyboard navigation, `prefers-reduced-motion` support, and screen-reader-friendly labels throughout.
 
 ## CSS Architecture
 
@@ -64,7 +64,7 @@ graph TD
 | 6   | `results.css`                | BMI results card, share/action/download buttons, empty states, category badges                                                                                                    |
 | 7   | `data-cards.css`             | Stat grid, TDEE panel, radial gauge, reference table, goal tracker                                                                                                                |
 | 8   | `layout.css`                 | About section, wallpaper layout, footer, disclaimer                                                                                                                               |
-| 9   | `responsive-base.css`        | `focus-visible` global ring, fluid media, container contracts, form width breakpoints                                                                                             |
+| 9   | `responsive-base.css`        | Shared responsive contracts, fluid media, container sizing, form width breakpoints, and component-specific focus contracts                                                        |
 | 10  | `responsive-width.css`       | Width breakpoints (768px, ultrawide) and surface sizing                                                                                                                           |
 | 11  | `responsive-height.css`      | Height-based compression rules (640px, 520px)                                                                                                                                     |
 | 12  | `responsive-backdrop.css`    | `@supports` feature detection for `backdrop-filter`, solid fallback backgrounds                                                                                                   |
@@ -76,7 +76,7 @@ graph TD
 
 ## Accessibility Architecture
 
-BMI Stellar follows a **progressive focus pattern**: mouse focus is suppressed (`:focus:not(:focus-visible) { outline: none }`), while keyboard focus is enhanced with a visible ring (`:focus-visible { outline: 2px solid var(--neon-purple) }`). Components with custom focus indicators (border color change, glow) opt out of the global ring via explicit `outline: none` on their `:focus-visible` state.
+BMI Stellar follows a **component-owned focus pattern**: mouse focus is suppressed (`:focus:not(:focus-visible) { outline: none }`), while keyboard focus is exposed through each component's own visible indicator. Inputs, segmented controls, modal controls, icon buttons, and pager controls use local focus styles rather than a single global purple outline. This keeps keyboard navigation visible without producing inconsistent rings on floating windows or notification controls.
 
 **ARIA patterns in use:**
 
@@ -91,7 +91,7 @@ BMI Stellar follows a **progressive focus pattern**: mouse focus is suppressed (
 | `role="img"` + `aria-label`                           | Sparkline SVG chart                                                          |
 | `aria-hidden="true"`                                  | All decorative icons, dot indicators, spacers                                |
 
-**Reduced motion:** `prefers-reduced-motion: reduce` disables all non-functional animations via `animation-config.ts`. Functional animations (e.g., loading spinners) continue but without movement — only opacity transitions.
+**Reduced motion:** `prefers-reduced-motion: reduce` disables non-functional movement via `animation-config.ts` and CSS media queries. Functional state changes remain available, but decorative motion is removed or reduced.
 
 ## Pager Navigation
 
@@ -113,6 +113,9 @@ The application is a single-page experience segmented into six primary sections:
 - Minimum swipe distance: 96px
 - Maximum gesture duration: 420ms
 - Post-navigation cooldown: 520ms
+- Vertical intent threshold: 16px
+- Vertical scroll cancellation threshold: 28px
+- Recent touch-scroll guard: 240ms
 - Excluded targets: buttons, links, inputs, labels, and `[role="button"]` elements
 - Haptic feedback: 5ms vibration on successful navigation
 
@@ -282,7 +285,7 @@ All compact numeric contexts use **universal unit symbols** (kg, cm, lb, in, kca
 | Categories  | health, fitness, lifestyle, utilities                        |
 | Shortcuts   | "Calculate BMI" (`/#calculator`), "View Results" (`/#gauge`) |
 
-The service worker (`src/service-worker.ts`) is registered as an ES module in production only. The PWA install prompt is captured via `beforeinstallprompt` and presented to the user through a dedicated install card. Update detection runs automatically after 3 seconds.
+The service worker (`src/service-worker.ts`) is registered as an ES module in production only. The PWA install prompt is captured via `beforeinstallprompt` only when a user-facing install affordance can call `prompt()` from a real gesture. Update detection runs automatically after a short delay and only surfaces the refresh notification when version metadata is stable enough to avoid first-load false positives.
 
 ## CI/CD Workflows
 
@@ -306,19 +309,19 @@ GitHub workflows are located in `.github/workflows/`.
 # Preview changes before applying
 bun run bmi-update-version --dry-run <version>
 
-# Apply version update (syncs package.json, README.md, LICENSE.md, backup metadata)
+# Apply version update (syncs package.json, README.md, and LICENSE.md)
 bun run bmi-update-version <version>
 
 # Verify integrity before tagging
 bun run verify
 ```
 
-Release tags must adhere to the format: `Stellar-v<major>.<minor>` (e.g., `Stellar-v20.0`, `Stellar-v21.0`).
+Release tags must adhere to the format: `Stellar-v<major>.<minor>` (for example, `Stellar-v21.0`, `Stellar-v22.0`).
 
 ## Known Constraints
 
 - **Backdrop Filters:** Older browsers lacking `backdrop-filter` support fallback to opaque surfaces via `responsive-backdrop.css` feature detection.
-- **Mobile Performance:** Touch devices utilize simpler, dark transparent surfaces in heavy scroll areas to maintain 60fps. The `responsive-mobile-perf.css` layer disables `backdrop-filter`, transitions, and transforms on `(hover: none) and (pointer: coarse)` devices.
+- **Mobile Performance:** Touch devices utilize simpler, dark transparent surfaces in heavy scroll areas to reduce paint/compositor work. The `responsive-mobile-perf.css` layer disables or softens expensive effects such as `backdrop-filter`, heavy glows, and hover-only transitions on `(hover: none) and (pointer: coarse)` devices.
 - **Accessibility:** Users with `prefers-reduced-motion` enabled will experience disabled animations. Visual styling is preserved — only motion is suppressed.
-- **Build Environment:** The Vercel adapter requires Node 18, 20, or 22. Node 24+ is not currently supported for local builds.
+- **Build Environment:** The project targets Node `>=22 <25` and resolves the Bun version from `package.json#packageManager`. CI and release workflows currently run on Node 24.
 - **Security Finality:** Encrypted backups fundamentally cannot be recovered without the user's passphrase. This is by design — there is no backdoor.

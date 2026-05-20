@@ -1,6 +1,6 @@
 # Release Process
 
-This document describes the automated workflow for publishing new versions of BMI Stellar. It covers the full lifecycle — from code integrity verification through tagging, CI pipeline execution, and post-release integrity checks.
+This document describes the release workflow for BMI Stellar. It covers the full lifecycle — code integrity verification, version synchronization, tag validation, GitHub Actions publishing, artifact checksums, and rollback decisions.
 
 ## Table of Contents
 
@@ -26,12 +26,12 @@ sequenceDiagram
     participant CI as GitHub Actions
     participant Rel as GitHub Releases
 
-    Dev->>Git: Push Tag (e.g., Stellar-v20.0)
+    Dev->>Git: Push Tag (e.g., Stellar-v21.0)
     Git->>CI: Trigger release.yml
     CI->>CI: Checkout & Setup Bun
     CI->>CI: Run Tests & Build
     CI->>CI: Generate Changelog
-    CI->>CI: Compress & Hash Artifacts
+    CI->>CI: Compress Source/Build Artifacts & Hash
     CI->>Rel: Publish Release with Assets
 ```
 
@@ -39,29 +39,29 @@ sequenceDiagram
 
 ### 1. Verify Code Integrity
 
-Confirm all changes are committed, tested, and pushed to the `dev` branch. Run the full verification suite:
+Confirm all changes are committed, tested, and pushed to the `dev` branch. Run the full verification suite locally:
 
 ```bash
 bun run verify
 ```
 
 > [!NOTE]
-> The `verify` command runs `format:check + check + lint + test:run + build`. The build step will fail on Node 24 due to the Vercel adapter — this is a known issue and does not block the release on CI (which uses Node 22).
+> The `verify` command runs `format:check + check + lint + test:run + build`. The project targets Node `>=22 <25`, and CI/release workflows currently run on Node 24.
 
 ### 2. Update Version Strings
 
-Use the canonical update script to synchronize the version across `package.json`, `README.md`, `LICENSE.md`, and backup metadata:
+Use the canonical update script to synchronize the version across `package.json`, `README.md`, and `LICENSE.md`:
 
 ```bash
 # Preview changes before applying
-bun run bmi-update-version --dry-run 20.1.0
+bun run bmi-update-version --dry-run 21.0.0
 
 # Apply the version update
-bun run bmi-update-version 20.1.0
+bun run bmi-update-version 21.0.0
 
 # Commit the version change
 git add -A
-git commit -m "chore: prepare for release Stellar-v20.1"
+git commit -m "chore: prepare for release Stellar-v21.0"
 git push origin dev
 ```
 
@@ -78,9 +78,11 @@ git push origin main
 Tags must follow the `Stellar-v<major>.<minor>` format:
 
 ```bash
-git tag Stellar-v20.1
-git push origin Stellar-v20.1
+git tag Stellar-v21.0
+git push origin Stellar-v21.0
 ```
+
+The workflow validates that the tag's `<major>.<minor>` pair matches `package.json`. For example, `package.json` version `21.0.0` must be tagged as `Stellar-v21.0`.
 
 ### 5. Verify the Pipeline
 
@@ -93,12 +95,16 @@ After pushing the tag:
 
 ## Release Package Contents
 
-The generated distribution package includes:
+Each release publishes two zip artifacts plus SHA-256 checksum files:
 
-- `build/` — The production-ready SvelteKit application bundle.
-- `package.json` — Precise project metadata with resolved version.
-- `README.md` — Core documentation.
-- `LICENSE.md` — The GPL-3.0 License.
+| Artifact                              | Contents                                                    |
+| ------------------------------------- | ----------------------------------------------------------- |
+| `bmi-stellar-source-{tag}.zip`        | Source, static assets, scripts, docs, configs, workflows    |
+| `bmi-stellar-source-{tag}.zip.sha256` | SHA-256 checksum for the source archive                     |
+| `bmi-stellar-build-{tag}.zip`         | Pre-built static `build/` output with core project metadata |
+| `bmi-stellar-build-{tag}.zip.sha256`  | SHA-256 checksum for the build archive                      |
+
+The release workflow builds the static package with `svelte.config.static.js` while keeping the repository's normal Vercel configuration intact.
 
 ## Changelog Generation
 
@@ -114,40 +120,40 @@ The changelog is included in the GitHub Release body.
 Each release includes a SHA-256 cryptographic checksum. Users can verify their downloads:
 
 ```bash
-sha256sum -c bmi-stellar-edition-{version}.zip.sha256
+sha256sum -c bmi-stellar-source-Stellar-v21.0.zip.sha256
+sha256sum -c bmi-stellar-build-Stellar-v21.0.zip.sha256
 ```
 
 ## Version Naming Conventions
 
 We adhere to Semantic Versioning principles with a project-specific tag prefix:
 
-| Format          | Example                          | Use Case                                                          |
-| --------------- | -------------------------------- | ----------------------------------------------------------------- |
-| **Major**       | `Stellar-v20.0`, `Stellar-v21.0` | Monumental feature additions or breaking architectural changes    |
-| **Minor**       | `Stellar-v20.1`, `Stellar-v20.2` | Backward-compatible feature additions                             |
-| **Patch**       | `20.0.1`, `20.0.2`               | Backward-compatible bug fixes (package.json version only, no tag) |
-| **Pre-release** | `Stellar-v21.0-beta1`            | Testing monumental changes before general availability            |
+| Format    | Example                          | Use Case                                                       |
+| --------- | -------------------------------- | -------------------------------------------------------------- |
+| **Major** | `Stellar-v21.0`, `Stellar-v22.0` | Major product milestones or broad architectural improvements   |
+| **Minor** | `Stellar-v21.1`, `Stellar-v21.2` | Backward-compatible feature additions or polished release cuts |
+| **Patch** | `21.0.1`, `21.0.2`               | Hotfix deploys tracked in `package.json`; no release tag       |
 
 > [!IMPORTANT]
-> The `Stellar-v` prefix is required on all release tags. The `package.json` version uses plain semver (e.g., `20.1.0`) without the prefix.
+> The `Stellar-v` prefix is required on all release tags. The `package.json` version uses plain semver (for example, `21.0.0`) without the prefix.
 
 ## Rollback Procedure
 
 If a released version contains a critical regression:
 
 1. **Fix forward** on `dev` — this is the preferred approach.
-2. If a hotfix is needed directly on `main`:
+2. If a hotfix is needed directly on `main`, keep the patch small and traceable:
    ```bash
    git checkout main
    git checkout -b hotfix/critical-fix
    # Apply the fix
    git commit -m "fix: critical regression in ..."
+   bun run bmi-update-version 21.0.1
+   git add -A
+   git commit -m "chore: prepare hotfix 21.0.1"
    git checkout main
    git merge hotfix/critical-fix
    git push origin main
-   bun run bmi-update-version 20.0.1
-   git tag Stellar-v20.0
-   git push origin Stellar-v20.0
    ```
 3. Merge the hotfix back to `dev`:
    ```bash
@@ -155,6 +161,7 @@ If a released version contains a critical regression:
    git merge main
    git push origin dev
    ```
+4. If a new public GitHub Release is required, cut the next `Stellar-v<major>.<minor>` tag instead of moving an existing published tag.
 
 ## Troubleshooting
 
@@ -173,14 +180,14 @@ If you pushed a tag prematurely:
 
 ```bash
 # Delete the local tag
-git tag -d Stellar-v20.1
+git tag -d Stellar-v21.0
 
 # Delete the remote tag
-git push origin :refs/tags/Stellar-v20.1
+git push origin :refs/tags/Stellar-v21.0
 
 # Fix the code, then recreate and push the tag
-git tag Stellar-v20.1
-git push origin Stellar-v20.1
+git tag Stellar-v21.0
+git push origin Stellar-v21.0
 ```
 
 ### Stale Lockfile
@@ -188,7 +195,7 @@ git push origin Stellar-v20.1
 If the build fails due to dependency resolution issues:
 
 ```bash
-rm bun.lock
+# Regenerate intentionally, then review the diff.
 bun install
 git add bun.lock
 git commit -m "chore: refresh lockfile"
