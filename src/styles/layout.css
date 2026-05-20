@@ -129,14 +129,6 @@
 	z-index: var(--z-content);
 }
 
-.about-section-block:first-child {
-	padding-top: 2rem;
-}
-
-.about-section-block:last-child {
-	padding-bottom: 2rem;
-}
-
 .about-section-divider {
 	height: 1px;
 	margin: 0 2rem;

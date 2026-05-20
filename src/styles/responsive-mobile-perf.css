@@ -102,15 +102,6 @@
 		border-radius: var(--container-radius, var(--radius-lg)) !important;
 	}
 
-	.stat-block,
-	.tdee-card,
-	.health-advice,
-	.age-advisory,
-	.bmi-explanation {
-		-webkit-backdrop-filter: none !important;
-		backdrop-filter: none !important;
-	}
-
 	/* Calculator cards: simplified surfaces, no containment.
      form-card and bmi-card hold dynamic content (results
      change height after calculate). ANY containment (even style+paint)

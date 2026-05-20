@@ -396,14 +396,3 @@
 		height: var(--icon-card-md) !important;
 	}
 }
-
-/* ═══════════════════════════════════════════════════════════════
-   ZERO SHADOW POLICY
-   No box-shadow anywhere. Depth comes from surface color, border, and gradient.
-   Keep this as the last rule in the last CSS file.
-   ═══════════════════════════════════════════════════════════════ */
-*,
-*::before,
-*::after {
-	box-shadow: none !important;
-}

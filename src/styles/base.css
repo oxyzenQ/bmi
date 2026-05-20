@@ -99,13 +99,6 @@ body::before {
 	}
 }
 
-@media (max-width: 480px) and (orientation: landscape) {
-	body::before {
-		background-size: cover;
-		background-position: center;
-	}
-}
-
 /* Gradient overlay for depth */
 body::after {
 	content: '';

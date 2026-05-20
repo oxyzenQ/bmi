@@ -27,11 +27,6 @@ export interface BackupRecord {
 	data: string; // JSON string of all stored key-value pairs
 }
 
-export interface DbMeta {
-	key: string;
-	value: string;
-}
-
 // ── Database opening ──
 
 let _db: IDBDatabase | null = null;
@@ -79,21 +74,6 @@ function openDb(): Promise<IDBDatabase> {
 
 // ── Key-Value operations ──
 
-/** Read a value from IndexedDB. Returns null if not found. */
-export async function dbGet(key: string): Promise<string | null> {
-	const db = await openDb();
-	return new Promise((resolve, reject) => {
-		const tx = db.transaction(STORE_KV, 'readonly');
-		const store = tx.objectStore(STORE_KV);
-		const req = store.get(key);
-		req.onsuccess = () => {
-			const result = req.result as { key: string; value: string } | undefined;
-			resolve(result?.value ?? null);
-		};
-		req.onerror = () => reject(req.error);
-	});
-}
-
 /** Write a key-value pair to IndexedDB. */
 export async function dbSet(key: string, value: string): Promise<void> {
 	const db = await openDb();
@@ -126,23 +106,6 @@ export async function dbGetAll(): Promise<Array<{ key: string; value: string }>>
 		const store = tx.objectStore(STORE_KV);
 		const req = store.getAll();
 		req.onsuccess = () => resolve(req.result ?? []);
-		req.onerror = () => reject(req.error);
-	});
-}
-
-/** Get all keys matching a prefix (e.g., 'bmi.'). */
-export async function dbGetKeysByPrefix(prefix: string): Promise<string[]> {
-	const db = await openDb();
-	return new Promise((resolve, reject) => {
-		const tx = db.transaction(STORE_KV, 'readonly');
-		const store = tx.objectStore(STORE_KV);
-		const req = store.getAllKeys();
-		req.onsuccess = () => {
-			const keys = (req.result as IDBValidKey[]).filter(
-				(k) => typeof k === 'string' && k.startsWith(prefix)
-			) as string[];
-			resolve(keys);
-		};
 		req.onerror = () => reject(req.error);
 	});
 }

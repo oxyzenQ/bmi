@@ -147,8 +147,6 @@ button[aria-disabled='true'] {
 	border: var(--btn-danger-border-hover);
 }
 
-.btn-danger:active,
-.btn-danger:focus,
 .btn-primary:active,
 .btn-primary:focus {
 	background: var(--bg-last-by-rezky);
@@ -351,12 +349,6 @@ button[aria-disabled='true'] {
 	background: var(--bg-cosmic);
 	color: var(--stellar-white);
 	background-clip: text;
-}
-
-.icon {
-	width: 64px;
-	height: 64px;
-	color: var(--stellar-white);
 }
 
 /* Note: @keyframes bounce/pulse removed — each component defines its own locally */

@@ -10,6 +10,8 @@
  * defined in tokens.css (e.g., --cat-green-30).
  */
 
+import { t } from '$lib/i18n';
+
 // ── BMI Categories (English keys — language-independent)
 // Display translation is handled at the component level via t('gauge.*')
 export const BMI_CATEGORIES = {
@@ -94,11 +96,20 @@ export function clampBmiForDisplay(bmi: number | null | undefined): number {
 }
 
 /**
- * Compute the 0–100 percentage for the gauge marker.
+ * Map canonical English category to localized display text.
+ * Shared by share.ts and share-image.ts to avoid duplicate switch statements.
  */
-export function bmiToPercent(bmi: number): number {
-	return Math.max(
-		0,
-		Math.min(100, ((bmi - BMI_THRESHOLDS.MIN) / (BMI_THRESHOLDS.MAX - BMI_THRESHOLDS.MIN)) * 100)
-	);
+export function getCategoryLabel(cat: string): string {
+	switch (cat.toLowerCase()) {
+		case 'underweight':
+			return t('category.underweight');
+		case 'normal weight':
+			return t('category.normal');
+		case 'overweight':
+			return t('category.overweight');
+		case 'obese':
+			return t('category.obese');
+		default:
+			return cat;
+	}
 }

@@ -21,7 +21,6 @@
 	let visible = $state(false);
 	let mounted = $state(false);
 	let panelEl: HTMLDivElement | undefined = $state(undefined);
-	let focusTrapHandler: ((e: KeyboardEvent) => void) | null = null;
 
 	function handleToggle() {
 		open = !open;
@@ -76,11 +75,6 @@
 	onDestroy(() => {
 		// Clean up the closePanel timeout to prevent state updates after unmount
 		if (closePanelTimer) clearTimeout(closePanelTimer);
-		// Remove focus trap listener if still active
-		if (focusTrapHandler) {
-			document.removeEventListener('keydown', focusTrapHandler);
-			focusTrapHandler = null;
-		}
 	});
 
 	// Sync visibility with open state (with animation delay)

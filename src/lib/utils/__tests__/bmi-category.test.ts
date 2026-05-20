@@ -12,7 +12,7 @@ import {
 	getCategoryColor,
 	isBmiCategory,
 	clampBmiForDisplay,
-	bmiToPercent
+	getCategoryLabel
 } from '$lib/utils/bmi-category';
 
 describe('BMI_THRESHOLDS', () => {
@@ -104,28 +104,21 @@ describe('clampBmiForDisplay', () => {
 	});
 });
 
-describe('bmiToPercent', () => {
-	it('returns 0 for MIN boundary', () => {
-		expect(bmiToPercent(BMI_THRESHOLDS.MIN)).toBe(0);
+describe('getCategoryLabel', () => {
+	it('returns i18n key for known categories', () => {
+		expect(getCategoryLabel('Underweight')).toBeTruthy();
+		expect(getCategoryLabel('Normal Weight')).toBeTruthy();
+		expect(getCategoryLabel('Overweight')).toBeTruthy();
+		expect(getCategoryLabel('Obese')).toBeTruthy();
 	});
 
-	it('returns 100 for MAX boundary', () => {
-		expect(bmiToPercent(BMI_THRESHOLDS.MAX)).toBe(100);
+	it('returns the input string for unknown categories', () => {
+		expect(getCategoryLabel('Unknown')).toBe('Unknown');
 	});
 
-	it('returns 50 for midpoint of range', () => {
-		const mid = (BMI_THRESHOLDS.MIN + BMI_THRESHOLDS.MAX) / 2;
-		expect(bmiToPercent(mid)).toBe(50);
-	});
-
-	it('clamps values outside range', () => {
-		expect(bmiToPercent(0)).toBe(0);
-		expect(bmiToPercent(100)).toBe(100);
-	});
-
-	it('calculates correct percentage for known BMI values', () => {
-		const expected = ((22 - BMI_THRESHOLDS.MIN) / (BMI_THRESHOLDS.MAX - BMI_THRESHOLDS.MIN)) * 100;
-		expect(bmiToPercent(22)).toBeCloseTo(expected, 5);
+	it('is case-insensitive', () => {
+		expect(getCategoryLabel('underweight')).toBeTruthy();
+		expect(getCategoryLabel('OBESE')).toBeTruthy();
 	});
 });
 

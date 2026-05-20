@@ -5,7 +5,7 @@
  */
 
 import { t, getLocale } from '$lib/i18n';
-import { CATEGORY_COLORS, COLORS, isBmiCategory } from './bmi-category';
+import { CATEGORY_COLORS, COLORS, isBmiCategory, getCategoryLabel } from './bmi-category';
 import { getAppVersionShort } from './app-version';
 
 export interface BmiCardData {
@@ -90,22 +90,6 @@ function lightenHex(hex: string, amount: number): string {
 
 function getCategoryColor(cat: string): string {
 	return isBmiCategory(cat) ? CATEGORY_COLORS[cat] : COLORS.SLATE;
-}
-
-/** Map canonical English category to localized display text */
-function getCategoryLabel(cat: string): string {
-	switch (cat.toLowerCase()) {
-		case 'underweight':
-			return t('category.underweight');
-		case 'normal weight':
-			return t('category.normal');
-		case 'overweight':
-			return t('category.overweight');
-		case 'obese':
-			return t('category.obese');
-		default:
-			return cat;
-	}
 }
 
 /** Map English category to insight i18n key */
@@ -937,27 +921,6 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 	});
 }
 
-/**
- * Trigger a file download for the generated card image.
- */
-export async function downloadBmiCard(data: BmiCardData): Promise<boolean> {
-	const blob = await generateBmiCard(data);
-	if (!blob) return false;
-
-	const url = URL.createObjectURL(blob);
-	const a = document.createElement('a');
-	a.href = url;
-	a.download = `bmi-stellar-${clamp(toFiniteNumber(data.bmi, 0), 0, 99.9).toFixed(1)}.png`;
-	document.body.appendChild(a);
-	a.click();
-	document.body.removeChild(a);
-	URL.revokeObjectURL(url);
-	return true;
-}
-
-/**
- * Share the card image via Web Share API (if available) or download fallback.
- */
 export async function shareBmiCard(
 	data: BmiCardData
 ): Promise<{ ok: boolean; method: 'share' | 'download' | 'none' }> {
