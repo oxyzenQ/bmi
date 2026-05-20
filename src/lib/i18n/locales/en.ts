@@ -285,7 +285,7 @@ const en: TranslationDict = {
 	'risk.rec_under_1': 'Consult a nutritionist for healthy weight gain',
 	'risk.rec_under_2': 'Focus on nutrient-dense foods',
 	'risk.rec_under_3': 'Rule out underlying medical conditions',
-	'risk.rec_over_1': 'Aim for gradual weight loss (0.5-1kg/week)',
+	'risk.rec_over_1': 'Aim for gradual weight loss (0.5-1 kg/week)',
 	'risk.rec_over_2': 'Increase daily physical activity',
 	'risk.rec_over_3': 'Consult healthcare provider for personalized plan',
 	'risk.empty': 'Enter your measurements to see personalized recommendations',
