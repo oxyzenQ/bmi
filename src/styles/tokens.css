@@ -484,7 +484,7 @@
 	--modal-z-staging: var(--z-staging);
 	--modal-backdrop-bg: rgba(0, 0, 0, 0.68);
 	--modal-panel-radius: var(--container-radius);
-	--modal-panel-bg: rgba(0, 0, 0, 0.72);
+	--modal-panel-bg: black;
 	--modal-panel-shadow: 0 25px 50px -12px var(--k-50);
 	--modal-dur: 0.22s;
 	--modal-ease: var(--easing-spring);
@@ -587,11 +587,9 @@
 	--container-glass-border: var(--container-glass-border-desktop);
 	--container-glass-filter: var(--container-glass-filter-desktop);
 	--container-glass-shadow: var(--container-glass-shadow-desktop);
-	--nav-glass-bg:
-		linear-gradient(180deg, rgba(8, 8, 14, 0.78) 0%, rgba(0, 0, 0, 0.66) 100%),
-		linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(255, 255, 255, 0.045));
+	--nav-glass-bg: rgba(0, 0, 0, 0.10);
 	--nav-glass-border-inline: 2px solid rgba(220, 220, 235, 0.24);
-	--nav-glass-filter: blur(14px) saturate(145%) brightness(1.05);
+	--nav-glass-filter: blur(12px) saturate(100%) brightness(2);
 	--nav-glass-shadow:
 		0 12px 30px rgba(0, 0, 0, 0.34), 0 0 20px rgba(139, 92, 246, 0.1),
 		inset 0 1px 0 rgba(255, 255, 255, 0.08);
