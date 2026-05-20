@@ -102,8 +102,8 @@ html[data-performance-tier='high'] :is(.hero-content, .bmi-card) {
 	/* Low-cost liquid glass: visible backdrop blur with a dark,
      readable surface instead of a flat transparent wash. */
 	background:
-		linear-gradient(180deg, rgba(18, 18, 24, 0.62) 0%, rgba(0, 0, 0, 0.5) 100%),
-		linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(255, 255, 255, 0.05));
+		linear-gradient(180deg, rgba(12, 12, 18, 0.72) 0%, rgba(0, 0, 0, 0.62) 100%),
+		linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(255, 255, 255, 0.045));
 	border-left: 2px solid rgba(255, 255, 255, 0.2);
 	border-right: 2px solid rgba(255, 255, 255, 0.2);
 	border-top: 0;
@@ -114,9 +114,9 @@ html[data-performance-tier='high'] :is(.hero-content, .bmi-card) {
 
 	/* Restrained blur keeps the glass feel without forcing a heavy
      frosted layer across the full viewport. */
-	backdrop-filter: blur(14px) saturate(135%) brightness(1.04);
+	backdrop-filter: blur(12px) saturate(125%) brightness(1.03);
 
-	-webkit-backdrop-filter: blur(14px) saturate(135%) brightness(1.04);
+	-webkit-backdrop-filter: blur(12px) saturate(125%) brightness(1.03);
 
 	will-change: auto;
 

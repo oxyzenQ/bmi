@@ -6,9 +6,18 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const isDev = dev;
 	const isHttpsRequest = event.url.protocol === 'https:';
 	const isVercelHost = event.url.hostname.endsWith('.vercel.app');
+	const allowVercelToolbar = isVercelHost && process.env.VERCEL_ENV !== 'production';
 	const vercelLiveOrigin = 'https://vercel.live';
 	const vercelInsightsOrigin = 'https://vitals.vercel-insights.com';
-	const vercelLiveSrc = isVercelHost ? ` ${vercelLiveOrigin}` : '';
+	const vercelLiveSrc = allowVercelToolbar ? ` ${vercelLiveOrigin}` : '';
+	const vercelToolbarConnectSrc = allowVercelToolbar
+		? ` ${vercelLiveOrigin} wss://ws-us3.pusher.com`
+		: '';
+	const vercelToolbarStyleSrc = allowVercelToolbar ? ` ${vercelLiveOrigin}` : '';
+	const vercelToolbarFontSrc = allowVercelToolbar
+		? ` ${vercelLiveOrigin} https://assets.vercel.com`
+		: '';
+	const vercelToolbarImgSrc = allowVercelToolbar ? ` ${vercelLiveOrigin} https://vercel.com` : '';
 
 	const response = await resolve(event, {
 		preload: ({ type }) => {
@@ -46,11 +55,11 @@ export const handle: Handle = async ({ event, resolve }) => {
 				// Vercel preview hosts also need vercel.live for the feedback toolbar.
 				`script-src 'self' 'unsafe-inline'${vercelLiveSrc}`,
 				// 'unsafe-inline' needed for Svelte style:xxx directives and style={...} bindings
-				"style-src 'self' 'unsafe-inline'",
-				"font-src 'self' data:",
-				"img-src 'self' data: blob: https:",
+				`style-src 'self' 'unsafe-inline'${vercelToolbarStyleSrc}`,
+				`font-src 'self' data:${vercelToolbarFontSrc}`,
+				`img-src 'self' data: blob: https:${vercelToolbarImgSrc}`,
 				"media-src 'self'",
-				`connect-src 'self' https://raw.githubusercontent.com https://api.github.com ${vercelInsightsOrigin}${vercelLiveSrc}`,
+				`connect-src 'self' https://raw.githubusercontent.com https://api.github.com ${vercelInsightsOrigin}${vercelToolbarConnectSrc}`,
 				"manifest-src 'self'",
 				"worker-src 'self' blob:",
 				`frame-src 'self'${vercelLiveSrc}`,
@@ -89,9 +98,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('Cross-Origin-Resource-Policy', isDev ? 'cross-origin' : 'same-origin');
 
 	// Cross-Origin-Embedder-Policy (COEP) - credentialless allows cross-origin
-	// resources (e.g. Google Fonts) without CORP headers while still providing
-	// cross-origin isolation for SharedArrayBuffer support
-	if (!isDev) {
+	// resources without CORP headers. Vercel Toolbar preview requests rely on
+	// Vercel auth/session behavior, so avoid credentialless there to prevent
+	// noisy 401 toolbar failures in branch previews.
+	if (!isDev && !allowVercelToolbar) {
 		response.headers.set('Cross-Origin-Embedder-Policy', 'credentialless');
 	}
 

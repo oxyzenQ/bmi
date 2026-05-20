@@ -23,8 +23,8 @@
        the stronger dark-glass base when blur is not supported.
        Preserve the subtle white border for depth. */
 		background:
-			linear-gradient(180deg, rgba(12, 12, 18, 0.72), rgba(0, 0, 0, 0.62)),
-			linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(255, 255, 255, 0.04)) !important;
+			linear-gradient(180deg, rgba(12, 12, 18, 0.76), rgba(0, 0, 0, 0.66)),
+			linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(255, 255, 255, 0.04)) !important;
 		border-top: 0 !important;
 		border-bottom: 0 !important;
 	}

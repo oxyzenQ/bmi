@@ -518,8 +518,8 @@
 	/* Navbar top */
 	.pager-nav-shell {
 		background:
-			linear-gradient(180deg, rgba(12, 12, 18, 0.66) 0%, rgba(0, 0, 0, 0.56) 100%),
-			linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(255, 255, 255, 0.05));
+			linear-gradient(180deg, rgba(12, 12, 18, 0.72) 0%, rgba(0, 0, 0, 0.62) 100%),
+			linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(255, 255, 255, 0.045));
 		border-top: 0;
 		border-bottom: 0;
 		border-left-color: rgba(255, 255, 255, 0.22);
@@ -527,8 +527,8 @@
 		box-shadow:
 			0 8px 22px rgba(0, 0, 0, 0.3),
 			0 0 16px rgba(139, 92, 246, 0.06);
-		-webkit-backdrop-filter: blur(10px) saturate(120%) brightness(1.03);
-		backdrop-filter: blur(10px) saturate(120%) brightness(1.03);
+		-webkit-backdrop-filter: blur(12px) saturate(125%) brightness(1.03);
+		backdrop-filter: blur(12px) saturate(125%) brightness(1.03);
 		transition: none;
 		will-change: auto;
 		contain: paint style;
@@ -538,8 +538,8 @@
 	/* Navbar bottom */
 	.pager-controls-shell {
 		background:
-			linear-gradient(180deg, rgba(12, 12, 18, 0.66) 0%, rgba(0, 0, 0, 0.56) 100%),
-			linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(255, 255, 255, 0.05));
+			linear-gradient(180deg, rgba(12, 12, 18, 0.72) 0%, rgba(0, 0, 0, 0.62) 100%),
+			linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(255, 255, 255, 0.045));
 		border-top: 0;
 		border-bottom: 0;
 		border-left-color: rgba(255, 255, 255, 0.22);
@@ -547,8 +547,8 @@
 		box-shadow:
 			0 8px 22px rgba(0, 0, 0, 0.3),
 			0 0 16px rgba(139, 92, 246, 0.06);
-		-webkit-backdrop-filter: blur(10px) saturate(120%) brightness(1.03);
-		backdrop-filter: blur(10px) saturate(120%) brightness(1.03);
+		-webkit-backdrop-filter: blur(12px) saturate(125%) brightness(1.03);
+		backdrop-filter: blur(12px) saturate(125%) brightness(1.03);
 		transition: none;
 		will-change: auto;
 		touch-action: manipulation;
