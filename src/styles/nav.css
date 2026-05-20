@@ -251,13 +251,6 @@ html[data-performance-tier='high'] :is(.hero-content, .bmi-card) {
 	}
 }
 
-.pager-controls-shell.pager-hidden {
-	opacity: 0;
-	pointer-events: none;
-
-	transform: translateX(-50%) translateY(100%);
-}
-
 .pager-controls {
 	position: relative;
 	z-index: 1;

@@ -5,18 +5,17 @@
 	interface Props {
 		activeIndex: number;
 		sectionCount: number;
-		visible: boolean;
 		showScrollTopFab: boolean;
 		onPrev: () => void;
 		onNext: () => void;
 		onScrollTop: () => void;
 	}
 
-	let { activeIndex, sectionCount, visible, showScrollTopFab, onPrev, onNext, onScrollTop }: Props =
+	let { activeIndex, sectionCount, showScrollTopFab, onPrev, onNext, onScrollTop }: Props =
 		$props();
 </script>
 
-<div class="pager-controls-shell" class:pager-hidden={!visible}>
+<div class="pager-controls-shell">
 	<div class="pager-controls" aria-label="Section navigation">
 		{#if activeIndex > 0}
 			<button

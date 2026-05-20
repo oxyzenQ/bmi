@@ -558,24 +558,9 @@
 		background: var(--container-glass-bg);
 		-webkit-backdrop-filter: none;
 		backdrop-filter: none;
-		transition:
-			opacity 140ms ease,
-			transform 140ms ease;
+		transition: none;
 		will-change: auto;
 		touch-action: manipulation;
-	}
-
-	body.is-touch-scrolling .pager-controls-shell {
-		background: none;
-		-webkit-backdrop-filter: none;
-		backdrop-filter: none;
-		transition:
-			opacity 140ms ease,
-			transform 140ms ease;
-		will-change: auto;
-		opacity: 0;
-		pointer-events: none;
-		transform: translateX(-50%) translateY(100%);
 	}
 
 	.pager-tab {

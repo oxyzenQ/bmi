@@ -180,10 +180,7 @@
 	let suppressNextNavClickTimer: ReturnType<typeof setTimeout> | null = null;
 	const NAV_DRAG_THRESHOLD = 6;
 
-	// Auto-hide navbar state
 	let lastScrollY = 0;
-	let pagerControlsVisible = $state(true);
-	let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	let activePointerId: number | null = null;
 	let lastWheelNavAt = 0;
@@ -607,7 +604,6 @@
 		if (showScrollTopFab !== shouldShowFab) {
 			showScrollTopFab = shouldShowFab;
 		}
-		if (!pagerControlsVisible) pagerControlsVisible = true;
 	}
 
 	function flushScrollState() {
@@ -616,7 +612,6 @@
 
 		const currentScrollY = pendingScrollY;
 		const delta = currentScrollY - lastScrollY;
-		const scrollingUp = delta < 0;
 		const deltaEpsilon = isTouchDevice
 			? SCROLL.TOUCH_SCROLL_DELTA_EPSILON
 			: SCROLL.SCROLL_DELTA_EPSILON;
@@ -637,17 +632,6 @@
 		if (showScrollTopFab !== shouldShowFab) {
 			showScrollTopFab = shouldShowFab;
 		}
-
-		if (!scrollingUp && currentScrollY > 50) {
-			pagerControlsVisible = false;
-		} else if (scrollingUp) {
-			pagerControlsVisible = true;
-		}
-
-		if (scrollTimeout) clearTimeout(scrollTimeout);
-		scrollTimeout = setTimeout(() => {
-			pagerControlsVisible = true;
-		}, SCROLL.SCROLL_IDLE_DELAY);
 
 		lastScrollY = currentScrollY;
 		pendingScrollTarget = null;
@@ -816,12 +800,8 @@
 		pagerEl?.addEventListener('touchmove', touchPager.handleTouchMove, { passive: true });
 		pagerEl?.addEventListener('touchend', touchPager.handleTouchEnd, { passive: true });
 
-		// Unified scroll listener: is-scrolling class + pager-controls auto-hide
+		// Unified scroll listener: scroll-top FAB + touch-scroll rendering mode
 		isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-
-		if (isTouchDevice) {
-			pagerControlsVisible = true;
-		}
 
 		void tick().then(schedulePagerNavAlignment);
 		void tick().then(attachActiveScroller);
@@ -849,7 +829,6 @@
 			pagerEl?.removeEventListener('touchend', touchPager.handleTouchEnd);
 			if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
 			if (scrollRafId !== null) cancelAnimationFrame(scrollRafId);
-			if (scrollTimeout !== null) clearTimeout(scrollTimeout);
 			if (touchScrollModeTimeout !== null) clearTimeout(touchScrollModeTimeout);
 			if (suppressNextNavClickTimer !== null) clearTimeout(suppressNextNavClickTimer);
 		};
@@ -1178,7 +1157,6 @@
 	<PagerControls
 		{activeIndex}
 		sectionCount={sections.length}
-		visible={pagerControlsVisible}
 		{showScrollTopFab}
 		onPrev={prevSection}
 		onNext={nextSection}

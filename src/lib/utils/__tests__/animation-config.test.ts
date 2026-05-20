@@ -108,10 +108,6 @@ describe('SCROLL', () => {
 		expect(SCROLL.SWIPE_DX_MIN).toBeGreaterThan(0);
 	});
 
-	it('has positive scroll idle delay', () => {
-		expect(SCROLL.SCROLL_IDLE_DELAY).toBeGreaterThan(0);
-	});
-
 	it('wheel ratio > 1 (amplification)', () => {
 		expect(SCROLL.WHEEL_RATIO).toBeGreaterThan(1);
 	});
