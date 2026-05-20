@@ -20,6 +20,40 @@ const MAX_RUNTIME_ENTRIES = 60;
 
 let runtimeTrimInProgress = false;
 
+function offlineFallbackResponse(): Response {
+	return new Response(
+		`<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>BMI Stellar Offline</title>
+		<style>
+			html, body { margin: 0; min-height: 100%; background: #000; color: #fff; font-family: system-ui, sans-serif; }
+			body { display: grid; place-items: center; padding: 24px; text-align: center; }
+			main { max-width: 420px; }
+			h1 { font-size: 1.25rem; margin: 0 0 0.75rem; }
+			p { color: rgba(255, 255, 255, 0.72); line-height: 1.5; margin: 0; }
+		</style>
+	</head>
+	<body>
+		<main>
+			<h1>BMI Stellar is offline</h1>
+			<p>Reconnect and refresh to load the latest app shell.</p>
+		</main>
+	</body>
+</html>`,
+		{
+			status: 503,
+			statusText: 'Offline',
+			headers: {
+				'Content-Type': 'text/html; charset=utf-8',
+				'Cache-Control': 'no-store'
+			}
+		}
+	);
+}
+
 sw.addEventListener('message', (event) => {
 	const trustedOrigin = sw.location.origin;
 	if (event.origin && event.origin !== trustedOrigin) {
@@ -106,7 +140,9 @@ sw.addEventListener('fetch', (event) => {
 				.catch(() => {
 					// Fallback to cache when offline
 					return caches.match(request).then((cachedResponse) => {
-						return cachedResponse || caches.match('/');
+						return (
+							cachedResponse || caches.match('/').then((root) => root || offlineFallbackResponse())
+						);
 					});
 				})
 		);
@@ -120,27 +156,29 @@ sw.addEventListener('fetch', (event) => {
 			}
 
 			// Clone the request
-			return fetch(request.clone()).then((response) => {
-				// Don't cache non-successful responses
-				if (!response || response.status !== 200 || response.type === 'error') {
+			return fetch(request.clone())
+				.then((response) => {
+					// Don't cache non-successful responses
+					if (!response || response.status !== 200 || response.type === 'error') {
+						return response;
+					}
+
+					// Cache runtime assets
+					if (
+						url.pathname.startsWith('/_app/') ||
+						url.pathname.startsWith('/assets/') ||
+						url.pathname.endsWith('.woff2') ||
+						url.pathname.endsWith('.webp')
+					) {
+						const responseToCache = response.clone();
+						caches.open(RUNTIME_CACHE).then((cache) => {
+							cache.put(request, responseToCache).then(() => trimRuntimeCacheOnce());
+						});
+					}
+
 					return response;
-				}
-
-				// Cache runtime assets
-				if (
-					url.pathname.startsWith('/_app/') ||
-					url.pathname.startsWith('/assets/') ||
-					url.pathname.endsWith('.woff2') ||
-					url.pathname.endsWith('.webp')
-				) {
-					const responseToCache = response.clone();
-					caches.open(RUNTIME_CACHE).then((cache) => {
-						cache.put(request, responseToCache).then(() => trimRuntimeCacheOnce());
-					});
-				}
-
-				return response;
-			});
+				})
+				.catch(() => new Response(null, { status: 504, statusText: 'Gateway Timeout' }));
 		})
 	);
 });
