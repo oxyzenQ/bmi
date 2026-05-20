@@ -122,6 +122,12 @@ describe('SCROLL', () => {
 		expect(SCROLL.TOUCH_SWIPE_ANGLE_RATIO).toBeGreaterThan(2);
 	});
 
+	it('keeps touch scroll rendering mode stable for slow mobile drags', () => {
+		expect(SCROLL.TOUCH_SCROLL_DELTA_EPSILON).toBeLessThanOrEqual(SCROLL.SCROLL_DELTA_EPSILON);
+		expect(SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY).toBeGreaterThan(360);
+		expect(SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY).toBeLessThan(700);
+	});
+
 	it('has a recent-scroll block window for trackpad wheel navigation', () => {
 		expect(SCROLL.WHEEL_RECENT_SCROLL_BLOCK_MS).toBeGreaterThan(0);
 		expect(SCROLL.WHEEL_RECENT_SCROLL_BLOCK_MS).toBeLessThan(SCROLL.WHEEL_COOLDOWN);

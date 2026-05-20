@@ -287,13 +287,23 @@
 		contain: layout style;
 	}
 
+	/* Page-5 about: the merged card is tall and mostly static.
+     On touch devices, avoid a large clipped paint-contained surface
+     while preserving the same glass shell and layout. */
+	#about .about-card-merged {
+		contain: style !important;
+		overflow: visible !important;
+	}
+
 	/* Page-3 hardening (gauge/details):
      stop continuous/infinite animations and interactive hover work
      during touch scrolling. */
 	#gauge
 		:is(
+			.gauge-progress,
 			.risk-indicator,
 			.risk-marker,
+			.risk-meter-fill,
 			.snapshot-card,
 			.progress-fill,
 			.comp-fill,
@@ -308,6 +318,11 @@
 
 	#gauge .risk-marker {
 		animation: none !important;
+	}
+
+	#gauge .risk-meter-fill {
+		background: var(--risk-fill-color) !important;
+		opacity: 0.78;
 	}
 
 	#gauge .sparkline-svg {
