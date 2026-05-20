@@ -587,7 +587,7 @@
 	--container-glass-border: var(--container-glass-border-desktop);
 	--container-glass-filter: var(--container-glass-filter-desktop);
 	--container-glass-shadow: var(--container-glass-shadow-desktop);
-	--nav-glass-bg: rgba(0, 0, 0, 0.10);
+	--nav-glass-bg: rgba(0, 0, 0, 0.1);
 	--nav-glass-border-inline: 2px solid rgba(220, 220, 235, 0.24);
 	--nav-glass-filter: blur(12px) saturate(100%) brightness(2);
 	--nav-glass-shadow:
