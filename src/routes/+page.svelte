@@ -192,10 +192,8 @@
 	let scrollRafId: number | null = null;
 	let pendingScrollTarget: HTMLElement | null = null;
 	let pendingScrollY = 0;
-	let touchScrollModeTimeout: ReturnType<typeof setTimeout> | null = null;
 	let lastTouchScrollAt = 0;
 	let lastActiveScrollAt = 0;
-	let touchScrollingActive = false;
 
 	function triggerHaptic(pattern: number | number[] = HAPTIC.NAV) {
 		if (!browser) return;
@@ -388,7 +386,6 @@
 	const touchPager = createTouchPager({
 		getPagerEl: () => pagerEl,
 		getActiveScroller: getActiveSectionScroller,
-		isTouchScrollingActive: () => touchScrollingActive,
 		getLastTouchScrollAt: () => lastTouchScrollAt,
 		triggerHaptic,
 		prevSection,
@@ -562,39 +559,9 @@
 		};
 	}
 
-	function markTouchScrolling(currentScrollY: number) {
+	function markTouchScrolling() {
 		if (!browser || !isTouchDevice) return;
 		lastTouchScrollAt = Date.now();
-		if (!touchScrollingActive) {
-			touchScrollingActive = true;
-		}
-
-		if (touchScrollModeTimeout !== null) return;
-		touchScrollModeTimeout = setTimeout(
-			finishTouchScrollingIfIdle,
-			SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY
-		);
-	}
-
-	function finishTouchScrollingIfIdle() {
-		if (!browser) {
-			touchScrollModeTimeout = null;
-			return;
-		}
-
-		const elapsed = Date.now() - lastTouchScrollAt;
-		if (elapsed < SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY) {
-			touchScrollModeTimeout = setTimeout(
-				finishTouchScrollingIfIdle,
-				SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY - elapsed
-			);
-			return;
-		}
-
-		touchScrollModeTimeout = null;
-		if (touchScrollingActive) {
-			touchScrollingActive = false;
-		}
 	}
 
 	function flushScrollState() {
@@ -613,7 +580,7 @@
 		}
 
 		if (isTouchDevice) {
-			markTouchScrolling(currentScrollY);
+			markTouchScrolling();
 			lastScrollY = currentScrollY;
 			pendingScrollTarget = null;
 			return;
@@ -811,7 +778,6 @@
 			window.removeEventListener('pointerup', endNavPointerDrag);
 			window.removeEventListener('pointercancel', endNavPointerDrag);
 			navShell?.classList.remove('is-dragging');
-			touchScrollingActive = false;
 			detachActiveScroller();
 			touchPager.reset();
 			pagerEl?.removeEventListener('touchstart', touchPager.handleTouchStart);
@@ -819,7 +785,6 @@
 			pagerEl?.removeEventListener('touchend', touchPager.handleTouchEnd);
 			if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
 			if (scrollRafId !== null) cancelAnimationFrame(scrollRafId);
-			if (touchScrollModeTimeout !== null) clearTimeout(touchScrollModeTimeout);
 			if (suppressNextNavClickTimer !== null) clearTimeout(suppressNextNavClickTimer);
 		};
 	});

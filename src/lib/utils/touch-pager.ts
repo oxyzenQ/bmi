@@ -11,7 +11,6 @@ import {
 interface TouchPagerOptions {
 	getPagerEl: () => HTMLElement | null;
 	getActiveScroller: () => HTMLElement | null;
-	isTouchScrollingActive: () => boolean;
 	getLastTouchScrollAt: () => number;
 	triggerHaptic: (pattern: number | number[]) => void;
 	prevSection: () => void;
@@ -55,11 +54,9 @@ export function createTouchPager(options: TouchPagerOptions) {
 		if (gestureIntent === 'vertical') return true;
 		if (activeScrollerMoved()) return true;
 		if (absDy < SCROLL.TOUCH_VERTICAL_CANCEL_PX) return false;
-		if (
-			options.isTouchScrollingActive() ||
-			Date.now() - options.getLastTouchScrollAt() < SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY
-		)
+		if (Date.now() - options.getLastTouchScrollAt() < SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY) {
 			return true;
+		}
 
 		const scroller = options.getActiveScroller();
 		if (scroller && isMidScrollY(scroller)) return true;
