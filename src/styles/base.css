@@ -83,6 +83,13 @@ body::before {
 	background-repeat: no-repeat;
 	pointer-events: none;
 	filter: brightness(0.4);
+	/* Explicit GPU layer promotion — ensures the dimmed wallpaper
+     is cached as a single compositor texture, zero per-frame paint.
+     filter alone creates a compositing context on modern browsers,
+     but will-change + translateZ(0) guarantees layer promotion
+     even on older GPUs / Android WebViews that may not auto-promote. */
+	will-change: filter;
+	transform: translateZ(0);
 }
 
 @media (max-width: 480px) {

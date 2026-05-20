@@ -26,11 +26,15 @@
      (single cached texture). On mobile, opacity is even cheaper than
      filter — no GPU filter pass, no compositing layer promotion.
      Combined with the lighter body::after gradient, this achieves
-     the same dark mood with significantly less per-frame work. */
+     the same dark mood with significantly less per-frame work.
+     will-change:opacity + translateZ(0) ensure the opacity-reduced
+     texture is cached as a single compositor layer even on older
+     Android WebViews that may not auto-promote from opacity alone. */
 	body::before {
 		opacity: 0.65;
 		filter: none;
-		transform: none;
+		will-change: opacity;
+		transform: translateZ(0);
 	}
 
 	/* Lighter gradient overlay on mobile — the dimmed wallpaper
