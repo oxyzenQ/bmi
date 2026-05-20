@@ -88,7 +88,8 @@ function findWarnCall(
 	warnSpy: ReturnType<typeof vi.spyOn>,
 	substring: string
 ): unknown[] | undefined {
-	return warnSpy.mock.calls.find((call) =>
+	const calls = warnSpy.mock.calls as unknown[][];
+	return calls.find((call: unknown[]) =>
 		call.some((arg) => typeof arg === 'string' && arg.includes(substring))
 	);
 }

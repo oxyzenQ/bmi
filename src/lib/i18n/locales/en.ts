@@ -81,7 +81,7 @@ const en: TranslationDict = {
 	'form.height_metric': 'Height (cm)',
 	'form.height_imperial': 'Height (in)',
 	'form.weight_metric': 'Weight (kg)',
-	'form.weight_imperial': 'Weight (lbs)',
+	'form.weight_imperial': 'Weight (lb)',
 	'form.height_placeholder_metric': 'e.g., 170',
 	'form.height_placeholder_imperial': 'e.g., 66',
 	'form.weight_placeholder_metric': 'e.g., 70.5',
@@ -95,7 +95,7 @@ const en: TranslationDict = {
 	'form.height_error_metric': 'Height must be between 1-300 cm.',
 	'form.height_error_imperial': 'Height must be between 1-120 in.',
 	'form.weight_error_metric': 'Weight must be between 1-1000 kg.',
-	'form.weight_error_imperial': 'Weight must be between 1-1500 lbs.',
+	'form.weight_error_imperial': 'Weight must be between 1-1500 lb.',
 	'form.gender': 'Gender',
 	'form.optional': 'optional',
 	'form.male': 'Male',
@@ -179,7 +179,8 @@ const en: TranslationDict = {
 	// ── Stellar v15: Trust & Transparency ──
 	'crypto.encryption_badge': 'Passphrase-encrypted backup',
 	'crypto.strong_warning':
-		'<strong>Do not lose your passphrase.</strong> It cannot be recovered. Without it, your encrypted backup is permanently inaccessible.',
+		'It cannot be recovered. Without it, your encrypted backup is permanently inaccessible.',
+	'crypto.strong_warning_highlight': 'Do not lose your passphrase.',
 	'crypto.export_summary_records': 'Records',
 	'crypto.export_summary_encrypted': 'Encryption',
 	'crypto.export_summary_version': 'Format',
@@ -212,11 +213,6 @@ const en: TranslationDict = {
 	'results.weight_gain': 'Weight Gain',
 	'results.tdee_disclaimer':
 		'Based on Mifflin-St Jeor equation. Estimates only; consult a professional for personalized advice.',
-	'results.activity_sedentary': 'Sedentary',
-	'results.activity_light': 'Lightly Active',
-	'results.activity_moderate': 'Moderately Active',
-	'results.activity_very': 'Very Active',
-	'results.activity_extremely': 'Extremely Active',
 	'results.male': 'Male',
 	'results.female': 'Female',
 	'results.health_advice_title': 'Health Advice',
@@ -436,6 +432,8 @@ const en: TranslationDict = {
 		'Seek professional medical advice for a comprehensive weight management plan.',
 	'share.card_height': 'Height',
 	'share.card_weight': 'Weight',
+	'share.card_prime_caption': 'BMI / 25',
+	'share.card_tdee_estimate': 'TDEE estimate',
 
 	// ── History IO ──
 	'history.invalid_json': 'Invalid JSON format.',

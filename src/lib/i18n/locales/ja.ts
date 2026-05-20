@@ -84,7 +84,7 @@ const ja: TranslationDict = {
 	'form.height_metric': '\u8eab\u9577 (cm)',
 	'form.height_imperial': '\u8eab\u9577 (in)',
 	'form.weight_metric': '\u4f53\u91cd (kg)',
-	'form.weight_imperial': '\u4f53\u91cd (lbs)',
+	'form.weight_imperial': '\u4f53\u91cd (lb)',
 	'form.height_placeholder_metric': '\u4f8b\uff1a170',
 	'form.height_placeholder_imperial': '\u4f8b\uff1a66',
 	'form.weight_placeholder_metric': '\u4f8b\uff1a70.5',
@@ -98,7 +98,7 @@ const ja: TranslationDict = {
 	'form.height_error_metric': '\u8eab\u9577\u306f 1\uff5e300 cm \u3067\u3059\u3002',
 	'form.height_error_imperial': '\u8eab\u9577\u306f 1\uff5e120 in \u3067\u3059\u3002',
 	'form.weight_error_metric': '\u4f53\u91cd\u306f 1\uff5e1000 kg \u3067\u3059\u3002',
-	'form.weight_error_imperial': '\u4f53\u91cd\u306f 1\uff5e1500 lbs \u3067\u3059\u3002',
+	'form.weight_error_imperial': '\u4f53\u91cd\u306f 1\uff5e1500 lb \u3067\u3059\u3002',
 	'form.gender': '\u6027\u5225',
 	'form.optional': '\u4efb\u610f',
 	'form.male': '\u7537\u6027',
@@ -191,7 +191,9 @@ const ja: TranslationDict = {
 	'crypto.encryption_badge':
 		'\u30d1\u30b9\u30d5\u30ec\u30fc\u30ba\u6697\u53f7\u5316\u30d0\u30c3\u30af\u30a2\u30c3\u30d7',
 	'crypto.strong_warning':
-		'<strong>\u30d1\u30b9\u30d5\u30ec\u30fc\u30ba\u3092\u7d76\u5bfe\u306b\u5fd8\u308c\u306a\u3044\u3067\u304f\u3060\u3055\u3044\u3002</strong>\u5fa9\u5143\u3067\u304d\u307e\u305b\u3093\u3002\u30d1\u30b9\u30d5\u30ec\u30fc\u30ba\u306a\u3057\u3067\u306f\u3001\u6697\u53f7\u5316\u3055\u308c\u305f\u30d0\u30c3\u30af\u30a2\u30c3\u30d7\u306f\u6c38\u4e45\u306b\u30a2\u30af\u30bb\u30b9\u3067\u304d\u307e\u305b\u3093\u3002',
+		'\u5fa9\u5143\u3067\u304d\u307e\u305b\u3093\u3002\u30d1\u30b9\u30d5\u30ec\u30fc\u30ba\u306a\u3057\u3067\u306f\u3001\u6697\u53f7\u5316\u3055\u308c\u305f\u30d0\u30c3\u30af\u30a2\u30c3\u30d7\u306f\u6c38\u4e45\u306b\u30a2\u30af\u30bb\u30b9\u3067\u304d\u307e\u305b\u3093\u3002',
+	'crypto.strong_warning_highlight':
+		'\u30d1\u30b9\u30d5\u30ec\u30fc\u30ba\u3092\u7d76\u5bfe\u306b\u5fd8\u308c\u306a\u3044\u3067\u304f\u3060\u3055\u3044\u3002',
 	'crypto.export_summary_records': '\u30ec\u30b3\u30fc\u30c9\u6570',
 	'crypto.export_summary_encrypted': '\u6697\u53f7\u5316',
 	'crypto.export_summary_version': '\u30d5\u30a9\u30fc\u30de\u30c3\u30c8',
@@ -226,11 +228,6 @@ const ja: TranslationDict = {
 	'results.weight_gain': '\u5897\u91cf',
 	'results.tdee_disclaimer':
 		'Mifflin-St Jeor \u306e\u5f0f\u306b\u57fa\u3065\u304f\u4e88\u6e2c\u3067\u3059\u3002\u500b\u5225\u306e\u30a2\u30c9\u30d0\u30a4\u30b9\u306b\u306f\u5c02\u9580\u5bb6\u306b\u76f8\u8ac7\u3057\u3066\u304f\u3060\u3055\u3044\u3002',
-	'results.activity_sedentary': '\u5ea7\u308a\u305b\u304c\u3061',
-	'results.activity_light': '\u8efd\u3044\u6d3b\u52d5',
-	'results.activity_moderate': '\u4e2d\u7a0b\u5ea6\u306e\u6d3b\u52d5',
-	'results.activity_very': '\u975e\u5e38\u306b\u6d3b\u52d5\u7684',
-	'results.activity_extremely': '\u6975\u7aef\u306b\u6d3b\u52d5\u7684',
 	'results.male': '\u7537\u6027',
 	'results.female': '\u5973\u6027',
 	'results.health_advice_title': '\u5065\u5eb7\u30a2\u30c9\u30d0\u30a4\u30b9',
@@ -477,7 +474,7 @@ const ja: TranslationDict = {
 	'share.card_ideal': '\u7406\u60f3\u7bc4\u56f2',
 	'share.card_tdee': 'TDEE',
 	'share.card_kcal': 'kcal',
-	'share.card_branding': 'BMI Stellar \u2014 by Rezky Nightky',
+	'share.card_branding': 'BMI Stellar \u2014 Rezky Nightky 制作',
 	'share.card_text': '\u79c1\u306e BMI: {n} ({category})',
 	'share.card_insight_underweight':
 		'\u5065\u5eb7\u7684\u306a\u4f53\u91cd\u5897\u52a0\u306e\u65b9\u6cd5\u306b\u3064\u3044\u3066\u3001\u533b\u7697\u6a5f\u95a2\u306b\u76f8\u8ac7\u3059\u308b\u3053\u3068\u3092\u304a\u52e7\u3081\u3057\u307e\u3059\u3002',
@@ -489,6 +486,8 @@ const ja: TranslationDict = {
 		'\u5305\u62ec\u7684\u306a\u4f53\u91cd\u7ba1\u7406\u8a08\u753b\u306b\u3064\u3044\u3066\u533b\u7697\u5c02\u9580\u5bb6\u306e\u30a2\u30c9\u30d0\u30a4\u30b9\u3092\u53d7\u3051\u3066\u304f\u3060\u3055\u3044\u3002',
 	'share.card_height': '\u8eab\u9577',
 	'share.card_weight': '\u4f53\u91cd',
+	'share.card_prime_caption': 'BMI / 25',
+	'share.card_tdee_estimate': 'TDEE \u63a8\u5b9a',
 
 	// ── History IO ──
 	'history.invalid_json': '\u7121\u52b9\u306a JSON \u5f62\u5f0f\u3067\u3059\u3002',

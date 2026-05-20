@@ -20,9 +20,13 @@
 	import { cubicOut } from 'svelte/easing';
 	import { browser } from '$app/environment';
 	import { shareBmiResult, copyToClipboard, formatBmiText } from '$lib/utils/share';
-	import { downloadBmiCard, shareBmiCard } from '$lib/utils/share-image';
+	import { shareBmiCard } from '$lib/utils/share-image';
 	import { t as _t, localeVersion } from '$lib/i18n';
-	import { KG_TO_LBS } from '$lib/utils/bmi-calculator';
+	import {
+		computeIdealWeightRangeKg,
+		heightInputToMeters,
+		KG_TO_LBS
+	} from '$lib/utils/bmi-calculator';
 	let _rv = $derived($localeVersion);
 	// Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
 	function t(key: string, params?: Record<string, string | number | undefined | null>): string {
@@ -92,14 +96,12 @@
 
 	// ── Ideal Weight Range ──
 	let idealMin = $derived.by(() => {
-		if (height === null || height <= 0) return null;
-		const hM = height / 100;
-		return 18.5 * hM * hM;
+		if (height === null) return null;
+		return computeIdealWeightRangeKg(height, unitSystem)?.min ?? null;
 	});
 	let idealMax = $derived.by(() => {
-		if (height === null || height <= 0) return null;
-		const hM = height / 100;
-		return 25.0 * hM * hM;
+		if (height === null) return null;
+		return computeIdealWeightRangeKg(height, unitSystem)?.max ?? null;
 	});
 
 	// Convert for display based on unit system
@@ -113,7 +115,7 @@
 			? parseFloat((unitSystem === 'imperial' ? idealMax * KG_TO_LBS : idealMax).toFixed(1))
 			: null
 	);
-	let weightUnit = $derived(unitSystem === 'imperial' ? 'lbs' : 'kg');
+	let weightUnit = $derived(unitSystem === 'imperial' ? 'lb' : 'kg');
 
 	// How far user is from ideal range
 	let weightDelta = $derived.by(() => {
@@ -125,7 +127,8 @@
 			idealMax === null
 		)
 			return null;
-		const hM = height / 100;
+		const hM = heightInputToMeters(height, unitSystem);
+		if (hM === null) return null;
 		// Derive current weight from BMI: w = bmi * h^2
 		const currentKg = bmiValue * hM * hM;
 		if (currentKg < idealMin)
@@ -148,7 +151,7 @@
 			unitSystem === 'imperial'
 				? parseFloat((weightDelta.amount * KG_TO_LBS).toFixed(1))
 				: weightDelta.amount;
-		const u = unitSystem === 'imperial' ? 'lbs' : 'kg';
+		const u = unitSystem === 'imperial' ? 'lb' : 'kg';
 		return { amount: amt, direction: weightDelta.direction, unit: u };
 	});
 
@@ -161,13 +164,13 @@
 		very_active: 1.9
 	};
 
-	// Reactive activity labels — re-evaluates when locale changes via _rv dependency
+	// Reactive activity labels — matches form option labels exactly
 	let activityLabels = $derived({
-		sedentary: t('results.activity_sedentary'),
-		light: t('results.activity_light'),
-		moderate: t('results.activity_moderate'),
-		active: t('results.activity_very'),
-		very_active: t('results.activity_extremely')
+		sedentary: t('form.sedentary'),
+		light: t('form.light'),
+		moderate: t('form.moderate'),
+		active: t('form.active'),
+		very_active: t('form.very_active')
 	});
 
 	let bmr = $derived.by(() => {
@@ -249,6 +252,19 @@
 
 	function getCardData() {
 		const hUnit = unitSystem === 'imperial' ? 'in' : 'cm';
+
+		// Build compact TDEE context caption from gender + activity
+		let tdeeContext: string | null = null;
+		if (tdee !== null) {
+			const parts: string[] = [];
+			if (gender === 'male') parts.push(t('results.male'));
+			else if (gender === 'female') parts.push(t('results.female'));
+			if (activity && activityLabels[activity]) {
+				parts.push(activityLabels[activity]);
+			}
+			tdeeContext = parts.length > 0 ? parts.join(' \u00b7 ') : null;
+		}
+
 		return {
 			bmi: bmiValue!,
 			category: category!,
@@ -259,7 +275,8 @@
 			weightUnit,
 			height,
 			weight,
-			heightUnit: hUnit
+			heightUnit: hUnit,
+			tdeeContext
 		};
 	}
 

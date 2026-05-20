@@ -7,10 +7,6 @@
 		show: boolean;
 		/** Delay before showing visible (ms) — default 60 */
 		openDelay?: number;
-		/** backdrop-filter blur amount — default 24px */
-		backdropBlur?: string;
-		/** backdrop-filter saturation — default 180% */
-		backdropSat?: string;
 		/** panel min-width — default 320px */
 		panelMinWidth?: string;
 		/** Additional CSS class for backdrop */
@@ -27,6 +23,8 @@
 		autoFocus?: boolean;
 		/** Override z-index — default uses --modal-z */
 		zIndex?: string;
+		/** Accessible name for the dialog (screen readers announce this) */
+		ariaLabel?: string;
 		onclose?: () => void;
 		children?: Snippet;
 	}
@@ -34,8 +32,6 @@
 	let {
 		show = false,
 		openDelay = 60,
-		backdropBlur = '24px',
-		backdropSat = '180%',
 		panelMinWidth = '320px',
 		backdropClass = '',
 		panelClass = '',
@@ -44,6 +40,7 @@
 		closeOnBackdropClick = false,
 		autoFocus = true,
 		zIndex = undefined,
+		ariaLabel,
 		onclose = () => {},
 		children
 	}: Props = $props();
@@ -159,14 +156,17 @@
 			class:visible
 			role="dialog"
 			aria-modal="true"
+			aria-label={ariaLabel}
 			tabindex="-1"
 			onclick={handleBackdropClick}
 			onkeydown={(e: KeyboardEvent) => {
-				if (e.key === 'Escape') onclose();
+				/* Escape is handled by the focus-trap document listener;
+                                   only stop propagation for other keys here */
+				if (e.key === 'Escape') {
+					e.stopPropagation();
+				}
 			}}
-			style="--ms-backdrop-blur: {backdropBlur}; --ms-backdrop-sat: {backdropSat};{zIndex
-				? ` z-index: ${zIndex};`
-				: ''}"
+			style={zIndex ? `z-index: ${zIndex};` : ''}
 		>
 			<div class="modal-shell-panel {panelClass}" style="--ms-panel-min-w: {panelMinWidth};">
 				{@render children?.()}
@@ -182,10 +182,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: var(--glass-bg-nightky, rgba(0, 0, 0, 0.65));
-		-webkit-backdrop-filter: blur(var(--ms-backdrop-blur, 24px))
-			saturate(var(--ms-backdrop-sat, 180%));
-		backdrop-filter: blur(var(--ms-backdrop-blur, 24px)) saturate(var(--ms-backdrop-sat, 180%));
+		background: var(--modal-backdrop-bg, rgba(0, 0, 0, 0.68));
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
 		z-index: var(--modal-z);
 		opacity: 0;
 		transition: opacity var(--modal-backdrop-dur, 0.15s) ease;
@@ -201,7 +200,7 @@
 	}
 	.modal-shell-panel {
 		position: relative;
-		background: var(--glass-bg-nightky, rgba(0, 0, 0, 0.65));
+		background: var(--modal-panel-bg, rgba(0, 0, 0, 0.72));
 		border: var(--border-by-rezky);
 		border-radius: var(--modal-panel-radius, var(--radius-lg));
 		padding: 2rem;
@@ -213,9 +212,8 @@
 		-webkit-overflow-scrolling: touch;
 		touch-action: pan-y pinch-zoom;
 		scrollbar-width: none;
-		-webkit-backdrop-filter: blur(var(--ms-backdrop-blur, 24px))
-			saturate(var(--ms-backdrop-sat, 180%));
-		backdrop-filter: blur(var(--ms-backdrop-blur, 24px)) saturate(var(--ms-backdrop-sat, 180%));
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
 
 		transform: var(--modal-panel-scale-from, scale(0.96) translateY(8px));
 		transition: transform var(--modal-dur, 0.22s)
@@ -230,9 +228,9 @@
 	/* iOS Safari: stronger blur */
 	@supports (-webkit-touch-callout: none) {
 		.modal-shell-backdrop {
-			-webkit-backdrop-filter: blur(32px) saturate(200%);
-			backdrop-filter: blur(32px) saturate(200%);
-			background: var(--glass-bg-nightky, rgba(0, 0, 0, 0.65));
+			-webkit-backdrop-filter: none;
+			backdrop-filter: none;
+			background: var(--modal-backdrop-bg, rgba(0, 0, 0, 0.68));
 		}
 	}
 	@media (max-width: 480px) {
@@ -253,7 +251,7 @@
 		}
 
 		.modal-shell-panel {
-			background: rgba(0, 0, 0, 0.8) !important;
+			background: var(--modal-panel-bg, rgba(0, 0, 0, 0.72)) !important;
 			-webkit-backdrop-filter: none !important;
 			backdrop-filter: none !important;
 			transform: none !important;

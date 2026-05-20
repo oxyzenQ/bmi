@@ -138,10 +138,9 @@
 	show={shellVisible}
 	closeOnEscape={true}
 	closeOnBackdropClick={false}
-	backdropBlur="24px"
-	backdropSat="180%"
 	onclose={handleModalClose}
 	panelClass="notify-float-box"
+	ariaLabel={message}
 >
 	<button class="notify-close" onclick={handleModalClose} aria-label={t('notify.close_aria')}>
 		<span class="close-icon-text" aria-hidden="true">×</span>
@@ -176,7 +175,7 @@
 <style>
 	/* Panel override — NotifyFloat uses its own glass styling, not ModalShell's default */
 	:global(.notify-float-box) {
-		background: var(--k-50) !important;
+		background: var(--modal-panel-bg) !important;
 		text-align: center;
 		padding: 2rem;
 	}
@@ -213,11 +212,6 @@
 		background: var(--btn-danger-bg-hover);
 		color: var(--stellar-white);
 		border: var(--btn-danger-border-hover);
-	}
-
-	.notify-close:focus-visible {
-		outline: none !important;
-		box-shadow: none !important;
 	}
 
 	.close-icon-text {
@@ -379,7 +373,7 @@
 
 	@media (hover: none) and (pointer: coarse) {
 		:global(.notify-float-box) {
-			background: rgba(0, 0, 0, 0.8) !important;
+			background: var(--modal-panel-bg) !important;
 			-webkit-backdrop-filter: none !important;
 			backdrop-filter: none !important;
 			transform: none !important;

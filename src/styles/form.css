@@ -251,8 +251,7 @@
 }
 
 .pill-indicator:focus {
-	outline: 3px solid var(--ink-18);
-	outline-offset: 2px;
+	outline: none;
 }
 
 .pill-indicator::after {

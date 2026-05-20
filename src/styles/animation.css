@@ -165,15 +165,6 @@
 	height: 80px;
 	border-radius: 50%;
 	margin: 0 auto 1rem;
-	animation: skeleton-ring-pulse var(--dur-breathe) ease-in-out infinite;
-}
-
-@keyframes skeleton-ring-pulse {
-	0%,
-	100% {
-	}
-	50% {
-	}
 }
 
 /* Skeleton form skeleton */
@@ -264,13 +255,6 @@
       ============================== */
 
 /* ── Button Ripple Effect ── */
-.btn,
-button,
-a.button {
-	position: relative;
-	overflow: hidden;
-}
-
 .btn-ripple {
 	position: absolute;
 	border-radius: 50%;
@@ -293,20 +277,10 @@ a.button {
 }
 
 /* ── Input Focus Glow ── */
-.form-input {
-	transition:
-		border-color var(--dur-interactive) ease,
-		background-color var(--dur-interactive) ease;
-}
-
 .form-input:focus {
 	border-color: var(--violet-50);
 
 	background-color: var(--void-85);
-}
-
-.form-input:focus-visible {
-	outline: none;
 }
 
 /* ── Glass Card Shine Sweep on Hover ── */
@@ -357,8 +331,6 @@ a.button {
 }
 
 /* ── Pager Tab Active Glow Indicator ── */
-.pager-tab.active {
-}
 
 /* ── NotifyFloat Button Hover Lift ── */
 .notify-btn:hover {
@@ -366,9 +338,6 @@ a.button {
 }
 
 /* ── Action Button Subtle Glow (shadow removed for clean glass) ── */
-.action-btn:hover {
-	transform: translateY(-1px);
-}
 
 /* Reduced motion: disable all micro-interactions */
 @media (prefers-reduced-motion: reduce) {
@@ -722,9 +691,9 @@ a.button {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: var(--glass-bg-nightky);
-	-webkit-backdrop-filter: blur(16px) saturate(140%);
-	backdrop-filter: blur(16px) saturate(140%);
+	background: var(--modal-backdrop-bg, rgba(0, 0, 0, 0.68));
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
 	z-index: var(--z-staging);
 	opacity: 0;
 	transition: opacity var(--dur-interactive) ease;

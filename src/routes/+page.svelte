@@ -15,9 +15,7 @@
 		STORAGE_KEYS,
 		storageGet,
 		storageSet,
-		storageSetJSON,
 		storageRemove,
-		storageGetJSON,
 		storageInvalidate
 	} from '$lib/utils/storage';
 	import { BMI_THRESHOLDS } from '$lib/utils/bmi-category';
@@ -32,13 +30,25 @@
 		SECTIONS
 	} from '$lib/utils/animation-config';
 	import { isEditableTarget } from '$lib/utils/dom';
+	import { saveBmiToHistory } from '$lib/utils/bmi-history';
+	import {
+		clampSectionIndex,
+		findSectionScroller,
+		indexFromSectionHash,
+		replaceSectionHash
+	} from '$lib/utils/page-sections';
+	import { nextTheme, THEMES, THEME_URLS, type ThemeKey } from '$lib/utils/page-theme';
+	import { getPagerWheelDirection } from '$lib/utils/scroll-helpers';
+	import { createTouchPager } from '$lib/utils/touch-pager';
 	import Hero from '$lib/ui/Hero.svelte';
 	import NotifyFloat from '$lib/components/NotifyFloat.svelte';
 	import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
+	import GaugeSection from '$lib/components/page/GaugeSection.svelte';
+	import PagerControls from '$lib/components/page/PagerControls.svelte';
 	import AboutSection from '$lib/components/sections/AboutSection.svelte';
 	import SettingsSection from '$lib/components/sections/SettingsSection.svelte';
 	import StagingSpinner from '$lib/components/StagingSpinner.svelte';
-	import { Wallpaper, ChevronLeft, ChevronRight, ChevronUp } from 'lucide-svelte';
+	import { Wallpaper } from 'lucide-svelte';
 	import { t as _t, initLocale, localeVersion } from '$lib/i18n';
 	import { getAppVersionShort } from '$lib/utils/app-version';
 	let _rv = $derived($localeVersion);
@@ -119,51 +129,6 @@
 	// BMI alone is not enough because age-only changes should still create a record.
 	let lastSavedHistorySignature: string | null = null;
 
-	function buildHistorySignature(bmi: number, h: number, w: number, ageNum?: number): string {
-		return [bmi.toFixed(4), h.toFixed(2), w.toFixed(2), ageNum ?? ''].join('|');
-	}
-
-	function saveBmiToHistory(bmi: number, h: number, w: number, a: string) {
-		if (!browser) return;
-		// Note: isSecureContext guard removed — localStorage is available regardless
-		// of HTTPS. Only crypto operations (export encryption) need secure context.
-		const parsedAge = a !== '' ? parseInt(a) : undefined;
-		const ageNum = Number.isFinite(parsedAge) ? parsedAge : undefined;
-		const historySignature = buildHistorySignature(bmi, h, w, ageNum);
-		if (lastSavedHistorySignature === historySignature) return;
-
-		let history: Array<{
-			timestamp: number;
-			bmi: number;
-			height: number;
-			weight: number;
-			age?: number;
-		}> = [];
-		try {
-			history = storageGetJSON(STORAGE_KEYS.HISTORY, []);
-		} catch (err) {
-			warnDev('page', 'saveBmi', 'Failed to read history — corrupted data removed', err);
-			storageRemove(STORAGE_KEYS.HISTORY);
-		}
-
-		const newRecord = {
-			timestamp: Date.now(),
-			bmi,
-			height: h,
-			weight: w,
-			age: ageNum
-		};
-
-		// Keep only last year of data
-		const oneYearAgo = Date.now() - 365 * 24 * 60 * 60 * 1000;
-		const filtered = history.filter((h) => h.timestamp > oneYearAgo);
-		filtered.push(newRecord);
-		filtered.sort((a, b) => a.timestamp - b.timestamp);
-
-		storageSetJSON(STORAGE_KEYS.HISTORY, filtered);
-		lastSavedHistorySignature = historySignature;
-	}
-
 	let bmiValue: number | null = $state(null);
 	let category: string | null = $state(null);
 
@@ -215,15 +180,8 @@
 	let suppressNextNavClickTimer: ReturnType<typeof setTimeout> | null = null;
 	const NAV_DRAG_THRESHOLD = 6;
 
-	// Auto-hide navbar state
 	let lastScrollY = 0;
-	let pagerControlsVisible = $state(true);
-	let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
-	// Touch swipe state for mobile horizontal navigation
-	let touchStartX: number | null = null;
-	let touchStartY: number | null = null;
-	let touchStartTime: number = 0;
 	let activePointerId: number | null = null;
 	let lastWheelNavAt = 0;
 	let switchingTimer: ReturnType<typeof setTimeout> | null = null;
@@ -234,10 +192,8 @@
 	let scrollRafId: number | null = null;
 	let pendingScrollTarget: HTMLElement | null = null;
 	let pendingScrollY = 0;
-	let touchScrollModeTimeout: ReturnType<typeof setTimeout> | null = null;
 	let lastTouchScrollAt = 0;
-	let lastTouchScrollY = 0;
-	let touchScrollingActive = false;
+	let lastActiveScrollAt = 0;
 
 	function triggerHaptic(pattern: number | number[] = HAPTIC.NAV) {
 		if (!browser) return;
@@ -250,12 +206,7 @@
 
 	function scrollToTop() {
 		if (!browser) return;
-		const activeId = sections[activeIndex].id;
-		const scroller =
-			activeScroller ??
-			pagerEl?.querySelector<HTMLElement>(
-				`[data-pager-scroll="true"][data-section-id="${activeId}"]`
-			);
+		const scroller = getActiveSectionScroller();
 		if (!scroller) return;
 
 		scroller.scrollTo({
@@ -265,19 +216,16 @@
 		triggerHaptic(5);
 	}
 
+	function getActiveSectionScroller(): HTMLElement | null {
+		return activeScroller ?? findSectionScroller(pagerEl, sections[activeIndex].id);
+	}
+
 	let reducedMotionEffective = $derived(prefersReducedMotion);
 	let contentReducedMotion = $derived(
 		reducedMotionEffective || isTouchDevice || perfTier !== 'high'
 	);
 
 	// Wallpaper theme toggle
-	type ThemeKey = 'blackhole' | 'spaceship' | 'space';
-	const THEMES: ThemeKey[] = ['blackhole', 'spaceship', 'space'];
-	const THEME_URLS: Record<ThemeKey, string> = {
-		blackhole: 'url("/images/blackhole.webp")',
-		spaceship: 'url("/images/spaceshipx.webp")',
-		space: 'url("/images/oxyzen-zenlysium.webp")'
-	};
 	const THEME_LABELS: Record<ThemeKey, () => string> = {
 		blackhole: () => t('nav.blackhole'),
 		spaceship: () => t('nav.spaceship'),
@@ -287,8 +235,7 @@
 	let themeLabel = $derived(THEME_LABELS[currentTheme]());
 
 	function toggleWallpaperTheme() {
-		const idx = THEMES.indexOf(currentTheme);
-		currentTheme = THEMES[(idx + 1) % THEMES.length];
+		currentTheme = nextTheme(currentTheme);
 		if (browser) {
 			storageSet(STORAGE_KEYS.WALLPAPER_THEME, currentTheme);
 			document.documentElement.style.setProperty('--wallpaper-current', THEME_URLS[currentTheme]);
@@ -376,32 +323,19 @@
 	let pointerStartX: number | null = null;
 	let pointerStartY: number | null = null;
 
-	function clampIndex(next: number) {
-		return Math.min(sections.length - 1, Math.max(0, next));
-	}
-
-	function indexFromHash(hash: string) {
-		const clean = hash.replace(/^#/, '').trim().toLowerCase();
-		const idx = sections.findIndex((s) => s.id === clean);
-		return idx >= 0 ? idx : null;
-	}
-
 	async function resetSectionScroll() {
 		await tick();
-		const activeId = sections[activeIndex].id;
-		const scroller = pagerEl?.querySelector<HTMLElement>(
-			`[data-pager-scroll="true"][data-section-id="${activeId}"]`
-		);
+		const scroller = findSectionScroller(pagerEl, sections[activeIndex].id);
 		if (scroller) scroller.scrollTo({ top: 0, left: 0, behavior: 'auto' });
 	}
 
 	function setHash(id: string) {
 		if (!browser) return;
-		location.replace(`#${id}`);
+		replaceSectionHash(id);
 	}
 
 	function goTo(index: number, opts?: { skipHash?: boolean; skipSwitching?: boolean }) {
-		const next = clampIndex(index);
+		const next = clampSectionIndex(index, sections.length);
 		if (next === activeIndex) {
 			if (!opts?.skipHash) setHash(sections[activeIndex].id);
 			void resetSectionScroll();
@@ -448,6 +382,15 @@
 		triggerHaptic(5);
 		goTo(activeIndex + 1);
 	}
+
+	const touchPager = createTouchPager({
+		getPagerEl: () => pagerEl,
+		getActiveScroller: getActiveSectionScroller,
+		getLastTouchScrollAt: () => lastTouchScrollAt,
+		triggerHaptic,
+		prevSection,
+		nextSection
+	});
 
 	function handleNavPointerDown(event: PointerEvent) {
 		if (event.button !== 0 || event.pointerType === 'touch') return;
@@ -580,92 +523,29 @@
 		activePointerId = null;
 	}
 
-	// ── Mobile touch swipe handlers ──
-	// Detects horizontal swipes on touch devices to navigate between sections.
-	// Uses touchstart/touchmove/touchend because pointer events for touch are
-	// intentionally kept separate (pointer handles mouse/stylus only).
-	function handleTouchStart(e: TouchEvent) {
-		const touch = e.touches[0];
-		if (!touch) return;
-		const target = e.target as HTMLElement | null;
-		if (target?.closest('button, a, input, textarea, select, label, [role="button"]')) return;
-		if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell'))
-			return;
-		touchStartX = touch.clientX;
-		touchStartY = touch.clientY;
-		touchStartTime = Date.now();
-	}
-
-	// handleTouchMove removed — swipe detection is handled purely via
-	// touchstart/touchend. Vertical scrolling runs on the browser compositor
-	// thread (passive, no JS blocking) for smooth 60fps on mobile.
-
-	function handleTouchEnd(e: TouchEvent) {
-		if (touchStartX === null || touchStartY === null) {
-			touchStartX = null;
-			touchStartY = null;
-			return;
-		}
-		const touch = e.changedTouches[0];
-		if (!touch) {
-			touchStartX = null;
-			touchStartY = null;
-			return;
-		}
-		const dx = touch.clientX - touchStartX;
-		const dy = touch.clientY - touchStartY;
-		const elapsed = Date.now() - touchStartTime;
-		touchStartX = null;
-		touchStartY = null;
-
-		const absDx = Math.abs(dx);
-		const absDy = Math.abs(dy);
-		const isHorizontal = absDx > absDy * SCROLL.TOUCH_SWIPE_ANGLE_RATIO;
-		const isLongEnough = absDx >= SCROLL.TOUCH_SWIPE_DX_MIN;
-		const isFastEnough = elapsed < SCROLL.TOUCH_SWIPE_MAX_MS;
-		const verticalDidNotDominate = absDy < SCROLL.TOUCH_VERTICAL_CANCEL_PX || isHorizontal;
-
-		if (isHorizontal && isLongEnough && isFastEnough && verticalDidNotDominate) {
-			triggerHaptic(HAPTIC.NAV);
-			if (dx < 0) nextSection();
-			else prevSection();
-		}
-	}
-
 	function handleWheel(event: WheelEvent) {
 		if (isEditableTarget(event.target)) return;
 		const target = event.target as HTMLElement | null;
-		if (target?.closest('.pager-nav, .pager-nav-shell, .pager-controls, .pager-controls-shell'))
-			return;
 
 		const now = Date.now();
-		if (now - lastWheelNavAt < SCROLL.WHEEL_COOLDOWN) return;
-
-		const dx = event.deltaX;
-		const dy = event.deltaY;
-		if (Math.abs(dx) < SCROLL.WHEEL_DX_THRESHOLD) return;
-		if (Math.abs(dy) > SCROLL.WHEEL_DY_MAX) return;
-		if (Math.abs(dx) < Math.abs(dy) * SCROLL.WHEEL_RATIO) return;
-
-		const section = pagerEl?.querySelector<HTMLElement>('.pager-section') ?? null;
-		if (section && section.scrollHeight > section.clientHeight + 2) {
-			const maxY = section.scrollHeight - section.clientHeight;
-			const midScroll = section.scrollTop > 2 && section.scrollTop < maxY - 2;
-			if (midScroll) return;
-		}
-
-		if (target) {
-			for (let el: HTMLElement | null = target; el && el !== pagerEl; el = el.parentElement) {
-				if (el.scrollWidth > el.clientWidth + 2) {
-					const maxX = el.scrollWidth - el.clientWidth;
-					const canScrollX = (dx > 0 && el.scrollLeft < maxX - 1) || (dx < 0 && el.scrollLeft > 1);
-					if (canScrollX) return;
-				}
-			}
-		}
+		const direction = getPagerWheelDirection({
+			pagerEl,
+			target,
+			dx: event.deltaX,
+			dy: event.deltaY,
+			now,
+			lastNavAt: lastWheelNavAt,
+			lastScrollAt: lastActiveScrollAt,
+			cooldownMs: SCROLL.WHEEL_COOLDOWN,
+			recentScrollBlockMs: SCROLL.WHEEL_RECENT_SCROLL_BLOCK_MS,
+			dxThreshold: SCROLL.WHEEL_DX_THRESHOLD,
+			dyMax: SCROLL.WHEEL_DY_MAX,
+			ratio: SCROLL.WHEEL_RATIO
+		});
+		if (!direction) return;
 
 		lastWheelNavAt = now;
-		if (dx > 0) nextSection();
+		if (direction === 'next') nextSection();
 		else prevSection();
 	}
 
@@ -679,48 +559,9 @@
 		};
 	}
 
-	function markTouchScrolling(currentScrollY: number) {
+	function markTouchScrolling() {
 		if (!browser || !isTouchDevice) return;
 		lastTouchScrollAt = Date.now();
-		lastTouchScrollY = currentScrollY;
-		if (!touchScrollingActive) {
-			touchScrollingActive = true;
-			document.body.classList.add('is-touch-scrolling');
-		}
-
-		if (touchScrollModeTimeout !== null) return;
-		touchScrollModeTimeout = setTimeout(
-			finishTouchScrollingIfIdle,
-			SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY
-		);
-	}
-
-	function finishTouchScrollingIfIdle() {
-		if (!browser) {
-			touchScrollModeTimeout = null;
-			return;
-		}
-
-		const elapsed = Date.now() - lastTouchScrollAt;
-		if (elapsed < SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY) {
-			touchScrollModeTimeout = setTimeout(
-				finishTouchScrollingIfIdle,
-				SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY - elapsed
-			);
-			return;
-		}
-
-		touchScrollModeTimeout = null;
-		if (touchScrollingActive) {
-			touchScrollingActive = false;
-			document.body.classList.remove('is-touch-scrolling');
-		}
-
-		const shouldShowFab = lastTouchScrollY > SCROLL.SCROLL_TOP_THRESHOLD;
-		if (showScrollTopFab !== shouldShowFab) {
-			showScrollTopFab = shouldShowFab;
-		}
-		if (!pagerControlsVisible) pagerControlsVisible = true;
 	}
 
 	function flushScrollState() {
@@ -729,7 +570,7 @@
 
 		const currentScrollY = pendingScrollY;
 		const delta = currentScrollY - lastScrollY;
-		const scrollingUp = delta < 0;
+		lastActiveScrollAt = Date.now();
 		const deltaEpsilon = isTouchDevice
 			? SCROLL.TOUCH_SCROLL_DELTA_EPSILON
 			: SCROLL.SCROLL_DELTA_EPSILON;
@@ -740,7 +581,7 @@
 		}
 
 		if (isTouchDevice) {
-			markTouchScrolling(currentScrollY);
+			markTouchScrolling();
 			lastScrollY = currentScrollY;
 			pendingScrollTarget = null;
 			return;
@@ -750,17 +591,6 @@
 		if (showScrollTopFab !== shouldShowFab) {
 			showScrollTopFab = shouldShowFab;
 		}
-
-		if (!scrollingUp && currentScrollY > 50) {
-			pagerControlsVisible = false;
-		} else if (scrollingUp) {
-			pagerControlsVisible = true;
-		}
-
-		if (scrollTimeout) clearTimeout(scrollTimeout);
-		scrollTimeout = setTimeout(() => {
-			pagerControlsVisible = true;
-		}, SCROLL.SCROLL_IDLE_DELAY);
 
 		lastScrollY = currentScrollY;
 		pendingScrollTarget = null;
@@ -787,9 +617,7 @@
 		if (!browser || !pagerEl) return;
 
 		const activeId = sections[activeIndex].id;
-		const nextScroller = pagerEl.querySelector<HTMLElement>(
-			`[data-pager-scroll="true"][data-section-id="${activeId}"]`
-		);
+		const nextScroller = findSectionScroller(pagerEl, activeId);
 
 		if (activeScroller === nextScroller) return;
 
@@ -886,12 +714,12 @@
 			warnDev('page', 'onMount:wallpaperTheme', 'Failed to read wallpaper theme', err);
 		}
 
-		const idx = indexFromHash(window.location.hash);
+		const idx = indexFromSectionHash(window.location.hash, sections);
 		if (idx !== null) goTo(idx, { skipHash: true, skipSwitching: true });
 		setHash(sections[activeIndex].id);
 
 		const onHashChange = () => {
-			const next = indexFromHash(window.location.hash);
+			const next = indexFromSectionHash(window.location.hash, sections);
 			if (next !== null && next !== activeIndex) goTo(next, { skipHash: true });
 		};
 
@@ -925,16 +753,13 @@
 		// Passive listeners keep native vertical scroll off the JS critical path.
 		// Vertical scrolling is handled natively by the browser via
 		// CSS touch-action on .pager-shell. We detect horizontal swipes
-		// purely in touchstart/touchend without blocking the scroll thread.
-		pagerEl?.addEventListener('touchstart', handleTouchStart, { passive: true });
-		pagerEl?.addEventListener('touchend', handleTouchEnd, { passive: true });
+		// in passive touch events without blocking the scroll thread.
+		pagerEl?.addEventListener('touchstart', touchPager.handleTouchStart, { passive: true });
+		pagerEl?.addEventListener('touchmove', touchPager.handleTouchMove, { passive: true });
+		pagerEl?.addEventListener('touchend', touchPager.handleTouchEnd, { passive: true });
 
-		// Unified scroll listener: is-scrolling class + pager-controls auto-hide
+		// Unified scroll listener: scroll-top FAB + touch-scroll rendering mode
 		isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-
-		if (isTouchDevice) {
-			pagerControlsVisible = true;
-		}
 
 		void tick().then(schedulePagerNavAlignment);
 		void tick().then(attachActiveScroller);
@@ -953,15 +778,13 @@
 			window.removeEventListener('pointerup', endNavPointerDrag);
 			window.removeEventListener('pointercancel', endNavPointerDrag);
 			navShell?.classList.remove('is-dragging');
-			document.body.classList.remove('is-touch-scrolling');
-			touchScrollingActive = false;
 			detachActiveScroller();
-			pagerEl?.removeEventListener('touchstart', handleTouchStart);
-			pagerEl?.removeEventListener('touchend', handleTouchEnd);
+			touchPager.reset();
+			pagerEl?.removeEventListener('touchstart', touchPager.handleTouchStart);
+			pagerEl?.removeEventListener('touchmove', touchPager.handleTouchMove);
+			pagerEl?.removeEventListener('touchend', touchPager.handleTouchEnd);
 			if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
 			if (scrollRafId !== null) cancelAnimationFrame(scrollRafId);
-			if (scrollTimeout !== null) clearTimeout(scrollTimeout);
-			if (touchScrollModeTimeout !== null) clearTimeout(touchScrollModeTimeout);
 			if (suppressNextNavClickTimer !== null) clearTimeout(suppressNextNavClickTimer);
 		};
 	});
@@ -972,8 +795,13 @@
 		if (isBmiResult(result)) {
 			bmiValue = result.bmi;
 			category = result.category;
-			// Save to history (uses metric-converted values)
-			saveBmiToHistory(result.bmi, result.heightCm, result.weightKg, _a);
+			lastSavedHistorySignature = saveBmiToHistory({
+				bmi: result.bmi,
+				heightCm: result.heightCm,
+				weightKg: result.weightKg,
+				age: _a,
+				lastSignature: lastSavedHistorySignature
+			});
 		} else {
 			bmiValue = null;
 			category = null;
@@ -1175,6 +1003,9 @@
 													});
 													notifyButtonText = t('notify.import_keep');
 													showNotify = true;
+												} else if (result.action === 'import-success') {
+													lastSavedHistorySignature = null;
+													resultsRunId += 1;
 												} else if (result.action === 'import-error') {
 													notifyType = 'error';
 													notifyMessage = result.error || t('notify.import_error');
@@ -1234,88 +1065,19 @@
 				{/if}
 
 				{#if activeIndex === 2}
-					<div class="main-container">
-						<div class="charts-section">
-							{#if BmiRadialGaugeComponent}
-								<BmiRadialGaugeComponent
-									bmi={bmiValue || 0}
-									{category}
-									ultraSmooth={!isTouchDevice}
-								/>
-							{:else}
-								<div class="skeleton-card">
-									<div class="skeleton-gauge">
-										<div class="skeleton skeleton-ring"></div>
-										<div class="skeleton skeleton-line w-60 h-md" style="margin:0 auto"></div>
-										<div class="skeleton-bar">
-											<span class="skeleton" style="background:var(--cyan2-40)"></span>
-											<span class="skeleton" style="background:var(--green-50)"></span>
-											<span class="skeleton" style="background:var(--yellow-60)"></span>
-											<span class="skeleton" style="background:var(--red-50)"></span>
-										</div>
-									</div>
-								</div>
-							{/if}
-
-							{#if BmiHealthRiskComponent}
-								<BmiHealthRiskComponent bmi={bmiValue} {category} />
-							{:else}
-								<div class="skeleton-card">
-									<div class="skeleton skeleton-line w-40 h-md" style="margin-bottom:1rem"></div>
-									<div
-										class="skeleton skeleton-line w-full h-sm"
-										style="margin-bottom:0.75rem"
-									></div>
-									<div
-										class="skeleton skeleton-line w-full h-sm"
-										style="margin-bottom:1.5rem"
-									></div>
-									<div class="skeleton skeleton-line w-80 h-sm"></div>
-									<div class="skeleton skeleton-line w-60 h-sm" style="margin-top:0.75rem"></div>
-								</div>
-							{/if}
-
-							{#if BmiSnapshotComponent}
-								<BmiSnapshotComponent currentBmi={bmiValue} {category} refreshKey={resultsRunId} />
-							{:else}
-								<div class="skeleton-card">
-									<div class="skeleton skeleton-line w-60 h-md" style="margin-bottom:1rem"></div>
-									<div
-										class="skeleton skeleton-line w-full h-sm"
-										style="margin-bottom:0.75rem"
-									></div>
-									<div class="skeleton skeleton-line w-80 h-sm"></div>
-								</div>
-							{/if}
-
-							{#if BodyFatEstimateComponent}
-								<BodyFatEstimateComponent
-									bmi={bmiValue}
-									age={age === '' ? null : parseInt(age)}
-									gender={gender || null}
-								/>
-							{:else}
-								<div class="skeleton-card">
-									<div class="skeleton skeleton-circle"></div>
-									<div class="skeleton skeleton-line w-40 h-lg" style="margin:0 auto 1rem"></div>
-									<div
-										class="skeleton skeleton-line w-full h-sm"
-										style="margin-bottom:0.5rem"
-									></div>
-									<div class="skeleton skeleton-line w-full h-sm"></div>
-								</div>
-							{/if}
-
-							{#if BmiGoalTrackerComponent}
-								<BmiGoalTrackerComponent currentBmi={bmiValue} />
-							{:else}
-								<div class="skeleton-card">
-									<div class="skeleton skeleton-line w-60 h-sm" style="margin-bottom:0.75rem"></div>
-									<div class="skeleton skeleton-line w-full h-sm"></div>
-								</div>
-							{/if}
-						</div>
-					</div>
+					<GaugeSection
+						{BmiRadialGaugeComponent}
+						{BmiHealthRiskComponent}
+						{BmiSnapshotComponent}
+						{BodyFatEstimateComponent}
+						{BmiGoalTrackerComponent}
+						{bmiValue}
+						{category}
+						{resultsRunId}
+						{isTouchDevice}
+						{age}
+						{gender}
+					/>
 				{/if}
 
 				{#if activeIndex === 3}
@@ -1347,45 +1109,14 @@
 		{/key}
 	</main>
 
-	<div class="pager-controls-shell" class:pager-hidden={!pagerControlsVisible}>
-		<div class="pager-controls" aria-label="Section navigation">
-			{#if activeIndex > 0}
-				<button
-					type="button"
-					class="pager-btn-futuristic pager-btn-prev"
-					aria-label="Previous section"
-					onclick={prevSection}
-				>
-					<ChevronLeft aria-hidden="true" size={44} />
-				</button>
-			{:else}
-				<div class="pager-btn-spacer" aria-hidden="true"></div>
-			{/if}
-
-			<button
-				type="button"
-				class="pager-btn-futuristic pager-btn-scroll-top"
-				class:fab-visible={showScrollTopFab}
-				aria-label="Scroll to top"
-				onclick={scrollToTop}
-			>
-				<ChevronUp aria-hidden="true" size={36} />
-			</button>
-
-			{#if activeIndex < sections.length - 1}
-				<button
-					type="button"
-					class="pager-btn-futuristic pager-btn-next"
-					aria-label="Next section"
-					onclick={nextSection}
-				>
-					<ChevronRight aria-hidden="true" size={44} />
-				</button>
-			{:else}
-				<div class="pager-arrow-spacer" aria-hidden="true"></div>
-			{/if}
-		</div>
-	</div>
+	<PagerControls
+		{activeIndex}
+		sectionCount={sections.length}
+		showScrollTopFab={isTouchDevice || showScrollTopFab}
+		onPrev={prevSection}
+		onNext={nextSection}
+		onScrollTop={scrollToTop}
+	/>
 </div>
 
 {#if showNotify}
@@ -1526,10 +1257,14 @@
 		position: absolute;
 		inset: 0;
 		overflow-y: auto;
+		overflow-x: hidden;
 		-webkit-overflow-scrolling: touch;
 		overscroll-behavior: contain;
+		overscroll-behavior-x: none;
+		overscroll-behavior-y: contain;
 		scrollbar-width: none;
 		contain: style;
+		overflow-anchor: none;
 		touch-action: pan-y pinch-zoom;
 		padding-top: calc(var(--pager-top-inset) + 0.5rem);
 		padding-bottom: calc(1.5rem + 58px + 1.5rem + env(safe-area-inset-bottom, 0px));
@@ -1539,6 +1274,12 @@
 
 	.pager-section::-webkit-scrollbar {
 		display: none;
+	}
+
+	@supports (overflow: clip) {
+		.pager-section {
+			overflow-x: clip;
+		}
 	}
 
 	/* .pager-nav responsive breakpoints (900px, 600px) and

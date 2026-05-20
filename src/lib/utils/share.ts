@@ -7,6 +7,7 @@
  */
 
 import { t, getLocale } from '$lib/i18n';
+import { getCategoryLabel } from './bmi-category';
 import { warnDev } from './warn-dev';
 
 export interface BmiShareData {
@@ -19,27 +20,12 @@ export interface BmiShareData {
 	tdee?: number | null;
 }
 
-function getCategoryLabel(cat: string): string {
-	switch (cat.toLowerCase()) {
-		case 'underweight':
-			return t('category.underweight');
-		case 'normal weight':
-			return t('category.normal');
-		case 'overweight':
-			return t('category.overweight');
-		case 'obese':
-			return t('category.obese');
-		default:
-			return cat;
-	}
-}
-
 /**
  * Build a formatted plain-text summary of BMI results.
  */
 export function formatBmiText(data: BmiShareData): string {
 	const unit = data.unitSystem === 'imperial' ? 'imperial' : 'metric';
-	const wUnit = unit === 'imperial' ? 'lbs' : 'kg';
+	const wUnit = unit === 'imperial' ? 'lb' : 'kg';
 	const hUnit = unit === 'imperial' ? 'in' : 'cm';
 	const categoryLabel = getCategoryLabel(data.category);
 

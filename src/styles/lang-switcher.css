@@ -12,8 +12,8 @@
 	align-items: center;
 	justify-content: center;
 	background: var(--modal-backdrop-bg) !important;
-	-webkit-backdrop-filter: blur(var(--modal-backdrop-blur)) saturate(var(--modal-backdrop-sat)) !important;
-	backdrop-filter: blur(var(--modal-backdrop-blur)) saturate(var(--modal-backdrop-sat)) !important;
+	-webkit-backdrop-filter: none !important;
+	backdrop-filter: none !important;
 	isolation: isolate;
 	opacity: 0;
 	transition: opacity var(--modal-backdrop-dur) ease;
@@ -28,15 +28,15 @@
 /* ── Panel container ── */
 .lang-panel {
 	position: relative;
-	background: var(--k-50) !important;
+	background: var(--modal-panel-bg) !important;
 	border: var(--border-by-rezky);
 	border-radius: var(--modal-panel-radius);
 	padding: 2rem 1.75rem;
 	min-width: 280px;
 	max-width: 90vw;
 	text-align: center;
-	-webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-	backdrop-filter: blur(24px) saturate(180%) !important;
+	-webkit-backdrop-filter: none !important;
+	backdrop-filter: none !important;
 
 	transform: scale(0.92) translateY(14px);
 	transition: transform var(--modal-dur) var(--modal-ease);
@@ -86,11 +86,6 @@
 	background: var(--btn-danger-bg-hover);
 	color: var(--stellar-white);
 	border: var(--btn-danger-border-hover);
-}
-
-.lang-close:focus-visible {
-	outline: none !important;
-	box-shadow: none !important;
 }
 
 .close-icon-text {

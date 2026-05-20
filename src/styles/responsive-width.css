@@ -363,27 +363,6 @@
 	}
 }
 
-/* ── Gauge width breakpoints ── */
-@media (min-width: 769px) {
-	:root {
-		--rsp-gauge-width: var(--rsp-desktop-gauge-width, min(82vw, 520px));
-	}
-
-	.gauge-container {
-		width: var(--rsp-gauge-width);
-	}
-}
-
-@media (min-width: 1100px) {
-	:root {
-		--rsp-gauge-width: min(72vw, 560px);
-	}
-
-	.gauge-container {
-		width: var(--rsp-gauge-width) !important;
-	}
-}
-
 /* ── Ultrawide breakpoint (v17.0) ──
      Optimize layout for screens wider than 1400px. */
 @media (min-width: 1400px) {

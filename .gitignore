@@ -178,3 +178,8 @@ build.log
 # Bundle analyzer output
 stats.html
 .reports/
+
+# Others
+.agents
+.codex
+.claude

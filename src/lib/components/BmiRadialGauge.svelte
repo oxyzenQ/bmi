@@ -31,7 +31,7 @@
 
 	// Persisted dataset-like state (visual)
 	let appliedBmi = $state(0);
-	let appliedColor = $state('var(--cat-slate-30)');
+	let appliedColor = $state<string>(COLORS.SLATE);
 	let appliedCategory = $state<string | null>(null);
 	let prevAppliedBmi = $state(0);
 	let isFilling = $state(false);
@@ -146,7 +146,7 @@
 		} else {
 			prevAppliedBmi = appliedBmi;
 			appliedBmi = 0;
-			appliedColor = 'var(--cat-slate-30)';
+			appliedColor = COLORS.SLATE;
 			appliedCategory = null;
 		}
 	});
@@ -232,9 +232,9 @@
 		return `#${toHex(lr)}${toHex(lg)}${toHex(lb)}`;
 	}
 
-	let progressStart = $derived(appliedBmi > 0 ? appliedColor : 'var(--cat-slate-30)');
+	let progressStart = $derived(appliedBmi > 0 ? appliedColor : COLORS.SLATE);
 	let progressEnd = $derived(
-		appliedBmi > 0 ? lighten(appliedColor, 0.25) : 'var(--cat-slate-30-light)'
+		appliedBmi > 0 ? lighten(appliedColor, 0.25) : lighten(COLORS.SLATE, 0.25)
 	);
 </script>
 

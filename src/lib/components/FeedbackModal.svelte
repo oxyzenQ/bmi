@@ -42,12 +42,11 @@
 	closeOnEscape={true}
 	closeOnEnter={true}
 	closeOnBackdropClick={true}
-	backdropBlur="24px"
-	backdropSat="140%"
 	panelMinWidth="320px"
 	panelClass="feedback-box"
 	backdropClass="feedback-shell"
 	zIndex="var(--z-modal-top)"
+	ariaLabel={displayTitle}
 >
 	<div class="feedback-content">
 		<div class="feedback-header">
@@ -83,7 +82,7 @@
 
 	/* Override ModalShell panel styles for feedback-specific appearance */
 	:global(.feedback-box) {
-		background: var(--k-50);
+		background: var(--modal-panel-bg);
 	}
 
 	.feedback-header {

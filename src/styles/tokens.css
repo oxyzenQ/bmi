@@ -208,6 +208,7 @@
 	--ink-18: rgba(99, 102, 241, 0.18);
 
 	/* Violet (139,92,246) — primary purple glow */
+	--violet-8: rgba(139, 92, 246, 0.08);
 	--violet-10: rgba(139, 92, 246, 0.1);
 	--violet-12: rgba(139, 92, 246, 0.12);
 	--violet-15: rgba(139, 92, 246, 0.15);
@@ -481,11 +482,9 @@
 	--modal-z: var(--z-modal);
 	--modal-z-top: var(--z-modal-top);
 	--modal-z-staging: var(--z-staging);
-	--modal-backdrop-bg: var(--k-50);
-	--modal-backdrop-blur: 24px;
-	--modal-backdrop-sat: 180%;
+	--modal-backdrop-bg: rgba(0, 0, 0, 0.68);
 	--modal-panel-radius: var(--container-radius);
-	--modal-panel-bg: var(--glass-bg-nightky);
+	--modal-panel-bg: rgba(0, 0, 0, 0.72);
 	--modal-panel-shadow: 0 25px 50px -12px var(--k-50);
 	--modal-dur: 0.22s;
 	--modal-ease: var(--easing-spring);
@@ -554,7 +553,7 @@
 
 	/* ── GLASSMORPHISM DESIGN TOKENS ──
      Container glass is controlled through --container-glass-* below. */
-	--glass-bg-nightky: rgba(0, 0, 0, 0.65);
+	--glass-bg-nightky: rgba(0, 0, 0, 0.7);
 	--glass-blur: 16px;
 	--glass-blur-heavy: 20px;
 	--glass-blur-light: 10px;

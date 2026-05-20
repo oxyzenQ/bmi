@@ -21,22 +21,30 @@
 		touch-action: pan-y pinch-zoom; /* Optimize touch response */
 	}
 
-	/* Simplify body::before filter on touch devices.
-     Full filter chain (brightness(1) contrast(1.25) saturate(1)) costs
-     GPU cycles even when values look "neutral".
-     Replace with a single brightness reduction to keep wallpaper
-     visible without compositor layer promotion. */
+	/* Simplify body::before on touch devices.
+     Desktop uses filter:brightness(0.4) to dim the wallpaper cheaply
+     (single cached texture). On mobile, opacity is even cheaper than
+     filter — no GPU filter pass, no compositing layer promotion.
+     Combined with the lighter body::after gradient, this achieves
+     the same dark mood with significantly less per-frame work.
+     Avoid forcing a permanent full-screen compositor layer here.
+     On long mobile sections, that extra promoted texture can increase
+     memory pressure during slow finger-drag scrolling; opacity alone
+     keeps the same visual result while letting the browser choose the
+     cheapest composition strategy. */
 	body::before {
-		opacity: 0.68;
-		filter: none !important;
-		transform: none !important;
+		opacity: 0.5;
+		filter: none;
+		will-change: auto;
+		transform: none;
 	}
 
-	/* Darken wallpaper through a cheap overlay instead of a
-     full-screen filtered fixed image. This keeps the same black-premium
-     mood with less work during long section scrolls. */
+	/* Lighter gradient overlay on mobile — the dimmed wallpaper
+     (opacity 0.65) already provides most of the darkening, so the
+     overlay can be much lighter. A heavy overlay over a fully-bright
+     wallpaper forced double compositing per frame during scroll. */
 	body::after {
-		background: linear-gradient(180deg, rgba(0, 0, 0, 0.48), rgba(0, 0, 0, 0.66)) !important;
+		background: linear-gradient(180deg, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.65));
 	}
 
 	/* Keep .pager-section on native compositor scrolling without
@@ -52,9 +60,17 @@
 		will-change: auto !important;
 		-webkit-overflow-scrolling: touch;
 		overscroll-behavior: contain;
+		overscroll-behavior-x: none;
+		overscroll-behavior-y: contain;
 		overflow-anchor: none;
 		contain: style;
 		touch-action: pan-y pinch-zoom;
+	}
+
+	@supports (overflow: clip) {
+		.pager-view {
+			overflow: clip;
+		}
 	}
 
 	.pager-shell {
@@ -81,20 +97,11 @@
 	.health-advice,
 	.age-advisory,
 	.bmi-explanation {
-		background: var(--sd-80) !important;
+		background: var(--container-glass-bg) !important;
 		-webkit-backdrop-filter: none !important;
 		backdrop-filter: none !important;
 		border: var(--container-glass-border) !important;
 		border-radius: var(--container-radius, var(--radius-lg)) !important;
-	}
-
-	.stat-block,
-	.tdee-card,
-	.health-advice,
-	.age-advisory,
-	.bmi-explanation {
-		-webkit-backdrop-filter: none !important;
-		backdrop-filter: none !important;
 	}
 
 	/* Calculator cards: simplified surfaces, no containment.
@@ -266,14 +273,14 @@
 			.age-advisory,
 			.bmi-explanation
 		) {
-		background: var(--sd-80) !important;
+		background: var(--container-glass-bg) !important;
 		border-color: var(--sg-16) !important;
 		-webkit-backdrop-filter: none !important;
 		backdrop-filter: none !important;
 	}
 
 	#calculator :is(.tdee-highlight, .tdee-cut, .tdee-maintain, .tdee-gain) {
-		background: var(--sd-80) !important;
+		background: var(--container-glass-bg) !important;
 	}
 
 	.about-section-block,
@@ -299,7 +306,6 @@
 		) {
 		animation: none !important;
 		transition: none !important;
-		transform: none !important;
 	}
 
 	#gauge .risk-marker {
@@ -318,33 +324,6 @@
 	#gauge .gauge-container {
 		overflow: visible !important;
 		isolation: auto;
-	}
-
-	body.is-touch-scrolling #gauge :is(.sparkline-container, .sparkline-svg, .chart-tooltip) {
-		pointer-events: none !important;
-	}
-
-	body.is-touch-scrolling
-		:is(
-			.form-card,
-			.bmi-card,
-			.gauge-container,
-			.reference-table,
-			.about-card,
-			.footer-disclaimer,
-			.pwa-install-card,
-			.github-footer,
-			.snapshot-card,
-			.risk-result,
-			.health-tips,
-			.bf-info-box,
-			.bf-ranges,
-			.progress-section,
-			.sparkline-container,
-			.activity-grid
-		) {
-		animation: none !important;
-		transition: none !important;
 	}
 
 	#gauge :is(.progress-fill, .comp-fill, .range-fill, .prime-bar-fill) {
@@ -536,67 +515,67 @@
 	}
 
 	/* Buttons stay solid for tap responsiveness. */
+	/* Navbar top */
 	.pager-nav-shell {
-		background: var(--sd-80) !important;
-		-webkit-backdrop-filter: none !important;
-		backdrop-filter: none !important;
-		transition: none !important;
-		will-change: auto !important;
+		background:
+			linear-gradient(180deg, rgba(12, 12, 18, 0.72) 0%, rgba(0, 0, 0, 0.62) 100%),
+			linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(255, 255, 255, 0.045));
+		border-top: 0;
+		border-bottom: 0;
+		border-left-color: rgba(255, 255, 255, 0.22);
+		border-right-color: rgba(255, 255, 255, 0.22);
+		box-shadow:
+			0 8px 22px rgba(0, 0, 0, 0.3),
+			0 0 16px rgba(139, 92, 246, 0.06);
+		-webkit-backdrop-filter: blur(12px) saturate(125%) brightness(1.03);
+		backdrop-filter: blur(12px) saturate(125%) brightness(1.03);
+		transition: none;
+		will-change: auto;
 		contain: paint style;
 		touch-action: pan-x pinch-zoom;
 	}
 
+	/* Navbar bottom */
 	.pager-controls-shell {
-		background: var(--sd-80) !important;
-		-webkit-backdrop-filter: none !important;
-		backdrop-filter: none !important;
-		transition:
-			opacity 140ms ease,
-			transform 140ms ease !important;
+		background:
+			linear-gradient(180deg, rgba(12, 12, 18, 0.72) 0%, rgba(0, 0, 0, 0.62) 100%),
+			linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(255, 255, 255, 0.045));
+		border-top: 0;
+		border-bottom: 0;
+		border-left-color: rgba(255, 255, 255, 0.22);
+		border-right-color: rgba(255, 255, 255, 0.22);
+		box-shadow:
+			0 8px 22px rgba(0, 0, 0, 0.3),
+			0 0 16px rgba(139, 92, 246, 0.06);
+		-webkit-backdrop-filter: blur(12px) saturate(125%) brightness(1.03);
+		backdrop-filter: blur(12px) saturate(125%) brightness(1.03);
+		transition: none;
 		will-change: auto;
 		touch-action: manipulation;
 	}
 
-	body.is-touch-scrolling .pager-controls-shell {
-		background: var(--sd-80) !important;
-		-webkit-backdrop-filter: none !important;
-		backdrop-filter: none !important;
-		transition:
-			opacity 140ms ease,
-			transform 140ms ease !important;
-		will-change: auto !important;
-		opacity: 0 !important;
-		pointer-events: none !important;
-		transform: translateX(-50%) translateY(100%) !important;
-	}
-
-	body.is-touch-scrolling .pager-btn-futuristic {
-		transition: none !important;
-		transform: none !important;
-	}
-
 	.pager-tab {
-		transition: none !important;
-		transform: none !important;
+		transition: none;
+		transform: none;
 		touch-action: pan-x pinch-zoom !important;
 	}
 
 	.pager-tab:hover,
 	.pager-tab.active {
-		transform: none !important;
+		transform: none;
 	}
 
 	.pager-btn-futuristic {
-		backdrop-filter: none !important;
-		-webkit-backdrop-filter: none !important;
-		transition: none !important;
-		transform: none !important;
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
+		transition: none;
+		transform: none;
 		touch-action: manipulation;
 	}
 
 	.pager-btn-futuristic:hover,
 	.pager-btn-futuristic:active {
-		transform: none !important;
+		transform: none;
 	}
 
 	/* Remove pseudo-element shine sweeps permanently on touch.
@@ -625,8 +604,9 @@
      Keep the wallpaper visible through black alpha, but avoid blur layers
      inside panels/buttons while the user scrolls or types. */
 	.lang-backdrop,
-	.notify-backdrop {
-		background: rgba(0, 0, 0, 0.68) !important;
+	.notify-backdrop,
+	.staging-backdrop {
+		background: var(--modal-backdrop-bg) !important;
 		-webkit-backdrop-filter: none !important;
 		backdrop-filter: none !important;
 		transition: none !important;
@@ -634,7 +614,7 @@
 
 	.lang-panel,
 	.notify-float-box {
-		background: rgba(0, 0, 0, 0.78) !important;
+		background: var(--modal-panel-bg) !important;
 		-webkit-backdrop-filter: none !important;
 		backdrop-filter: none !important;
 		transform: none !important;

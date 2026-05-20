@@ -81,23 +81,21 @@ body::before {
 	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;
-	opacity: 1;
-	filter: brightness(0.35) contrast(1) saturate(1);
-	transform: translateZ(0);
 	pointer-events: none;
+	filter: brightness(0.4);
+	/* Explicit GPU layer promotion — ensures the dimmed wallpaper
+     is cached as a single compositor texture, zero per-frame paint.
+     filter alone creates a compositing context on modern browsers,
+     but will-change + translateZ(0) guarantees layer promotion
+     even on older GPUs / Android WebViews that may not auto-promote. */
+	will-change: filter;
+	transform: translateZ(0);
 }
 
 @media (max-width: 480px) {
 	body::before {
 		background-size: cover;
 		background-position: center top;
-	}
-}
-
-@media (max-width: 480px) and (orientation: landscape) {
-	body::before {
-		background-size: cover;
-		background-position: center;
 	}
 }
 
@@ -113,6 +111,7 @@ body::after {
 	z-index: var(--z-base);
 	/* Negative z-index: intentional — gradient overlay behind content */
 	pointer-events: none;
+	background: linear-gradient(180deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.45));
 }
 
 @supports (height: 100svh) {

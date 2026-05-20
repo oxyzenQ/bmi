@@ -184,12 +184,29 @@
 		<div
 			class="dp-overlay"
 			onclick={togglePanel}
-			onkeydown={(e) => e.key === 'Escape' && togglePanel()}
+			onkeydown={(e) => {
+				if (!e.defaultPrevented && e.key === 'Escape') {
+					e.preventDefault();
+					togglePanel();
+				}
+			}}
 			role="presentation"
 		></div>
 
 		<!-- Panel -->
-		<div class="dp-panel" bind:this={panelEl} role="dialog" aria-label="Debug Panel">
+		<div
+			class="dp-panel"
+			bind:this={panelEl}
+			role="dialog"
+			aria-label="Debug Panel"
+			tabindex="-1"
+			onkeydown={(e) => {
+				if (!e.defaultPrevented && e.key === 'Escape') {
+					e.preventDefault();
+					togglePanel();
+				}
+			}}
+		>
 			<!-- Header -->
 			<div class="dp-header">
 				<div class="dp-title">
@@ -492,11 +509,6 @@
 		background: var(--btn-danger-bg-hover);
 		color: var(--stellar-white);
 		border: var(--btn-danger-border-hover);
-	}
-
-	.dp-close:focus-visible {
-		outline: none !important;
-		box-shadow: none !important;
 	}
 
 	.close-icon-text {
