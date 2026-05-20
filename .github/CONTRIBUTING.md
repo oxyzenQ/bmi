@@ -1,20 +1,21 @@
-# 🤝 Contributing to BMI Stellar Edition
+# Contributing to BMI Stellar
 
-First off, thank you for considering contributing to BMI Stellar! It's people like you that make open-source a fantastic community to learn, inspire, and create. 🎉
+Thank you for considering a contribution. This guide covers everything you need to set up, develop, and submit changes that meet the project's standards.
 
-## 📑 Table of Contents
+## Table of Contents
 
-- [Getting Started](#-getting-started)
-- [Development Workflow](#-development-workflow)
-- [Project Architecture](#-project-architecture)
-- [Commit Guidelines](#-commit-guidelines)
-- [Pull Request Process](#-pull-request-process)
-- [Code Standards](#-code-standards)
-- [Questions?](#-questions)
+- [Getting Started](#getting-started)
+- [Development Workflow](#development-workflow)
+- [Project Architecture](#project-architecture)
+- [Internationalization Guidelines](#internationalization-guidelines)
+- [Commit Guidelines](#commit-guidelines)
+- [Pull Request Process](#pull-request-process)
+- [Code Standards](#code-standards)
+- [Questions](#questions)
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 1. **Fork** the repository on GitHub.
 2. **Clone** your fork locally:
@@ -31,73 +32,154 @@ First off, thank you for considering contributing to BMI Stellar! It's people li
    git checkout -b feature/your-awesome-feature
    ```
 
-## 💻 Development Workflow
+## Development Workflow
 
-Our workflow relies heavily on `bun` for speed and efficiency.
+All commands use `bun` for speed and consistency.
 
 ```bash
 # Start the local development server (with HMR)
 bun run dev
 
-# Run unit tests
-bun test
+# Run all tests
+bun run test:run
+
+# Fast test run (excludes crypto/history-io)
+bun run test:fast
+
+# Type-check Svelte and TypeScript
+bun run check
 
 # Lint your code
 bun run lint
 
-# Automatically format your code with Prettier
+# Auto-format with Prettier
 bun run format
 
-# Run the complete verification suite (highly recommended before pushing)
+# Check formatting without writing
+bun run format:check
+
+# Run the complete verification suite (required before pushing)
 bun run verify
 ```
 
-## 🏗️ Project Architecture
+> [!IMPORTANT]
+> Always run `bun run verify` before pushing. This gate runs `format:check + check + lint + test:run + build` and catches regressions that individual commands may miss.
 
-To help you find your way around, here is a quick map of the codebase:
+## Project Architecture
 
-- `src/lib/components/`: Reusable UI elements (buttons, inputs, glass panels).
-- `src/lib/utils/`: Core mathematical and cryptographic logic.
-- `src/styles/`: The modular CSS architecture (see [Furthermore Docs](../docs/furthermore.md) for details).
-- `src/routes/`: SvelteKit pages and layouts.
+The codebase is organized around a clear separation of concerns:
 
-## 📝 Commit Guidelines
+```
+src/lib/components/     # UI components — forms, modals, gauges, charts, sections
+src/lib/components/form/       # Form sub-components (inputs, toggle, actions)
+src/lib/components/encryption/ # Encryption modal sub-components
+src/lib/components/page/       # Pager controls and gauge section
+src/lib/utils/          # Core logic — BMI math, crypto, storage, scroll, share
+src/lib/i18n/           # Locale engine + 4 translation dictionaries (en, id, ja, zh)
+src/lib/stores/         # PWA install/update reactive state
+src/lib/actions/        # Svelte actions (DOM portal)
+src/lib/types/          # TypeScript type definitions
+src/styles/             # 17-file modular CSS cascade (see below)
+src/routes/             # SvelteKit pages and layouts
+scripts/                # Maintenance scripts (bmi-update-version)
+```
 
-We use conventional commits to automatically generate changelogs and maintain a clean history. Please use clear, descriptive commit messages:
+### CSS Cascade
 
-- `feat:` A new feature
-- `fix:` A bug fix
-- `docs:` Documentation updates only
-- `style:` Changes that do not affect the meaning of the code (white-space, formatting, etc)
-- `refactor:` A code change that neither fixes a bug nor adds a feature
-- `perf:` A code change that improves performance
-- `test:` Adding missing tests or correcting existing ones
-- `chore:` Maintenance tasks, dependency updates, etc.
+Styles follow a strict import order in `+layout.svelte`. Each layer builds on the previous:
 
-_Example: `feat: add dynamic body fat percentage calculator`_
+1. `tokens.css` — Design tokens (all CSS custom properties)
+2. `base.css` — Resets, typography
+3. `icons.css` — Icon sizing
+4. `components.css` — Glassmorphism, button system, hero
+5. `form.css` — Form layout, inputs, validation
+6. `results.css` — Results card, share buttons
+7. `data-cards.css` — Stat grid, TDEE, gauge
+8. `layout.css` — Layout, footer
+9. `responsive-*.css` — Responsive overrides (base, width, height, backdrop, mobile-perf, content)
+10. `nav.css` — Pager navigation
+11. `lang-switcher.css` — Language switcher panel
+12. `animation.css` — Skeleton loading, micro-interactions
 
-## 🔄 Pull Request Process
+See [Furthermore Docs](../docs/furthermore.md) for the full architecture diagram.
 
-To ensure a smooth review process, please follow this checklist before opening your PR:
+## Internationalization Guidelines
 
-1. ✅ **Pass Checks:** Ensure `bun run verify` passes entirely.
-2. ✅ **Stay Updated:** Rebase your branch against the latest `main` branch.
-3. ✅ **Documentation:** Update relevant documentation if your changes affect architecture or usage.
-4. ✅ **Description:** Provide a clear, comprehensive PR description explaining _why_ the change is needed.
-5. ✅ **Link Issues:** Reference any related issues (e.g., "Fixes #123").
+When adding or modifying user-facing text:
 
-## 📏 Code Standards
+1. **Add keys to all 4 locales:** `en.ts`, `id.ts`, `ja.ts`, `zh.ts` — the English dictionary is the source of truth.
+2. **Unit symbols are universal:** Use `kg`, `cm`, `lb`, `in`, `kcal` in compact numeric contexts across all languages. Never translate unit symbols.
+3. **Translate human-readable labels:** Height, Weight, BMI Prime, Ideal Range, TDEE, activity levels, gender, status labels, and recommendations should be properly localized.
+4. **Key naming:** Use dot-notation with domain prefixes (`form.`, `results.`, `share.`, `risk.`, `crypto.`, etc.).
+5. **Interpolation:** Use `{param}` syntax for dynamic values (e.g., `'share.weight_line': 'Weight: {n} {unit}'`).
 
-- **Type Safety First:** We use **TypeScript**. Strict typing is mandatory. Avoid `any` at all costs.
-- **Svelte 5 Runes:** Embrace modern Svelte paradigms (e.g., `$state`, `$derived`).
-- **Styling:** Adhere to the existing **modular CSS custom properties** system rather than introducing inline styles.
-- **Performance:** Keep components lightweight. Profile any new animations to ensure 60fps on mobile.
-- **Clarity over Cleverness:** Write meaningful comments and keep functions small and highly focused.
+## Commit Guidelines
 
-## 💬 Questions?
+We use [Conventional Commits](https://www.conventionalcommits.org/) to automatically generate changelogs and maintain a clean history.
 
-Don't hesitate to ask! Open an [issue](https://github.com/oxyzenq/bmi/issues) for questions, feature proposals, or architectural discussions.
+### Format
 
----
+```
+<type>(<scope>): <description>
 
-**Thank you for contributing to BMI Stellar!** 🚀
+[optional body]
+```
+
+### Types
+
+| Type       | Purpose                                    |
+| ---------- | ------------------------------------------ |
+| `feat`     | A new feature                              |
+| `fix`      | A bug fix                                  |
+| `docs`     | Documentation changes only                 |
+| `style`    | Formatting, whitespace — no logic changes  |
+| `refactor` | Code restructuring without behavior change |
+| `perf`     | Performance improvement                    |
+| `test`     | Adding or correcting tests                 |
+| `chore`    | Maintenance, dependency updates, tooling   |
+
+### Scopes
+
+Common scopes include: `a11y`, `i18n`, `css`, `crypto`, `form`, `results`, `share`, `pwa`, `nav`, `build`.
+
+### Examples
+
+```
+feat(share): add TDEE context caption to share card
+fix(a11y): restore focus-visible ring on password inputs
+docs(i18n): document unit symbol policy in contributing guide
+perf(nav): disable backdrop-filter on low-tier devices
+```
+
+## Pull Request Process
+
+Before opening a PR, complete this checklist:
+
+1. **Verify:** `bun run verify` passes entirely (format:check + check + lint + test:run + build).
+2. **Rebase:** Your branch is up to date with the latest `dev` branch.
+3. **Documentation:** Architecture or usage changes are reflected in `docs/furthermore.md` or this file.
+4. **i18n:** New user-facing strings exist in all 4 locale files.
+5. **Description:** Your PR explains _why_ the change is needed, not just _what_ was changed.
+6. **Issues:** Related issues are referenced (e.g., "Fixes #123").
+
+### PR Title Format
+
+Use the same conventional commit format:
+
+```
+feat(share): add body-fat percentage to share card
+fix(css): resolve backdrop-filter regression on iOS Safari
+```
+
+## Code Standards
+
+- **Type Safety First:** TypeScript strict mode is mandatory. Avoid `any` — use proper type definitions and generics.
+- **Svelte 5 Runes:** Embrace `$state`, `$derived`, `$effect`, and `$props` — do not use legacy Svelte 4 patterns.
+- **Styling:** Use existing CSS custom properties from `tokens.css`. Add new tokens when a value is reused across 2+ files. Avoid inline styles.
+- **Accessibility:** Every interactive element must have a visible `:focus-visible` indicator. Use ARIA attributes (`aria-label`, `role`, `aria-modal`, etc.) for screen reader support. Test keyboard navigation.
+- **Performance:** Profile new animations on mobile. The three-tier system (high/medium/low) in `animation-config.ts` must be respected.
+- **Clarity over Cleverness:** Write descriptive names, keep functions small and focused, and add comments for non-obvious logic.
+
+## Questions
+
+Open an [issue](https://github.com/oxyzenQ/bmi/issues) for questions, feature proposals, or architectural discussions.

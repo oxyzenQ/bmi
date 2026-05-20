@@ -1,22 +1,23 @@
-# 📦 Release Process Documentation
+# Release Process
 
-This document outlines the professional, automated workflow used to release new versions of BMI Stellar.
+This document describes the automated workflow for publishing new versions of BMI Stellar. It covers the full lifecycle — from code integrity verification through tagging, CI pipeline execution, and post-release integrity checks.
 
-## 📑 Table of Contents
+## Table of Contents
 
-- [Automated Release Workflow](#-automated-release-workflow)
-- [How to Create a Release](#-how-to-create-a-release)
-- [Release Package Contents](#-release-package-contents)
-- [Changelog Generation](#-changelog-generation)
-- [Verifying Package Integrity](#-verifying-package-integrity)
-- [Version Naming Conventions](#-version-naming-conventions)
-- [Troubleshooting](#️-troubleshooting)
+- [Automated Release Workflow](#automated-release-workflow)
+- [Step-by-Step Release Guide](#step-by-step-release-guide)
+- [Release Package Contents](#release-package-contents)
+- [Changelog Generation](#changelog-generation)
+- [Verifying Package Integrity](#verifying-package-integrity)
+- [Version Naming Conventions](#version-naming-conventions)
+- [Rollback Procedure](#rollback-procedure)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
-## 🚀 Automated Release Workflow
+## Automated Release Workflow
 
-This project utilizes highly automated GitHub Actions to seamlessly generate, verify, and publish releases whenever a new tag is pushed.
+When a new tag is pushed, GitHub Actions handles the entire release lifecycle:
 
 ```mermaid
 sequenceDiagram
@@ -34,98 +35,161 @@ sequenceDiagram
     CI->>Rel: Publish Release with Assets
 ```
 
-## 🛠️ How to Create a Release
+## Step-by-Step Release Guide
 
-### 1. Ensure Code Integrity
+### 1. Verify Code Integrity
 
-Confirm all changes are committed, tested, and pushed to the `main` branch.
+Confirm all changes are committed, tested, and pushed to the `dev` branch. Run the full verification suite:
 
 ```bash
-git add .
-git commit -m "chore: prepare for release Stellar-v20.0"
-git push origin main
+bun run verify
 ```
+
+> [!NOTE]
+> The `verify` command runs `format:check + check + lint + test:run + build`. The build step will fail on Node 24 due to the Vercel adapter — this is a known issue and does not block the release on CI (which uses Node 22).
 
 ### 2. Update Version Strings
 
-> [!IMPORTANT]
-> Run the canonical update script to sync `package.json` and other metadata.
-> `bun run bmi-update-version 20.0.0`
-
-### 3. Create and Push the Tag
+Use the canonical update script to synchronize the version across `package.json`, `README.md`, `LICENSE.md`, and backup metadata:
 
 ```bash
-# Create a new tag
-git tag Stellar-v20.0
+# Preview changes before applying
+bun run bmi-update-version --dry-run 20.1.0
 
-# Push the tag to trigger the pipeline
-git push origin Stellar-v20.0
+# Apply the version update
+bun run bmi-update-version 20.1.0
+
+# Commit the version change
+git add -A
+git commit -m "chore: prepare for release Stellar-v20.1"
+git push origin dev
 ```
 
-### 4. Pipeline Execution
+### 3. Merge to Main
 
-Once the tag is pushed, GitHub Actions handles the rest:
+```bash
+git checkout main
+git merge dev
+git push origin main
+```
 
-1. ✅ Checks out the codebase.
-2. ✅ Provisions the required Bun runtime.
-3. ✅ Installs exact dependencies.
-4. ✅ Builds the SvelteKit production bundle.
-5. ✅ Generates a rich changelog.
-6. ✅ Packages `bmi-stellar-edition-{version}.zip`.
-7. ✅ Generates a SHA-256 cryptographic checksum.
-8. ✅ Drafts and publishes the GitHub Release.
+### 4. Create and Push the Tag
 
-## 📋 Release Package Contents
+Tags must follow the `Stellar-v<major>.<minor>` format:
+
+```bash
+git tag Stellar-v20.1
+git push origin Stellar-v20.1
+```
+
+### 5. Verify the Pipeline
+
+After pushing the tag:
+
+1. Navigate to the **Actions** tab in the repository.
+2. Confirm the `release.yml` workflow was triggered.
+3. Monitor the build, test, and packaging steps.
+4. Verify the GitHub Release was published with all assets.
+
+## Release Package Contents
 
 The generated distribution package includes:
 
-- `build/` - The production-ready application.
-- `package.json` - Precise project metadata.
-- `README.md` - Core documentation.
-- `LICENSE.md` - The GPL-3.0 License.
+- `build/` — The production-ready SvelteKit application bundle.
+- `package.json` — Precise project metadata with resolved version.
+- `README.md` — Core documentation.
+- `LICENSE.md` — The GPL-3.0 License.
 
-## 🔍 Changelog Generation
+## Changelog Generation
 
-Changelogs are auto-generated based on conventional commits.
+Changelogs are auto-generated based on conventional commits:
 
 - **Initial Release:** Compiles all commits up to the tag.
-- **Subsequent Releases:** Intelligently compiles commits _between_ the new tag and the immediate predecessor tag.
+- **Subsequent Releases:** Compiles commits between the new tag and the immediate predecessor tag.
 
-## 🔒 Verifying Package Integrity
+The changelog is included in the GitHub Release body.
 
-Security is paramount. Users can cryptographically verify their downloads using the provided checksum:
+## Verifying Package Integrity
+
+Each release includes a SHA-256 cryptographic checksum. Users can verify their downloads:
 
 ```bash
 sha256sum -c bmi-stellar-edition-{version}.zip.sha256
 ```
 
-## 🏷️ Version Naming Conventions
+## Version Naming Conventions
 
-We adhere to Semantic Versioning principles:
+We adhere to Semantic Versioning principles with a project-specific tag prefix:
 
-| Format          | Example                          | Use Case                                                        |
-| --------------- | -------------------------------- | --------------------------------------------------------------- |
-| **Major**       | `Stellar-v20.0`, `Stellar-v21.0` | Monumental feature additions or breaking architectural changes. |
-| **Minor**       | `Stellar-v20.1`, `Stellar-v20.2` | Backward-compatible feature additions.                          |
-| **Patch**       | `20.0.1`, `20.0.2`               | Backward-compatible bug fixes.                                  |
-| **Pre-release** | `3.0-beta1`                      | Testing monumental changes before general availability.         |
+| Format          | Example                          | Use Case                                                          |
+| --------------- | -------------------------------- | ----------------------------------------------------------------- |
+| **Major**       | `Stellar-v20.0`, `Stellar-v21.0` | Monumental feature additions or breaking architectural changes    |
+| **Minor**       | `Stellar-v20.1`, `Stellar-v20.2` | Backward-compatible feature additions                             |
+| **Patch**       | `20.0.1`, `20.0.2`               | Backward-compatible bug fixes (package.json version only, no tag) |
+| **Pre-release** | `Stellar-v21.0-beta1`            | Testing monumental changes before general availability            |
 
-## ⚠️ Troubleshooting
+> [!IMPORTANT]
+> The `Stellar-v` prefix is required on all release tags. The `package.json` version uses plain semver (e.g., `20.1.0`) without the prefix.
+
+## Rollback Procedure
+
+If a released version contains a critical regression:
+
+1. **Fix forward** on `dev` — this is the preferred approach.
+2. If a hotfix is needed directly on `main`:
+   ```bash
+   git checkout main
+   git checkout -b hotfix/critical-fix
+   # Apply the fix
+   git commit -m "fix: critical regression in ..."
+   git checkout main
+   git merge hotfix/critical-fix
+   git push origin main
+   bun run bmi-update-version 20.0.1
+   git tag Stellar-v20.0
+   git push origin Stellar-v20.0
+   ```
+3. Merge the hotfix back to `dev`:
+   ```bash
+   git checkout dev
+   git merge main
+   git push origin dev
+   ```
+
+## Troubleshooting
 
 ### Pipeline Failures
 
-If a release fails to publish:
-
 1. Navigate to the **Actions** tab in the repository.
 2. Select the failed workflow run.
-3. Inspect the execution logs. Common culprits include failing tests (`bun test`) or build errors (`bun run build`).
+3. Inspect the execution logs. Common culprits:
+   - Failing tests (`bun test`)
+   - Build errors (`bun run build`)
+   - Version string mismatch (tag version != package.json version)
 
 ### Tagging Errors
 
 If you pushed a tag prematurely:
 
 ```bash
-git tag -d Stellar-v20.0
-git push origin :refs/tags/Stellar-v20.0
-# Fix the code, then recreate and push the tag.
+# Delete the local tag
+git tag -d Stellar-v20.1
+
+# Delete the remote tag
+git push origin :refs/tags/Stellar-v20.1
+
+# Fix the code, then recreate and push the tag
+git tag Stellar-v20.1
+git push origin Stellar-v20.1
+```
+
+### Stale Lockfile
+
+If the build fails due to dependency resolution issues:
+
+```bash
+rm bun.lock
+bun install
+git add bun.lock
+git commit -m "chore: refresh lockfile"
 ```
