@@ -42,8 +42,6 @@
 	closeOnEscape={true}
 	closeOnEnter={true}
 	closeOnBackdropClick={true}
-	backdropBlur="24px"
-	backdropSat="140%"
 	panelMinWidth="320px"
 	panelClass="feedback-box"
 	backdropClass="feedback-shell"

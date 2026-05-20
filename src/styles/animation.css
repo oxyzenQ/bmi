@@ -283,10 +283,6 @@
 	background-color: var(--void-85);
 }
 
-.form-input:focus-visible {
-	outline: none;
-}
-
 /* ── Glass Card Shine Sweep on Hover ── */
 .bmi-card,
 .footer-disclaimer,

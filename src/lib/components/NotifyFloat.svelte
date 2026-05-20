@@ -138,8 +138,6 @@
 	show={shellVisible}
 	closeOnEscape={true}
 	closeOnBackdropClick={false}
-	backdropBlur="24px"
-	backdropSat="180%"
 	onclose={handleModalClose}
 	panelClass="notify-float-box"
 	ariaLabel={message}

@@ -33,7 +33,7 @@
      keeps the same visual result while letting the browser choose the
      cheapest composition strategy. */
 	body::before {
-		opacity: 0.50;
+		opacity: 0.5;
 		filter: none;
 		will-change: auto;
 		transform: none;

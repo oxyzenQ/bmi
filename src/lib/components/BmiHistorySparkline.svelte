@@ -314,8 +314,8 @@
 			</div>
 			<div
 				class="sparkline-badge"
-				class:trend-up={chartData.trend === 'down'}
-				class:trend-down={chartData.trend === 'up'}
+				class:trend-good={chartData.trend === 'down'}
+				class:trend-bad={chartData.trend === 'up'}
 			>
 				{#if chartData.trend === 'down'}
 					<TrendingDown size={14} />
@@ -576,12 +576,12 @@
 		color: var(--slate-200-solid);
 	}
 
-	.sparkline-badge.trend-down {
+	.sparkline-badge.trend-good {
 		background: var(--cat-green-15);
 		color: var(--cat-green-toast);
 	}
 
-	.sparkline-badge.trend-up {
+	.sparkline-badge.trend-bad {
 		background: var(--cat-red-15);
 		color: var(--darkred-90);
 	}

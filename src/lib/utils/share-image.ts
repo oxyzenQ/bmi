@@ -8,9 +8,9 @@ import { t, getLocale } from '$lib/i18n';
 import { CATEGORY_COLORS, COLORS, isBmiCategory, getCategoryLabel } from './bmi-category';
 import { getAppVersionShort } from './app-version';
 
-/** Uppercase for Latin text; no-op for CJK (no case distinction). */
+/** Uppercase for Latin text; no-op for CJK/Korean (no case distinction). */
 function localeToUpper(text: string): string {
-	if (/[\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff]/.test(text)) return text;
+	if (/[\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af]/.test(text)) return text;
 	return text.toUpperCase();
 }
 

@@ -25,7 +25,7 @@ export interface BmiShareData {
  */
 export function formatBmiText(data: BmiShareData): string {
 	const unit = data.unitSystem === 'imperial' ? 'imperial' : 'metric';
-	const wUnit = unit === 'imperial' ? 'lbs' : 'kg';
+	const wUnit = unit === 'imperial' ? 'lb' : 'kg';
 	const hUnit = unit === 'imperial' ? 'in' : 'cm';
 	const categoryLabel = getCategoryLabel(data.category);
 

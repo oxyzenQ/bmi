@@ -126,7 +126,7 @@ describe('generateBmiCard', () => {
 			generateBmiCard({
 				bmi: 24.5,
 				category: 'Normal Weight',
-				weightUnit: 'lbs',
+				weightUnit: 'lb',
 				height: 67,
 				weight: 154,
 				heightUnit: 'in'

@@ -44,7 +44,7 @@ describe('share utils', () => {
 				unitSystem: 'imperial'
 			});
 			expect(text).toContain('Height: 67 in');
-			expect(text).toContain('Weight: 154 lbs');
+			expect(text).toContain('Weight: 154 lb');
 		});
 
 		it('includes TDEE when provided', () => {

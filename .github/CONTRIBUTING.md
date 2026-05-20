@@ -74,7 +74,7 @@ We use conventional commits to automatically generate changelogs and maintain a 
 - `test:` Adding missing tests or correcting existing ones
 - `chore:` Maintenance tasks, dependency updates, etc.
 
-*Example: `feat: add dynamic body fat percentage calculator`*
+_Example: `feat: add dynamic body fat percentage calculator`_
 
 ## 🔄 Pull Request Process
 
@@ -83,7 +83,7 @@ To ensure a smooth review process, please follow this checklist before opening y
 1. ✅ **Pass Checks:** Ensure `bun run verify` passes entirely.
 2. ✅ **Stay Updated:** Rebase your branch against the latest `main` branch.
 3. ✅ **Documentation:** Update relevant documentation if your changes affect architecture or usage.
-4. ✅ **Description:** Provide a clear, comprehensive PR description explaining *why* the change is needed.
+4. ✅ **Description:** Provide a clear, comprehensive PR description explaining _why_ the change is needed.
 5. ✅ **Link Issues:** Reference any related issues (e.g., "Fixes #123").
 
 ## 📏 Code Standards

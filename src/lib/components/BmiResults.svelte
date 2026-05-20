@@ -115,7 +115,7 @@
 			? parseFloat((unitSystem === 'imperial' ? idealMax * KG_TO_LBS : idealMax).toFixed(1))
 			: null
 	);
-	let weightUnit = $derived(unitSystem === 'imperial' ? 'lbs' : 'kg');
+	let weightUnit = $derived(unitSystem === 'imperial' ? 'lb' : 'kg');
 
 	// How far user is from ideal range
 	let weightDelta = $derived.by(() => {
@@ -151,7 +151,7 @@
 			unitSystem === 'imperial'
 				? parseFloat((weightDelta.amount * KG_TO_LBS).toFixed(1))
 				: weightDelta.amount;
-		const u = unitSystem === 'imperial' ? 'lbs' : 'kg';
+		const u = unitSystem === 'imperial' ? 'lb' : 'kg';
 		return { amount: amt, direction: weightDelta.direction, unit: u };
 	});
 

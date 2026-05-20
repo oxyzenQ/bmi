@@ -25,7 +25,7 @@ sequenceDiagram
     participant CI as GitHub Actions
     participant Rel as GitHub Releases
 
-    Dev->>Git: Push Tag (e.g., 2.0)
+    Dev->>Git: Push Tag (e.g., Stellar-v20.0)
     Git->>CI: Trigger release.yml
     CI->>CI: Checkout & Setup Bun
     CI->>CI: Run Tests & Build
@@ -42,7 +42,7 @@ Confirm all changes are committed, tested, and pushed to the `main` branch.
 
 ```bash
 git add .
-git commit -m "chore: prepare for release 2.0"
+git commit -m "chore: prepare for release Stellar-v20.0"
 git push origin main
 ```
 
@@ -50,21 +50,22 @@ git push origin main
 
 > [!IMPORTANT]
 > Run the canonical update script to sync `package.json` and other metadata.
-> `bun run bmi-update-version 2.0.0`
+> `bun run bmi-update-version 20.0.0`
 
 ### 3. Create and Push the Tag
 
 ```bash
 # Create a new tag
-git tag 2.0
+git tag Stellar-v20.0
 
 # Push the tag to trigger the pipeline
-git push origin 2.0
+git push origin Stellar-v20.0
 ```
 
 ### 4. Pipeline Execution
 
 Once the tag is pushed, GitHub Actions handles the rest:
+
 1. ✅ Checks out the codebase.
 2. ✅ Provisions the required Bun runtime.
 3. ✅ Installs exact dependencies.
@@ -77,6 +78,7 @@ Once the tag is pushed, GitHub Actions handles the rest:
 ## 📋 Release Package Contents
 
 The generated distribution package includes:
+
 - `build/` - The production-ready application.
 - `package.json` - Precise project metadata.
 - `README.md` - Core documentation.
@@ -85,8 +87,9 @@ The generated distribution package includes:
 ## 🔍 Changelog Generation
 
 Changelogs are auto-generated based on conventional commits.
+
 - **Initial Release:** Compiles all commits up to the tag.
-- **Subsequent Releases:** Intelligently compiles commits *between* the new tag and the immediate predecessor tag.
+- **Subsequent Releases:** Intelligently compiles commits _between_ the new tag and the immediate predecessor tag.
 
 ## 🔒 Verifying Package Integrity
 
@@ -100,18 +103,19 @@ sha256sum -c bmi-stellar-edition-{version}.zip.sha256
 
 We adhere to Semantic Versioning principles:
 
-| Format | Example | Use Case |
-| --- | --- | --- |
-| **Major** | `2.0`, `3.0` | Monumental feature additions or breaking architectural changes. |
-| **Minor** | `2.1`, `2.2` | Backward-compatible feature additions. |
-| **Patch** | `2.1.1`, `2.1.2` | Backward-compatible bug fixes. |
-| **Pre-release**| `3.0-beta1`| Testing monumental changes before general availability. |
+| Format          | Example                          | Use Case                                                        |
+| --------------- | -------------------------------- | --------------------------------------------------------------- |
+| **Major**       | `Stellar-v20.0`, `Stellar-v21.0` | Monumental feature additions or breaking architectural changes. |
+| **Minor**       | `Stellar-v20.1`, `Stellar-v20.2` | Backward-compatible feature additions.                          |
+| **Patch**       | `20.0.1`, `20.0.2`               | Backward-compatible bug fixes.                                  |
+| **Pre-release** | `3.0-beta1`                      | Testing monumental changes before general availability.         |
 
 ## ⚠️ Troubleshooting
 
 ### Pipeline Failures
 
 If a release fails to publish:
+
 1. Navigate to the **Actions** tab in the repository.
 2. Select the failed workflow run.
 3. Inspect the execution logs. Common culprits include failing tests (`bun test`) or build errors (`bun run build`).
@@ -119,8 +123,9 @@ If a release fails to publish:
 ### Tagging Errors
 
 If you pushed a tag prematurely:
+
 ```bash
-git tag -d 2.0
-git push origin :refs/tags/2.0
+git tag -d Stellar-v20.0
+git push origin :refs/tags/Stellar-v20.0
 # Fix the code, then recreate and push the tag.
 ```

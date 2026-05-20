@@ -51,8 +51,8 @@
 
 ## 🛠️ Tech Stack
 
-| Layer      | Technology                    |
-| ---------- | ----------------------------- |
+| Layer          | Technology                    |
+| -------------- | ----------------------------- |
 | **Framework**  | SvelteKit 2 + Svelte 5 Runes  |
 | **Language**   | TypeScript                    |
 | **Runtime**    | Bun                           |
@@ -99,7 +99,7 @@ docs/                        # Long-form documentation
 
 ## 🔖 Versioning
 
-The canonical version begins in `package.json`. 
+The canonical version begins in `package.json`.
 
 > [!IMPORTANT]
 > Use `scripts/bmi-update-version.ts` via the npm scripts provided above. This ensures `package.json`, backup metadata, `README.md`, and `LICENSE.md` remain perfectly synchronized.
@@ -110,7 +110,7 @@ The canonical version begins in `package.json`.
 - **Military Grade Encryption:** Backups utilize AES-256-GCM encryption.
 - **Robust Key Derivation:** Argon2id is employed as the primary key derivation function.
 - **Backward Compatibility:** PBKDF2 backup imports remain supported for older exports.
-- **Zero Knowledge:** Passphrases are *never* stored.
+- **Zero Knowledge:** Passphrases are _never_ stored.
 
 ## ❤️ Support
 
@@ -120,7 +120,7 @@ If this project has helped you, inspired your own application, or saved you deve
 
 [![Support me on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/rezky)
 
-*Support is completely optional, and the project will forever remain open-source.*
+_Support is completely optional, and the project will forever remain open-source._
 
 ## ⚖️ License
 

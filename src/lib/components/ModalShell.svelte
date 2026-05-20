@@ -7,10 +7,6 @@
 		show: boolean;
 		/** Delay before showing visible (ms) — default 60 */
 		openDelay?: number;
-		/** backdrop-filter blur amount — default 24px */
-		backdropBlur?: string;
-		/** backdrop-filter saturation — default 180% */
-		backdropSat?: string;
 		/** panel min-width — default 320px */
 		panelMinWidth?: string;
 		/** Additional CSS class for backdrop */
@@ -36,8 +32,6 @@
 	let {
 		show = false,
 		openDelay = 60,
-		backdropBlur = '24px',
-		backdropSat = '180%',
 		panelMinWidth = '320px',
 		backdropClass = '',
 		panelClass = '',
@@ -172,9 +166,7 @@
 					e.stopPropagation();
 				}
 			}}
-			style="--ms-backdrop-blur: {backdropBlur}; --ms-backdrop-sat: {backdropSat};{zIndex
-				? ` z-index: ${zIndex};`
-				: ''}"
+			style={zIndex ? `z-index: ${zIndex};` : ''}
 		>
 			<div class="modal-shell-panel {panelClass}" style="--ms-panel-min-w: {panelMinWidth};">
 				{@render children?.()}

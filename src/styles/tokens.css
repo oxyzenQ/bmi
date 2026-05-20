@@ -483,8 +483,6 @@
 	--modal-z-top: var(--z-modal-top);
 	--modal-z-staging: var(--z-staging);
 	--modal-backdrop-bg: rgba(0, 0, 0, 0.68);
-	--modal-backdrop-blur: 0px;
-	--modal-backdrop-sat: 100%;
 	--modal-panel-radius: var(--container-radius);
 	--modal-panel-bg: black;
 	--modal-panel-shadow: 0 25px 50px -12px var(--k-50);
