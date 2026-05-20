@@ -3,7 +3,20 @@ import { dev } from '$app/environment';
 import type { Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ event, resolve }) => {
+	const isDev = dev;
+	const isHttpsRequest = event.url.protocol === 'https:';
+	const isVercelHost = event.url.hostname.endsWith('.vercel.app');
+	const vercelLiveOrigin = 'https://vercel.live';
+	const vercelInsightsOrigin = 'https://vitals.vercel-insights.com';
+	const vercelLiveSrc = isVercelHost ? ` ${vercelLiveOrigin}` : '';
+
 	const response = await resolve(event, {
+		preload: ({ type }) => {
+			// CSS is still emitted as normal <link rel="stylesheet"> tags.
+			// Skipping CSS Link-header preloads avoids Chromium's noisy
+			// "preloaded but not used" warnings for lazy route/component CSS.
+			return type === 'js' || type === 'font';
+		},
 		filterSerializedResponseHeaders: (name) => {
 			// Allow specific headers to be sent to the client
 			return name === 'content-type' || name === 'cache-control';
@@ -12,9 +25,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	// Content Security Policy (CSP) - Protects against XSS attacks
 	// More permissive in dev mode for Vite HMR
-	const isDev = dev;
-	const isHttpsRequest = event.url.protocol === 'https:';
-
 	const cspDirectives = isDev
 		? [
 				"default-src 'self' 'unsafe-inline' 'unsafe-eval'",
@@ -33,16 +43,17 @@ export const handle: Handle = async ({ event, resolve }) => {
 				// 'unsafe-inline' REQUIRED for SvelteKit hydration (<script> in HTML)
 				// Without this, production deployments (Vercel) render blank pages
 				// because the browser blocks inline __sveltekit bootstrap scripts.
-				// Note: CSP still protects against external script injection (script-src 'self')
-				"script-src 'self' 'unsafe-inline'",
+				// Vercel preview hosts also need vercel.live for the feedback toolbar.
+				`script-src 'self' 'unsafe-inline'${vercelLiveSrc}`,
 				// 'unsafe-inline' needed for Svelte style:xxx directives and style={...} bindings
 				"style-src 'self' 'unsafe-inline'",
 				"font-src 'self' data:",
 				"img-src 'self' data: blob: https:",
 				"media-src 'self'",
-				"connect-src 'self' https://raw.githubusercontent.com https://api.github.com",
+				`connect-src 'self' https://raw.githubusercontent.com https://api.github.com ${vercelInsightsOrigin}${vercelLiveSrc}`,
 				"manifest-src 'self'",
 				"worker-src 'self' blob:",
+				`frame-src 'self'${vercelLiveSrc}`,
 				"frame-ancestors 'none'",
 				"base-uri 'self'",
 				"form-action 'self'",
