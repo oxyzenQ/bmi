@@ -1,129 +1,126 @@
-# Release Process Documentation
+# 📦 Release Process Documentation
+
+This document outlines the professional, automated workflow used to release new versions of BMI Stellar.
+
+## 📑 Table of Contents
+
+- [Automated Release Workflow](#-automated-release-workflow)
+- [How to Create a Release](#-how-to-create-a-release)
+- [Release Package Contents](#-release-package-contents)
+- [Changelog Generation](#-changelog-generation)
+- [Verifying Package Integrity](#-verifying-package-integrity)
+- [Version Naming Conventions](#-version-naming-conventions)
+- [Troubleshooting](#️-troubleshooting)
+
+---
 
 ## 🚀 Automated Release Workflow
 
-This project uses GitHub Actions to automatically create releases when you push a new tag.
+This project utilizes highly automated GitHub Actions to seamlessly generate, verify, and publish releases whenever a new tag is pushed.
 
-## How to Create a Release
+```mermaid
+sequenceDiagram
+    participant Dev as Developer
+    participant Git as GitHub
+    participant CI as GitHub Actions
+    participant Rel as GitHub Releases
 
-### 1. Ensure Your Code is Ready
+    Dev->>Git: Push Tag (e.g., 2.0)
+    Git->>CI: Trigger release.yml
+    CI->>CI: Checkout & Setup Bun
+    CI->>CI: Run Tests & Build
+    CI->>CI: Generate Changelog
+    CI->>CI: Compress & Hash Artifacts
+    CI->>Rel: Publish Release with Assets
+```
 
-Make sure all changes are committed and pushed to the main branch:
+## 🛠️ How to Create a Release
+
+### 1. Ensure Code Integrity
+
+Confirm all changes are committed, tested, and pushed to the `main` branch.
 
 ```bash
 git add .
-git commit -m "Prepare for release 1.0"
+git commit -m "chore: prepare for release 2.0"
 git push origin main
 ```
 
-### 2. Create and Push a Tag
+### 2. Update Version Strings
+
+> [!IMPORTANT]
+> Run the canonical update script to sync `package.json` and other metadata.
+> `bun run bmi-update-version 2.0.0`
+
+### 3. Create and Push the Tag
 
 ```bash
-# Create a new tag (e.g., 1.0, 2.0, 1.2.3)
-git tag 1.0
+# Create a new tag
+git tag 2.0
 
-# Push the tag to GitHub
-git push origin 1.0
+# Push the tag to trigger the pipeline
+git push origin 2.0
 ```
 
-### 3. Automatic Release Creation
+### 4. Pipeline Execution
 
-Once the tag is pushed, GitHub Actions will automatically:
-
-1. ✅ Checkout the code
-2. ✅ Setup the build environment (Bun)
-3. ✅ Install dependencies
-4. ✅ Build the project
-5. ✅ Generate changelog from commits
-6. ✅ Create release package: `bmi-stellar-edition-{version}.zip`
-7. ✅ Generate SHA256 checksum
-8. ✅ Create GitHub Release with professional description
+Once the tag is pushed, GitHub Actions handles the rest:
+1. ✅ Checks out the codebase.
+2. ✅ Provisions the required Bun runtime.
+3. ✅ Installs exact dependencies.
+4. ✅ Builds the SvelteKit production bundle.
+5. ✅ Generates a rich changelog.
+6. ✅ Packages `bmi-stellar-edition-{version}.zip`.
+7. ✅ Generates a SHA-256 cryptographic checksum.
+8. ✅ Drafts and publishes the GitHub Release.
 
 ## 📋 Release Package Contents
 
-The release package includes:
-
-- `build/` - Built application files
-- `package.json` - Project metadata
-- `README.md` - Project documentation
-- `LICENSE.md` - GPL v3 License
+The generated distribution package includes:
+- `build/` - The production-ready application.
+- `package.json` - Precise project metadata.
+- `README.md` - Core documentation.
+- `LICENSE.md` - The GPL-3.0 License.
 
 ## 🔍 Changelog Generation
 
-### First Release (e.g., 1.0)
-
-- Includes all commits from the first commit to the release tag
-
-### Subsequent Releases (e.g., 1.1, 2.0)
-
-- Includes commits from the previous tag to the current tag
-- Example: If you have tags `1.0` and `1.1`, the changelog for `1.1` will include commits between `1.0` and `1.1`
-
-## 📦 Release Artifacts
-
-Each release includes:
-
-1. **Package**: `bmi-stellar-edition-{version}.zip`
-   - Contains the built application and necessary files
-2. **Checksum**: `bmi-stellar-edition-{version}.zip.sha256`
-   - SHA256 hash for package verification
+Changelogs are auto-generated based on conventional commits.
+- **Initial Release:** Compiles all commits up to the tag.
+- **Subsequent Releases:** Intelligently compiles commits *between* the new tag and the immediate predecessor tag.
 
 ## 🔒 Verifying Package Integrity
 
-Users can verify the downloaded package using:
+Security is paramount. Users can cryptographically verify their downloads using the provided checksum:
 
 ```bash
 sha256sum -c bmi-stellar-edition-{version}.zip.sha256
 ```
 
-## 📝 Release Notes Structure
-
-Each release automatically includes:
-
-- **What's New**: Brief introduction
-- **Installation**: Step-by-step installation instructions
-- **Changelog**: Detailed commit history since last release
-- **Security**: Package verification instructions
-- **License**: GPL v3 license information
-- **Acknowledgments**: Credits and tech stack
-
 ## 🏷️ Version Naming Conventions
 
-Recommended tag formats:
+We adhere to Semantic Versioning principles:
 
-- **Major releases**: `1.0`, `2.0`, `3.0`
-- **Minor releases**: `1.1`, `1.2`, `2.1`
-- **Patch releases**: `1.0.1`, `1.0.2`, `2.1.3`
-- **Pre-releases**: `1.0-beta`, `2.0-rc1`
+| Format | Example | Use Case |
+| --- | --- | --- |
+| **Major** | `2.0`, `3.0` | Monumental feature additions or breaking architectural changes. |
+| **Minor** | `2.1`, `2.2` | Backward-compatible feature additions. |
+| **Patch** | `2.1.1`, `2.1.2` | Backward-compatible bug fixes. |
+| **Pre-release**| `3.0-beta1`| Testing monumental changes before general availability. |
 
-## 🛠️ Troubleshooting
+## ⚠️ Troubleshooting
 
-### Release Failed?
+### Pipeline Failures
 
-Check the Actions tab in GitHub to see error logs:
+If a release fails to publish:
+1. Navigate to the **Actions** tab in the repository.
+2. Select the failed workflow run.
+3. Inspect the execution logs. Common culprits include failing tests (`bun test`) or build errors (`bun run build`).
 
-1. Go to your repository on GitHub
-2. Click "Actions" tab
-3. Find the failed workflow run
-4. Review the logs to identify the issue
+### Tagging Errors
 
-### Common Issues
-
-- **Build failure**: Ensure `bun run build` works locally
-- **Tag already exists**: Delete the tag and recreate it:
-  ```bash
-  git tag -d 1.0
-  git push origin :refs/tags/1.0
-  git tag 1.0
-  git push origin 1.0
-  ```
-
-## 📚 Additional Resources
-
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Git Tagging Guide](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
-- [Semantic Versioning](https://semver.org/)
-
----
-
-**Note**: Make sure you have the necessary permissions to create releases in the repository settings.
+If you pushed a tag prematurely:
+```bash
+git tag -d 2.0
+git push origin :refs/tags/2.0
+# Fix the code, then recreate and push the tag.
+```
