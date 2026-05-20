@@ -177,7 +177,7 @@
 <style>
 	/* Panel override — NotifyFloat uses its own glass styling, not ModalShell's default */
 	:global(.notify-float-box) {
-		background: var(--k-50) !important;
+		background: var(--modal-panel-bg) !important;
 		text-align: center;
 		padding: 2rem;
 	}
@@ -375,7 +375,7 @@
 
 	@media (hover: none) and (pointer: coarse) {
 		:global(.notify-float-box) {
-			background: rgba(0, 0, 0, 0.8) !important;
+			background: var(--modal-panel-bg) !important;
 			-webkit-backdrop-filter: none !important;
 			backdrop-filter: none !important;
 			transform: none !important;

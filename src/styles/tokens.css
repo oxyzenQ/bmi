@@ -482,11 +482,11 @@
 	--modal-z: var(--z-modal);
 	--modal-z-top: var(--z-modal-top);
 	--modal-z-staging: var(--z-staging);
-	--modal-backdrop-bg: var(--k-50);
-	--modal-backdrop-blur: 24px;
-	--modal-backdrop-sat: 180%;
+	--modal-backdrop-bg: rgba(0, 0, 0, 0.68);
+	--modal-backdrop-blur: 0px;
+	--modal-backdrop-sat: 100%;
 	--modal-panel-radius: var(--container-radius);
-	--modal-panel-bg: var(--glass-bg-nightky);
+	--modal-panel-bg: rgba(0, 0, 0, 0.72);
 	--modal-panel-shadow: 0 25px 50px -12px var(--k-50);
 	--modal-dur: 0.22s;
 	--modal-ease: var(--easing-spring);

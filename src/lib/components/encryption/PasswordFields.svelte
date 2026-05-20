@@ -175,8 +175,7 @@
 	}
 
 	.encrypt-input:focus {
-		outline: 2px solid var(--violet-42);
-		outline-offset: 1px;
+		outline: none;
 		border-color: var(--cosmic-purple);
 	}
 

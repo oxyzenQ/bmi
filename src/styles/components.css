@@ -82,13 +82,6 @@ a.button:active {
 	background: var(--btn-bg-active);
 }
 
-.btn:focus-visible,
-button:focus-visible,
-a.button:focus-visible {
-	outline: 3px solid var(--violet-35);
-	outline-offset: 2px;
-}
-
 .btn:focus:not(:focus-visible),
 button:focus:not(:focus-visible),
 a.button:focus:not(:focus-visible) {

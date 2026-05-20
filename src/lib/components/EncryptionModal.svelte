@@ -387,9 +387,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: var(--glass-bg-nightky, rgba(0, 0, 0, 0.65));
-		-webkit-backdrop-filter: blur(24px) saturate(140%);
-		backdrop-filter: blur(24px) saturate(140%);
+		background: var(--modal-backdrop-bg, rgba(0, 0, 0, 0.68));
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
 		z-index: var(--z-modal);
 		opacity: 0;
 		transition: opacity var(--modal-backdrop-dur, 0.15s) ease;
@@ -408,14 +408,14 @@
 	/* iOS Safari: stronger blur for mobile */
 	@supports (-webkit-touch-callout: none) {
 		.encrypt-backdrop {
-			-webkit-backdrop-filter: blur(32px) saturate(160%);
-			backdrop-filter: blur(32px) saturate(160%);
-			background: var(--glass-bg-nightky, rgba(0, 0, 0, 0.65));
+			-webkit-backdrop-filter: none;
+			backdrop-filter: none;
+			background: var(--modal-backdrop-bg, rgba(0, 0, 0, 0.68));
 		}
 	}
 
 	.encrypt-box {
-		background: var(--glass-bg-nightky, rgba(0, 0, 0, 0.65));
+		background: var(--modal-panel-bg, rgba(0, 0, 0, 0.72));
 		border: var(--border-by-rezky);
 		border-radius: var(--modal-panel-radius);
 		padding: 2rem;
@@ -427,8 +427,8 @@
 		-webkit-overflow-scrolling: touch;
 		touch-action: pan-y pinch-zoom;
 		scrollbar-width: none;
-		-webkit-backdrop-filter: blur(24px) saturate(140%);
-		backdrop-filter: blur(24px) saturate(140%);
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
 
 		opacity: 0;
 		transform: var(--modal-panel-scale-from, scale(0.96) translateY(8px));
@@ -465,7 +465,7 @@
 		}
 
 		.encrypt-box {
-			background: rgba(0, 0, 0, 0.8) !important;
+			background: var(--modal-panel-bg, rgba(0, 0, 0, 0.72)) !important;
 			-webkit-backdrop-filter: none !important;
 			backdrop-filter: none !important;
 			transform: none !important;

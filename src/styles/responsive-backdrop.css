@@ -26,13 +26,16 @@
 	}
 
 	.lang-backdrop,
-	.notify-backdrop {
-		background: var(--cosmic-dark-92) !important;
+	.notify-backdrop,
+	.modal-shell-backdrop,
+	.encrypt-backdrop,
+	.staging-backdrop {
+		background: var(--modal-backdrop-bg) !important;
 	}
 
 	.lang-panel,
 	.notify-float-box {
-		background: var(--glass-bg-nightky) !important;
+		background: var(--modal-panel-bg) !important;
 	}
 
 	.chart-tooltip {

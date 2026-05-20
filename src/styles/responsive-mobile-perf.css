@@ -588,7 +588,7 @@
 	.lang-backdrop,
 	.notify-backdrop,
 	.staging-backdrop {
-		background: rgba(0, 0, 0, 0.68) !important;
+		background: var(--modal-backdrop-bg) !important;
 		-webkit-backdrop-filter: none !important;
 		backdrop-filter: none !important;
 		transition: none !important;
@@ -596,7 +596,7 @@
 
 	.lang-panel,
 	.notify-float-box {
-		background: rgba(0, 0, 0, 0.78) !important;
+		background: var(--modal-panel-bg) !important;
 		-webkit-backdrop-filter: none !important;
 		backdrop-filter: none !important;
 		transform: none !important;

@@ -695,9 +695,9 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: var(--glass-bg-nightky);
-	-webkit-backdrop-filter: blur(16px) saturate(140%);
-	backdrop-filter: blur(16px) saturate(140%);
+	background: var(--modal-backdrop-bg, rgba(0, 0, 0, 0.68));
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
 	z-index: var(--z-staging);
 	opacity: 0;
 	transition: opacity var(--dur-interactive) ease;

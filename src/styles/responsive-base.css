@@ -2,13 +2,6 @@
 /* ── responsive-base.css — Base responsive rules ── */
 /* Shared accessibility, fluid media, container, typography, and form width rules. */
 
-/* Focus styles for accessibility
-   Static color tokens avoid repeated color interpolation on touch devices. */
-*:focus-visible {
-	outline: 2px solid var(--violet-42);
-	outline-offset: 2px;
-}
-
 /* ==============================
       RESPONSIVE DESIGN
       ============================== */

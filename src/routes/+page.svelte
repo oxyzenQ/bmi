@@ -570,6 +570,7 @@
 
 		const currentScrollY = pendingScrollY;
 		const delta = currentScrollY - lastScrollY;
+		lastActiveScrollAt = Date.now();
 		const deltaEpsilon = isTouchDevice
 			? SCROLL.TOUCH_SCROLL_DELTA_EPSILON
 			: SCROLL.SCROLL_DELTA_EPSILON;
@@ -599,7 +600,6 @@
 		const target = event.currentTarget as HTMLElement | null;
 		if (!target) return;
 
-		lastActiveScrollAt = Date.now();
 		pendingScrollTarget = target;
 		pendingScrollY = target.scrollTop;
 		if (scrollRafId === null) {
