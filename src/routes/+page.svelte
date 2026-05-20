@@ -195,7 +195,6 @@
 	let touchScrollModeTimeout: ReturnType<typeof setTimeout> | null = null;
 	let lastTouchScrollAt = 0;
 	let lastActiveScrollAt = 0;
-	let lastTouchScrollY = 0;
 	let touchScrollingActive = false;
 
 	function triggerHaptic(pattern: number | number[] = HAPTIC.NAV) {
@@ -566,10 +565,8 @@
 	function markTouchScrolling(currentScrollY: number) {
 		if (!browser || !isTouchDevice) return;
 		lastTouchScrollAt = Date.now();
-		lastTouchScrollY = currentScrollY;
 		if (!touchScrollingActive) {
 			touchScrollingActive = true;
-			document.body.classList.add('is-touch-scrolling');
 		}
 
 		if (touchScrollModeTimeout !== null) return;
@@ -597,12 +594,6 @@
 		touchScrollModeTimeout = null;
 		if (touchScrollingActive) {
 			touchScrollingActive = false;
-			document.body.classList.remove('is-touch-scrolling');
-		}
-
-		const shouldShowFab = lastTouchScrollY > SCROLL.SCROLL_TOP_THRESHOLD;
-		if (showScrollTopFab !== shouldShowFab) {
-			showScrollTopFab = shouldShowFab;
 		}
 	}
 
@@ -820,7 +811,6 @@
 			window.removeEventListener('pointerup', endNavPointerDrag);
 			window.removeEventListener('pointercancel', endNavPointerDrag);
 			navShell?.classList.remove('is-dragging');
-			document.body.classList.remove('is-touch-scrolling');
 			touchScrollingActive = false;
 			detachActiveScroller();
 			touchPager.reset();
@@ -1157,7 +1147,7 @@
 	<PagerControls
 		{activeIndex}
 		sectionCount={sections.length}
-		{showScrollTopFab}
+		showScrollTopFab={isTouchDevice || showScrollTopFab}
 		onPrev={prevSection}
 		onNext={nextSection}
 		onScrollTop={scrollToTop}

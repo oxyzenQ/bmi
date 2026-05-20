@@ -326,33 +326,6 @@
 		isolation: auto;
 	}
 
-	body.is-touch-scrolling #gauge :is(.sparkline-container, .sparkline-svg, .chart-tooltip) {
-		pointer-events: none !important;
-	}
-
-	body.is-touch-scrolling
-		:is(
-			.form-card,
-			.bmi-card,
-			.gauge-container,
-			.reference-table,
-			.about-card,
-			.footer-disclaimer,
-			.pwa-install-card,
-			.github-footer,
-			.snapshot-card,
-			.risk-result,
-			.health-tips,
-			.bf-info-box,
-			.bf-ranges,
-			.progress-section,
-			.sparkline-container,
-			.activity-grid
-		) {
-		animation: none !important;
-		transition: none !important;
-	}
-
 	#gauge :is(.progress-fill, .comp-fill, .range-fill, .prime-bar-fill) {
 		background-image: none !important;
 	}
