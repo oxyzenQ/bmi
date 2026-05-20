@@ -27,6 +27,9 @@
 	const appVersionTag = `v${getAppVersionShort()}`;
 	let updateCheckingOverlay = $state(false);
 	let showInstallHelp = $state(false);
+	let showUpdateCheckNotice = $state(false);
+	let updateCheckNoticeType = $state<'success' | 'error'>('success');
+	let updateCheckNoticeMessage = $state('');
 	let _rv = $derived($localeVersion);
 	function t(key: string, params?: Record<string, string | number | undefined | null>): string {
 		void _rv;
@@ -42,11 +45,21 @@
 		if (updateCheckingOverlay) return;
 
 		updateCheckingOverlay = true;
-		await Promise.all([
+		const [result] = await Promise.all([
 			checkForPwaUpdate('manual'),
 			new Promise((resolve) => setTimeout(resolve, 3000))
 		]);
 		updateCheckingOverlay = false;
+
+		if (result.status === 'up-to-date') {
+			updateCheckNoticeType = 'success';
+			updateCheckNoticeMessage = t('pwa.up_to_date');
+			showUpdateCheckNotice = true;
+		} else if (result.status === 'offline' || result.status === 'error') {
+			updateCheckNoticeType = 'error';
+			updateCheckNoticeMessage = t('pwa.update_check_failed');
+			showUpdateCheckNotice = true;
+		}
 	}
 </script>
 
@@ -273,6 +286,20 @@
 			}}
 			onClose={() => {
 				showInstallHelp = false;
+			}}
+		/>
+	{/if}
+	{#if showUpdateCheckNotice}
+		<NotifyFloat
+			show={showUpdateCheckNotice}
+			type={updateCheckNoticeType}
+			message={updateCheckNoticeMessage}
+			buttonText={t('notify.ok')}
+			onContinue={() => {
+				showUpdateCheckNotice = false;
+			}}
+			onClose={() => {
+				showUpdateCheckNotice = false;
 			}}
 		/>
 	{/if}

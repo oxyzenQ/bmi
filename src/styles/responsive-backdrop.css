@@ -16,17 +16,17 @@
    - Only old / unsupported browsers (e.g. old Firefox, some WebViews)
      fall through to this fallback.
    ═══════════════════════════════════════════════════════════════ */
-@supports not (backdrop-filter: blur(1px)) {
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
 	.pager-nav-shell,
 	.pager-controls-shell {
 		/* Liquid glass navbar fallback: solid dark background matching
        the stronger dark-glass base when blur is not supported.
        Preserve the subtle white border for depth. */
-		background:
-			linear-gradient(180deg, rgba(12, 12, 18, 0.76), rgba(0, 0, 0, 0.66)),
-			linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(255, 255, 255, 0.04)) !important;
+		background: var(--nav-glass-bg) !important;
 		border-top: 0 !important;
 		border-bottom: 0 !important;
+		border-left: var(--nav-glass-border-inline) !important;
+		border-right: var(--nav-glass-border-inline) !important;
 	}
 
 	.lang-backdrop,

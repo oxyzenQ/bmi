@@ -301,7 +301,7 @@ const zh: TranslationDict = {
 	'risk.rec_under_1': '\u54a8\u8be2\u8425\u517b\u5e08\u4ee5\u5065\u5eb7\u65b9\u5f0f\u589e\u91cd',
 	'risk.rec_under_2': '\u6ce8\u91cd\u8425\u517b\u5bc6\u96c6\u7684\u98df\u7269',
 	'risk.rec_under_3': '\u6392\u9664\u6f5c\u5728\u7684\u533b\u7597\u75be\u75c5',
-	'risk.rec_over_1': '目标逐步减重（0.5-1kg/周）',
+	'risk.rec_over_1': '目标逐步减重（0.5-1 kg/周）',
 	'risk.rec_over_2': '\u589e\u52a0\u6bcf\u65e5\u4f53\u80b2\u6d3b\u52a8',
 	'risk.rec_over_3':
 		'\u54a8\u8be2\u533b\u7597\u4fdd\u5065\u63d0\u4f9b\u8005\u5236\u5b9a\u8ba1\u5212',
@@ -530,6 +530,8 @@ const zh: TranslationDict = {
 	'pwa.check_update': '检查更新',
 	'pwa.update_checking': '检查中...',
 	'pwa.update_available': 'BMI Stellar 有新版本可用。立即重新加载以启用最新更新。',
+	'pwa.up_to_date': '您已经在使用最新版本的 BMI Stellar。',
+	'pwa.update_check_failed': '检查更新失败。请检查连接后重试。',
 	'pwa.update_now': '立即更新',
 	'pwa.install_fallback': '请使用浏览器地址栏中的安装图标，或打开浏览器菜单并选择安装应用。',
 	'pwa.install_text': '\u5b89\u88c5\u6b64\u5e94\u7528\u4ee5\u4fbf\u5feb\u901f\u8bbf\u95ee',

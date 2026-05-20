@@ -285,7 +285,7 @@ const en: TranslationDict = {
 	'risk.rec_under_1': 'Consult a nutritionist for healthy weight gain',
 	'risk.rec_under_2': 'Focus on nutrient-dense foods',
 	'risk.rec_under_3': 'Rule out underlying medical conditions',
-	'risk.rec_over_1': 'Aim for gradual weight loss (0.5-1kg/week)',
+	'risk.rec_over_1': 'Aim for gradual weight loss (0.5-1 kg/week)',
 	'risk.rec_over_2': 'Increase daily physical activity',
 	'risk.rec_over_3': 'Consult healthcare provider for personalized plan',
 	'risk.empty': 'Enter your measurements to see personalized recommendations',
@@ -497,6 +497,8 @@ const en: TranslationDict = {
 	'pwa.update_checking': 'Checking...',
 	'pwa.update_available':
 		'New BMI Stellar version is available. Reload now to activate the latest update.',
+	'pwa.up_to_date': 'You are already using the latest BMI Stellar version.',
+	'pwa.update_check_failed': 'Update check failed. Please check your connection and try again.',
 	'pwa.update_now': 'Update now',
 	'pwa.install_fallback':
 		'Use the Install icon in your browser address bar, or open the browser menu and choose Install app.',

@@ -317,7 +317,7 @@ const ja: TranslationDict = {
 	'risk.rec_under_2': '\u683d\u990a\u5bc6\u5ea6\u306e\u9ad8\u3044\u98df\u54c1\u3092\u6ce8\u76ee',
 	'risk.rec_under_3': '\u6f5c\u5728\u7684\u75be\u60a3\u3092\u6392\u9664',
 	'risk.rec_over_1':
-		'\u6bb5\u9698\u7684\u306a\u6e1b\u91cf\u3092\u76ee\u6a19\u306b\uff080.5\uff5e1kg/\u9031\uff09',
+		'\u6bb5\u9698\u7684\u306a\u6e1b\u91cf\u3092\u76ee\u6a19\u306b\uff080.5\uff5e1 kg/\u9031\uff09',
 	'risk.rec_over_2': '\u6bcf\u65e5\u306e\u4f53\u529b\u6d3b\u52d5\u3092\u5897\u3084\u3059',
 	'risk.rec_over_3':
 		'\u533b\u7678\u306b\u76f8\u8ac7\u3057\u500b\u5225\u306e\u8a08\u753b\u3092\u4f5c\u6210',
@@ -564,6 +564,8 @@ const ja: TranslationDict = {
 	'pwa.update_checking': '確認中...',
 	'pwa.update_available':
 		'BMI Stellar の新しいバージョンがあります。最新の更新を有効にするには再読み込みしてください。',
+	'pwa.up_to_date': 'BMI Stellar はすでに最新バージョンです。',
+	'pwa.update_check_failed': '更新の確認に失敗しました。接続を確認してもう一度お試しください。',
 	'pwa.update_now': '今すぐ更新',
 	'pwa.install_fallback':
 		'ブラウザのアドレスバーにあるインストールアイコン、またはブラウザメニューの「アプリをインストール」を使用してください。',
