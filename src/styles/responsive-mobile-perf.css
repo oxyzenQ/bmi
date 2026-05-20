@@ -27,14 +27,16 @@
      filter — no GPU filter pass, no compositing layer promotion.
      Combined with the lighter body::after gradient, this achieves
      the same dark mood with significantly less per-frame work.
-     will-change:opacity + translateZ(0) ensure the opacity-reduced
-     texture is cached as a single compositor layer even on older
-     Android WebViews that may not auto-promote from opacity alone. */
+     Avoid forcing a permanent full-screen compositor layer here.
+     On long mobile sections, that extra promoted texture can increase
+     memory pressure during slow finger-drag scrolling; opacity alone
+     keeps the same visual result while letting the browser choose the
+     cheapest composition strategy. */
 	body::before {
 		opacity: 0.65;
 		filter: none;
-		will-change: opacity;
-		transform: translateZ(0);
+		will-change: auto;
+		transform: none;
 	}
 
 	/* Lighter gradient overlay on mobile — the dimmed wallpaper
@@ -287,23 +289,13 @@
 		contain: layout style;
 	}
 
-	/* Page-5 about: the merged card is tall and mostly static.
-     On touch devices, avoid a large clipped paint-contained surface
-     while preserving the same glass shell and layout. */
-	#about .about-card-merged {
-		contain: style !important;
-		overflow: visible !important;
-	}
-
 	/* Page-3 hardening (gauge/details):
      stop continuous/infinite animations and interactive hover work
      during touch scrolling. */
 	#gauge
 		:is(
-			.gauge-progress,
 			.risk-indicator,
 			.risk-marker,
-			.risk-meter-fill,
 			.snapshot-card,
 			.progress-fill,
 			.comp-fill,
@@ -318,11 +310,6 @@
 
 	#gauge .risk-marker {
 		animation: none !important;
-	}
-
-	#gauge .risk-meter-fill {
-		background: var(--risk-fill-color) !important;
-		opacity: 0.78;
 	}
 
 	#gauge .sparkline-svg {
