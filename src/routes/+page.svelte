@@ -197,6 +197,7 @@
 	let pendingScrollY = 0;
 	let touchScrollModeTimeout: ReturnType<typeof setTimeout> | null = null;
 	let lastTouchScrollAt = 0;
+	let lastActiveScrollAt = 0;
 	let lastTouchScrollY = 0;
 	let touchScrollingActive = false;
 
@@ -541,7 +542,9 @@
 			dy: event.deltaY,
 			now,
 			lastNavAt: lastWheelNavAt,
+			lastScrollAt: lastActiveScrollAt,
 			cooldownMs: SCROLL.WHEEL_COOLDOWN,
+			recentScrollBlockMs: SCROLL.WHEEL_RECENT_SCROLL_BLOCK_MS,
 			dxThreshold: SCROLL.WHEEL_DX_THRESHOLD,
 			dyMax: SCROLL.WHEEL_DY_MAX,
 			ratio: SCROLL.WHEEL_RATIO
@@ -654,6 +657,7 @@
 		const target = event.currentTarget as HTMLElement | null;
 		if (!target) return;
 
+		lastActiveScrollAt = Date.now();
 		pendingScrollTarget = target;
 		pendingScrollY = target.scrollTop;
 		if (scrollRafId === null) {
@@ -807,8 +811,9 @@
 		// Passive listeners keep native vertical scroll off the JS critical path.
 		// Vertical scrolling is handled natively by the browser via
 		// CSS touch-action on .pager-shell. We detect horizontal swipes
-		// purely in touchstart/touchend without blocking the scroll thread.
+		// in passive touch events without blocking the scroll thread.
 		pagerEl?.addEventListener('touchstart', touchPager.handleTouchStart, { passive: true });
+		pagerEl?.addEventListener('touchmove', touchPager.handleTouchMove, { passive: true });
 		pagerEl?.addEventListener('touchend', touchPager.handleTouchEnd, { passive: true });
 
 		// Unified scroll listener: is-scrolling class + pager-controls auto-hide
@@ -840,6 +845,7 @@
 			detachActiveScroller();
 			touchPager.reset();
 			pagerEl?.removeEventListener('touchstart', touchPager.handleTouchStart);
+			pagerEl?.removeEventListener('touchmove', touchPager.handleTouchMove);
 			pagerEl?.removeEventListener('touchend', touchPager.handleTouchEnd);
 			if (pagerNavAlignRaf !== null) cancelAnimationFrame(pagerNavAlignRaf);
 			if (scrollRafId !== null) cancelAnimationFrame(scrollRafId);
@@ -1318,10 +1324,14 @@
 		position: absolute;
 		inset: 0;
 		overflow-y: auto;
+		overflow-x: hidden;
 		-webkit-overflow-scrolling: touch;
 		overscroll-behavior: contain;
+		overscroll-behavior-x: none;
+		overscroll-behavior-y: contain;
 		scrollbar-width: none;
 		contain: style;
+		overflow-anchor: none;
 		touch-action: pan-y pinch-zoom;
 		padding-top: calc(var(--pager-top-inset) + 0.5rem);
 		padding-bottom: calc(1.5rem + 58px + 1.5rem + env(safe-area-inset-bottom, 0px));
@@ -1331,6 +1341,12 @@
 
 	.pager-section::-webkit-scrollbar {
 		display: none;
+	}
+
+	@supports (overflow: clip) {
+		.pager-section {
+			overflow-x: clip;
+		}
 	}
 
 	/* .pager-nav responsive breakpoints (900px, 600px) and

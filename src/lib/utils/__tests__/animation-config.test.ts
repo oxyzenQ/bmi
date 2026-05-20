@@ -115,6 +115,17 @@ describe('SCROLL', () => {
 	it('wheel ratio > 1 (amplification)', () => {
 		expect(SCROLL.WHEEL_RATIO).toBeGreaterThan(1);
 	});
+
+	it('has touch gesture guards for intent and repeated navigation', () => {
+		expect(SCROLL.TOUCH_INTENT_PX).toBeGreaterThan(0);
+		expect(SCROLL.TOUCH_NAV_COOLDOWN).toBeGreaterThan(0);
+		expect(SCROLL.TOUCH_SWIPE_ANGLE_RATIO).toBeGreaterThan(2);
+	});
+
+	it('has a recent-scroll block window for trackpad wheel navigation', () => {
+		expect(SCROLL.WHEEL_RECENT_SCROLL_BLOCK_MS).toBeGreaterThan(0);
+		expect(SCROLL.WHEEL_RECENT_SCROLL_BLOCK_MS).toBeLessThan(SCROLL.WHEEL_COOLDOWN);
+	});
 });
 
 // ── HAPTIC ──
