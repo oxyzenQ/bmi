@@ -2,11 +2,6 @@
 /* ── responsive-base.css — Base responsive rules ── */
 /* Shared accessibility, fluid media, container, typography, and form width rules. */
 
-*:focus-visible {
-	outline: 2px solid var(--neon-purple, #5900e9);
-	outline-offset: 2px;
-}
-
 /* Components with custom focus indicators suppress the global outline */
 .form-input:focus-visible,
 .encrypt-input:focus-visible,

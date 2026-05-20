@@ -484,7 +484,7 @@
 	--modal-z-staging: var(--z-staging);
 	--modal-backdrop-bg: rgba(0, 0, 0, 0.68);
 	--modal-panel-radius: var(--container-radius);
-	--modal-panel-bg: black;
+	--modal-panel-bg: rgba(0, 0, 0, 0.72);
 	--modal-panel-shadow: 0 25px 50px -12px var(--k-50);
 	--modal-dur: 0.22s;
 	--modal-ease: var(--easing-spring);
