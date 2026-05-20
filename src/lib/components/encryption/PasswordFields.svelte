@@ -176,7 +176,7 @@
 
 	.encrypt-input:focus {
 		outline: none;
-		border-color: var(--cosmic-purple);
+		border-color: none;
 	}
 
 	.encrypt-input::placeholder {

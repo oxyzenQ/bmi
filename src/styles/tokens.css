@@ -486,7 +486,7 @@
 	--modal-backdrop-blur: 0px;
 	--modal-backdrop-sat: 100%;
 	--modal-panel-radius: var(--container-radius);
-	--modal-panel-bg: rgba(0, 0, 0, 0.72);
+	--modal-panel-bg: black;
 	--modal-panel-shadow: 0 25px 50px -12px var(--k-50);
 	--modal-dur: 0.22s;
 	--modal-ease: var(--easing-spring);

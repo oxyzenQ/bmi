@@ -33,7 +33,7 @@
      keeps the same visual result while letting the browser choose the
      cheapest composition strategy. */
 	body::before {
-		opacity: 0.65;
+		opacity: 0.50;
 		filter: none;
 		will-change: auto;
 		transform: none;
@@ -44,7 +44,7 @@
      overlay can be much lighter. A heavy overlay over a fully-bright
      wallpaper forced double compositing per frame during scroll. */
 	body::after {
-		background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.55));
+		background: linear-gradient(180deg, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.65));
 	}
 
 	/* Keep .pager-section on native compositor scrolling without

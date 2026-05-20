@@ -2,6 +2,10 @@
 /* ── responsive-base.css — Base responsive rules ── */
 /* Shared accessibility, fluid media, container, typography, and form width rules. */
 
+*:focus-visible {
+	outline: none;
+}
+
 /* ==============================
       RESPONSIVE DESIGN
       ============================== */
