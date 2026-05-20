@@ -511,11 +511,6 @@
 		border: var(--btn-danger-border-hover);
 	}
 
-	.dp-close:focus-visible {
-		outline: 2px solid var(--violet-42, #c4b5fd);
-		outline-offset: 2px;
-	}
-
 	.close-icon-text {
 		display: flex;
 		align-items: center;
