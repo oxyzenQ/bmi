@@ -6,6 +6,11 @@
 	import { STORAGE_KEYS } from '$lib/utils/storage';
 	import { t as _t, localeVersion } from '$lib/i18n';
 	import { warnDev } from '$lib/utils/warn-dev';
+	import {
+		bmiToChartY,
+		clampPlotCoordinate,
+		getBmiSparklineDomain
+	} from '$lib/utils/bmi-sparkline-chart';
 	let _rv = $derived($localeVersion);
 	// Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
 	function t(key: string, params?: Record<string, string | number | undefined | null>): string {
@@ -35,6 +40,9 @@
 	const PAD_RIGHT = 20;
 	const PAD_TOP = 20;
 	const PAD_BOTTOM = 28;
+	const PLOT_RADIUS = 10;
+	const MAX_POINT_RADIUS = 6;
+	const CLIP_ID = 'bmi-history-plot-clip';
 
 	const BMI_MIN = 12;
 	const BMI_MAX = 42;
@@ -119,20 +127,24 @@
 	// BMI category zone boundaries (y positions)
 	const plotHeight = CHART_HEIGHT - PAD_TOP - PAD_BOTTOM;
 	const plotWidth = CHART_WIDTH - PAD_LEFT - PAD_RIGHT;
+	const plotBottom = CHART_HEIGHT - PAD_BOTTOM;
+	const plotRight = CHART_WIDTH - PAD_RIGHT;
 
-	function bmiToY(bmi: number): number {
-		return PAD_TOP + (1 - (bmi - BMI_MIN) / (BMI_MAX - BMI_MIN)) * plotHeight;
+	function bmiToY(bmi: number, domain = { min: BMI_MIN, max: BMI_MAX }): number {
+		return bmiToChartY(bmi, domain, PAD_TOP, plotHeight);
 	}
 
 	function indexToX(i: number, total: number): number {
 		if (total <= 1) return PAD_LEFT + plotWidth / 2;
-		return PAD_LEFT + (i / (total - 1)) * plotWidth;
+		const insetWidth = plotWidth - MAX_POINT_RADIUS * 2;
+		return PAD_LEFT + MAX_POINT_RADIUS + (i / (total - 1)) * insetWidth;
 	}
 
 	let chartData = $derived.by(() => {
 		if (historyState.length === 0) return null;
 
 		const values = historyState.map((r) => r.bmi);
+		const domain = getBmiSparklineDomain(values, { min: BMI_MIN, max: BMI_MAX });
 		const first = values[0];
 		const last = values[values.length - 1];
 		const diff = last - first;
@@ -143,7 +155,7 @@
 		// Build points
 		const points = values.map((v, i) => ({
 			x: indexToX(i, values.length),
-			y: bmiToY(v),
+			y: clampPlotCoordinate(bmiToY(v, domain), PAD_TOP, plotBottom, MAX_POINT_RADIUS),
 			bmi: v,
 			record: historyState[i]
 		}));
@@ -152,8 +164,8 @@
 		let pathD = '';
 		let areaD = '';
 		// Clamp Y to prevent bezier overshoot escaping chart bounds
-		const minY = PAD_TOP;
-		const maxY = CHART_HEIGHT - PAD_BOTTOM;
+		const minY = PAD_TOP + MAX_POINT_RADIUS;
+		const maxY = plotBottom - MAX_POINT_RADIUS;
 		const clampY = (y: number) => Math.max(minY, Math.min(maxY, y));
 
 		if (points.length > 1) {
@@ -182,7 +194,7 @@
 					areaD += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${clampY(p2.y)}`;
 				}
 			}
-			areaD += ` L ${points[points.length - 1].x} ${CHART_HEIGHT - PAD_BOTTOM} Z`;
+			areaD += ` L ${points[points.length - 1].x} ${plotBottom} Z`;
 		}
 
 		// BMI zone bands
@@ -191,9 +203,43 @@
 			{ min: 18.5, max: 25, color: 'var(--cat-green-6)', label: t('sparkline.normal') },
 			{ min: 25, max: 30, color: 'var(--cat-amber-6)', label: '' },
 			{ min: 30, max: BMI_MAX, color: 'var(--cat-red-6)', label: '' }
-		];
+		].map((zone) => {
+			const yTop = clampPlotCoordinate(bmiToY(zone.max, domain), PAD_TOP, plotBottom);
+			const yBottom = clampPlotCoordinate(bmiToY(zone.min, domain), PAD_TOP, plotBottom);
+			return {
+				...zone,
+				y: Math.min(yTop, yBottom),
+				height: Math.max(0, Math.abs(yBottom - yTop))
+			};
+		});
+		const thresholdLines = [
+			{ value: 18.5, stroke: 'var(--cat-blue-20)' },
+			{ value: 25, stroke: 'var(--cat-green-20)' },
+			{ value: 30, stroke: 'var(--cat-amber-20)' }
+		].map((line) => ({
+			...line,
+			y: clampPlotCoordinate(bmiToY(line.value, domain), PAD_TOP, plotBottom)
+		}));
+		const normalLabelY = clampPlotCoordinate(
+			(bmiToY(18.5, domain) + bmiToY(25, domain)) / 2 + 3,
+			PAD_TOP,
+			plotBottom,
+			12
+		);
 
-		return { points, pathD, areaD, trend, diff, first, last, count: totalHistoryCount, zones };
+		return {
+			points,
+			pathD,
+			areaD,
+			trend,
+			diff,
+			first,
+			last,
+			count: totalHistoryCount,
+			zones,
+			thresholdLines,
+			normalLabelY
+		};
 	});
 
 	function handlePointerMove(e: PointerEvent) {
@@ -294,64 +340,16 @@
 				onpointermove={handlePointerMove}
 				onpointerleave={handlePointerLeave}
 			>
-				<!-- BMI zone bands -->
-				{#each chartData.zones as zone (zone.min)}
-					<rect
-						x={PAD_LEFT}
-						y={bmiToY(zone.max)}
-						width={plotWidth}
-						height={Math.max(0, bmiToY(zone.min) - bmiToY(zone.max))}
-						fill={zone.color}
-						rx="2"
-					/>
-				{/each}
-
-				<!-- BMI zone boundary lines -->
-				<line
-					x1={PAD_LEFT}
-					y1={bmiToY(18.5)}
-					x2={CHART_WIDTH - PAD_RIGHT}
-					y2={bmiToY(18.5)}
-					stroke="var(--cat-blue-20)"
-					stroke-width="1"
-					stroke-dasharray="4 3"
-				/>
-				<line
-					x1={PAD_LEFT}
-					y1={bmiToY(25)}
-					x2={CHART_WIDTH - PAD_RIGHT}
-					y2={bmiToY(25)}
-					stroke="var(--cat-green-20)"
-					stroke-width="1"
-					stroke-dasharray="4 3"
-				/>
-				<line
-					x1={PAD_LEFT}
-					y1={bmiToY(30)}
-					x2={CHART_WIDTH - PAD_RIGHT}
-					y2={bmiToY(30)}
-					stroke="var(--cat-amber-20)"
-					stroke-width="1"
-					stroke-dasharray="4 3"
-				/>
-
-				<!-- Y-axis labels -->
-				<text x={PAD_LEFT - 4} y={bmiToY(18.5) + 3} text-anchor="end" class="axis-label">18.5</text>
-				<text x={PAD_LEFT - 4} y={bmiToY(25) + 3} text-anchor="end" class="axis-label">25</text>
-				<text x={PAD_LEFT - 4} y={bmiToY(30) + 3} text-anchor="end" class="axis-label">30</text>
-
-				<!-- Zone labels (right side, inside plot) -->
-				<text
-					x={CHART_WIDTH - PAD_RIGHT - 2}
-					y={bmiToY(18.5) + (bmiToY(25) - bmiToY(18.5)) / 2 + 3}
-					text-anchor="end"
-					class="zone-label">{t('sparkline.normal')}</text
-				>
-
-				<!-- Gradient fill + clip path -->
 				<defs>
-					<clipPath id="sparkClip">
-						<rect x={PAD_LEFT} y={PAD_TOP} width={plotWidth} height={plotHeight} />
+					<clipPath id={CLIP_ID}>
+						<rect
+							x={PAD_LEFT}
+							y={PAD_TOP}
+							width={plotWidth}
+							height={plotHeight}
+							rx={PLOT_RADIUS}
+							ry={PLOT_RADIUS}
+						/>
 					</clipPath>
 					<linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
 						<stop offset="0%" stop-color={getBmiColor(chartData.last)} stop-opacity="0.25" />
@@ -359,9 +357,44 @@
 					</linearGradient>
 				</defs>
 
-				{#if chartData.points.length > 1}
-					<!-- Clipped chart content -->
-					<g clip-path="url(#sparkClip)">
+				<rect
+					x={PAD_LEFT}
+					y={PAD_TOP}
+					width={plotWidth}
+					height={plotHeight}
+					rx={PLOT_RADIUS}
+					ry={PLOT_RADIUS}
+					class="plot-bg"
+				/>
+
+				<g clip-path={`url(#${CLIP_ID})`}>
+					<!-- BMI zone bands -->
+					{#each chartData.zones as zone (zone.min)}
+						<rect
+							x={PAD_LEFT}
+							y={zone.y}
+							width={plotWidth}
+							height={zone.height}
+							fill={zone.color}
+							class="zone-band"
+						/>
+					{/each}
+
+					<!-- BMI zone boundary lines -->
+					{#each chartData.thresholdLines as line (line.value)}
+						<line
+							x1={PAD_LEFT}
+							y1={line.y}
+							x2={plotRight}
+							y2={line.y}
+							stroke={line.stroke}
+							stroke-width="1"
+							stroke-dasharray="4 4"
+							class="threshold-line"
+						/>
+					{/each}
+
+					{#if chartData.points.length > 1}
 						<!-- Area fill -->
 						<path d={chartData.areaD} fill="url(#sparkGrad)" />
 
@@ -374,44 +407,75 @@
 							stroke-linecap="round"
 							stroke-linejoin="round"
 						/>
-					</g>
-				{/if}
+					{/if}
 
-				<!-- Data points -->
-				{#each chartData.points as pt, i (i)}
-					<circle
-						cx={pt.x}
-						cy={pt.y}
-						r={hoveredIndex === i ? 6 : i === chartData.points.length - 1 ? 4.5 : 3}
-						fill={getBmiColor(pt.bmi)}
-						stroke="var(--w-30)"
-						stroke-width={hoveredIndex === i ? 2 : 1}
-						class="spark-point"
-						opacity={hoveredIndex !== null && hoveredIndex !== i ? 0.4 : 1}
-					/>
+					<!-- Data points -->
+					{#each chartData.points as pt, i (i)}
+						{#if i === chartData.points.length - 1}
+							<circle
+								cx={pt.x}
+								cy={pt.y}
+								r="9"
+								fill={getBmiColor(pt.bmi)}
+								class="spark-point-halo"
+							/>
+						{/if}
+						<circle
+							cx={pt.x}
+							cy={pt.y}
+							r={hoveredIndex === i ? 6 : i === chartData.points.length - 1 ? 4.5 : 3}
+							fill={getBmiColor(pt.bmi)}
+							stroke="var(--w-30)"
+							stroke-width={hoveredIndex === i ? 2 : 1}
+							class="spark-point"
+							opacity={hoveredIndex !== null && hoveredIndex !== i ? 0.4 : 1}
+						/>
+					{/each}
+
+					<!-- Hover crosshair -->
+					{#if hoveredPoint && !isTouchDevice}
+						<line
+							x1={hoveredPoint.x}
+							y1={PAD_TOP}
+							x2={hoveredPoint.x}
+							y2={plotBottom}
+							stroke="var(--white-15)"
+							stroke-width="1"
+							stroke-dasharray="3 3"
+						/>
+						<line
+							x1={PAD_LEFT}
+							y1={hoveredPoint.y}
+							x2={plotRight}
+							y2={hoveredPoint.y}
+							stroke="var(--white-10)"
+							stroke-width="1"
+							stroke-dasharray="3 3"
+						/>
+					{/if}
+				</g>
+
+				<rect
+					x={PAD_LEFT}
+					y={PAD_TOP}
+					width={plotWidth}
+					height={plotHeight}
+					rx={PLOT_RADIUS}
+					ry={PLOT_RADIUS}
+					class="plot-border"
+				/>
+
+				<!-- Y-axis labels -->
+				{#each chartData.thresholdLines as line (line.value)}
+					<text x={PAD_LEFT - 4} y={line.y + 3} text-anchor="end" class="axis-label"
+						>{line.value}</text
+					>
 				{/each}
 
-				<!-- Hover crosshair -->
-				{#if hoveredPoint && !isTouchDevice}
-					<line
-						x1={hoveredPoint.x}
-						y1={PAD_TOP}
-						x2={hoveredPoint.x}
-						y2={CHART_HEIGHT - PAD_BOTTOM}
-						stroke="var(--white-15)"
-						stroke-width="1"
-						stroke-dasharray="3 3"
-					/>
-					<line
-						x1={PAD_LEFT}
-						y1={hoveredPoint.y}
-						x2={CHART_WIDTH - PAD_RIGHT}
-						y2={hoveredPoint.y}
-						stroke="var(--white-10)"
-						stroke-width="1"
-						stroke-dasharray="3 3"
-					/>
-				{/if}
+				<!-- Zone labels (right side, inside plot) -->
+				<text x={plotRight - 10} y={chartData.normalLabelY} text-anchor="end" class="zone-label"
+					>{t('sparkline.normal')}</text
+				>
 			</svg>
 
 			<!-- Tooltip -->
@@ -540,10 +604,32 @@
 		display: block;
 	}
 
+	.plot-bg {
+		fill: rgba(255, 255, 255, 0.018);
+	}
+
+	.plot-border {
+		fill: none;
+		stroke: var(--sg-18);
+		stroke-width: 1.2;
+	}
+
+	.zone-band {
+		opacity: 0.72;
+	}
+
+	.threshold-line {
+		opacity: 0.86;
+	}
+
 	.spark-point {
 		transition:
 			r var(--dur-micro) ease,
 			opacity var(--dur-micro) ease;
+	}
+
+	.spark-point-halo {
+		opacity: 0.16;
 	}
 
 	.axis-label {

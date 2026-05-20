@@ -1,5 +1,6 @@
 <!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
 <script lang="ts">
+	/* eslint-disable no-useless-assignment -- $bindable props are written for parent updates */
 	import { ArrowLeftRight } from 'lucide-svelte';
 
 	interface Props {

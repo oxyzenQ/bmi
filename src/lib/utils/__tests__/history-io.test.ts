@@ -45,7 +45,8 @@ beforeAll(async () => {
 				`Stack: ${err instanceof Error ? err.stack : 'N/A'}\n` +
 				`crypto.subtle type: ${typeof crypto?.subtle}\n` +
 				`crypto.subtle.importKey type: ${typeof crypto?.subtle?.importKey}\n` +
-				`crypto.subtle.sign type: ${typeof crypto?.subtle?.sign}`
+				`crypto.subtle.sign type: ${typeof crypto?.subtle?.sign}`,
+			{ cause: err }
 		);
 	}
 });

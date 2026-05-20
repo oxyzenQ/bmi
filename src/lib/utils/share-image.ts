@@ -902,15 +902,16 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 	]);
 
 	const now = new Date();
-	let timestamp = '';
-	try {
-		timestamp = now.toLocaleString(getLocale() === 'zh' ? 'zh-CN' : getLocale(), {
-			dateStyle: 'medium',
-			timeStyle: 'short'
-		});
-	} catch {
-		timestamp = now.toLocaleString('en', { dateStyle: 'medium', timeStyle: 'short' });
-	}
+	const timestamp = (() => {
+		try {
+			return now.toLocaleString(getLocale() === 'zh' ? 'zh-CN' : getLocale(), {
+				dateStyle: 'medium',
+				timeStyle: 'short'
+			});
+		} catch {
+			return now.toLocaleString('en', { dateStyle: 'medium', timeStyle: 'short' });
+		}
+	})();
 
 	ctx.fillStyle = 'rgba(255,255,255,0.34)';
 	ctx.font = '500 17px system-ui, sans-serif';
