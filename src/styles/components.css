@@ -28,6 +28,7 @@
 	backdrop-filter: var(--container-glass-filter) !important;
 	border: var(--container-glass-border) !important;
 	border-radius: var(--container-radius, var(--radius-lg)) !important;
+	box-shadow: var(--container-glass-shadow) !important;
 	transition:
 		transform var(--dur-slow) var(--easing-smooth),
 		border-color var(--dur-slow) var(--easing-smooth);

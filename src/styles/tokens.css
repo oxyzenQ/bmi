@@ -552,7 +552,9 @@
 	--delay-shimmer: 80ms;
 
 	/* ── GLASSMORPHISM DESIGN TOKENS ──
-     Container glass is controlled through --container-glass-* below. */
+     Container glass is controlled through semantic --container-glass-* tokens.
+     Desktop uses true glass; touch devices override to fake glass in
+     responsive-mobile-perf.css to protect slow-scroll rendering. */
 	--glass-bg-nightky: rgba(0, 0, 0, 0.7);
 	--glass-blur: 16px;
 	--glass-blur-heavy: 20px;
@@ -566,9 +568,41 @@
 	--glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 	--glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 	--glass-brightness: brightness(1.15);
-	--container-glass-bg: var(--glass-bg-nightky);
-	--container-glass-border: var(--glass-border);
-	--container-glass-filter: blur(8px) saturate(100%) brightness(1);
+	--container-glass-bg-desktop:
+		linear-gradient(180deg, rgba(9, 9, 14, 0.7) 0%, rgba(0, 0, 0, 0.58) 100%),
+		linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(255, 255, 255, 0.05));
+	--container-glass-border-desktop: 3px solid rgba(190, 190, 210, 0.28);
+	--container-glass-filter-desktop: blur(10px) saturate(135%) brightness(1.04);
+	--container-glass-shadow-desktop:
+		0 16px 36px rgba(0, 0, 0, 0.38), 0 0 22px rgba(139, 92, 246, 0.08),
+		inset 0 1px 0 rgba(255, 255, 255, 0.08);
+	--container-glass-bg-mobile:
+		linear-gradient(180deg, rgba(9, 9, 14, 0.82) 0%, rgba(0, 0, 0, 0.74) 100%),
+		linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(255, 255, 255, 0.035));
+	--container-glass-border-mobile: 2px solid rgba(190, 190, 210, 0.24);
+	--container-glass-filter-mobile: none;
+	--container-glass-shadow-mobile:
+		0 8px 18px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+	--container-glass-bg: var(--container-glass-bg-desktop);
+	--container-glass-border: var(--container-glass-border-desktop);
+	--container-glass-filter: var(--container-glass-filter-desktop);
+	--container-glass-shadow: var(--container-glass-shadow-desktop);
+	--nav-glass-bg:
+		linear-gradient(180deg, rgba(10, 10, 16, 0.64) 0%, rgba(0, 0, 0, 0.52) 100%),
+		linear-gradient(135deg, rgba(139, 92, 246, 0.14), rgba(255, 255, 255, 0.06));
+	--nav-glass-border-inline: 2px solid rgba(220, 220, 235, 0.24);
+	--nav-glass-filter: blur(14px) saturate(145%) brightness(1.05);
+	--nav-glass-shadow:
+		0 12px 30px rgba(0, 0, 0, 0.34), 0 0 20px rgba(139, 92, 246, 0.1),
+		inset 0 1px 0 rgba(255, 255, 255, 0.08);
+	--nav-glass-bg-mobile:
+		linear-gradient(180deg, rgba(10, 10, 16, 0.84) 0%, rgba(0, 0, 0, 0.72) 100%),
+		linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(255, 255, 255, 0.04));
+	--nav-glass-border-inline-mobile: 2px solid rgba(220, 220, 235, 0.22);
+	--nav-glass-filter-mobile: none;
+	--nav-glass-shadow-mobile:
+		0 8px 22px rgba(0, 0, 0, 0.3), 0 0 14px rgba(139, 92, 246, 0.06),
+		inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
 	/* ── SEMANTIC COLOR TOKENS ── */
 	/* Used across components for consistent category/status colors */
