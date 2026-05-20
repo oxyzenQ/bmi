@@ -497,6 +497,8 @@ const en: TranslationDict = {
 	'pwa.update_checking': 'Checking...',
 	'pwa.update_available':
 		'New BMI Stellar version is available. Reload now to activate the latest update.',
+	'pwa.up_to_date': 'You are already using the latest BMI Stellar version.',
+	'pwa.update_check_failed': 'Update check failed. Please check your connection and try again.',
 	'pwa.update_now': 'Update now',
 	'pwa.install_fallback':
 		'Use the Install icon in your browser address bar, or open the browser menu and choose Install app.',

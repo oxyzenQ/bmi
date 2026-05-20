@@ -122,6 +122,11 @@ describe('SCROLL', () => {
 		expect(SCROLL.WHEEL_RECENT_SCROLL_BLOCK_MS).toBeGreaterThan(0);
 		expect(SCROLL.WHEEL_RECENT_SCROLL_BLOCK_MS).toBeLessThan(SCROLL.WHEEL_COOLDOWN);
 	});
+
+	it('keeps touch scroll rendering state tuned for slow mobile scrolling', () => {
+		expect(SCROLL.TOUCH_SCROLL_DELTA_EPSILON).toBe(8);
+		expect(SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY).toBe(480);
+	});
 });
 
 // ── HAPTIC ──

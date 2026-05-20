@@ -564,6 +564,8 @@ const ja: TranslationDict = {
 	'pwa.update_checking': '確認中...',
 	'pwa.update_available':
 		'BMI Stellar の新しいバージョンがあります。最新の更新を有効にするには再読み込みしてください。',
+	'pwa.up_to_date': 'BMI Stellar はすでに最新バージョンです。',
+	'pwa.update_check_failed': '更新の確認に失敗しました。接続を確認してもう一度お試しください。',
 	'pwa.update_now': '今すぐ更新',
 	'pwa.install_fallback':
 		'ブラウザのアドレスバーにあるインストールアイコン、またはブラウザメニューの「アプリをインストール」を使用してください。',

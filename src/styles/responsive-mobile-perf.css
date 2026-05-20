@@ -658,3 +658,18 @@
 		transform: none !important;
 	}
 }
+
+@media (hover: hover) and (pointer: fine) {
+	.pager-nav-shell,
+	.pager-controls-shell {
+		background:
+			linear-gradient(180deg, rgba(12, 12, 18, 0.72) 0%, rgba(0, 0, 0, 0.62) 100%),
+			linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(255, 255, 255, 0.045)) !important;
+		border-top: 0 !important;
+		border-bottom: 0 !important;
+		border-left-color: rgba(255, 255, 255, 0.22) !important;
+		border-right-color: rgba(255, 255, 255, 0.22) !important;
+		-webkit-backdrop-filter: blur(12px) saturate(125%) brightness(1.03) !important;
+		backdrop-filter: blur(12px) saturate(125%) brightness(1.03) !important;
+	}
+}

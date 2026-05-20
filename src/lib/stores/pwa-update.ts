@@ -15,6 +15,9 @@ interface UpstreamCommit {
 	sha?: string;
 }
 
+type PwaUpdateCheckSource = 'manual' | 'auto';
+type PwaUpdateCheckStatus = 'update-available' | 'up-to-date' | 'offline' | 'error';
+
 interface PwaUpdateState {
 	checked: boolean;
 	checking: boolean;
@@ -25,6 +28,14 @@ interface PwaUpdateState {
 	lastCheckedAt: number | null;
 	error: string | null;
 	source: 'idle' | 'service-worker' | 'upstream' | 'manual' | 'auto';
+}
+
+export interface PwaUpdateCheckResult {
+	status: PwaUpdateCheckStatus;
+	latestVersion: string | null;
+	latestCommit: string | null;
+	error: string | null;
+	source: PwaUpdateCheckSource;
 }
 
 const initialState: PwaUpdateState = {
@@ -40,7 +51,7 @@ const initialState: PwaUpdateState = {
 };
 
 let registrationRef: ServiceWorkerRegistration | null = null;
-let updateCheckInFlight: Promise<void> | null = null;
+let updateCheckInFlight: Promise<PwaUpdateCheckResult> | null = null;
 const boundRegistrations = new WeakSet<ServiceWorkerRegistration>();
 let controllerChangeHandler: (() => void) | null = null;
 
@@ -52,9 +63,22 @@ function currentCommit(): string {
 		: 'unknown';
 }
 
+function currentBranch(): string {
+	return typeof __GIT_BRANCH__ !== 'undefined' ? normalizeBranch(__GIT_BRANCH__) : 'main';
+}
+
 export function normalizeCommitId(commit: string | null | undefined): string {
 	const normalized = typeof commit === 'string' ? commit.trim().toLowerCase() : '';
 	return normalized || 'unknown';
+}
+
+export function normalizeBranch(branch: string | null | undefined): string {
+	const normalized = typeof branch === 'string' ? branch.trim().toLowerCase() : '';
+	return normalized || 'unknown';
+}
+
+export function shouldUseCommitUpdateCheck(branch: string | null | undefined): boolean {
+	return normalizeBranch(branch) === 'main';
 }
 
 export function commitsMatch(a: string | null | undefined, b: string | null | undefined): boolean {
@@ -87,15 +111,36 @@ function compareSemver(a: string, b: string): number {
 	return 0;
 }
 
-function isNewerUpstream(latestVersion: string | null, latestCommit: string | null): boolean {
-	const localCommit = currentCommit();
+export function isNewerUpstreamForBuild({
+	latestVersion,
+	latestCommit,
+	localVersion,
+	localCommit,
+	localBranch
+}: {
+	latestVersion: string | null;
+	latestCommit: string | null;
+	localVersion: string | null;
+	localCommit: string | null;
+	localBranch: string | null;
+}): boolean {
+	if (latestVersion && localVersion && compareSemver(latestVersion, localVersion) > 0) {
+		return true;
+	}
+
+	if (!shouldUseCommitUpdateCheck(localBranch)) return false;
 	if (commitsMatch(latestCommit, localCommit)) return false;
-	if (hasNewerCommit(latestCommit, localCommit)) return true;
+	return hasNewerCommit(latestCommit, localCommit);
+}
 
-	const localVersion = getAppVersionRaw();
-	if (latestVersion && localVersion && compareSemver(latestVersion, localVersion) > 0) return true;
-
-	return false;
+function isNewerUpstream(latestVersion: string | null, latestCommit: string | null): boolean {
+	return isNewerUpstreamForBuild({
+		latestVersion,
+		latestCommit,
+		localVersion: getAppVersionRaw(),
+		localCommit: currentCommit(),
+		localBranch: currentBranch()
+	});
 }
 
 function noteServiceWorkerUpdateReady(): void {
@@ -132,8 +177,28 @@ export function bindPwaUpdateRegistration(registration: ServiceWorkerRegistratio
 	});
 }
 
-export async function checkForPwaUpdate(source: 'manual' | 'auto' = 'manual'): Promise<void> {
-	if (!browser || !navigator.onLine) return;
+export async function checkForPwaUpdate(
+	source: PwaUpdateCheckSource = 'manual'
+): Promise<PwaUpdateCheckResult> {
+	const offlineResult: PwaUpdateCheckResult = {
+		status: 'offline',
+		latestVersion: null,
+		latestCommit: null,
+		error: 'offline',
+		source
+	};
+
+	if (!browser) return offlineResult;
+	if (!navigator.onLine) {
+		pwaUpdateState.update((state) => ({
+			...state,
+			checked: true,
+			checking: false,
+			lastCheckedAt: Date.now(),
+			error: 'offline'
+		}));
+		return offlineResult;
+	}
 	if (updateCheckInFlight) return updateCheckInFlight;
 
 	updateCheckInFlight = (async () => {
@@ -167,28 +232,51 @@ export async function checkForPwaUpdate(source: 'manual' | 'auto' = 'manual'): P
 				latestCommit = typeof commit.sha === 'string' ? commit.sha.trim() : null;
 			}
 
+			if (!latestVersion && !latestCommit) {
+				throw new Error('Update check failed');
+			}
+
 			const hasUpdate = isNewerUpstream(latestVersion, latestCommit);
+			const result: PwaUpdateCheckResult = {
+				status: hasUpdate ? 'update-available' : 'up-to-date',
+				latestVersion,
+				latestCommit,
+				error: null,
+				source
+			};
 
 			pwaUpdateState.update((state) => ({
 				...state,
 				checked: true,
 				checking: false,
-				updateAvailable: state.updateAvailable || hasUpdate,
+				updateAvailable: hasUpdate,
+				swUpdateReady: hasUpdate ? state.swUpdateReady : false,
 				latestVersion,
 				latestCommit,
 				lastCheckedAt: Date.now(),
-				source: hasUpdate ? source : state.source,
+				source: hasUpdate ? source : 'upstream',
 				error: null
 			}));
+
+			return result;
 		} catch (err) {
 			warnDevOnce('pwa-update', 'checkForPwaUpdate', 'Failed to check upstream update', err);
+			const message = err instanceof Error ? err.message : 'Update check failed';
 			pwaUpdateState.update((state) => ({
 				...state,
 				checked: true,
 				checking: false,
+				updateAvailable: false,
 				lastCheckedAt: Date.now(),
-				error: err instanceof Error ? err.message : 'Update check failed'
+				error: message
 			}));
+			return {
+				status: 'error',
+				latestVersion: null,
+				latestCommit: null,
+				error: message,
+				source
+			};
 		} finally {
 			updateCheckInFlight = null;
 		}

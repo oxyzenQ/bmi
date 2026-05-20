@@ -16,7 +16,7 @@
    - Only old / unsupported browsers (e.g. old Firefox, some WebViews)
      fall through to this fallback.
    ═══════════════════════════════════════════════════════════════ */
-@supports not (backdrop-filter: blur(1px)) {
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
 	.pager-nav-shell,
 	.pager-controls-shell {
 		/* Liquid glass navbar fallback: solid dark background matching
