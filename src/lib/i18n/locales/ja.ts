@@ -228,11 +228,6 @@ const ja: TranslationDict = {
 	'results.weight_gain': '\u5897\u91cf',
 	'results.tdee_disclaimer':
 		'Mifflin-St Jeor \u306e\u5f0f\u306b\u57fa\u3065\u304f\u4e88\u6e2c\u3067\u3059\u3002\u500b\u5225\u306e\u30a2\u30c9\u30d0\u30a4\u30b9\u306b\u306f\u5c02\u9580\u5bb6\u306b\u76f8\u8ac7\u3057\u3066\u304f\u3060\u3055\u3044\u3002',
-	'results.activity_sedentary': '\u5ea7\u308a\u305b\u304c\u3061',
-	'results.activity_light': '\u8efd\u3044\u6d3b\u52d5',
-	'results.activity_moderate': '\u4e2d\u7a0b\u5ea6\u306e\u6d3b\u52d5',
-	'results.activity_very': '\u975e\u5e38\u306b\u6d3b\u52d5\u7684',
-	'results.activity_extremely': '\u6975\u7aef\u306b\u6d3b\u52d5\u7684',
 	'results.male': '\u7537\u6027',
 	'results.female': '\u5973\u6027',
 	'results.health_advice_title': '\u5065\u5eb7\u30a2\u30c9\u30d0\u30a4\u30b9',
@@ -479,7 +474,7 @@ const ja: TranslationDict = {
 	'share.card_ideal': '\u7406\u60f3\u7bc4\u56f2',
 	'share.card_tdee': 'TDEE',
 	'share.card_kcal': 'kcal',
-	'share.card_branding': 'BMI Stellar \u2014 by Rezky Nightky',
+	'share.card_branding': 'BMI Stellar \u2014 Rezky Nightky 制作',
 	'share.card_text': '\u79c1\u306e BMI: {n} ({category})',
 	'share.card_insight_underweight':
 		'\u5065\u5eb7\u7684\u306a\u4f53\u91cd\u5897\u52a0\u306e\u65b9\u6cd5\u306b\u3064\u3044\u3066\u3001\u533b\u7697\u6a5f\u95a2\u306b\u76f8\u8ac7\u3059\u308b\u3053\u3068\u3092\u304a\u52e7\u3081\u3057\u307e\u3059\u3002',

@@ -213,11 +213,6 @@ const en: TranslationDict = {
 	'results.weight_gain': 'Weight Gain',
 	'results.tdee_disclaimer':
 		'Based on Mifflin-St Jeor equation. Estimates only; consult a professional for personalized advice.',
-	'results.activity_sedentary': 'Sedentary',
-	'results.activity_light': 'Lightly Active',
-	'results.activity_moderate': 'Moderately Active',
-	'results.activity_very': 'Very Active',
-	'results.activity_extremely': 'Extremely Active',
 	'results.male': 'Male',
 	'results.female': 'Female',
 	'results.health_advice_title': 'Health Advice',

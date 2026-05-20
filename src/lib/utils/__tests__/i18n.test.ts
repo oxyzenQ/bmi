@@ -286,3 +286,80 @@ describe('cross-locale consistency', () => {
 		expect(getLocale()).toBe('en');
 	});
 });
+
+// ── Unit symbol consistency (v21.0 i18n audit) ──
+
+describe('unit symbol consistency across locales', () => {
+	const locales = ['en', 'id', 'zh', 'ja'] as const;
+
+	it('results.kcal uses universal symbol "kcal" in all locales', async () => {
+		for (const code of locales) {
+			await setLocale(code);
+			const val = t('results.kcal');
+			expect(val).toBe('kcal');
+		}
+	});
+
+	it('share.card_kcal uses universal symbol "kcal" in all locales', async () => {
+		for (const code of locales) {
+			await setLocale(code);
+			const val = t('share.card_kcal');
+			expect(val).toBe('kcal');
+		}
+	});
+
+	it('results.kcal_day contains "kcal" in all locales', async () => {
+		for (const code of locales) {
+			await setLocale(code);
+			const val = t('results.kcal_day');
+			expect(val).toContain('kcal');
+		}
+	});
+
+	it('share.tdee_line contains "kcal" in all locales', async () => {
+		for (const code of locales) {
+			await setLocale(code);
+			const val = t('share.tdee_line', { n: 2000 });
+			expect(val).toContain('kcal');
+		}
+	});
+
+	it('form metric/imperial labels contain unit symbols (kg/cm/lb/in)', async () => {
+		for (const code of locales) {
+			await setLocale(code);
+			expect(t('form.metric')).toContain('kg');
+			expect(t('form.metric')).toContain('cm');
+			expect(t('form.imperial')).toContain('lb');
+			expect(t('form.imperial')).toContain('in');
+		}
+	});
+
+	// Reset
+	it('resets to en after unit tests', async () => {
+		await setLocale('en');
+		expect(getLocale()).toBe('en');
+	});
+});
+
+// ── Orphaned activity key removal verification ──
+
+describe('orphaned activity keys removed', () => {
+	it('results.activity_* keys no longer exist in any locale', async () => {
+		const orphanKeys = [
+			'results.activity_sedentary',
+			'results.activity_light',
+			'results.activity_moderate',
+			'results.activity_very',
+			'results.activity_extremely'
+		];
+		for (const code of ['en', 'id', 'zh', 'ja'] as const) {
+			await setLocale(code);
+			for (const key of orphanKeys) {
+				// If the key was removed, t() returns the key itself
+				const result = t(key);
+				expect(result).toBe(key);
+			}
+		}
+		await setLocale('en');
+	});
+});

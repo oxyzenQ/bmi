@@ -8,6 +8,12 @@ import { t, getLocale } from '$lib/i18n';
 import { CATEGORY_COLORS, COLORS, isBmiCategory, getCategoryLabel } from './bmi-category';
 import { getAppVersionShort } from './app-version';
 
+/** Uppercase for Latin text; no-op for CJK (no case distinction). */
+function localeToUpper(text: string): string {
+	if (/[\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff]/.test(text)) return text;
+	return text.toUpperCase();
+}
+
 export interface BmiCardData {
 	bmi: number;
 	category: string;
@@ -603,7 +609,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 	ctx.fillStyle = PREMIUM.text;
 	ctx.font = fitFontSize(
 		ctx,
-		getCategoryLabel(data.category).toUpperCase(),
+		localeToUpper(getCategoryLabel(data.category)),
 		800,
 		45,
 		32,
@@ -611,7 +617,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 	);
 	ctx.textAlign = 'center';
 	const categoryLabel = getCategoryLabel(data.category);
-	const categoryText = categoryLabel.toUpperCase();
+	const categoryText = localeToUpper(categoryLabel);
 	const catMetrics = ctx.measureText(categoryText);
 	const catTextX = centerX;
 	const catTextY = categoryY;
