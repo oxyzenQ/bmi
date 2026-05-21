@@ -133,17 +133,23 @@
 
 	function handleAgeInput(e: Event) {
 		const target = e.currentTarget as HTMLInputElement;
-		age = sanitizeInteger(target.value);
+		const nextAge = sanitizeInteger(target.value);
+		if (target.value !== nextAge) target.value = nextAge;
+		if (age !== nextAge) age = nextAge;
 	}
 
 	function handleHeightInput(e: Event) {
 		const target = e.currentTarget as HTMLInputElement;
-		height = sanitizeDecimal(target.value);
+		const nextHeight = sanitizeDecimal(target.value);
+		if (target.value !== nextHeight) target.value = nextHeight;
+		if (height !== nextHeight) height = nextHeight;
 	}
 
 	function handleWeightInput(e: Event) {
 		const target = e.currentTarget as HTMLInputElement;
-		weight = sanitizeDecimal(target.value);
+		const nextWeight = sanitizeDecimal(target.value);
+		if (target.value !== nextWeight) target.value = nextWeight;
+		if (weight !== nextWeight) weight = nextWeight;
 	}
 
 	function handleCalculate() {
@@ -642,7 +648,7 @@
 		}
 
 		:global(#calculator .form-input) {
-			touch-action: pan-y pinch-zoom;
+			touch-action: manipulation;
 		}
 
 		:global(#calculator .btn:hover),

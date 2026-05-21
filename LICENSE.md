@@ -1,4 +1,4 @@
-# BMI Stellar – v21.1
+# BMI Stellar – v21.2
 
 Copyright (C) 2025-2026 Rezky Nightky
 

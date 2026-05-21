@@ -596,7 +596,7 @@
 	--nav-glass-bg-mobile:
 		linear-gradient(180deg, rgba(10, 10, 16, 0.84) 0%, rgba(0, 0, 0, 0.72) 100%),
 		linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(255, 255, 255, 0.04));
-	--nav-glass-border-inline-mobile: 2px solid rgba(220, 220, 235, 0.22);
+	--nav-glass-border-inline-mobile: 1px solid rgba(139, 92, 246, 0.18);
 	--nav-glass-filter-mobile: none;
 	--nav-glass-shadow-mobile:
 		0 8px 22px rgba(0, 0, 0, 0.3), 0 0 14px rgba(139, 92, 246, 0.06),

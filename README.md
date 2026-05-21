@@ -1,7 +1,7 @@
 <div align="center">
   <img src="static/assets/new_bmi_logo_2026.webp" alt="BMI Stellar" width="240" />
 
-  <h1>BMI Stellar v21.1</h1>
+  <h1>BMI Stellar v21.2</h1>
 
   <p><strong>Privacy-first BMI, TDEE, body-fat, and progress tracking — built with SvelteKit, Svelte 5, TypeScript, and Bun.</strong></p>
 
