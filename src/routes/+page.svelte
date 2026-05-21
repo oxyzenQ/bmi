@@ -740,14 +740,17 @@
 		const onResize = () => schedulePagerNavAlignment();
 		window.addEventListener('resize', onResize, { passive: true });
 		const navShell = pagerNavShellEl;
-		navShell?.addEventListener('pointerdown', handleNavPointerDown);
-		navShell?.addEventListener('pointermove', handleNavPointerMove);
-		navShell?.addEventListener('pointerup', endNavPointerDrag);
-		navShell?.addEventListener('pointercancel', endNavPointerDrag);
-		navShell?.addEventListener('lostpointercapture', endNavPointerDrag);
-		navShell?.addEventListener('click', handleNavClickCapture, true);
-		window.addEventListener('pointerup', endNavPointerDrag);
-		window.addEventListener('pointercancel', endNavPointerDrag);
+		const enableNavPointerDrag = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+		if (enableNavPointerDrag) {
+			navShell?.addEventListener('pointerdown', handleNavPointerDown);
+			navShell?.addEventListener('pointermove', handleNavPointerMove);
+			navShell?.addEventListener('pointerup', endNavPointerDrag);
+			navShell?.addEventListener('pointercancel', endNavPointerDrag);
+			navShell?.addEventListener('lostpointercapture', endNavPointerDrag);
+			navShell?.addEventListener('click', handleNavClickCapture, true);
+			window.addEventListener('pointerup', endNavPointerDrag);
+			window.addEventListener('pointercancel', endNavPointerDrag);
+		}
 
 		// Mobile touch swipe listeners for horizontal page navigation.
 		// Passive listeners keep native vertical scroll off the JS critical path.
@@ -769,14 +772,16 @@
 			window.removeEventListener('hashchange', onHashChange);
 			window.removeEventListener('resize', onResize);
 			window.removeEventListener('storage', onStorage);
-			navShell?.removeEventListener('pointerdown', handleNavPointerDown);
-			navShell?.removeEventListener('pointermove', handleNavPointerMove);
-			navShell?.removeEventListener('pointerup', endNavPointerDrag);
-			navShell?.removeEventListener('pointercancel', endNavPointerDrag);
-			navShell?.removeEventListener('lostpointercapture', endNavPointerDrag);
-			navShell?.removeEventListener('click', handleNavClickCapture, true);
-			window.removeEventListener('pointerup', endNavPointerDrag);
-			window.removeEventListener('pointercancel', endNavPointerDrag);
+			if (enableNavPointerDrag) {
+				navShell?.removeEventListener('pointerdown', handleNavPointerDown);
+				navShell?.removeEventListener('pointermove', handleNavPointerMove);
+				navShell?.removeEventListener('pointerup', endNavPointerDrag);
+				navShell?.removeEventListener('pointercancel', endNavPointerDrag);
+				navShell?.removeEventListener('lostpointercapture', endNavPointerDrag);
+				navShell?.removeEventListener('click', handleNavClickCapture, true);
+				window.removeEventListener('pointerup', endNavPointerDrag);
+				window.removeEventListener('pointercancel', endNavPointerDrag);
+			}
 			navShell?.classList.remove('is-dragging');
 			detachActiveScroller();
 			touchPager.reset();

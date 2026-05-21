@@ -52,7 +52,7 @@
 		type="text"
 		{id}
 		bind:this={inputEl}
-		bind:value
+		{value}
 		class="form-input"
 		{inputmode}
 		{pattern}
