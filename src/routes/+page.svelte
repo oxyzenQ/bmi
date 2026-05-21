@@ -1188,6 +1188,9 @@
 		overflow: hidden;
 		touch-action: pan-y pinch-zoom;
 		position: relative;
+		border: 0;
+		outline: none;
+		background: transparent;
 		--pager-top-inset: calc(env(safe-area-inset-top, 0px) + 54px);
 		--pager-edge-fade: 100px;
 		--nav-bar-h: 54px;
@@ -1250,6 +1253,8 @@
 		padding-bottom: 0.5rem;
 		position: relative;
 		min-height: 0;
+		border: 0;
+		outline: none;
 	}
 
 	.pager-section {
@@ -1270,6 +1275,8 @@
 		padding-bottom: calc(1.5rem + 58px + 1.5rem + env(safe-area-inset-bottom, 0px));
 		scroll-padding-top: calc(var(--pager-top-inset) + 0.5rem);
 		scroll-padding-bottom: calc(1.5rem + 58px + 1.5rem + env(safe-area-inset-bottom, 0px));
+		border: 0;
+		outline: none;
 	}
 
 	.pager-section::-webkit-scrollbar {

@@ -14,8 +14,9 @@ html {
 	height: 100%;
 	scrollbar-width: none;
 	overscroll-behavior: none;
-	background-color: var(--cosmic-deep);
+	background: var(--cosmic-deep);
 	max-width: 100%;
+	outline: none;
 	/* A: Prevent browser auto-zoom on small font sizes (iOS Safari) */
 	-webkit-text-size-adjust: 100%;
 	text-size-adjust: 100%;
@@ -44,7 +45,7 @@ body {
 	min-height: 100vh;
 	margin: 0;
 	padding: 0;
-	background-color: transparent;
+	background: var(--cosmic-deep);
 	color: var(--text-primary);
 	font-family: var(--font-sans);
 	font-size: clamp(0.875rem, 0.85rem + 0.3vw, 1rem);
@@ -52,6 +53,7 @@ body {
 	z-index: var(--z-base);
 	max-width: 100%;
 	overflow-x: hidden;
+	outline: none;
 	scrollbar-width: none;
 	overscroll-behavior-y: none;
 	-webkit-font-smoothing: antialiased;
@@ -62,21 +64,30 @@ body {
 }
 
 .app-root {
-	display: contents;
+	display: block;
+	min-height: 100%;
+	background: transparent;
+	outline: none;
+}
+
+html:focus,
+body:focus,
+.app-root:focus {
+	outline: none;
 }
 
 /* stellar background image */
 body::before {
 	content: '';
 	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	min-height: 100vh;
+	top: -12px;
+	left: -12px;
+	right: -12px;
+	bottom: -12px;
+	min-height: calc(100vh + 24px);
 	z-index: var(--z-base);
 	/* Negative z-index: intentional — renders behind all content */
-	background-color: transparent;
+	background-color: var(--cosmic-deep);
 	background-image: var(--wallpaper-current);
 	background-size: cover;
 	background-position: center;
@@ -103,11 +114,11 @@ body::before {
 body::after {
 	content: '';
 	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	min-height: 100vh;
+	top: -12px;
+	left: -12px;
+	right: -12px;
+	bottom: -12px;
+	min-height: calc(100vh + 24px);
 	z-index: var(--z-base);
 	/* Negative z-index: intentional — gradient overlay behind content */
 	pointer-events: none;
@@ -117,8 +128,8 @@ body::after {
 @supports (height: 100svh) {
 	body::before,
 	body::after {
-		height: 100svh;
-		min-height: 100svh;
+		height: auto;
+		min-height: calc(100svh + 24px);
 	}
 }
 
