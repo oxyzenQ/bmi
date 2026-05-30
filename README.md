@@ -1,21 +1,35 @@
 <div align="center">
-  <img src="static/assets/new_bmi_logo_2026.webp" alt="BMI Stellar" width="240" />
+  <img src="static/assets/new_bmi_logo_2026.webp" alt="BMI Stellar logo" width="240">
 
   <h1>BMI Stellar v21.2</h1>
 
-  <p><strong>Privacy-first BMI, TDEE, body-fat, and progress tracking — built with SvelteKit, Svelte 5, TypeScript, and Bun.</strong></p>
-
   <p>
-    <a href="https://bmi-stellar.vercel.app"><img src="https://img.shields.io/badge/Live_Demo-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo" /></a>
-    <a href="LICENSE.md"><img src="https://img.shields.io/badge/License-GPL_3.0-blue.svg?style=for-the-badge" alt="License: GPL-3.0" /></a>
-    <a href="https://github.com/sveltejs/svelte"><img src="https://img.shields.io/badge/Svelte_5-FF3E00?style=for-the-badge&logo=svelte&logoColor=white" alt="Svelte 5" /></a>
-    <a href="https://bun.sh"><img src="https://img.shields.io/badge/Bun-000000?style=for-the-badge&logo=bun&logoColor=white" alt="Bun" /></a>
-    <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
+    <strong>Privacy-first BMI, TDEE, body-fat, and progress tracking.</strong>
   </p>
 
   <p>
+    Built with SvelteKit, Svelte 5, TypeScript, and Bun.
+  </p>
+
+  <p>
+    <a href="https://bmi-stellar.vercel.app">
+      <img src="https://img.shields.io/badge/live-demo-7C3AED?style=flat-square&logo=vercel&logoColor=white&labelColor=111827" alt="Live demo">
+    </a>
+    <img src="https://img.shields.io/badge/version-v21.2-7C3AED?style=flat-square&labelColor=111827" alt="Version v21.2">
+    <a href="LICENSE.md">
+      <img src="https://img.shields.io/badge/license-GPL--3.0-6D28D9?style=flat-square&labelColor=111827" alt="GPL-3.0 license">
+    </a>
+    <a href="https://github.com/sveltejs/svelte">
+      <img src="https://img.shields.io/badge/Svelte-5-8B5CF6?style=flat-square&logo=svelte&logoColor=white&labelColor=111827" alt="Svelte 5">
+    </a>
+    <a href="https://bun.sh">
+      <img src="https://img.shields.io/badge/Bun-runtime-A855F7?style=flat-square&logo=bun&logoColor=white&labelColor=111827" alt="Bun runtime">
+    </a>
+    <a href="https://www.typescriptlang.org/">
+      <img src="https://img.shields.io/badge/TypeScript-ready-7C3AED?style=flat-square&logo=typescript&logoColor=white&labelColor=111827" alt="TypeScript ready">
+    </a>
     <a href="https://ko-fi.com/rezky">
-      <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support me on Ko-fi" />
+      <img src="https://img.shields.io/badge/Ko--fi-support-7C3AED?style=flat-square&logo=kofi&logoColor=white&labelColor=111827" alt="Support on Ko-fi">
     </a>
   </p>
 </div>
