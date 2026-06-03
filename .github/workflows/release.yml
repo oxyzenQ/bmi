@@ -194,7 +194,7 @@ jobs:
 
           # Copy documentation
           cp README.md "$STAGE/" 2>/dev/null || true
-          cp LICENSE.md "$STAGE/" 2>/dev/null || true
+          cp LICENSE "$STAGE/"
           cp SECURITY.md "$STAGE/" 2>/dev/null || true
 
           # Create source zip
@@ -222,7 +222,7 @@ jobs:
           cp package.json "$STAGE/"
           cp README.md "$STAGE/" 2>/dev/null || true
           cp -r docs "$STAGE/" 2>/dev/null || true
-          cp LICENSE.md "$STAGE/" 2>/dev/null || true
+          cp LICENSE "$STAGE/"
 
           # Create build zip
           cd "$STAGE"
@@ -301,7 +301,7 @@ jobs:
             echo ""
             echo "## 📄 License"
             echo ""
-            echo "This project is licensed under the GPL v3 License. See the [LICENSE.md](LICENSE.md) file for details."
+            echo "This project is licensed under the GPL v3 License. See the [LICENSE](LICENSE) file for details."
             echo ""
             echo "## 🙏 Acknowledgments"
             echo ""

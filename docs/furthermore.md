@@ -309,7 +309,7 @@ GitHub workflows are located in `.github/workflows/`.
 # Preview changes before applying
 bun run bmi-update-version --dry-run <version>
 
-# Apply version update (syncs package.json, README.md, and LICENSE.md)
+# Apply version update (syncs package.json, README.md, and DORMANT.md)
 bun run bmi-update-version <version>
 
 # Verify integrity before tagging

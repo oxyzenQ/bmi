@@ -1,7 +1,7 @@
 <div align="center">
   <img src="static/assets/new_bmi_logo_2026.webp" alt="BMI Stellar logo" width="240">
 
-  <h1>BMI Stellar v21.2</h1>
+  <h1>BMI Stellar v21.3</h1>
 
   <p>
     <strong>Privacy-first BMI, TDEE, body-fat, and progress tracking.</strong>
@@ -15,8 +15,8 @@
     <a href="https://bmi-stellar.vercel.app">
       <img src="https://img.shields.io/badge/live-demo-7C3AED?style=flat-square&logo=vercel&logoColor=white&labelColor=111827" alt="Live demo">
     </a>
-    <img src="https://img.shields.io/badge/version-v21.2-7C3AED?style=flat-square&labelColor=111827" alt="Version v21.2">
-    <a href="LICENSE.md">
+    <img src="https://img.shields.io/badge/version-v21.3-7C3AED?style=flat-square&labelColor=111827" alt="Version v21.3">
+    <a href="LICENSE">
       <img src="https://img.shields.io/badge/license-GPL--3.0-6D28D9?style=flat-square&labelColor=111827" alt="GPL-3.0 license">
     </a>
     <a href="https://github.com/sveltejs/svelte">
@@ -157,7 +157,7 @@ docs/                        # Long-form documentation (furthermore.md)
 The canonical version lives in `package.json` and is synchronized into display documents via `scripts/bmi-update-version.ts`.
 
 > [!IMPORTANT]
-> Always use `bun run bmi-update-version <version>` to update the version. This keeps `package.json`, `README.md`, and `LICENSE.md` synchronized. Never edit release version strings manually.
+> Always use `bun run bmi-update-version <version>` to update the version. This keeps `package.json`, `README.md`, and the dormant maintenance capsule synchronized. Never edit release version strings manually.
 
 Release tags follow the format `Stellar-v<major>.<minor>` (for example, `Stellar-v21.0`). The tag's major/minor pair must match `package.json` (for example, `21.0.0` -> `Stellar-v21.0`).
 
@@ -194,4 +194,4 @@ _Support is completely optional, and the project will forever remain open-source
 
 ## License
 
-Distributed under the GPL-3.0 License. See [LICENSE.md](LICENSE.md) for more information.
+Distributed under the GPL-3.0 License. See [LICENSE](LICENSE) for more information.
