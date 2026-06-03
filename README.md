@@ -147,6 +147,7 @@ docs/                        # Long-form documentation (furthermore.md)
 | Document                                           | Purpose                                                                 |
 | -------------------------------------------------- | ----------------------------------------------------------------------- |
 | [docs/furthermore.md](docs/furthermore.md)         | Architecture deep dive: CSS cascade, pager, crypto, PWA, share image    |
+| [DORMANT.md](DORMANT.md)                           | Wake-up checklist for long quiet periods and future maintenance         |
 | [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) | Contributor workflow, coding standards, i18n, PR checklist              |
 | [.github/RELEASE.md](.github/RELEASE.md)           | Release checklist, tag rules, artifacts, rollback, troubleshooting      |
 | [SECURITY.md](SECURITY.md)                         | Vulnerability reporting, threat model, crypto details, privacy boundary |
