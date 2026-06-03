@@ -1,4 +1,5 @@
 // Copyright (c) 2025 - 2026 rezky_nightky
+// SPDX-License-Identifier: GPL-3.0-only
 /**
  * Centralized storage utility with in-memory caching, IndexedDB durability,
  * and automatic localStorage → IndexedDB migration.

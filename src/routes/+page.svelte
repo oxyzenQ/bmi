@@ -1,15 +1,14 @@
 <!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
 <script lang="ts">
 	import { onDestroy, onMount, tick } from 'svelte';
 	import { backOut, cubicOut } from 'svelte/easing';
-	import { pagerSpring } from '$lib/utils/pager-spring';
 	import { tweened } from 'svelte/motion';
 	import { browser } from '$app/environment';
 	import {
 		getPerformanceTier,
 		prefersReducedMotion as checkReducedMotion
 	} from '$lib/utils/animation-config';
-	import { importBmiHistory } from '$lib/utils/history-io';
 	import { createLazyLoader, createPairedLazyLoader } from '$lib/utils/lazy-load';
 	import {
 		STORAGE_KEYS,
@@ -21,14 +20,7 @@
 	import { BMI_THRESHOLDS } from '$lib/utils/bmi-category';
 	import { calculateBmi, isBmiResult } from '$lib/utils/bmi-calculator';
 	import { warnDev, warnDevOnce } from '$lib/utils/warn-dev';
-	import {
-		MARKER_ANIM,
-		PAGER,
-		SPRING,
-		SCROLL,
-		HAPTIC,
-		SECTIONS
-	} from '$lib/utils/animation-config';
+	import { MARKER_ANIM, PAGER, SCROLL, HAPTIC, SECTIONS } from '$lib/utils/animation-config';
 	import { isEditableTarget } from '$lib/utils/dom';
 	import { saveBmiToHistory } from '$lib/utils/bmi-history';
 	import {
@@ -40,19 +32,15 @@
 	import { nextTheme, THEMES, THEME_URLS, type ThemeKey } from '$lib/utils/page-theme';
 	import { getPagerWheelDirection } from '$lib/utils/scroll-helpers';
 	import { createTouchPager } from '$lib/utils/touch-pager';
-	import Hero from '$lib/ui/Hero.svelte';
-	import NotifyFloat from '$lib/components/NotifyFloat.svelte';
-	import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
-	import GaugeSection from '$lib/components/page/GaugeSection.svelte';
+	import type { ImportNotifyResult } from '$lib/types/bmi-form';
+	import NotificationHost from '$lib/components/page/NotificationHost.svelte';
+	import PagerNavigation from '$lib/components/page/PagerNavigation.svelte';
 	import PagerControls from '$lib/components/page/PagerControls.svelte';
-	import AboutSection from '$lib/components/sections/AboutSection.svelte';
-	import SettingsSection from '$lib/components/sections/SettingsSection.svelte';
+	import PagerSections from '$lib/components/page/PagerSections.svelte';
 	import StagingSpinner from '$lib/components/StagingSpinner.svelte';
-	import { Wallpaper } from 'lucide-svelte';
 	import { t as _t, initLocale, localeVersion } from '$lib/i18n';
 	import { getAppVersionShort } from '$lib/utils/app-version';
 	let _rv = $derived($localeVersion);
-	// Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
 	function t(key: string, params?: Record<string, string | number | undefined | null>): string {
 		void _rv;
 		return _t(key, params);
@@ -68,7 +56,6 @@
 		typeof import('$lib/components/BodyFatEstimate.svelte').default;
 	type ReferenceTableComponentType = typeof import('$lib/components/ReferenceTable.svelte').default;
 	type BmiGoalTrackerComponentType = typeof import('$lib/components/BmiGoalTracker.svelte').default;
-	// ── Lazy-loaded component state (Svelte 5 $state) ──
 	let BmiFormComponent: BmiFormComponentType | null = $state(null);
 	let BmiResultsComponent: BmiResultsComponentType | null = $state(null);
 	let BmiRadialGaugeComponent: BmiRadialGaugeComponentType | null = $state(null);
@@ -78,7 +65,6 @@
 	let ReferenceTableComponent: ReferenceTableComponentType | null = $state(null);
 	let BmiGoalTrackerComponent: BmiGoalTrackerComponentType | null = $state(null);
 
-	// ── Lazy loaders (deduplicate imports, bridge to $state via onLoad) ──
 	const calculatorLoader = createPairedLazyLoader<BmiFormComponentType, BmiResultsComponentType>(
 		() => import('$lib/components/BmiForm.svelte'),
 		() => import('$lib/components/BmiResults.svelte'),
@@ -125,9 +111,7 @@
 			BmiGoalTrackerComponent = comp;
 		}
 	});
-	// Track the last submitted metric values to prevent exact duplicate history rows.
-	// BMI alone is not enough because age-only changes should still create a record.
-	let lastSavedHistorySignature: string | null = null;
+	let lastSavedHistorySignature: string | null = $state(null);
 
 	let bmiValue: number | null = $state(null);
 	let category: string | null = $state(null);
@@ -157,7 +141,6 @@
 
 	const currentYear = new Date().getFullYear();
 
-	// Git info - injected at build time by Vite
 	const gitCommitId = typeof __GIT_COMMIT_ID__ !== 'undefined' ? __GIT_COMMIT_ID__ : 'dev';
 	const gitBranch = typeof __GIT_BRANCH__ !== 'undefined' ? __GIT_BRANCH__ : 'main';
 
@@ -168,8 +151,8 @@
 	let prefersReducedMotion = $state(false);
 	let perfTier = $state<'high' | 'medium' | 'low'>('medium');
 
-	let pagerNavEl: HTMLElement | null = null;
-	let pagerNavShellEl: HTMLElement | null = null;
+	let pagerNavEl: HTMLElement | null = $state(null);
+	let pagerNavShellEl: HTMLElement | null = $state(null);
 	let pagerNavCentered = $state(false);
 	let pagerNavAlignRaf: number | null = null;
 	let navDragPointerId: number | null = null;
@@ -225,7 +208,6 @@
 		reducedMotionEffective || isTouchDevice || perfTier !== 'high'
 	);
 
-	// Wallpaper theme toggle
 	const THEME_LABELS: Record<ThemeKey, () => string> = {
 		blackhole: () => t('nav.blackhole'),
 		spaceship: () => t('nav.spaceship'),
@@ -242,7 +224,11 @@
 		}
 	}
 
-	// Persist unit system in localStorage (only after initialization from onMount)
+	function selectSection(index: number) {
+		triggerHaptic(5);
+		goTo(index);
+	}
+
 	$effect(() => {
 		if (browser && unitSystemInitialized) {
 			try {
@@ -549,7 +535,6 @@
 		else prevSection();
 	}
 
-	// Action: attach passive wheel listener (Svelte 5 doesn't support |passive modifier on onwheel)
 	function passiveWheel(node: HTMLElement) {
 		node.addEventListener('wheel', handleWheel, { passive: true });
 		return {
@@ -703,7 +688,6 @@
 		}
 		unitSystemInitialized = true;
 
-		// Read wallpaper theme preference
 		try {
 			const storedTheme = storageGet(STORAGE_KEYS.WALLPAPER_THEME);
 			if (storedTheme && THEMES.includes(storedTheme as ThemeKey)) {
@@ -857,6 +841,38 @@
 		showNotify = true;
 	}
 
+	function handleImportNotify(result: ImportNotifyResult) {
+		if (result.action === 'import-validate' && result.text) {
+			pendingImportText = result.text;
+			notifyType = 'warn';
+			notifyMessage = t('notify.import_confirm', {
+				n: result.recordCount ?? 0
+			});
+			notifyButtonText = t('notify.import_keep');
+			showNotify = true;
+		} else if (result.action === 'import-success') {
+			lastSavedHistorySignature = null;
+			resultsRunId += 1;
+		} else if (result.action === 'import-error') {
+			notifyType = 'error';
+			notifyMessage = result.error || t('notify.import_error');
+			notifyButtonText = t('notify.ok');
+			showNotify = true;
+		}
+	}
+
+	function markImportSuccess() {
+		lastSavedHistorySignature = null;
+		resultsRunId += 1;
+	}
+
+	async function confirmDeleteData() {
+		stagingLoading = true;
+		await new Promise((resolve) => setTimeout(resolve, 800));
+		stagingLoading = false;
+		clearAllData();
+	}
+
 	function clearAllData() {
 		calculating = false;
 		age = '';
@@ -910,209 +926,54 @@
 	onpointercancel={handlePointerUp}
 	use:passiveWheel
 >
-	<div class="pager-nav-shell" bind:this={pagerNavShellEl}>
-		<nav
-			bind:this={pagerNavEl}
-			class="pager-nav"
-			class:centered={pagerNavCentered}
-			aria-label={t('nav.sections_aria')}
-		>
-			{#key $localeVersion}
-				{#each sections as section, idx (section.id)}
-					<button
-						type="button"
-						class="btn btn-ghost pager-tab"
-						class:active={idx === activeIndex}
-						aria-current={idx === activeIndex ? 'page' : undefined}
-						onclick={() => {
-							triggerHaptic(5);
-							goTo(idx);
-						}}
-					>
-						{t(section.labelKey)}
-					</button>
-				{/each}
+	<PagerNavigation
+		{sections}
+		{activeIndex}
+		{currentTheme}
+		{themeLabel}
+		bind:pagerNavCentered
+		bind:pagerNavEl
+		bind:pagerNavShellEl
+		localeVersion={$localeVersion}
+		{t}
+		onSelect={selectSection}
+		onThemeToggle={toggleWallpaperTheme}
+	/>
 
-				<button
-					type="button"
-					class="btn btn-ghost pager-tab pager-theme"
-					aria-label={t('nav.theme_aria')}
-					aria-pressed={currentTheme !== 'blackhole'}
-					onclick={toggleWallpaperTheme}
-				>
-					<Wallpaper class="render-wallpaper" aria-hidden="true" />
-					{t('nav.theme')}
-					<span
-						class:theme-blackhole={currentTheme === 'blackhole'}
-						class:theme-spaceship={currentTheme === 'spaceship'}
-						class:theme-space={currentTheme === 'space'}
-					>
-						{themeLabel}
-					</span>
-				</button>
-			{/key}
-
-			<LanguageSwitcher />
-		</nav>
-	</div>
-
-	<main class="pager-view">
-		{#key activeIndex}
-			<section
-				class="pager-section"
-				id={sections[activeIndex].id}
-				data-pager-scroll="true"
-				data-section-id={sections[activeIndex].id}
-				in:pagerSpring={{
-					x: pagerDirection * pagerMotionDistance,
-					duration: pagerMotionDuration,
-					phase: 'in',
-					strength: reducedMotionEffective ? 0 : SPRING.STRENGTH_ENHANCED
-				}}
-				out:pagerSpring={{
-					x: -pagerDirection * pagerMotionDistance,
-					duration: reducedMotionEffective ? 0 : Math.round(pagerMotionDuration * PAGER.OUT_RATIO),
-					phase: 'out',
-					strength: 0
-				}}
-			>
-				{#if activeIndex === 0}
-					<div class="main-container">
-						<Hero />
-					</div>
-				{/if}
-
-				{#if activeIndex === 1}
-					<div class="main-container">
-						<!-- BMI Stellar Section -->
-						<section class="bmi-section">
-							<div class="bmi-grid">
-								<div class="form-card">
-									{#if BmiFormComponent}
-										<BmiFormComponent
-											bind:age
-											bind:height
-											bind:weight
-											bind:gender
-											bind:activity
-											bind:unitSystem
-											{calculating}
-											onClear={confirmClearData}
-											onCalculate={handleCalculate}
-											onNotify={(result) => {
-												if (result.action === 'import-validate' && result.text) {
-													pendingImportText = result.text;
-													notifyType = 'warn';
-													notifyMessage = t('notify.import_confirm', {
-														n: result.recordCount ?? 0
-													});
-													notifyButtonText = t('notify.import_keep');
-													showNotify = true;
-												} else if (result.action === 'import-success') {
-													lastSavedHistorySignature = null;
-													resultsRunId += 1;
-												} else if (result.action === 'import-error') {
-													notifyType = 'error';
-													notifyMessage = result.error || t('notify.import_error');
-													notifyButtonText = t('notify.ok');
-													showNotify = true;
-												}
-											}}
-										/>
-									{:else}
-										<div class="skeleton-form">
-											<div class="skeleton skeleton-input"></div>
-											<div class="skeleton skeleton-input"></div>
-											<div class="skeleton skeleton-input"></div>
-											<div class="skeleton skeleton-input" style="width:50%"></div>
-										</div>
-									{/if}
-								</div>
-								<div class="bmi-card">
-									{#key resultsRunId}
-										{#if BmiResultsComponent}
-											<BmiResultsComponent
-												{bmiValue}
-												{category}
-												{unitSystem}
-												height={height === '' ? null : parseFloat(height)}
-												weight={weight === '' ? null : parseFloat(weight)}
-												age={age === '' ? null : parseInt(age)}
-												gender={gender || null}
-												activity={activity || null}
-												reducedMotion={contentReducedMotion}
-											/>
-										{:else}
-											<div class="skeleton-card">
-												<div class="skeleton skeleton-circle"></div>
-												<div
-													class="skeleton skeleton-line w-60 h-lg"
-													style="margin:0 auto 1rem"
-												></div>
-												<div
-													class="skeleton skeleton-line w-80 h-md"
-													style="margin:0 auto 0.5rem"
-												></div>
-												<div
-													class="skeleton skeleton-line w-40 h-sm"
-													style="margin:0 auto 1.5rem"
-												></div>
-												<div class="skeleton skeleton-line w-full h-sm"></div>
-												<div class="skeleton skeleton-line w-full h-sm"></div>
-												<div class="skeleton skeleton-line w-60 h-sm"></div>
-											</div>
-										{/if}
-									{/key}
-								</div>
-							</div>
-						</section>
-					</div>
-				{/if}
-
-				{#if activeIndex === 2}
-					<GaugeSection
-						{BmiRadialGaugeComponent}
-						{BmiHealthRiskComponent}
-						{BmiSnapshotComponent}
-						{BodyFatEstimateComponent}
-						{BmiGoalTrackerComponent}
-						{bmiValue}
-						{category}
-						{resultsRunId}
-						{isTouchDevice}
-						{age}
-						{gender}
-					/>
-				{/if}
-
-				{#if activeIndex === 3}
-					<div class="main-container">
-						<!-- Reference Table -->
-						{#if ReferenceTableComponent}
-							<ReferenceTableComponent />
-						{:else}
-							<div class="skeleton-card">
-								<div class="skeleton skeleton-line w-60 h-lg" style="margin-bottom:1.5rem"></div>
-								<div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.5rem"></div>
-								<div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.5rem"></div>
-								<div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.5rem"></div>
-								<div class="skeleton skeleton-line w-full h-sm" style="margin-bottom:0.5rem"></div>
-								<div class="skeleton skeleton-line w-full h-sm"></div>
-							</div>
-						{/if}
-					</div>
-				{/if}
-
-				{#if activeIndex === 4}
-					<AboutSection {gitCommitId} {gitBranch} />
-				{/if}
-
-				{#if activeIndex === 5}
-					<SettingsSection {currentYear} />
-				{/if}
-			</section>
-		{/key}
-	</main>
+	<PagerSections
+		{activeIndex}
+		{sections}
+		{pagerDirection}
+		{pagerMotionDistance}
+		{pagerMotionDuration}
+		{reducedMotionEffective}
+		{BmiFormComponent}
+		{BmiResultsComponent}
+		{BmiRadialGaugeComponent}
+		{BmiHealthRiskComponent}
+		{BmiSnapshotComponent}
+		{BodyFatEstimateComponent}
+		{ReferenceTableComponent}
+		{BmiGoalTrackerComponent}
+		bind:age
+		bind:height
+		bind:weight
+		bind:gender
+		bind:activity
+		bind:unitSystem
+		{calculating}
+		{resultsRunId}
+		{bmiValue}
+		{category}
+		{contentReducedMotion}
+		{isTouchDevice}
+		{gitCommitId}
+		{gitBranch}
+		{currentYear}
+		onClear={confirmClearData}
+		onCalculate={handleCalculate}
+		onNotify={handleImportNotify}
+	/>
 
 	<PagerControls
 		{activeIndex}
@@ -1124,176 +985,14 @@
 	/>
 </div>
 
-{#if showNotify}
-	<NotifyFloat
-		show={showNotify}
-		type={notifyType}
-		message={notifyMessage}
-		buttonText={notifyButtonText}
-		onContinue={async () => {
-			if (notifyType === 'warn' && pendingImportText) {
-				// User confirmed import — perform it now
-				const result = await importBmiHistory(pendingImportText);
-				pendingImportText = null;
-				if (result.success) {
-					const integrityMsg = result.integrityVerified
-						? result.integrityVersion === 3
-							? ' \u2713 Integrity verified (HMAC-SHA256)'
-							: ' \u2713 Integrity verified (legacy)'
-						: '';
-					notifyType = 'success';
-					notifyMessage = `Successfully imported ${result.count} record${result.count === 1 ? '' : 's'}!${integrityMsg}`;
-					notifyButtonText = 'OK';
-					lastSavedHistorySignature = null;
-					resultsRunId += 1;
-				} else {
-					notifyType = 'delete';
-					notifyMessage = result.error || 'Import failed.';
-					notifyButtonText = 'OK';
-				}
-			} else if (notifyType === 'success') {
-				// Navigation to Gauge already happened in handleCalculate
-				// (synchronous click-handler context). Just dismiss the notification.
-				showNotify = false;
-			} else if (notifyType === 'error') {
-				// Error notification dismissed - just close
-				showNotify = false;
-			} else if (notifyType === 'delete') {
-				showNotify = false;
-				// Brief staging spinner after delete confirmation
-				stagingLoading = true;
-				await tick();
-				await new Promise((r) => setTimeout(r, 800));
-				stagingLoading = false;
-				clearAllData();
-			}
-		}}
-		onClose={() => {
-			pendingImportText = null;
-			showNotify = false;
-		}}
-		onCancel={() => {
-			pendingImportText = null;
-			showNotify = false;
-		}}
-	/>
-{/if}
+<NotificationHost
+	bind:showNotify
+	bind:notifyType
+	bind:notifyMessage
+	bind:notifyButtonText
+	bind:pendingImportText
+	onImportSuccess={markImportSuccess}
+	onDeleteConfirmed={confirmDeleteData}
+/>
 
 <StagingSpinner show={stagingLoading} />
-
-<!-- styles moved to global-styles.css -->
-
-<style>
-	.pager-shell {
-		height: 100svh;
-		display: flex;
-		flex-direction: column;
-		gap: 0;
-		padding-top: 0;
-		overflow: hidden;
-		touch-action: pan-y pinch-zoom;
-		position: relative;
-		border: 0;
-		outline: none;
-		background: transparent;
-		--pager-top-inset: calc(env(safe-area-inset-top, 0px) + 54px);
-		--pager-edge-fade: 100px;
-		--nav-bar-h: 54px;
-	}
-
-	.pager-shell::before,
-	.pager-shell::after {
-		content: '';
-		position: fixed;
-		left: 0;
-		right: 0;
-		pointer-events: none;
-		z-index: var(--z-nav-controls);
-	}
-
-	.pager-shell::before {
-		content: none;
-		display: none;
-	}
-
-	.pager-shell::after {
-		bottom: 0;
-		height: 0;
-		background: none;
-		pointer-events: none;
-	}
-
-	/* .pager-nav, .pager-nav-shell, .pager-nav::-webkit-scrollbar styles
-     moved to global nav.css for unified navbar maintenance */
-
-	.pager-theme :global(.render-wallpaper) {
-		color: var(--aurora-glow, #b266ff) !important;
-		transition:
-			color var(--dur-content) ease,
-			filter var(--dur-content) ease;
-	}
-
-	.pager-theme .theme-blackhole {
-		color: #b266ff;
-		font-weight: 600;
-		text-shadow: 0 0 8px var(--purple-40, rgba(168, 85, 247, 0.4));
-	}
-
-	.pager-theme .theme-spaceship {
-		color: #00f0ff;
-		font-weight: 600;
-		text-shadow: 0 0 8px var(--cyan2-40);
-	}
-
-	.pager-theme .theme-space {
-		color: var(--cosmic-blue);
-		font-weight: 600;
-	}
-
-	/* .pager-tab.active moved to global nav.css */
-
-	.pager-view {
-		flex: 1;
-		overflow: hidden;
-		padding-bottom: 0.5rem;
-		position: relative;
-		min-height: 0;
-		border: 0;
-		outline: none;
-	}
-
-	.pager-section {
-		height: 100%;
-		position: absolute;
-		inset: 0;
-		overflow-y: auto;
-		overflow-x: hidden;
-		-webkit-overflow-scrolling: touch;
-		overscroll-behavior: contain;
-		overscroll-behavior-x: none;
-		overscroll-behavior-y: contain;
-		scrollbar-width: none;
-		contain: style;
-		overflow-anchor: none;
-		touch-action: pan-y pinch-zoom;
-		padding-top: calc(var(--pager-top-inset) + 0.5rem);
-		padding-bottom: calc(1.5rem + 58px + 1.5rem + env(safe-area-inset-bottom, 0px));
-		scroll-padding-top: calc(var(--pager-top-inset) + 0.5rem);
-		scroll-padding-bottom: calc(1.5rem + 58px + 1.5rem + env(safe-area-inset-bottom, 0px));
-		border: 0;
-		outline: none;
-	}
-
-	.pager-section::-webkit-scrollbar {
-		display: none;
-	}
-
-	@supports (overflow: clip) {
-		.pager-section {
-			overflow-x: clip;
-		}
-	}
-
-	/* .pager-nav responsive breakpoints (900px, 600px) and
-     .pager-btn-spacer moved to global nav.css */
-</style>

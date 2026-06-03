@@ -1,4 +1,5 @@
 <!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
 <script lang="ts">
 	import type { StrengthResult } from '$lib/utils/crypto';
 	import { t as _t, localeVersion } from '$lib/i18n';

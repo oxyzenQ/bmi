@@ -1,4 +1,5 @@
 // Copyright (c) 2025 - 2026 rezky_nightky
+// SPDX-License-Identifier: GPL-3.0-only
 /**
  * BMI History Export/Import utilities with HMAC-SHA256 integrity check.
  *

@@ -1,4 +1,5 @@
 // Copyright (c) 2025 - 2026 rezky_nightky
+// SPDX-License-Identifier: GPL-3.0-only
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
 declare global {

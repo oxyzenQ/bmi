@@ -1,4 +1,5 @@
 <!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
 
 <div class="encrypt-progress-wrap">
 	<div class="bmi-progress bmi-progress--indeterminate">

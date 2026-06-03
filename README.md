@@ -38,17 +38,17 @@
 
 ## Contents
 
-* [Overview](#what-it-does)
-* [Tech Stack](#tech-stack)
-* [Quick Start](#quick-start)
-* [Core Scripts](#core-scripts)
-* [Project Layout](#project-layout)
-* [Documentation](#documentation-map)
-* [Versioning](#versioning)
-* [Security](#security-model)
-* [Contributing & Releases](#contributing--releases)
-* [Support](#support)
-* [License](#license)
+- [Overview](#what-it-does)
+- [Tech Stack](#tech-stack)
+- [Quick Start](#quick-start)
+- [Core Scripts](#core-scripts)
+- [Project Layout](#project-layout)
+- [Documentation](#documentation-map)
+- [Versioning](#versioning)
+- [Security](#security-model)
+- [Contributing & Releases](#contributing--releases)
+- [Support](#support)
+- [License](#license)
 
 ---
 

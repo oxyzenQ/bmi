@@ -1,4 +1,5 @@
 <!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
 <script lang="ts">
 	/**
 	 * Feedback Modal - Blocking feedback for success/error states

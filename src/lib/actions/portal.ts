@@ -1,4 +1,5 @@
 // Copyright (c) 2025 - 2026 rezky_nightky
+// SPDX-License-Identifier: GPL-3.0-only
 /**
  * Shared Svelte action: portal the element to document.body.
  * Escapes ancestor containing-block created by backdrop-filter / transform.

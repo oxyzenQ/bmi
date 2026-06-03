@@ -1,4 +1,5 @@
 <!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
 <script lang="ts">
 	import { Percent, Info, AlertCircle } from 'lucide-svelte';
 	import { COLORS } from '$lib/utils/bmi-category';

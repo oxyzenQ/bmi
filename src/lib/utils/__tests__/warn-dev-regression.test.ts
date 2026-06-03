@@ -1,4 +1,5 @@
 // Copyright (c) 2025 - 2026 rezky_nightky
+// SPDX-License-Identifier: GPL-3.0-only
 /**
  * Regression tests for v15.2 Observability — warnDev integration.
  *

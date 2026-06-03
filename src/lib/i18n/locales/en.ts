@@ -1,4 +1,5 @@
 // Copyright (c) 2025 - 2026 rezky_nightky
+// SPDX-License-Identifier: GPL-3.0-only
 /**
  * English (en) — Master translation dictionary
  * All keys are organized by component/section for easy navigation.

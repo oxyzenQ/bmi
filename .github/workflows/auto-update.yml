@@ -3,8 +3,8 @@ name: ⛑️ Auto Update Dependencies
 
 on:
   schedule:
-    # Daily at 00:00 UTC (08:00 SGT)
-    - cron: '0 0 * * *'
+    # Weekly at 00:00 UTC every Monday (07:00 WIB)
+    - cron: '0 0 * * 1'
   # Manual trigger option
   workflow_dispatch:
     inputs:
@@ -12,9 +12,9 @@ on:
         description: How to publish updates
         type: choice
         options:
-          - direct
           - pr
-        default: direct
+          - direct
+        default: pr
       force_update:
         description: Continue even if checks fail
         type: boolean
@@ -26,7 +26,7 @@ permissions:
   pull-requests: write
 
 env:
-  UPDATE_STRATEGY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.strategy || 'direct' }}
+  UPDATE_STRATEGY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.strategy || 'pr' }}
   FORCE_UPDATE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_update || 'false' }}
   OWNER_NAME: ${{ github.repository_owner }}
   OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
@@ -82,6 +82,9 @@ jobs:
       - name: Install current dependencies
         run: bun install --frozen-lockfile
 
+      - name: Audit current dependency tree
+        run: bun run audit:deps
+
       - name: Update all dependencies
         run: |
           echo "🔄 Updating dependencies..."
@@ -93,6 +96,8 @@ jobs:
       - name: Run quality checks
         run: |
           echo "✅ Running type checking..."
+          bun run format:check
+          bun run loc:check
           bun run type-check
 
           echo "✅ Running linter..."
@@ -191,7 +196,7 @@ jobs:
 
             echo ""
             echo "════════════════════════════════════════════════════════"
-            echo "⏰ Next run: 00:00 UTC (08:00 SGT)"
+            echo "⏰ Next run: Monday 00:00 UTC (07:00 WIB)"
             echo "🚀 Manual trigger: Actions → Auto Update Dependencies"
             echo "════════════════════════════════════════════════════════"
           } >> "$GITHUB_STEP_SUMMARY"

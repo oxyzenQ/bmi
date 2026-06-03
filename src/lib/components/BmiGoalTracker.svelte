@@ -1,4 +1,5 @@
 <!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { Target, Plus, Pencil, Trash2, Trophy } from 'lucide-svelte';
