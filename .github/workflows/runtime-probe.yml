@@ -11,17 +11,9 @@ on:
         description: Space-separated future Node majors to probe
         type: string
         default: '24 26 28'
-      strategy:
-        description: How to publish a passing runtime upgrade
-        type: choice
-        options:
-          - direct
-          - pr
-        default: direct
 
 permissions:
   contents: write
-  pull-requests: write
 
 concurrency:
   group: runtime-probe
@@ -29,9 +21,8 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  OWNER_NAME: ${{ github.repository_owner }}
+  OWNER_NAME: oxyzenQ
   OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
-  UPDATE_STRATEGY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.strategy || 'direct' }}
   RUNTIME_CANDIDATES: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.candidates || '24 26 28' }}
 
 jobs:
@@ -171,7 +162,7 @@ jobs:
           git diff --check
 
       - name: Commit runtime upgrade
-        if: steps.probe.outputs.upgraded == 'true' && env.UPDATE_STRATEGY == 'direct'
+        if: steps.probe.outputs.upgraded == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -189,18 +180,6 @@ jobs:
           git commit -m "ci: upgrade Node runtime to ${{ steps.probe.outputs.runtime }}"
           git push origin "HEAD:${{ steps.branch.outputs.name }}"
 
-      - name: Create runtime upgrade pull request
-        if: steps.probe.outputs.upgraded == 'true' && env.UPDATE_STRATEGY == 'pr'
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ secrets.PAT_WORKFLOW || secrets.GITHUB_TOKEN }}
-          commit-message: 'ci: upgrade Node runtime to ${{ steps.probe.outputs.runtime }}'
-          title: 'ci: upgrade Node runtime to ${{ steps.probe.outputs.runtime }}'
-          body: Automated runtime probe passed the full quality gate.
-          branch: bot/runtime-probe
-          base: ${{ steps.branch.outputs.name }}
-          delete-branch: true
-
       - name: Summary
         if: always()
         run: |
@@ -209,7 +188,7 @@ jobs:
             echo ""
             echo "Current Node: ${{ steps.current.outputs.node }}"
             echo "Candidates: ${RUNTIME_CANDIDATES}"
-            echo "Strategy: ${UPDATE_STRATEGY}"
+            echo "Strategy: direct to ${{ steps.branch.outputs.name }}"
             echo "Upgraded: ${{ steps.probe.outputs.upgraded || 'false' }}"
 
             if [ "${{ steps.probe.outputs.upgraded || 'false' }}" = "true" ]; then

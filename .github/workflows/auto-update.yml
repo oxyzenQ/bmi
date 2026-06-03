@@ -8,13 +8,6 @@ on:
   # Manual trigger option
   workflow_dispatch:
     inputs:
-      strategy:
-        description: How to publish updates
-        type: choice
-        options:
-          - pr
-          - direct
-        default: pr
       force_update:
         description: Continue even if checks fail
         type: boolean
@@ -23,14 +16,12 @@ on:
 permissions:
   contents: write
   actions: read
-  pull-requests: write
 
 env:
-  UPDATE_STRATEGY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.strategy || 'pr' }}
   FORCE_UPDATE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_update || 'false' }}
-  OWNER_NAME: ${{ github.repository_owner }}
+  OWNER_NAME: oxyzenQ
   OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
-  BASE_BRANCH: ${{ github.ref_name }}
+  BASE_BRANCH: ${{ github.event.repository.default_branch || 'main' }}
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   NODE_VERSION: 24
   VERCEL_NODE_RUNTIME: nodejs24.x
@@ -136,8 +127,8 @@ jobs:
             echo "commit_message=chore(deps): update dependencies"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Commit and push changes (direct)
-        if: steps.check_changes.outputs.changes == 'true' && env.UPDATE_STRATEGY == 'direct'
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.changes == 'true'
         run: |
           git config --global user.name "${OWNER_NAME}"
           git config --global user.email "${OWNER_EMAIL}"
@@ -152,19 +143,6 @@ jobs:
 
           echo "✅ Changes committed and pushed to ${BASE_BRANCH}!"
 
-      - name: Create pull request (pr)
-        id: cpr
-        if: steps.check_changes.outputs.changes == 'true' && env.UPDATE_STRATEGY == 'pr'
-        uses: peter-evans/create-pull-request@v8.1.1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: ${{ steps.commit_msg.outputs.commit_message }}
-          title: ${{ steps.commit_msg.outputs.title }}
-          body: ${{ steps.commit_msg.outputs.title }}
-          branch: bot/auto-update-deps
-          base: ${{ env.BASE_BRANCH }}
-          delete-branch: true
-
       - name: Summary
         if: always()
         run: |
@@ -173,7 +151,7 @@ jobs:
             echo "🤖 AUTO UPDATE SUMMARY"
             echo "════════════════════════════════════════════════════════"
             echo ""
-            echo "Strategy: ${{ env.UPDATE_STRATEGY }}"
+            echo "Strategy: direct to ${BASE_BRANCH}"
             echo "Force Update: ${{ env.FORCE_UPDATE }}"
             echo ""
 
@@ -184,13 +162,8 @@ jobs:
 
               echo ""
 
-              if [ "${{ env.UPDATE_STRATEGY }}" == "direct" ]; then
-                echo "✅ Changes pushed to ${{ env.BASE_BRANCH }} branch"
-                echo "📍 Commit: $(git rev-parse HEAD)"
-              else
-                echo "✅ Pull request created"
-                echo "🔗 PR: ${{ steps.cpr.outputs.pull-request-url }}"
-              fi
+              echo "✅ Changes pushed to ${BASE_BRANCH} branch"
+              echo "📍 Commit: $(git rev-parse HEAD)"
             else
               echo "✅ No updates needed - everything is current!"
 

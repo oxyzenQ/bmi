@@ -14,11 +14,10 @@
 
 name: ❤️‍🩹 self-heal-actions
 
-# This workflow runs every Monday at 00:00 WIB (UTC+7)
-# Equivalent to Sunday at 17:00 UTC
+# This workflow runs once a week on Monday at 01:00 UTC (08:00 WIB).
 on:
   schedule:
-    - cron: '0 17 * * 0'
+    - cron: '0 1 * * 1'
   workflow_dispatch: {}
 
 concurrency:
@@ -30,7 +29,7 @@ permissions:
 
 env:
   # Repository owner identity (must match the owner so contributions show up).
-  OWNER_NAME: ${{ github.repository_owner }}
+  OWNER_NAME: oxyzenQ
   OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
