@@ -85,7 +85,13 @@ jobs:
         run: bun run format:check
 
       - name: LOC check
-        run: bun run loc:check
+        run: bun run audit:loc
+
+      - name: Header check
+        run: bun run audit:headers
+
+      - name: PWA offline-shell check
+        run: bun run audit:pwa-offline
 
       - name: Type check
         run: bun run check

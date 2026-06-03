@@ -97,7 +97,9 @@ jobs:
         run: |
           echo "✅ Running type checking..."
           bun run format:check
-          bun run loc:check
+          bun run audit:loc
+          bun run audit:headers
+          bun run audit:pwa-offline
           bun run type-check
 
           echo "✅ Running linter..."

@@ -1,30 +1,10 @@
-// Copyright (c) 2025 - 2026 rezky_nightky
+// Copyright (C) 2026 rezky_nightky
 // SPDX-License-Identifier: GPL-3.0-only
 
-import { readdir, readFile, stat } from 'node:fs/promises';
-import { extname, join } from 'node:path';
+import { readFile } from 'node:fs/promises';
+import { collectCoreFiles } from './audit-core-files';
 
 const LIMIT = 1000;
-const CORE_EXTENSIONS = new Set(['.ts', '.svelte', '.css']);
-const SCAN_ROOTS = ['src', 'scripts'];
-const ROOT_FILES = ['vite.config.ts', 'vitest.config.ts'];
-
-async function collectFiles(path: string): Promise<string[]> {
-	const entryStat = await stat(path);
-	if (entryStat.isFile()) return CORE_EXTENSIONS.has(extname(path)) ? [path] : [];
-	if (!entryStat.isDirectory()) return [];
-
-	const entries = await readdir(path, { withFileTypes: true });
-	const nested = await Promise.all(
-		entries.map((entry) => {
-			const next = join(path, entry.name);
-			if (entry.isDirectory()) return collectFiles(next);
-			if (entry.isFile() && CORE_EXTENSIONS.has(extname(entry.name))) return [next];
-			return [];
-		})
-	);
-	return nested.flat();
-}
 
 async function countLines(path: string) {
 	const contents = await readFile(path, 'utf8');
@@ -32,15 +12,13 @@ async function countLines(path: string) {
 	return contents.endsWith('\n') ? contents.split('\n').length - 1 : contents.split('\n').length;
 }
 
-const files = (
-	await Promise.all([...SCAN_ROOTS, ...ROOT_FILES].map((path) => collectFiles(path)))
-).flat();
+const files = await collectCoreFiles();
 
 const violations = (
 	await Promise.all(
-		files.map(async (path) => ({
-			path,
-			lines: await countLines(path)
+		files.map(async (file) => ({
+			path: file.path,
+			lines: await countLines(file.path)
 		}))
 	)
 )

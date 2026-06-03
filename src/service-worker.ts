@@ -1,4 +1,4 @@
-// Copyright (c) 2025 - 2026 rezky_nightky
+// Copyright (C) 2026 rezky_nightky
 // SPDX-License-Identifier: GPL-3.0-only
 /// <reference types="@sveltejs/kit" />
 /// <reference no-default-lib="true"/>
@@ -71,10 +71,25 @@ function offlineFallbackResponse(): Response {
 		<title>BMI Stellar Offline</title>
 		<style>
 			html, body { margin: 0; min-height: 100%; background: #000; color: #fff; font-family: system-ui, sans-serif; }
-			body { display: grid; place-items: center; padding: 24px; text-align: center; }
-			main { max-width: 420px; }
-			h1 { font-size: 1.25rem; margin: 0 0 0.75rem; }
-			p { color: rgba(255, 255, 255, 0.72); line-height: 1.5; margin: 0; }
+			body {
+				display: grid;
+				place-items: center;
+				padding: 24px;
+				text-align: center;
+				background:
+					radial-gradient(circle at 50% 20%, rgba(71, 209, 255, 0.16), transparent 32rem),
+					linear-gradient(180deg, #070914 0%, #000 100%);
+			}
+			main {
+				max-width: 430px;
+				padding: 28px;
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				border-radius: 18px;
+				background: rgba(4, 8, 18, 0.72);
+				box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+			}
+			h1 { font-size: 1.28rem; margin: 0 0 0.75rem; letter-spacing: 0; }
+			p { color: rgba(255, 255, 255, 0.78); line-height: 1.55; margin: 0; }
 		</style>
 	</head>
 	<body>
@@ -188,13 +203,15 @@ sw.addEventListener('fetch', (event) => {
 					return response;
 				})
 				.catch(() => {
-					// Fallback to cache when offline
-					return caches.match(request).then((cachedResponse) => {
-						return (
-							cachedResponse ||
-							findCachedAppShell().then((shell) => shell || offlineFallbackResponse())
-						);
-					});
+					return (async () => {
+						const cachedResponse = await caches.match(request);
+						if (isUsableAppShell(cachedResponse)) return cachedResponse;
+
+						const appShell = await findCachedAppShell();
+						if (appShell) return appShell;
+
+						return offlineFallbackResponse();
+					})();
 				})
 		);
 		return;

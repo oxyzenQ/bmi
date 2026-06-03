@@ -59,4 +59,10 @@ jobs:
         run: bun run audit:deps
 
       - name: LOC policy audit
-        run: bun run loc:check
+        run: bun run audit:loc
+
+      - name: Header policy audit
+        run: bun run audit:headers
+
+      - name: PWA offline-shell audit
+        run: bun run audit:pwa-offline

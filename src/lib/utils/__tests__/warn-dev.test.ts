@@ -1,4 +1,4 @@
-// Copyright (c) 2025 - 2026 rezky_nightky
+// Copyright (C) 2026 rezky_nightky
 // SPDX-License-Identifier: GPL-3.0-only
 /**
  * Unit tests for warnDev() / warnDevOnce() dev-only logger utility.
