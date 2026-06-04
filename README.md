@@ -1,33 +1,17 @@
 <div align="center">
-  <img src="static/assets/new_bmi_logo_2026.webp" alt="BMI Stellar logo" width="240">
+  <img src="static/assets/new_bmi_logo_2026.webp" alt="bmi logo" width="240">
 
-  <h1>BMI Stellar v21.3</h1>
+  <h1>bmi</h1>
 
   <p>
-    <strong>Privacy-first BMI, TDEE, body-fat, and progress tracking.</strong>
+    <strong>A serious privacy-first health metrics application for local BMI, TDEE, body-fat, and progress analysis.</strong>
   </p>
 
   <p>
-    Built with SvelteKit, Svelte 5, TypeScript, and Bun.
+    Designed for local-first measurement, encrypted backups, multilingual reporting, and accessible long-term tracking.
   </p>
 
   <p>
-    <a href="https://bmi-stellar.vercel.app">
-      <img src="https://img.shields.io/badge/live-demo-7C3AED?style=flat-square&logo=vercel&logoColor=white&labelColor=111827" alt="Live demo">
-    </a>
-    <img src="https://img.shields.io/badge/version-v21.3-7C3AED?style=flat-square&labelColor=111827" alt="Version v21.3">
-    <a href="LICENSE">
-      <img src="https://img.shields.io/badge/license-GPL--3.0-6D28D9?style=flat-square&labelColor=111827" alt="GPL-3.0 license">
-    </a>
-    <a href="https://github.com/sveltejs/svelte">
-      <img src="https://img.shields.io/badge/Svelte-5-8B5CF6?style=flat-square&logo=svelte&logoColor=white&labelColor=111827" alt="Svelte 5">
-    </a>
-    <a href="https://bun.sh">
-      <img src="https://img.shields.io/badge/Bun-runtime-A855F7?style=flat-square&logo=bun&logoColor=white&labelColor=111827" alt="Bun runtime">
-    </a>
-    <a href="https://www.typescriptlang.org/">
-      <img src="https://img.shields.io/badge/TypeScript-ready-7C3AED?style=flat-square&logo=typescript&logoColor=white&labelColor=111827" alt="TypeScript ready">
-    </a>
     <a href="https://ko-fi.com/rezky">
       <img src="https://img.shields.io/badge/Ko--fi-support-7C3AED?style=flat-square&logo=kofi&logoColor=white&labelColor=111827" alt="Support on Ko-fi">
     </a>
