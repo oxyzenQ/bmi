@@ -36,10 +36,10 @@
 	<div class="hero-content" class:animate>
 		<div class="hero-avatar" aria-hidden="true">
 			<img
-				src="/assets/new_bmi_logo_216.webp"
-				srcset="/assets/new_bmi_logo_128.webp 128w,
-                /assets/new_bmi_logo_216.webp 216w,
-                /assets/new_bmi_logo_256.webp 256w"
+				src="/assets/bmi-logo-rounded-216.webp"
+				srcset="/assets/bmi-logo-rounded-128.webp 128w,
+                /assets/bmi-logo-rounded-216.webp 216w,
+                /assets/bmi-logo-rounded-256.webp 256w"
 				sizes="(max-width: 360px) 64px, (max-width: 640px) 92px, 108px"
 				alt="BMI Logo"
 				width="216"

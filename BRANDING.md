@@ -41,7 +41,7 @@ The brand sits at the intersection of **health technology** and **personal priva
 
 ### 3.1. Logo file
 
-The official logo is located at [`static/assets/new_bmi_logo_2026.webp`](static/assets/new_bmi_logo_2026.webp).
+The official logo is located at [`static/assets/bmi-logo-rounded-512.webp`](static/assets/bmi-logo-rounded-512.webp).
 
 ### 3.2. Usage rules
 

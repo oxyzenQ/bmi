@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="static/assets/new_bmi_logo_2026.webp" alt="bmi logo" width="240">
+  <img src="static/assets/bmi-logo-rounded-512.webp" alt="bmi logo" width="240">
 
   <h1>bmi</h1>
 
