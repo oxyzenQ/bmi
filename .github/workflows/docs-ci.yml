@@ -6,12 +6,14 @@ on:
     paths:
       - '**/*.md'
       - '**/*.txt'
+      - '**/*.rst'
       - 'LICENSE'
       - 'NOTICE'
   pull_request:
     paths:
       - '**/*.md'
       - '**/*.txt'
+      - '**/*.rst'
       - 'LICENSE'
       - 'NOTICE'
 
@@ -20,16 +22,15 @@ permissions:
 
 jobs:
   lint:
-    name: Markdown Lint
+    name: Docs Spelling Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+      - name: Install codespell
+        run: python3 -m pip install --user codespell
 
-      - name: Format check
-        run: bun x prettier --check "**/*.md" --no-config
+      - name: Check documentation files
+        run: |
+          find . -type f \( -name '*.md' -o -name '*.txt' -o -name '*.rst' \) -print0             | xargs -0r codespell

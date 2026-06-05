@@ -4,10 +4,13 @@ name: 🛠️ CI
 on:
   push:
     paths:
-      # Source code — always run CI
-      - 'src/**'
-      - 'scripts/**'
-      # Config files that affect build
+      - '**/*.svelte'
+      - '**/*.ts'
+      - '**/*.js'
+      - '**/*.d.ts'
+      - '**/*.css'
+      - 'src/app.html'
+      - 'static/manifest.json'
       - 'package.json'
       - 'bun.lock'
       - 'tsconfig.json'
@@ -16,18 +19,19 @@ on:
       - 'vite.config.ts'
       - 'vitest.config.ts'
       - 'postcss.config.js'
-      - 'static/**'
+      - 'eslint.config.js'
+      - 'vercel.json'
+      - 'scripts/**'
       - '.github/workflows/**'
-      # Type definitions
-      - 'src/app.d.ts'
-      - 'src/types/**'
-      - '*.d.ts'
   pull_request:
     paths:
-      # Source code — always run CI
-      - 'src/**'
-      - 'scripts/**'
-      # Config files that affect build
+      - '**/*.svelte'
+      - '**/*.ts'
+      - '**/*.js'
+      - '**/*.d.ts'
+      - '**/*.css'
+      - 'src/app.html'
+      - 'static/manifest.json'
       - 'package.json'
       - 'bun.lock'
       - 'tsconfig.json'
@@ -36,12 +40,10 @@ on:
       - 'vite.config.ts'
       - 'vitest.config.ts'
       - 'postcss.config.js'
-      - 'static/**'
-      - '.github/workflows/ci.yml'
-      # Type definitions
-      - 'src/app.d.ts'
-      - 'src/types/**'
-      - '*.d.ts'
+      - 'eslint.config.js'
+      - 'vercel.json'
+      - 'scripts/**'
+      - '.github/workflows/**'
 
 permissions:
   contents: read

@@ -1,12 +1,12 @@
 # Node/Bun
 node_modules/
-bun.lockb
 *.log
 
 # Build
 .svelte-kit/
 build/
 dist/
+.vercel/
 
 # IDE
 .vscode/
@@ -24,3 +24,4 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.bak
+*~
