@@ -5,20 +5,13 @@ on:
   schedule:
     # Weekly at 00:00 UTC every Monday (07:00 WIB)
     - cron: '0 0 * * 1'
-  # Manual trigger option
-  workflow_dispatch:
-    inputs:
-      force_update:
-        description: Continue even if checks fail
-        type: boolean
-        default: false
+  workflow_dispatch: {}
 
 permissions:
-  contents: write
+  contents: read
   actions: read
 
 env:
-  FORCE_UPDATE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_update || 'false' }}
   OWNER_NAME: oxyzenQ
   OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
   BASE_BRANCH: ${{ github.event.repository.default_branch || 'main' }}
@@ -27,16 +20,22 @@ env:
   VERCEL_NODE_RUNTIME: nodejs24.x
 
 jobs:
-  auto-update:
+  validate:
+    name: Validate dependency update
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      changed: ${{ steps.changes.outputs.changed }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: ${{ env.BASE_BRANCH }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
           fetch-depth: 1
           fetch-tags: false
 
@@ -78,103 +77,105 @@ jobs:
 
       - name: Update all dependencies
         run: |
-          echo "🔄 Updating dependencies..."
+          echo "Updating dependencies..."
           bun update
-
-          echo "🔍 Checking for security vulnerabilities..."
+          echo "Checking for security vulnerabilities..."
           bun audit || true
 
-      - name: Run quality checks
+      - name: Enforce dependency-only diff
+        id: changes
+        shell: bash
         run: |
-          echo "✅ Running type checking..."
+          set -euo pipefail
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Dependencies are already up to date"
+            exit 0
+          fi
+
+          git diff --name-only | tee /tmp/changed-files.txt
+          if grep -vE '^bun\.lock$' /tmp/changed-files.txt; then
+            echo "::error::Auto-update may only modify bun.lock"
+            exit 1
+          fi
+
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Run quality checks
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          echo "Running type checking..."
           bun run format:check
           bun run audit:loc
           bun run audit:headers
           bun run audit:pwa-offline
           bun run type-check
 
-          echo "✅ Running linter..."
+          echo "Running linter..."
           bun run lint
 
-          echo "✅ Running tests..."
+          echo "Running tests..."
           bun run test:ci
-        continue-on-error: ${{ env.FORCE_UPDATE == 'true' }}
 
       - name: Build project
-        run: |
-          echo "🏗️ Building project..."
-          bun run build
+        if: steps.changes.outputs.changed == 'true'
+        run: bun run build
 
-      - name: Check for changes
-        id: check_changes
+      - name: Upload validated bun.lock
+        if: steps.changes.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: validated-bun-lock
+          path: bun.lock
+          if-no-files-found: error
+
+  commit:
+    name: Commit dependency update
+    runs-on: ubuntu-latest
+    needs: validate
+    if: needs.validate.outputs.changed == 'true'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BASE_BRANCH }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          fetch-tags: false
+
+      - name: Download validated bun.lock
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-bun-lock
+          path: .auto-update
+
+      - name: Commit and push changes
+        shell: bash
         run: |
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "changes=false" >> "$GITHUB_OUTPUT"
-            echo "📦 No dependency updates available"
-          else
-            echo "changes=true" >> "$GITHUB_OUTPUT"
-            echo "📦 Dependencies updated!"
-            git status --porcelain | head -n 200
-            git diff --stat | head -n 200
+          set -euo pipefail
+          cp .auto-update/bun.lock bun.lock
+
+          if git diff --quiet; then
+            echo "Validated lockfile is already current"
+            exit 0
           fi
 
-      - name: Commit and push changes
-        id: commit_msg
-        if: steps.check_changes.outputs.changes == 'true'
-        run: |
-          {
-            echo "title=chore(deps): update dependencies"
-            echo "commit_message=chore(deps): update dependencies"
-          } >> "$GITHUB_OUTPUT"
+          git diff --name-only | tee /tmp/changed-files.txt
+          if grep -vE '^bun\.lock$' /tmp/changed-files.txt; then
+            echo "::error::Commit job may only modify bun.lock"
+            exit 1
+          fi
 
-      - name: Commit and push changes
-        if: steps.check_changes.outputs.changes == 'true'
-        run: |
           git config --global user.name "${OWNER_NAME}"
           git config --global user.email "${OWNER_EMAIL}"
-
-          git add -A
-          git commit -m "${{ steps.commit_msg.outputs.commit_message }}" \
-            -m "🤖 Automated by GitHub Actions" \
-            -m "📦 Updated $(git status --porcelain | wc -l) file(s)" \
-            -m "⏰ $(date -u '+%A, %B %d, %Y at %H:%M:%S UTC')" \
-            -m "🎯 Workflow: auto-update.yml"
+          git add bun.lock
+          git commit -m "chore(deps): update dependencies" \
+            -m "Automated weekly dependency update." \
+            -m "Validated before commit with read-only token."
           git push origin "HEAD:${BASE_BRANCH}"
-
-          echo "✅ Changes committed and pushed to ${BASE_BRANCH}!"
-
-      - name: Summary
-        if: always()
-        run: |
-          {
-            echo "════════════════════════════════════════════════════════"
-            echo "🤖 AUTO UPDATE SUMMARY"
-            echo "════════════════════════════════════════════════════════"
-            echo ""
-            echo "Strategy: direct to ${BASE_BRANCH}"
-            echo "Force Update: ${{ env.FORCE_UPDATE }}"
-            echo ""
-
-            if [ "${{ steps.check_changes.outputs.changes }}" == "true" ]; then
-              echo "✨ Updates Applied:"
-              echo "  - 📦 Dependencies updated"
-              echo "  - 🔒 Security audit executed"
-
-              echo ""
-
-              echo "✅ Changes pushed to ${BASE_BRANCH} branch"
-              echo "📍 Commit: $(git rev-parse HEAD)"
-            else
-              echo "✅ No updates needed - everything is current!"
-
-            fi
-
-            echo ""
-            echo "════════════════════════════════════════════════════════"
-            echo "⏰ Next run: Monday 00:00 UTC (07:00 WIB)"
-            echo "🚀 Manual trigger: Actions → Auto Update Dependencies"
-            echo "════════════════════════════════════════════════════════"
-          } >> "$GITHUB_STEP_SUMMARY"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
