@@ -21,12 +21,12 @@ The brand sits at the intersection of **health technology** and **personal priva
 
 ### 2.1. Correct forms
 
-| Context | Format |
-|---|---|
-| Running text / prose | BMI Stellar |
-| Titles / headings | BMI Stellar |
-| Code / Repo | `bmi` (lowercase) |
-| All-caps hero (README hero only) | BMI STELLAR |
+| Context                          | Format            |
+| -------------------------------- | ----------------- |
+| Running text / prose             | BMI Stellar       |
+| Titles / headings                | BMI Stellar       |
+| Code / Repo                      | `bmi` (lowercase) |
+| All-caps hero (README hero only) | BMI STELLAR       |
 
 ### 2.2. Incorrect forms
 
@@ -57,19 +57,19 @@ The BMI Stellar palette is a professional, dark-themed system with vibrant accen
 
 ### 4.1. Primary colors
 
-| Role | Color | Hex | Usage |
-|---|---|---|---|
-| Background | Slate 950 | `#020617` | Main app background |
-| Surface | Slate 900 | `#0F172A` | Cards, modals, sections |
-| Text Primary | White | `#FFFFFF` | Headings, primary text |
-| Text Secondary | Slate 400 | `#94A3B8` | Subtext, labels |
+| Role           | Color     | Hex       | Usage                   |
+| -------------- | --------- | --------- | ----------------------- |
+| Background     | Slate 950 | `#020617` | Main app background     |
+| Surface        | Slate 900 | `#0F172A` | Cards, modals, sections |
+| Text Primary   | White     | `#FFFFFF` | Headings, primary text  |
+| Text Secondary | Slate 400 | `#94A3B8` | Subtext, labels         |
 
 ### 4.2. Accent colors
 
-| Role | Color | Hex | Usage |
-|---|---|---|---|
-| Primary Accent | Indigo 600 | `#4F46E5` | Buttons, links, primary highlights |
-| Secondary Accent | Violet 600 | `#7C3AED` | Secondary highlights, gauges |
+| Role             | Color      | Hex       | Usage                              |
+| ---------------- | ---------- | --------- | ---------------------------------- |
+| Primary Accent   | Indigo 600 | `#4F46E5` | Buttons, links, primary highlights |
+| Secondary Accent | Violet 600 | `#7C3AED` | Secondary highlights, gauges       |
 
 ---
 

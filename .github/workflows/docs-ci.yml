@@ -26,13 +26,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: 24
-
-      - name: Install dependencies
-        run: npm install -g prettier
+          bun-version: latest
 
       - name: Format check
-        run: prettier --check "**/*.md"
+        run: bun x prettier --check "**/*.md" --no-config

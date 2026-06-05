@@ -91,4 +91,4 @@ For trademark inquiries, permission requests, or clarifications, please open an 
 
 ---
 
-*This policy may be updated at any time. The most current version is always available in the repository root.*
+_This policy may be updated at any time. The most current version is always available in the repository root._
