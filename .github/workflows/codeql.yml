@@ -4,8 +4,28 @@ name: '🔒 CodeQL Security Scan'
 on:
   push:
     branches: [main, dev]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'bun.lock'
+      - 'tsconfig.json'
+      - 'svelte.config.js'
+      - 'svelte.config.static.js'
+      - 'vite.config.ts'
+      - '.github/codeql/**'
+      - '.github/workflows/codeql.yml'
   pull_request:
     branches: [main, dev]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'bun.lock'
+      - 'tsconfig.json'
+      - 'svelte.config.js'
+      - 'svelte.config.static.js'
+      - 'vite.config.ts'
+      - '.github/codeql/**'
+      - '.github/workflows/codeql.yml'
   schedule:
     # Run at 8 AM SGT (00:00 UTC) every Monday
     - cron: '0 0 * * 1'

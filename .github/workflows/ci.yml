@@ -23,6 +23,25 @@ on:
       - 'src/types/**'
       - '*.d.ts'
   pull_request:
+    paths:
+      # Source code — always run CI
+      - 'src/**'
+      - 'scripts/**'
+      # Config files that affect build
+      - 'package.json'
+      - 'bun.lock'
+      - 'tsconfig.json'
+      - 'svelte.config.js'
+      - 'svelte.config.static.js'
+      - 'vite.config.ts'
+      - 'vitest.config.ts'
+      - 'postcss.config.js'
+      - 'static/**'
+      - '.github/workflows/ci.yml'
+      # Type definitions
+      - 'src/app.d.ts'
+      - 'src/types/**'
+      - '*.d.ts'
 
 permissions:
   contents: read
