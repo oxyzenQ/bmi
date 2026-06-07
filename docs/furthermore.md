@@ -291,14 +291,14 @@ The service worker (`src/service-worker.ts`) is registered as an ES module in pr
 
 GitHub workflows are located in `.github/workflows/`.
 
-| Workflow                | Purpose                                                     |
-| ----------------------- | ----------------------------------------------------------- |
-| `ci.yml`                | Executes type-checking, linting, tests, and the final build |
-| `codeql.yml`            | Performs automated security analysis                        |
-| `release.yml`           | Orchestrates tagged release artifact publishing             |
+| Workflow                | Purpose                                                                 |
+| ----------------------- | ----------------------------------------------------------------------- |
+| `ci.yml`                | Executes type-checking, linting, tests, and the final build             |
+| `codeql.yml`            | Performs automated security analysis                                    |
+| `release.yml`           | Orchestrates tagged release artifact publishing                         |
 | `auto-update.yml`       | Runs the `nightbot maintenance` lockfile refresh and direct commit flow |
-| `self-heal-actions.yml` | Automatically updates minor/patch GitHub Action versions    |
-| `runtime-probe.yml`     | Probes Node/Bun runtime compatibility                       |
+| `self-heal-actions.yml` | Automatically updates minor/patch GitHub Action versions                |
+| `runtime-probe.yml`     | Probes Node/Bun runtime compatibility                                   |
 
 ## Release Process
 
