@@ -215,7 +215,8 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 10px;
-	height: 38px;
+	min-height: 44px;
+	height: 44px;
 	padding: 0 14px;
 	min-width: 140px;
 	border-radius: var(--control-radius);

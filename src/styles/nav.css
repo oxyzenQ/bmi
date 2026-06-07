@@ -46,7 +46,8 @@ html[data-performance-tier='high'] :is(.hero-content, .bmi-card) {
    PAGER TAB BUTTONS (top navbar)
    ============================== */
 .pager-tab {
-	height: 36px;
+	min-height: 44px;
+	height: 44px;
 	padding-inline: 0.85rem;
 	font-size: 0.88rem;
 	border-radius: var(--radius-pill);
@@ -84,7 +85,8 @@ html[data-performance-tier='high'] :is(.hero-content, .bmi-card) {
 
 @media (max-width: 600px) {
 	.pager-tab {
-		height: 34px;
+		min-height: 44px;
+		height: 44px;
 		padding-inline: 0.65rem;
 		font-size: 0.8rem;
 	}
@@ -142,6 +144,7 @@ html[data-performance-tier='high'] :is(.hero-content, .bmi-card) {
      Without this, the scrollable inner content's right padding
      gets clipped at the scroll boundary. */
 	padding-right: 0.4rem;
+	padding-inline-end: calc(0.4rem + env(safe-area-inset-right, 0px));
 	height: calc(var(--nav-bar-h) + env(safe-area-inset-top, 0px));
 	box-sizing: border-box;
 	display: flex;

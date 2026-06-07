@@ -111,6 +111,9 @@ jobs:
       - name: Header check
         run: bun run audit:headers
 
+      - name: Branding check
+        run: bun run audit:branding
+
       - name: PWA offline-shell check
         run: bun run audit:pwa-offline
 

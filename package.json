@@ -1,7 +1,7 @@
 {
 	"name": "bmi-stellar",
 	"private": true,
-	"version": "21.3.0",
+	"version": "21.4.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev --host",
@@ -24,6 +24,7 @@
 		"audit:loc": "bun run scripts/check-loc.ts",
 		"audit:headers": "bun run scripts/check-headers.ts",
 		"audit:pwa-offline": "bun run scripts/check-pwa-offline-shell.ts",
+		"audit:branding": "bun run scripts/check-branding.ts",
 		"audit:deps": "bun audit",
 		"clean": "rm -rf .svelte-kit build dist node_modules/.cache",
 		"type-check": "svelte-check --tsconfig ./tsconfig.json",
@@ -31,7 +32,7 @@
 		"deploy": "bun run build && bun run preview",
 		"build:optimized": "NODE_ENV=production vite build --mode production",
 		"analyze": "vite build --mode analyze",
-		"verify": "bun run format:check && bun run audit:loc && bun run audit:headers && bun run audit:pwa-offline && bun run check && bun run lint && bun run test:run && bun run build",
+		"verify": "bun run format:check && bun run audit:loc && bun run audit:headers && bun run audit:branding && bun run audit:pwa-offline && bun run check && bun run lint && bun run test:run && bun run build",
 		"bmi-update-version": "bun run scripts/bmi-update-version.ts",
 		"bmi-bump:patch": "bun run scripts/bmi-update-version.ts patch",
 		"bmi-bump:minor": "bun run scripts/bmi-update-version.ts minor",
