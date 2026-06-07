@@ -296,7 +296,7 @@ GitHub workflows are located in `.github/workflows/`.
 | `ci.yml`                | Executes type-checking, linting, tests, and the final build |
 | `codeql.yml`            | Performs automated security analysis                        |
 | `release.yml`           | Orchestrates tagged release artifact publishing             |
-| `auto-update.yml`       | Automates dependency update Pull Requests                   |
+| `auto-update.yml`       | Runs the `nightbot maintenance` lockfile refresh and direct commit flow |
 | `self-heal-actions.yml` | Automatically updates minor/patch GitHub Action versions    |
 | `runtime-probe.yml`     | Probes Node/Bun runtime compatibility                       |
 

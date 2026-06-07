@@ -39,7 +39,7 @@ jobs:
           echo "name=${{ github.event.repository.default_branch }}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ steps.branch.outputs.name }}
           token: ${{ secrets.PAT_WORKFLOW || secrets.GITHUB_TOKEN }}
@@ -62,7 +62,7 @@ jobs:
           echo "Current Node runtime: $current"
 
       - name: Setup current Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ steps.current.outputs.node }}
 
@@ -84,7 +84,7 @@ jobs:
           bun-version: ${{ steps.bun-version.outputs.version }}
 
       - name: Cache Bun dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
