@@ -25,7 +25,7 @@
 
 		<div class="github-footer">
 			<a
-				href="https://github.com/oxyzenq/bmi"
+				href="https://github.com/oxyzenQ/bmi"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="github-link"

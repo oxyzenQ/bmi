@@ -81,7 +81,7 @@
 		"privacy-first",
 		"responsive"
 	],
-	"author": "Rezky Nightky",
+	"author": "rezky_nightky (oxyzenQ)",
 	"license": "GPL-3.0",
 	"engines": {
 		"node": ">=22 <25"

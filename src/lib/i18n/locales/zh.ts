@@ -450,7 +450,7 @@ const zh: TranslationDict = {
 	'share.card_ideal': '\u7406\u60f3\u8303\u56f4',
 	'share.card_tdee': 'TDEE',
 	'share.card_kcal': 'kcal',
-	'share.card_branding': 'BMI Stellar \u2014 \u7531 Rezky Nightky \u5236\u4f5c',
+	'share.card_branding': 'BMI Stellar \u2014 \u7531 rezky_nightky (oxyzenQ) \u5236\u4f5c',
 	'share.card_text': '\u6211\u7684 BMI: {n} ({category})',
 	'share.card_insight_underweight':
 		'\u5efa\u8bae\u54a8\u8be2\u533b\u7597\u4fdd\u5065\u63d0\u4f9b\u8005\uff0c\u4e86\u89e3\u5065\u5eb7\u589e\u91cd\u7684\u65b9\u6cd5\u3002',
@@ -589,7 +589,7 @@ const zh: TranslationDict = {
 
 	'about.opensource_title': '\u5f00\u6e90\u4e0e\u53d1\u5e03',
 	'about.opensource_p1':
-		'BMI Stellar \u662f\u7531 Rezky Nightky \u7ef4\u62a4\u7684\u5f00\u6e90\u9879\u76ee\uff0c\u4e13\u6ce8\u4e8e\u53ef\u8bbf\u95ee\u6027\u3001\u9690\u79c1\u3001\u54cd\u5e94\u5f0fUI\u548c\u957f\u671f\u7a33\u5b9a\u6027\u3002',
+		'BMI Stellar \u662f\u7531 rezky_nightky (oxyzenQ) \u7ef4\u62a4\u7684\u5f00\u6e90\u9879\u76ee\uff0c\u4e13\u6ce8\u4e8e\u53ef\u8bbf\u95ee\u6027\u3001\u9690\u79c1\u3001\u54cd\u5e94\u5f0fUI\u548c\u957f\u671f\u7a33\u5b9a\u6027\u3002',
 	'about.opensource_p2':
 		'\u672c\u7248\u672c\u662f Stellar {version} \u91cc\u7a0b\u7891\u7684\u4e00\u90e8\u5206\u3002',
 
@@ -605,7 +605,7 @@ const zh: TranslationDict = {
 	'info.disclaimer':
 		'BMI \u662f\u7b5b\u67e5\u5de5\u5177\uff0c\u4e0d\u5e94\u4f5c\u4e3a\u552f\u4e00\u7684\u8bca\u65ad\u65b9\u6cd5\u3002\u8bf7\u54a8\u8be2\u533b\u7597\u4e13\u4e1a\u4eba\u58eb\u8fdb\u884c\u5168\u9762\u7684\u5065\u5eb7\u8bc4\u4f30\u3002',
 	'info.copyright':
-		'\u00a9 2025-{n} Rezky Nightky \u3002\u4fdd\u7559\u6240\u6709\u6743\u5229\u3002',
+		'\u00a9 2025-{n} rezky_nightky (oxyzenQ) \u3002\u4fdd\u7559\u6240\u6709\u6743\u5229\u3002',
 	'backup.checking': '\u6b63\u5728\u68c0\u67e5\u5907\u4efd\u72b6\u6001...',
 	'backup.auto_hint':
 		'\u5f53\u60a8\u4fdd\u5b58 BMI \u8ba1\u7b97\u7ed3\u679c\u65f6\uff0c\u5907\u4efd\u4f1a\u81ea\u52a8\u521b\u5efa\u3002',
