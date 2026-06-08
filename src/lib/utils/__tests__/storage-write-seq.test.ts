@@ -371,4 +371,76 @@ describe('per-key IndexedDB write queue', () => {
 		// Only B's failure should warn — A's was suppressed because it was stale
 		expect(relevantWarns).toHaveLength(1);
 	});
+
+	it('cleans up queue map entry after single write settles', async () => {
+		storageSet('cleanup.key', 'val');
+		expect(pendingDbSets).toHaveLength(1);
+		expect(_getIdbWriteQueue('cleanup.key')).toBeDefined();
+
+		// Resolve the write
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		await _getIdbWriteQueue('cleanup.key');
+
+		// Queue entry should be cleaned up after settle (no newer write chained)
+		expect(_getIdbWriteQueue('cleanup.key')).toBeUndefined();
+	});
+
+	it('cleans up queue map entry after chained writes settle', async () => {
+		storageSet('chain-cln.key', 'A');
+		storageSet('chain-cln.key', 'B');
+
+		expect(pendingDbSets).toHaveLength(1);
+
+		// Resolve A — B starts
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		await vi.waitFor(() => expect(pendingDbSets).toHaveLength(1));
+
+		// Resolve B
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		await _getIdbWriteQueue('chain-cln.key');
+
+		// Queue entry should be cleaned up after all chained writes settle
+		expect(_getIdbWriteQueue('chain-cln.key')).toBeUndefined();
+	});
+
+	it('does not clean up queue when a newer write has chained on top', async () => {
+		storageSet('no-cln.key', 'A');
+		expect(pendingDbSets).toHaveLength(1);
+
+		// Capture A's queue promise before it resolves
+		const queueA = _getIdbWriteQueue('no-cln.key');
+
+		// Chain B on top — now idbWriteQueues[key] points to B's promise
+		storageSet('no-cln.key', 'B');
+
+		// Resolve A
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		// A's .finally() runs but should NOT delete the queue because
+		// idbWriteQueues[key] now points to B's promise, not A's
+		await vi.waitFor(() => expect(pendingDbSets).toHaveLength(1));
+		expect(_getIdbWriteQueue('no-cln.key')).toBeDefined();
+		expect(_getIdbWriteQueue('no-cln.key')).not.toBe(queueA);
+
+		// Resolve B
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		await _getIdbWriteQueue('no-cln.key');
+
+		// NOW it should be cleaned up — B was the last write
+		expect(_getIdbWriteQueue('no-cln.key')).toBeUndefined();
+	});
 });

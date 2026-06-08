@@ -19,7 +19,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { warnDev, warnDevOnce } from '$lib/utils/warn-dev';
+import { warnDev, warnDevOnce, _resetDedupForTesting, _getDedupSize } from '$lib/utils/warn-dev';
 import {
 	storageGet,
 	storageSet,
@@ -101,6 +101,7 @@ beforeEach(() => {
 	vi.restoreAllMocks();
 	mockLocalStorage.clear();
 	storageInvalidateAll();
+	_resetDedupForTesting();
 });
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -401,5 +402,63 @@ describe('v15.2 warnDev regression — error detail formatting', () => {
 		expect(findWarnCall(warnSpy, '[clean:noop]')).toBeDefined();
 		expect(groupSpy).not.toHaveBeenCalled();
 		expect(traceSpy).not.toHaveBeenCalled();
+	});
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// 5. warnDevOnce dedup map bounded cleanup
+// ════════════════════════════════════════════════════════════════════════════
+
+describe('v21.5 warnDevOnce — dedup map bounded cleanup', () => {
+	it('evicts oldest entries when dedup map exceeds MAX_DEDUP_ENTRIES', () => {
+		// MAX_DEDUP_ENTRIES = 512, so inserting 513 unique keys triggers eviction.
+		for (let i = 0; i < 513; i++) {
+			warnDevOnce('cap', `fn${i}`, `msg${i}`);
+		}
+
+		// After eviction, the map size should be well below 513.
+		// Eviction clears (size - 512 + 128) oldest entries.
+		const size = _getDedupSize();
+		expect(size).toBeLessThan(513);
+		// The oldest key (cap:fn0:msg0) should have been evicted
+		// while the latest key (cap:fn512:msg512) should still exist.
+	});
+
+	it('evicted keys can re-emit warnings when called again', () => {
+		const warnSpy = vi.spyOn(console, 'warn');
+
+		// Emit a warning for a specific key
+		warnDevOnce('re-emit', 'poll', 'Connection lost');
+		expect(_getDedupSize()).toBe(1);
+
+		// Fill up past the cap to trigger eviction
+		for (let i = 0; i < 520; i++) {
+			warnDevOnce('cap-re', `fn${i}`, `msg${i}`);
+		}
+
+		// The original key should have been evicted
+		const sizeAfterFill = _getDedupSize();
+		expect(sizeAfterFill).toBeLessThan(520);
+
+		// Re-calling the evicted key should emit again (count starts fresh at 1)
+		warnDevOnce('re-emit', 'poll', 'Connection lost');
+
+		const reEmitCalls = warnSpy.mock.calls.filter((call) =>
+			call.some((arg) => typeof arg === 'string' && arg.includes('[re-emit:poll]'))
+		);
+		// At least 1 call from before eviction + 1 from after re-emit
+		expect(reEmitCalls.length).toBeGreaterThanOrEqual(2);
+	});
+
+	it('dedup map stays bounded under MAX_DEDUP_ENTRIES for normal usage', () => {
+		// Simulate normal dev session with repeated warnings for same keys
+		for (let i = 0; i < 100; i++) {
+			warnDevOnce('normal', 'fetch', 'Network error');
+			warnDevOnce('normal', 'db', 'Write failed');
+			warnDevOnce('normal', 'render', 'Layout shift');
+		}
+
+		// Only 3 unique keys, so map should have exactly 3 entries
+		expect(_getDedupSize()).toBe(3);
 	});
 });

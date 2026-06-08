@@ -1,20 +1,21 @@
 // Copyright (C) 2026 rezky_nightky
 // SPDX-License-Identifier: GPL-3.0-only
 /**
- * BMI History Export/Import utilities with HMAC-SHA256 integrity check.
+ * BMI History Export/Import utilities with HMAC-SHA256 integrity checksum.
  *
- * Export wraps records in a versioned envelope signed with HMAC-SHA256.
- * The signature helps detect accidental corruption and casual tampering.
+ * Export wraps records in a versioned envelope with an HMAC-SHA256 signature.
+ * The signature provides integrity verification — it detects accidental
+ * corruption and casual tampering of export files. It is NOT a security
+ * mechanism against determined attackers: the HMAC key is embedded in the
+ * client-side JS bundle and can be extracted by inspection.
+ *
  * A per-export random salt is mixed into the MAC computation so that even
- * identical records produce different signatures every time.
+ * identical records produce different signatures every time. The key is split
+ * into two base64 fragments and XOR-assembled at runtime as a minor deterrent
+ * against trivial extraction — this is obfuscation only, not encryption.
  *
- * The HMAC secret is split into two fragments and XOR-assembled at runtime
- * to raise the effort required for casual extraction from the JS bundle.
- * This is obfuscation, not true protection — a determined attacker with
- * JS inspection can still recover the key. For the BMI calculator use-case
- * this trade-off is acceptable: it provides checksum/signature-based
- * detection of accidental corruption and casual tampering while keeping
- * the system fully client-side.
+ * For actual secret protection, the optional AES-256-GCM encryption layer
+ * (separate from this checksum) should be used with a user-provided passphrase.
  *
  * Envelope format:
  *   v0 (checksum 8-ch)  — FNV-1a 32-bit on records only        [legacy import only]
@@ -31,6 +32,8 @@
 import { t } from '$lib/i18n';
 import { STORAGE_KEYS, storageGet, storageSet } from './storage';
 import { warnDev } from './warn-dev';
+import type { BmiRecord } from '$lib/types/bmi-record';
+import { fnv1a, dualHash } from './legacy-hash';
 
 // ---------------------------------------------------------------------------
 // Import error codes — structured, specific, no silent failures
@@ -56,14 +59,6 @@ export const MAX_IMPORT_SIZE = 5 * 1024 * 1024;
 // Types
 // ---------------------------------------------------------------------------
 
-interface BmiRecord {
-	timestamp: number;
-	bmi: number;
-	height: number;
-	weight: number;
-	age?: number;
-}
-
 /** Shape of the exported JSON file.
  *  v0–v2 use `checksum`; v3 uses `signature` + `algorithm` + `salt`.
  *  Legacy fields (`checksum`) are still read on import for backward compat.
@@ -84,18 +79,20 @@ interface ExportedEnvelope {
 }
 
 // ---------------------------------------------------------------------------
-// HMAC-SHA256 — primary integrity mechanism (v3+)
+// HMAC-SHA256 — integrity checksum mechanism (v3+)
 // ---------------------------------------------------------------------------
 //
-// Secret key is split into two base64 fragments and XOR-assembled at runtime.
-// Neither fragment alone is the real key. This is obfuscation, not security —
-// the assembled key still exists in memory at runtime.
+// Checksum key is split into two base64 fragments and XOR-assembled at runtime.
+// This is a minor deterrent against trivial bundle extraction — it is obfuscation
+// only. The assembled key exists in memory at runtime and provides integrity
+// checksums for export files, not secret protection.
+//
+// For actual encryption/protection, use the AES-256-GCM layer with a passphrase.
 
 const _FRAG_A = 'MEKV+5tbi5OA8YWGUdNl3FTLQ0tw1SyStvC1tnRvQkE=';
 const _FRAG_B = '7arCbOk0/5qzGwk8EXwg4vvkEPm5E8i7i8hO0LejM4c=';
-// Neither fragment alone is the real HMAC key.
+// Neither fragment alone produces the correct checksum key.
 // At runtime the two are XOR-assembled: key = FRAG_A ^ FRAG_B.
-// This raises the effort for casual bundle inspection without adding dependencies.
 
 function assembleKey(): Uint8Array {
 	const a = Uint8Array.from(atob(_FRAG_A), (c) => c.charCodeAt(0));
@@ -157,30 +154,6 @@ async function computeHash(data: string): Promise<string> {
 	const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
 	const hashArray = new Uint8Array(hashBuffer);
 	return Array.from(hashArray, (b) => b.toString(16).padStart(2, '0')).join('');
-}
-
-// ---------------------------------------------------------------------------
-// Legacy hash helpers (kept for backward compatibility when importing
-// old exports with 8-char or 16-char checksums)
-// ---------------------------------------------------------------------------
-function fnv1a(data: string): string {
-	let h = 0x811c9dc5;
-	for (let i = 0; i < data.length; i++) {
-		h ^= data.charCodeAt(i);
-		h = Math.imul(h, 0x01000193);
-	}
-	return (h >>> 0).toString(16).padStart(8, '0');
-}
-
-function dualHash(data: string): string {
-	let fnv = 0x811c9dc5;
-	let djb = 0x1505;
-	for (let i = 0; i < data.length; i++) {
-		const c = data.charCodeAt(i);
-		fnv = Math.imul(fnv ^ c, 0x01000193);
-		djb = ((djb << 5) + djb + c) | 0;
-	}
-	return (fnv >>> 0).toString(16).padStart(8, '0') + (djb >>> 0).toString(16).padStart(8, '0');
 }
 
 // ---------------------------------------------------------------------------

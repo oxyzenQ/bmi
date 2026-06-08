@@ -3,14 +3,7 @@
 import { browser } from '$app/environment';
 import { STORAGE_KEYS, storageGetJSON, storageRemove, storageSetJSON } from './storage';
 import { warnDev } from './warn-dev';
-
-interface BmiHistoryRecord {
-	timestamp: number;
-	bmi: number;
-	height: number;
-	weight: number;
-	age?: number;
-}
+import type { BmiRecord } from '$lib/types/bmi-record';
 
 interface SaveBmiHistoryInput {
 	bmi: number;
@@ -37,7 +30,7 @@ export function saveBmiToHistory(input: SaveBmiHistoryInput): string | null {
 	const historySignature = buildHistorySignature(input.bmi, input.heightCm, input.weightKg, ageNum);
 	if (input.lastSignature === historySignature) return input.lastSignature;
 
-	let history: BmiHistoryRecord[] = [];
+	let history: BmiRecord[] = [];
 	try {
 		history = storageGetJSON(STORAGE_KEYS.HISTORY, []);
 	} catch (err) {

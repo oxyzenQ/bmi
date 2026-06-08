@@ -92,13 +92,22 @@ function dbSetGuarded(key: string, value: string): void {
 	const run = (): Promise<void> => {
 		// Skip if this write has been superseded by a newer storageSet().
 		if (idbWriteSeq.get(key) !== seq) return Promise.resolve();
-		return dbSet(key, value).catch((err) => {
-			// Only warn if this is still the latest write.
-			// If a newer write arrived while dbSet was in-flight, the failure is noise.
-			if (idbWriteSeq.get(key) === seq) {
-				warnDevOnce('storage', 'storageSet:db', `IndexedDB write failed for key: ${key}`, err);
-			}
-		});
+		return dbSet(key, value)
+			.catch((err) => {
+				// Only warn if this is still the latest write.
+				// If a newer write arrived while dbSet was in-flight, the failure is noise.
+				if (idbWriteSeq.get(key) === seq) {
+					warnDevOnce('storage', 'storageSet:db', `IndexedDB write failed for key: ${key}`, err);
+				}
+			})
+			.finally(() => {
+				// Safe cleanup: remove queue entry only if no newer write
+				// has chained on top of this job. Prevents unbounded Map
+				// growth for keys that are written once and then idle.
+				if (idbWriteQueues.get(key) === job) {
+					idbWriteQueues.delete(key);
+				}
+			});
 	};
 
 	// First write for a key: start dbSet immediately (synchronous).
