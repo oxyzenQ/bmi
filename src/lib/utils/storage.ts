@@ -40,38 +40,86 @@ const cache = new Map<string, string | null>();
 /** Whether initStorage() has completed. */
 let _initialized = false;
 
-// ── Per-key IndexedDB write sequence guard ──
-// Prevents stale async writes from overwriting newer values.
-// Each key gets a monotonically increasing sequence number.
-// An async dbSet(key, value, seq) only commits if seq still matches
-// the current sequence for that key — otherwise it's a stale write and is discarded.
+// ── Per-key IndexedDB write queue / serializer ──
+//
+// Problem: storageSet() is synchronous but writes to IndexedDB asynchronously.
+// Rapid same-key writes (e.g. normal write → immediate import/restore) can race:
+//   storageSet(key, "A")  →  dbSet(key, "A") starts...
+//   storageSet(key, "B")  →  dbSet(key, "B") starts...
+//   ... dbSet(key, "A") resolves last → IndexedDB has stale "A"
+//
+// Solution: Per-key promise chain that serializes IndexedDB writes.
+//   - Each key has its own queue (a Promise that resolves when the last job finished).
+//   - Each enqueued job records a sequence number.
+//   - When a job starts, it checks if its sequence is still the latest for that key.
+//     If superseded, the dbSet call is skipped entirely.
+//     If still current, dbSet runs and writes the latest value.
+//   - This guarantees the LAST queued write for a key always commits last,
+//     so IndexedDB final state matches the latest storageSet() call.
+//   - Stale failures (writes that were superseded before they could run) are
+//     silently discarded; only failures from the latest write trigger warnings.
+
+/**
+ * Per-key queue promise. Each entry resolves when all previously enqueued
+ * IndexedDB writes for that key have completed (or been skipped).
+ */
+const idbWriteQueues = new Map<string, Promise<void>>();
+
+/** Per-key latest sequence number — used to detect superseded writes. */
 const idbWriteSeq = new Map<string, number>();
 let _idbWriteSeqCounter = 0;
 
 /**
- * Enqueue an IndexedDB write that is guarded by a per-key sequence number.
- * If a newer storageSet() for the same key has already been called, this write
- * is silently discarded so it cannot overwrite the newer value.
+ * Enqueue an IndexedDB write behind any existing writes for the same key.
+ *
+ * Per-key serialization guarantees that even if storageSet(A) and storageSet(B)
+ * are called back-to-back for the same key, the IndexedDB writes execute in order.
+ * The first write for a key starts immediately; subsequent writes chain on the
+ * previous write's promise so they run only after it completes.
+ * Jobs whose sequence has been superseded before they start are skipped entirely,
+ * so a stale value can never overwrite a newer one.
+ *
+ * Note: In-flight writes cannot be cancelled. If write A is already running when
+ * write B arrives, A will complete normally. But B is guaranteed to run AFTER A,
+ * so the final IndexedDB state is always B (the latest value).
  */
 function dbSetGuarded(key: string, value: string): void {
 	const seq = ++_idbWriteSeqCounter;
 	idbWriteSeq.set(key, seq);
-	dbSet(key, value).catch((err) => {
-		// Only warn if this is still the latest write for this key.
-		// If a newer write superseded it, the stale failure is noise.
-		if (idbWriteSeq.get(key) === seq) {
-			warnDevOnce('storage', 'storageSet:db', `IndexedDB write failed for key: ${key}`, err);
-		}
-	});
+
+	const prev = idbWriteQueues.get(key);
+
+	const run = (): Promise<void> => {
+		// Skip if this write has been superseded by a newer storageSet().
+		if (idbWriteSeq.get(key) !== seq) return Promise.resolve();
+		return dbSet(key, value).catch((err) => {
+			// Only warn if this is still the latest write.
+			// If a newer write arrived while dbSet was in-flight, the failure is noise.
+			if (idbWriteSeq.get(key) === seq) {
+				warnDevOnce('storage', 'storageSet:db', `IndexedDB write failed for key: ${key}`, err);
+			}
+		});
+	};
+
+	// First write for a key: start dbSet immediately (synchronous).
+	// Subsequent writes: chain on the previous write's promise.
+	const job = prev !== undefined ? prev.then(run) : run();
+
+	// Store so the next write for this key chains on this one.
+	idbWriteQueues.set(key, job);
+
+	// Prevent unhandled rejection from propagating.
+	job.catch(() => {});
 }
 
 /**
- * @internal Test-only: reset the per-key write sequence counter and map.
+ * @internal Test-only: reset the per-key write queue, sequence counter, and map.
  * Must be called between tests to avoid cross-test pollution.
  */
 export function _resetIdbWriteSeqForTesting(): void {
 	_idbWriteSeqCounter = 0;
 	idbWriteSeq.clear();
+	idbWriteQueues.clear();
 }
 
 /**
@@ -80,6 +128,13 @@ export function _resetIdbWriteSeqForTesting(): void {
  */
 export function _getIdbWriteSeq(key: string): number | undefined {
 	return idbWriteSeq.get(key);
+}
+
+/**
+ * @internal Test-only: get the queue promise for a key.
+ */
+export function _getIdbWriteQueue(key: string): Promise<void> | undefined {
+	return idbWriteQueues.get(key);
 }
 
 // ── Debounced backup trigger ──
@@ -353,8 +408,9 @@ export function storageSet(key: string, value: string, options?: StorageSetOptio
 		cache.set(key, value);
 	}
 
-	// Async write to IndexedDB (fire-and-forget, non-blocking)
-	// Uses per-key sequence guard to prevent stale writes from overwriting newer values.
+	// Async write to IndexedDB (fire-and-forget, non-blocking).
+	// Per-key serialization ensures writes for the same key execute in order,
+	// so the final IndexedDB value always matches the latest storageSet() call.
 	if (browser && isIndexedDbAvailable()) {
 		dbSetGuarded(key, value);
 	}
