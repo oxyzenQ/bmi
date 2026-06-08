@@ -57,6 +57,8 @@ export function warnDev(module: string, fn: string, message: string, error?: unk
  */
 const _dedup = new Map<string, number>();
 const MAX_LOGS_PER_SITE = 5;
+/** Max unique dedup keys before eviction. Prevents unbounded Map growth in long sessions. */
+const MAX_DEDUP_ENTRIES = 512;
 
 /**
  * Like warnDev() but deduplicates — only logs the first N occurrences
@@ -82,6 +84,18 @@ export function warnDevOnce(
 	const count = (_dedup.get(key) ?? 0) + 1;
 	_dedup.set(key, count);
 
+	// Evict oldest entries when the dedup map exceeds the cap.
+	// Iteration order is insertion order, so the first key is the oldest.
+	if (_dedup.size > MAX_DEDUP_ENTRIES) {
+		const excess = _dedup.size - MAX_DEDUP_ENTRIES + 128; // clear a safe portion
+		let evicted = 0;
+		for (const k of _dedup.keys()) {
+			if (evicted >= excess) break;
+			_dedup.delete(k);
+			evicted++;
+		}
+	}
+
 	if (count <= maxLogs) {
 		warnDev(
 			module,
@@ -90,4 +104,19 @@ export function warnDevOnce(
 			error
 		);
 	}
+}
+
+/**
+ * @internal Test-only: reset the dedup map. Must be called between tests
+ * to avoid cross-test pollution from the shared module-level Map.
+ */
+export function _resetDedupForTesting(): void {
+	_dedup.clear();
+}
+
+/**
+ * @internal Test-only: get the current dedup map size.
+ */
+export function _getDedupSize(): number {
+	return _dedup.size;
 }

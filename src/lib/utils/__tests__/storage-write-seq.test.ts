@@ -1,17 +1,21 @@
 // Copyright (C) 2026 rezky_nightky
 // SPDX-License-Identifier: GPL-3.0-only
 /**
- * Tests for the per-key IndexedDB write sequence guard in storage.ts.
+ * Tests for the per-key IndexedDB write queue / serializer in storage.ts.
  *
- * Ensures that rapid same-key writes to IndexedDB cannot race:
- * the latest write for a key must always win, even if async timing
- * resolves out of order. An older pending write must not overwrite
- * a newer value (e.g. import/restore overwriting imported history).
+ * The queue guarantees that rapid same-key writes to IndexedDB are serialized:
+ *   - The first write for a key calls dbSet immediately (synchronous).
+ *   - Subsequent writes chain on the previous write's promise and run after it.
+ *   - Superseded writes (whose sequence is no longer latest) are skipped entirely.
+ *   - Final IndexedDB value always matches the latest storageSet() call.
+ *
+ * Uses a fake IndexedDB Map that only commits values when dbSet resolves,
+ * so tests prove the actual IndexedDB final state — not just cache/localStorage.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock $app/environment
+// ── Mock $app/environment ──
 vi.mock('$app/environment', () => ({
 	browser: true,
 	dev: false,
@@ -19,33 +23,35 @@ vi.mock('$app/environment', () => ({
 	version: 'test'
 }));
 
-// Track the order and values that dbSet is called with
-const dbSetCalls: Array<{ key: string; value: string }> = [];
-let dbSetCallIndex = 0;
-const dbSetResolvers: Array<{
+// ── Fake IndexedDB: a Map that commits values only when dbSet resolves ──
+const fakeIdb = new Map<string, string>();
+
+// Track dbSet invocations for fine-grained control.
+// Each entry represents a pending dbSet call that hasn't resolved yet.
+interface PendingDbSet {
 	key: string;
 	value: string;
 	resolve: () => void;
 	reject: (err: Error) => void;
-}> = [];
+}
+const pendingDbSets: PendingDbSet[] = [];
 
-// Mock db.ts with controllable async behavior
 vi.mock('../db', () => ({
 	isIndexedDbAvailable: vi.fn().mockReturnValue(true),
 	dbGetAll: vi.fn().mockResolvedValue([]),
-	dbRemove: vi.fn().mockResolvedValue(undefined),
+	dbRemove: vi.fn().mockImplementation(async (key: string) => {
+		fakeIdb.delete(key);
+	}),
 	dbMetaGet: vi.fn().mockResolvedValue(null),
 	dbMetaSet: vi.fn().mockResolvedValue(undefined),
 	dbSet: vi.fn().mockImplementation((key: string, value: string) => {
-		dbSetCalls.push({ key, value });
-		// Return a promise that we can resolve/reject manually for race testing
 		return new Promise<void>((resolve, reject) => {
-			dbSetResolvers.push({ key, value, resolve, reject });
+			pendingDbSets.push({ key, value, resolve, reject });
 		});
 	})
 }));
 
-// Mock warn-dev
+// ── Mock warn-dev ──
 vi.mock('../warn-dev', () => ({
 	warnDev: vi.fn(),
 	warnDevOnce: vi.fn()
@@ -57,19 +63,19 @@ import {
 	storageInvalidateAll,
 	STORAGE_KEYS,
 	_resetIdbWriteSeqForTesting,
-	_getIdbWriteSeq
+	_getIdbWriteSeq,
+	_getIdbWriteQueue
 } from '../storage';
 
 beforeEach(() => {
 	localStorage.clear();
-	dbSetCalls.length = 0;
-	dbSetCallIndex = 0;
-	dbSetResolvers.length = 0;
+	fakeIdb.clear();
+	pendingDbSets.length = 0;
 	storageInvalidateAll();
 	_resetIdbWriteSeqForTesting();
 });
 
-describe('storage write sequence guard', () => {
+describe('per-key IndexedDB write queue', () => {
 	it('assigns monotonically increasing sequence numbers for same-key writes', () => {
 		storageSet('test.key', 'value-A');
 		const seqA = _getIdbWriteSeq('test.key');
@@ -82,102 +88,359 @@ describe('storage write sequence guard', () => {
 		expect(seqB as number).toBeGreaterThan(seqA as number);
 	});
 
-	it('different keys get independent sequence numbers', () => {
+	it('different keys remain independent — each has its own queue', async () => {
 		storageSet('key.a', 'val-a');
 		storageSet('key.b', 'val-b');
 
-		const seqA = _getIdbWriteSeq('key.a');
-		const seqB = _getIdbWriteSeq('key.b');
+		// Both keys should have their own queue promise
+		expect(_getIdbWriteQueue('key.a')).toBeDefined();
+		expect(_getIdbWriteQueue('key.b')).toBeDefined();
 
-		// Both should have the global counter's latest value,
-		// but tracked independently per key
-		expect(seqA).toBeDefined();
-		expect(seqB).toBeDefined();
-		expect(seqB as number).toBeGreaterThan(seqA as number);
+		// Both dbSet calls should be pending (first write for each key is immediate)
+		expect(pendingDbSets).toHaveLength(2);
+
+		// Resolve both
+		for (const p of pendingDbSets) {
+			fakeIdb.set(p.key, p.value);
+			p.resolve();
+		}
+		pendingDbSets.length = 0;
+
+		// Wait for both queues to settle
+		await Promise.all([_getIdbWriteQueue('key.a'), _getIdbWriteQueue('key.b')]);
+
+		expect(fakeIdb.get('key.a')).toBe('val-a');
+		expect(fakeIdb.get('key.b')).toBe('val-b');
 	});
 
-	it('only the latest same-key write wins when older writes resolve later', async () => {
-		// Write A (older) — don't resolve yet
+	it('rapid same-key writes serialize so final IndexedDB value is latest', async () => {
+		// Three rapid writes for the same key.
+		// Only the first write (A) starts dbSet immediately.
+		// Writes B and C chain on A's promise.
+		// Since C supersedes B, B will be skipped when it runs.
+		// A resolves → B's run() fires, seq stale → skipped → C's run() fires → dbSet(C).
+
 		storageSet('race.key', 'value-A');
-		expect(dbSetResolvers).toHaveLength(1);
+		// A's dbSet is called synchronously
+		expect(pendingDbSets).toHaveLength(1);
+		expect(pendingDbSets[0].value).toBe('value-A');
 
-		// Write B (newer) — don't resolve yet
 		storageSet('race.key', 'value-B');
-		expect(dbSetResolvers).toHaveLength(2);
+		// B is queued behind A — dbSet not called yet
+		expect(pendingDbSets).toHaveLength(1);
 
-		// Both async dbSet calls are pending.
-		// Resolve B first (newer)
-		dbSetResolvers[1].resolve();
-		// Resolve A second (older) — this should still succeed (IndexedDB put is idempotent)
-		// but the point is the sequence tracker ensures B's value is the one that matters.
-		dbSetResolvers[0].resolve();
+		storageSet('race.key', 'value-C');
+		// C is also queued — still only A pending
+		expect(pendingDbSets).toHaveLength(1);
 
-		// Allow microtasks to complete
-		await vi.waitFor(() => expect(dbSetCalls).toHaveLength(2));
+		// Resolve A — B starts but is superseded by C, so B is skipped.
+		// Then C starts (seq is latest).
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
 
-		// The cache should have the latest value (B)
-		expect(storageGet('race.key')).toBe('value-B');
-		expect(localStorage.getItem('race.key')).toBe('value-B');
+		// C's dbSet should be pending (B was skipped)
+		await vi.waitFor(() => expect(pendingDbSets).toHaveLength(1));
+		expect(pendingDbSets[0].value).toBe('value-C');
 
-		// dbSet was called for both, but B was the last to resolve
-		expect(dbSetCalls[0].value).toBe('value-A');
-		expect(dbSetCalls[1].value).toBe('value-B');
+		// Resolve C
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		// Wait for queue to settle
+		await _getIdbWriteQueue('race.key');
+
+		// Fake IndexedDB must have the LATEST value (C)
+		expect(fakeIdb.get('race.key')).toBe('value-C');
+		// Cache and localStorage must also have the latest value
+		expect(storageGet('race.key')).toBe('value-C');
+		expect(localStorage.getItem('race.key')).toBe('value-C');
 	});
 
-	it('import write (skipBackup) still uses sequence guard', () => {
-		// Simulate a normal write followed by an import-style overwrite
+	it('two rapid same-key writes: both serialize without skipping', async () => {
+		// Two writes with no third superseding — both should commit in order.
+
+		storageSet('two.key', 'value-A');
+		expect(pendingDbSets).toHaveLength(1);
+
+		storageSet('two.key', 'value-B');
+		// B is queued behind A
+		expect(pendingDbSets).toHaveLength(1);
+
+		// Resolve A — B starts (B's seq is still latest since no third write)
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		await vi.waitFor(() => expect(pendingDbSets).toHaveLength(1));
+		expect(pendingDbSets[0].value).toBe('value-B');
+
+		// Resolve B
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		await _getIdbWriteQueue('two.key');
+
+		// Both committed, final value is B
+		expect(fakeIdb.get('two.key')).toBe('value-B');
+	});
+
+	it('newer write waits for older in-flight write, then commits latest', async () => {
+		// Write A — starts immediately, dbSet pending
+		storageSet('seq.key', 'value-A');
+		expect(pendingDbSets).toHaveLength(1);
+
+		// Write B — queued behind A, not yet started
+		storageSet('seq.key', 'value-B');
+		expect(pendingDbSets).toHaveLength(1);
+
+		// Resolve A's dbSet
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		// B's dbSet should now start
+		await vi.waitFor(() => expect(pendingDbSets).toHaveLength(1));
+		expect(pendingDbSets[0].value).toBe('value-B');
+
+		// Resolve B's dbSet
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		await _getIdbWriteQueue('seq.key');
+
+		// Final IndexedDB value must be B (the latest write)
+		expect(fakeIdb.get('seq.key')).toBe('value-B');
+	});
+
+	it('stale queued write is skipped when superseded before start', async () => {
+		// Write A — starts immediately
+		storageSet('skip.key', 'value-A');
+		expect(pendingDbSets).toHaveLength(1);
+
+		// Write B — queued behind A
+		storageSet('skip.key', 'value-B');
+
+		// Write C — queued behind B, supersedes B
+		storageSet('skip.key', 'value-C');
+
+		// Only A's dbSet is pending (B and C are queued)
+		expect(pendingDbSets).toHaveLength(1);
+
+		// Resolve A — B should start but its seq is stale (C superseded it), so B is SKIPPED.
+		// Then C should start (its seq is latest).
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		// B was skipped, C's dbSet should now be pending
+		await vi.waitFor(() => expect(pendingDbSets).toHaveLength(1));
+		expect(pendingDbSets[0].value).toBe('value-C');
+
+		// Resolve C
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		await _getIdbWriteQueue('skip.key');
+
+		// Final IndexedDB must be C — B was never committed
+		expect(fakeIdb.get('skip.key')).toBe('value-C');
+	});
+
+	it('import/history overwrite with skipBackup ends with imported value in IndexedDB', async () => {
+		// Normal write
 		storageSet(STORAGE_KEYS.HISTORY, JSON.stringify([{ id: 1 }]));
+		expect(pendingDbSets).toHaveLength(1);
 
-		// Import overwrites with skipBackup — should still increment sequence
+		// Import overwrites with skipBackup
 		storageSet(STORAGE_KEYS.HISTORY, JSON.stringify([{ id: 2 }, { id: 3 }]), { skipBackup: true });
+		// Import is queued behind normal write
+		expect(pendingDbSets).toHaveLength(1);
 
-		const seq = _getIdbWriteSeq(STORAGE_KEYS.HISTORY);
-		expect(seq).toBeDefined();
-		expect(seq as number).toBeGreaterThan(0);
+		// Resolve normal write
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
 
-		// Cache should have the imported value
+		// Import's dbSet should now start
+		await vi.waitFor(() => expect(pendingDbSets).toHaveLength(1));
+		expect(pendingDbSets[0].value).toBe(JSON.stringify([{ id: 2 }, { id: 3 }]));
+
+		// Resolve import write
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		await _getIdbWriteQueue(STORAGE_KEYS.HISTORY);
+
+		// IndexedDB must have the imported (latest) value
+		expect(fakeIdb.get(STORAGE_KEYS.HISTORY)).toBe(JSON.stringify([{ id: 2 }, { id: 3 }]));
 		expect(storageGet(STORAGE_KEYS.HISTORY)).toBe(JSON.stringify([{ id: 2 }, { id: 3 }]));
 	});
 
-	it('stale IndexedDB failure for superseded write does not trigger warning', async () => {
+	it('current (latest) IndexedDB failure triggers warning', async () => {
 		const { warnDevOnce } = await import('../warn-dev');
 
-		// Write A
-		storageSet('warn.key', 'value-A');
-		// Write B (supersedes A)
-		storageSet('warn.key', 'value-B');
-
-		// Fail A's dbSet (stale — already superseded by B)
-		dbSetResolvers[0].reject(new Error('IDB error'));
-		// Succeed B's dbSet (current)
-		dbSetResolvers[1].resolve();
-
-		await vi.waitFor(() => expect(dbSetCalls).toHaveLength(2));
-
-		// warnDevOnce should NOT be called for A's failure since it's superseded
-		// It may be called for other reasons but not for the stale A write
-		const warnCalls = (warnDevOnce as ReturnType<typeof vi.fn>).mock.calls;
-		const staleWarns = warnCalls.filter(
-			(args) => args[2] && (args[2] as string).includes('warn.key')
-		);
-		expect(staleWarns).toHaveLength(0);
-	});
-
-	it('current IndexedDB failure still triggers warning', async () => {
-		const { warnDevOnce } = await import('../warn-dev');
-
-		// Write A
+		// Single write — no superseding write follows
 		storageSet('fail.key', 'value-A');
+		expect(pendingDbSets).toHaveLength(1);
 
-		// Fail A's dbSet — this is the CURRENT write, so it should warn
-		dbSetResolvers[0].reject(new Error('IDB error'));
+		// Fail the dbSet — it's the current/latest write, should warn
+		pendingDbSets[0].reject(new Error('IDB write error'));
+		pendingDbSets.length = 0;
 
-		await vi.waitFor(() => expect(dbSetCalls).toHaveLength(1));
+		await _getIdbWriteQueue('fail.key');
 
 		const warnCalls = (warnDevOnce as ReturnType<typeof vi.fn>).mock.calls;
 		const relevantWarns = warnCalls.filter(
 			(args) => args[2] && (args[2] as string).includes('fail.key')
 		);
 		expect(relevantWarns).toHaveLength(1);
+	});
+
+	it('superseded write failure does not trigger warning (write was skipped)', async () => {
+		const { warnDevOnce } = await import('../warn-dev');
+
+		// Write A — starts immediately
+		storageSet('stale.key', 'value-A');
+		expect(pendingDbSets).toHaveLength(1);
+
+		// Write B — queued behind A
+		storageSet('stale.key', 'value-B');
+
+		// Write C — supersedes B, queued behind A
+		storageSet('stale.key', 'value-C');
+
+		// Resolve A successfully
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		// B is skipped (superseded by C). C's dbSet starts.
+		await vi.waitFor(() => expect(pendingDbSets).toHaveLength(1));
+		expect(pendingDbSets[0].value).toBe('value-C');
+
+		// Resolve C successfully
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		await _getIdbWriteQueue('stale.key');
+
+		// No warnings should have been emitted (A succeeded, B was skipped, C succeeded)
+		const warnCalls = (warnDevOnce as ReturnType<typeof vi.fn>).mock.calls;
+		const relevantWarns = warnCalls.filter(
+			(args) => args[2] && (args[2] as string).includes('stale.key')
+		);
+		expect(relevantWarns).toHaveLength(0);
+	});
+
+	it('in-flight stale failure is suppressed; only latest failure warns', async () => {
+		const { warnDevOnce } = await import('../warn-dev');
+
+		// Write A — starts immediately
+		storageSet('chain.key', 'value-A');
+		expect(pendingDbSets).toHaveLength(1);
+
+		// Write B — queued behind A (B is now the latest seq)
+		storageSet('chain.key', 'value-B');
+
+		// Fail A's dbSet — but B has already been called with a newer seq,
+		// so A's seq is stale. A's failure warning is suppressed.
+		pendingDbSets[0].reject(new Error('IDB error'));
+		pendingDbSets.length = 0;
+
+		// B's dbSet should start despite A's failure (promise chain continues via .catch)
+		await vi.waitFor(() => expect(pendingDbSets).toHaveLength(1));
+		expect(pendingDbSets[0].value).toBe('value-B');
+
+		// Fail B's dbSet — B IS the latest, so it should warn
+		pendingDbSets[0].reject(new Error('IDB error'));
+		pendingDbSets.length = 0;
+
+		await _getIdbWriteQueue('chain.key');
+
+		const warnCalls = (warnDevOnce as ReturnType<typeof vi.fn>).mock.calls;
+		const relevantWarns = warnCalls.filter(
+			(args) => args[2] && (args[2] as string).includes('chain.key')
+		);
+		// Only B's failure should warn — A's was suppressed because it was stale
+		expect(relevantWarns).toHaveLength(1);
+	});
+
+	it('cleans up queue map entry after single write settles', async () => {
+		storageSet('cleanup.key', 'val');
+		expect(pendingDbSets).toHaveLength(1);
+		expect(_getIdbWriteQueue('cleanup.key')).toBeDefined();
+
+		// Resolve the write
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		await _getIdbWriteQueue('cleanup.key');
+
+		// Queue entry should be cleaned up after settle (no newer write chained)
+		expect(_getIdbWriteQueue('cleanup.key')).toBeUndefined();
+	});
+
+	it('cleans up queue map entry after chained writes settle', async () => {
+		storageSet('chain-cln.key', 'A');
+		storageSet('chain-cln.key', 'B');
+
+		expect(pendingDbSets).toHaveLength(1);
+
+		// Resolve A — B starts
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		await vi.waitFor(() => expect(pendingDbSets).toHaveLength(1));
+
+		// Resolve B
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		await _getIdbWriteQueue('chain-cln.key');
+
+		// Queue entry should be cleaned up after all chained writes settle
+		expect(_getIdbWriteQueue('chain-cln.key')).toBeUndefined();
+	});
+
+	it('does not clean up queue when a newer write has chained on top', async () => {
+		storageSet('no-cln.key', 'A');
+		expect(pendingDbSets).toHaveLength(1);
+
+		// Capture A's queue promise before it resolves
+		const queueA = _getIdbWriteQueue('no-cln.key');
+
+		// Chain B on top — now idbWriteQueues[key] points to B's promise
+		storageSet('no-cln.key', 'B');
+
+		// Resolve A
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		// A's .finally() runs but should NOT delete the queue because
+		// idbWriteQueues[key] now points to B's promise, not A's
+		await vi.waitFor(() => expect(pendingDbSets).toHaveLength(1));
+		expect(_getIdbWriteQueue('no-cln.key')).toBeDefined();
+		expect(_getIdbWriteQueue('no-cln.key')).not.toBe(queueA);
+
+		// Resolve B
+		fakeIdb.set(pendingDbSets[0].key, pendingDbSets[0].value);
+		pendingDbSets[0].resolve();
+		pendingDbSets.length = 0;
+
+		await _getIdbWriteQueue('no-cln.key');
+
+		// NOW it should be cleaned up — B was the last write
+		expect(_getIdbWriteQueue('no-cln.key')).toBeUndefined();
 	});
 });

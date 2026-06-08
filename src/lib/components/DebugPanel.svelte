@@ -168,14 +168,26 @@
 			toggle: togglePanel
 		};
 
-		// Auto-refresh logs every 2s when panel is open
+		// Track document visibility to pause polling when tab is hidden.
+		// Saves CPU/battery when the debug panel is not actively being viewed.
+		let documentVisible = !document.hidden;
+
+		// Auto-refresh logs every 2s when panel is open AND document is visible.
 		const interval = setInterval(() => {
-			if (isOpen && activeTab === 'logs') {
+			if (isOpen && activeTab === 'logs' && documentVisible) {
 				refreshLogs();
 			}
 		}, 2000);
 
-		return () => clearInterval(interval);
+		const onVisibilityChange = () => {
+			documentVisible = !document.hidden;
+		};
+		document.addEventListener('visibilitychange', onVisibilityChange);
+
+		return () => {
+			clearInterval(interval);
+			document.removeEventListener('visibilitychange', onVisibilityChange);
+		};
 	});
 </script>
 
