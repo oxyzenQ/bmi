@@ -1,4 +1,5 @@
-// Copyright (c) 2025 - 2026 rezky_nightky
+// Copyright (C) 2026 rezky_nightky
+// SPDX-License-Identifier: GPL-3.0-only
 /**
  * bmi-update-version.ts — update app version in canonical sources.
  *
@@ -13,11 +14,11 @@
  *
  * Canonical version sources after dynamic-version refactor:
  *   - package.json                    (version)
- *   - README.md                       (display title)
- *   - LICENSE.md                      (display title)
+ *   - README.md                       (display title + badge)
+ *   - DORMANT.md                      (maintenance capsule version)
  */
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -57,6 +58,10 @@ function read(relPath: string): string {
 	}
 }
 
+function exists(relPath: string): boolean {
+	return existsSync(resolve(ROOT, relPath));
+}
+
 function write(relPath: string, content: string): void {
 	writeFileSync(resolve(ROOT, relPath), content, 'utf-8');
 }
@@ -68,6 +73,11 @@ function replaceOrWarn(
 	label: string,
 	dryRun: boolean
 ): void {
+	if (!exists(relPath)) {
+		console.log(`    \x1b[33m⚠ ${relPath} not found — skipped\x1b[0m`);
+		return;
+	}
+
 	const original = read(relPath);
 	if (!pattern.test(original)) {
 		console.log(`    \x1b[33m⚠ ${label} not found in ${relPath} — skipped\x1b[0m`);
@@ -92,9 +102,12 @@ function getCurrentVersion(): string {
 
 function updatePackageJson(newVersion: string, dryRun: boolean): void {
 	const raw = read('package.json');
-	const pkg = JSON.parse(raw) as Record<string, unknown>;
-	pkg.version = newVersion;
-	if (!dryRun) write('package.json', `${JSON.stringify(pkg, null, 2)}\n`);
+	const updated = raw.replace(/("version"\s*:\s*")\d+\.\d+\.\d+(")/, `$1${newVersion}$2`);
+	if (updated === raw) {
+		console.log('    \x1b[36m•\x1b[0m package.json version already current');
+		return;
+	}
+	if (!dryRun) write('package.json', updated);
 	console.log('    \x1b[32m✓\x1b[0m package.json version updated');
 }
 
@@ -133,9 +146,8 @@ function main(): void {
 	console.log('');
 
 	if (currentVersion === nextVersion) {
-		console.log('\x1b[33m  No changes: package.json already at target version.\x1b[0m');
+		console.log('\x1b[33m  package.json already at target version; syncing display files.\x1b[0m');
 		console.log('');
-		return;
 	}
 
 	console.log('  \x1b[33m→\x1b[0m package.json');
@@ -149,13 +161,27 @@ function main(): void {
 		'README display version',
 		dryRun
 	);
-
-	console.log('  \x1b[33m→\x1b[0m LICENSE.md');
 	replaceOrWarn(
-		'LICENSE.md',
-		/BMI Stellar\s*[–-]\s*v\d+\.\d+(?:\.\d+)?/g,
-		`BMI Stellar – v${nextShort}`,
-		'LICENSE display version',
+		'README.md',
+		/badge\/version-v\d+\.\d+(?:\.\d+)?-/g,
+		`badge/version-v${nextShort}-`,
+		'README version badge',
+		dryRun
+	);
+	replaceOrWarn(
+		'README.md',
+		/alt="Version v\d+\.\d+(?:\.\d+)?"/g,
+		`alt="Version v${nextShort}"`,
+		'README version badge alt text',
+		dryRun
+	);
+
+	console.log('  \x1b[33m→\x1b[0m DORMANT.md');
+	replaceOrWarn(
+		'DORMANT.md',
+		/Version: `\d+\.\d+\.\d+`/g,
+		`Version: \`${nextVersion}\``,
+		'DORMANT capsule version',
 		dryRun
 	);
 

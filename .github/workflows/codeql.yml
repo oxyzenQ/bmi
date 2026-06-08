@@ -4,8 +4,28 @@ name: '🔒 CodeQL Security Scan'
 on:
   push:
     branches: [main, dev]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'bun.lock'
+      - 'tsconfig.json'
+      - 'svelte.config.js'
+      - 'svelte.config.static.js'
+      - 'vite.config.ts'
+      - '.github/codeql/**'
+      - '.github/workflows/codeql.yml'
   pull_request:
     branches: [main, dev]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'bun.lock'
+      - 'tsconfig.json'
+      - 'svelte.config.js'
+      - 'svelte.config.static.js'
+      - 'vite.config.ts'
+      - '.github/codeql/**'
+      - '.github/workflows/codeql.yml'
   schedule:
     # Run at 8 AM SGT (00:00 UTC) every Monday
     - cron: '0 0 * * 1'
@@ -30,13 +50,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
           fetch-tags: false
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4.35.5
+        uses: github/codeql-action/init@v4.36.2
         with:
           languages: ${{ matrix.language }}
           # Auto-detect queries (security and quality)
@@ -44,10 +64,10 @@ jobs:
           config-file: ./.github/codeql/codeql-config.yml
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v4.35.5
+        uses: github/codeql-action/autobuild@v4.36.2
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4.35.5
+        uses: github/codeql-action/analyze@v4.36.2
         with:
           category: '/language:${{matrix.language}}'
           upload: true

@@ -1,4 +1,5 @@
-// Copyright (c) 2025 - 2026 rezky_nightky
+// Copyright (C) 2026 rezky_nightky
+// SPDX-License-Identifier: GPL-3.0-only
 /**
  * Bahasa Indonesia (id) — Terjemahan
  */
@@ -421,7 +422,7 @@ const id: TranslationDict = {
 	'share.card_ideal': 'Rentang Ideal',
 	'share.card_tdee': 'TDEE',
 	'share.card_kcal': 'kcal',
-	'share.card_branding': 'BMI Stellar \u2014 oleh Rezky Nightky',
+	'share.card_branding': 'BMI Stellar — oleh rezky_nightky (oxyzenQ)',
 	'share.card_text': 'BMI saya: {n} ({category})',
 	'share.card_insight_underweight':
 		'Pertimbangkan untuk berkonsultasi dengan penyedia layanan kesehatan tentang strategi penambahan berat badan yang sehat.',
@@ -557,7 +558,7 @@ const id: TranslationDict = {
 
 	'about.opensource_title': 'Open Source & Rilis',
 	'about.opensource_p1':
-		'BMI Stellar adalah project open-source yang dikelola oleh Rezky Nightky dengan fokus pada aksesibilitas, privasi, UI responsif, dan stabilitas jangka panjang.',
+		'BMI Stellar adalah project open-source yang dikelola oleh rezky_nightky (oxyzenQ) dengan fokus pada aksesibilitas, privasi, UI responsif, dan stabilitas jangka panjang.',
 	'about.opensource_p2': 'Rilis ini adalah bagian dari milestone Stellar {version}.',
 
 	'about.data_model': 'Model Data',
@@ -571,7 +572,7 @@ const id: TranslationDict = {
 	// ── Info Section ──
 	'info.disclaimer':
 		'BMI adalah alat skrining dan tidak boleh digunakan sebagai satu-satunya metode diagnostik. Silakan berkonsultasi dengan profesional kesehatan untuk penilaian kesehatan yang komprehensif.',
-	'info.copyright': '\u00a9 2025-{n} Rezky Nightky. Semua hak dilindungi.',
+	'info.copyright': '© 2025-{n} rezky_nightky (oxyzenQ). Semua hak dilindungi.',
 	'backup.checking': 'Memeriksa status cadangan...',
 	'backup.auto_hint': 'Cadangan dibuat otomatis saat Anda menyimpan perhitungan BMI.',
 

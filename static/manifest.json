@@ -15,46 +15,31 @@
         "prefer_related_applications": false,
         "icons": [
                 {
-                        "src": "/assets/new_bmi_logo_192.webp",
+                        "src": "/assets/bmi-logo-masters-192.png",
                         "sizes": "192x192",
-                        "type": "image/webp",
+                        "type": "image/png",
                         "purpose": "any"
                 },
                 {
-                        "src": "/assets/new_bmi_logo_2026.webp",
+                        "src": "/assets/bmi-logo-masters-512.png",
                         "sizes": "512x512",
-                        "type": "image/webp",
+                        "type": "image/png",
                         "purpose": "any"
                 },
                 {
-                        "src": "/assets/new_bmi_logo_2026.webp",
+                        "src": "/assets/bmi-logo-masters-512-maskable.png",
                         "sizes": "512x512",
-                        "type": "image/webp",
+                        "type": "image/png",
                         "purpose": "maskable"
                 },
                 {
-                        "src": "/assets/new_bmi_logo_2026.webp",
+                        "src": "/assets/bmi-logo-masters-1024.png",
                         "sizes": "1024x1024",
-                        "type": "image/webp",
+                        "type": "image/png",
                         "purpose": "any"
                 }
         ],
-        "screenshots": [
-                {
-                        "src": "/assets/screenshot-wide.webp",
-                        "sizes": "1280x720",
-                        "type": "image/webp",
-                        "form_factor": "wide",
-                        "label": "BMI Stellar — Desktop view"
-                },
-                {
-                        "src": "/assets/screenshot-narrow.webp",
-                        "sizes": "828x1792",
-                        "type": "image/webp",
-                        "form_factor": "narrow",
-                        "label": "BMI Stellar — Mobile view"
-                }
-        ],
+        "screenshots": [],
         "shortcuts": [
                 {
                         "name": "Calculate BMI",

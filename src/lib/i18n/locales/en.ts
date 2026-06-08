@@ -1,4 +1,5 @@
-// Copyright (c) 2025 - 2026 rezky_nightky
+// Copyright (C) 2026 rezky_nightky
+// SPDX-License-Identifier: GPL-3.0-only
 /**
  * English (en) — Master translation dictionary
  * All keys are organized by component/section for easy navigation.
@@ -420,7 +421,7 @@ const en: TranslationDict = {
 	'share.card_ideal': 'Ideal Range',
 	'share.card_tdee': 'TDEE',
 	'share.card_kcal': 'kcal',
-	'share.card_branding': 'BMI Stellar \u2014 by Rezky Nightky',
+	'share.card_branding': 'BMI Stellar — by rezky_nightky (oxyzenQ)',
 	'share.card_text': 'My BMI: {n} ({category})',
 	'share.card_insight_underweight':
 		'Consider consulting a healthcare provider about healthy weight gain strategies.',
@@ -556,7 +557,7 @@ const en: TranslationDict = {
 
 	'about.opensource_title': 'Open Source & Release',
 	'about.opensource_p1':
-		'BMI Stellar is an open-source project maintained by Rezky Nightky with a focus on accessibility, privacy, responsive UI, and long-term stability.',
+		'BMI Stellar is an open-source project maintained by rezky_nightky (oxyzenQ) with a focus on accessibility, privacy, responsive UI, and long-term stability.',
 	'about.opensource_p2': 'This release is part of the Stellar {version} milestone.',
 
 	'about.data_model': 'Data Model',
@@ -570,7 +571,7 @@ const en: TranslationDict = {
 	// ── Info Section ──
 	'info.disclaimer':
 		'BMI is a screening tool and should not be used as a sole diagnostic method. Please consult healthcare professionals for comprehensive health assessment.',
-	'info.copyright': '\u00a9 2025-{n} Rezky Nightky. All rights reserved.',
+	'info.copyright': '© 2025-{n} rezky_nightky (oxyzenQ). All rights reserved.',
 	'backup.checking': 'Checking backup status...',
 	'backup.auto_hint': 'Backups are created automatically when you save BMI calculations.',
 

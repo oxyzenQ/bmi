@@ -1,10 +1,11 @@
-// Copyright (c) 2025 - 2026 rezky_nightky
+// Copyright (C) 2026 rezky_nightky
+// SPDX-License-Identifier: GPL-3.0-only
 /// <reference types="@sveltejs/kit" />
 /// <reference no-default-lib="true"/>
 /// <reference lib="esnext" />
 /// <reference lib="webworker" />
 
-import { build, files, version } from '$service-worker';
+import { base, build, files, version } from '$service-worker';
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
@@ -13,12 +14,52 @@ const CACHE_NAME = `cache-${version}`;
 
 const RUNTIME_CACHE = `runtime-${version}`;
 
+const APP_SHELL_URL = `${base}/`;
+
 // Assets to cache immediately
-const PRECACHE_URLS = [...build, ...files];
+const PRECACHE_URLS = Array.from(new Set([...build, ...files]));
 
 const MAX_RUNTIME_ENTRIES = 60;
 
 let runtimeTrimInProgress = false;
+
+function isUsableAppShell(response: Response | undefined | null): response is Response {
+	if (!response || !response.ok) return false;
+	const contentType = response.headers.get('content-type') ?? '';
+	return contentType.includes('text/html');
+}
+
+async function fetchAndCacheAppShell(cache: Cache) {
+	const response = await fetch(new Request(APP_SHELL_URL, { cache: 'reload' }));
+	if (!isUsableAppShell(response)) {
+		throw new Error(`Unable to cache app shell: ${response.status} ${response.statusText}`);
+	}
+	await cache.put(APP_SHELL_URL, response.clone());
+}
+
+async function findCachedAppShell(): Promise<Response | undefined> {
+	const direct = await caches.match(APP_SHELL_URL);
+	if (isUsableAppShell(direct)) return direct;
+
+	const root = APP_SHELL_URL === '/' ? undefined : await caches.match('/');
+	if (isUsableAppShell(root)) return root;
+
+	const keys = await caches.keys();
+	for (const key of keys) {
+		const cache = await caches.open(key);
+		const cached = await cache.match(APP_SHELL_URL);
+		if (isUsableAppShell(cached)) return cached;
+	}
+}
+
+async function cacheNavigationResponse(request: Request, response: Response) {
+	if (!isUsableAppShell(response)) return;
+	const cache = await caches.open(CACHE_NAME);
+	await Promise.all([
+		cache.put(request, response.clone()),
+		cache.put(APP_SHELL_URL, response.clone())
+	]);
+}
 
 function offlineFallbackResponse(): Response {
 	return new Response(
@@ -30,10 +71,25 @@ function offlineFallbackResponse(): Response {
 		<title>BMI Stellar Offline</title>
 		<style>
 			html, body { margin: 0; min-height: 100%; background: #000; color: #fff; font-family: system-ui, sans-serif; }
-			body { display: grid; place-items: center; padding: 24px; text-align: center; }
-			main { max-width: 420px; }
-			h1 { font-size: 1.25rem; margin: 0 0 0.75rem; }
-			p { color: rgba(255, 255, 255, 0.72); line-height: 1.5; margin: 0; }
+			body {
+				display: grid;
+				place-items: center;
+				padding: 24px;
+				text-align: center;
+				background:
+					radial-gradient(circle at 50% 20%, rgba(71, 209, 255, 0.16), transparent 32rem),
+					linear-gradient(180deg, #070914 0%, #000 100%);
+			}
+			main {
+				max-width: 430px;
+				padding: 28px;
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				border-radius: 18px;
+				background: rgba(4, 8, 18, 0.72);
+				box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+			}
+			h1 { font-size: 1.28rem; margin: 0 0 0.75rem; letter-spacing: 0; }
+			p { color: rgba(255, 255, 255, 0.78); line-height: 1.55; margin: 0; }
 		</style>
 	</head>
 	<body>
@@ -88,24 +144,39 @@ sw.addEventListener('install', (event) => {
 	event.waitUntil(
 		caches
 			.open(CACHE_NAME)
-			.then((cache) => cache.addAll(PRECACHE_URLS))
+			.then(async (cache) => {
+				await cache.addAll(PRECACHE_URLS);
+				await fetchAndCacheAppShell(cache);
+			})
 			.then(() => sw.skipWaiting())
 	);
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches only after this version has a usable shell
 sw.addEventListener('activate', (event) => {
 	event.waitUntil(
-		caches
-			.keys()
-			.then((keys) => {
-				return Promise.all(
+		(async () => {
+			const cache = await caches.open(CACHE_NAME);
+			let shell = await cache.match(APP_SHELL_URL);
+			if (!isUsableAppShell(shell)) {
+				const previousShell = await findCachedAppShell();
+				if (previousShell) {
+					await cache.put(APP_SHELL_URL, previousShell.clone());
+					shell = previousShell;
+				}
+			}
+
+			if (isUsableAppShell(shell)) {
+				const keys = await caches.keys();
+				await Promise.all(
 					keys
 						.filter((key) => key !== CACHE_NAME && key !== RUNTIME_CACHE)
 						.map((key) => caches.delete(key))
 				);
-			})
-			.then(() => sw.clients.claim())
+			}
+
+			await sw.clients.claim();
+		})()
 	);
 });
 
@@ -128,22 +199,19 @@ sw.addEventListener('fetch', (event) => {
 		event.respondWith(
 			fetch(request)
 				.then((response) => {
-					// Cache successful responses for offline fallback
-					if (response && response.status === 200) {
-						const responseToCache = response.clone();
-						caches.open(CACHE_NAME).then((cache) => {
-							cache.put(request, responseToCache);
-						});
-					}
+					void cacheNavigationResponse(request, response.clone());
 					return response;
 				})
 				.catch(() => {
-					// Fallback to cache when offline
-					return caches.match(request).then((cachedResponse) => {
-						return (
-							cachedResponse || caches.match('/').then((root) => root || offlineFallbackResponse())
-						);
-					});
+					return (async () => {
+						const cachedResponse = await caches.match(request);
+						if (isUsableAppShell(cachedResponse)) return cachedResponse;
+
+						const appShell = await findCachedAppShell();
+						if (appShell) return appShell;
+
+						return offlineFallbackResponse();
+					})();
 				})
 		);
 		return;

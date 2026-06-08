@@ -291,14 +291,14 @@ The service worker (`src/service-worker.ts`) is registered as an ES module in pr
 
 GitHub workflows are located in `.github/workflows/`.
 
-| Workflow                | Purpose                                                     |
-| ----------------------- | ----------------------------------------------------------- |
-| `ci.yml`                | Executes type-checking, linting, tests, and the final build |
-| `codeql.yml`            | Performs automated security analysis                        |
-| `release.yml`           | Orchestrates tagged release artifact publishing             |
-| `auto-update.yml`       | Automates dependency update Pull Requests                   |
-| `self-heal-actions.yml` | Automatically updates minor/patch GitHub Action versions    |
-| `runtime-probe.yml`     | Probes Node/Bun runtime compatibility                       |
+| Workflow                | Purpose                                                                    |
+| ----------------------- | -------------------------------------------------------------------------- |
+| `ci.yml`                | Executes type-checking, linting, tests, and the final build                |
+| `codeql.yml`            | Performs automated security analysis                                       |
+| `release.yml`           | Orchestrates tagged release artifact publishing                            |
+| `auto-update.yml`       | Runs the `Maintenance deps weekly` lockfile refresh and direct commit flow |
+| `self-heal-actions.yml` | Automatically updates minor/patch GitHub Action versions                   |
+| `runtime-probe.yml`     | Probes Node/Bun runtime compatibility                                      |
 
 ## Release Process
 
@@ -309,7 +309,7 @@ GitHub workflows are located in `.github/workflows/`.
 # Preview changes before applying
 bun run bmi-update-version --dry-run <version>
 
-# Apply version update (syncs package.json, README.md, and LICENSE.md)
+# Apply version update (syncs package.json, README.md, and DORMANT.md)
 bun run bmi-update-version <version>
 
 # Verify integrity before tagging

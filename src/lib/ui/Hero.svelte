@@ -1,4 +1,5 @@
-<!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
+<!-- Copyright (C) 2026 rezky_nightky -->
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
 <script lang="ts">
 	import { Activity, Gem, Target } from 'lucide-svelte';
 	import { onMount, onDestroy } from 'svelte';
@@ -35,10 +36,10 @@
 	<div class="hero-content" class:animate>
 		<div class="hero-avatar" aria-hidden="true">
 			<img
-				src="/assets/new_bmi_logo_216.webp"
-				srcset="/assets/new_bmi_logo_128.webp 128w,
-                /assets/new_bmi_logo_216.webp 216w,
-                /assets/new_bmi_logo_256.webp 256w"
+				src="/assets/bmi-logo-masters-216.png"
+				srcset="/assets/bmi-logo-masters-128.png 128w,
+                /assets/bmi-logo-masters-216.png 216w,
+                /assets/bmi-logo-masters-256.png 256w"
 				sizes="(max-width: 360px) 64px, (max-width: 640px) 92px, 108px"
 				alt="BMI Logo"
 				width="216"

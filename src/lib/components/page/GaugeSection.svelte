@@ -1,4 +1,5 @@
-<!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
+<!-- Copyright (C) 2026 rezky_nightky -->
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
 <script lang="ts">
 	type BmiRadialGaugeComponentType = typeof import('$lib/components/BmiRadialGauge.svelte').default;
 	type BmiHealthRiskComponentType = typeof import('$lib/components/BmiHealthRisk.svelte').default;

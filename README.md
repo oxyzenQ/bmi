@@ -1,40 +1,38 @@
 <div align="center">
-  <img src="static/assets/new_bmi_logo_2026.webp" alt="BMI Stellar" width="240" />
+  <img src="static/assets/bmi-logo-masters-512.png" alt="bmi logo" width="240">
 
-  <h1>BMI Stellar v21.2</h1>
-
-  <p><strong>Privacy-first BMI, TDEE, body-fat, and progress tracking — built with SvelteKit, Svelte 5, TypeScript, and Bun.</strong></p>
+  <h1>bmi</h1>
 
   <p>
-    <a href="https://bmi-stellar.vercel.app"><img src="https://img.shields.io/badge/Live_Demo-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo" /></a>
-    <a href="LICENSE.md"><img src="https://img.shields.io/badge/License-GPL_3.0-blue.svg?style=for-the-badge" alt="License: GPL-3.0" /></a>
-    <a href="https://github.com/sveltejs/svelte"><img src="https://img.shields.io/badge/Svelte_5-FF3E00?style=for-the-badge&logo=svelte&logoColor=white" alt="Svelte 5" /></a>
-    <a href="https://bun.sh"><img src="https://img.shields.io/badge/Bun-000000?style=for-the-badge&logo=bun&logoColor=white" alt="Bun" /></a>
-    <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
+    <strong>A serious privacy-first health metrics application for local BMI, TDEE, body-fat, and progress analysis.</strong>
+  </p>
+
+  <p>
+    Designed for local-first measurement, encrypted backups, multilingual reporting, and accessible long-term tracking.
   </p>
 
   <p>
     <a href="https://ko-fi.com/rezky">
-      <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support me on Ko-fi" />
+      <img src="https://img.shields.io/badge/Ko--fi-support-7C3AED?style=flat-square&logo=kofi&logoColor=white&labelColor=111827" alt="Support on Ko-fi">
     </a>
   </p>
 </div>
 
 ---
 
-## Table of Contents
+## Contents
 
-- [What It Does](#-what-it-does)
-- [Tech Stack](#-tech-stack)
-- [Quick Start](#-quick-start)
-- [Core Scripts](#-core-scripts)
-- [Project Layout](#-project-layout)
-- [Documentation Map](#-documentation-map)
-- [Versioning](#-versioning)
-- [Security Model](#-security-model)
-- [Contributing & Releases](#-contributing--releases)
-- [Support](#-support)
-- [License](#-license)
+- [Overview](#what-it-does)
+- [Tech Stack](#tech-stack)
+- [Quick Start](#quick-start)
+- [Core Scripts](#core-scripts)
+- [Project Layout](#project-layout)
+- [Documentation](#documentation-map)
+- [Versioning](#versioning)
+- [Security](#security-model)
+- [Contributing & Releases](#contributing--releases)
+- [Support](#support)
+- [License](#license)
 
 ---
 
@@ -133,6 +131,7 @@ docs/                        # Long-form documentation (furthermore.md)
 | Document                                           | Purpose                                                                 |
 | -------------------------------------------------- | ----------------------------------------------------------------------- |
 | [docs/furthermore.md](docs/furthermore.md)         | Architecture deep dive: CSS cascade, pager, crypto, PWA, share image    |
+| [DORMANT.md](DORMANT.md)                           | Wake-up checklist for long quiet periods and future maintenance         |
 | [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) | Contributor workflow, coding standards, i18n, PR checklist              |
 | [.github/RELEASE.md](.github/RELEASE.md)           | Release checklist, tag rules, artifacts, rollback, troubleshooting      |
 | [SECURITY.md](SECURITY.md)                         | Vulnerability reporting, threat model, crypto details, privacy boundary |
@@ -142,7 +141,7 @@ docs/                        # Long-form documentation (furthermore.md)
 The canonical version lives in `package.json` and is synchronized into display documents via `scripts/bmi-update-version.ts`.
 
 > [!IMPORTANT]
-> Always use `bun run bmi-update-version <version>` to update the version. This keeps `package.json`, `README.md`, and `LICENSE.md` synchronized. Never edit release version strings manually.
+> Always use `bun run bmi-update-version <version>` to update the version. This keeps `package.json`, `README.md`, and the dormant maintenance capsule synchronized. Never edit release version strings manually.
 
 Release tags follow the format `Stellar-v<major>.<minor>` (for example, `Stellar-v21.0`). The tag's major/minor pair must match `package.json` (for example, `21.0.0` -> `Stellar-v21.0`).
 
@@ -179,4 +178,4 @@ _Support is completely optional, and the project will forever remain open-source
 
 ## License
 
-Distributed under the GPL-3.0 License. See [LICENSE.md](LICENSE.md) for more information.
+Distributed under the GPL-3.0 License. See [LICENSE](LICENSE) for more information.

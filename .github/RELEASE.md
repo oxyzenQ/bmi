@@ -50,7 +50,7 @@ bun run verify
 
 ### 2. Update Version Strings
 
-Use the canonical update script to synchronize the version across `package.json`, `README.md`, and `LICENSE.md`:
+Use the canonical update script to synchronize the version across `package.json`, `README.md`, and `DORMANT.md`:
 
 ```bash
 # Preview changes before applying

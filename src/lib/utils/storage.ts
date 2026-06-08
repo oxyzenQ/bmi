@@ -1,4 +1,5 @@
-// Copyright (c) 2025 - 2026 rezky_nightky
+// Copyright (C) 2026 rezky_nightky
+// SPDX-License-Identifier: GPL-3.0-only
 /**
  * Centralized storage utility with in-memory caching, IndexedDB durability,
  * and automatic localStorage → IndexedDB migration.
@@ -38,6 +39,48 @@ const cache = new Map<string, string | null>();
 
 /** Whether initStorage() has completed. */
 let _initialized = false;
+
+// ── Per-key IndexedDB write sequence guard ──
+// Prevents stale async writes from overwriting newer values.
+// Each key gets a monotonically increasing sequence number.
+// An async dbSet(key, value, seq) only commits if seq still matches
+// the current sequence for that key — otherwise it's a stale write and is discarded.
+const idbWriteSeq = new Map<string, number>();
+let _idbWriteSeqCounter = 0;
+
+/**
+ * Enqueue an IndexedDB write that is guarded by a per-key sequence number.
+ * If a newer storageSet() for the same key has already been called, this write
+ * is silently discarded so it cannot overwrite the newer value.
+ */
+function dbSetGuarded(key: string, value: string): void {
+	const seq = ++_idbWriteSeqCounter;
+	idbWriteSeq.set(key, seq);
+	dbSet(key, value).catch((err) => {
+		// Only warn if this is still the latest write for this key.
+		// If a newer write superseded it, the stale failure is noise.
+		if (idbWriteSeq.get(key) === seq) {
+			warnDevOnce('storage', 'storageSet:db', `IndexedDB write failed for key: ${key}`, err);
+		}
+	});
+}
+
+/**
+ * @internal Test-only: reset the per-key write sequence counter and map.
+ * Must be called between tests to avoid cross-test pollution.
+ */
+export function _resetIdbWriteSeqForTesting(): void {
+	_idbWriteSeqCounter = 0;
+	idbWriteSeq.clear();
+}
+
+/**
+ * @internal Test-only: get the current sequence number for a key.
+ * Returns undefined if the key has no pending sequence.
+ */
+export function _getIdbWriteSeq(key: string): number | undefined {
+	return idbWriteSeq.get(key);
+}
 
 // ── Debounced backup trigger ──
 let _backupTimer: ReturnType<typeof setTimeout> | null = null;
@@ -311,10 +354,9 @@ export function storageSet(key: string, value: string, options?: StorageSetOptio
 	}
 
 	// Async write to IndexedDB (fire-and-forget, non-blocking)
+	// Uses per-key sequence guard to prevent stale writes from overwriting newer values.
 	if (browser && isIndexedDbAvailable()) {
-		dbSet(key, value).catch((err) => {
-			warnDevOnce('storage', 'storageSet:db', `IndexedDB write failed for key: ${key}`, err);
-		});
+		dbSetGuarded(key, value);
 	}
 
 	// Auto-backup on history data change (skip during restore)

@@ -1,4 +1,5 @@
-// Copyright (c) 2025 - 2026 rezky_nightky
+// Copyright (C) 2026 rezky_nightky
+// SPDX-License-Identifier: GPL-3.0-only
 /**
  * Lightweight i18n system for BMI Stellar — Svelte 5 compatible
  *

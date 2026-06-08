@@ -1,4 +1,5 @@
-// Copyright (c) 2025 - 2026 rezky_nightky
+// Copyright (C) 2026 rezky_nightky
+// SPDX-License-Identifier: GPL-3.0-only
 /**
  * Phase 3 — Regression Fortress: Phase 1 bug regression guards
  *
@@ -59,7 +60,7 @@ describe('Phase 1 regression: z-index hierarchy', () => {
 		// Use ripgrep to find hardcoded z-index in .svelte files
 		// Pattern: z-index followed by a number (not var())
 		try {
-			const result = execSync('rg "z-index\\s*:\\s*[0-9]" --include="*.svelte" -l || true', {
+			const result = execSync('rg "z-index\\s*:\\s*[0-9]" --glob="*.svelte" -l || true', {
 				cwd: process.cwd(),
 				encoding: 'utf-8'
 			}).trim();

@@ -1,4 +1,5 @@
-<!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
+<!-- Copyright (C) 2026 rezky_nightky -->
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
 <script lang="ts">
 	/* ── Design tokens (must load first — all CSS custom properties) ── */
 	import '../styles/tokens.css';
@@ -26,6 +27,8 @@
 	import '../styles/responsive-backdrop.css';
 	/* ── Pager / bottom navbar ── */
 	import '../styles/nav.css';
+	/* ── Pager shell and section frame ── */
+	import '../styles/pager.css';
 	/* ── Language switcher floating panel (portaled to body) ── */
 	import '../styles/lang-switcher.css';
 	/* ── Skeleton loading, shooting stars, haptic feedback ── */

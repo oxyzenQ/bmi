@@ -1,4 +1,5 @@
-// Copyright (c) 2025 - 2026 rezky_nightky
+// Copyright (C) 2026 rezky_nightky
+// SPDX-License-Identifier: GPL-3.0-only
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/svelte';
 import { afterEach, beforeAll, vi } from 'vitest';

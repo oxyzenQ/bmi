@@ -12,13 +12,12 @@
 # - Avoids infinite loops by not running on push events (schedule/manual only).
 # - Skips if there are no actual file changes.
 
-name: ❤️‍🩹 self-heal-actions
+name: Maintenance actions versioning weekly
 
-# This workflow runs every Monday at 00:00 WIB (UTC+7)
-# Equivalent to Sunday at 17:00 UTC
+# This workflow runs once a week on Monday at 00:00 UTC (07:00 WIB).
 on:
   schedule:
-    - cron: '0 17 * * 0'
+    - cron: '0 0 * * 1'
   workflow_dispatch: {}
 
 concurrency:
@@ -30,7 +29,7 @@ permissions:
 
 env:
   # Repository owner identity (must match the owner so contributions show up).
-  OWNER_NAME: ${{ github.repository_owner }}
+  OWNER_NAME: oxyzenQ
   OWNER_EMAIL: 130107241+oxyzenQ@users.noreply.github.com
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -48,7 +47,7 @@ jobs:
           echo "name=${{ github.event.repository.default_branch }}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ steps.branch.outputs.name }}
           token: ${{ secrets.PAT_WORKFLOW }}

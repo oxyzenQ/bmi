@@ -1,0 +1,115 @@
+/* Copyright (C) 2026 rezky_nightky */
+/* SPDX-License-Identifier: GPL-3.0-only */
+
+.pager-shell {
+	height: 100svh;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	padding-top: 0;
+	overflow: hidden;
+	touch-action: pan-y pinch-zoom;
+	position: relative;
+	border: 0;
+	outline: none;
+	background: transparent;
+	--pager-top-inset: calc(env(safe-area-inset-top, 0px) + 58px);
+	--pager-edge-fade: 100px;
+	--nav-bar-h: 58px;
+}
+
+.pager-shell::before,
+.pager-shell::after {
+	content: '';
+	position: fixed;
+	left: 0;
+	right: 0;
+	pointer-events: none;
+	z-index: var(--z-nav-controls);
+}
+
+.pager-shell::before {
+	content: none;
+	display: none;
+}
+
+.pager-shell::after {
+	bottom: 0;
+	height: 0;
+	background: none;
+	pointer-events: none;
+}
+
+/* .pager-nav, .pager-nav-shell, .pager-nav::-webkit-scrollbar styles
+   moved to global nav.css for unified navbar maintenance */
+
+.pager-theme .render-wallpaper {
+	color: var(--aurora-glow, #b266ff) !important;
+	transition:
+		color var(--dur-content) ease,
+		filter var(--dur-content) ease;
+}
+
+.pager-theme .theme-blackhole {
+	color: #b266ff;
+	font-weight: 600;
+	text-shadow: 0 0 8px var(--purple-40, rgba(168, 85, 247, 0.4));
+}
+
+.pager-theme .theme-spaceship {
+	color: #00f0ff;
+	font-weight: 600;
+	text-shadow: 0 0 8px var(--cyan2-40);
+}
+
+.pager-theme .theme-space {
+	color: var(--cosmic-blue);
+	font-weight: 600;
+}
+
+/* .pager-tab.active moved to global nav.css */
+
+.pager-view {
+	flex: 1;
+	overflow: hidden;
+	padding-bottom: 0.5rem;
+	position: relative;
+	min-height: 0;
+	border: 0;
+	outline: none;
+}
+
+.pager-section {
+	height: 100%;
+	position: absolute;
+	inset: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior: contain;
+	overscroll-behavior-x: none;
+	overscroll-behavior-y: contain;
+	scrollbar-width: none;
+	contain: style;
+	overflow-anchor: none;
+	touch-action: pan-y pinch-zoom;
+	padding-top: calc(var(--pager-top-inset) + 0.5rem);
+	padding-bottom: calc(1.5rem + 58px + 1.5rem + env(safe-area-inset-bottom, 0px));
+	scroll-padding-top: calc(var(--pager-top-inset) + 0.5rem);
+	scroll-padding-bottom: calc(1.5rem + 58px + 1.5rem + env(safe-area-inset-bottom, 0px));
+	border: 0;
+	outline: none;
+}
+
+.pager-section::-webkit-scrollbar {
+	display: none;
+}
+
+@supports (overflow: clip) {
+	.pager-section {
+		overflow-x: clip;
+	}
+}
+
+/* .pager-nav responsive breakpoints (900px, 600px) and
+   .pager-btn-spacer moved to global nav.css */

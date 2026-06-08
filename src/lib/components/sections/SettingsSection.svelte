@@ -1,4 +1,5 @@
-<!-- // Copyright (c) 2025 - 2026 rezky_nightky -->
+<!-- Copyright (C) 2026 rezky_nightky -->
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
 <script lang="ts">
 	import { AlertTriangle } from 'lucide-svelte';
 	import { t as _t, localeVersion } from '$lib/i18n';
@@ -24,7 +25,7 @@
 
 		<div class="github-footer">
 			<a
-				href="https://github.com/oxyzenq/bmi"
+				href="https://github.com/oxyzenQ/bmi"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="github-link"

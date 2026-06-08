@@ -4,10 +4,13 @@ name: 🛠️ CI
 on:
   push:
     paths:
-      # Source code — always run CI
-      - 'src/**'
-      - 'scripts/**'
-      # Config files that affect build
+      - '**/*.svelte'
+      - '**/*.ts'
+      - '**/*.js'
+      - '**/*.d.ts'
+      - '**/*.css'
+      - 'src/app.html'
+      - 'static/manifest.json'
       - 'package.json'
       - 'bun.lock'
       - 'tsconfig.json'
@@ -16,13 +19,31 @@ on:
       - 'vite.config.ts'
       - 'vitest.config.ts'
       - 'postcss.config.js'
-      - 'static/**'
+      - 'eslint.config.js'
+      - 'vercel.json'
+      - 'scripts/**'
       - '.github/workflows/**'
-      # Type definitions
-      - 'src/app.d.ts'
-      - 'src/types/**'
-      - '*.d.ts'
   pull_request:
+    paths:
+      - '**/*.svelte'
+      - '**/*.ts'
+      - '**/*.js'
+      - '**/*.d.ts'
+      - '**/*.css'
+      - 'src/app.html'
+      - 'static/manifest.json'
+      - 'package.json'
+      - 'bun.lock'
+      - 'tsconfig.json'
+      - 'svelte.config.js'
+      - 'svelte.config.static.js'
+      - 'vite.config.ts'
+      - 'vitest.config.ts'
+      - 'postcss.config.js'
+      - 'eslint.config.js'
+      - 'vercel.json'
+      - 'scripts/**'
+      - '.github/workflows/**'
 
 permissions:
   contents: read
@@ -43,10 +64,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -68,7 +89,7 @@ jobs:
           bun-version: ${{ steps.bun-version.outputs.version }}
 
       - name: Cache Bun dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
@@ -78,8 +99,23 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Dependency audit
+        run: bun run audit:deps
+
       - name: Format check
         run: bun run format:check
+
+      - name: LOC check
+        run: bun run audit:loc
+
+      - name: Header check
+        run: bun run audit:headers
+
+      - name: Branding check
+        run: bun run audit:branding
+
+      - name: PWA offline-shell check
+        run: bun run audit:pwa-offline
 
       - name: Type check
         run: bun run check

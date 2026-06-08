@@ -1,4 +1,5 @@
-// Copyright (c) 2025 - 2026 rezky_nightky
+// Copyright (C) 2026 rezky_nightky
+// SPDX-License-Identifier: GPL-3.0-only
 import { describe, expect, it } from 'vitest';
 import {
 	commitsMatch,
@@ -15,9 +16,20 @@ describe('pwa update commit comparison', () => {
 		expect(normalizeCommitId(' 161A9D3 ')).toBe('161a9d3');
 	});
 
-	it('treats full and short forms of the same commit as equal', () => {
-		expect(commitsMatch('161a9d3f00ba47', '161a9d3')).toBe(true);
-		expect(hasNewerCommit('161a9d3f00ba47', '161a9d3')).toBe(false);
+	it('requires exact normalized commit equality to match', () => {
+		// Full SHA must equal full SHA — prefix shortcuts are not allowed
+		expect(commitsMatch('161a9d3f00ba47', '161a9d3f00ba47')).toBe(true);
+		// Different-length forms are NOT considered a match (prefix collision prevention)
+		expect(commitsMatch('161a9d3f00ba47', '161a9d3')).toBe(false);
+		// Distinct commits sharing a prefix must NOT match
+		expect(commitsMatch('abc123', 'abc123def')).toBe(false);
+		expect(commitsMatch('abc123def', 'abc123')).toBe(false);
+	});
+
+	it('reports a shorter SHA as different from a longer SHA for the same commit', () => {
+		// When upstream has full SHA and local has short form, they are different
+		// because we cannot safely assume the short form is a prefix of the same commit.
+		expect(hasNewerCommit('161a9d3f00ba47', '161a9d3')).toBe(true);
 	});
 
 	it('does not report an update when local commit is unknown', () => {

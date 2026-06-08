@@ -1,4 +1,5 @@
-// Copyright (c) 2025 - 2026 rezky_nightky
+// Copyright (C) 2026 rezky_nightky
+// SPDX-License-Identifier: GPL-3.0-only
 /**
  * Core BMI calculation logic — pure functions, no side-effects.
  *
@@ -176,7 +177,10 @@ export function calculateBmi(
 	if (error) return error;
 
 	// Calculate
-	const bmi = computeBmi(heightCm, weightKg)!;
+	const bmi = computeBmi(heightCm, weightKg);
+	if (bmi === null) {
+		return { ok: false, code: 'invalid_height', message: 'BMI calculation failed.' };
+	}
 	const category = classifyBmi(bmi);
 
 	return { ok: true, bmi, category, heightCm, weightKg };
