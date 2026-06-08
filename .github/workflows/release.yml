@@ -310,7 +310,7 @@ jobs:
             echo "---"
             echo ""
             echo "**Built with:** SvelteKit + TypeScript + Vite"
-            echo "**Maintainer:** Rezky Nightky"
+            echo "**Maintainer:** rezky_nightky (oxyzenQ)"
             echo "**Project:** BMI Stellar"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"

@@ -12,12 +12,12 @@
 # - Avoids infinite loops by not running on push events (schedule/manual only).
 # - Skips if there are no actual file changes.
 
-name: ❤️‍🩹 self-heal-actions
+name: Maintenance actions versioning weekly
 
-# This workflow runs once a week on Monday at 01:00 UTC (08:00 WIB).
+# This workflow runs once a week on Monday at 00:00 UTC (07:00 WIB).
 on:
   schedule:
-    - cron: '0 1 * * 1'
+    - cron: '0 0 * * 1'
   workflow_dispatch: {}
 
 concurrency:
