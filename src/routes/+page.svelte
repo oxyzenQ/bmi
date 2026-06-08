@@ -141,7 +141,8 @@
 
 	const currentYear = new Date().getFullYear();
 
-	const gitCommitId = typeof __GIT_COMMIT_ID__ !== 'undefined' ? __GIT_COMMIT_ID__ : 'dev';
+	const gitCommitId =
+		typeof __GIT_COMMIT_ID__ !== 'undefined' ? __GIT_COMMIT_ID__.slice(0, 7) : 'dev';
 	const gitBranch = typeof __GIT_BRANCH__ !== 'undefined' ? __GIT_BRANCH__ : 'main';
 
 	const sections = SECTIONS;

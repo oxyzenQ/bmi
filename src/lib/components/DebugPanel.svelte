@@ -72,7 +72,8 @@
 			const backupStat = await getBackupStatus();
 			systemInfo = {
 				appVersion: '18.0.0',
-				gitCommit: typeof __GIT_COMMIT_ID__ !== 'undefined' ? __GIT_COMMIT_ID__ : 'unknown',
+				gitCommit:
+					typeof __GIT_COMMIT_ID__ !== 'undefined' ? __GIT_COMMIT_ID__.slice(0, 7) : 'unknown',
 				gitBranch: typeof __GIT_BRANCH__ !== 'undefined' ? __GIT_BRANCH__ : 'unknown',
 				buildTime: typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : 'unknown',
 				sessionTraceId: getSessionTraceId(),

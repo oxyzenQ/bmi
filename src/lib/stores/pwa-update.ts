@@ -68,6 +68,13 @@ function currentBranch(): string {
 	return typeof __GIT_BRANCH__ !== 'undefined' ? normalizeBranch(__GIT_BRANCH__) : 'main';
 }
 
+/** Truncate a full SHA to a short display form (first 7 chars).
+ *  Use only for UI display — never for commit comparison. */
+export function shortCommitId(commit: string | null | undefined): string {
+	const normalized = normalizeCommitId(commit);
+	return normalized.length > 7 ? normalized.slice(0, 7) : normalized;
+}
+
 export function normalizeCommitId(commit: string | null | undefined): string {
 	const normalized = typeof commit === 'string' ? commit.trim().toLowerCase() : '';
 	return normalized || 'unknown';
@@ -147,10 +154,16 @@ function isNewerUpstream(latestVersion: string | null, latestCommit: string | nu
 }
 
 function noteServiceWorkerUpdateReady(): void {
+	// Record that a new service worker is waiting, but do NOT set the
+	// user-facing updateAvailable flag here.  The subsequent
+	// checkForPwaUpdate('auto') call will decide whether a real app
+	// update exists (commit / version changed).  If the commit is
+	// already current, swUpdateReady will be cleared and no prompt shown.
 	pwaUpdateState.update((state) => ({
 		...state,
 		checked: true,
-		swUpdateReady: true,
+		swUpdateReady: false,
+		updateAvailable: false,
 		source: 'service-worker',
 		error: null
 	}));

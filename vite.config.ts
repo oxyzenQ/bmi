@@ -43,11 +43,14 @@ function getLocalGitInfo(): { sha: string; branch: string } {
 	const vercelSha = process.env.VERCEL_GIT_COMMIT_SHA;
 	const vercelRef = process.env.VERCEL_GIT_COMMIT_REF;
 
+	// Use the full 40-character SHA so it can be exactly compared with the
+	// GitHub API response (also 40 chars). Short SHA (7 chars) caused a
+	// false-positive update loop because `===` could never match.
 	const sha = vercelSha
-		? vercelSha.slice(0, 7)
+		? vercelSha
 		: (() => {
 				try {
-					return execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
+					return execFileSync('git', ['rev-parse', 'HEAD'], {
 						encoding: 'utf-8',
 						stdio: ['ignore', 'pipe', 'ignore']
 					}).trim();
