@@ -86,7 +86,9 @@ export function commitsMatch(a: string | null | undefined, b: string | null | un
 	const aa = normalizeCommitId(a);
 	const bb = normalizeCommitId(b);
 	if (aa === 'unknown' || bb === 'unknown' || aa === 'dev' || bb === 'dev') return false;
-	return aa.startsWith(bb) || bb.startsWith(aa);
+	// Exact normalized equality only — prefix matching (startsWith) is unsafe
+	// because distinct commits can share a prefix (e.g. abc123 vs abc123def).
+	return aa === bb;
 }
 
 export function hasNewerCommit(

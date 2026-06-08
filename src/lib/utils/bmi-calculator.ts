@@ -177,7 +177,10 @@ export function calculateBmi(
 	if (error) return error;
 
 	// Calculate
-	const bmi = computeBmi(heightCm, weightKg)!;
+	const bmi = computeBmi(heightCm, weightKg);
+	if (bmi === null) {
+		return { ok: false, code: 'invalid_height', message: 'BMI calculation failed.' };
+	}
 	const category = classifyBmi(bmi);
 
 	return { ok: true, bmi, category, heightCm, weightKg };

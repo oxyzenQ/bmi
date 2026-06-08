@@ -60,7 +60,7 @@ describe('Phase 1 regression: z-index hierarchy', () => {
 		// Use ripgrep to find hardcoded z-index in .svelte files
 		// Pattern: z-index followed by a number (not var())
 		try {
-			const result = execSync('rg "z-index\\s*:\\s*[0-9]" --include="*.svelte" -l || true', {
+			const result = execSync('rg "z-index\\s*:\\s*[0-9]" --glob="*.svelte" -l || true', {
 				cwd: process.cwd(),
 				encoding: 'utf-8'
 			}).trim();
