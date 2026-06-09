@@ -87,7 +87,7 @@ Enforcement will always begin with a polite request before any formal action.
 
 ## 6. Contact
 
-For trademark inquiries, permission requests, or clarifications, please open an issue on the [GitHub repository](https://github.com/oxyzenQ/bmi) or contact the project creator directly through GitHub.
+For trademark inquiries, permission requests, or clarifications, please open an issue on the [GitHub repository](https://github.com/oxyzenQ/bmi) or contact the project creator at `with dot rezky at gmail dot com`.
 
 ---
 
