@@ -96,9 +96,11 @@
 		"@vercel/speed-insights": "^2.0.0",
 		"@zxcvbn-ts/core": "^3.0.4",
 		"@zxcvbn-ts/language-common": "^3.0.4",
+		"esbuild": "^0.28.1",
 		"lucide-svelte": "^1.0.1"
 	},
 	"overrides": {
-		"cookie": "0.7.2"
+		"cookie": "0.7.2",
+		"esbuild": "^0.28.1"
 	}
 }
