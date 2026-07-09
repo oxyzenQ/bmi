@@ -1,5 +1,5 @@
 ---
-name: 💸 Release Publisher
+name: Release
 
 on:
   push:
@@ -34,46 +34,22 @@ jobs:
       - name: Validate tag format
         run: |
           TAG="${{ steps.tag.outputs.TAG_NAME }}"
-          echo "Tag: $TAG"
-
-          # Strict format: <prefix>-v<major>.<minor> (e.g., Stellar-v12.0)
           if [[ ! "$TAG" =~ ^${RELEASE_TAG_PREFIX}-v[0-9]+\.[0-9]+$ ]]; then
-            echo "❌ Invalid tag format: $TAG"
-            echo ""
-            echo "Expected format: ${RELEASE_TAG_PREFIX}-v<major>.<minor>"
-            echo "Examples:"
-            echo "  ✅ ${RELEASE_TAG_PREFIX}-v12.0"
-            echo "  ✅ ${RELEASE_TAG_PREFIX}-v10.5"
-            echo ""
-            echo "Invalid examples:"
-            echo "  ❌ ${RELEASE_TAG_PREFIX}-12.0    (missing 'v' before version)"
-            echo "  ❌ ${RELEASE_TAG_PREFIX} v12.0   (space instead of hyphen)"
-            echo "  ❌ v12.0          (missing '${RELEASE_TAG_PREFIX}-' prefix)"
+            echo "Invalid tag format: $TAG (expected ${RELEASE_TAG_PREFIX}-v<major>.<minor>)"
             exit 1
           fi
-
-          echo "✅ Tag format valid: $TAG"
 
       - name: Validate tag matches package version
         shell: bash
         run: |
           set -euo pipefail
           TAG="${{ steps.tag.outputs.TAG_NAME }}"
-          TAG_PREFIX="${RELEASE_TAG_PREFIX}-v"
-          TAG_VERSION="${TAG#"$TAG_PREFIX"}"
-          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
-          PACKAGE_SHORT="$(node -e "const [major='0', minor='0'] = require('./package.json').version.split('.'); console.log(major + '.' + minor)")"
-
-          echo "Tag version:     $TAG_VERSION"
-          echo "Package version: $PACKAGE_VERSION"
-
+          TAG_VERSION="${TAG#"${RELEASE_TAG_PREFIX}-v"}"
+          PACKAGE_SHORT="$(node -e "const [m='0',n='0']=require('./package.json').version.split('.');console.log(m+'.'+n)")"
           if [ "$TAG_VERSION" != "$PACKAGE_SHORT" ]; then
-            echo "❌ Release tag ${TAG} does not match package.json version ${PACKAGE_VERSION}."
-            echo "Expected tag: ${RELEASE_TAG_PREFIX}-v${PACKAGE_SHORT}"
+            echo "Tag $TAG does not match package.json v${PACKAGE_SHORT}"
             exit 1
           fi
-
-          echo "✅ Tag matches package.json display version: v${PACKAGE_SHORT}"
 
   release:
     needs: validate-tag
@@ -125,7 +101,6 @@ jobs:
             had_layout_ts=1
             cp src/routes/+layout.ts src/routes/+layout.ts.vercel
           fi
-
           cleanup() {
             cp svelte.config.js.vercel svelte.config.js
             rm -f svelte.config.js.vercel
@@ -136,7 +111,6 @@ jobs:
             fi
           }
           trap cleanup EXIT
-
           cp svelte.config.static.js svelte.config.js
           printf 'export const prerender = true;\n' > src/routes/+layout.ts
           bun run build
@@ -144,19 +118,13 @@ jobs:
       - name: Generate changelog
         id: changelog
         run: |
-          # Get previous tag
           PREVIOUS_TAG=$(git tag --sort=-creatordate | grep -v "^${{ steps.tag.outputs.TAG_NAME }}$" | head -n 1)
-
           if [ -z "$PREVIOUS_TAG" ]; then
-            # First release - get all commits from first commit
             FIRST_COMMIT=$(git rev-list --max-parents=0 HEAD)
             COMMITS=$(git log "${FIRST_COMMIT}..HEAD" --pretty=format:"- %s (%h)" --no-merges)
           else
-            # Subsequent release - get commits since last tag
             COMMITS=$(git log "${PREVIOUS_TAG}..HEAD" --pretty=format:"- %s (%h)" --no-merges)
           fi
-
-          # Save changelog to file
           {
             echo "CHANGELOG<<EOF"
             echo "$COMMITS"
@@ -167,21 +135,10 @@ jobs:
         run: |
           TAG="${{ steps.tag.outputs.TAG_NAME }}"
           STAGE="release-source"
-
-          # Clean staging dir
-          rm -rf "$STAGE"
-          mkdir -p "$STAGE"
-
-          # Copy source code directories
-          cp -r src "$STAGE/"
-          cp -r static "$STAGE/"
-          cp -r scripts "$STAGE/"
-          cp -r .github "$STAGE/"
-          cp -r docs "$STAGE/" 2>/dev/null || true
-
-          # Copy config files needed to rebuild
-          cp package.json "$STAGE/"
-          cp bun.lock "$STAGE/" 2>/dev/null || true
+          rm -rf "$STAGE" && mkdir -p "$STAGE"
+          cp -r src "$STAGE/" && cp -r static "$STAGE/" && cp -r scripts "$STAGE/"
+          cp -r .github "$STAGE/" && cp -r docs "$STAGE/" 2>/dev/null || true
+          cp package.json "$STAGE/" && cp bun.lock "$STAGE/" 2>/dev/null || true
           cp svelte.config.js "$STAGE/" 2>/dev/null || true
           cp svelte.config.static.js "$STAGE/" 2>/dev/null || true
           cp vite.config.ts "$STAGE/" 2>/dev/null || true
@@ -191,135 +148,35 @@ jobs:
           cp eslint.config.js "$STAGE/" 2>/dev/null || true
           cp vercel.json "$STAGE/" 2>/dev/null || true
           cp verify.sh "$STAGE/" 2>/dev/null || true
-
-          # Copy documentation
           cp README.md "$STAGE/" 2>/dev/null || true
-          cp LICENSE "$STAGE/"
-          cp SECURITY.md "$STAGE/" 2>/dev/null || true
-
-          # Create source zip
-          cd "$STAGE"
-          zip -r "../bmi-stellar-source-${TAG}.zip" .
-          cd ..
-
-          # Generate SHA256 checksum
+          cp LICENSE "$STAGE/" && cp SECURITY.md "$STAGE/" 2>/dev/null || true
+          cd "$STAGE" && zip -r "../bmi-stellar-source-${TAG}.zip" . && cd ..
           sha256sum "bmi-stellar-source-${TAG}.zip" > "bmi-stellar-source-${TAG}.zip.sha256"
-
-          # Clean up staging
           rm -rf "$STAGE"
 
       - name: Create build archive
         run: |
           TAG="${{ steps.tag.outputs.TAG_NAME }}"
           STAGE="release-build"
-
-          # Clean staging dir
-          rm -rf "$STAGE"
-          mkdir -p "$STAGE"
-
-          # Copy build output only
-          cp -r build "$STAGE/"
-          cp package.json "$STAGE/"
+          rm -rf "$STAGE" && mkdir -p "$STAGE"
+          cp -r build "$STAGE/" && cp package.json "$STAGE/" && cp LICENSE "$STAGE/"
           cp README.md "$STAGE/" 2>/dev/null || true
           cp -r docs "$STAGE/" 2>/dev/null || true
-          cp LICENSE "$STAGE/"
-
-          # Create build zip
-          cd "$STAGE"
-          zip -r "../bmi-stellar-build-${TAG}.zip" .
-          cd ..
-
-          # Generate SHA256 checksum
+          cd "$STAGE" && zip -r "../bmi-stellar-build-${TAG}.zip" . && cd ..
           sha256sum "bmi-stellar-build-${TAG}.zip" > "bmi-stellar-build-${TAG}.zip.sha256"
-
-          # Clean up staging
           rm -rf "$STAGE"
-
-      - name: Create release notes
-        id: release_notes
-        run: |
-          {
-            echo "NOTES<<EOF"
-            echo "# BMI Stellar - Release ${{ steps.tag.outputs.TAG_NAME }}"
-            echo ""
-            echo "## 🎉 What's New"
-            echo ""
-            echo "This release includes the latest improvements, bug fixes, and feature enhancements for BMI Stellar."
-            echo ""
-            echo "## 📦 Download Packages"
-            echo ""
-            echo "This release provides **two separate artifacts**:"
-            echo ""
-            echo "| Artifact | Description |"
-            echo "|----------|-------------|"
-            echo "| \`bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip\` | Full source code — rebuild from source |"
-            echo "| \`bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip\` | Pre-built static output — deploy ready |"
-            echo ""
-            echo "### From Source"
-            echo ""
-            echo "\`\`\`bash"
-            echo "# Extract the source archive"
-            echo "unzip bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip -d bmi-stellar"
-            echo ""
-            echo "# Install dependencies"
-            echo "cd bmi-stellar"
-            echo "bun install"
-            echo ""
-            echo "# Build and preview"
-            echo "bun run build"
-            echo "bun run preview"
-            echo "\`\`\`"
-            echo ""
-            echo "### From Build (Deploy Ready)"
-            echo ""
-            echo "\`\`\`bash"
-            echo "# Extract the build archive"
-            echo "unzip bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip -d bmi-stellar-deploy"
-            echo ""
-            echo "# Serve the static build with any HTTP server"
-            echo "cd bmi-stellar-deploy"
-            echo "bunx serve build"
-            echo "\`\`\`"
-            echo ""
-            echo "## 📋 Changelog"
-            echo ""
-            echo "${{ steps.changelog.outputs.CHANGELOG }}"
-            echo ""
-            echo "## 🔒 Security"
-            echo ""
-            echo "### Package Verification"
-            echo ""
-            echo "Verify the integrity of the downloaded package using SHA256:"
-            echo ""
-            echo "\`\`\`bash"
-            echo "# Verify source archive"
-            echo "sha256sum -c bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256"
-            echo ""
-            echo "# Verify build archive"
-            echo "sha256sum -c bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256"
-            echo "\`\`\`"
-            echo ""
-            echo "## 📄 License"
-            echo ""
-            echo "This project is licensed under the GPL v3 License. See the [LICENSE](LICENSE) file for details."
-            echo ""
-            echo "## 🙏 Acknowledgments"
-            echo ""
-            echo "Thank you to all contributors and users who made this release possible!"
-            echo ""
-            echo "---"
-            echo ""
-            echo "**Built with:** SvelteKit + TypeScript + Vite"
-            echo "**Maintainer:** rezky_nightky (oxyzenQ)"
-            echo "**Project:** BMI Stellar"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2.6.2
         with:
-          name: BMI Stellar ${{ steps.tag.outputs.TAG_NAME }}
-          body: ${{ steps.release_notes.outputs.NOTES }}
+          name: ${{ steps.tag.outputs.TAG_NAME }}
+          body: |
+            ## What's Changed
+
+            ${{ steps.changelog.outputs.CHANGELOG }}
+
+            ---
+            **Artifacts:** [source](${{ github.server_url }}/${{ github.repository }}/releases/download/${{ steps.tag.outputs.TAG_NAME }}/bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip) · [build](${{ github.server_url }}/${{ github.repository }}/releases/download/${{ steps.tag.outputs.TAG_NAME }}/bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip)
           files: |
             bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip
             bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
