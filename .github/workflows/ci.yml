@@ -53,8 +53,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: 22
-  VERCEL_NODE_RUNTIME: nodejs22.x
+  NODE_VERSION: 24
+  VERCEL_NODE_RUNTIME: nodejs24.x
 
 jobs:
   ci:
