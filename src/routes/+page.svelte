@@ -2,8 +2,6 @@
 <!-- SPDX-License-Identifier: GPL-3.0-only -->
 <script lang="ts">
 	import { onDestroy, onMount, tick } from 'svelte';
-	import { backOut, cubicOut } from 'svelte/easing';
-	import { tweened } from 'svelte/motion';
 	import { browser } from '$app/environment';
 	import {
 		getPerformanceTier,
@@ -17,10 +15,9 @@
 		storageRemove,
 		storageInvalidate
 	} from '$lib/utils/storage';
-	import { BMI_THRESHOLDS } from '$lib/utils/bmi-category';
 	import { calculateBmi, isBmiResult } from '$lib/utils/bmi-calculator';
 	import { warnDev, warnDevOnce } from '$lib/utils/warn-dev';
-	import { MARKER_ANIM, PAGER, SCROLL, HAPTIC, SECTIONS } from '$lib/utils/animation-config';
+	import { PAGER, SCROLL, HAPTIC, SECTIONS } from '$lib/utils/animation-config';
 	import { isEditableTarget } from '$lib/utils/dom';
 	import { saveBmiToHistory } from '$lib/utils/bmi-history';
 	import {
@@ -239,52 +236,6 @@
 			}
 		}
 	});
-
-	const BMI_BAR_MIN = BMI_THRESHOLDS.MIN;
-	const BMI_BAR_MAX = BMI_THRESHOLDS.MAX;
-
-	let rangeMarker = $derived(
-		bmiValue === null
-			? 0
-			: Math.max(0, Math.min(100, ((bmiValue - BMI_BAR_MIN) / (BMI_BAR_MAX - BMI_BAR_MIN)) * 100))
-	);
-	const animatedMarker = tweened(0, { duration: 0, easing: cubicOut });
-	let lastMarker = 0;
-	let markerTimer: ReturnType<typeof setTimeout> | null = null;
-
-	function animateRangeMarker(target: number) {
-		if (markerTimer) {
-			clearTimeout(markerTimer);
-			markerTimer = null;
-		}
-
-		if (reducedMotionEffective) {
-			lastMarker = target;
-			animatedMarker.set(target, { duration: 0 });
-			return;
-		}
-
-		const base =
-			perfTier === 'high'
-				? MARKER_ANIM.HIGH
-				: perfTier === 'medium'
-					? MARKER_ANIM.MEDIUM
-					: MARKER_ANIM.LOW;
-		const overshootDur = Math.round(base * MARKER_ANIM.OVERSHOOT_RATIO);
-		const settleDur = Math.round(base * MARKER_ANIM.SETTLE_RATIO);
-		const delta = target - lastMarker;
-		const overshoot = Math.max(0, Math.min(100, target + delta * 0.08));
-
-		lastMarker = target;
-		animatedMarker.set(overshoot, { duration: overshootDur, easing: backOut });
-		markerTimer = setTimeout(
-			() => {
-				animatedMarker.set(target, { duration: settleDur, easing: cubicOut });
-				markerTimer = null;
-			},
-			Math.max(0, overshootDur - MARKER_ANIM.SETTLE_DELAY_OFFSET)
-		);
-	}
 
 	let pagerDirection = $derived(activeIndex >= lastIndex ? 1 : -1);
 	let pagerMotionDuration = $derived(
@@ -891,19 +842,8 @@
 		}
 	}
 
-	// Animate range marker when BMI value changes
-	$effect(() => {
-		if (bmiValue !== null) {
-			animateRangeMarker(rangeMarker);
-		} else {
-			lastMarker = 0;
-			animatedMarker.set(0, { duration: 0 });
-		}
-	});
-
 	onDestroy(() => {
 		pageDestroyed = true;
-		if (markerTimer) clearTimeout(markerTimer);
 		if (switchingTimer) clearTimeout(switchingTimer);
 		if (browser) document.body.classList.remove('is-switching');
 	});
