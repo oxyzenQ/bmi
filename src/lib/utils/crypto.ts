@@ -29,7 +29,7 @@
 
 import { browser } from '$app/environment';
 import { dbMetaGet, dbMetaSet, isIndexedDbAvailable } from './db';
-import { STORAGE_KEYS } from './storage';
+import { STORAGE_KEYS, storageGet, storageRemove, storageSet } from './storage';
 import { warnDev } from './warn-dev';
 
 // ── Constants ──
@@ -263,15 +263,10 @@ export async function verifyChecksum(data: string, checksum: string): Promise<bo
  * NEVER exported to encrypted files.
  */
 export function setPassphraseHint(hint: string): void {
-	if (!browser) return;
-	try {
-		if (hint && hint.trim()) {
-			localStorage.setItem(STORAGE_KEYS.PASSPHRASE_HINT, hint.trim());
-		} else {
-			localStorage.removeItem(STORAGE_KEYS.PASSPHRASE_HINT);
-		}
-	} catch (err) {
-		warnDev('crypto', 'setPassphraseHint', 'Failed to persist hint', err);
+	if (hint && hint.trim()) {
+		storageSet(STORAGE_KEYS.PASSPHRASE_HINT, hint.trim());
+	} else {
+		storageRemove(STORAGE_KEYS.PASSPHRASE_HINT);
 	}
 }
 
@@ -280,13 +275,7 @@ export function setPassphraseHint(hint: string): void {
  * Returns empty string if no hint is stored.
  */
 export function getPassphraseHint(): string {
-	if (!browser) return '';
-	try {
-		return localStorage.getItem(STORAGE_KEYS.PASSPHRASE_HINT) || '';
-	} catch (err) {
-		warnDev('crypto', 'getPassphraseHint', 'Failed to read hint', err);
-		return '';
-	}
+	return storageGet(STORAGE_KEYS.PASSPHRASE_HINT) || '';
 }
 
 // ── Passphrase strength analysis ──

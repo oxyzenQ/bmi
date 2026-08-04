@@ -43,6 +43,21 @@ vi.mock('../db', () => ({
 	isIndexedDbAvailable: (...args: unknown[]) => mockIsIndexedDbAvailable(...args)
 }));
 
+// Mock storage.ts helpers — delegate to jsdom localStorage so crypto tests
+// stay isolated from IndexedDB / cross-tab synchronization internals.
+vi.mock('../storage', async (importOriginal) => {
+	const actual = await importOriginal<typeof import('../storage')>();
+	return {
+		...actual,
+		storageGet: (key: string) => localStorage.getItem(key),
+		storageSet: (key: string, value: string) => {
+			localStorage.setItem(key, value);
+			return true;
+		},
+		storageRemove: (key: string) => localStorage.removeItem(key)
+	};
+});
+
 import {
 	encrypt,
 	decrypt,
