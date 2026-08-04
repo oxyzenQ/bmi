@@ -18,7 +18,21 @@
   </p>
 </div>
 
----
+## Demo
+
+<p align="center">
+  <img src="assets/demo-bmi-stellar-home-page.png" alt="bmi stellar demo" width="800">
+</p>
+
+<p align="center">
+  <img src="assets/demo-bmi-stellar-gauge.png" alt="bmi stellar gauge demo" width="800">
+  <br>
+  <img src="assets/demo-bmi-stellar-gauge-active.png" alt="bmi stellar gauge active demo" width="800">
+  <br>
+  <img src="assets/demo-bmi-stellar-results.png" alt="bmi stellar results demo" width="800">
+  <br>
+  <img src="assets/demo-bmi-stellar-snapshot.png" alt="bmi stellar snapshot demo" width="800">
+</p>
 
 ## Contents
 
