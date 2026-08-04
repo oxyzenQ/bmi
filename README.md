@@ -135,7 +135,9 @@ docs/                        # Long-form documentation (furthermore.md)
 
 | Document                                           | Purpose                                                                 |
 | -------------------------------------------------- | ----------------------------------------------------------------------- |
+| [CHANGELOG.md](CHANGELOG.md)                       | Release history v20.0 → v21.7 with categorized changes per release      |
 | [docs/furthermore.md](docs/furthermore.md)         | Architecture deep dive: CSS cascade, pager, crypto, PWA, share image    |
+| [docs/AUDIT-2026-08.md](docs/AUDIT-2026-08.md)     | Source code audit report (stale code, potential bugs, cleanup plan)     |
 | [DORMANT.md](DORMANT.md)                           | Wake-up checklist for long quiet periods and future maintenance         |
 | [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) | Contributor workflow, coding standards, i18n, PR checklist              |
 | [.github/RELEASE.md](.github/RELEASE.md)           | Release checklist, tag rules, artifacts, rollback, troubleshooting      |
