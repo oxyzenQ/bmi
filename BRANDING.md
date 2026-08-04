@@ -68,8 +68,10 @@ The BMI Stellar palette is a professional, dark-themed system with vibrant accen
 
 | Role             | Color      | Hex       | Usage                              |
 | ---------------- | ---------- | --------- | ---------------------------------- |
-| Primary Accent   | Indigo 600 | `#4F46E5` | Buttons, links, primary highlights |
-| Secondary Accent | Violet 600 | `#7C3AED` | Secondary highlights, gauges       |
+| Primary Accent   | Indigo 500 | `#6366F1` | Buttons, links, primary highlights |
+| Secondary Accent | Violet 500 | `#8B5CF6` | Secondary highlights, gauges       |
+
+> The accent hex values are the actual values used in `src/styles/tokens.css` (decomposed as `rgba(99,102,241,…)` for indigo and `rgba(139,92,246,…)` for violet). Tailwind's `Indigo 600` / `Violet 600` were referenced in older revisions but are not the values the cascade resolves to — use the hex values above for any external asset.
 
 ---
 

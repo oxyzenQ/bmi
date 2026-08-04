@@ -48,7 +48,7 @@ graph TD
     F --> G[responsive-base.css]
     G --> H[responsive-width.css & responsive-height.css]
     H --> I[responsive-backdrop.css]
-    I --> J[nav.css & lang-switcher.css]
+    I --> J[nav.css & pager.css & lang-switcher.css]
     J --> K[animation.css]
     K --> L[responsive-mobile-perf.css]
     L --> M[responsive-content.css]
@@ -69,10 +69,11 @@ graph TD
 | 11  | `responsive-height.css`      | Height-based compression rules (640px, 520px)                                                                                                                                     |
 | 12  | `responsive-backdrop.css`    | `@supports` feature detection for `backdrop-filter`, solid fallback backgrounds                                                                                                   |
 | 13  | `nav.css`                    | Pager navigation, bottom controls, performance-tier GPU containment                                                                                                               |
-| 14  | `lang-switcher.css`          | Floating language switcher panel (portal-aware global styles)                                                                                                                     |
-| 15  | `animation.css`              | Skeleton loading, shooting stars, input focus glow, glass card hover sweeps, progress bars                                                                                        |
-| 16  | `responsive-mobile-perf.css` | Touch-device scroll/tap/rendering overrides — disables `backdrop-filter`, simplifies transitions on `(hover: none) and (pointer: coarse)`                                         |
-| 17  | `responsive-content.css`     | Final correction layer for widths, rhythm, radius, and shadow policy                                                                                                              |
+| 14  | `pager.css`                  | Pager section layout, scroll-snap container, section transitions, and pager-specific responsive overrides                                                                         |
+| 15  | `lang-switcher.css`          | Floating language switcher panel (portal-aware global styles)                                                                                                                     |
+| 16  | `animation.css`              | Skeleton loading, shooting stars, input focus glow, glass card hover sweeps, progress bars                                                                                        |
+| 17  | `responsive-mobile-perf.css` | Touch-device scroll/tap/rendering overrides — disables `backdrop-filter`, simplifies transitions on `(hover: none) and (pointer: coarse)`                                         |
+| 18  | `responsive-content.css`     | Final correction layer for widths, rhythm, radius, and shadow policy                                                                                                              |
 
 ## Accessibility Architecture
 
@@ -135,32 +136,35 @@ All animation constants are `as const` with invariants enforced by tests (e.g., 
 
 ## Lazy Loading
 
-Heavy components are loaded on-demand as their sections enter the viewport, ensuring a fast First Contentful Paint:
+Heavy components are loaded on-demand as their sections enter the viewport, ensuring a fast First Contentful Paint. The lazy-load registry in `src/routes/+page.svelte` is:
 
-- BMI form and results
-- Radial gauge visualization
-- Health risk and snapshot cards
-- Goal tracker system
-- Body-fat estimates
-- Reference tables
-- Debug panel (dev-only)
+- `calculatorLoader` (paired) — `BmiForm` + `BmiResults`
+- `gaugeLoader` — `BmiRadialGauge`
+- `healthRiskLoader` — `BmiHealthRisk`
+- `snapshotLoader` — `BmiSnapshot`
+- `bodyFatLoader` — `BodyFatEstimate`
+- `referenceLoader` — `ReferenceTable` (eagerly preloaded when the Reference section index is approaching)
+- `goalTrackerLoader` — `BmiGoalTracker`
+
+`DebugPanel` is **not** lazy-loaded — it is statically imported but only rendered in development mode.
 
 The lazy-load utility (`src/lib/utils/lazy-load.ts`) uses `IntersectionObserver` with a small root margin to preload slightly before the section becomes visible.
 
 ## Data Persistence
 
-All data remains client-side, managed via a storage abstraction layer (`src/lib/utils/storage.ts`) with localStorage as primary and IndexedDB as secondary:
+All data remains client-side, managed via a storage abstraction layer (`src/lib/utils/storage.ts`) with localStorage as primary and IndexedDB as secondary. The full set of `STORAGE_KEYS` defined in `src/lib/utils/storage.ts` is:
 
-| Storage Key              | Purpose                                            |
-| ------------------------ | -------------------------------------------------- |
-| `bmi.history`            | Comprehensive BMI calculation history              |
-| `bmi.unitSystem`         | User metric/imperial preference                    |
-| `bmi.renderMode`         | Render quality preference (performance vs visuals) |
-| `bmi.locale`             | Selected language                                  |
-| `bmi.encryptionVerifier` | AES-GCM encrypted passphrase verifier (IndexedDB)  |
+| Storage Key             | Store                  | Purpose                                                                                |
+| ----------------------- | ---------------------- | -------------------------------------------------------------------------------------- |
+| `bmi.history`           | localStorage           | Comprehensive BMI calculation history                                                  |
+| `bmi.goal`              | localStorage           | User's target BMI / weight goal                                                        |
+| `bmi.goal.start`        | localStorage           | Goal start reference (baseline for progress)                                           |
+| `bmi.unitSystem`        | localStorage           | User metric/imperial preference                                                        |
+| `bmi.locale`            | localStorage           | Selected language                                                                      |
+| `__encryption_verifier` | IndexedDB `meta` store | AES-GCM ciphertext of a known verifier string (confirms passphrase without storing it) |
 
 > [!TIP]
-> The storage layer includes error-resilient fallbacks — `SecurityError`, `QuotaExceededError`, and JSON parse failures are caught gracefully with dev-only warnings. Cross-tab synchronization ensures state consistency when multiple tabs are open.
+> The storage layer includes error-resilient fallbacks — `SecurityError`, `QuotaExceededError`, and JSON parse failures are caught gracefully with dev-only warnings. Cross-tab synchronization ensures state consistency when multiple tabs are open. The encryption verifier lives in the IndexedDB `meta` store (not localStorage) and is never the passphrase itself — only an authenticated ciphertext that can be tested against a candidate passphrase.
 
 ## Encryption System
 
@@ -291,14 +295,16 @@ The service worker (`src/service-worker.ts`) is registered as an ES module in pr
 
 GitHub workflows are located in `.github/workflows/`.
 
-| Workflow                | Purpose                                                                    |
-| ----------------------- | -------------------------------------------------------------------------- |
-| `ci.yml`                | Executes type-checking, linting, tests, and the final build                |
-| `codeql.yml`            | Performs automated security analysis                                       |
-| `release.yml`           | Publishes GitHub Release with changelog and artifacts                      |
-| `maintenance.yml`       | Runs the `Maintenance deps weekly` lockfile refresh and direct commit flow |
-| `self-heal-actions.yml` | Automatically updates minor/patch GitHub Action versions                   |
-| `runtime-probe.yml`     | Probes Node/Bun runtime compatibility                                      |
+| Workflow                | Purpose                                                                                                                                    |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ci.yml`                | Executes format, audits, type-checking, linting, tests, and the final build — the source of truth mirrored by `scripts/build.sh check-all` |
+| `codeql.yml`            | Performs automated GitHub CodeQL security analysis                                                                                         |
+| `release.yml`           | Publishes GitHub Release with changelog and artifacts                                                                                      |
+| `maintenance.yml`       | Runs the `Maintenance deps weekly` lockfile refresh and direct commit flow                                                                 |
+| `self-heal-actions.yml` | Automatically updates minor/patch GitHub Action versions                                                                                   |
+| `runtime-probe.yml`     | Probes Node/Bun runtime compatibility                                                                                                      |
+| `security-audit.yml`    | Daily scheduled dependency + policy audit (loc, headers, pwa-offline)                                                                      |
+| `docs-ci.yml`           | Lints documentation files (prettier, yamllint, codespell)                                                                                  |
 
 ## Release Process
 
@@ -313,15 +319,16 @@ bun run bmi-update-version --dry-run <version>
 bun run bmi-update-version <version>
 
 # Verify integrity before tagging
-bun run verify
+./scripts/build.sh check-all
 ```
 
-Release tags must adhere to the format: `Stellar-v<major>.<minor>` (for example, `Stellar-v21.0`, `Stellar-v22.0`).
+Release tags must adhere to the format: `Stellar-v<major>.<minor>` (for example, `Stellar-v21.0`, `Stellar-v22.0`). The current release is `v21.7.0` (tag `Stellar-v21.7`).
 
 ## Known Constraints
 
 - **Backdrop Filters:** Older browsers lacking `backdrop-filter` support fallback to opaque surfaces via `responsive-backdrop.css` feature detection.
 - **Mobile Performance:** Touch devices utilize simpler, dark transparent surfaces in heavy scroll areas to reduce paint/compositor work. The `responsive-mobile-perf.css` layer disables or softens expensive effects such as `backdrop-filter`, heavy glows, and hover-only transitions on `(hover: none) and (pointer: coarse)` devices.
 - **Accessibility:** Users with `prefers-reduced-motion` enabled will experience disabled animations. Visual styling is preserved — only motion is suppressed.
-- **Build Environment:** The project targets Node `>=22 <25` and resolves the Bun version from `package.json#packageManager`. CI and release workflows currently run on Node 24.
+- **Build Environment:** The project pins Bun `1.3.11` (via `package.json#packageManager`) and Node `22.x` for local development. CI and release workflows run on Node 24 (`FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`, `NODE_VERSION=24`) with the Vercel runtime `nodejs24.x`. The `engines` field in `package.json` declares `node >=22 <25`.
 - **Security Finality:** Encrypted backups fundamentally cannot be recovered without the user's passphrase. This is by design — there is no backdoor.
+- **Dormant Maintenance:** The project follows a low-touch maintenance cadence (see [`DORMANT.md`](../DORMANT.md)). When waking it up after a quiet period, expect `bun audit` to flag advisories published against pinned transitive deps in the interim — bump `overrides` in `package.json` (never weaken crypto deps) and re-run `./scripts/build.sh check-all`.

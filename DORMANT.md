@@ -16,34 +16,30 @@ This guide is the wake-up checklist for BMI Stellar after a quiet period of 1-5 
 
 1. Install the pinned toolchain if possible.
 2. Run `bun install --frozen-lockfile`.
-3. Run the validation gate:
+3. Run the validation gate. The canonical entry point is the local gatekeeper:
 
 ```bash
-bun run format:check
-bun run audit:loc
-bun run audit:headers
-bun run audit:pwa-offline
-bun run check
-bun run lint
-bun run test:ci
-bun run build
-bun audit
+./scripts/build.sh check-all
 ```
 
+This mirrors `.github/workflows/ci.yml` step-by-step (format:check → audit:deps → audit:loc → audit:headers → audit:branding → audit:pwa-offline → check → lint → test:ci → build). The lighter `bun run verify` is acceptable for quick local iteration but skips `audit:deps` and uses `test:run` instead of `test:ci`.
+
 4. If the frozen install fails because the ecosystem moved, upgrade Bun/Node first, then make dependency changes in a dedicated maintenance commit.
-5. If CI fails only because GitHub Actions runners/actions changed, update workflow actions without touching app behavior.
+5. If `audit:deps` fails because new advisories were published against pinned transitive deps during the dormant period, bump the relevant `overrides` in `package.json` (do not weaken crypto deps). Re-run `bun install` then `./scripts/build.sh check-all`.
+6. If CI fails only because GitHub Actions runners/actions changed, update workflow actions without touching app behavior.
 
 ## Data Safety Rules
 
 Do not delete, rename, or migrate these without a compatibility plan:
 
-- `STORAGE_KEYS.HISTORY` / `bmi.history`
-- `STORAGE_KEYS.BMI_GOAL`
-- `STORAGE_KEYS.BMI_GOAL_START`
-- passphrase hint storage
-- IndexedDB key-value store
-- IndexedDB `backups` store
-- encrypted backup format `bmi-encrypted-v1`
+- `STORAGE_KEYS.HISTORY` / `bmi.history` (localStorage)
+- `STORAGE_KEYS.BMI_GOAL` / `bmi.goal` (localStorage)
+- `STORAGE_KEYS.BMI_GOAL_START` / `bmi.goal.start` (localStorage)
+- `STORAGE_KEYS.UNIT_SYSTEM` / `bmi.unitSystem` (localStorage)
+- `STORAGE_KEYS.LOCALE` / `bmi.locale` (localStorage)
+- IndexedDB `meta` store entry `__encryption_verifier` (AES-GCM ciphertext of known verifier plaintext; never the passphrase itself)
+- IndexedDB `backups` store (encrypted backup blobs)
+- Encrypted backup format `bmi-encrypted-v1`
 - Argon2id and PBKDF2 legacy import support
 
 BMI inputs, history, goals, encryption verifier data, and backups are device-local. Do not introduce an app backend for health data.

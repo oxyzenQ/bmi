@@ -61,11 +61,11 @@ BMI Stellar is a comprehensive, privacy-first health metrics application that ru
 | **Framework**  | SvelteKit 2 + Svelte 5 Runes (`$state`, `$derived`, `$effect`) |
 | **Language**   | TypeScript (strict mode)                                       |
 | **Runtime**    | Bun                                                            |
-| **Styling**    | 17-file modular CSS cascade with custom properties             |
+| **Styling**    | 18-file modular CSS cascade with custom properties             |
 | **Encryption** | `@noble/hashes` (Argon2id, pure JS, no WASM) + Web Crypto API  |
 | **Icons**      | Lucide Svelte                                                  |
 | **Fonts**      | Inter Variable + JetBrains Mono Variable                       |
-| **Tests**      | Vitest + Testing Library (456 tests, 30 suites)                |
+| **Tests**      | Vitest + Testing Library (452 tests, 29 suites)                |
 | **Deployment** | Vercel (adapter-vercel)                                        |
 
 ## Quick Start
@@ -86,21 +86,26 @@ Open the local URL printed in your terminal (usually `http://localhost:5173`).
 
 ## Core Scripts
 
-| Command                                          | Description                                               |
-| ------------------------------------------------ | --------------------------------------------------------- |
-| `bun run dev`                                    | Start local dev server with HMR                           |
-| `bun run check`                                  | Svelte and TypeScript diagnostics                         |
-| `bun run lint`                                   | ESLint with Svelte plugin                                 |
-| `bun run test`                                   | Vitest in watch mode                                      |
-| `bun run test:run`                               | Single test run                                           |
-| `bun run test:ci`                                | CI-friendly test run (forked, 2 workers)                  |
-| `bun run test:fast`                              | Fast test run (excludes crypto/history-io)                |
-| `bun run build`                                  | Production build                                          |
-| `bun run format`                                 | Prettier auto-format                                      |
-| `bun run format:check`                           | Prettier check (no write)                                 |
-| `bun run verify`                                 | Full gate: format:check + check + lint + test:run + build |
-| `bun run bmi-update-version <version>`           | Sync version across all canonical files                   |
-| `bun run bmi-update-version --dry-run <version>` | Preview a version update without writing                  |
+| Command                                          | Description                                                           |
+| ------------------------------------------------ | --------------------------------------------------------------------- |
+| `bun run dev`                                    | Start local dev server with HMR                                       |
+| `bun run check`                                  | Svelte and TypeScript diagnostics                                     |
+| `bun run lint`                                   | ESLint with Svelte plugin                                             |
+| `bun run test`                                   | Vitest in watch mode                                                  |
+| `bun run test:run`                               | Single test run                                                       |
+| `bun run test:ci`                                | CI-friendly test run (forked, 2 workers)                              |
+| `bun run test:fast`                              | Fast test run (excludes crypto/history-io)                            |
+| `bun run build`                                  | Production build                                                      |
+| `bun run format`                                 | Prettier auto-format                                                  |
+| `bun run format:check`                           | Prettier check (no write)                                             |
+| `bun run verify`                                 | Full local gate: format + 4 audits + check + lint + test:run + build  |
+| `./scripts/build.sh check-all`                   | Gatekeeper mirroring CI (same as `verify` + `audit:deps` + `test:ci`) |
+| `bun run lint:fix`                               | ESLint auto-fix                                                       |
+| `bun run clean`                                  | Remove `.svelte-kit`, `build`, `dist`, `node_modules/.cache`          |
+| `bun run audit:deps`                             | `bun audit` dependency vulnerability scan                             |
+| `bun run test:crypto`                            | Run only crypto + history-io test suites                              |
+| `bun run bmi-update-version <version>`           | Sync version across all canonical files                               |
+| `bun run bmi-update-version --dry-run <version>` | Preview a version update without writing                              |
 
 ## Project Layout
 
@@ -118,12 +123,12 @@ src/
 │   ├── actions/             # Svelte actions (portal)
 │   ├── types/               # TypeScript type definitions
 │   └── ui/                  # Shared UI primitives (Hero)
-├── styles/                  # 17-file modular CSS cascade
+├── styles/                  # 18-file modular CSS cascade
 ├── routes/                  # SvelteKit pages (+layout, +page, +error)
 ├── service-worker.ts        # PWA service worker
-scripts/                     # Maintenance scripts (bmi-update-version)
+scripts/                     # build.sh gatekeeper + audit scripts (loc, headers, branding, pwa-offline, version-sync)
 docs/                        # Long-form documentation (furthermore.md)
-.github/workflows/           # CI, release, security, and maintenance workflows
+.github/workflows/           # CI, release, security, maintenance, docs-ci, runtime-probe
 ```
 
 ## Documentation Map
@@ -158,11 +163,13 @@ See [SECURITY.md](SECURITY.md) for the full security policy and vulnerability re
 
 ## Contributing & Releases
 
-Contributions should preserve BMI calculation correctness, privacy boundaries, mobile smoothness, and the existing dark premium identity. Before opening a PR, run:
+Contributions should preserve BMI calculation correctness, privacy boundaries, mobile smoothness, and the existing dark premium identity. Before opening a PR, run the gatekeeper:
 
 ```bash
-bun run verify
+./scripts/build.sh check-all
 ```
+
+This mirrors the GitHub Actions `ci.yml` workflow end-to-end (format + 5 audits + type-check + lint + test:ci + build). `bun run verify` is the lighter local variant (same steps except `audit:deps` and uses `test:run` instead of `test:ci`).
 
 Use [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) for development standards and [.github/RELEASE.md](.github/RELEASE.md) for release operations.
 
