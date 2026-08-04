@@ -72,8 +72,15 @@ jobs:
       - name: Install current dependencies
         run: bun install --frozen-lockfile
 
-      - name: Audit current dependency tree
-        run: bun run audit:deps
+      - name: Audit current dependency tree (informational, non-blocking)
+        # Non-blocking on purpose: this audit runs BEFORE the update step.
+        # If a CVE already exists in the lockfile, blocking here would
+        # prevent the weekly update from running — which is the very job
+        # that should fix the CVE. The post-update audit (below) is also
+        # non-blocking. The authoritative quality gate is the
+        # "Run quality checks" step which runs type-check + tests on the
+        # updated lockfile before commit.
+        run: bun run audit:deps || true
 
       - name: Update all dependencies
         run: |

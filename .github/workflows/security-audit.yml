@@ -3,8 +3,12 @@ name: 🔎 Security Audit
 
 on:
   schedule:
-    # Daily at 00:00 UTC (07:00 WIB)
-    - cron: '0 0 * * *'
+    # Weekly at 00:05 UTC every Monday (07:05 WIB).
+    # Runs 5 minutes AFTER maintenance.yml (00:00 UTC) so the weekly deps
+    # refresh has a chance to patch vulnerabilities before this audit fires.
+    # Daily cadence caused notif floods during dormant periods whenever a
+    # new CVE was published between Monday maintenance windows.
+    - cron: '5 0 * * 1'
   workflow_dispatch: {}
 
 permissions:
