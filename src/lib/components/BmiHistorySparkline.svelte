@@ -4,7 +4,7 @@
 	import { browser } from '$app/environment';
 	import { onDestroy } from 'svelte';
 	import { TrendingUp, TrendingDown, Minus } from 'lucide-svelte';
-	import { STORAGE_KEYS } from '$lib/utils/storage';
+	import { STORAGE_KEYS, storageGet } from '$lib/utils/storage';
 	import { t as _t, localeVersion } from '$lib/i18n';
 	import { warnDev } from '$lib/utils/warn-dev';
 	import {
@@ -56,7 +56,7 @@
 	function loadHistory(): HistoryView {
 		if (!browser) return { records: [], totalCount: 0 };
 		try {
-			const stored = localStorage.getItem(STORAGE_KEYS.HISTORY);
+			const stored = storageGet(STORAGE_KEYS.HISTORY);
 			if (!stored) return { records: [], totalCount: 0 };
 			const history: BMIRecord[] = JSON.parse(stored);
 			return {

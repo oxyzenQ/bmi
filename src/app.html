@@ -119,7 +119,11 @@
 						space: 'url("/images/oxyzen-zenlysium.webp")'
 					};
 					if (t && m[t]) document.documentElement.style.setProperty('--wallpaper-current', m[t]);
-				} catch (e) {}
+				} catch (e) {
+					// Best-effort wallpaper preload before SvelteKit hydrates.
+					// Failures (private mode, disabled storage, malformed value)
+					// fall through silently — the default CSS wallpaper applies.
+				}
 			})();
 		</script>
 

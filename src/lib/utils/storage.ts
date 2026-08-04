@@ -25,7 +25,8 @@ export const STORAGE_KEYS = {
 	WALLPAPER_THEME: 'bmi.wallpaperTheme',
 	LOCALE: 'bmi.locale',
 	BMI_GOAL: 'bmi.goal',
-	BMI_GOAL_START: 'bmi.goal.start'
+	BMI_GOAL_START: 'bmi.goal.start',
+	PASSPHRASE_HINT: 'bmi.passphrase_hint'
 } as const;
 
 /** Current storage schema version (bumped when structure changes). */

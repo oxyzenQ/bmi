@@ -208,8 +208,6 @@
 		};
 	});
 
-	let showTdee = $derived(tdeeDisplay !== null);
-
 	// Animate BMI value when results change
 	$effect(() => {
 		if (hasResults) {
@@ -393,12 +391,9 @@
 					<div class="stat-value-row">
 						<span class="stat-number">{$animatedPrime.toFixed(2)}</span>
 						{#if primePercent !== null && primePercent !== 0}
-							<span
-								class="stat-badge"
-								class:badge-above={primePercent! > 0}
-								class:badge-below={primePercent! < 0}
-							>
-								{primePercent! > 0 ? '+' : ''}{primePercent!.toFixed(0)}%
+							{@const pp = primePercent}
+							<span class="stat-badge" class:badge-above={pp > 0} class:badge-below={pp < 0}>
+								{pp > 0 ? '+' : ''}{pp.toFixed(0)}%
 							</span>
 						{/if}
 					</div>
@@ -454,7 +449,8 @@
 			</div>
 
 			<!-- TDEE Estimation -->
-			{#if showTdee}
+			{#if tdeeDisplay}
+				{@const td = tdeeDisplay}
 				<div class="tdee-card">
 					<div class="tdee-header">
 						<div class="stat-block-header">
@@ -465,7 +461,7 @@
 					<div class="tdee-grid">
 						<div class="tdee-stat">
 							<span class="tdee-stat-label">{t('results.bmr')}</span>
-							<span class="tdee-stat-value">{tdeeDisplay!.bmr}</span>
+							<span class="tdee-stat-value">{td.bmr}</span>
 							<span class="tdee-stat-unit">{t('results.kcal_day')}</span>
 						</div>
 						<div class="tdee-stat tdee-highlight">
@@ -475,7 +471,7 @@
 						</div>
 					</div>
 					<div class="tdee-meta">
-						<span class="tdee-activity-badge">{tdeeDisplay!.activityLabel}</span>
+						<span class="tdee-activity-badge">{td.activityLabel}</span>
 						<span class="tdee-gender-badge"
 							>{gender === 'male' ? t('results.male') : t('results.female')}</span
 						>
@@ -483,17 +479,17 @@
 					<div class="tdee-ranges">
 						<div class="tdee-range tdee-cut">
 							<span class="tdee-range-label">{t('results.weight_loss')}</span>
-							<span class="tdee-range-value">{tdeeDisplay!.deficit500}</span>
+							<span class="tdee-range-value">{td.deficit500}</span>
 							<span class="tdee-range-unit">{t('results.kcal')}</span>
 						</div>
 						<div class="tdee-range tdee-maintain">
 							<span class="tdee-range-label">{t('results.maintain')}</span>
-							<span class="tdee-range-value">{tdeeDisplay!.tdee}</span>
+							<span class="tdee-range-value">{td.tdee}</span>
 							<span class="tdee-range-unit">{t('results.kcal')}</span>
 						</div>
 						<div class="tdee-range tdee-gain">
 							<span class="tdee-range-label">{t('results.weight_gain')}</span>
-							<span class="tdee-range-value">{tdeeDisplay!.surplus500}</span>
+							<span class="tdee-range-value">{td.surplus500}</span>
 							<span class="tdee-range-unit">{t('results.kcal')}</span>
 						</div>
 					</div>
