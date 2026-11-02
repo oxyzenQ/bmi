@@ -1,5 +1,5 @@
 // Copyright (C) 2026 rezky_nightky
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { extname, join, relative, sep } from 'node:path';
@@ -28,6 +28,7 @@ export async function readProjectLicense() {
 
 export function normalizeSpdxLicense(license: string) {
 	if (license === 'GPL-3.0') return 'GPL-3.0-only';
+	if (license === 'AGPL-3.0') return 'AGPL-3.0-only';
 	return license;
 }
 

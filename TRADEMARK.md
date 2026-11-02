@@ -1,14 +1,14 @@
 # BMI Stellar Trademark Policy
 
-This document governs the use of the **BMI Stellar** name, logo, and associated branding assets. It supplements, but does not replace, the GPL-3.0 License that covers the source code.
+This document governs the use of the **BMI Stellar** name, logo, and associated branding assets. It supplements, but does not replace, the AGPL-3.0-only License that covers the source code.
 
-> **TL;DR** — You may fork, modify, and redistribute the code under the GPL-3.0 License, but you may **not** use the "BMI Stellar" name or branding to represent a modified or competing product without permission.
+> **TL;DR** — You may fork, modify, and redistribute the code under the AGPL-3.0-only License, but you may **not** use the "BMI Stellar" name or branding to represent a modified or competing product without permission.
 
 ---
 
 ## 1. Trademark Ownership
 
-The name **"BMI Stellar"** and all associated logos, icons, artwork, and visual identifiers (collectively, the **"Marks"**) are trademarks of the project creator (`rezky_nightky (oxyzenQ)`). These Marks are **not** covered by the GPL-3.0 License granted to the source code.
+The name **"BMI Stellar"** and all associated logos, icons, artwork, and visual identifiers (collectively, the **"Marks"**) are trademarks of the project creator (`rezky_nightky (oxyzenQ)`). These Marks are **not** covered by the AGPL-3.0-only License granted to the source code.
 
 Use of the Marks is permitted only as described in this policy. All other uses require prior written consent.
 
@@ -24,11 +24,11 @@ You may use the BMI Stellar name and logo in a purely **attributive** manner to 
 
 - Crediting BMI Stellar in a "powered by" or "built with" section of your documentation or website.
 - Referencing the original project by name in articles, reviews, or academic papers.
-- Including the original name in source file headers as required by the GPL-3.0 License attribution clause.
+- Including the original name in source file headers as required by the AGPL-3.0-only License attribution clause.
 
 ### 2.2. Non-commercial redistribution of unmodified copies
 
-Distributing **unmodified** copies of the BMI Stellar source code (including the original name, logo, and README) is permitted under the GPL-3.0 License, provided that the license and copyright notices are preserved.
+Distributing **unmodified** copies of the BMI Stellar source code (including the original name, logo, and README) is permitted under the AGPL-3.0-only License, provided that the license and copyright notices are preserved.
 
 ### 2.3. Community and educational use
 

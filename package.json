@@ -82,7 +82,7 @@
 		"responsive"
 	],
 	"author": "rezky_nightky (oxyzenQ)",
-	"license": "GPL-3.0",
+	"license": "AGPL-3.0-only",
 	"engines": {
 		"node": ">=22 <25"
 	},

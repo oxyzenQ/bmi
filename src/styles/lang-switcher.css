@@ -1,5 +1,5 @@
 /* Copyright (C) 2026 rezky_nightky */
-/* SPDX-License-Identifier: GPL-3.0-only */
+/* SPDX-License-Identifier: AGPL-3.0-only */
 /* ── lang-switcher.css — Language switcher floating panel (portaled to body) ── */
 /* These styles are global because the panel is portaled to document.body
    via use:portal action, escaping Svelte's scoped CSS. */

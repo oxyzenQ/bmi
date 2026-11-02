@@ -201,4 +201,4 @@ _Support is completely optional, and the project will forever remain open-source
 
 ## License
 
-Distributed under the GPL-3.0 License. See [LICENSE](LICENSE) for more information.
+Distributed under the AGPL-3.0-only License. See [LICENSE](LICENSE) for more information.

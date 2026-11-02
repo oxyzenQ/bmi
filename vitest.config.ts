@@ -1,5 +1,5 @@
 // Copyright (C) 2026 rezky_nightky
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-only
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { createRequire } from 'node:module';
 import path from 'path';

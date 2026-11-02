@@ -10,7 +10,7 @@ This guide is the wake-up checklist for BMI Stellar after a quiet period of 1-5 
 - Node range: `>=22 <25`
 - Framework: SvelteKit 2, Svelte 5, TypeScript
 - Deployment target: Vercel with `@sveltejs/adapter-vercel`
-- License: GPL-3.0, enforced in source headers as `GPL-3.0-only`
+- License: AGPL-3.0-only, enforced in source headers as `AGPL-3.0-only`
 
 ## Wake-Up Order
 

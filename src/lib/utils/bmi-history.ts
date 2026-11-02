@@ -1,5 +1,5 @@
 // Copyright (C) 2026 rezky_nightky
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0-only
 import { browser } from '$app/environment';
 import { STORAGE_KEYS, storageGetJSON, storageRemove, storageSetJSON } from './storage';
 import { warnDev } from './warn-dev';
