@@ -116,7 +116,7 @@ Open the local URL printed in your terminal (usually `http://localhost:5173`).
 | `./scripts/build.sh check-all`                   | Gatekeeper mirroring CI (same as `verify` + `audit:deps` + `test:ci`) |
 | `bun run lint:fix`                               | ESLint auto-fix                                                       |
 | `bun run clean`                                  | Remove `.svelte-kit`, `build`, `dist`, `node_modules/.cache`          |
-| `bun run audit:deps`                             | `bun audit` dependency vulnerability scan                             |
+| `bun run audit:deps`                             | Policy-gated dependency audit (blocking + allowlist-aware)            |
 | `bun run test:crypto`                            | Run only crypto + history-io test suites                              |
 | `bun run bmi-update-version <version>`           | Sync version across all canonical files                               |
 | `bun run bmi-update-version --dry-run <version>` | Preview a version update without writing                              |

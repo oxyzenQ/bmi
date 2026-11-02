@@ -1,0 +1,40 @@
+{
+	"$comment": "Accept-list for dependency advisories that cannot be fixed within the currently pinned major versions. Every entry needs a GHSA id, the package name, the severity it was accepted at, a concrete reason, and an expiry date (UTC). Expired, stale, or severity-mismatched entries fail scripts/audit-deps.ts and force a re-review.",
+	"entries": [
+		{
+			"id": "GHSA-3g3m-2fjr-6pw4",
+			"package": "glob",
+			"severity": "moderate",
+			"reason": "No fixed glob 13.x release exists and @vercel/nft 1.5.0 pins glob ^13.0.0. Build-time file tracing for the Vercel adapter only; never shipped to the runtime bundle.",
+			"expires": "2027-05-01"
+		},
+		{
+			"id": "GHSA-g3hv-75wg-m249",
+			"package": "minimatch",
+			"severity": "moderate",
+			"reason": "Fix requires minimatch >=11.0.1 but all dependents (eslint, typescript-eslint, glob 13) pin ^10.x. Dev/build-time tooling only.",
+			"expires": "2027-05-01"
+		},
+		{
+			"id": "GHSA-pfhg-q3qv-9q6r",
+			"package": "@sveltejs/kit",
+			"severity": "low",
+			"reason": "All SvelteKit 2.x releases are in the vulnerable range; the fix is the 3.0.0 major upgrade, which is an owner decision, not a maintenance bump.",
+			"expires": "2027-05-01"
+		},
+		{
+			"id": "GHSA-27mw-82g8-phjj",
+			"package": "@sveltejs/kit",
+			"severity": "low",
+			"reason": "All SvelteKit 2.x releases are in the vulnerable range; the fix is the 3.0.0 major upgrade, which is an owner decision, not a maintenance bump.",
+			"expires": "2027-05-01"
+		},
+		{
+			"id": "GHSA-gcqx-w48m-w2h4",
+			"package": "deepmerge",
+			"severity": "low",
+			"reason": "No fixed deepmerge release exists yet (all published versions <= 4.3.1 are in the vulnerable range). Transitive dev-time dependency.",
+			"expires": "2027-05-01"
+		}
+	]
+}

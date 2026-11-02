@@ -25,7 +25,7 @@ This guide is the wake-up checklist for BMI Stellar after a quiet period of 1-5 
 This mirrors `.github/workflows/ci.yml` step-by-step (format:check → audit:deps → audit:loc → audit:headers → audit:branding → audit:pwa-offline → check → lint → test:ci → build). The lighter `bun run verify` is acceptable for quick local iteration but skips `audit:deps` and uses `test:run` instead of `test:ci`.
 
 4. If the frozen install fails because the ecosystem moved, upgrade Bun/Node first, then make dependency changes in a dedicated maintenance commit.
-5. If `audit:deps` fails because new advisories were published against pinned transitive deps during the dormant period, bump the relevant `overrides` in `package.json` (do not weaken crypto deps). Re-run `bun install` then `./scripts/build.sh check-all`.
+5. If `audit:deps` fails because new advisories were published against pinned transitive deps during the dormant period, bump the relevant `overrides` in `package.json` (do not weaken crypto deps). If no fixed release exists within the pinned major, add a temporary entry with a reason and an expiry to `scripts/audit-allowlist.json` instead of weakening the gate. Re-run `bun install` then `./scripts/build.sh check-all`.
 6. If CI fails only because GitHub Actions runners/actions changed, update workflow actions without touching app behavior.
 
 ## Data Safety Rules
@@ -74,9 +74,10 @@ Do not edit version strings manually across files.
 - Prefer minimal compatible updates.
 - Keep `bun.lock` committed.
 - Use `bun install --frozen-lockfile` in CI.
-- Run `bun audit` after dependency changes.
+- Run `bun run audit:deps` (policy-gated scan) after dependency changes. It fails on critical/high/moderate advisories unless an unexpired entry in `scripts/audit-allowlist.json` accepts them; low advisories warn without blocking.
 - Keep dependency update automation PR-first unless an emergency hotfix requires direct push.
 - Avoid adding runtime dependencies for small scripts or maintenance checks.
+- Avoid a bare `bun update --lockfile-only`: it rewrites the manifest ranges in `package.json` and can inject major overrides. Make targeted override bumps per advisory instead (the weekly workflow already restores `package.json` after its refresh).
 
 ## Core Code Rules
 

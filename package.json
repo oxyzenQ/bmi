@@ -25,7 +25,7 @@
 		"audit:headers": "bun run scripts/check-headers.ts",
 		"audit:pwa-offline": "bun run scripts/check-pwa-offline-shell.ts",
 		"audit:branding": "bun run scripts/check-branding.ts",
-		"audit:deps": "bun audit",
+		"audit:deps": "bun run scripts/audit-deps.ts",
 		"clean": "rm -rf .svelte-kit build dist node_modules/.cache",
 		"type-check": "svelte-check --tsconfig ./tsconfig.json",
 		"build:analyze": "vite build --mode analyze",

@@ -14,10 +14,14 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 - **CI audit failures** — `bun audit` reported 17 vulnerabilities in transitive deps after a dormant period. Bumped `overrides` (undici ^7.29.0, tar ^7.5.22, postcss ^8.5.25, brace-expansion ^5.0.9) and dev-dep `@sveltejs/kit` 2.60.1 → 2.70.2. Result: 0 vulnerabilities. _(eff8369)_
 - **Missing local gatekeeper** — added `scripts/build.sh` (5 modes: `check-all`, `quick`, `audit`, `test`, `build`) that mirrors `.github/workflows/ci.yml` step-by-step. _(eff8369)_
+- **Error page type-check failure** — svelte-check 4.7.x rejects type arguments on `$props()`, breaking type-check in CI and the weekly maintenance workflow. Replaced the generic form with a type annotation on the `$props()` variable in `src/routes/+error.svelte`; the props object stays intact because destructuring is disallowed in SvelteKit route components. _(d7b6836)_
+- **Dependency audit red gate** — `bun audit` reported 22 advisories (7 high) against the committed lockfile. Refreshed within pinned ranges via targeted override bumps: vitest 4.1.12, undici ^7.29.1, brace-expansion ^5.0.12, devalue ^5.9.3, source-map-js ^1.2.2, postcss-selector-parser ^7.1.6, `@humanfs/node` ^0.16.8. Advisories with no fix inside the pinned majors (glob, minimatch, SvelteKit 2, deepmerge) are now tracked by the audit policy instead of failing the gate. _(7ae8ed0)_
 
 ### Changed
 
 - **Documentation sync** — corrected 11 discrepancies across README.md, DORMANT.md, BRANDING.md, and docs/furthermore.md (test counts, CSS cascade count, storage keys, lazy-load registry, CI/CD workflow inventory, accent color hex values, release-process gate). _(e29e94b)_
+- **Policy-gated dependency audit** — `audit:deps` now runs `scripts/audit-deps.ts` instead of raw `bun audit`: critical/high/moderate advisories fail the gate unless an unexpired entry in `scripts/audit-allowlist.json` accepts them, low advisories warn. Expired, stale, or severity-mismatched allowlist entries fail closed, so the acceptance list cannot rot into a permanent silence switch. _(this commit)_
+- **Self-heal push hardening** — the weekly action-version workflow now fetches and rebases between push attempts and exits non-zero when all attempts are exhausted, instead of reporting a silent success while the version bump never landed. _(this commit)_
 
 ---
 

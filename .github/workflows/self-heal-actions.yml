@@ -176,10 +176,33 @@ jobs:
 
           git commit -m "self-heal: bump GitHub Actions patch/minor versions"
 
+          # Retry the push against upstream movement. Between attempts, fetch
+          # and rebase so a concurrent commit does not wedge the update. If
+          # every attempt fails, exit non-zero: a silently skipped self-heal
+          # push must not look like a successful run.
+          pushed=0
           for attempt in 1 2 3; do
             if git push origin "HEAD:${{ steps.branch.outputs.name }}"; then
+              pushed=1
               break
             fi
-            echo "Push attempt ${attempt} failed; retrying in 5 seconds..."
+            echo "Push attempt ${attempt} failed; fetching and rebasing before retry..."
+            if ! git fetch origin "${{ steps.branch.outputs.name }}"; then
+              echo "Fetch failed; cannot rebase. Retrying in 5 seconds..."
+              sleep 5
+              continue
+            fi
+            if git rebase "origin/${{ steps.branch.outputs.name }}"; then
+              echo "Rebased onto origin/${{ steps.branch.outputs.name }}."
+            else
+              echo "Rebase failed; aborting. The self-heal commit conflicts with upstream changes."
+              git rebase --abort
+              break
+            fi
             sleep 5
           done
+
+          if [[ "$pushed" -ne 1 ]]; then
+            echo "::error::Failed to push the self-heal commit after 3 attempts."
+            exit 1
+          fi
