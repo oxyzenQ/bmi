@@ -20,6 +20,7 @@ import {
 	validateBmiImport,
 	peekImportMeta
 } from '../history-io';
+import { fnv1a } from '../legacy-hash';
 import { storageInvalidateAll } from '../storage';
 
 // ---------------------------------------------------------------------------
@@ -638,6 +639,88 @@ describe('history-io', () => {
 			const result = await importBmiHistory(JSON.stringify(envelope));
 			expect(result.success).toBe(false);
 			expect(result.errorCode).toBe('unsupported_version');
+		});
+	});
+
+	describe('record bounds hardening (untrusted file gate)', () => {
+		// JSON literal 1e999 parses to Infinity, so a hostile or corrupted file
+		// can carry non-finite values through a typeof-only guard. Legacy v0
+		// checksums are trivially forgeable by design (see legacy-hash.ts), so
+		// per-record bounds validation is the real gate for untrusted files.
+		// These envelopes intentionally use the legacy v0 path where the FNV-1a
+		// checksum can be computed without secrets; after the record filter
+		// drops every hostile record, no_valid_records fires before integrity.
+		const HOSTILE_RAW_RECORDS =
+			'[{"timestamp":1e999,"bmi":22.5,"height":170,"weight":65},' +
+			'{"timestamp":1e308,"bmi":22.5,"height":170,"weight":65}]';
+
+		function v0EnvelopeWithRawRecords(rawRecords: string, checksum: string): string {
+			return (
+				'{"version":0,"source":"bmi-calculator",' +
+				'"exportedAt":"2024-01-01T00:00:00.000Z",' +
+				`"checksum":"${checksum}",` +
+				`"records":${rawRecords}}`
+			);
+		}
+
+		it('drops non-finite/out-of-range records on export', async () => {
+			localStorageMock.getItem.mockReturnValue(HOSTILE_RAW_RECORDS);
+			// 1e999 parses to Infinity and 1e308 overflows Date — both must be
+			// rejected so exports can never carry them downstream.
+			await expect(exportBmiHistory()).resolves.toBeNull();
+		});
+
+		it('rejects import whose records are all non-finite (legacy v0)', async () => {
+			const result = await importBmiHistory(
+				v0EnvelopeWithRawRecords(HOSTILE_RAW_RECORDS, fnv1a('[]'))
+			);
+			expect(result.success).toBe(false);
+			expect(result.errorCode).toBe('no_valid_records');
+		});
+
+		it('rejects records exceeding INPUT_LIMITS bounds (legacy v0)', async () => {
+			// Height 400 cm > 310 and weight 2000 kg > 1000 — beyond the bounds
+			// the calculator itself enforces, so no genuine export can contain them.
+			const raw =
+				'[{"timestamp":1700000000000,"bmi":22.5,"height":400,"weight":65},' +
+				'{"timestamp":1700000000000,"bmi":22.5,"height":170,"weight":2000}]';
+			const result = await importBmiHistory(v0EnvelopeWithRawRecords(raw, fnv1a('[]')));
+			expect(result.success).toBe(false);
+			expect(result.errorCode).toBe('no_valid_records');
+		});
+
+		it('rejects records with far-future timestamps (legacy v0)', async () => {
+			// 30 days ahead exceeds the 24-hour clock-skew allowance; an Invalid
+			// Date downstream would throw RangeError inside CSV/ISO formatting.
+			const farFuture = Date.now() + 30 * 24 * 3600 * 1000;
+			const raw = `[{"timestamp":${farFuture},"bmi":22.5,"height":170,"weight":65}]`;
+			const result = await importBmiHistory(v0EnvelopeWithRawRecords(raw, fnv1a('[]')));
+			expect(result.success).toBe(false);
+			expect(result.errorCode).toBe('no_valid_records');
+		});
+
+		it('rejects records with negative or non-finite age values (legacy v0)', async () => {
+			const raw =
+				'[{"timestamp":1700000000000,"bmi":22.5,"height":170,"weight":65,"age":-5},' +
+				'{"timestamp":1700000000000,"bmi":22.5,"height":170,"weight":65,"age":1e999}]';
+			const result = await importBmiHistory(v0EnvelopeWithRawRecords(raw, fnv1a('[]')));
+			expect(result.success).toBe(false);
+			expect(result.errorCode).toBe('no_valid_records');
+		});
+
+		it('still imports a genuine legacy v0 export (no over-tightening)', async () => {
+			const records = [{ timestamp: 1700000000000, bmi: 22.5, height: 170, weight: 65 }];
+			const envelope = {
+				version: 0,
+				source: 'bmi-calculator',
+				exportedAt: '2024-01-01T00:00:00.000Z',
+				checksum: fnv1a(JSON.stringify(records)),
+				records
+			};
+			const result = await importBmiHistory(JSON.stringify(envelope));
+			expect(result.success).toBe(true);
+			expect(result.count).toBe(1);
+			expect(result.integrityVersion).toBe(0);
 		});
 	});
 });

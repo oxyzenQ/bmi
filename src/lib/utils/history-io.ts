@@ -34,6 +34,8 @@ import { STORAGE_KEYS, storageGet, storageSet } from './storage';
 import { warnDev } from './warn-dev';
 import type { BmiRecord } from '$lib/types/bmi-record';
 import { fnv1a, dualHash } from './legacy-hash';
+import { classifyBmi, getCategoryLabel } from './bmi-category';
+import { INPUT_LIMITS } from './bmi-calculator';
 
 // ---------------------------------------------------------------------------
 // Import error codes — structured, specific, no silent failures
@@ -159,15 +161,48 @@ async function computeHash(data: string): Promise<string> {
 // ---------------------------------------------------------------------------
 // Helpers to validate individual record fields
 // ---------------------------------------------------------------------------
+
+// Bounds gate for untrusted import files. JSON has no NaN/Infinity literals,
+// but numeric literals like 1e999 parse to Infinity and pass a typeof check,
+// and legacy v0-v2 checksums are trivially forgeable (see legacy-hash.ts) —
+// so per-record bounds validation is the real defense here. Limits mirror
+// INPUT_LIMITS (the same bounds the calculator enforces), and timestamps get
+// a 24-hour clock-skew allowance. Anything outside these bounds can never
+// originate from this app and would corrupt Date handling, sparkline scaling,
+// and downstream exports.
+const MAX_TIMESTAMP_SKEW_MS = 24 * 60 * 60 * 1000;
+const MAX_AGE = 999; // matches sanitizeInteger's 3-digit cap
+
 function isValidRecord(entry: unknown): entry is BmiRecord {
 	if (typeof entry !== 'object' || entry === null) return false;
 	const r = entry as Record<string, unknown>;
-	return (
-		typeof r.timestamp === 'number' &&
-		typeof r.bmi === 'number' &&
-		typeof r.height === 'number' &&
-		typeof r.weight === 'number'
-	);
+	if (
+		typeof r.timestamp !== 'number' ||
+		typeof r.bmi !== 'number' ||
+		typeof r.height !== 'number' ||
+		typeof r.weight !== 'number'
+	) {
+		return false;
+	}
+	// Reject non-finite values (Infinity/-Infinity arrive via 1e999-style literals)
+	if (
+		!Number.isFinite(r.timestamp) ||
+		!Number.isFinite(r.bmi) ||
+		!Number.isFinite(r.height) ||
+		!Number.isFinite(r.weight)
+	) {
+		return false;
+	}
+	if (r.timestamp <= 0 || r.timestamp > Date.now() + MAX_TIMESTAMP_SKEW_MS) return false;
+	if (r.bmi <= 0) return false;
+	if (r.height <= 0 || r.height > INPUT_LIMITS.HEIGHT_MAX_CM) return false;
+	if (r.weight <= 0 || r.weight > INPUT_LIMITS.WEIGHT_MAX_KG) return false;
+	if (r.age != null) {
+		if (typeof r.age !== 'number' || !Number.isFinite(r.age) || r.age < 0 || r.age > MAX_AGE) {
+			return false;
+		}
+	}
+	return true;
 }
 
 function toRecord(entry: unknown): BmiRecord {
@@ -702,7 +737,7 @@ export function exportBmiHistoryCsv(): string | null {
 			const date = d.toISOString().split('T')[0];
 			const time = d.toTimeString().split(' ')[0].slice(0, 5);
 			const bmi = r.bmi.toFixed(1);
-			const category = getBmiCategoryName(r.bmi);
+			const category = getCategoryLabel(classifyBmi(r.bmi));
 
 			rows.push([
 				date,
@@ -722,11 +757,4 @@ export function exportBmiHistoryCsv(): string | null {
 		warnDev('history-io', 'exportBmiHistoryCsv', 'CSV export failed', err);
 		return null;
 	}
-}
-
-function getBmiCategoryName(bmi: number): string {
-	if (bmi < 18.5) return t('category.underweight');
-	if (bmi < 25) return t('category.normal');
-	if (bmi < 30) return t('category.overweight');
-	return t('category.obese');
 }
