@@ -60,6 +60,9 @@ jobs:
   ci:
     name: Build & Test
     runs-on: ubuntu-latest
+    # Full gate (audit, format, loc, headers, branding, pwa, typecheck,
+    # lint, test, build) takes ~5 min; 15 caps a hung runner at 3x.
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code

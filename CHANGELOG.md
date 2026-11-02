@@ -23,6 +23,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 - **Documentation sync** — corrected 11 discrepancies across README.md, DORMANT.md, BRANDING.md, and docs/furthermore.md (test counts, CSS cascade count, storage keys, lazy-load registry, CI/CD workflow inventory, accent color hex values, release-process gate). _(e29e94b)_
 - **Policy-gated dependency audit** — `audit:deps` now runs `scripts/audit-deps.ts` instead of raw `bun audit`: critical/high/moderate advisories fail the gate unless an unexpired entry in `scripts/audit-allowlist.json` accepts them, low advisories warn. Expired, stale, or severity-mismatched allowlist entries fail closed, so the acceptance list cannot rot into a permanent silence switch. _(this commit)_
+- **CI timeout hardening** — added `timeout-minutes` to the jobs that lacked it (CI 15, Documentation CI 10, release validate-tag 5, release build/upload 20), so a hung runner fails fast instead of burning the 6-hour GitHub default. Every scheduled and push-triggered workflow now carries an explicit job timeout. Also bumped the PWA manifest cache-buster in `app.html` from `21.5.0` to the current version so installed clients re-fetch `manifest.json`. _(this commit)_
 - **Self-heal push hardening** — the weekly action-version workflow now fetches and rebases between push attempts and exits non-zero when all attempts are exhausted, instead of reporting a silent success while the version bump never landed. _(this commit)_
 
 ---

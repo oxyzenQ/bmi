@@ -27,6 +27,8 @@ jobs:
   lint:
     name: Docs Spelling Check
     runs-on: ubuntu-latest
+    # Codespell pass over the whole doc tree takes well under a minute.
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v5

@@ -17,6 +17,7 @@ env:
 jobs:
   validate-tag:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -53,6 +54,8 @@ jobs:
   release:
     needs: validate-tag
     runs-on: ubuntu-latest
+    # Static build plus archive creation and release upload take ~5-8 min.
+    timeout-minutes: 20
 
     steps:
       - name: Checkout code
