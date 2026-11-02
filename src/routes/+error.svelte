@@ -11,7 +11,10 @@
 		return _t(key, params);
 	}
 
-	let props = $props<{ status: number; message: string }>();
+	// Svelte 5 runes: type props via an annotation on the $props() variable.
+	// Type arguments on $props() are rejected by current svelte-check versions,
+	// and destructuring props is disallowed in SvelteKit route components.
+	let props: { status: number; message: string } = $props();
 
 	let statusCode = $derived(props.status);
 	let statusText = $derived(
