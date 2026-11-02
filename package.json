@@ -63,7 +63,7 @@
 		"typescript": "6.0.3",
 		"typescript-eslint": "^8.60.1",
 		"vite": "^8.0.16",
-		"vitest": "4.1.7"
+		"vitest": "4.1.12"
 	},
 	"keywords": [
 		"bmi",
@@ -102,10 +102,14 @@
 	"overrides": {
 		"cookie": "0.7.2",
 		"esbuild": "^0.28.1",
-		"undici": "^7.29.0",
+		"undici": "^7.29.1",
 		"tar": "^7.5.22",
 		"vite": "^8.0.16",
 		"postcss": "^8.5.25",
-		"brace-expansion": "^5.0.9"
+		"brace-expansion": "^5.0.12",
+		"devalue": "^5.9.3",
+		"source-map-js": "^1.2.2",
+		"postcss-selector-parser": "^7.1.6",
+		"@humanfs/node": "^0.16.8"
 	}
 }
