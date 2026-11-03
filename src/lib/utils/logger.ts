@@ -127,7 +127,9 @@ export interface Logger {
  * Extract error info from unknown caught value.
  */
 function extractError(error: unknown): LogEntry['error'] | undefined {
-	if (error === undefined || error === null) return undefined;
+	// The sole caller gates on error !== undefined, so only null can
+	// reach this guard.
+	if (error === null) return undefined;
 	if (error instanceof Error) {
 		return {
 			name: error.name,
