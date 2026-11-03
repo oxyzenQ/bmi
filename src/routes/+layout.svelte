@@ -52,7 +52,8 @@
 		applyPwaUpdate,
 		bindPwaUpdateRegistration,
 		checkForPwaUpdate,
-		pwaUpdateState
+		pwaUpdateState,
+		shouldRunAutoUpdateCheck
 	} from '$lib/stores/pwa-update';
 	import { t as _t, localeVersion } from '$lib/i18n';
 	import { warnDevOnce } from '$lib/utils/warn-dev';
@@ -181,7 +182,31 @@
 			isOffline = !navigator.onLine;
 
 			const updateCheckTimer = setTimeout(() => {
-				void checkForPwaUpdate('auto');
+				// The automatic upstream check is a third-party GET; keep it to
+				// at most one attempt per the recorded throttle window per
+				// device. Manual checks (About) and service-worker-driven
+				// confirmations never throttle. A failed or offline attempt is
+				// not recorded, so the next load retries instead of blinding
+				// the check for the whole window.
+				let lastChecked: number | null;
+				try {
+					const raw = localStorage.getItem('bmi.updateCheckAt');
+					lastChecked = raw === null ? null : Number(raw);
+				} catch {
+					lastChecked = null;
+				}
+				if (!shouldRunAutoUpdateCheck(lastChecked, Date.now())) return;
+				void checkForPwaUpdate('auto')
+					.then((result) => {
+						if (result.status === 'up-to-date' || result.status === 'update-available') {
+							try {
+								localStorage.setItem('bmi.updateCheckAt', String(Date.now()));
+							} catch {
+								// Storage unavailable: the check degrades to per-load.
+							}
+						}
+					})
+					.catch(() => {});
 			}, 3000);
 			cleanupFns.push(() => clearTimeout(updateCheckTimer));
 		}

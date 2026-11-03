@@ -146,6 +146,19 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Fixed
 
+- **The automatic update check no longer fires on every load (LTS
+  readiness audit).** The timer-driven check now runs at most once
+  every 12 hours per device (`shouldRunAutoUpdateCheck` +
+  `bmi.updateCheckAt`; failed or offline attempts are not recorded so
+  the next load retries), while manual checks in About and
+  service-worker-driven confirmations stay immediate. Proven live at
+  the network level: seeded key, zero requests across a reload;
+  cleared key, exactly one request pair. Three new unit tests cover
+  the helper; the README Limitations line states the throttled
+  behavior. The full end-to-end real-usage audit (every computed
+  number verified exact against its formula in a real browser, 515
+  tests green) is recorded in `docs/AUDIT-LTS-2026-11.md`.
+
 - **CI audit failures** — `bun audit` reported 17 vulnerabilities in transitive deps after a dormant period. Bumped `overrides` (undici ^7.29.0, tar ^7.5.22, postcss ^8.5.25, brace-expansion ^5.0.9) and dev-dep `@sveltejs/kit` 2.60.1 → 2.70.2. Result: 0 vulnerabilities. _(eff8369)_
 - **Missing local gatekeeper** — added `scripts/build.sh` (5 modes: `check-all`, `quick`, `audit`, `test`, `build`) that mirrors `.github/workflows/ci.yml` step-by-step. _(eff8369)_
 - **Error page type-check failure** — svelte-check 4.7.x rejects type arguments on `$props()`, breaking type-check in CI and the weekly maintenance workflow. Replaced the generic form with a type annotation on the `$props()` variable in `src/routes/+error.svelte`; the props object stays intact because destructuring is disallowed in SvelteKit route components. _(d7b6836)_

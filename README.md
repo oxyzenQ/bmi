@@ -229,7 +229,7 @@ See [SECURITY.md](SECURITY.md) for the full policy and the reporting process.
 - History and goals live in browser storage: **clearing site data clears the ledger**; the IndexedDB backup is local resilience, not sync
 - Local backups (IndexedDB) and on-device storage are **not encrypted at rest** — the AES-256-GCM layer protects **exported files** and anything you encrypt yourself
 - The hosted demo may load Vercel Analytics and Speed Insights for aggregate telemetry; health values still never leave the device
-- Update checks contact two public GitHub URLs (the repo's `package.json` and latest commit) a few seconds after each production load — unauthenticated GETs with no payload, no cookies, and no health data, but GitHub sees your IP, user agent, and timing
+- Update checks contact two public GitHub URLs (the repo's `package.json` and latest commit) — unauthenticated GETs with no payload, no cookies, and no health data, but GitHub sees your IP, user agent, and timing. The automatic check runs at most once every 12 hours per device (a failed or offline attempt is not counted); the manual check in About is immediate
 - Legacy export checksums (v0–v2) are forgeable by design; the v3 HMAC detects accidental corruption and casual tampering, not a determined attacker with the bundle in hand
 - Single-user, single-device by design — there is no cloud to sign into
 

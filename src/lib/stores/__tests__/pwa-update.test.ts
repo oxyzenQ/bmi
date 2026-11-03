@@ -8,8 +8,29 @@ import {
 	normalizeBranch,
 	normalizeCommitId,
 	shortCommitId,
+	shouldRunAutoUpdateCheck,
 	shouldUseCommitUpdateCheck
 } from '../pwa-update';
+
+describe('auto update check throttle', () => {
+	const HOUR = 3_600_000;
+
+	it('runs when nothing was recorded before', () => {
+		expect(shouldRunAutoUpdateCheck(null, 1_000)).toBe(true);
+		expect(shouldRunAutoUpdateCheck(undefined, 1_000)).toBe(true);
+		expect(shouldRunAutoUpdateCheck(Number.NaN, 1_000)).toBe(true);
+	});
+
+	it('skips inside the throttle window', () => {
+		expect(shouldRunAutoUpdateCheck(1_000, 1_000 + 11 * HOUR)).toBe(false);
+		expect(shouldRunAutoUpdateCheck(1_000, 1_000 + HOUR)).toBe(false);
+	});
+
+	it('runs again once the window has passed', () => {
+		expect(shouldRunAutoUpdateCheck(1_000, 1_000 + 12 * HOUR)).toBe(true);
+		expect(shouldRunAutoUpdateCheck(1_000, 1_000 + 30 * 24 * HOUR)).toBe(true);
+	});
+});
 
 /* ── Fake full-length SHAs for tests (40 hex chars each) ── */
 const COMMIT_A = '5e88c13a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6';

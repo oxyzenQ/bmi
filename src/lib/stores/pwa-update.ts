@@ -19,6 +19,32 @@ interface UpstreamCommit {
 type PwaUpdateCheckSource = 'manual' | 'auto';
 type PwaUpdateCheckStatus = 'update-available' | 'up-to-date' | 'offline' | 'error';
 
+/**
+ * Minimum spacing between timer-driven automatic upstream update
+ * checks (12 hours). The automatic check is a third-party GET: without
+ * a floor it fires on every production load, maximizing the IP, user
+ * agent, and timing exposure the README discloses and burning the
+ * unauthenticated api.github.com per-IP pool on shared egress. Manual
+ * checks (About) and service-worker-driven confirmations never
+ * throttle. A failed or offline attempt is not recorded, so the next
+ * load retries instead of blinding the check for the window.
+ */
+export const AUTO_UPDATE_CHECK_INTERVAL_MS = 12 * 60 * 60 * 1000;
+
+/**
+ * True when a timer-driven automatic check may run: nothing was ever
+ * recorded, the record is not a finite number, or the previous check
+ * is at least intervalMs old.
+ */
+export function shouldRunAutoUpdateCheck(
+	lastCheckedAt: number | null | undefined,
+	now: number,
+	intervalMs: number = AUTO_UPDATE_CHECK_INTERVAL_MS
+): boolean {
+	if (typeof lastCheckedAt !== 'number' || !Number.isFinite(lastCheckedAt)) return true;
+	return now - lastCheckedAt >= intervalMs;
+}
+
 interface PwaUpdateState {
 	checked: boolean;
 	checking: boolean;
