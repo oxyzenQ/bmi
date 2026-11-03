@@ -19,7 +19,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   kept readable as a trailing comment. The heal landed through the new
   `scripts/ci/actions-version-sweep.sh` (`--dry-run` / `--apply`, annotated
   tags peeled, fail-closed write guard) and `scripts/gates/check-actions-pins
-  .sh` now enforces the shape (warn locally, strict in CI); both were proven
+.sh` now enforces the shape (warn locally, strict in CI); both were proven
   live against a planted tag pin. Several pins had silently drifted 2-3
   majors behind (checkout v5, cache v5, download-artifact v6, upload-artifact
   v5, setup-node v6) because the old weekly lane only bumped inside a major;
