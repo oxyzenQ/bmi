@@ -8,6 +8,11 @@ ignore: |
   dist/
 
 rules:
+  comments:
+    # Prettier is the formatting authority for YAML (format:check is a CI
+    # gate); its canonical output puts one space before an end-of-line
+    # comment. Align the lint so the two tools never fight over a space.
+    min-spaces-from-content: 1
   trailing-spaces: disable
   truthy:
     check-keys: false
