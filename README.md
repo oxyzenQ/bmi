@@ -180,7 +180,7 @@ src/
 ├── service-worker.ts        # PWA service worker
 scripts/                     # build.sh gatekeeper + gates/ audits + dev/ version tools (zelynic-aligned tree)
 docs/                        # Long-form docs + brand master asset
-.github/workflows/           # CI, docs-ci, release, security-audit, maintenance, self-heal, runtime-probe, codeql
+.github/workflows/           # CI, docs-ci, release, security-audit, maintenance, self-heal, runtime-probe, codeql, gate-keepers
 ```
 
 ## Architecture

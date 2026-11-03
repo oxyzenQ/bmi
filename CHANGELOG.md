@@ -12,6 +12,27 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Added
 
+- **The wholesale gate-keepers lane, the commit gate, and the permission
+  law (night-improve-5).** `scripts/gate-keepers.sh` is the zelynic-style
+  wholesale non-code lane: ten numbered sections (hook self-install,
+  bash -n, shellcheck, yamllint --strict, actionlint, codespell, the
+  644/755 permission guard, the scripts LOC cap, the actions-pin shape
+  in strict mode, the version surfaces), counters that name every skip,
+  and one verdict. `.githooks/pre-commit` is a shim that execs
+  `scripts/gates/check-commit-gate.sh` (the cheap fail-closed lane;
+  self-installed by the gate and by `scripts/setup.sh`, the new
+  three-phase bring-up). `.github/workflows/gate-keepers.yml` runs the
+  lane in CI with pinned tools (yamllint 1.37.1, codespell 2.4.1,
+  actionlint 1.7.7 verified by checksum). The lane's first live run
+  caught real debt and forced the fixes: 31 pin comments re-spaced for
+  yamllint, a 364-character release-note line split, two missing YAML
+  document starts, and the repo-wide mode drift normalized - every
+  tracked file was committed at 755 since the first commit; the tree is
+  now 219 files at 644 and 10 shebang executables at 755, enforced by
+  `scripts/gates/check-permissions.sh`. A docs index (`docs/README.md`)
+  and the full infra audit (`docs/AUDIT-INFRA-2026-11.md`) map the
+  zelynic discipline sync, including the honest N/A list.
+
 - **The gatekeeper speaks: -V and doctor (night-improve-6).**
   `scripts/build.sh` gained `-V`/`--version` (one line, read live from
   `package.json` - the single source of truth, the way the zelynic build

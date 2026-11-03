@@ -176,7 +176,8 @@ jobs:
             ${{ steps.changelog.outputs.CHANGELOG }}
 
             ---
-            **Artifacts:** [source](${{ github.server_url }}/${{ github.repository }}/releases/download/${{ steps.tag.outputs.TAG_NAME }}/bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip) · [build](${{ github.server_url }}/${{ github.repository }}/releases/download/${{ steps.tag.outputs.TAG_NAME }}/bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip)
+            **Artifacts:** [source](${{ github.server_url }}/${{ github.repository }}/releases/download/${{ steps.tag.outputs.TAG_NAME }}/bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip)
+            [build](${{ github.server_url }}/${{ github.repository }}/releases/download/${{ steps.tag.outputs.TAG_NAME }}/bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip)
           files: |
             bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip
             bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256

@@ -48,13 +48,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, SHA pin
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, SHA pin
         with:
           fetch-depth: 1
           fetch-tags: false
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@52cf1852265d99e9bea071b03366fc777a602909 # codeql-bundle-v2.27.4, SHA pin
+        uses: github/codeql-action/init@52cf1852265d99e9bea071b03366fc777a602909  # codeql-bundle-v2.27.4, SHA pin
         with:
           languages: ${{ matrix.language }}
           # Auto-detect queries (security and quality)
@@ -62,10 +62,10 @@ jobs:
           config-file: ./.github/codeql/codeql-config.yml
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@52cf1852265d99e9bea071b03366fc777a602909 # codeql-bundle-v2.27.4, SHA pin
+        uses: github/codeql-action/autobuild@52cf1852265d99e9bea071b03366fc777a602909  # codeql-bundle-v2.27.4, SHA pin
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@52cf1852265d99e9bea071b03366fc777a602909 # codeql-bundle-v2.27.4, SHA pin
+        uses: github/codeql-action/analyze@52cf1852265d99e9bea071b03366fc777a602909  # codeql-bundle-v2.27.4, SHA pin
         with:
           category: '/language:${{matrix.language}}'
           upload: true

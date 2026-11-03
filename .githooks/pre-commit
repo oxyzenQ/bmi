@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Copyright (C) 2026 rezky_nightky
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# Git pre-commit hook shim (night-improve-5).
+#
+# Deliberately a shim, the zelynic way: the enforcement logic lives in
+# scripts/gates/check-commit-gate.sh so the shell lints treat it like
+# every other gate script - git requires this file at
+# .githooks/pre-commit with no extension, below the *.sh radar. The
+# wiring is self-installed by scripts/gate-keepers.sh section 0 and
+# scripts/setup.sh (core.hooksPath=.githooks), after which every commit
+# on the clone runs the commit gate. The documented escape hatch:
+# git commit --no-verify.
+
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+exec bash "${REPO_ROOT}/scripts/gates/check-commit-gate.sh"

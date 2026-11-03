@@ -193,7 +193,7 @@ for file in "${files[@]}"; do
                                 continue
                         fi
                         prefix="${line%%uses:*}uses: "
-                        new_line="${prefix}${action}@${new_sha} # ${new_tag}, SHA pin"
+                        new_line="${prefix}${action}@${new_sha}  # ${new_tag}, SHA pin"
                         printf '%s\t%s\t%s\n' "$file" "$lineno" "$new_line" >>"$EDIT_FILE"
                         echo "SWEEP: ${action} (${file}:${lineno}) — ${cur_tag} -> ${new_tag}, SHA ${ref:0:12} -> ${new_sha:0:12} HEAL"
                         HEALED=$((HEALED + 1))
@@ -215,7 +215,7 @@ for file in "${files[@]}"; do
                         new_tag="${resolved%% *}"
                         new_sha="${resolved##* }"
                         prefix="${line%%uses:*}uses: "
-                        new_line="${prefix}${action}@${new_sha} # ${new_tag}, SHA pin"
+                        new_line="${prefix}${action}@${new_sha}  # ${new_tag}, SHA pin"
                         printf '%s\t%s\t%s\n' "$file" "$lineno" "$new_line" >>"$EDIT_FILE"
                         echo "SWEEP: ${action} (${file}:${lineno}) — ${ref} -> ${new_tag}, SHA ${new_sha:0:12} HEAL"
                         HEALED=$((HEALED + 1))

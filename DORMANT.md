@@ -15,7 +15,12 @@ This guide is the wake-up checklist for BMI Stellar after a quiet period of 1-5 
 ## Wake-Up Order
 
 1. Install the pinned toolchain if possible.
-2. Run `bun install --frozen-lockfile`.
+2. Run the one-command bring-up: `./scripts/setup.sh` (toolchain check against the `packageManager` pin, `bun install --frozen-lockfile`, and the pre-commit gate wiring in three idempotent phases). Or run the steps by hand:
+
+```bash
+bun install --frozen-lockfile
+```
+
 3. Run the validation gate. The canonical entry point is the local gatekeeper:
 
 ```bash

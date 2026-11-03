@@ -1,0 +1,49 @@
+---
+# .github/workflows/gate-keepers.yml
+#
+# The wholesale non-code lane in CI, mirroring scripts/gate-keepers.sh
+# locally: syntax, shellcheck, yamllint (--strict), actionlint, codespell,
+# the 644/755 permission guard, the scripts LOC cap, the actions-pin
+# shape (strict), and the version surfaces. Runs unfiltered - docs-only
+# changes included - because the docs are part of the discipline.
+
+name: Stellar Guard - Gate-keepers
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gatekeepers:
+    name: Gate-keepers (wholesale)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, SHA pin
+
+      - name: Install gate tools (pinned)
+        run: |
+          set -euo pipefail
+          python3 -m pip install --user "yamllint==1.37.1" "codespell==2.4.1"
+          curl -fsSL -o /tmp/actionlint_1.7.7_linux_amd64.tar.gz \
+            "https://github.com/rhysd/actionlint/releases/download/v1.7.7/actionlint_1.7.7_linux_amd64.tar.gz"
+          curl -fsSL -o /tmp/actionlint_1.7.7_checksums.txt \
+            "https://github.com/rhysd/actionlint/releases/download/v1.7.7/actionlint_1.7.7_checksums.txt"
+          (cd /tmp && grep "  actionlint_1.7.7_linux_amd64.tar.gz" actionlint_1.7.7_checksums.txt | sha256sum -c -)
+          tar -xzf /tmp/actionlint_1.7.7_linux_amd64.tar.gz -C /tmp actionlint
+          sudo mv /tmp/actionlint /usr/local/bin/actionlint
+          actionlint --version
+
+      - name: Run the wholesale gate
+        env:
+          BMI_ACTIONS_HEALTH: strict
+        run: bash scripts/gate-keepers.sh
