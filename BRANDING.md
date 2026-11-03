@@ -41,7 +41,7 @@ The brand sits at the intersection of **health technology** and **personal priva
 
 ### 3.1. Logo file
 
-The official logo is located at [`static/assets/bmi-logo-masters.png`](static/assets/bmi-logo-masters.png).
+The official logo is located at [`docs/assets/bmi-logo-masters.png`](docs/assets/bmi-logo-masters.png). The web-facing derivatives sized for the PWA (192, 216, 256, 512, 512-maskable, 1024) live in `static/assets/`; the full-resolution master is kept out of the deployed client so it does not enter the service-worker precache.
 
 ### 3.2. Usage rules
 
