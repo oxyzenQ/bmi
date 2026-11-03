@@ -92,6 +92,7 @@ BMI Stellar is engineered with a strict **Local-First, Zero-Trust** model:
 - **Key Derivation:** We use Argon2id (the winner of the Password Hashing Competition) to derive encryption keys from user passphrases. The production parameters (64 MiB memory, 3 iterations, parallelism 1) follow OWASP 2023 recommendations and are highly resistant to GPU-based cracking.
 - **Zero Knowledge:** Passphrases are never stored, cached, or transmitted. The passphrase verifier stored in IndexedDB is an AES-GCM ciphertext of a known plaintext — it can confirm a passphrase is correct but cannot be reversed to recover the passphrase.
 - **Integrity Verification:** Every backup includes a SHA-256 checksum of the ciphertext. Import validates this checksum before attempting decryption, rejecting tampered or corrupted payloads.
+- **CSP Strictness:** The production Content Security Policy is explicitly allowlisted per directive. `img-src` is pinned to `'self' data: blob:` — no wildcard domains (such as `https:`) are permitted — so even a hypothetical XSS cannot exfiltrate health data by loading attacker-hosted images. The only remote hosts in the policy are the two GitHub update-check endpoints in `connect-src` and, on non-production Vercel previews, the named Vercel toolbar origins.
 
 ## Cryptographic Details
 

@@ -219,6 +219,7 @@ instead of crashing a chart.
 - **Legacy support:** PBKDF2 (600,000 iterations, SHA-256) imports remain readable
 - **Input hardening:** import records are bounded by the same limits the calculator enforces; non-finite values are rejected on every path
 - **Security headers:** CSP, HSTS, COOP/COEP, Permissions-Policy ship from `src/hooks.server.ts`
+- **CSP strictness:** `img-src` is explicitly allowlisted (`'self' data: blob:`) — no wildcard domains permitted, so a hypothetical XSS cannot exfiltrate data through attacker-hosted images
 
 See [SECURITY.md](SECURITY.md) for the full policy and the reporting process.
 

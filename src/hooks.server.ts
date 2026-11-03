@@ -35,13 +35,17 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	// Content Security Policy (CSP) - Protects against XSS attacks
 	// More permissive in dev mode for Vite HMR
+	// img-src is an explicit allowlist ('self' data: blob:, plus named Vercel
+	// preview hosts only). Wildcards such as https: are forbidden, so a
+	// hypothetical XSS cannot exfiltrate data by loading attacker-hosted
+	// images.
 	const cspDirectives = isDev
 		? [
 				"default-src 'self' 'unsafe-inline' 'unsafe-eval'",
 				"script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:",
 				"style-src 'self' 'unsafe-inline'",
 				"font-src 'self' data:",
-				"img-src 'self' data: blob: https:",
+				"img-src 'self' data: blob:",
 				"connect-src 'self' ws: wss: https: http://localhost:5173",
 				"frame-ancestors 'none'",
 				"base-uri 'self'",
@@ -58,7 +62,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 				// 'unsafe-inline' needed for Svelte style:xxx directives and style={...} bindings
 				`style-src 'self' 'unsafe-inline'${vercelToolbarStyleSrc}`,
 				`font-src 'self' data:${vercelToolbarFontSrc}`,
-				`img-src 'self' data: blob: https:${vercelToolbarImgSrc}`,
+				`img-src 'self' data: blob:${vercelToolbarImgSrc}`,
 				"media-src 'self'",
 				`connect-src 'self' https://raw.githubusercontent.com https://api.github.com ${vercelInsightsOrigin}${vercelToolbarConnectSrc}`,
 				"manifest-src 'self'",
