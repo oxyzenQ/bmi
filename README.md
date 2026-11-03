@@ -178,7 +178,7 @@ src/
 ├── styles/                  # 18-file modular CSS cascade
 ├── routes/                  # SvelteKit pages (+layout, +page, +error)
 ├── service-worker.ts        # PWA service worker
-scripts/                     # build.sh gatekeeper + audit scripts (loc, headers, branding, pwa-offline, version-sync, deps)
+scripts/                     # build.sh gatekeeper + gates/ audits + dev/ version tools (zelynic-aligned tree)
 docs/                        # Long-form docs + brand master asset
 .github/workflows/           # CI, docs-ci, release, security-audit, maintenance, self-heal, runtime-probe, codeql
 ```
@@ -343,7 +343,7 @@ The release checklist, tag rules, and rollback procedure live in
 ## Versioning
 
 The canonical version lives in `package.json` and is synchronized into
-the display documents via `scripts/bmi-update-version.ts`.
+the display documents via `scripts/dev/version-to.ts`.
 
 > [!IMPORTANT]
 > Always use `bun run bmi-update-version <version>` to update the

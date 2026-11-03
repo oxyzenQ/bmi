@@ -1,12 +1,15 @@
 // Copyright (C) 2026 rezky_nightky
 // SPDX-License-Identifier: AGPL-3.0-only
 /**
- * bmi-update-version.ts — update app version in canonical sources.
+ * version-to.ts — update the app version in canonical sources.
+ *
+ * Zelynic-aligned version manager (scripts/dev/version-to.ts): one command
+ * moves every version surface so the surfaces can never drift.
  *
  * Usage:
- *   bun run scripts/bmi-update-version.ts <new-version>
- *   bun run scripts/bmi-update-version.ts patch|minor|major
- *   bun run scripts/bmi-update-version.ts --dry-run <new-version>
+ *   bun run scripts/dev/version-to.ts <new-version>
+ *   bun run scripts/dev/version-to.ts patch|minor|major
+ *   bun run scripts/dev/version-to.ts --dry-run <new-version>
  *   bun run bmi-update-version <new-version>
  *   bun run bmi-bump:patch
  *   bun run bmi-bump:minor
@@ -23,7 +26,8 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dirname, '..');
+// scripts/dev/ sits two levels below the repository root.
+const ROOT = resolve(__dirname, '../..');
 
 function parseSemver(v: string): { major: number; minor: number; patch: number } | null {
 	const match = v.trim().match(/^(\d+)\.(\d+)\.(\d+)$/);
@@ -118,8 +122,8 @@ function main(): void {
 	const target = filteredArgs[0]?.trim();
 	if (!target) {
 		die(
-			'Usage: bun run scripts/bmi-update-version.ts [--dry-run] <new-version|patch|minor|major>\n' +
-				'Example: bun run scripts/bmi-update-version.ts 20.1.0'
+			'Usage: bun run scripts/dev/version-to.ts [--dry-run] <new-version|patch|minor|major>\n' +
+				'Example: bun run scripts/dev/version-to.ts 20.1.0'
 		);
 	}
 	const currentVersion = getCurrentVersion();

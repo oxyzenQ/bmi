@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { readFile } from 'node:fs/promises';
-import { collectCoreFiles } from './audit-core-files';
+import { collectCoreFiles } from '../lib/audit-core-files';
 
 const LIMIT = 1000;
 

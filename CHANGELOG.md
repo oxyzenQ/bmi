@@ -2,13 +2,24 @@
 
 All notable changes to **BMI Stellar** are documented in this file.
 
-The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) principles, adapted to the project's `feat / fix / chore / docs / refactor / style` commit conventions. Versions are synchronized from `package.json` via `scripts/bmi-update-version.ts`. Release tags follow `Stellar-v<major>.<minor>`.
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) principles, adapted to the project's `feat / fix / chore / docs / refactor / style` commit conventions. Versions are synchronized from `package.json` via `scripts/dev/version-to.ts`. Release tags follow `Stellar-v<major>.<minor>`.
 
 For the full architectural context behind any release, see [`docs/furthermore.md`](docs/furthermore.md). For dormant-maintenance guidance, see [`DORMANT.md`](DORMANT.md).
 
 ---
 
 ## [Unreleased]
+
+### Changed
+
+- **scripts/ tree reorganization (zelynic-aligned layout).** The flat
+  `scripts/` directory now follows the zelynic gate discipline: atomic gates
+  live in `scripts/gates/` (one concern per file), the version manager moved
+  to `scripts/dev/version-to.ts` (renamed from `scripts/bmi-update-version.ts`;
+  the `bun run bmi-update-version` and `bmi-bump:*` aliases keep working),
+  shared gate code lives in `scripts/lib/`, and `scripts/ci/` is reserved for
+  CI-lane helpers. All `package.json` script paths and living-doc references
+  were re-pointed; no gate behavior changed.
 
 ### Fixed
 

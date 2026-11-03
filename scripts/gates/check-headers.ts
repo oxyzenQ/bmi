@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { readFile } from 'node:fs/promises';
-import { collectCoreFiles, readProjectLicense } from './audit-core-files';
+import { collectCoreFiles, readProjectLicense } from '../lib/audit-core-files';
 
 function expectedHeader(extension: string, license: string) {
 	if (extension === '.svelte') {
