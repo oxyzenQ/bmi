@@ -347,6 +347,9 @@ the display documents via `scripts/dev/version-to.ts`.
 
 Current release: `v21.8`.
 
+The npm package is private (`private: true`): BMI Stellar ships as a
+Vercel-deployed web app and nothing is published to the npm registry.
+
 > [!IMPORTANT]
 > Always use `bun run bmi-update-version <version>` to update the
 > version. This keeps `package.json`, `README.md`, and the dormant

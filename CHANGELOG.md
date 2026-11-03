@@ -12,6 +12,14 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Added
 
+- **Complete package metadata (night-improve-4).** `package.json` now
+  carries the full discovery surface - `repository`, `bugs`, `homepage`,
+  and `funding` (the Ko-fi lane the README badge already pointed at) -
+  alongside the existing `description`, `keywords`, `author`, `license`,
+  `engines`, and `packageManager`. The README tells the packaging story
+  once: the package is private, the app ships as a Vercel-deployed web
+  app, nothing is published to the npm registry.
+
 - **Version-surface parity gate and the version-to changelog ability
   (night-improve-3).** `scripts/gates/check-version-sync.ts` enforces the
   version triangle - `package.json` is the source of truth, `DORMANT.md`'s

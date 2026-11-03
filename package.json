@@ -82,7 +82,19 @@
 		"responsive"
 	],
 	"author": "rezky_nightky (oxyzenQ)",
+	"bugs": {
+		"url": "https://github.com/oxyzenQ/bmi/issues"
+	},
+	"funding": {
+		"type": "ko-fi",
+		"url": "https://ko-fi.com/rezky"
+	},
+	"homepage": "https://github.com/oxyzenQ/bmi#readme",
 	"license": "AGPL-3.0-only",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/oxyzenQ/bmi.git"
+	},
 	"engines": {
 		"node": ">=22 <25"
 	},
