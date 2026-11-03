@@ -4,6 +4,7 @@
 #
 # Usage:
 #   ./scripts/build.sh check-all       # full gate (everything CI runs)
+#   ./scripts/build.sh check-all -q    # full gate, essentials-only output
 #   ./scripts/build.sh quick           # skip slow crypto/history tests (test:fast)
 #   ./scripts/build.sh audit           # only the audit-* + format steps
 #   ./scripts/build.sh test            # only vitest:run
@@ -27,7 +28,29 @@ else
   exit 1
 fi
 
-MODE="${1:-check-all}"
+# Argument parsing, the zelynic build.sh shape: one command plus the
+# optional -q/--quiet flag. An extra positional argument fails loud
+# instead of being silently ignored, so a mistyped invocation can
+# never quietly run the wrong gate.
+MODE=""
+QUIET=0
+for arg in "$@"; do
+  case "$arg" in
+    -q|--quiet)
+      QUIET=1
+      ;;
+    "")
+      ;;
+    *)
+      if [ -n "$MODE" ]; then
+        echo "error: unexpected extra argument '$arg'. Run './scripts/build.sh help' for usage." >&2
+        exit 2
+      fi
+      MODE="$arg"
+      ;;
+  esac
+done
+MODE="${MODE:-check-all}"
 
 # Read the version from package.json (single source of truth) the way
 # the zelynic build script reads Cargo.toml: no hardcoded version string
@@ -37,9 +60,28 @@ readonly BMI_VERSION
 
 run_step() {
   local label="$1"; shift
-  echo ""
-  echo "=== $label ==="
-  "$@"
+  if [ "$QUIET" -eq 1 ]; then
+    # Quiet mode, the zelynic -q contract: essentials only, per-step
+    # OK / FAIL verdict lines, no banners and no streamed step output.
+    # A failed step still prints the tail of its log so the failure
+    # stays diagnosable without a re-run.
+    local log status
+    log="$(mktemp)"
+    if "$@" >"$log" 2>&1; then
+      status=0
+      echo "[OK]   $label"
+    else
+      status=1
+      echo "[FAIL] $label"
+      tail -n 20 "$log"
+    fi
+    rm -f "$log"
+    [ "$status" -eq 0 ] || exit 1
+  else
+    echo ""
+    echo "=== $label ==="
+    "$@"
+  fi
 }
 
 doctor_ok()   { echo "  │  [OK]   $1"; }
@@ -203,6 +245,14 @@ Modes:
   doctor     Environment diagnostics (bun/node pins, git identity, hooks,
              version surfaces, actions pins) - zelynic-style tree output.
   -V         Print the script version, read live from package.json.
+
+Flags:
+  -q, --quiet  Essentials only: per-step OK / FAIL verdict lines, no
+               banners or streamed step output (the CI shape). A failed
+               step prints the tail of its log.
+
+Example:
+  ./scripts/build.sh check-all -q
 USAGE
     ;;
   *)
