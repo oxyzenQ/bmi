@@ -1,0 +1,20 @@
+{
+	"$comment": "LOC ratchet manifest (RULES.md, Line Count Discipline). Every core file at or above 600 lines records its current count and may never grow past it. A new file crossing 600 must be recorded here by hand (visible debt in the diff). A file that shrinks below 600 must have its entry removed in the same change. Shrink the debt; never raise a watermark.",
+	"generated": "2026-11-04",
+	"files": {
+		"src/lib/components/BmiForm.svelte": 671,
+		"src/lib/components/BmiHistorySparkline.svelte": 768,
+		"src/lib/components/DebugPanel.svelte": 926,
+		"src/lib/i18n/locales/ja.ts": 676,
+		"src/lib/i18n/locales/zh.ts": 631,
+		"src/lib/utils/__tests__/history-io.test.ts": 726,
+		"src/lib/utils/crypto.ts": 650,
+		"src/lib/utils/history-io.ts": 760,
+		"src/lib/utils/share-image.ts": 969,
+		"src/routes/+page.svelte": 939,
+		"src/styles/animation.css": 770,
+		"src/styles/data-cards.css": 756,
+		"src/styles/responsive-mobile-perf.css": 679,
+		"src/styles/tokens.css": 640
+	}
+}

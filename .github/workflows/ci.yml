@@ -108,6 +108,9 @@ jobs:
       - name: LOC check
         run: bun run audit:loc
 
+      - name: Scripts LOC check
+        run: bash scripts/gates/check-scripts-loc.sh
+
       - name: Header check
         run: bun run audit:headers
 

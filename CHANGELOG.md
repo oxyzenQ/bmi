@@ -12,6 +12,14 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Changed
 
+- **LOC discipline tightened to the zelynic three-tier law (night-improve-7).**
+  The single 1000-line cap is now three tiers: the 1000-line hard cap stays;
+  a 600-line ratchet (`scripts/loc-ratchet.json`) records the 14 legacy core
+  files at or above 600 lines at their current size and they may never grow;
+  and `scripts/gates/check-scripts-loc.sh` enforces the 1000-line cap for
+  `scripts/**` with zelynic's `# LOC_EXEMPT:` self-declared IOU marker. New
+  source files must stay under 600 lines; existing debt can only shrink.
+
 - **scripts/ tree reorganization (zelynic-aligned layout).** The flat
   `scripts/` directory now follows the zelynic gate discipline: atomic gates
   live in `scripts/gates/` (one concern per file), the version manager moved

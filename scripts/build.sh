@@ -40,6 +40,7 @@ check_all() {
   run_step "format:check"      $BUN_BIN run format:check
   run_step "audit:deps"        $BUN_BIN run audit:deps
   run_step "audit:loc"         $BUN_BIN run audit:loc
+  run_step "audit:scripts-loc" bash scripts/gates/check-scripts-loc.sh
   run_step "audit:headers"     $BUN_BIN run audit:headers
   run_step "audit:branding"    $BUN_BIN run audit:branding
   run_step "audit:pwa-offline" $BUN_BIN run audit:pwa-offline
@@ -52,6 +53,7 @@ check_all() {
 quick() {
   run_step "format:check"      $BUN_BIN run format:check
   run_step "audit:loc"         $BUN_BIN run audit:loc
+  run_step "audit:scripts-loc" bash scripts/gates/check-scripts-loc.sh
   run_step "audit:headers"     $BUN_BIN run audit:headers
   run_step "audit:branding"    $BUN_BIN run audit:branding
   run_step "audit:pwa-offline" $BUN_BIN run audit:pwa-offline
@@ -65,6 +67,7 @@ audit_only() {
   run_step "format:check"      $BUN_BIN run format:check
   run_step "audit:deps"        $BUN_BIN run audit:deps
   run_step "audit:loc"         $BUN_BIN run audit:loc
+  run_step "audit:scripts-loc" bash scripts/gates/check-scripts-loc.sh
   run_step "audit:headers"     $BUN_BIN run audit:headers
   run_step "audit:branding"    $BUN_BIN run audit:branding
   run_step "audit:pwa-offline" $BUN_BIN run audit:pwa-offline
@@ -89,9 +92,9 @@ case "$MODE" in
 Usage: scripts/build.sh <mode>
 
 Modes:
-  check-all  Full CI gate (default). 10 steps: format + 5 audits + type-check + lint + test:ci + build.
+  check-all  Full CI gate (default). 11 steps: format + 6 audits + type-check + lint + test:ci + build.
   quick      Same as check-all but uses test:fast (skips crypto/history-io slow tests).
-  audit      Only format:check + the 5 audit-* scripts.
+  audit      Only format:check + the 6 audit-* steps.
   test       Only vitest test:ci.
   build      Only vite production build.
 USAGE

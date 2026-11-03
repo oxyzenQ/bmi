@@ -2,7 +2,20 @@
 
 ## Line Count Discipline
 
-Core code files must stay under 1000 lines of code.
+The zelynic-aligned three-tier LOC law:
+
+- **1000 lines - the hard cap.** Every core code file stays under 1000 lines
+  of code. No exceptions, no markers.
+- **600 lines - the ratchet.** Any core file at or above 600 lines is recorded
+  with its exact count in `scripts/loc-ratchet.json` and may never grow past
+  that watermark. A new file crossing 600 fails the gate until its entry is
+  added by hand (visible debt in the diff). A file that shrinks below 600
+  must have its entry removed in the same change - the debt ledger only
+  shrinks, never grows.
+- **1000 lines - scripts.** Every `.sh`/`.py` under `scripts/` stays under
+  1000 lines (enforced by `scripts/gates/check-scripts-loc.sh`). A script
+  that cannot split the same hour self-declares one honest IOU comment:
+  `# LOC_EXEMPT: <justification>`.
 
 This rule applies to:
 
@@ -27,7 +40,7 @@ This rule excludes:
 - coverage
 - `.git`
 
-When a core file approaches the limit, split by domain, component, or service ownership. Do not perform cosmetic slicing just to move lines around.
+When a core file approaches a limit, split by domain, component, or service ownership. Do not perform cosmetic slicing just to move lines around.
 
 ## Repository Layout - scripts/
 
