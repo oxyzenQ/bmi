@@ -29,11 +29,103 @@ fi
 
 MODE="${1:-check-all}"
 
+# Read the version from package.json (single source of truth) the way
+# the zelynic build script reads Cargo.toml: no hardcoded version string
+# lives in this file, so a bump can never drift from the banner.
+BMI_VERSION="$($BUN_BIN -p "require('./package.json').version")"
+readonly BMI_VERSION
+
 run_step() {
   local label="$1"; shift
   echo ""
   echo "=== $label ==="
   "$@"
+}
+
+doctor_ok()   { echo "  │  [OK]   $1"; }
+doctor_warn() { echo "  │  [WARN]  $1"; }
+doctor_fail() { echo "  │  [FAIL]  $1"; }
+
+show_version() {
+  echo "BMI Stellar build script v${BMI_VERSION} (bmi-stellar)"
+}
+
+doctor() {
+  local health=0
+  local node_ver node_major bun_ver pinned_bun hooks_path gates workflows
+
+  echo "BMI Stellar doctor - environment diagnostics"
+  echo ""
+  echo "  ├─ Version: v${BMI_VERSION} (bmi-stellar, from package.json)"
+  echo "  ├─ OS: $(uname -s) $(uname -m), $(nproc 2>/dev/null || echo '?') cores"
+
+  bun_ver="$($BUN_BIN --version)"
+  pinned_bun="$(sed -n 's/.*"packageManager": *"bun@\([^"]*\)".*/\1/p' package.json | head -1)"
+  if [ "${pinned_bun:-}" = "$bun_ver" ]; then
+    doctor_ok "Bun ${bun_ver} matches the packageManager pin"
+  else
+    doctor_fail "Bun ${bun_ver} != packageManager pin ${pinned_bun:-<none>}"
+    health=1
+  fi
+
+  if command -v node >/dev/null 2>&1; then
+    node_ver="$(node --version)"
+    node_major="${node_ver#v}"
+    node_major="${node_major%%.*}"
+    if [ "$node_major" -ge 22 ] && [ "$node_major" -lt 25 ]; then
+      doctor_ok "Node ${node_ver} inside the engines range (>=22 <25)"
+    else
+      doctor_fail "Node ${node_ver} outside the engines range (>=22 <25)"
+      health=1
+    fi
+  else
+    doctor_warn "Node not on PATH (bun-only host; the CI lane installs Node from the engines range)"
+  fi
+
+  if [ "$(git config user.name 2>/dev/null || true)" != "" ] && [ "$(git config user.email 2>/dev/null || true)" != "" ]; then
+    doctor_ok "Git identity: $(git config user.name) <$(git config user.email)>"
+  else
+    doctor_fail "Git identity not configured (user.name / user.email)"
+    health=1
+  fi
+
+  hooks_path="$(git config --local core.hooksPath 2>/dev/null || true)"
+  if [ "$hooks_path" = ".githooks" ]; then
+    doctor_ok "Pre-commit gate wired (core.hooksPath=.githooks)"
+  else
+    doctor_warn "Pre-commit gate not wired (core.hooksPath='${hooks_path:-unset}') - run ./scripts/setup.sh"
+  fi
+
+  gates="$(find scripts/gates -type f 2>/dev/null | wc -l)"
+  workflows="$(find .github/workflows -name '*.yml' -type f 2>/dev/null | wc -l)"
+  doctor_ok "Gate inventory: ${gates} gate(s) in scripts/gates/, ${workflows} workflow(s) in .github/workflows/"
+
+  echo "  ├─ Surface checks:"
+  if $BUN_BIN run audit:version-sync >/dev/null 2>&1; then
+    doctor_ok "Version surfaces in sync with package.json v${BMI_VERSION}"
+  else
+    doctor_fail "Version surfaces disagree with package.json v${BMI_VERSION} (run: bun run audit:version-sync)"
+    health=1
+  fi
+  if bash scripts/gates/check-actions-pins.sh >/tmp/bmi-doctor-pins.log 2>&1; then
+    if grep -q "WARNING" /tmp/bmi-doctor-pins.log; then
+      doctor_warn "Actions pins: $(grep -c FAIL /tmp/bmi-doctor-pins.log) tag pin(s) - heal with scripts/ci/actions-version-sweep.sh --apply"
+    else
+      doctor_ok "Actions pins: every version pin is a 40-hex SHA"
+    fi
+  else
+    doctor_fail "Actions pins: gate failed under strict rules"
+    health=1
+  fi
+  rm -f /tmp/bmi-doctor-pins.log
+
+  echo ""
+  if [ "$health" -eq 0 ]; then
+    echo "[OK] doctor - environment healthy."
+  else
+    echo "[FAIL] doctor - ${health} failed check(s) above."
+  fi
+  return "$health"
 }
 
 check_all() {
@@ -90,6 +182,14 @@ case "$MODE" in
   audit)         audit_only ;;
   test)          test_only ;;
   build)         build_only ;;
+  -V|--version|version)
+    show_version
+    exit 0
+    ;;
+  doctor)
+    doctor
+    exit $?
+    ;;
   -h|--help|help)
     cat <<'USAGE'
 Usage: scripts/build.sh <mode>
@@ -100,6 +200,9 @@ Modes:
   audit      Only format:check + the 7 audit-* steps.
   test       Only vitest test:ci.
   build      Only vite production build.
+  doctor     Environment diagnostics (bun/node pins, git identity, hooks,
+             version surfaces, actions pins) - zelynic-style tree output.
+  -V         Print the script version, read live from package.json.
 USAGE
     ;;
   *)

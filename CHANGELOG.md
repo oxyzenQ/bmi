@@ -12,6 +12,16 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Added
 
+- **The gatekeeper speaks: -V and doctor (night-improve-6).**
+  `scripts/build.sh` gained `-V`/`--version` (one line, read live from
+  `package.json` - the single source of truth, the way the zelynic build
+  script reads Cargo.toml, so the banner can never drift from a bump) and
+  a `doctor` subcommand with the zelynic-style tree output: Bun vs the
+  `packageManager` pin, Node vs the engines range, git identity,
+  pre-commit hook wiring, gate/workflow inventory, version-surface sync,
+  and actions-pin health, each row `[OK]`/`[WARN]`/`[FAIL]`, exit 1 on
+  any failed check.
+
 - **Complete package metadata (night-improve-4).** `package.json` now
   carries the full discovery surface - `repository`, `bugs`, `homepage`,
   and `funding` (the Ko-fi lane the README badge already pointed at) -
