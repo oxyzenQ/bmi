@@ -60,9 +60,13 @@ fi
 
 header "[1] bash -n (syntax)"
 sh_files="$(find scripts -name '*.sh' -type f 2>/dev/null; echo verify.sh; [ -f .githooks/pre-commit ] && echo .githooks/pre-commit)"
+# The list is one path per line by construction; read it into an array so
+# every expansion stays quoted (shellcheck SC2086) without losing the
+# word-split the loop needs.
+readarray -t sh_array <<<"$sh_files"
 syn_failed=0
 syn_count=0
-for f in $sh_files; do
+for f in "${sh_array[@]}"; do
         syn_count=$((syn_count + 1))
         if ! bash -n "$f" 2>/dev/null; then
                 echo "       syntax error: $f"
@@ -79,7 +83,7 @@ fi
 
 header "[2] shellcheck"
 if command -v shellcheck >/dev/null 2>&1; then
-        if shellcheck -x $sh_files 2>/dev/null; then
+        if shellcheck -x "${sh_array[@]}" 2>/dev/null; then
                 pass "shellcheck clean"
         else
                 fail "shellcheck" "findings above (run: shellcheck -x <file>)"

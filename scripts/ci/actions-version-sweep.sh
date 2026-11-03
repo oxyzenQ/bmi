@@ -98,7 +98,7 @@ repo_of() {
 resolve_release_commit() {
         # resolve_release_commit <repo> - "<tag> <sha>" of the latest release
         # on stdout; empty on any failure (the caller records a skip).
-        local repo="$1" tag ref_body obj_sha obj_type tag_body
+        local repo="$1" tag ref_body obj_sha obj_type tag_body body=""
         api_call "/repos/${repo}/releases/latest" body
         [ "$API_STATUS" = "200" ] || return 1
         tag="$(json_field "$body" 'doc.get("tag_name", "")')"

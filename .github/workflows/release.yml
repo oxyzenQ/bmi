@@ -138,8 +138,10 @@ jobs:
           STAGE="release-source"
           rm -rf "$STAGE" && mkdir -p "$STAGE"
           cp -r src "$STAGE/" && cp -r static "$STAGE/" && cp -r scripts "$STAGE/"
-          cp -r .github "$STAGE/" && cp -r docs "$STAGE/" 2>/dev/null || true
-          cp package.json "$STAGE/" && cp bun.lock "$STAGE/" 2>/dev/null || true
+          cp -r .github "$STAGE/" 2>/dev/null || true
+          cp -r docs "$STAGE/" 2>/dev/null || true
+          cp package.json "$STAGE/"
+          cp bun.lock "$STAGE/" 2>/dev/null || true
           cp svelte.config.js "$STAGE/" 2>/dev/null || true
           cp vite.config.ts "$STAGE/" 2>/dev/null || true
           cp tsconfig.json "$STAGE/" 2>/dev/null || true
@@ -149,7 +151,8 @@ jobs:
           cp vercel.json "$STAGE/" 2>/dev/null || true
           cp verify.sh "$STAGE/" 2>/dev/null || true
           cp README.md "$STAGE/" 2>/dev/null || true
-          cp LICENSE "$STAGE/" && cp SECURITY.md "$STAGE/" 2>/dev/null || true
+          cp LICENSE "$STAGE/"
+          cp SECURITY.md "$STAGE/" 2>/dev/null || true
           cd "$STAGE" && zip -r "../bmi-stellar-source-${TAG}.zip" . && cd ..
           sha256sum "bmi-stellar-source-${TAG}.zip" > "bmi-stellar-source-${TAG}.zip.sha256"
           rm -rf "$STAGE"

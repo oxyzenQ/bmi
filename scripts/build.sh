@@ -32,7 +32,7 @@ MODE="${1:-check-all}"
 # Read the version from package.json (single source of truth) the way
 # the zelynic build script reads Cargo.toml: no hardcoded version string
 # lives in this file, so a bump can never drift from the banner.
-BMI_VERSION="$($BUN_BIN -p "require('./package.json').version")"
+BMI_VERSION="$("$BUN_BIN" -p "require('./package.json').version")"
 readonly BMI_VERSION
 
 run_step() {
@@ -59,7 +59,7 @@ doctor() {
   echo "  ├─ Version: v${BMI_VERSION} (bmi-stellar, from package.json)"
   echo "  ├─ OS: $(uname -s) $(uname -m), $(nproc 2>/dev/null || echo '?') cores"
 
-  bun_ver="$($BUN_BIN --version)"
+  bun_ver="$("$BUN_BIN" --version)"
   pinned_bun="$(sed -n 's/.*"packageManager": *"bun@\([^"]*\)".*/\1/p' package.json | head -1)"
   if [ "${pinned_bun:-}" = "$bun_ver" ]; then
     doctor_ok "Bun ${bun_ver} matches the packageManager pin"
@@ -101,7 +101,7 @@ doctor() {
   doctor_ok "Gate inventory: ${gates} gate(s) in scripts/gates/, ${workflows} workflow(s) in .github/workflows/"
 
   echo "  ├─ Surface checks:"
-  if $BUN_BIN run audit:version-sync >/dev/null 2>&1; then
+  if "$BUN_BIN" run audit:version-sync >/dev/null 2>&1; then
     doctor_ok "Version surfaces in sync with package.json v${BMI_VERSION}"
   else
     doctor_fail "Version surfaces disagree with package.json v${BMI_VERSION} (run: bun run audit:version-sync)"
@@ -129,51 +129,51 @@ doctor() {
 }
 
 check_all() {
-  run_step "format:check"      $BUN_BIN run format:check
-  run_step "audit:deps"        $BUN_BIN run audit:deps
-  run_step "audit:loc"         $BUN_BIN run audit:loc
+  run_step "format:check"      "$BUN_BIN" run format:check
+  run_step "audit:deps"        "$BUN_BIN" run audit:deps
+  run_step "audit:loc"         "$BUN_BIN" run audit:loc
   run_step "audit:scripts-loc" bash scripts/gates/check-scripts-loc.sh
-  run_step "audit:headers"     $BUN_BIN run audit:headers
-  run_step "audit:version-sync" $BUN_BIN run audit:version-sync
-  run_step "audit:branding"    $BUN_BIN run audit:branding
-  run_step "audit:pwa-offline" $BUN_BIN run audit:pwa-offline
-  run_step "type-check"        $BUN_BIN run check
-  run_step "lint"              $BUN_BIN run lint
-  run_step "test:ci"           $BUN_BIN run test:ci
-  run_step "build"             $BUN_BIN run build
+  run_step "audit:headers"     "$BUN_BIN" run audit:headers
+  run_step "audit:version-sync" "$BUN_BIN" run audit:version-sync
+  run_step "audit:branding"    "$BUN_BIN" run audit:branding
+  run_step "audit:pwa-offline" "$BUN_BIN" run audit:pwa-offline
+  run_step "type-check"        "$BUN_BIN" run check
+  run_step "lint"              "$BUN_BIN" run lint
+  run_step "test:ci"           "$BUN_BIN" run test:ci
+  run_step "build"             "$BUN_BIN" run build
 }
 
 quick() {
-  run_step "format:check"      $BUN_BIN run format:check
-  run_step "audit:loc"         $BUN_BIN run audit:loc
+  run_step "format:check"      "$BUN_BIN" run format:check
+  run_step "audit:loc"         "$BUN_BIN" run audit:loc
   run_step "audit:scripts-loc" bash scripts/gates/check-scripts-loc.sh
-  run_step "audit:headers"     $BUN_BIN run audit:headers
-  run_step "audit:version-sync" $BUN_BIN run audit:version-sync
-  run_step "audit:branding"    $BUN_BIN run audit:branding
-  run_step "audit:pwa-offline" $BUN_BIN run audit:pwa-offline
-  run_step "type-check"        $BUN_BIN run check
-  run_step "lint"              $BUN_BIN run lint
-  run_step "test:fast"         $BUN_BIN run test:fast
-  run_step "build"             $BUN_BIN run build
+  run_step "audit:headers"     "$BUN_BIN" run audit:headers
+  run_step "audit:version-sync" "$BUN_BIN" run audit:version-sync
+  run_step "audit:branding"    "$BUN_BIN" run audit:branding
+  run_step "audit:pwa-offline" "$BUN_BIN" run audit:pwa-offline
+  run_step "type-check"        "$BUN_BIN" run check
+  run_step "lint"              "$BUN_BIN" run lint
+  run_step "test:fast"         "$BUN_BIN" run test:fast
+  run_step "build"             "$BUN_BIN" run build
 }
 
 audit_only() {
-  run_step "format:check"      $BUN_BIN run format:check
-  run_step "audit:deps"        $BUN_BIN run audit:deps
-  run_step "audit:loc"         $BUN_BIN run audit:loc
+  run_step "format:check"      "$BUN_BIN" run format:check
+  run_step "audit:deps"        "$BUN_BIN" run audit:deps
+  run_step "audit:loc"         "$BUN_BIN" run audit:loc
   run_step "audit:scripts-loc" bash scripts/gates/check-scripts-loc.sh
-  run_step "audit:headers"     $BUN_BIN run audit:headers
-  run_step "audit:version-sync" $BUN_BIN run audit:version-sync
-  run_step "audit:branding"    $BUN_BIN run audit:branding
-  run_step "audit:pwa-offline" $BUN_BIN run audit:pwa-offline
+  run_step "audit:headers"     "$BUN_BIN" run audit:headers
+  run_step "audit:version-sync" "$BUN_BIN" run audit:version-sync
+  run_step "audit:branding"    "$BUN_BIN" run audit:branding
+  run_step "audit:pwa-offline" "$BUN_BIN" run audit:pwa-offline
 }
 
 test_only() {
-  run_step "test:ci"           $BUN_BIN run test:ci
+  run_step "test:ci"           "$BUN_BIN" run test:ci
 }
 
 build_only() {
-  run_step "build"             $BUN_BIN run build
+  run_step "build"             "$BUN_BIN" run build
 }
 
 case "$MODE" in

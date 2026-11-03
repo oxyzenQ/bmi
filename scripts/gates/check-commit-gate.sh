@@ -19,7 +19,7 @@ ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
 	echo "FAIL: commit gate - not inside a git work tree"
 	exit 1
 }
-cd "$ROOT"
+cd "$ROOT" || exit 1
 
 FAILED=0
 
@@ -52,8 +52,8 @@ elif [ -x "$HOME/.bun/bin/bun" ]; then
 	export PATH="$HOME/.bun/bin:$PATH"
 fi
 if [ -n "$BUN_BIN" ]; then
-	run_gate "loc ratchet (600/1000)" $BUN_BIN run audit:loc
-	run_gate "version surfaces" $BUN_BIN run audit:version-sync
+	run_gate "loc ratchet (600/1000)" "$BUN_BIN" run audit:loc
+	run_gate "version surfaces" "$BUN_BIN" run audit:version-sync
 else
 	echo "  [SKIP] loc ratchet + version surfaces (bun not installed)"
 fi
