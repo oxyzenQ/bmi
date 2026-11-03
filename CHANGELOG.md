@@ -88,6 +88,21 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Changed
 
+- **The five README demo screenshots were re-shot against the live
+  production build.** All five `assets/demo-bmi-stellar-*.png` surfaces
+  (home page, gauge, gauge active, results, snapshot) were captured from
+  a real browser session on the `vite preview` build with the new 2026
+  Stellar mark and the new space wallpaper visible, showing `Art: Space`
+  in the nav. The data story is preserved and verified against the
+  published formulas: metric 24y/181 cm/67 kg male at activity 1.725x
+  renders BMI 20.45, BMI prime 0.82, ideal range 60.6-81.9 kg, and TDEE
+  2909 kcal/day; the snapshot accumulates the same three history entries
+  (20.45, 21.37, 26.86) for a 79% progress bar, a 26.86 current, a 21.37
+  best, and the target 22.00. Captured at 1.5x pipeline scale (Lanczos
+  downsize to the recorded pixel dims) and re-signed: the five BLAKE3
+  rows in `signature.b3sum` and `signature-assets.md` moved with the
+  bytes. _(this commit)_
+
 - **Wallpaper refresh: the space art swaps to the 2026 oxyzenQ plate, and
   a fourth theme "Telescopic Cosmic" lands.** The `space` theme now
   renders `static/images/oxyzenq-lite.webp` (the neon-purple OXYZENQ
