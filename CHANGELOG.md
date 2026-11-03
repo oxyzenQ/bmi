@@ -29,6 +29,14 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 - **Offline precache diet** — moved the 1254×1254 brand master (`bmi-logo-masters.png`, 1.0 MB) from `static/assets/` to `docs/assets/`. The service worker precaches every file under `static/`, and the master was referenced by no manifest, page, or style — only by the branding docs. Web-facing PWA derivatives (192 through 1024) stay in `static/assets/` unchanged, so install icons, favicon, and maskable icons stay pixel-identical; installs now ship about 1 MB less on first load. BRANDING.md updated to the new path. _(this commit)_
 - **README synced to the zelynic convention** — rebuilt `README.md` on the owner's mature-project template: license header comments, an AI-agents notice, centered hero with tagline and flavor quote, badge row (version + license + Ko-fi), a "Why bmi?" section with a mechanism-anchored edge table and a vs-typical-tools comparison, honest limitations (screening metrics, unencrypted at-rest local storage, forgeable legacy checksums), a layered architecture diagram, philosophy (IS / NEVER BE + maintenance mode), a test-lane table (464 tests, 30 suites — refreshed from the stale 452/29), release verification, the trademark and forking policy, and the closing documentation-disclaimer block. Added `AI_AGENTS_READ_THIS.md` adapted to bmi's single AGPL-3.0-only license. Restored the three version-sync anchors (`BMI Stellar v21.8` display string, `badge/version-v21.8-` badge, `alt="Version v21.8"`) so `bmi-update-version` syncs the README again instead of skipping it — verified with a `--dry-run` reporting all three "already current". BRANDING.md: removed the stale all-caps-hero row that referenced a hero the README no longer has. _(this commit)_
 
+### License
+
+- **Pricing restructured to the White-Label Focus ladder.** BMI Stellar
+  is positioned as local-first health infrastructure. Added Professional
+  ($999), Business ($2,199), Enterprise Internal ($14,999), and
+  White-Label/OEM ($49,999/year or $99,999 one-time + 20%). Personal
+  (Free) and Individual ($99) unchanged. Docs-only; no code changes.
+
 ### Removed
 
 - **Dormant static-deploy config** — removed `svelte.config.static.js` and its `@sveltejs/adapter-static` devDependency. The project deploys via `@sveltejs/adapter-vercel` (`svelte.config.js`); the alternate static config was referenced by no build, script, or doc — only by tolerant workflow path filters and a `|| true` release-staging copy, all of which are cleaned up in the same change. _(this commit)_

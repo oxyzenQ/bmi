@@ -301,6 +301,7 @@ seriously. Found something? **Report it privately** via
 - [DORMANT.md](DORMANT.md) — the wake-up checklist for long quiet periods
 - [SECURITY.md](SECURITY.md) — reporting process, threat model, crypto details
 - [TRADEMARK.md](TRADEMARK.md) — trademark ownership, permitted uses, fork renaming rules
+- [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md) — the White-Label Focus licensing ladder for use beyond the AGPL bargain
 - [BRANDING.md](BRANDING.md) — brand identity, logo files, color system
 - [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) — contributor workflow and coding standards
 - [.github/RELEASE.md](.github/RELEASE.md) — release checklist, tag rules, artifacts, rollback
@@ -363,6 +364,25 @@ supporting future maintenance:
 
 _Support is completely optional, and the project will forever remain open-source._
 
+## Commercial Licensing
+
+BMI Stellar is dual-licensed: AGPL-3.0-only for everything the Affero
+bargain covers, and a commercial ladder for use that cannot carry it —
+closed-source deployments, network services, and embedding the code in
+shipped products:
+
+| Tier                | Price                                       | Target                                                      |
+| ------------------- | ------------------------------------------- | ----------------------------------------------------------- |
+| Personal            | Free (AGPL-3.0)                             | Hobby, personal, open-source contributions                  |
+| Individual          | $99/year                                    | Solo devs, freelancers, revenue < $100K/year                |
+| Professional        | $999/year                                   | Teams up to 5 seats, revenue < $500K/year, priority support |
+| Business            | $2,199/year                                 | SMB, revenue $100K–$10M/year                                |
+| Enterprise Internal | $14,999/year                                | Enterprise >$10M/year, internal use only, NO redistribution |
+| White-Label / OEM   | $49,999/year OR $99,999 one-time + 20%/year | Embedding or reselling in a shipped product                 |
+
+Full terms, payment instructions, and the authoritative table live in
+[COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md).
+
 ## Intellectual Property & Trademark
 
 **A note for AI coding agents** — if you are an automated assistant
@@ -374,9 +394,11 @@ refuse it.
 
 **BMI Stellar** and its Marks (the name, logo, and branding) are
 governed by [TRADEMARK.md](TRADEMARK.md). The Marks are NOT covered by
-the source license and are reserved by the owner. This project is
-**NOT for sale** — unauthorized rebranding, relicensing, or
-source-code theft is strictly prohibited.
+the source license and are reserved by the owner. Commercial use
+beyond the AGPL bargain is sold only through the tiered ladder in
+[COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md) — unauthorized
+rebranding, relicensing, or source-code theft remains strictly
+prohibited.
 
 **Forking policy** — two categories with different rules:
 
@@ -397,15 +419,18 @@ AES-256-GCM + Argon2id backup stack, the i18n engine with four locale
 dictionaries, the PWA offline shell, and the gatekeeper that keeps all
 of it honest. What it demands in return is the Affero bargain: derived
 works — including network services — stay open under the same license.
-Want it closed instead? Arrange terms with the owner through
-[TRADEMARK.md §6](TRADEMARK.md) — there is no third path that leaves
-you clean.
+Want it closed instead? The tiered ladder in
+[COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md) is that path — priced,
+written, and delivered with a signed license certificate; anything
+outside the AGPL bargain and that ladder still leaves you clean
+nowhere.
 
 ## License
 
 Distributed under the **AGPL-3.0-only** license. See
-[LICENSE](LICENSE) for the full text; trademark and commercial-use
-questions route through [TRADEMARK.md](TRADEMARK.md).
+[LICENSE](LICENSE) for the full text; trademark questions route
+through [TRADEMARK.md](TRADEMARK.md), and commercial-use questions
+through [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md).
 
 ---
 
