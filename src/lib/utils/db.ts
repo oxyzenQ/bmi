@@ -8,6 +8,10 @@
  * behind the synchronous storage.ts cache layer.
  *
  * Schema versioning enables safe future migrations.
+ *
+ * Durability contract: every write promise settles on transaction
+ * completion (tx.oncomplete), never on request-level success, so a
+ * mid-commit abort is always observed by the caller as a rejection.
  */
 
 import { warnDev } from './warn-dev';
@@ -82,8 +86,13 @@ export async function dbSet(key: string, value: string): Promise<void> {
 		const tx = db.transaction(STORE_KV, 'readwrite');
 		const store = tx.objectStore(STORE_KV);
 		const req = store.put({ key, value });
-		req.onsuccess = () => resolve();
-		req.onerror = () => reject(req.error);
+		req.onerror = () => {};
+		// Durability: resolve on transaction COMMIT, not on request
+		// success — a request can succeed and still be rolled back
+		// by a mid-commit abort. onabort/onerror carry the outcome.
+		tx.oncomplete = () => resolve();
+		tx.onabort = () => reject(tx.error ?? new Error('transaction aborted'));
+		tx.onerror = () => reject(tx.error ?? req.error ?? new Error('transaction failed'));
 	});
 }
 
@@ -94,8 +103,13 @@ export async function dbRemove(key: string): Promise<void> {
 		const tx = db.transaction(STORE_KV, 'readwrite');
 		const store = tx.objectStore(STORE_KV);
 		const req = store.delete(key);
-		req.onsuccess = () => resolve();
-		req.onerror = () => reject(req.error);
+		req.onerror = () => {};
+		// Durability: resolve on transaction COMMIT, not on request
+		// success — a request can succeed and still be rolled back
+		// by a mid-commit abort. onabort/onerror carry the outcome.
+		tx.oncomplete = () => resolve();
+		tx.onabort = () => reject(tx.error ?? new Error('transaction aborted'));
+		tx.onerror = () => reject(tx.error ?? req.error ?? new Error('transaction failed'));
 	});
 }
 
@@ -135,8 +149,13 @@ export async function dbMetaSet(key: string, value: string): Promise<void> {
 		const tx = db.transaction(STORE_META, 'readwrite');
 		const store = tx.objectStore(STORE_META);
 		const req = store.put({ key, value });
-		req.onsuccess = () => resolve();
-		req.onerror = () => reject(req.error);
+		req.onerror = () => {};
+		// Durability: resolve on transaction COMMIT, not on request
+		// success — a request can succeed and still be rolled back
+		// by a mid-commit abort. onabort/onerror carry the outcome.
+		tx.oncomplete = () => resolve();
+		tx.onabort = () => reject(tx.error ?? new Error('transaction aborted'));
+		tx.onerror = () => reject(tx.error ?? req.error ?? new Error('transaction failed'));
 	});
 }
 
@@ -149,8 +168,11 @@ export async function dbBackupSave(record: Omit<BackupRecord, 'id'>): Promise<nu
 		const tx = db.transaction(STORE_BACKUPS, 'readwrite');
 		const store = tx.objectStore(STORE_BACKUPS);
 		const req = store.add(record);
-		req.onsuccess = () => resolve(req.result as number);
-		req.onerror = () => reject(req.error);
+		req.onerror = () => {};
+		// Resolve with the generated id only after the commit.
+		tx.oncomplete = () => resolve(req.result as number);
+		tx.onabort = () => reject(tx.error ?? new Error('transaction aborted'));
+		tx.onerror = () => reject(tx.error ?? req.error ?? new Error('transaction failed'));
 	});
 }
 
@@ -177,8 +199,13 @@ export async function dbBackupDelete(id: number): Promise<void> {
 		const tx = db.transaction(STORE_BACKUPS, 'readwrite');
 		const store = tx.objectStore(STORE_BACKUPS);
 		const req = store.delete(id);
-		req.onsuccess = () => resolve();
-		req.onerror = () => reject(req.error);
+		req.onerror = () => {};
+		// Durability: resolve on transaction COMMIT, not on request
+		// success — a request can succeed and still be rolled back
+		// by a mid-commit abort. onabort/onerror carry the outcome.
+		tx.oncomplete = () => resolve();
+		tx.onabort = () => reject(tx.error ?? new Error('transaction aborted'));
+		tx.onerror = () => reject(tx.error ?? req.error ?? new Error('transaction failed'));
 	});
 }
 
