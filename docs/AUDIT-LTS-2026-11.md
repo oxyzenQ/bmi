@@ -119,3 +119,112 @@ section 4 documents exactly these resolved values and its note about
 the rgba decomposition matches `src/styles/tokens.css` line for line,
 so the palette law, the tokens, and the art agree. No drift found;
 no change needed.
+
+## 6. Toolchain, dependency, and CI-pinning audit for dormancy (2026-11-04)
+
+Question: is every dependency, tool, compiler, and runtime the project
+touches actually fit for a 1-5 year dormant stretch - nothing EOLs
+under a frozen pin, nothing rots silently, nothing needs a human
+before `scripts/setup.sh` works again?
+
+### 6.1 Runtime and toolchain pins (single sources of truth)
+
+| Surface        | Pin                                    | Source of truth       |
+| -------------- | -------------------------------------- | --------------------- |
+| Bun            | `1.3.11` (latest published: `1.4.4`)   | `packageManager`      |
+| Node range     | `>=22 <25`                             | `engines`             |
+| Node in CI     | `24` (LTS, EOL 2028-04-30)             | `NODE_VERSION` env    |
+| Vercel runtime | `nodejs24.x`                           | `VERCEL_NODE_RUNTIME` |
+| Local asdf     | bun `1.3.11`, node `24.x`              | `.tool-versions`      |
+| CI runners     | `ubuntu-24.04` (never `ubuntu-latest`) | all 9 workflows       |
+| CodeQL bundle  | `codeql-bundle-v2.27.4`, SHA-pinned    | `codeql.yml`          |
+
+Bun is resolved in CI from `package.json#packageManager` itself (a
+local `node -p` read, not a GitHub API call), `setup.sh` phase 1
+enforces the same pin, and `.tool-versions` was aligned `22.x -> 24.x`
+in this audit: the file had no gate reading it, Node 22 maintenance
+ends 2027-04-30 while Node 24 (the CI major) is serviced to
+2028-04-30, and the value now agrees with `engines` and `NODE_VERSION`.
+Bun publishes no EOL calendar; the wake-up order already answers that
+by making Bun/Node upgrades step 4 of `DORMANT.md`.
+
+### 6.2 CI actions and gate-tool supply chain
+
+Every `uses:` across the nine workflows is a 40-hex SHA with a version
+comment (`checkout v7.0.1`, `setup-node v7.1.0`, `setup-bun v2.2.0`,
+`cache v6.1.0`, `upload-artifact v7.0.2`, `download-artifact v8.0.2`,
+`codeql-action` bundle `2.27.4`, `action-gh-release v3.0.3`), enforced
+by the `check-actions-pins` gate. Weekly lanes keep the pins honest
+without human input: `self-heal-actions` (Mon 00:00 UTC) heals them to
+latest releases, `maintenance` (Mon 00:00) validates a deps-only
+`bun.lock` refresh through the full quality gate, `codeql` (Mon 00:00)
+and `security-audit` (Mon 00:05) rescan, and `runtime-probe` (Sun
+01:00) probes `nodejs24.x/26.x/28.x` with the full gate and prepares
+the next Node bump as a reviewed change. Gate tools install
+verifiable: `yamllint==1.37.1` and `codespell==2.4.1` are exact pip
+pins, actionlint `1.7.7` is checked against the publisher checksum
+file, b3sum `1.8.7` is proven against the BLAKE3 known-answer vectors
+(it ships no checksum asset), and shellcheck comes preinstalled on the
+pinned runner image. None of the repo scripts call `api.github.com` or
+`raw.githubusercontent.com`, so the rate-limit failure mode that the
+hosted app had (F1) has no toolchain analog.
+
+### 6.3 Dependency freshness against the live registry (2026-11-04)
+
+`bun.lock` holds 460 packages; all 33 direct dependencies resolve, and
+all 11 security overrides land at their intended floors (`undici
+7.30.1`, `cookie 0.7.2`, `tar 7.5.22`, `devalue 5.9.4`,
+`brace-expansion 5.0.12`, `source-map-js 1.2.2`,
+`postcss-selector-parser 7.1.7`, `@humanfs/node 0.16.8`, plus the
+`postcss`/`vite`/`esbuild` floors).
+
+| Package                  | Resolved  | Registry latest | Standing                                    |
+| ------------------------ | --------- | --------------- | ------------------------------------------- |
+| vite                     | `8.3.5`   | `8.3.5`         | current                                     |
+| eslint                   | `10.14.0` | `10.14.0`       | current                                     |
+| prettier                 | `3.9.10`  | `3.9.10`        | current                                     |
+| svelte-check             | `4.7.8`   | `4.7.8`         | current                                     |
+| esbuild                  | `0.28.2`  | `0.28.2`        | current                                     |
+| svelte                   | `5.55.9`  | `5.57.3`        | same major, minor behind                    |
+| @noble/hashes            | `2.2.0`   | `2.4.0`         | same major; crypto, exact pin, no weakening |
+| @sveltejs/kit            | `2.70.2`  | `3.1.1`         | next major exists; deliberate pin           |
+| typescript               | `6.0.3`   | `7.0.2`         | next major exists; deliberate pin           |
+| vitest                   | `4.1.12`  | `5.1.0`         | next major exists; deliberate pin           |
+| @sveltejs/adapter-vercel | `6.3.4`   | `7.0.2`         | next major exists; deliberate pin           |
+
+The five exact pins (kit, svelte, typescript, vitest, and the crypto
+hash library) are the dormant-correct choice: majors (kit 3, TS 7,
+vitest 5) are owner decisions recorded in the infra audit, not
+maintenance bumps.
+
+### 6.4 Advisory posture, live run
+
+`bun run audit:deps` on 2026-11-04: 5 advisories, 0 blocking, all 5
+allowlisted with concrete reasons and a common expiry of 2027-05-01 -
+`@sveltejs/kit` low x2 (no 2.x fix; the fix is the 3.0.0 major),
+`deepmerge` low (no fixed release upstream), `glob` and `minimatch`
+moderate (build/dev-time only, via `@vercel/nft` tracing and the lint
+toolchain). Expired, stale-severity, or mismatched entries fail closed
+and force re-review, so the list cannot rot into a silence switch.
+
+### 6.5 Watch items (none blocking)
+
+1. A future `runtime-probe` Node 26 bump must raise the `engines` upper
+   bound (`<25`) in the same change, or the manifest and CI disagree.
+2. The two kit low GHSAs ride on 2.x until the 3.0.0 owner decision;
+   the allowlist expiry forces the 2027-05-01 re-review.
+3. shellcheck's version floats with the runner image (0.10.0 locally);
+   it is skip-with-warning by design, so a future image change degrades
+   gracefully rather than red.
+4. Local gate-tool drift is cosmetic only (yamllint 1.38.0 vs CI
+   1.37.1, codespell 2.4.3 vs 2.4.1); CI pins are authoritative.
+
+### 6.6 Verdict
+
+Suitable for dormant. Every runtime and tool is pinned to a single
+source of truth, every action is SHA-pinned with a weekly heal lane,
+the advisory list is policy-gated with a forced re-review date, no
+accepted advisory or runtime EOL lands before 2027-05-01 (Node 24
+runs to 2028-04-30), and the registry delta is entirely either
+current, same-major, or a deliberately deferred major with the
+wake-up path already written down in `DORMANT.md`.
