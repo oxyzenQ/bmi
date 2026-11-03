@@ -172,3 +172,35 @@ Results, lane by lane:
   benchmark-after-commit rule skips honestly for this session; the
   changes were a CLI flag and documentation, which the house rule
   exempts from the A/B run in any case.
+
+## 8. Infra failure classes - the network-read audit
+
+Date: 2026-11-04. Scope: every network read in the gate tooling,
+audited against the failure classes recorded in the owner's reference
+implementations (the shfmt resolve death: gate-keepers run 926 died
+with seven `curl: (22)` 403 lines before a single gate executed,
+because an unauthenticated api.github.com read shares the 60 req/hour
+per-IP pool on the hosted-runner egress and a busy pool outlives any
+retry window).
+
+Findings and actions:
+
+- The actions version sweep already sent the run's ephemeral token as
+  the Bearer header plus the dated X-GitHub-Api-Version header, so the
+  403 resolve class was already mitigated at the design level. Proven
+  live in this audit from a shared-IP sandbox: unauthenticated, the
+  sweep reported three pins as "unresolvable latest release" (the 403
+  pool); the identical command with a token resolved all 31 pins
+  (verdict: 31 kept, 0 skipped). No standing secret is added and
+  nothing changed hands.
+- The gap this audit closed is the second failure class: the tool
+  downloads and the API resolve carried no retry contract, so one
+  transient 5xx / connection reset killed the step. The two
+  gate-keepers actionlint downloads and the sweep's API reads now ride
+  a bounded curl retry contract (3 attempts, 5 s delay, 120 s total
+  window). The API reads deliberately omit `--retry-all-errors`: a
+  deterministic 404 must fail fast and record a skip, while curl's
+  default transient set (408/429/5xx, connection errors) is exactly
+  the retryable class; 429 additionally honors Retry-After.
+- The version resolve stays the only api.github.com consumer in the
+  repository; the pin-shape gate is offline by construction.

@@ -24,9 +24,12 @@
 # repos whose latest release cannot be resolved (reported as skipped).
 #
 # Network: the GitHub API is read through GITHUB_TOKEN when set (the
-# anonymous 60/h ceiling covers this repo's ~10-action surface, but a
-# token keeps the weekly lane safe from quota resets). API reads carry
-# the dated X-GitHub-Api-Version header.
+# anonymous 60/h ceiling cannot clear a busy hosted-runner egress pool,
+# so the token lift to the authenticated 1,000 req/h is the primary
+# mitigation against the 403 resolve death observed in the owner's
+# fleet); API reads carry the dated X-GitHub-Api-Version header and a
+# bounded retry contract (transient 429/5xx only - deterministic 404s
+# fail fast and record a skip instead of burning the window).
 #
 # Usage:
 #   bash scripts/ci/actions-version-sweep.sh --dry-run
@@ -51,7 +54,7 @@ api_json() {
         # survives the command substitution that captures it (a subshell cannot
         # hand back a variable, only its stdout).
         local path="$1"
-        local args=(-sS --connect-timeout 5 --max-time 15 -w '\n%{http_code}' -H "X-GitHub-Api-Version: 2022-11-28")
+        local args=(-sS --connect-timeout 5 --max-time 15 --retry 3 --retry-delay 5 --retry-max-time 120 -w '\n%{http_code}' -H "X-GitHub-Api-Version: 2022-11-28")
         if [ -n "${GITHUB_TOKEN:-}" ]; then
                 args+=(-H "Authorization: Bearer ${GITHUB_TOKEN}")
         fi
