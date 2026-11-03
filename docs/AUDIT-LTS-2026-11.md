@@ -105,3 +105,17 @@ battery is green, the storage surface is minimal and named, and the
 one privacy-claim gap (per-load update checks) is closed with a
 tested, verified throttle plus an updated disclosure. The remaining
 owner-decision items stay as recorded in the infra audit doc.
+
+## 5. Brand palette verification (the purple, grey, white focus)
+
+Checked against the original brand art, not just the docs: the logo
+master plate (`docs/assets/bmi-logo-masters.png`) is a dark plate
+(black-to-navy field with violet accent detail), and the live design
+tokens resolve to the same family - `--cosmic-purple: #8000ff`,
+`--cosmic-blue: #9a4dff`, violet accent decomposition
+`rgba(139, 92, 246, ...)`, slate greys for surfaces and secondary
+text, `--stellar-white: #ffffff` for primary text. BRANDING.md
+section 4 documents exactly these resolved values and its note about
+the rgba decomposition matches `src/styles/tokens.css` line for line,
+so the palette law, the tokens, and the art agree. No drift found;
+no change needed.
