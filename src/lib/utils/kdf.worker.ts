@@ -25,6 +25,12 @@ interface KdfJob {
 const ctx = self as unknown as DedicatedWorkerGlobalScope;
 
 ctx.onmessage = (event: MessageEvent<KdfJob>) => {
+	// Origin gate, mirroring the service-worker convention: the inline
+	// blob worker can only be driven by its creating document, so any
+	// message whose origin disagrees with the worker's own origin is
+	// dropped unread.
+	const trustedOrigin = ctx.location.origin;
+	if (event.origin && event.origin !== trustedOrigin) return;
 	const job = event.data;
 	try {
 		const hash = argon2id(
