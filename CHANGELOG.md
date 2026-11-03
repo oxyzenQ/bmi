@@ -12,6 +12,20 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Changed
 
+- **GitHub Actions pins healed to full 40-hex SHAs, with the zelynic-aligned
+  self-heal engine (night-improve-2).** All 30 `uses:` pins across the 8
+  workflows moved from floating version tags to immutable release commit SHAs
+  (`actions/checkout@<sha> # v7.0.1, SHA pin` style), with the release tag
+  kept readable as a trailing comment. The heal landed through the new
+  `scripts/ci/actions-version-sweep.sh` (`--dry-run` / `--apply`, annotated
+  tags peeled, fail-closed write guard) and `scripts/gates/check-actions-pins
+  .sh` now enforces the shape (warn locally, strict in CI); both were proven
+  live against a planted tag pin. Several pins had silently drifted 2-3
+  majors behind (checkout v5, cache v5, download-artifact v6, upload-artifact
+  v5, setup-node v6) because the old weekly lane only bumped inside a major;
+  the rewired self-heal workflow now crosses majors the way zelynic's engine
+  does and commits as `Internal research:` per the house convention.
+
 - **LOC discipline tightened to the zelynic three-tier law (night-improve-7).**
   The single 1000-line cap is now three tiers: the 1000-line hard cap stays;
   a 600-line ratchet (`scripts/loc-ratchet.json`) records the 14 legacy core

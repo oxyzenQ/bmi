@@ -2,15 +2,20 @@
 # .github/workflows/self-heal-actions.yml
 #
 # Purpose:
-# - Scan .github/workflows/*.yml for `uses: owner/repo@vN`
-# - Check if a newer major tag `vM` exists
-# - Update files, commit as repository owner, and push to default branch
+# - Heal every GitHub Actions `uses:` version pin to the latest release
+#   commit SHA (the zelynic-aligned actions-pin engine, run through
+#   scripts/ci/actions-version-sweep.sh --apply; annotated tags peeled,
+#   the release tag kept as a trailing "# vX.Y.Z, SHA pin" comment)
+# - Commit as the repository owner and push to the default branch
 #
 # Security/minimality notes:
-# - Uses a Personal Access Token (PAT) with `workflow` scope to update workflow files.
-# - Runs on ubuntu-latest.
-# - Avoids infinite loops by not running on push events (schedule/manual only).
-# - Skips if there are no actual file changes.
+# - Uses a Personal Access Token (PAT) with `workflow` scope to update
+#   workflow files.
+# - The sweep's fail-closed guard proves its writes stayed inside
+#   .github/workflows/ before anything is committed.
+# - Runs on schedule/manual only - it never runs on push events, so it
+#   cannot loop on its own commits. Exits cleanly when every pin is
+#   already current.
 
 name: Maintenance actions versioning weekly
 
@@ -35,7 +40,7 @@ env:
 
 jobs:
   update-actions:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
 
     steps:
@@ -47,125 +52,30 @@ jobs:
           echo "name=${{ github.event.repository.default_branch }}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, SHA pin
         with:
           ref: ${{ steps.branch.outputs.name }}
           token: ${{ secrets.PAT_WORKFLOW }}
           fetch-depth: 1
           fetch-tags: false
 
-      - name: Scan and update action versions (patch/minor only)
+      - name: Heal actions pins to the latest release SHAs
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: bash scripts/ci/actions-version-sweep.sh --apply
+
+      - name: Commit and push healed pins
         shell: bash
         run: |
           set -euo pipefail
-
-          shopt -s nullglob
-
-          # Find workflow files.
-          files=(.github/workflows/*.yml)
-          if [[ ${#files[@]} -eq 0 ]]; then
-            echo "No workflow files found."
-            exit 0
-          fi
-
-          # Collect unique action repos (owner/repo) and remember the majors we see.
-          # This handles action subpaths like github/codeql-action/analyze@vX.Y.Z
-          # by mapping them to github/codeql-action.
-          declare -A seen_actions
-          for f in "${files[@]}"; do
-            while IFS= read -r line; do
-              # Match: uses: owner/repo[/subpath]@vX.Y.Z (or vX.Y)
-              if [[ "$line" =~ ^[[:space:]]*uses:[[:space:]]*([^[:space:]@]+/[^[:space:]@]+)(/[^[:space:]@]+)?@v([0-9]+)\.[0-9]+(\.[0-9]+)?([^0-9].*)?$ ]]; then
-                action_full="${BASH_REMATCH[1]}"
-                current_major="${BASH_REMATCH[3]}"
-
-                owner="${action_full%%/*}"
-                rest="${action_full#*/}"
-                repo="${rest%%/*}"
-                action_repo="${owner}/${repo}"
-
-                # Keep the highest major seen for this repo (in case multiple refs exist).
-                if [[ -z "${seen_actions[$action_repo]+x}" ]] || (( current_major > seen_actions[$action_repo] )); then
-                  seen_actions["$action_repo"]="$current_major"
-                fi
-              fi
-            done < "$f"
-          done
-
-          if [[ ${#seen_actions[@]} -eq 0 ]]; then
-            echo "No 'uses: owner/repo@vN' patterns found."
-            exit 0
-          fi
-
-          # Determine latest tag for each action repo within the same major.
-          # We only consider tags matching ^vX.Y.Z$ (or ^vX.Y$).
-          declare -A latest_tag
-          for action_repo in "${!seen_actions[@]}"; do
-            owner="${action_repo%%/*}"
-            repo="${action_repo##*/}"
-            major="${seen_actions[$action_repo]}"
-
-            echo "Checking tags for ${owner}/${repo}..."
-
-            tags_json=""
-            if ! tags_json="$(curl -fsSL \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "https://api.github.com/repos/${owner}/${repo}/tags?per_page=100")"; then
-              echo "Skipping ${owner}/${repo}: unable to fetch tags (may not exist or not accessible)."
-              continue
-            fi
-
-            # Extract tags like vX.Y.Z or vX.Y for this major.
-            best="$(printf '%s' "$tags_json" \
-              | grep -oE '\"name\"[[:space:]]*:[[:space:]]*\"v[0-9]+\.[0-9]+(\.[0-9]+)?\"' \
-              | grep -oE 'v[0-9]+\.[0-9]+(\.[0-9]+)?' \
-              | grep -E "^v${major}\." \
-              | sort -V \
-              | tail -n 1 || true)"
-
-            if [[ -z "$best" ]]; then
-              echo "No semver tags found for major v${major} on ${owner}/${repo}; skipping."
-              continue
-            fi
-
-            latest_tag["$action_repo"]="$best"
-            echo "Latest tag for ${action_repo} (major v${major}) = ${best}"
-          done
-
-          # Apply updates to workflow files.
-          changed=0
-          for f in "${files[@]}"; do
-            original_checksum="$(sha256sum "$f" | awk '{print $1}')"
-
-            for action_repo in "${!latest_tag[@]}"; do
-              new_tag="${latest_tag[$action_repo]}"
-              major="${seen_actions[$action_repo]}"
-
-              if [[ -z "$new_tag" ]]; then
-                continue
-              fi
-
-              # Replace only uses refs pinned to this major with a semver tag, preserving any subpath.
-              sed -i -E "s|\b(${action_repo}(/[^[:space:]@]+)?)@v${major}\.[0-9]+(\.[0-9]+)?\b|\1@${new_tag}|g" "$f"
-            done
-
-            new_checksum="$(sha256sum "$f" | awk '{print $1}')"
-            if [[ "$new_checksum" != "$original_checksum" ]]; then
-              echo "Updated: $f"
-              changed=1
-            fi
-          done
-
-          if [[ "$changed" -ne 1 ]]; then
-            echo "No updates found."
-            exit 0
-          fi
-
           git config user.name "${OWNER_NAME}"
           git config user.email "${OWNER_EMAIL}"
+
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No healed pins; nothing to commit."
+            exit 0
+          fi
 
           git add .github/workflows
 
@@ -174,7 +84,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "self-heal: bump GitHub Actions patch/minor versions"
+          git commit -m "Internal research: heal GitHub Actions pins to the latest release SHAs (self-heal-actions)"
 
           # Retry the push against upstream movement. Between attempts, fetch
           # and rebase so a concurrent commit does not wedge the update. If
