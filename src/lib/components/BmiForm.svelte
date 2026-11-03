@@ -12,6 +12,7 @@
 		type ImportFileMeta
 	} from '$lib/utils/history-io';
 	import { readBmiHistory } from '$lib/utils/bmi-history';
+	import { ACTIVITY_FACTORS } from '$lib/utils/bmi-calculator';
 	import {
 		formatBmiExportDate,
 		importErrorKey,
@@ -67,13 +68,22 @@
 	// via bind:unitSystem. Do NOT read/write localStorage here — it causes
 	// a race condition where child overwrites parent's value on mount.
 
-	// Activity level metadata — reactive so labels update on locale change
+	// Activity level metadata — reactive so labels update on locale change.
+	// Factors come from the shared, unit-tested ACTIVITY_FACTORS table.
 	let activityLevels = $derived([
-		{ value: 'sedentary' as Activity, label: t('form.sedentary'), factor: 1.2 },
-		{ value: 'light' as Activity, label: t('form.light'), factor: 1.375 },
-		{ value: 'moderate' as Activity, label: t('form.moderate'), factor: 1.55 },
-		{ value: 'active' as Activity, label: t('form.active'), factor: 1.725 },
-		{ value: 'very_active' as Activity, label: t('form.very_active'), factor: 1.9 }
+		{
+			value: 'sedentary' as Activity,
+			label: t('form.sedentary'),
+			factor: ACTIVITY_FACTORS.sedentary
+		},
+		{ value: 'light' as Activity, label: t('form.light'), factor: ACTIVITY_FACTORS.light },
+		{ value: 'moderate' as Activity, label: t('form.moderate'), factor: ACTIVITY_FACTORS.moderate },
+		{ value: 'active' as Activity, label: t('form.active'), factor: ACTIVITY_FACTORS.active },
+		{
+			value: 'very_active' as Activity,
+			label: t('form.very_active'),
+			factor: ACTIVITY_FACTORS.very_active
+		}
 	]);
 
 	// Derived unit-specific labels, placeholders, and validation bounds

@@ -23,12 +23,12 @@ describe('conversion constants', () => {
 		expect(IN_TO_CM).toBe(2.54);
 	});
 
-	it('LB_TO_KG ≈ 0.453592', () => {
-		expect(LB_TO_KG).toBeCloseTo(0.453592, 5);
+	it('LB_TO_KG is exactly 0.45359237 (1959 international pound)', () => {
+		expect(LB_TO_KG).toBe(0.45359237);
 	});
 
-	it('KG_TO_LBS ≈ 2.20462', () => {
-		expect(KG_TO_LBS).toBeCloseTo(2.20462, 4);
+	it('KG_TO_LBS ≈ 2.20462262', () => {
+		expect(KG_TO_LBS).toBeCloseTo(2.20462262, 7);
 	});
 
 	it('KG_TO_LBS is inverse of LB_TO_KG', () => {

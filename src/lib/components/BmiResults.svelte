@@ -24,9 +24,12 @@
 	import { shareBmiCard } from '$lib/utils/share-image';
 	import { t as _t, localeVersion } from '$lib/i18n';
 	import {
+		ACTIVITY_FACTORS,
+		computeBmrMifflinStJeor,
 		computeIdealWeightRangeKg,
 		heightInputToMeters,
-		KG_TO_LBS
+		KG_TO_LBS,
+		toMetric
 	} from '$lib/utils/bmi-calculator';
 	let _rv = $derived($localeVersion);
 	// Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
@@ -157,13 +160,8 @@
 	});
 
 	// ── TDEE Estimation ──
-	const ACTIVITY_FACTORS: Record<string, number> = {
-		sedentary: 1.2,
-		light: 1.375,
-		moderate: 1.55,
-		active: 1.725,
-		very_active: 1.9
-	};
+	// Activity factors and the BMR formula live in bmi-calculator.ts
+	// (single source of truth, unit-tested against the published constants).
 
 	// Reactive activity labels — matches form option labels exactly
 	let activityLabels = $derived({
@@ -177,17 +175,10 @@
 	let bmr = $derived.by(() => {
 		if (gender !== 'male' && gender !== 'female') return null;
 		if (age === null || height === null || weight === null) return null;
-		if (age <= 0 || height <= 0 || weight <= 0) return null;
-		// Mifflin-St Jeor equation (metric inputs)
-		let wKg = weight;
-		let hCm = height;
-		// Convert imperial to metric if needed
-		if (unitSystem === 'imperial') {
-			wKg = weight * 0.453592;
-			hCm = height * 2.54;
-		}
-		const base = 10 * wKg + 6.25 * hCm - 5 * age;
-		return gender === 'male' ? base + 5 : base - 161;
+		// Convert imperial inputs to metric (exact constants), then
+		// delegate to the shared Mifflin-St Jeor implementation.
+		const { heightCm, weightKg } = toMetric(height, weight, unitSystem);
+		return computeBmrMifflinStJeor(weightKg, heightCm, age, gender);
 	});
 
 	let tdee = $derived.by(() => {

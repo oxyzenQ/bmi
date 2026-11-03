@@ -14,11 +14,11 @@ import { classifyBmi } from './bmi-category';
 /** Inches to centimetres */
 export const IN_TO_CM = 2.54;
 
-/** Pounds to kilograms */
-export const LB_TO_KG = 0.453592;
+/** Pounds to kilograms — exact international avoirdupois pound (1959 definition) */
+export const LB_TO_KG = 0.45359237;
 
 /** Kilograms to pounds */
-export const KG_TO_LBS = 1 / LB_TO_KG; // ≈ 2.20462
+export const KG_TO_LBS = 1 / LB_TO_KG; // ≈ 2.20462262
 
 // ── Input validation bounds ──
 
@@ -184,6 +184,54 @@ export function calculateBmi(
 	const category = classifyBmi(bmi);
 
 	return { ok: true, bmi, category, heightCm, weightKg };
+}
+
+// ── BMR / TDEE (Mifflin-St Jeor) ──
+
+export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
+
+/**
+ * Activity multipliers — the exact published Mifflin-St Jeor (1990)
+ * companion factors used to scale BMR into TDEE.
+ */
+export const ACTIVITY_FACTORS: Record<ActivityLevel, number> = {
+	sedentary: 1.2,
+	light: 1.375,
+	moderate: 1.55,
+	active: 1.725,
+	very_active: 1.9
+};
+
+/**
+ * Mifflin-St Jeor (1990) basal metabolic rate, metric inputs:
+ *   male:   10·kg + 6.25·cm − 5·age + 5
+ *   female: 10·kg + 6.25·cm − 5·age − 161
+ * Returns null for non-positive inputs (mirrors the UI guard).
+ */
+export function computeBmrMifflinStJeor(
+	weightKg: number,
+	heightCm: number,
+	age: number,
+	gender: 'male' | 'female' | null | undefined
+): number | null {
+	if (!Number.isFinite(weightKg) || weightKg <= 0) return null;
+	if (!Number.isFinite(heightCm) || heightCm <= 0) return null;
+	if (!Number.isFinite(age) || age <= 0) return null;
+	const base = 10 * weightKg + 6.25 * heightCm - 5 * age;
+	return gender === 'male' ? base + 5 : base - 161;
+}
+
+/** Total daily energy expenditure: BMR scaled by the activity factor. */
+export function computeTdee(
+	weightKg: number,
+	heightCm: number,
+	age: number,
+	gender: 'male' | 'female' | null | undefined,
+	activity: ActivityLevel
+): number | null {
+	const bmr = computeBmrMifflinStJeor(weightKg, heightCm, age, gender);
+	if (bmr === null) return null;
+	return bmr * ACTIVITY_FACTORS[activity];
 }
 
 /**
