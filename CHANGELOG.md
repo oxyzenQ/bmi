@@ -88,6 +88,22 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Changed
 
+- **Wallpaper refresh: the space art swaps to the 2026 oxyzenQ plate, and
+  a fourth theme "Telescopic Cosmic" lands.** The `space` theme now
+  renders `static/images/oxyzenq-lite.webp` (the neon-purple OXYZENQ
+  space scene; 59 KB WebP, down from a 672 KB PNG source), replacing the
+  retired `oxyzen-zenlysium.webp`. The new `telescopic` theme ships
+  `static/images/telescopic-cosmic.webp` (a radio dish beaming into a
+  purple galaxy; 234 KB WebP, down from a 10.6 MB PNG source), wired
+  through every sync point: `page-theme.ts` (`THEMES`/`THEME_URLS`), the
+  `--wallpaper-*` tokens, the pre-paint `app.html` map, `THEME_LABELS`,
+  the pager theme classes, and all four locales. Both arts are WebP at
+  1920 px (quality 80, encoder effort 6) per the recipe now recorded in
+  `assets/tools.md`. The 600-line ratchet watermarks for the four touched
+  legacy files each moved +1 with the feature (`ja.ts` 677, `zh.ts` 632,
+  `+page.svelte` 940, `tokens.css` 641) — visible debt in the diff, and
+  the ratchet still only moves down between features. _(this commit)_
+
 - **Brand surface swapped to the 2026 Stellar mark, with rounded PWA
   derivatives.** The 1254×1254 master plate
   (`docs/assets/bmi-logo-masters.png`) now carries the new neon-purple

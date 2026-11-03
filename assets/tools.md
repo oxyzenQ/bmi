@@ -57,6 +57,26 @@ The `-depth 8` matters: the Q16-HDRI build writes 16-bit PNGs by default
 when a `xc:` canvas leads the command, and the tile nearly triples in
 size for zero visual gain.
 
+## wallpaper WebP conversion (static/images/)
+
+The wallpaper arts ship as WebP, never PNG — at wallpaper dimensions a
+PNG costs an order of magnitude more bytes (the 2026 cosmic plate was a
+10.6 MB PNG; the same frame is 234 KB as WebP). Resize to a 1920-wide
+cover crop first, then encode with the encoder effort maxed:
+
+```sh
+magick upload/oxyzenQ-lite.png -filter Lanczos -resize '1920x1080^' \
+        -gravity center -extent 1920x1080 \
+        -quality 80 -define webp:method=6 -strip \
+        static/images/oxyzenq-lite.webp
+```
+
+`-quality 80` keeps cosmic gradients band-free; `-define webp:method=6`
+trades encode time for bytes and belongs in every asset encode. The
+wallpaper set lives in `static/images/`, which is outside the BLAKE3
+signature scope (`assets/`, `docs/assets/`, `static/assets/`) — the
+digest refresh policy below does not apply to it.
+
 ## after any asset change
 
 Every image under `assets/`, `docs/assets/`, and `static/assets/`
