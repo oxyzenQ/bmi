@@ -28,6 +28,7 @@
  */
 
 import { browser } from '$app/environment';
+import { argon2idHashInWorker, isKdfWorkerAvailable } from './kdf-worker-client';
 import { dbMetaGet, dbMetaSet, isIndexedDbAvailable } from './db';
 import { STORAGE_KEYS, storageGet, storageRemove, storageSet } from './storage';
 import { warnDev } from './warn-dev';
@@ -60,6 +61,13 @@ const ARGON2_OPTIONS = IS_TEST
 			p: 1, // parallelism (single thread for mobile)
 			dkLen: 32 // 256-bit output → AES-256 key
 		};
+
+/**
+ * Offload guard for the KDF worker: production browser builds only.
+ * Tests (IS_TEST) and non-browser environments stay on the main thread
+ * so crypto behavior remains deterministic and byte-identical.
+ */
+const CAN_OFFLOAD_KDF = !IS_TEST && browser && typeof Worker !== 'undefined';
 
 const META_ENCRYPTION_KEY = '__encryption_enabled';
 const META_ENCRYPTION_VERIFIER = '__encryption_verifier';
@@ -122,18 +130,36 @@ function toAB(src: Uint8Array): ArrayBuffer {
 	return ab;
 }
 
-/**
- * Derive an AES-256-GCM key from a passphrase + salt using Argon2id.
- * Uses @noble/hashes (pure JS, no WASM, tiny bundle footprint).
- */
-async function deriveKeyArgon2(passphrase: string, salt: Uint8Array): Promise<CryptoKey> {
-	const { argon2id } = await import('@noble/hashes/argon2.js');
-	const hashBytes = argon2id(new TextEncoder().encode(passphrase), salt, ARGON2_OPTIONS);
-
+/** Import a raw Argon2id hash as a non-extractable AES-256-GCM key. */
+async function importAesKey(hashBytes: Uint8Array): Promise<CryptoKey> {
 	return crypto.subtle.importKey('raw', toAB(hashBytes), { name: 'AES-GCM', length: 256 }, false, [
 		'encrypt',
 		'decrypt'
 	]);
+}
+
+/**
+ * Derive an AES-256-GCM key from a passphrase + salt using Argon2id.
+ * Uses @noble/hashes (pure JS, no WASM, tiny bundle footprint).
+ *
+ * The 64 MiB x 3 derivation blocks the calling thread for seconds, so
+ * in production it is offloaded to a Web Worker (kdf.worker.ts). Any
+ * worker failure falls back to the original main-thread path, which
+ * produces byte-identical hashes.
+ */
+async function deriveKeyArgon2(passphrase: string, salt: Uint8Array): Promise<CryptoKey> {
+	if (CAN_OFFLOAD_KDF && isKdfWorkerAvailable()) {
+		try {
+			const hashBytes = await argon2idHashInWorker(passphrase, salt, ARGON2_OPTIONS);
+			return await importAesKey(hashBytes);
+		} catch (err) {
+			warnDev('crypto', 'deriveKeyArgon2', 'KDF worker failed — deriving on main thread', err);
+		}
+	}
+
+	const { argon2id } = await import('@noble/hashes/argon2.js');
+	const hashBytes = argon2id(new TextEncoder().encode(passphrase), salt, ARGON2_OPTIONS);
+	return importAesKey(hashBytes);
 }
 
 /** Derive an AES-256-GCM key from a passphrase + salt using PBKDF2 (legacy). */
