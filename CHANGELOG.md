@@ -88,6 +88,20 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Changed
 
+- **Brand surface swapped to the 2026 Stellar mark, with rounded PWA
+  derivatives.** The 1254×1254 master plate
+  (`docs/assets/bmi-logo-masters.png`) now carries the new neon-purple
+  emblem art (byte-identical to the owner upload), and all seven
+  web-facing PWA derivatives (128, 180, 192, 216, 256, 512, 1024) were
+  regenerated with rounded corners — a 68 px CopyOpacity alpha mask cut
+  at the master size, then a Lanczos downscale; the exact recipe is
+  recorded in the new `assets/tools.md` (the bmi mirror of zelynic's
+  local-tools notes). The maskable tile stays opaque and
+  square-cornered: the emblem sits inside the PWA safe zone (72% scale)
+  on the art's own background color. The BLAKE3 signature rows and
+  `signature.b3sum` moved in the same commit per the refresh policy.
+  _(this commit)_
+
 - **GitHub Actions pins healed to full 40-hex SHAs, with the zelynic-aligned
   self-heal engine (night-improve-2).** All 30 `uses:` pins across the 8
   workflows moved from floating version tags to immutable release commit SHAs
