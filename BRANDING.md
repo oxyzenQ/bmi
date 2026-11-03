@@ -21,12 +21,11 @@ The brand sits at the intersection of **health technology** and **personal priva
 
 ### 2.1. Correct forms
 
-| Context                          | Format            |
-| -------------------------------- | ----------------- |
-| Running text / prose             | BMI Stellar       |
-| Titles / headings                | BMI Stellar       |
-| Code / Repo                      | `bmi` (lowercase) |
-| All-caps hero (README hero only) | BMI STELLAR       |
+| Context              | Format            |
+| -------------------- | ----------------- |
+| Running text / prose | BMI Stellar       |
+| Titles / headings    | BMI Stellar       |
+| Code / Repo          | `bmi` (lowercase) |
 
 ### 2.2. Incorrect forms
 
