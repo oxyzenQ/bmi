@@ -12,7 +12,7 @@
 // main thread — the path already covered by every crypto round-trip
 // test, which run with the worker guard disabled for determinism).
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { argon2id } from '@noble/hashes/argon2.js';
 
 type Listener = ((ev: { data?: unknown; message?: string }) => void) | null;
