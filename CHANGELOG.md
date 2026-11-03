@@ -129,6 +129,21 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   gate. Verified with `bash -n`, `shellcheck -x`, the audit lane under
   `-q`, and the full gate-keepers lane.
 
+- **The BLAKE3 signature lock for the brand surface.** Every image
+  under `assets/`, `docs/assets/`, and `static/assets/` (the five demo
+  captures, the logo master, and the eight PWA logo derivatives) now
+  carries a recorded BLAKE3 digest in `assets/signature.b3sum`, with
+  the policy and the verification commands documented in
+  `assets/signature-assets.md`, so a future swap, duplicate, or
+  re-encoded fake of the logo is detectable against the committed
+  bytes. Digested with `b3sum 1.8.7` (proven against the published
+  known-answer vectors) and cross-verified against an independent
+  BLAKE3 implementation. The new `scripts/gates/check-signature-assets
+.sh` enforces both directions in the gate-keepers lane (section 12): a
+  modified or unlisted image fails, a listed-but-vanished file fails,
+  and CI installs and known-answer-proofs `b3sum` itself so the gate
+  never silently skips.
+
 ### Fixed
 
 - **CI audit failures** — `bun audit` reported 17 vulnerabilities in transitive deps after a dormant period. Bumped `overrides` (undici ^7.29.0, tar ^7.5.22, postcss ^8.5.25, brace-expansion ^5.0.9) and dev-dep `@sveltejs/kit` 2.60.1 → 2.70.2. Result: 0 vulnerabilities. _(eff8369)_

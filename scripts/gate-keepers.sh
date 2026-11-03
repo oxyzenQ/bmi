@@ -227,6 +227,19 @@ else
         skip "name-case" "python3 not installed - skipping"
 fi
 
+# ── [12] signature assets (BLAKE3) ──────────────────────────────────────
+
+header "[12] Signature Assets (b3sum)"
+if command -v b3sum >/dev/null 2>&1 || [ -x "$HOME/.local/bin/b3sum" ]; then
+        if bash scripts/gates/check-signature-assets.sh 2>&1; then
+                pass "every brand asset matches its recorded BLAKE3 digest"
+        else
+                fail "signature assets" "digest or inventory mismatch above (refresh the row in the same commit as the bytes)"
+        fi
+else
+        skip "signature assets" "b3sum not installed - install the BLAKE3 CLI so this section stops skipping"
+fi
+
 # ── summary ─────────────────────────────────────────────────────────────────
 
 echo ""

@@ -44,6 +44,17 @@ jobs:
           tar -xzf /tmp/actionlint_1.7.7_linux_amd64.tar.gz -C /tmp actionlint
           sudo mv /tmp/actionlint /usr/local/bin/actionlint
           actionlint --version
+          # b3sum (BLAKE3 CLI, the signature-assets gate tool). The
+          # 1.8.7 release ships no checksum asset, so the binary is
+          # proven against the published BLAKE3 known-answer vectors
+          # (empty string, "abc") before it is trusted.
+          curl -fsSL --retry 3 --retry-all-errors --retry-delay 5 --retry-max-time 120 --connect-timeout 15 \
+            -o /tmp/b3sum "https://github.com/BLAKE3-team/BLAKE3/releases/download/1.8.7/b3sum_linux_x64_bin"
+          chmod +x /tmp/b3sum
+          printf '' | /tmp/b3sum | grep -q '^af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262'
+          printf 'abc' | /tmp/b3sum | grep -q '^6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85'
+          sudo mv /tmp/b3sum /usr/local/bin/b3sum
+          b3sum --version
 
       - name: Run the wholesale gate
         env:
