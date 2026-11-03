@@ -113,7 +113,6 @@ jobs:
             fi
           }
           trap cleanup EXIT
-          cp svelte.config.static.js svelte.config.js
           printf 'export const prerender = true;\n' > src/routes/+layout.ts
           bun run build
 
@@ -142,7 +141,6 @@ jobs:
           cp -r .github "$STAGE/" && cp -r docs "$STAGE/" 2>/dev/null || true
           cp package.json "$STAGE/" && cp bun.lock "$STAGE/" 2>/dev/null || true
           cp svelte.config.js "$STAGE/" 2>/dev/null || true
-          cp svelte.config.static.js "$STAGE/" 2>/dev/null || true
           cp vite.config.ts "$STAGE/" 2>/dev/null || true
           cp tsconfig.json "$STAGE/" 2>/dev/null || true
           cp vitest.config.ts "$STAGE/" 2>/dev/null || true

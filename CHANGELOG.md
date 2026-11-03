@@ -27,6 +27,10 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 - **CI timeout hardening** — added `timeout-minutes` to the jobs that lacked it (CI 15, Documentation CI 10, release validate-tag 5, release build/upload 20), so a hung runner fails fast instead of burning the 6-hour GitHub default. Every scheduled and push-triggered workflow now carries an explicit job timeout. Also bumped the PWA manifest cache-buster in `app.html` from `21.5.0` to the current version so installed clients re-fetch `manifest.json`. _(this commit)_
 - **Self-heal push hardening** — the weekly action-version workflow now fetches and rebases between push attempts and exits non-zero when all attempts are exhausted, instead of reporting a silent success while the version bump never landed. _(this commit)_
 
+### Removed
+
+- **Dormant static-deploy config** — removed `svelte.config.static.js` and its `@sveltejs/adapter-static` devDependency. The project deploys via `@sveltejs/adapter-vercel` (`svelte.config.js`); the alternate static config was referenced by no build, script, or doc — only by tolerant workflow path filters and a `|| true` release-staging copy, all of which are cleaned up in the same change. _(this commit)_
+
 ---
 
 ## [21.7.0] — Stellar-v21.7
