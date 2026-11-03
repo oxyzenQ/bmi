@@ -1,5 +1,5 @@
 ---
-name: 🔎 Security Audit
+name: Stellar Guard - Security Audit
 
 on:
   schedule:
@@ -16,7 +16,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: security-audit-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -27,7 +27,7 @@ env:
 jobs:
   audit:
     name: Dependency Audit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
 
     steps:

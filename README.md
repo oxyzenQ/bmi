@@ -40,29 +40,29 @@
 
 <p align="center">
   <img src="assets/demo-bmi-stellar-home-page.png"
-    alt="bmi stellar demo"
+    alt="BMI Stellar demo"
     width="800"
     style="border-radius:24px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
 </p>
 
 <p align="center">
   <img src="assets/demo-bmi-stellar-gauge.png"
-    alt="bmi stellar gauge demo"
+    alt="BMI Stellar gauge demo"
     width="800"
     style="border-radius:24px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
   <br>
   <img src="assets/demo-bmi-stellar-gauge-active.png"
-    alt="bmi stellar gauge active demo"
+    alt="BMI Stellar gauge active demo"
     width="800"
     style="border-radius:24px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
   <br>
   <img src="assets/demo-bmi-stellar-results.png"
-    alt="bmi stellar results demo"
+    alt="BMI Stellar results demo"
     width="800"
     style="border-radius:24px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
   <br>
   <img src="assets/demo-bmi-stellar-snapshot.png"
-    alt="bmi stellar snapshot demo"
+    alt="BMI Stellar snapshot demo"
     width="800"
     style="border-radius:24px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
 </p>

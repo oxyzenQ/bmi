@@ -1,29 +1,9 @@
 ---
-name: '🔒 CodeQL Security Scan'
+name: 'Stellar Guard - CodeQL'
 
 on:
   push:
-    branches: [main, dev]
-    paths:
-      - 'src/**'
-      - 'package.json'
-      - 'bun.lock'
-      - 'tsconfig.json'
-      - 'svelte.config.js'
-      - 'vite.config.ts'
-      - '.github/codeql/**'
-      - '.github/workflows/codeql.yml'
   pull_request:
-    branches: [main, dev]
-    paths:
-      - 'src/**'
-      - 'package.json'
-      - 'bun.lock'
-      - 'tsconfig.json'
-      - 'svelte.config.js'
-      - 'vite.config.ts'
-      - '.github/codeql/**'
-      - '.github/workflows/codeql.yml'
   schedule:
     # Run at 8 AM SGT (00:00 UTC) every Monday
     - cron: '0 0 * * 1'
@@ -34,7 +14,7 @@ env:
 jobs:
   analyze:
     name: Analyze Code
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     permissions:
       actions: read

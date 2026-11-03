@@ -1,5 +1,5 @@
 ---
-name: 🧭 Runtime Probe
+name: Stellar Guard - Runtime Probe
 
 on:
   schedule:
@@ -27,7 +27,7 @@ env:
 
 jobs:
   runtime-probe:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
 
     steps:

@@ -1,21 +1,9 @@
 ---
-name: 📝 Documentation CI
+name: Stellar Guard - Docs
 
 on:
   push:
-    paths:
-      - '**/*.md'
-      - '**/*.txt'
-      - '**/*.rst'
-      - 'LICENSE'
-      - 'NOTICE'
   pull_request:
-    paths:
-      - '**/*.md'
-      - '**/*.txt'
-      - '**/*.rst'
-      - 'LICENSE'
-      - 'NOTICE'
 
 permissions:
   contents: read
@@ -26,7 +14,7 @@ env:
 jobs:
   lint:
     name: Docs Spelling Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Codespell pass over the whole doc tree takes well under a minute.
     timeout-minutes: 10
     steps:

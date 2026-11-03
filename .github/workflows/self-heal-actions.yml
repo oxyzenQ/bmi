@@ -17,7 +17,7 @@
 #   cannot loop on its own commits. Exits cleanly when every pin is
 #   already current.
 
-name: Maintenance actions versioning weekly
+name: Stellar Guard - Actions Self-Heal
 
 # This workflow runs once a week on Monday at 00:00 UTC (07:00 WIB).
 on:

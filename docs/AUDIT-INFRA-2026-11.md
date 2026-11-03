@@ -114,9 +114,8 @@ already matched the zelynic QA.md contract.
    included) - a first-commit filesystem artifact that survived every
    commit since. Normalized to 644/755-shebang-parity under a new
    permission gate.
-4. `README.md` alt texts used a lowercase two-word name (`bmi stellar
-demo`, 5 instances), outside the BRANDING 2.1 law. Fixed in the
-   naming pass.
+4. `README.md` alt texts used the lowercase two-word name (5 instances),
+   outside the BRANDING 2.1 law. Fixed in the naming pass.
 
 ## 6. Open items (owner decisions, intentionally not done here)
 

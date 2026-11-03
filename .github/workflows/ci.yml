@@ -1,53 +1,15 @@
 ---
-name: 🛠️ CI
+name: Stellar Guard - CI
 
 on:
   push:
-    paths:
-      - '**/*.svelte'
-      - '**/*.ts'
-      - '**/*.js'
-      - '**/*.d.ts'
-      - '**/*.css'
-      - 'src/app.html'
-      - 'static/manifest.json'
-      - 'package.json'
-      - 'bun.lock'
-      - 'tsconfig.json'
-      - 'svelte.config.js'
-      - 'vite.config.ts'
-      - 'vitest.config.ts'
-      - 'postcss.config.js'
-      - 'eslint.config.js'
-      - 'vercel.json'
-      - 'scripts/**'
-      - '.github/workflows/**'
   pull_request:
-    paths:
-      - '**/*.svelte'
-      - '**/*.ts'
-      - '**/*.js'
-      - '**/*.d.ts'
-      - '**/*.css'
-      - 'src/app.html'
-      - 'static/manifest.json'
-      - 'package.json'
-      - 'bun.lock'
-      - 'tsconfig.json'
-      - 'svelte.config.js'
-      - 'vite.config.ts'
-      - 'vitest.config.ts'
-      - 'postcss.config.js'
-      - 'eslint.config.js'
-      - 'vercel.json'
-      - 'scripts/**'
-      - '.github/workflows/**'
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -57,7 +19,7 @@ env:
 jobs:
   ci:
     name: Build & Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Full gate (audit, format, loc, headers, branding, pwa, typecheck,
     # lint, test, build) takes ~5 min; 15 caps a hung runner at 3x.
     timeout-minutes: 15

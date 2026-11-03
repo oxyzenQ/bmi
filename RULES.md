@@ -58,3 +58,18 @@ wholesale orchestrator, nothing loose at the tree root.
 
 New gates land in `scripts/gates/`; new CI helpers land in `scripts/ci/`.
 Nothing else lives at the `scripts/` root.
+
+## Project Name Casing
+
+The project name is "BMI Stellar" in every prose context - titles,
+headings, documentation, UI strings, comments - and "bmi-stellar" as the
+identifier family (package name, file names, URLs). The caps spellings
+`BMI_STELLAR` / `BMI-STELLAR` are legal only attached to separator
+characters, and the all-caps banner titles heading the scripts/ gate
+files are legal as titles. The recorded incorrect forms (BRANDING 2.2)
+are quotable only inside ~~strikethrough~~ quoting.
+
+Enforced by `scripts/gates/check-name-case.py` over every tracked file
+and path - nothing excluded, untracked-but-not-ignored files included so
+a violation fails before the commit - with `file:line:token` output
+(night-improve-8, the zelynic name-case discipline).

@@ -12,6 +12,28 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Added
 
+- **The name-case law with its strict gate, and the CI naming
+  consistency pass (night-improve-8).**
+  `scripts/gates/check-name-case.py` enforces the BRANDING name law over
+  every tracked file and path - nothing excluded, untracked working-tree
+  files included so a violation fails before the commit: "BMI Stellar" is
+  the prose form, "bmi-stellar" the identifier family, the caps
+  spellings and the scripts/ gate banners are the recorded exceptions,
+  and the incorrect forms (BRANDING 2.2) are quotable only inside
+  ~~strikethrough~~. The checker is self-clean by construction and was
+  proven live: it flagged its own draft comment before the comment was
+  fixed, and a planted wrong-case file fails with `file:line:token`.
+  The gate-keepers lane gained the emoji sweep (frozen history keeps
+  its emoji, the zelynic skip-set convention) and the name-case
+  section. All nine workflows now carry the zelynic "Guard" naming
+  without emoji (`Stellar Guard - CI`, `Stellar Guard - CodeQL`,
+  `Stellar Guard - Gate-keepers`, ...), run unfiltered (the paths and
+  the malformed `branches: ain, dev]` filter - a real defect where a
+  flow-sequence opening had been eaten - are gone), pin
+  `ubuntu-24.04`, and use the `${{ github.workflow }}-${{ github.ref }}`
+  concurrency key. The five README demo alt texts moved into the prose
+  family.
+
 - **The wholesale gate-keepers lane, the commit gate, and the permission
   law (night-improve-5).** `scripts/gate-keepers.sh` is the zelynic-style
   wholesale non-code lane: ten numbered sections (hook self-install,

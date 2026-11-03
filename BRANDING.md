@@ -21,11 +21,12 @@ The brand sits at the intersection of **health technology** and **personal priva
 
 ### 2.1. Correct forms
 
-| Context              | Format            |
-| -------------------- | ----------------- |
-| Running text / prose | BMI Stellar       |
-| Titles / headings    | BMI Stellar       |
-| Code / Repo          | `bmi` (lowercase) |
+| Context                                 | Format                         |
+| --------------------------------------- | ------------------------------ |
+| Running text / prose                    | BMI Stellar                    |
+| Titles / headings                       | BMI Stellar                    |
+| Code / Repo                             | `bmi` (lowercase)              |
+| Identifiers (package name, files, URLs) | `bmi-stellar` (lowercase slug) |
 
 ### 2.2. Incorrect forms
 
@@ -33,6 +34,12 @@ The brand sits at the intersection of **health technology** and **personal priva
 - ~~BMIstellar~~ (no space)
 - ~~Stellar BMI~~ (wrong order)
 - ~~B.M.I. Stellar~~ (no periods)
+
+Enforcement: `scripts/gates/check-name-case.py` scans every tracked file
+and path - nothing excluded - and fails on any casing outside the legal
+families (2.1). The incorrect forms above are quotable only inside
+~~strikethrough~~ quoting, which is exactly how this section records
+them.
 
 ---
 

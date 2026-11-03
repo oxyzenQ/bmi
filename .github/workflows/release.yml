@@ -1,5 +1,5 @@
 ---
-name: Release
+name: Stellar Guard - Release
 
 on:
   push:
@@ -16,7 +16,7 @@ env:
 
 jobs:
   validate-tag:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Checkout code
@@ -53,7 +53,7 @@ jobs:
 
   release:
     needs: validate-tag
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Static build plus archive creation and release upload take ~5-8 min.
     timeout-minutes: 20
 
