@@ -17,8 +17,10 @@
  *
  * Canonical version sources after dynamic-version refactor:
  *   - package.json                    (version)
- *   - README.md                       (display title + badge)
+ *   - README.md                       (display title + badge + current-release line)
  *   - DORMANT.md                      (maintenance capsule version)
+ *   - CHANGELOG.md                    (the release section spliced under
+ *                                      ## [Unreleased] on every bump)
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -115,6 +117,39 @@ function updatePackageJson(newVersion: string, dryRun: boolean): void {
 	console.log('    \x1b[32m✓\x1b[0m package.json version updated');
 }
 
+function changelogRelease(newVersion: string, dryRun: boolean): void {
+	// Write the release section to CHANGELOG.md (night-improve-3). The
+	// ledger shape is the repo's own Keep-a-Changelog: the version
+	// heading "## [X.Y.Z] - Stellar-vX.Y" splices in directly under
+	// "## [Unreleased]", so the unreleased bullets become the release's
+	// bullets and the Unreleased section starts fresh. Honest probes (the
+	// zelynic version-to.sh rule): a missing file, a missing
+	// "## [Unreleased]" anchor, or a version heading that already exists
+	// writes nothing - never claim a write that did not happen.
+	const relPath = 'CHANGELOG.md';
+	if (!exists(relPath)) {
+		console.log(`    \x1b[33m⚠ ${relPath} not found — skipped\x1b[0m`);
+		return;
+	}
+	const original = read(relPath);
+	if (original.includes(`## [${newVersion}]`)) {
+		console.log(
+			`    \x1b[36m•\x1b[0m CHANGELOG.md already carries ${newVersion} — nothing to write`
+		);
+		return;
+	}
+	if (!original.includes('## [Unreleased]')) {
+		console.log(
+			'    \x1b[33m⚠ CHANGELOG.md has no ## [Unreleased] anchor — nothing to write\x1b[0m'
+		);
+		return;
+	}
+	const heading = `## [${newVersion}] — Stellar-v${shortVersion(newVersion)}`;
+	const updated = original.replace('## [Unreleased]', `## [Unreleased]\n\n${heading}`);
+	if (!dryRun) write(relPath, updated);
+	console.log(`    \x1b[32m✓\x1b[0m CHANGELOG.md release section ${heading.slice(3)} added`);
+}
+
 function main(): void {
 	const args = process.argv.slice(2);
 	const dryRun = args.includes('--dry-run');
@@ -160,6 +195,13 @@ function main(): void {
 	console.log('  \x1b[33m→\x1b[0m README.md');
 	replaceOrWarn(
 		'README.md',
+		/Current release: `v\d+\.\d+`/g,
+		`Current release: \`v${nextShort}\``,
+		'README current-release line',
+		dryRun
+	);
+	replaceOrWarn(
+		'README.md',
 		/BMI Stellar v\d+\.\d+(?:\.\d+)?/g,
 		`BMI Stellar v${nextShort}`,
 		'README display version',
@@ -188,6 +230,9 @@ function main(): void {
 		'DORMANT capsule version',
 		dryRun
 	);
+
+	console.log('  \x1b[33m→\x1b[0m CHANGELOG.md');
+	changelogRelease(nextVersion, dryRun);
 
 	console.log('');
 	console.log(

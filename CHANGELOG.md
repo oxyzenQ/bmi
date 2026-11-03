@@ -10,6 +10,21 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Unreleased]
 
+### Added
+
+- **Version-surface parity gate and the version-to changelog ability
+  (night-improve-3).** `scripts/gates/check-version-sync.ts` enforces the
+  version triangle - `package.json` is the source of truth, `DORMANT.md`'s
+  capsule line and `README.md`'s new "Current release: `vX.Y`" line must
+  carry the same version (surfaces are probed honestly: an existing but
+  disagreeing surface fails, an absent surface is reported, never policed
+  when absent). `scripts/dev/version-to.ts` gained the zelynic
+  version-to.sh ledger ability: every bump splices a
+  `## [X.Y.Z] - Stellar-vX.Y` section directly under `## [Unreleased]`,
+  with honest no-write probes for a missing anchor or an already-recorded
+  version. The gate joins check-all, quick, audit, and the ci.yml
+  workflow.
+
 ### Changed
 
 - **GitHub Actions pins healed to full 40-hex SHAs, with the zelynic-aligned

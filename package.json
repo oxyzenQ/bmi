@@ -23,6 +23,7 @@
 		"test:ci": "vitest run --pool=forks --maxWorkers=2",
 		"audit:loc": "bun run scripts/gates/check-loc.ts",
 		"audit:headers": "bun run scripts/gates/check-headers.ts",
+		"audit:version-sync": "bun run scripts/gates/check-version-sync.ts",
 		"audit:pwa-offline": "bun run scripts/gates/check-pwa-offline-shell.ts",
 		"audit:branding": "bun run scripts/gates/check-branding.ts",
 		"audit:deps": "bun run scripts/gates/audit-deps.ts",

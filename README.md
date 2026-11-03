@@ -345,6 +345,8 @@ The release checklist, tag rules, and rollback procedure live in
 The canonical version lives in `package.json` and is synchronized into
 the display documents via `scripts/dev/version-to.ts`.
 
+Current release: `v21.8`.
+
 > [!IMPORTANT]
 > Always use `bun run bmi-update-version <version>` to update the
 > version. This keeps `package.json`, `README.md`, and the dormant
