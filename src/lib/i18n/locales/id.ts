@@ -24,6 +24,7 @@ const id: TranslationDict = {
 	'nav.blackhole': 'Lubang Hitam',
 	'nav.spaceship': 'Pesawat Luar Angkasa',
 	'nav.space': 'Ruang Angkasa',
+	'nav.telescopic': 'Kosmik Teleskopis',
 	'nav.welcome': 'Selamat Datang',
 	'nav.calculator': 'Kalkulator',
 	'nav.gauge': 'Gauge',

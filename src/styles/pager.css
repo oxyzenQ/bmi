@@ -67,6 +67,12 @@
 	font-weight: 600;
 }
 
+.pager-theme .theme-telescopic {
+	color: var(--cosmic-silver);
+	font-weight: 600;
+	text-shadow: 0 0 8px var(--purple-40, rgba(168, 85, 247, 0.4));
+}
+
 /* .pager-tab.active moved to global nav.css */
 
 .pager-view {

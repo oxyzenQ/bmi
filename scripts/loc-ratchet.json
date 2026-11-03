@@ -5,16 +5,16 @@
 		"src/lib/components/BmiForm.svelte": 671,
 		"src/lib/components/BmiHistorySparkline.svelte": 768,
 		"src/lib/components/DebugPanel.svelte": 926,
-		"src/lib/i18n/locales/ja.ts": 676,
-		"src/lib/i18n/locales/zh.ts": 631,
+		"src/lib/i18n/locales/ja.ts": 677,
+		"src/lib/i18n/locales/zh.ts": 632,
 		"src/lib/utils/__tests__/history-io.test.ts": 726,
 		"src/lib/utils/crypto.ts": 650,
 		"src/lib/utils/history-io.ts": 760,
 		"src/lib/utils/share-image.ts": 969,
-		"src/routes/+page.svelte": 939,
+		"src/routes/+page.svelte": 940,
 		"src/styles/animation.css": 770,
 		"src/styles/data-cards.css": 756,
 		"src/styles/responsive-mobile-perf.css": 679,
-		"src/styles/tokens.css": 640
+		"src/styles/tokens.css": 641
 	}
 }

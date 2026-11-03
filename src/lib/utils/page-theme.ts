@@ -1,14 +1,15 @@
 // Copyright (C) 2026 rezky_nightky
 // SPDX-License-Identifier: AGPL-3.0-only
 
-export type ThemeKey = 'blackhole' | 'spaceship' | 'space';
+export type ThemeKey = 'blackhole' | 'spaceship' | 'space' | 'telescopic';
 
-export const THEMES: ThemeKey[] = ['blackhole', 'spaceship', 'space'];
+export const THEMES: ThemeKey[] = ['blackhole', 'spaceship', 'space', 'telescopic'];
 
 export const THEME_URLS: Record<ThemeKey, string> = {
 	blackhole: 'url("/images/blackhole.webp")',
 	spaceship: 'url("/images/spaceshipx.webp")',
-	space: 'url("/images/oxyzen-zenlysium.webp")'
+	space: 'url("/images/oxyzenq-lite.webp")',
+	telescopic: 'url("/images/telescopic-cosmic.webp")'
 };
 
 export function nextTheme(currentTheme: ThemeKey): ThemeKey {

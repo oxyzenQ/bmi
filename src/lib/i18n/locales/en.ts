@@ -25,6 +25,7 @@ const en: TranslationDict = {
 	'nav.blackhole': 'Black Hole',
 	'nav.spaceship': 'Spaceship',
 	'nav.space': 'Space',
+	'nav.telescopic': 'Telescopic Cosmic',
 	'nav.welcome': 'Welcome',
 	'nav.calculator': 'Calculator',
 	'nav.gauge': 'Gauge',

@@ -68,6 +68,7 @@
 					class:theme-blackhole={currentTheme === 'blackhole'}
 					class:theme-spaceship={currentTheme === 'spaceship'}
 					class:theme-space={currentTheme === 'space'}
+					class:theme-telescopic={currentTheme === 'telescopic'}
 				>
 					{themeLabel}
 				</span>

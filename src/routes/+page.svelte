@@ -209,7 +209,8 @@
 	const THEME_LABELS: Record<ThemeKey, () => string> = {
 		blackhole: () => t('nav.blackhole'),
 		spaceship: () => t('nav.spaceship'),
-		space: () => t('nav.space')
+		space: () => t('nav.space'),
+		telescopic: () => t('nav.telescopic')
 	};
 	let currentTheme = $state<ThemeKey>('blackhole');
 	let themeLabel = $derived(THEME_LABELS[currentTheme]());
