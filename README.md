@@ -310,12 +310,12 @@ seriously. Found something? **Report it privately** via
 
 ## Test Results
 
-**464 tests across 30 suites** (Vitest + Testing Library) — green on
+**512 tests across 34 suites** (Vitest + Testing Library) — green on
 every commit via the CI workflow, and locally via the gatekeeper:
 
 | Lane              | What it proves                                                                                          | One command                    |
 | ----------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------ |
-| Full gate         | Format + 5 audits + type-check + lint + 464 tests + production build, mirroring `ci.yml` step-for-step  | `./scripts/build.sh check-all` |
+| Full gate         | Format + 5 audits + type-check + lint + 512 tests + production build, mirroring `ci.yml` step-for-step  | `./scripts/build.sh check-all` |
 | Crypto lane       | AES-256-GCM, Argon2id, PBKDF2 legacy imports, history integrity vectors (Node env for native WebCrypto) | `bun run test:crypto`          |
 | Fast lane         | The full suite minus the slow crypto/history-io files                                                   | `bun run test:fast`            |
 | Dependency policy | `bun audit` against the fail-closed allowlist (expired entries fail the gate)                           | `bun run audit:deps`           |
