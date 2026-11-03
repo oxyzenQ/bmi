@@ -173,7 +173,7 @@ async function computeHash(data: string): Promise<string> {
 const MAX_TIMESTAMP_SKEW_MS = 24 * 60 * 60 * 1000;
 const MAX_AGE = 999; // matches sanitizeInteger's 3-digit cap
 
-function isValidRecord(entry: unknown): entry is BmiRecord {
+export function isValidRecord(entry: unknown): entry is BmiRecord {
 	if (typeof entry !== 'object' || entry === null) return false;
 	const r = entry as Record<string, unknown>;
 	if (
@@ -205,7 +205,7 @@ function isValidRecord(entry: unknown): entry is BmiRecord {
 	return true;
 }
 
-function toRecord(entry: unknown): BmiRecord {
+export function toRecord(entry: unknown): BmiRecord {
 	const r = entry as Record<string, unknown>;
 	return {
 		timestamp: r.timestamp as number,

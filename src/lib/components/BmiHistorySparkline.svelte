@@ -4,9 +4,8 @@
 	import { browser } from '$app/environment';
 	import { onDestroy } from 'svelte';
 	import { TrendingUp, TrendingDown, Minus } from 'lucide-svelte';
-	import { STORAGE_KEYS, storageGet } from '$lib/utils/storage';
+	import { readBmiHistory } from '$lib/utils/bmi-history';
 	import { t as _t, localeVersion } from '$lib/i18n';
-	import { warnDev } from '$lib/utils/warn-dev';
 	import {
 		bmiToChartY,
 		clampPlotCoordinate,
@@ -55,18 +54,13 @@
 
 	function loadHistory(): HistoryView {
 		if (!browser) return { records: [], totalCount: 0 };
-		try {
-			const stored = storageGet(STORAGE_KEYS.HISTORY);
-			if (!stored) return { records: [], totalCount: 0 };
-			const history: BMIRecord[] = JSON.parse(stored);
-			return {
-				records: history.slice(-MAX_POINTS),
-				totalCount: history.length
-			};
-		} catch (err) {
-			warnDev('BmiHistorySparkline', 'loadHistory', 'Failed to parse history data', err);
-			return { records: [], totalCount: 0 };
-		}
+		// Validated read: storage records pass the same guard the import path uses,
+		// so poisoned or pre-hardening data can never reach the chart.
+		const history = readBmiHistory();
+		return {
+			records: history.slice(-MAX_POINTS),
+			totalCount: history.length
+		};
 	}
 
 	// History state — intentionally $state + $effect instead of writable $derived

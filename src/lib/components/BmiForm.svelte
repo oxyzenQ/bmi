@@ -11,7 +11,7 @@
 		MAX_IMPORT_SIZE,
 		type ImportFileMeta
 	} from '$lib/utils/history-io';
-	import { STORAGE_KEYS, storageGetJSON } from '$lib/utils/storage';
+	import { readBmiHistory } from '$lib/utils/bmi-history';
 	import {
 		formatBmiExportDate,
 		importErrorKey,
@@ -196,9 +196,8 @@
 	let feedbackMessage = $state('');
 
 	async function handleExportClick() {
-		// Read current history count from storage for export summary
-		const history = storageGetJSON<Array<unknown>>(STORAGE_KEYS.HISTORY, []);
-		exportRecordCount = Array.isArray(history) ? history.length : 0;
+		// Validated read for the export summary count (poisoned records excluded)
+		exportRecordCount = readBmiHistory().length;
 		encryptModalMode = 'export';
 		encryptError = '';
 		encryptErrorCode = undefined;

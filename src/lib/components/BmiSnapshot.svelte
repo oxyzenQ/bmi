@@ -6,8 +6,7 @@
 	import BmiHistorySparkline from './BmiHistorySparkline.svelte';
 	import { COLORS, BMI_THRESHOLDS } from '$lib/utils/bmi-category';
 	import { t as _t, localeVersion } from '$lib/i18n';
-	import { warnDev } from '$lib/utils/warn-dev';
-	import { storageGetJSON, STORAGE_KEYS } from '$lib/utils/storage';
+	import { readBmiHistory } from '$lib/utils/bmi-history';
 	let _rv = $derived($localeVersion);
 	// Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
 	function t(key: string, params?: Record<string, string | number | undefined | null>): string {
@@ -23,13 +22,6 @@
 
 	let { currentBmi = null, category = null, refreshKey = 0 }: Props = $props();
 
-	interface BMIRecord {
-		timestamp: number;
-		bmi: number;
-		height: number;
-		weight: number;
-	}
-
 	// Ideal BMI is 22 (middle of normal range 18.5-25)
 	const IDEAL_BMI = 22;
 
@@ -41,25 +33,22 @@
 
 	function refreshBestBmi() {
 		if (!browser) return;
-		try {
-			const history = storageGetJSON<BMIRecord[]>(STORAGE_KEYS.HISTORY, []);
-			if (!history || history.length === 0) {
-				bestBmiState = null;
-				return;
-			}
-
-			// Find best BMI - closest to ideal (22) within or near normal range
-			const best = history.reduce((best, record) => {
-				const bestDistance = Math.abs(best.bmi - IDEAL_BMI);
-				const currentDistance = Math.abs(record.bmi - IDEAL_BMI);
-				return currentDistance < bestDistance ? record : best;
-			});
-
-			bestBmiState = best.bmi;
-		} catch (err) {
-			warnDev('BmiSnapshot', 'refreshBestBmi', 'Failed to parse history for best BMI', err);
+		// Validated read: storage records pass the same guard the import path uses,
+		// so best-BMI math only ever sees finite, in-bounds values.
+		const history = readBmiHistory();
+		if (history.length === 0) {
 			bestBmiState = null;
+			return;
 		}
+
+		// Find best BMI - closest to ideal (22) within or near normal range
+		const best = history.reduce((best, record) => {
+			const bestDistance = Math.abs(best.bmi - IDEAL_BMI);
+			const currentDistance = Math.abs(record.bmi - IDEAL_BMI);
+			return currentDistance < bestDistance ? record : best;
+		});
+
+		bestBmiState = best.bmi;
 	}
 
 	// Side-effect: read localStorage when currentBmi or the persisted history changes
