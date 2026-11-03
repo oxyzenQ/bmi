@@ -12,7 +12,7 @@
   <h1>bmi</h1>
 
   <p>
-    <strong>BMI Stellar v21.8 — a serious privacy-first health metrics application for local BMI, TDEE, body-fat, and progress analysis.</strong>
+    <strong>BMI Stellar — a serious privacy-first health metrics application for local BMI, TDEE, body-fat, and progress analysis.</strong>
   </p>
 
   <p>
@@ -31,12 +31,6 @@
 </div>
 
 <p align="center">
-  <a href="https://github.com/oxyzenQ/bmi/releases/latest">
-    <img src="https://img.shields.io/badge/version-v21.8-7C3AED?style=flat-square&labelColor=111827" alt="Version v21.8">
-  </a>
-  <a href="https://www.gnu.org/licenses/agpl-3.0.html">
-    <img src="https://img.shields.io/badge/license-AGPL--3.0--only-7C3AED?style=flat-square&labelColor=111827" alt="License AGPL-3.0-only">
-  </a>
   <a href="https://ko-fi.com/rezky">
     <img src="https://img.shields.io/badge/Ko--fi-support-7C3AED?style=flat-square&logo=kofi&logoColor=white&labelColor=111827" alt="Support on Ko-fi">
   </a>
@@ -45,17 +39,32 @@
 ## Demo
 
 <p align="center">
-  <img src="assets/demo-bmi-stellar-home-page.png" alt="bmi stellar demo" width="800">
+  <img src="assets/demo-bmi-stellar-home-page.png"
+    alt="bmi stellar demo"
+    width="800"
+    style="border-radius:24px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
 </p>
 
 <p align="center">
-  <img src="assets/demo-bmi-stellar-gauge.png" alt="bmi stellar gauge demo" width="800">
+  <img src="assets/demo-bmi-stellar-gauge.png"
+    alt="bmi stellar gauge demo"
+    width="800"
+    style="border-radius:24px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
   <br>
-  <img src="assets/demo-bmi-stellar-gauge-active.png" alt="bmi stellar gauge active demo" width="800">
+  <img src="assets/demo-bmi-stellar-gauge-active.png"
+    alt="bmi stellar gauge active demo"
+    width="800"
+    style="border-radius:24px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
   <br>
-  <img src="assets/demo-bmi-stellar-results.png" alt="bmi stellar results demo" width="800">
+  <img src="assets/demo-bmi-stellar-results.png"
+    alt="bmi stellar results demo"
+    width="800"
+    style="border-radius:24px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
   <br>
-  <img src="assets/demo-bmi-stellar-snapshot.png" alt="bmi stellar snapshot demo" width="800">
+  <img src="assets/demo-bmi-stellar-snapshot.png"
+    alt="bmi stellar snapshot demo"
+    width="800"
+    style="border-radius:24px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
 </p>
 
 ## Why bmi?
