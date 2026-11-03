@@ -134,3 +134,41 @@ already matched the zelynic QA.md contract.
    main. Requiring `Stellar Guard - CI` and `Stellar Guard -
 Gate-keepers` checks on main would close the last gap; that is a
    repository-settings decision.
+
+## 7. Session addendum - the consistency re-check
+
+Date: 2026-11-04. Scope: a full re-audit of every night-improve lane
+against the zelynic reference, run from a fresh clone with the gate
+toolchain installed locally (shellcheck 0.10.0, actionlint 1.7.7,
+yamllint 1.38.0, codespell 2.4.3, bun 1.3.x).
+
+Results, lane by lane:
+
+- The gate-keepers wholesale lane passed 12/12 with zero skipped
+  sections - every tool installed, no silent pass.
+- night-improve-1 (scripts layout), night-improve-2 (actions pins,
+  31 uses lines, all 40-hex SHAs), night-improve-3 (version-to.ts
+  changelog splice), night-improve-4 (package manifest metadata),
+  night-improve-5 (wholesale gates, commit gate, permission law),
+  night-improve-7 (600-line ratchet + 1000-line scripts cap) and
+  night-improve-8 (name-case law, 232 files / 247 tokens, zero
+  violations) all verified consistent with their recorded shape.
+- night-improve-6 (CLI style parity) had one real gap: the zelynic
+  build.sh ships a `-q` / `--quiet` essentials mode and this
+  repository's parser silently ignored the flag. Closed in commit
+  6e74332 (per-step verdict lines, failed steps print the log tail,
+  extra positional arguments fail loud).
+- The release tag validator in `release.yml` was suspected broken:
+  terminal rendering of the inline `node -e` expression swallowed the
+  ` [m` bytes (they pattern-match an ANSI SGR sequence), which makes
+  the line LOOK like a syntax error in any pasted transcript.
+  Byte-level inspection plus programmatic execution of the exact file
+  bytes proved the expression valid (destructuring with defaults,
+  prints the live short version, exit 0). No change was made to the
+  workflow; the suspected bug was a display artifact, and this note
+  exists so the next auditor does not re-chase it.
+- No benchmark lane exists in this repository (the zelynic A/B
+  density/frame_entropy bench has no web equivalent wired), so the
+  benchmark-after-commit rule skips honestly for this session; the
+  changes were a CLI flag and documentation, which the house rule
+  exempts from the A/B run in any case.

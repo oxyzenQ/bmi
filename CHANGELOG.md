@@ -119,6 +119,16 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   CI-lane helpers. All `package.json` script paths and living-doc references
   were re-pointed; no gate behavior changed.
 
+- **`scripts/build.sh` speaks the zelynic `-q` / `--quiet` essentials
+  contract (night-improve-6).** The flag reduces a gate run to per-step
+  `OK` / `FAIL` verdict lines with no banners and no streamed step output
+  (the CI shape); a failed step still prints the tail of its log so the
+  failure stays diagnosable without a re-run. The argument parser no
+  longer silently ignores a second positional argument - a mistyped
+  invocation fails loud with exit 2 instead of quietly running the wrong
+  gate. Verified with `bash -n`, `shellcheck -x`, the audit lane under
+  `-q`, and the full gate-keepers lane.
+
 ### Fixed
 
 - **CI audit failures** — `bun audit` reported 17 vulnerabilities in transitive deps after a dormant period. Bumped `overrides` (undici ^7.29.0, tar ^7.5.22, postcss ^8.5.25, brace-expansion ^5.0.9) and dev-dep `@sveltejs/kit` 2.60.1 → 2.70.2. Result: 0 vulnerabilities. _(eff8369)_
