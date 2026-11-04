@@ -88,6 +88,18 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Changed
 
+- **The share card's canvas joined the brand: a purple-black gradient
+  background and every canvas purple hue-converged (night-style-2).**
+  The card base was flat `#000000` with a 3% purple whisper; it now
+  paints a vertical brand-hue gradient (`#1b0a30` through `#0d0518`
+  into black) with the existing radial depth layer promoted to a real
+  `rgba(168,85,247,0.13)` glow at the same center, so the top of the
+  card visibly carries the zelynic brand purple before fading to
+  void. All 28 remaining canvas purple literals (frame stroke, crown,
+  aura, pill strokes, the PREMIUM brand ramp) follow the same
+  one-hue map as the stylesheet tree; the file also drops 6 lines
+  below its 969 watermark (963 now recorded in the ratchet ledger).
+
 - **Every purple in the UI now converges on the zelynic brand purple
   #A855F7 (RGB 168,85,247), the cosmostrix branding color shared
   across the owner's projects (night-style-2).** The stylesheet tree

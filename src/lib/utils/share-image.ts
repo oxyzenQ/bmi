@@ -1,9 +1,6 @@
 // Copyright (C) 2026 rezky_nightky
 // SPDX-License-Identifier: AGPL-3.0-only
-/**
- * Canvas-based premium black BMI result card generator.
- * Produces a shareable PNG for Instagram Story / X / etc.
- */
+/** Canvas-based premium purple-black BMI result card generator (shareable PNG). */
 
 import { t, getLocale } from '$lib/i18n';
 import { CATEGORY_COLORS, COLORS, isBmiCategory, getCategoryLabel } from './bmi-category';
@@ -42,16 +39,16 @@ const PREMIUM = {
 	panelBottom: 'rgba(255,255,255,0.045)',
 	border: 'rgba(255,255,255,0.14)',
 	borderMuted: 'rgba(255,255,255,0.088)',
-	borderLuxury: 'rgba(191,148,255,0.40)',
+	borderLuxury: 'rgba(192,132,252,0.40)',
 	text: '#F7F8FA',
 	textSoft: 'rgba(255,255,255,0.80)',
 	textMuted: 'rgba(255,255,255,0.56)',
 	textFaint: 'rgba(255,255,255,0.36)',
 	emerald: '#18D26E',
-	brandViolet: '#4e3383',
-	brandBlue: '#5b4ce0',
-	brandPurple: '#8000ff',
-	brandHighlight: '#e2c7ff'
+	brandViolet: '#581c87',
+	brandBlue: '#9333ea',
+	brandPurple: '#a855f7',
+	brandHighlight: '#e9d5ff'
 } as const;
 
 function clamp(value: number, min: number, max: number): number {
@@ -212,7 +209,7 @@ function drawStatCell(
 	const strokeGrad = ctx.createLinearGradient(pillX, y, pillX + pillW, y + pillH);
 	strokeGrad.addColorStop(0, 'rgba(255,255,255,0.18)');
 	strokeGrad.addColorStop(0.55, PREMIUM.borderMuted);
-	strokeGrad.addColorStop(1, 'rgba(191,148,255,0.16)');
+	strokeGrad.addColorStop(1, 'rgba(192,132,252,0.16)');
 	ctx.strokeStyle = strokeGrad;
 	ctx.lineWidth = 1.15;
 	ctx.stroke();
@@ -294,7 +291,7 @@ function drawPersonalDataRow(
 		const pillStroke = ctx.createLinearGradient(px, y, px + pillW, y + pillH);
 		pillStroke.addColorStop(0, 'rgba(218,222,235,0.34)');
 		pillStroke.addColorStop(0.56, 'rgba(150,158,176,0.24)');
-		pillStroke.addColorStop(1, 'rgba(191,148,255,0.14)');
+		pillStroke.addColorStop(1, 'rgba(192,132,252,0.14)');
 		ctx.strokeStyle = pillStroke;
 		ctx.lineWidth = 1.8;
 		ctx.stroke();
@@ -325,19 +322,19 @@ function drawPersonalDataRow(
 
 function drawTopAura(ctx: CanvasRenderingContext2D, cx: number, frameY: number): void {
 	const aura = ctx.createRadialGradient(cx, frameY - 22, 0, cx, frameY - 22, 388);
-	aura.addColorStop(0, 'rgba(128,0,255,0.22)');
-	aura.addColorStop(0.34, 'rgba(91,76,224,0.12)');
-	aura.addColorStop(0.68, 'rgba(128,0,255,0.032)');
+	aura.addColorStop(0, 'rgba(168,85,247,0.22)');
+	aura.addColorStop(0.34, 'rgba(147,51,234,0.12)');
+	aura.addColorStop(0.68, 'rgba(168,85,247,0.032)');
 	aura.addColorStop(1, 'rgba(0,0,0,0)');
 	ctx.fillStyle = aura;
 	ctx.fillRect(cx - 430, 0, 860, frameY + 170);
 
 	const crown = ctx.createLinearGradient(cx - 310, frameY - 2, cx + 310, frameY - 2);
-	crown.addColorStop(0, 'rgba(128,0,255,0)');
-	crown.addColorStop(0.42, 'rgba(128,0,255,0.18)');
-	crown.addColorStop(0.5, 'rgba(226,199,255,0.24)');
-	crown.addColorStop(0.58, 'rgba(128,0,255,0.18)');
-	crown.addColorStop(1, 'rgba(128,0,255,0)');
+	crown.addColorStop(0, 'rgba(168,85,247,0)');
+	crown.addColorStop(0.42, 'rgba(168,85,247,0.18)');
+	crown.addColorStop(0.5, 'rgba(233,213,255,0.24)');
+	crown.addColorStop(0.58, 'rgba(168,85,247,0.18)');
+	crown.addColorStop(1, 'rgba(168,85,247,0)');
 	ctx.fillStyle = crown;
 	ctx.fillRect(cx - 310, frameY - 8, 620, 16);
 }
@@ -443,11 +440,11 @@ function drawPremiumFrame(
 	r: number
 ): void {
 	ctx.save();
-	ctx.shadowColor = 'rgba(128,0,255,0.34)';
+	ctx.shadowColor = 'rgba(168,85,247,0.34)';
 	ctx.shadowBlur = 54;
 	ctx.shadowOffsetY = 0;
 	roundRect(ctx, x, y, w, h, r);
-	ctx.fillStyle = 'rgba(128,0,255,0.038)';
+	ctx.fillStyle = 'rgba(168,85,247,0.038)';
 	ctx.fill();
 	ctx.restore();
 
@@ -465,8 +462,8 @@ function drawPremiumFrame(
 
 	const strokeGrad = ctx.createLinearGradient(x, y, x + w, y + h);
 	strokeGrad.addColorStop(0, 'rgba(255,255,255,0.24)');
-	strokeGrad.addColorStop(0.32, 'rgba(128,0,255,0.58)');
-	strokeGrad.addColorStop(0.68, 'rgba(226,199,255,0.44)');
+	strokeGrad.addColorStop(0.32, 'rgba(168,85,247,0.58)');
+	strokeGrad.addColorStop(0.68, 'rgba(233,213,255,0.44)');
 	strokeGrad.addColorStop(1, 'rgba(255,255,255,0.16)');
 	roundRect(ctx, x, y, w, h, r);
 	ctx.strokeStyle = strokeGrad;
@@ -475,7 +472,7 @@ function drawPremiumFrame(
 
 	const innerEdge = ctx.createLinearGradient(x + 10, y + 10, x + w - 10, y + h - 10);
 	innerEdge.addColorStop(0, 'rgba(255,255,255,0.10)');
-	innerEdge.addColorStop(0.5, 'rgba(191,148,255,0.11)');
+	innerEdge.addColorStop(0.5, 'rgba(192,132,252,0.11)');
 	innerEdge.addColorStop(1, 'rgba(255,255,255,0.055)');
 	roundRect(ctx, x + 10, y + 10, w - 20, h - 20, r - 12);
 	ctx.strokeStyle = innerEdge;
@@ -483,11 +480,11 @@ function drawPremiumFrame(
 	ctx.stroke();
 
 	const topLine = ctx.createLinearGradient(x + 92, 0, x + w - 92, 0);
-	topLine.addColorStop(0, 'rgba(128,0,255,0)');
-	topLine.addColorStop(0.36, 'rgba(91,76,224,0.50)');
-	topLine.addColorStop(0.5, 'rgba(226,199,255,0.70)');
-	topLine.addColorStop(0.66, 'rgba(128,0,255,0.52)');
-	topLine.addColorStop(1, 'rgba(128,0,255,0)');
+	topLine.addColorStop(0, 'rgba(168,85,247,0)');
+	topLine.addColorStop(0.36, 'rgba(147,51,234,0.50)');
+	topLine.addColorStop(0.5, 'rgba(233,213,255,0.70)');
+	topLine.addColorStop(0.66, 'rgba(168,85,247,0.52)');
+	topLine.addColorStop(1, 'rgba(168,85,247,0)');
 	ctx.beginPath();
 	ctx.moveTo(x + 110, y + 1);
 	ctx.lineTo(x + w - 110, y + 1);
@@ -509,19 +506,16 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 	const accent = getCategoryColor(data.category);
 	const centerX = CARD_W / 2;
 
-	ctx.fillStyle = PREMIUM.bg;
+	const bgBrand = ctx.createLinearGradient(0, 0, 0, CARD_H);
+	bgBrand.addColorStop(0, '#1b0a30');
+	bgBrand.addColorStop(0.4, '#0d0518');
+	bgBrand.addColorStop(1, '#000000');
+	ctx.fillStyle = bgBrand;
 	ctx.fillRect(0, 0, CARD_W, CARD_H);
 
-	const bgDepth = ctx.createRadialGradient(
-		CARD_W / 2,
-		CARD_H * 0.4,
-		0,
-		CARD_W / 2,
-		CARD_H * 0.4,
-		560
-	);
-	bgDepth.addColorStop(0, 'rgba(128,0,255,0.030)');
-	bgDepth.addColorStop(0.48, 'rgba(255,255,255,0.008)');
+	const bgDepth = ctx.createRadialGradient(centerX, CARD_H * 0.4, 0, centerX, CARD_H * 0.4, 560);
+	bgDepth.addColorStop(0, 'rgba(168,85,247,0.13)');
+	bgDepth.addColorStop(0.48, 'rgba(168,85,247,0.04)');
 	bgDepth.addColorStop(1, 'rgba(0,0,0,0)');
 	ctx.fillStyle = bgDepth;
 	ctx.fillRect(0, 0, CARD_W, CARD_H);
@@ -562,13 +556,13 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 		[0, PREMIUM.brandViolet],
 		[0.28, PREMIUM.brandBlue],
 		[0.56, PREMIUM.brandPurple],
-		[0.78, '#9b5cff'],
+		[0.78, '#a855f7'],
 		[1, PREMIUM.brandHighlight]
 	]);
 
 	const headerDivider = ctx.createLinearGradient(contentX, 0, contentX + contentW, 0);
 	headerDivider.addColorStop(0, 'rgba(255,255,255,0)');
-	headerDivider.addColorStop(0.5, 'rgba(226,199,255,0.12)');
+	headerDivider.addColorStop(0.5, 'rgba(233,213,255,0.12)');
 	headerDivider.addColorStop(1, 'rgba(255,255,255,0)');
 	ctx.beginPath();
 	ctx.moveTo(contentX + 130, headerY + 32);
@@ -898,7 +892,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 		[0, PREMIUM.brandViolet],
 		[0.28, PREMIUM.brandBlue],
 		[0.56, PREMIUM.brandPurple],
-		[0.78, '#9b5cff'],
+		[0.78, '#a855f7'],
 		[1, PREMIUM.brandHighlight]
 	]);
 
