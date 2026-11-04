@@ -422,7 +422,6 @@ const en: TranslationDict = {
 	'share.card_ideal': 'Ideal Range',
 	'share.card_tdee': 'TDEE',
 	'share.card_kcal': 'kcal',
-	'share.card_branding': 'BMI Stellar — by rezky_nightky (oxyzenQ)',
 	'share.card_text': 'My BMI: {n} ({category})',
 	'share.card_insight_underweight':
 		'Consider consulting a healthcare provider about healthy weight gain strategies.',

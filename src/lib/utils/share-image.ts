@@ -4,7 +4,6 @@
 
 import { t, getLocale } from '$lib/i18n';
 import { CATEGORY_COLORS, COLORS, isBmiCategory, getCategoryLabel } from './bmi-category';
-import { getAppVersionShort } from './app-version';
 
 /** Uppercase for Latin text; no-op for CJK/Korean (no case distinction). */
 function localeToUpper(text: string): string {
@@ -885,16 +884,15 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 	ctx.lineWidth = 1;
 	ctx.stroke();
 
-	const shareVersion = `v${getAppVersionShort()}`;
-	const brandLine = `${t('share.card_branding')} \u00b7 ${shareVersion}`;
+	// night-style-2: neutral grey brand line, matching the site footer's
+	// quiet tone; "curiosity" is the owner's zelynic masterclass theme name
+	const brandLine = 'curiosity - by oxyzenQ';
 	const brandFont = fitFontSize(ctx, brandLine, 700, 21, 17, contentW);
-	drawGradientCenteredText(ctx, brandLine, centerX, footerBrandY, brandFont, [
-		[0, PREMIUM.brandViolet],
-		[0.28, PREMIUM.brandBlue],
-		[0.56, PREMIUM.brandPurple],
-		[0.78, '#a855f7'],
-		[1, PREMIUM.brandHighlight]
-	]);
+	ctx.font = brandFont;
+	ctx.textAlign = 'center';
+	ctx.textBaseline = 'alphabetic';
+	ctx.fillStyle = PREMIUM.textMuted;
+	ctx.fillText(brandLine, centerX, footerBrandY);
 
 	const now = new Date();
 	const timestamp = (() => {

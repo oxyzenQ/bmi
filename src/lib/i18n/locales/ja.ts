@@ -476,7 +476,6 @@ const ja: TranslationDict = {
 	'share.card_ideal': '\u7406\u60f3\u7bc4\u56f2',
 	'share.card_tdee': 'TDEE',
 	'share.card_kcal': 'kcal',
-	'share.card_branding': 'BMI Stellar \u2014 rezky_nightky (oxyzenQ) 制作',
 	'share.card_text': '\u79c1\u306e BMI: {n} ({category})',
 	'share.card_insight_underweight':
 		'\u5065\u5eb7\u7684\u306a\u4f53\u91cd\u5897\u52a0\u306e\u65b9\u6cd5\u306b\u3064\u3044\u3066\u3001\u533b\u7697\u6a5f\u95a2\u306b\u76f8\u8ac7\u3059\u308b\u3053\u3068\u3092\u304a\u52e7\u3081\u3057\u307e\u3059\u3002',

@@ -451,7 +451,6 @@ const zh: TranslationDict = {
 	'share.card_ideal': '\u7406\u60f3\u8303\u56f4',
 	'share.card_tdee': 'TDEE',
 	'share.card_kcal': 'kcal',
-	'share.card_branding': 'BMI Stellar \u2014 \u7531 rezky_nightky (oxyzenQ) \u5236\u4f5c',
 	'share.card_text': '\u6211\u7684 BMI: {n} ({category})',
 	'share.card_insight_underweight':
 		'\u5efa\u8bae\u54a8\u8be2\u533b\u7597\u4fdd\u5065\u63d0\u4f9b\u8005\uff0c\u4e86\u89e3\u5065\u5eb7\u589e\u91cd\u7684\u65b9\u6cd5\u3002',

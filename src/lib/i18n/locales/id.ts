@@ -423,7 +423,6 @@ const id: TranslationDict = {
 	'share.card_ideal': 'Rentang Ideal',
 	'share.card_tdee': 'TDEE',
 	'share.card_kcal': 'kcal',
-	'share.card_branding': 'BMI Stellar — oleh rezky_nightky (oxyzenQ)',
 	'share.card_text': 'BMI saya: {n} ({category})',
 	'share.card_insight_underweight':
 		'Pertimbangkan untuk berkonsultasi dengan penyedia layanan kesehatan tentang strategi penambahan berat badan yang sehat.',

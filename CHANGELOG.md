@@ -88,6 +88,18 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Changed
 
+- **The share card footer dropped the purple gradient brand line for
+  the site footer's quiet grey (night-style-2).** The line used to
+  render `BMI Stellar - by rezky_nightky (oxyzenQ) - vN` through a
+  five-stop violet-to-lavender text gradient with a version suffix;
+  it now reads the plain neutral `curiosity - by oxyzenQ` - the
+  owner's zelynic masterclass theme name - in the card's muted grey
+  tier (rgba(255,255,255,0.56)) above the existing faint meta row, so
+  the brand signature stays subordinate exactly like the site footer.
+  The version suffix, the `getAppVersionShort` import, the
+  `share.card_branding` key in all four locales, and its test mock
+  are removed with it; the file lands at 961 lines (963 -> 961, ledger synced).
+
 - **The share card's canvas joined the brand: a purple-black gradient
   background and every canvas purple hue-converged (night-style-2).**
   The card base was flat `#000000` with a 3% purple whisper; it now
