@@ -160,8 +160,20 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
+      # Both archive steps follow one contract: the archive must contain
+      # what its name promises, verified by reading the finished zip
+      # back. v80.0.0 shipped a build zip holding 12 documentation
+      # files and zero application code with a perfectly valid SHA-512
+      # - a checksum proves transport integrity, never archive
+      # contents - because "cp -r build ... && cp package.json" lost
+      # the whole && chain to a missing directory while later "|| true"
+      # lines kept the step green. Every fallback below is explicit
+      # and every missing artifact is a hard failure, never a silent
+      # degradation.
       - name: Create source archive
+        shell: bash
         run: |
+          set -euo pipefail
           TAG="${{ steps.tag.outputs.TAG_NAME }}"
           STAGE="release-source"
           rm -rf "$STAGE" && mkdir -p "$STAGE"
@@ -181,19 +193,59 @@ jobs:
           cp README.md "$STAGE/" 2>/dev/null || true
           cp LICENSE "$STAGE/"
           cp SECURITY.md "$STAGE/" 2>/dev/null || true
-          cd "$STAGE" && zip -r "../bmi-stellar-source-${TAG}.zip" . && cd ..
+          cd "$STAGE" && zip -qr "../bmi-stellar-source-${TAG}.zip" . && cd ..
+          if ! unzip -l "bmi-stellar-source-${TAG}.zip" | grep -q "package.json"; then
+            echo "FATAL: source zip does not contain package.json" >&2
+            exit 1
+          fi
           sha512sum "bmi-stellar-source-${TAG}.zip" > "bmi-stellar-source-${TAG}.zip.sha512sum"
           rm -rf "$STAGE"
 
       - name: Create build archive
+        shell: bash
         run: |
+          set -euo pipefail
           TAG="${{ steps.tag.outputs.TAG_NAME }}"
           STAGE="release-build"
-          rm -rf "$STAGE" && mkdir -p "$STAGE"
-          cp -r build "$STAGE/" && cp package.json "$STAGE/" && cp LICENSE "$STAGE/"
-          cp README.md "$STAGE/" 2>/dev/null || true
-          cp -r docs "$STAGE/" 2>/dev/null || true
-          cd "$STAGE" && zip -r "../bmi-stellar-build-${TAG}.zip" . && cd ..
+          rm -rf "$STAGE" && mkdir -p "$STAGE/build"
+          # The app payload, wherever the adapter put it. Since v80 the
+          # project builds with adapter-vercel, whose prerendered output
+          # lands in .vercel/output/static/ - "build/" only exists for
+          # adapter-static. Either way the zip keeps the historical
+          # layout: unzip it and serve the build/ directory statically,
+          # no node server required.
+          if [ -d build ]; then
+            cp -r build/. "$STAGE/build/"
+          elif [ -d .vercel/output/static ]; then
+            cp -r .vercel/output/static/. "$STAGE/build/"
+          else
+            echo "FATAL: no app payload found (build/ or .vercel/output/static)" >&2
+            exit 1
+          fi
+          # Content gate: the staged payload must contain a real app
+          # entry point, never a folder of stray markdown.
+          if [ ! -f "$STAGE/build/index.html" ]; then
+            echo "FATAL: staged payload has no build/index.html" >&2
+            exit 1
+          fi
+          # Metadata is unconditionally included. The old
+          # "cp payload && cp package.json && cp LICENSE" chain dropped
+          # both from every v80 archive: when the first cp failed the
+          # && chain short-circuited and the AGPL license vanished
+          # from the distributed artifact.
+          cp package.json "$STAGE/"
+          cp LICENSE "$STAGE/"
+          cp README.md "$STAGE/"
+          if [ -d docs ]; then
+            cp -r docs "$STAGE/"
+          fi
+          cd "$STAGE" && zip -qr "../bmi-stellar-build-${TAG}.zip" . && cd ..
+          # Post-zip content gate: read the archive back and require
+          # the app entry point inside the actual zip file.
+          if ! unzip -l "bmi-stellar-build-${TAG}.zip" | grep -q "build/index.html"; then
+            echo "FATAL: build zip does not contain build/index.html" >&2
+            exit 1
+          fi
           sha512sum "bmi-stellar-build-${TAG}.zip" > "bmi-stellar-build-${TAG}.zip.sha512sum"
           rm -rf "$STAGE"
 
