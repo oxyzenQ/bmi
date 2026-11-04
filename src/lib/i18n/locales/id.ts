@@ -528,7 +528,6 @@ const id: TranslationDict = {
 	'about.status': 'Status',
 	'about.license': 'Lisensi',
 	'about.open_source': 'Proyek Open Source',
-	'about.status_stable': 'Stabil',
 	'about.maintenance': 'Pemeliharaan',
 	'about.maintenance_active': 'Aktif Dipelihara',
 
@@ -566,8 +565,8 @@ const id: TranslationDict = {
 	'about.backup': 'Backup',
 	'about.backup_optional': 'Ekspor terenkripsi opsional',
 	'about.pwa_type': 'PWA open-source',
-	'about.status_rc': 'Kandidat rilis stabil',
 	'about.status_release': 'Rilis stabil',
+	'about.repo': 'Repositori',
 
 	// ── Info Section ──
 	'info.disclaimer':

@@ -559,7 +559,6 @@ const zh: TranslationDict = {
 	'about.status': '\u72b6\u6001',
 	'about.license': '\u8bb8\u53ef\u8bc1',
 	'about.open_source': '\u5f00\u6e90\u9879\u76ee',
-	'about.status_stable': '\u7a33\u5b9a',
 	'about.maintenance': '\u7ef4\u62a4',
 	'about.maintenance_active': '\u79ef\u6781\u7ef4\u62a4\u4e2d',
 
@@ -598,8 +597,8 @@ const zh: TranslationDict = {
 	'about.backup': '\u5907\u4efd',
 	'about.backup_optional': '\u53ef\u9009\u52a0\u5bc6\u5bfc\u51fa',
 	'about.pwa_type': '\u5f00\u6e90 PWA',
-	'about.status_rc': '\u7a33\u5b9a\u53d1\u5e03\u5019\u9009',
 	'about.status_release': '稳定发布',
+	'about.repo': '仓库',
 
 	// ── Info Section ──
 	'info.disclaimer':

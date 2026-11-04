@@ -17,6 +17,7 @@
 		BicepsFlexed,
 		Info
 	} from 'lucide-svelte';
+	import GitHubMark from '$lib/ui/GitHubMark.svelte';
 	import NotifyFloat from '$lib/components/NotifyFloat.svelte';
 	import StagingSpinner from '$lib/components/StagingSpinner.svelte';
 	import { promptPwaInstall, pwaInstallState } from '$lib/stores/pwa-install';
@@ -265,6 +266,14 @@
 							<p class="info-row">
 								<ShieldCheck class="ShieldCheck" />
 								<strong>{t('about.status')}:</strong>{t('about.status_release')}
+							</p>
+							<p class="info-row repo-row">
+								<GitHubMark class="Github" />
+								<strong>{t('about.repo')}:</strong><a
+									href="https://github.com/oxyzenQ/bmi"
+									target="_blank"
+									rel="noopener noreferrer">github.com/oxyzenQ/bmi</a
+								>
 							</p>
 							<p class="info-row">
 								<Scale class="Scale" />

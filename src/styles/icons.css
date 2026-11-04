@@ -41,7 +41,16 @@
    Color tokens match each icon's semantic meaning. */
 .about-card
 	.info-row
-	:is(.Database, .LockKeyhole, .PackageCheck, .GitBranch, .GitCompare, .Scale, .ShieldCheck) {
+	:is(
+		.Database,
+		.LockKeyhole,
+		.PackageCheck,
+		.GitBranch,
+		.GitCompare,
+		.Github,
+		.Scale,
+		.ShieldCheck
+	) {
 	width: 20px !important;
 	height: 20px !important;
 }
@@ -64,6 +73,10 @@
 }
 
 .about-card .info-row .GitCompare {
+	color: var(--cosmic-purple) !important;
+}
+
+.about-card .info-row .Github {
 	color: var(--cosmic-purple) !important;
 }
 

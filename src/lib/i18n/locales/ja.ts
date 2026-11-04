@@ -597,7 +597,6 @@ const ja: TranslationDict = {
 	'about.license': '\u30e9\u30a4\u30bb\u30f3\u30b9',
 	'about.open_source':
 		'\u30aa\u30fc\u30d7\u30f3\u30bd\u30fc\u30b9\u30d7\u30ed\u30b8\u30a7\u30af\u30c8',
-	'about.status_stable': '\u5b89\u5b9a',
 	'about.maintenance': '\u30e1\u30f3\u30c6\u30ca\u30f3\u30b9',
 	'about.maintenance_active':
 		'\u30a2\u30af\u30c6\u30a3\u30d6\u30e1\u30f3\u30c6\u30ca\u30f3\u30b9\u4e2d',
@@ -641,8 +640,8 @@ const ja: TranslationDict = {
 	'about.backup_optional':
 		'\u30aa\u30d7\u30b7\u30e7\u30f3\u306e\u6697\u53f7\u5316\u30a8\u30af\u30b9\u30dd\u30fc\u30c8',
 	'about.pwa_type': '\u30aa\u30fc\u30d7\u30f3\u30bd\u30fc\u30b9 PWA',
-	'about.status_rc': '\u5b89\u5b9a\u30ea\u30ea\u30fc\u30b9\u5019\u88dc',
 	'about.status_release': '安定リリース',
+	'about.repo': 'リポジトリ',
 
 	// ── Info Section ──
 	'info.disclaimer':

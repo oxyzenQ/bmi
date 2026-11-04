@@ -527,7 +527,6 @@ const en: TranslationDict = {
 	'about.status': 'Status',
 	'about.license': 'License',
 	'about.open_source': 'Open Source Project',
-	'about.status_stable': 'Stable',
 	'about.maintenance': 'Maintenance',
 	'about.maintenance_active': 'Actively Maintained',
 
@@ -565,8 +564,8 @@ const en: TranslationDict = {
 	'about.backup': 'Backup',
 	'about.backup_optional': 'Optional encrypted export',
 	'about.pwa_type': 'Open-source PWA',
-	'about.status_rc': 'Stable release candidate',
 	'about.status_release': 'Stable release',
+	'about.repo': 'Repository',
 
 	// ── Info Section ──
 	'info.disclaimer':

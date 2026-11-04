@@ -27,6 +27,27 @@
 	font-weight: 600;
 }
 
+.app-info .info-row a {
+	color: var(--stellar-white);
+	text-decoration: underline;
+	text-decoration-color: rgba(140, 140, 140, 0.45);
+	text-underline-offset: 3px;
+	transition: color var(--dur-fast) var(--easing-material);
+}
+
+.app-info .info-row a:hover {
+	color: var(--cosmic-purple);
+}
+
+.app-info .info-row.repo-row {
+	flex-wrap: wrap;
+	row-gap: 0.15rem;
+}
+
+.app-info .info-row.repo-row a {
+	white-space: nowrap;
+}
+
 .bmi-section {
 	margin-top: var(--section-margin-y);
 	margin-bottom: var(--section-margin-y);

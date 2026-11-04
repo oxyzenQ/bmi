@@ -12,6 +12,19 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Added
 
+- **A GitHub repository row on the About page (about-repo-row).** The
+  Open Source & Release card's info list gained a `Repository:` row
+  directly under the Status row - the GitHub mark (a new inline
+  `src/lib/ui/GitHubMark.svelte`, octicons-licensed path, because
+  lucide ships no brand icons) links `github.com/oxyzenQ/bmi` in a new
+  tab with `rel="noopener noreferrer"`. The link is styled into the
+  info-row family (cosmic-purple mark, underlined white label,
+  cosmic-purple hover, the global focus outline) and wraps as a unit
+  under the 375 x 667 floor check with zero horizontal overflow. The
+  two dead `about.status_stable` / `about.status_rc` keys left all
+  four locales so the new `about.repo` key fits the ja/zh LOC
+  ratchets, which moved down: ja 677 -> 675, zh 632 -> 630.
+
 - **The name-case law with its strict gate, and the CI naming
   consistency pass (night-improve-8).**
   `scripts/gates/check-name-case.py` enforces the BRANDING name law over
