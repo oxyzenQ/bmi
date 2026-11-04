@@ -88,6 +88,21 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Changed
 
+- **The five README demo captures re-shot against the current build
+  (demo-refresh-1).** Every `assets/demo-bmi-stellar-*.png` surface was
+  regenerated in a headless browser against the production preview, so
+  the README now shows the zelynic purple rebrand instead of the
+  pre-rebrand purple: the welcome hero, the empty gauge, the active
+  gauge, the calculator + results pair, and the full BMI snapshot card
+  with its three-entry history trend. Each scenario replays the exact
+  data state of the capture it replaces (24 y / 181 cm / 67 kg giving
+  BMI 20.45 for the active states, the 67 -> 70 -> 88 kg ledger for the
+  snapshot), and the snapshot frame grew to 889 x 1150 because the
+  rebranded card no longer fits the old 781 px window. Filenames are
+  unchanged, so the README markup is untouched;
+  `assets/signature.b3sum` and the `assets/signature-assets.md` table
+  rows move in the same commit per the documented refresh policy.
+
 - **A depth responsive audit at the 375 x 667 floor came back clean
   (night-style-2, recorded in docs/responsive-audit-375.md).** Every
   pager section was stepped end to end in a real headless browser at
