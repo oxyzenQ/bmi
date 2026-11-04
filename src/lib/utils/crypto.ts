@@ -78,8 +78,8 @@ const VERIFIER_PLAINTEXT = 'BMI_STELLAR_VERIFIER_V1';
 
 // ── Types ──
 export interface EncryptedPayload {
-	/** Format identifier — always 'bmi-encrypted-v1' */
-	format: 'bmi-encrypted-v1';
+	/** Format identifier — emits 'bmi-encrypted-v3'; legacy v1 stays readable. */
+	format: 'bmi-encrypted-v3' | 'bmi-encrypted-v1';
 	/** Cipher algorithm used: always 'aes-256-gcm' */
 	cipher?: 'aes-256-gcm';
 	/** Key derivation function used: 'argon2id' or 'pbkdf2' (legacy) */
@@ -430,7 +430,7 @@ export async function encrypt(
 	const checksum = await computeChecksum(ciphertextB64);
 
 	const payload: EncryptedPayload = {
-		format: 'bmi-encrypted-v1',
+		format: 'bmi-encrypted-v3',
 		cipher: 'aes-256-gcm',
 		kdf,
 		...(kdfParams && { kdfParams }),
@@ -468,8 +468,8 @@ export async function decrypt(
 	try {
 		const payload: EncryptedPayload = JSON.parse(encryptedJson);
 
-		if (payload.format !== 'bmi-encrypted-v1') {
-			warnDev('crypto', 'decrypt', 'Unknown encrypted format — expected bmi-encrypted-v1');
+		if (payload.format !== 'bmi-encrypted-v3' && payload.format !== 'bmi-encrypted-v1') {
+			warnDev('crypto', 'decrypt', 'Unknown encrypted format (expected v3 or legacy v1)');
 			return null;
 		}
 
@@ -539,7 +539,7 @@ export async function decrypt(
 export function isEncrypted(json: string): boolean {
 	try {
 		const parsed = JSON.parse(json);
-		return parsed?.format === 'bmi-encrypted-v1';
+		return parsed?.format === 'bmi-encrypted-v3' || parsed?.format === 'bmi-encrypted-v1';
 	} catch (err) {
 		warnDev('crypto', 'isEncrypted', 'Failed to parse payload for encryption detection', err);
 		return false;

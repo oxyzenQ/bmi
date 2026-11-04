@@ -122,14 +122,14 @@ Supported for importing backups created with older versions. Not used for new en
 
 ### AES-256-GCM Encryption Envelope
 
-| Field               | Value                                               |
-| ------------------- | --------------------------------------------------- |
-| Format identifier   | `bmi-encrypted-v1`                                  |
-| Cipher              | AES-256-GCM (authenticated)                         |
-| IV length           | 12 bytes (96-bit), random per encryption            |
-| Auth tag            | 16 bytes (128-bit), handled by Web Crypto API       |
-| Ciphertext checksum | SHA-256, stored in `meta.checksum`                  |
-| KDF auto-detection  | `kdf` field: `'argon2id'` or absent (legacy PBKDF2) |
+| Field               | Value                                                         |
+| ------------------- | ------------------------------------------------------------- |
+| Format identifier   | `bmi-encrypted-v3` (legacy `bmi-encrypted-v1` still readable) |
+| Cipher              | AES-256-GCM (authenticated)                                   |
+| IV length           | 12 bytes (96-bit), random per encryption                      |
+| Auth tag            | 16 bytes (128-bit), handled by Web Crypto API                 |
+| Ciphertext checksum | SHA-256, stored in `meta.checksum`                            |
+| KDF auto-detection  | `kdf` field: `'argon2id'` or absent (legacy PBKDF2)           |
 
 ### Passphrase Verification (v18.1)
 

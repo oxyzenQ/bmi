@@ -533,7 +533,7 @@ export function peekImportMeta(json: string): ImportFileMeta {
 		const parsed = JSON.parse(json);
 
 		// Encrypted payload — meta is stored unencrypted for preview
-		if (parsed?.format === 'bmi-encrypted-v1') {
+		if (parsed?.format === 'bmi-encrypted-v3' || parsed?.format === 'bmi-encrypted-v1') {
 			return {
 				encrypted: true,
 				format: parsed.format,

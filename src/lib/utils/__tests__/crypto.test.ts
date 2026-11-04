@@ -202,7 +202,7 @@ describe('encrypt + decrypt', () => {
 		const encrypted = await encrypt('test', 'pass');
 		const payload = JSON.parse(encrypted);
 
-		expect(payload.format).toBe('bmi-encrypted-v1');
+		expect(payload.format).toBe('bmi-encrypted-v3');
 		expect(payload.cipher).toBe('aes-256-gcm');
 		expect(payload.kdf).toBeDefined();
 		expect(payload.salt).toBeTruthy();

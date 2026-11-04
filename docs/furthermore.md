@@ -205,7 +205,7 @@ Supported for importing older backups. Not used for new encryptions.
 
 | Field       | Value                                          |
 | ----------- | ---------------------------------------------- |
-| Format ID   | `bmi-encrypted-v1`                             |
+| Format ID   | `bmi-encrypted-v3` (legacy v1 still readable)  |
 | Cipher      | AES-256-GCM                                    |
 | IV length   | 12 bytes (96-bit)                              |
 | Salt length | 16 bytes (128-bit)                             |

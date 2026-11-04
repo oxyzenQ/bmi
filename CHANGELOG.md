@@ -88,6 +88,16 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Changed
 
+- **Encrypted exports moved to format identifier `bmi-encrypted-v3`
+  (night-style-2, owner call).** New backups emit v3 while the cipher
+  stack is unchanged (AES-256-GCM, Argon2id with PBKDF2 legacy
+  fallback, SHA-256 ciphertext checksum); decrypt, `isEncrypted`, and
+  the import preview all still accept legacy `bmi-encrypted-v1`
+  payloads, so every existing export remains readable and the
+  fixture-based tests now double as backward-compatibility coverage.
+  SECURITY.md, DORMANT.md, and docs/furthermore.md document the new
+  identifier.
+
 - **The share card footer dropped the purple gradient brand line for
   the site footer's quiet grey (night-style-2).** The line used to
   render `BMI Stellar - by rezky_nightky (oxyzenQ) - vN` through a
