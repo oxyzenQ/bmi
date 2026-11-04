@@ -413,7 +413,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 - **Release artifacts verify with SHA-512 sidecar checksums.** The
   release pipeline (`.github/workflows/release.yml`) writes
-  `sha512sum` sidecars (`bmi-stellar-*-<TAG>.zip.sha512`) instead of
+  `sha512sum` sidecars (`bmi-stellar-*-<TAG>.zip.sha512sum`) instead of
   SHA-256, the GitHub Release upload list carries the new extension,
   and the README release-verification block plus the
   `.github/RELEASE.md` artifacts table follow. Already-published

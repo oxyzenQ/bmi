@@ -334,7 +334,7 @@ tag against `package.json` before anything is built:
 
 ```bash
 # verify a downloaded archive
-sha512sum -c bmi-stellar-source-<TAG>.zip.sha512
+sha512sum -c bmi-stellar-source-<TAG>.zip.sha512sum
 ```
 
 The release checklist, tag rules, and rollback procedure live in
