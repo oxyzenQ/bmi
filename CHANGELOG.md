@@ -102,10 +102,20 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   declarations, and the Layer 2 line of the z-index ladder doc.
   tokens.css fell from 641 to 491 lines, below the 600 ratchet, so its
   ledger entry is removed in the same change; the audit now reports
-  zero zombie classes and zero unconsumed stylesheet tokens. Two
-  findings are deliberately left for the owner: 21 pre-existing
-  dangling `var()` references that were never defined anywhere, and
-  the set-but-never-read `--gauge-pulse-dur` family in BmiRadialGauge.
+  zero zombie classes and zero unconsumed stylesheet tokens. The
+  remaining residue is also resolved: all 21 pre-existing dangling
+  `var()` references are now bound to real values - thirteen new
+  family-consistent tokens (`--w-40`, `--sd-65`, `--sg-18`,
+  `--blue-25`, `--deep-void-50`, the `--cat-*-50` scale quarter,
+  `--slate-300-solid`, `--violet-300-solid`, `--green-500-solid`,
+  `--cyan-500-solid`) plus remaps onto existing tokens whose value
+  already matched (`--warn-amber`, `--red-500-solid`, `--slate-500-solid`,
+  `--violet-30`/`--violet-20`), so every fallback that shipped is
+  preserved bit-for-bit; the sparkline crosshairs move from
+  presentation attributes (where `var()` is invalid) to style
+  attributes, and the gauge-skeleton zone bar now uses the same
+  `--cat-*-50` ramp as the risk scale. The set-but-never-read
+  `--gauge-pulse-dur` family in BmiRadialGauge is still open.
 
 - **The welcome-page logo, the share-card gauge, and the container
   hover language were refined (night-engrave-1).** The hero avatar

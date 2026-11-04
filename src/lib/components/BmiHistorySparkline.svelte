@@ -434,7 +434,7 @@
 							y1={PAD_TOP}
 							x2={hoveredPoint.x}
 							y2={plotBottom}
-							stroke="var(--white-15)"
+							style="stroke: var(--w-15)"
 							stroke-width="1"
 							stroke-dasharray="3 3"
 						/>
@@ -443,7 +443,7 @@
 							y1={hoveredPoint.y}
 							x2={plotRight}
 							y2={hoveredPoint.y}
-							stroke="var(--white-10)"
+							style="stroke: var(--w-10)"
 							stroke-width="1"
 							stroke-dasharray="3 3"
 						/>

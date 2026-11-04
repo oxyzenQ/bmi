@@ -155,10 +155,10 @@
 	}
 
 	const LOG_LEVEL_COLORS: Record<LogLevel, string> = {
-		DEBUG: 'var(--cyan-60, #06b6d4)',
-		INFO: 'var(--green-50, #22c55e)',
-		WARN: 'var(--amber-50, #f59e0b)',
-		ERROR: 'var(--red-50, #ef4444)'
+		DEBUG: 'var(--cyan-500-solid)',
+		INFO: 'var(--green-500-solid)',
+		WARN: 'var(--warn-amber)',
+		ERROR: 'var(--red-500-solid)'
 	};
 
 	onMount(() => {
@@ -493,8 +493,8 @@
 		font-weight: 500;
 		padding: 0.1rem 0.35rem;
 		border-radius: var(--radius-pill);
-		background: var(--violet-80, rgba(139, 92, 246, 0.3));
-		color: var(--violet-40, #c4b5fd);
+		background: var(--violet-30);
+		color: var(--violet-300-solid);
 	}
 
 	.dp-close {
@@ -578,8 +578,8 @@
 	}
 
 	.dp-tab.active {
-		background: var(--violet-80, rgba(139, 92, 246, 0.2));
-		color: var(--violet-40, #c4b5fd);
+		background: var(--violet-20);
+		color: var(--violet-300-solid);
 	}
 
 	.dp-tab-count {
@@ -642,7 +642,7 @@
 		border: none;
 		border-radius: var(--radius-xs);
 		background: transparent;
-		color: var(--w-40, #64748b);
+		color: var(--slate-500-solid);
 		cursor: pointer;
 		margin-left: auto;
 		transition:
@@ -651,8 +651,8 @@
 	}
 
 	.dp-btn-clear:hover {
-		background: var(--red-80, rgba(239, 68, 68, 0.15));
-		color: var(--red-50, #ef4444);
+		background: rgba(239, 68, 68, 0.15);
+		color: var(--red-500-solid);
 	}
 
 	/* ── Log List ── */
@@ -708,7 +708,7 @@
 
 	.dp-log-span {
 		font-size: 0.6rem;
-		color: var(--cyan-60, #06b6d4);
+		color: var(--cyan-500-solid);
 		font-family: var(--font-mono-short, monospace);
 		opacity: 0.6;
 	}
@@ -728,7 +728,7 @@
 
 	.dp-log-error-detail {
 		font-size: 0.65rem;
-		color: var(--red-50, #ef4444);
+		color: var(--red-500-solid);
 		margin-top: 0.15rem;
 	}
 
@@ -738,7 +738,7 @@
 
 	.dp-log-data {
 		font-size: 0.6rem;
-		color: var(--w-40, #64748b);
+		color: var(--slate-500-solid);
 		font-family: var(--font-mono-short, monospace);
 		margin-top: 0.15rem;
 		word-break: break-all;
@@ -784,11 +784,11 @@
 	}
 
 	.dp-value.ok {
-		color: var(--green-50, #22c55e);
+		color: var(--green-500-solid);
 	}
 
 	.dp-value.err {
-		color: var(--red-50, #ef4444);
+		color: var(--red-500-solid);
 	}
 
 	.dp-system-divider {
@@ -817,7 +817,7 @@
 		width: 100%;
 		padding: 0.35rem 0.5rem;
 		font-size: 0.75rem;
-		color: var(--violet-40, #c4b5fd);
+		color: var(--violet-300-solid);
 		background: transparent;
 		border: none;
 		border-radius: var(--radius-xs);

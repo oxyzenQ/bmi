@@ -28,9 +28,7 @@
 	let { show = false, type = 'success', title = '', message, onClose }: Props = $props();
 
 	const Icon = $derived(type === 'success' ? CheckCircle : XCircle);
-	const iconColor = $derived(
-		type === 'success' ? 'var(--cat-green-90)' : 'var(--error-color, #ef4444)'
-	);
+	const iconColor = $derived(type === 'success' ? 'var(--cat-green-90)' : 'var(--red-500-solid)');
 	const defaultTitle = $derived(
 		type === 'success' ? t('notify.success_title') : t('notify.error_title')
 	);

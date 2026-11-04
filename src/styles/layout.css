@@ -76,7 +76,7 @@
 }
 
 .about-card-header :is(svg) {
-	filter: drop-shadow(0 0 6px var(--coreblue-25, rgba(96, 165, 250, 0.25)));
+	filter: drop-shadow(0 0 6px var(--blue-25));
 }
 
 .about-card-content {

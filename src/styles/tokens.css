@@ -110,6 +110,7 @@
 	--w-20: rgba(255, 255, 255, 0.2);
 	--w-25: rgba(255, 255, 255, 0.25);
 	--w-30: rgba(255, 255, 255, 0.3);
+	--w-40: rgba(255, 255, 255, 0.4);
 	--w-50: rgba(255, 255, 255, 0.5);
 	--w-60: rgba(255, 255, 255, 0.6);
 	--w-70: rgba(255, 255, 255, 0.7);
@@ -125,6 +126,7 @@
 	--sd-40: rgba(15, 23, 42, 0.4);
 	--sd-55: rgba(15, 23, 42, 0.55);
 	--sd-60: rgba(15, 23, 42, 0.6);
+	--sd-65: rgba(15, 23, 42, 0.65);
 	--sd-70: rgba(15, 23, 42, 0.7);
 	--sd-75: rgba(6, 0, 12, 0.8);
 	--sd-80: rgba(6, 0, 12, 0.8);
@@ -135,6 +137,7 @@
 	--sg-10: rgba(148, 163, 184, 0.1);
 	--sg-15: rgba(148, 163, 184, 0.15);
 	--sg-16: rgba(148, 163, 184, 0.16);
+	--sg-18: rgba(148, 163, 184, 0.18);
 	--sg-25: rgba(148, 163, 184, 0.25);
 	--sg-30: rgba(148, 163, 184, 0.3);
 
@@ -152,6 +155,7 @@
 
 	/* Blue (96,165,250) */
 	--blue-5: rgba(96, 165, 250, 0.05);
+	--blue-25: rgba(96, 165, 250, 0.25);
 	--blue-35: rgba(96, 165, 250, 0.35);
 
 	/* Sky (79,172,254) */
@@ -256,6 +260,10 @@
 	--cat-green-20: rgba(74, 222, 128, 0.2);
 	--cat-amber-20: rgba(251, 191, 36, 0.2);
 	--cat-green-40: rgba(74, 222, 128, 0.4);
+	--cat-blue-50: rgba(96, 165, 250, 0.5);
+	--cat-green-50: rgba(74, 222, 128, 0.5);
+	--cat-amber-50: rgba(251, 191, 36, 0.5);
+	--cat-red-50: rgba(248, 113, 113, 0.5);
 	--sd-92: rgba(15, 23, 42, 0.92);
 	--cosmic-base-95: rgba(0, 0, 0, 0.95);
 	--darkred-85: rgba(183, 28, 28, 0.85);
@@ -386,6 +394,7 @@
        Used by components, navigation, and responsive overrides. */
 	--deep-void-base: #140826;
 	--deep-void-40: rgba(20, 8, 38, 0.4);
+	--deep-void-50: rgba(20, 8, 38, 0.5);
 	--deep-void-55: rgba(20, 8, 38, 0.55);
 	--deep-void-65: rgba(20, 8, 38, 0.65);
 
@@ -475,6 +484,10 @@
 	/* Extended semantic colors — commonly repeated hex values */
 	--blue-300-solid: rgba(147, 197, 253, 1); /* #93c5fd — below/underweight tint */
 	--green-300-solid: rgba(134, 239, 172, 1); /* #86efac — delta within range */
+	--green-500-solid: rgba(34, 197, 94, 1); /* #22c55e — debug log ok */
+	--cyan-500-solid: rgba(6, 182, 212, 1); /* #06b6d4 — debug log span */
+	--violet-300-solid: rgba(196, 181, 253, 1); /* #c4b5fd — debug badge/tab text */
+	--slate-300-solid: rgba(203, 213, 225, 1); /* #cbd5e1 — sparkline stat text */
 	--emerald-solid: rgba(16, 185, 129, 1); /* #10b981 — normal weight category */
 	--warn-amber: rgba(245, 158, 11, 1); /* #f59e0b — warning/overweight icon */
 	--red-500-solid: rgba(239, 68, 68, 1); /* #ef4444 — obese category */

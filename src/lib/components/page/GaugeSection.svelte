@@ -48,9 +48,9 @@
 					<div class="skeleton skeleton-line w-60 h-md" style="margin:0 auto"></div>
 					<div class="skeleton-bar">
 						<span class="skeleton" style="background:var(--cyan2-40)"></span>
-						<span class="skeleton" style="background:var(--green-50)"></span>
-						<span class="skeleton" style="background:var(--yellow-60)"></span>
-						<span class="skeleton" style="background:var(--red-50)"></span>
+						<span class="skeleton" style="background:var(--cat-green-50)"></span>
+						<span class="skeleton" style="background:var(--cat-amber-50)"></span>
+						<span class="skeleton" style="background:var(--cat-red-50)"></span>
 					</div>
 				</div>
 			</div>
