@@ -422,6 +422,16 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   integrity hashes (the AES-GCM backup envelope checksum and the
   HMAC-SHA256 export signatures) are untouched - different lane,
   different contract. _(this commit)_
+- **Space is the out-of-box wallpaper theme.** Fresh visitors now
+  land on the space wallpaper (`oxyzenq-lite.webp`) instead of
+  blackhole: the Svelte state default (`+page.svelte`), the
+  pre-paint CSS fallback (`--wallpaper-current` in `tokens.css`),
+  and the theme button's pressed semantics (`aria-pressed` reports
+  unpressed only for the factory default) move together, so SSR
+  markup, the no-JS wallpaper, and hydration stay in agreement.
+  Returning visitors keep their saved `bmi.wallpaperTheme` choice -
+  the anti-flash inline script in `app.html` applies stored values
+  only and needs no change. _(this commit)_
 
 ### Removed
 

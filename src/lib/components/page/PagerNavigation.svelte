@@ -59,7 +59,7 @@
 				type="button"
 				class="btn btn-ghost pager-tab pager-theme"
 				aria-label={t('nav.theme_aria')}
-				aria-pressed={currentTheme !== 'blackhole'}
+				aria-pressed={currentTheme !== 'space'}
 				onclick={onThemeToggle}
 			>
 				<Wallpaper class="render-wallpaper" aria-hidden="true" />

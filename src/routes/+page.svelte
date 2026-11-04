@@ -212,7 +212,7 @@
 		space: () => t('nav.space'),
 		telescopic: () => t('nav.telescopic')
 	};
-	let currentTheme = $state<ThemeKey>('blackhole');
+	let currentTheme = $state<ThemeKey>('space');
 	let themeLabel = $derived(THEME_LABELS[currentTheme]());
 
 	function toggleWallpaperTheme() {
