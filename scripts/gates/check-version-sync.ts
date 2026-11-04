@@ -8,6 +8,9 @@
  *   - DORMANT.md  "Version: `X.Y.Z`"  (the maintenance capsule, full version)
  *   - README.md   "Current release: `vX.Y.Z`"  (full version)
  *
+ * A pre-release version (X.Y.Z-<suffix>, e.g. 80.0.0-night.1) is
+ * legal on every surface - the suffix rides the same parity checks.
+ *
  * Surfaces are probed honestly, the zelynic way: a surface that exists
  * but disagrees FAILS; a surface that does not exist at all is reported
  * as absent (a doc this gate never policed is not one it fails on).
@@ -20,8 +23,8 @@ const version = pkg.version ?? '';
 
 const violations: string[] = [];
 
-if (!/^\d+\.\d+\.\d+$/.test(version)) {
-	violations.push(`package.json version "${version}" is not MAJOR.MINOR.PATCH`);
+if (!/^\d+\.\d+\.\d+(-[A-Za-z0-9.]+)?$/.test(version)) {
+	violations.push(`package.json version "${version}" is not MAJOR.MINOR.PATCH[-LABEL]`);
 }
 
 let dormant: string;
@@ -30,7 +33,7 @@ try {
 } catch {
 	dormant = '';
 }
-const dormantMatch = dormant.match(/Version: `(\d+\.\d+\.\d+)`/);
+const dormantMatch = dormant.match(/Version: `(\d+\.\d+\.\d+(?:-[A-Za-z0-9.]+)?)`/);
 if (!dormantMatch) {
 	violations.push('DORMANT.md: no "Version: `X.Y.Z`" capsule line found');
 } else if (dormantMatch[1] !== version) {
@@ -43,7 +46,7 @@ try {
 } catch {
 	readme = '';
 }
-const releaseMatch = readme.match(/Current release: `v(\d+\.\d+(?:\.\d+)?)`/);
+const releaseMatch = readme.match(/Current release: `v(\d+\.\d+(?:\.\d+)?(?:-[A-Za-z0-9.]+)?)`/);
 if (!releaseMatch) {
 	console.log('note: README.md carries no "Current release" surface - nothing to police there');
 } else if (releaseMatch[1] !== version) {

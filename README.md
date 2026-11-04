@@ -328,9 +328,10 @@ not by a device farm.
 
 ## Release Verification
 
-Each tagged release (`v<major>.<minor>.<patch>`) ships source and build
-archives with SHA-512 sidecar checksums, and the pipeline validates the
-tag against `package.json` before anything is built:
+Each tagged release (`v<major>.<minor>.<patch>`, pre-releases with a
+`-<suffix>` like `v80.0.0-night.1`) ships source and build archives
+with SHA-512 sidecar checksums, and the pipeline validates the tag
+against `package.json` before anything is built:
 
 ```bash
 # verify a downloaded archive
@@ -359,8 +360,10 @@ Vercel-deployed web app and nothing is published to the npm registry.
 > manually.
 
 Release tags follow the format `v<major>.<minor>.<patch>` (for
-example, `v80.0.0`). The tag must match `package.json` exactly
-(for example, `80.0.0` → `v80.0.0`).
+example, `v80.0.0`), with an optional pre-release suffix (for
+example, `v80.0.0-night.1` - GitHub flags these releases as
+pre-releases and never marks them "latest"). The tag must match
+`package.json` exactly (for example, `80.0.0` → `v80.0.0`).
 
 ## Support
 

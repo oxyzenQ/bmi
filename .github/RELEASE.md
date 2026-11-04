@@ -17,7 +17,7 @@ git tag v<major>.<minor>.<patch>
 git push origin v<major>.<minor>.<patch>
 ```
 
-The workflow validates the tag format (`v<major>.<minor>.<patch>`) and exact version match, builds a static archive, generates a commit-based changelog, and publishes the GitHub Release with source + build artifacts.
+The workflow validates the tag format (`v<major>.<minor>.<patch>`, with an optional pre-release suffix like `-night.1`) and exact version match, builds a static archive, generates a commit-based changelog, and publishes the GitHub Release with source + build artifacts.
 
 ## Artifacts
 
@@ -30,6 +30,8 @@ The workflow validates the tag format (`v<major>.<minor>.<patch>`) and exact ver
 ## Tag Format
 
 `v<major>.<minor>.<patch>` — must match `package.json` exactly.
+
+A suffix (`v<major>.<minor>.<patch>-<suffix>`, e.g. `v80.0.0-night.1`) publishes a pre-release: GitHub flags the release with the Pre-release badge and it is never marked "latest", while stable release notes span from the nearest previous stable tag. The suffix is free-form (`beta.1`, `rc.2`, `night.7`) — the tag shape is the channel, no whitelist to maintain.
 
 ## Rollback
 

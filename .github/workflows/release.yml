@@ -17,6 +17,8 @@ jobs:
   validate-tag:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
+    outputs:
+      prerelease: ${{ steps.ver.outputs.prerelease }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, SHA pin
@@ -30,13 +32,28 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Validate tag format
+      - name: Validate tag format and classify the release channel
+        id: ver
         run: |
           TAG="${{ steps.tag.outputs.TAG_NAME }}"
-          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid tag format: $TAG (expected v<major>.<minor>.<patch>)"
+          # Syntax only: vX.Y.Z (stable) or vX.Y.Z-<suffix> (pre-release).
+          # Any '-' after the patch version is the whole pre-release
+          # contract - no channel whitelist to maintain, the owner names
+          # the suffix (beta.1, night.7, rc.2, whatever) and the release
+          # page renders the Pre-release badge by itself.
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?$ ]]; then
+            echo "Invalid tag format: $TAG (expected v<major>.<minor>.<patch> or v<major>.<minor>.<patch>-<suffix>)"
             exit 1
           fi
+          # The pre-release branch comes FIRST: a glob * crosses '-',
+          # so a reversed order would classify every -suffix tag
+          # stable (the zelynic night-dragon-1S lesson). After the
+          # regex above the only possible '-' is the pre-release
+          # separator.
+          case "$TAG" in
+            *-*) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;;
+            *) echo "prerelease=false" >> "$GITHUB_OUTPUT" ;;
+          esac
 
       - name: Validate tag matches package version
         shell: bash
@@ -118,7 +135,19 @@ jobs:
       - name: Generate changelog
         id: changelog
         run: |
-          PREVIOUS_TAG=$(git tag --sort=-creatordate | grep -v "^${{ steps.tag.outputs.TAG_NAME }}$" | head -n 1)
+          TAG="${{ steps.tag.outputs.TAG_NAME }}"
+          if [ "${{ needs.validate-tag.outputs.prerelease }}" = "true" ]; then
+            # Pre-release notes span from the previous tag of any
+            # channel - users testing a pre-release build want the
+            # changes since the last build.
+            PREVIOUS_TAG=$(git tag --sort=-creatordate | grep -v "^${TAG}$" | head -n 1)
+          else
+            # Stable notes span from the nearest previous STABLE tag:
+            # skipped pre-releases never truncate a stable's changelog
+            # (the stable after v80.0.0-night.1 still covers everything
+            # since the previous stable release).
+            PREVIOUS_TAG=$(git tag --sort=-creatordate | grep -v "^${TAG}$" | grep -vE '^v[0-9]+\.[0-9]+\.[0-9]+-' | head -n 1)
+          fi
           if [ -z "$PREVIOUS_TAG" ]; then
             FIRST_COMMIT=$(git rev-list --max-parents=0 HEAD)
             COMMITS=$(git log "${FIRST_COMMIT}..HEAD" --pretty=format:"- %s (%h)" --no-merges)
@@ -186,4 +215,7 @@ jobs:
             bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip
             bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip.sha512sum
           draft: false
-          prerelease: false
+          prerelease: ${{ needs.validate-tag.outputs.prerelease }}
+          # Pre-releases are never marked "latest" - the latest pointer
+          # only tracks stable releases.
+          make_latest: ${{ needs.validate-tag.outputs.prerelease != 'true' }}

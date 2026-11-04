@@ -2,7 +2,7 @@
 
 All notable changes to **BMI Stellar** are documented in this file.
 
-The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) principles, adapted to the project's `feat / fix / chore / docs / refactor / style` commit conventions. Versions are synchronized from `package.json` via `scripts/dev/version-to.sh`. Release tags follow `v<major>.<minor>.<patch>` and match `package.json` exactly.
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) principles, adapted to the project's `feat / fix / chore / docs / refactor / style` commit conventions. Versions are synchronized from `package.json` via `scripts/dev/version-to.sh`. Release tags follow `v<major>.<minor>.<patch>` (a `-<suffix>` marks a pre-release) and match `package.json` exactly.
 
 For the full architectural context behind any release, see [`docs/furthermore.md`](docs/furthermore.md). For dormant-maintenance guidance, see [`DORMANT.md`](DORMANT.md).
 
@@ -457,6 +457,21 @@ vX.Y.Z`, and splices a plain `## [X.Y.Z]` changelog heading;
   short-form surface, so the README surface migrates in the same
   commit. Already-published `Stellar-v*` tags keep their names; the
   first `v*` tag is the next release. _(this commit)_
+
+- **Release tags accept a pre-release suffix (`vX.Y.Z-<suffix>`).** A
+  tag like `v80.0.0-night.1` now rides the same pipeline: the release
+  workflow validates the suffix shape (syntax only - the tag shape is
+  the channel, no whitelist to maintain), classifies it with the
+  pre-release branch first (a glob * crosses '-'), flags the GitHub
+  Release as a pre-release that is never marked "latest", and computes
+  stable release notes from the nearest previous STABLE tag so a
+  skipped pre-release never truncates a stable's changelog.
+  version-to.sh accepts the suffix on every surface (package.json,
+  the four README surfaces, the DORMANT.md capsule, the changelog
+  heading) and its bump words operate on the numeric core (patch from
+  `80.0.0-night.1` gives `80.0.1`); check-version-sync polices the
+  same shape everywhere. The zelynic release contract, mirrored.
+  _(this commit)_
 
 ### Removed
 

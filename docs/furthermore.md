@@ -322,7 +322,7 @@ bun run bmi-update-version <version>
 ./scripts/build.sh check-all
 ```
 
-Release tags must adhere to the format: `v<major>.<minor>.<patch>` (for example, `v80.0.0`), matching `package.json` exactly.
+Release tags must adhere to the format: `v<major>.<minor>.<patch>` (for example, `v80.0.0`), with an optional `-<suffix>` pre-release form (for example, `v80.0.0-night.1`), matching `package.json` exactly.
 
 ## Known Constraints
 

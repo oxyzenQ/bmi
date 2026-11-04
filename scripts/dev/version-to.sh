@@ -13,6 +13,7 @@
 # Usage:
 #   ./scripts/dev/version-to.sh                     # current version + usage
 #   ./scripts/dev/version-to.sh v21.9.0             # set an absolute version (v-prefix optional)
+#   ./scripts/dev/version-to.sh v80.0.0-night.1     # a pre-release target, same four surfaces
 #   ./scripts/dev/version-to.sh patch|minor|major   # bump word from the current version
 #   ./scripts/dev/version-to.sh <target> --dry-run  # preview every rewrite, write nothing
 #   ./scripts/dev/version-to.sh <target> --commit   # update, then stage + commit the surfaces
@@ -26,6 +27,9 @@
 #   DORMANT.md    the "Version: `X.Y.Z`" capsule line - full X.Y.Z
 #   CHANGELOG.md  the "## [X.Y.Z]" release heading spliced
 #                 directly under "## [Unreleased]" (Keep a Changelog)
+#
+# A pre-release target (X.Y.Z-<suffix>, e.g. 80.0.0-night.1) moves the
+# same four surfaces - the suffix rides every pattern below.
 #
 # Honest probes, the zelynic NIGHT-hunt-32 rule: a missing file, a
 # missing surface, or an already-recorded version warns and writes
@@ -54,8 +58,8 @@ current_version() {
 }
 
 validate_version() {
-        if ! printf '%s' "$1" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-                die "invalid version '$1' - expected X.Y.Z (or the patch|minor|major bump words)"
+        if ! printf '%s' "$1" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?$'; then
+                die "invalid version '$1' - expected X.Y.Z or X.Y.Z-<suffix> (or the patch|minor|major bump words)"
         fi
 }
 
@@ -122,7 +126,11 @@ CURRENT="$(current_version)"
 
 case "${POSITIONAL}" in
 patch | minor | major)
-        IFS='.' read -r major minor patch <<<"${CURRENT}"
+        # Bump words operate on the numeric core: from a pre-release
+        # current (80.0.0-night.1) they produce the next STABLE target
+        # (patch -> 80.0.1); pre-release iterations use an absolute
+        # target (v80.0.0-night.2).
+        IFS='.' read -r major minor patch <<<"${CURRENT%%-*}"
         case "${POSITIONAL}" in
         patch) NEW="${major}.${minor}.$((patch + 1))" ;;
         minor) NEW="${major}.$((minor + 1)).0" ;;
@@ -155,8 +163,8 @@ fi
 # trailing comma exactly as prettier formatted them.
 cp package.json "${TMP_WORK}"
 awk -v ver="${NEW}" 'BEGIN { done = 0 }
-        !done && /^[[:space:]]*"version"[[:space:]]*:[[:space:]]*"[0-9]+\.[0-9]+\.[0-9]+"/ {
-                sub(/"[0-9]+\.[0-9]+\.[0-9]+"/, "\"" ver "\"")
+        !done && /^[[:space:]]*"version"[[:space:]]*:[[:space:]]*"[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?"/ {
+                sub(/"[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?"/, "\"" ver "\"")
                 done = 1
         }
         { print }
@@ -180,27 +188,27 @@ if [ ! -f README.md ]; then
 else
         EXPR=()
         FOUND=0
-        if grep -qE "Current release: \`v[0-9]+\.[0-9]+(\.[0-9]+)?\`" README.md; then
+        if grep -qE "Current release: \`v[0-9]+\.[0-9]+(\.[0-9]+)?(-[A-Za-z0-9.]+)?\`" README.md; then
                 FOUND=$((FOUND + 1))
-                EXPR+=(-e "s/Current release: \`v[0-9]+\.[0-9]+(\.[0-9]+)?\`/Current release: \`v${NEW}\`/g")
+                EXPR+=(-e "s/Current release: \`v[0-9]+\.[0-9]+(\.[0-9]+)?(-[A-Za-z0-9.]+)?\`/Current release: \`v${NEW}\`/g")
         else
                 warn "README.md current-release line - surface absent, nothing to rewrite"
         fi
-        if grep -qE 'BMI Stellar v[0-9]+\.[0-9]+(\.[0-9]+)?' README.md; then
+        if grep -qE 'BMI Stellar v[0-9]+\.[0-9]+(\.[0-9]+)?(-[A-Za-z0-9.]+)?' README.md; then
                 FOUND=$((FOUND + 1))
-                EXPR+=(-e "s/BMI Stellar v[0-9]+\.[0-9]+(\.[0-9]+)?/BMI Stellar v${NEW}/g")
+                EXPR+=(-e "s/BMI Stellar v[0-9]+\.[0-9]+(\.[0-9]+)?(-[A-Za-z0-9.]+)?/BMI Stellar v${NEW}/g")
         else
                 warn "README.md display title - surface absent, nothing to rewrite"
         fi
-        if grep -qE 'badge/version-v[0-9]+\.[0-9]+(\.[0-9]+)?-' README.md; then
+        if grep -qE 'badge/version-v[0-9]+\.[0-9]+(\.[0-9]+)?(-[A-Za-z0-9.]+)?-' README.md; then
                 FOUND=$((FOUND + 1))
-                EXPR+=(-e "s/badge\/version-v[0-9]+\.[0-9]+(\.[0-9]+)?-/badge\/version-v${NEW}-/g")
+                EXPR+=(-e "s/badge\/version-v[0-9]+\.[0-9]+(\.[0-9]+)?(-[A-Za-z0-9.]+)?-/badge\/version-v${NEW}-/g")
         else
                 warn "README.md version badge - surface absent, nothing to rewrite"
         fi
-        if grep -qE 'alt="Version v[0-9]+\.[0-9]+(\.[0-9]+)?"' README.md; then
+        if grep -qE 'alt="Version v[0-9]+\.[0-9]+(\.[0-9]+)?(-[A-Za-z0-9.]+)?"' README.md; then
                 FOUND=$((FOUND + 1))
-                EXPR+=(-e "s/alt=\"Version v[0-9]+\.[0-9]+(\.[0-9]+)?\"/alt=\"Version v${NEW}\"/g")
+                EXPR+=(-e "s/alt=\"Version v[0-9]+\.[0-9]+(\.[0-9]+)?(-[A-Za-z0-9.]+)?\"/alt=\"Version v${NEW}\"/g")
         else
                 warn "README.md badge alt text - surface absent, nothing to rewrite"
         fi
@@ -225,11 +233,11 @@ fi
 # --- DORMANT.md (the maintenance capsule, full X.Y.Z) ---
 if [ ! -f DORMANT.md ]; then
         warn "DORMANT.md - file absent, nothing to write"
-elif ! grep -qE "Version: \`[0-9]+\.[0-9]+\.[0-9]+\`" DORMANT.md; then
+elif ! grep -qE "Version: \`[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?\`" DORMANT.md; then
         warn "DORMANT.md - no Version capsule line found, nothing to write"
 else
         cp DORMANT.md "${TMP_WORK}"
-        sed -E -i "s/Version: \`[0-9]+\.[0-9]+\.[0-9]+\`/Version: \`${NEW}\`/g" "${TMP_WORK}"
+        sed -E -i "s/Version: \`[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?\`/Version: \`${NEW}\`/g" "${TMP_WORK}"
         if cmp -s DORMANT.md "${TMP_WORK}"; then
                 same "DORMANT.md - capsule already at ${NEW}"
         elif [ "${DRY_RUN}" = true ]; then
