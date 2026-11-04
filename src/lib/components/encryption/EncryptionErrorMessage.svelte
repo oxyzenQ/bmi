@@ -55,7 +55,7 @@
 	}
 
 	.encrypt-error__desc {
-		font-size: 0.78rem;
+		font-size: 0.85rem;
 		font-weight: 400;
 		opacity: 0.85;
 		line-height: 1.4;

@@ -332,7 +332,7 @@
 		background: var(--darkred-85);
 		backdrop-filter: blur(8px);
 		color: var(--stellar-white);
-		font-size: 0.65rem;
+		font-size: 0.72rem;
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;

@@ -210,7 +210,7 @@
 	display: flex;
 	justify-content: space-between;
 	margin-top: 0.25rem;
-	font-size: 0.6rem;
+	font-size: 0.7rem;
 	color: var(--text-muted);
 	font-family: var(--font-mono-short);
 }
@@ -295,7 +295,7 @@
 }
 
 .tdee-stat-label {
-	font-size: 0.65rem;
+	font-size: 0.7rem;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
@@ -315,7 +315,7 @@
 }
 
 .tdee-stat-unit {
-	font-size: 0.6rem;
+	font-size: 0.7rem;
 	color: var(--text-muted);
 }
 
@@ -328,7 +328,7 @@
 
 .tdee-activity-badge,
 .tdee-gender-badge {
-	font-size: 0.65rem;
+	font-size: 0.7rem;
 	font-weight: 600;
 	padding: 0.15rem 0.5rem;
 	border-radius: var(--radius-pill);
@@ -381,7 +381,7 @@
 }
 
 .tdee-range-label {
-	font-size: 0.55rem;
+	font-size: 0.7rem;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
@@ -404,12 +404,12 @@
 }
 
 .tdee-range-unit {
-	font-size: 0.5rem;
+	font-size: 0.7rem;
 	color: var(--text-muted);
 }
 
 .tdee-disclaimer {
-	font-size: 0.65rem;
+	font-size: 0.75rem;
 	color: var(--slate-500-solid);
 	line-height: 1.4;
 	text-align: center;

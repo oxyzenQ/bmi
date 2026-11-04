@@ -628,14 +628,14 @@
 	}
 
 	.axis-label {
-		font-size: 11px;
+		font-size: 12px;
 		fill: var(--slate-400-solid);
 		font-family: var(--font-mono-short);
 		dominant-baseline: middle;
 	}
 
 	.zone-label {
-		font-size: 9px;
+		font-size: 10px;
 		font-weight: 700;
 		fill: var(--cat-green-90);
 		font-family: var(--font-mono-short);
@@ -650,7 +650,7 @@
 	}
 
 	.x-label {
-		font-size: 0.65rem;
+		font-size: 0.7rem;
 		color: var(--slate-400-solid);
 		font-family: var(--font-mono-short);
 	}
@@ -703,7 +703,7 @@
 	}
 
 	.tooltip-cat {
-		font-size: 0.6rem;
+		font-size: 0.7rem;
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
@@ -711,13 +711,13 @@
 	}
 
 	.tooltip-date {
-		font-size: 0.6rem;
+		font-size: 0.7rem;
 		color: var(--slate-500-solid);
 		margin-top: 0.15rem;
 	}
 
 	.tooltip-time {
-		font-size: 0.55rem;
+		font-size: 0.7rem;
 		color: var(--slate-600-solid);
 		font-family: var(--font-mono-short);
 	}
@@ -754,15 +754,15 @@
 		}
 
 		.axis-label {
-			font-size: 10px;
+			font-size: 11px;
 		}
 
 		.zone-label {
-			font-size: 8px;
+			font-size: 9px;
 		}
 
 		.x-label {
-			font-size: 0.62rem;
+			font-size: 0.68rem;
 		}
 	}
 </style>

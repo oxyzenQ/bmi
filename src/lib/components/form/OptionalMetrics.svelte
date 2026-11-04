@@ -189,9 +189,9 @@
 	}
 
 	.act-factor {
-		font-size: 0.55rem;
+		font-size: 0.65rem;
 		font-family: var(--font-mono-short);
-		opacity: 0.6;
+		opacity: 0.75;
 	}
 
 	.act-btn.act-active .act-factor {

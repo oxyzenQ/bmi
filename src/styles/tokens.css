@@ -335,7 +335,11 @@
 	/* ── TYPOGRAPHY SCALE ──
        Consistent font-size tokens for predictable type hierarchy.
        Usage: component text, labels, headings across all views. */
-	--text-xs: 0.65rem; /* ~10px — TDEE labels, tiny badges */
+	--text-xs: 0.7rem; /* ~11px — TDEE labels, tiny badges */
+	/* night-netrunner-1: --text-xs floor raised 0.65rem -> 0.7rem.
+           The old floor printed at ~10.4px, below the comfortable reading
+           floor for uppercase micro labels on a dark glass UI. 0.7rem
+           (~11.2px) keeps the micro-cap hierarchy without the eye strain. */
 	--text-sm: 0.75rem; /* 12px — label text, badge text, lang-code */
 	--text-base: 0.85rem; /* ~14px — input labels, secondary text */
 	--text-md: 0.9rem; /* ~14px — body text, nav text, stat-value */

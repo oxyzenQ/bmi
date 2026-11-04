@@ -302,7 +302,7 @@
 	}
 
 	.stat-label {
-		font-size: 0.65rem;
+		font-size: 0.7rem;
 		color: var(--text-muted);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
@@ -384,10 +384,10 @@
 
 	.goal-hint {
 		margin: 0;
-		font-size: 0.68rem;
+		font-size: 0.75rem;
 		color: var(--text-muted);
 		text-align: center;
-		opacity: 0.7;
+		opacity: 0.8;
 	}
 
 	.goal-edit {

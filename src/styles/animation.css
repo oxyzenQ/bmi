@@ -474,7 +474,7 @@
 	background: var(--violet-12);
 	border: 1px solid var(--violet-22);
 	border-radius: var(--radius-pill);
-	font-size: clamp(0.65rem, 1vw, 0.7rem);
+	font-size: clamp(0.72rem, 1vw, 0.78rem);
 	font-weight: 600;
 	color: var(--aurora-glow);
 	letter-spacing: 0.04em;
@@ -504,13 +504,13 @@
 	font-weight: 500;
 	text-transform: none;
 	letter-spacing: 0;
-	font-size: 0.7rem;
+	font-size: 0.75rem;
 }
 
 .bmi-encryption-badge__algo {
 	color: var(--aurora-glow);
 	font-family: var(--font-mono-short);
-	font-size: 0.6rem;
+	font-size: 0.7rem;
 }
 
 /* ==============================
@@ -566,7 +566,7 @@
 
 .bmi-drop-zone__subtext {
 	font-size: 0.75rem;
-	color: var(--w-30);
+	color: var(--w-50);
 	margin-top: var(--space-1);
 }
 
@@ -591,11 +591,11 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	font-size: 0.78rem;
+	font-size: 0.85rem;
 }
 
 .bmi-export-summary__key {
-	color: var(--w-40);
+	color: var(--w-60);
 	font-weight: 500;
 }
 
@@ -621,7 +621,7 @@
 	border: 1px solid var(--warn-border);
 	border-radius: var(--radius-sm);
 	margin-bottom: var(--space-4);
-	font-size: 0.82rem;
+	font-size: 0.85rem;
 	line-height: 1.5;
 }
 
