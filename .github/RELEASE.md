@@ -6,8 +6,9 @@
 # 1. Verify everything passes
 bun run verify
 
-# 2. Update version (syncs package.json, README.md, DORMANT.md)
-bun run bmi-update-version <version>
+# 2. Update version (syncs package.json, README.md, DORMANT.md, CHANGELOG.md)
+./scripts/dev/version-to.sh <version>   # the zelynic-style direct entry
+bun run bmi-update-version <version>    # the same manager through bun
 git add -A && git commit -m "chore: prepare for release Stellar-v<major>.<minor>"
 git push origin main
 

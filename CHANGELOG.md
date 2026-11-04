@@ -2,7 +2,7 @@
 
 All notable changes to **BMI Stellar** are documented in this file.
 
-The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) principles, adapted to the project's `feat / fix / chore / docs / refactor / style` commit conventions. Versions are synchronized from `package.json` via `scripts/dev/version-to.ts`. Release tags follow `Stellar-v<major>.<minor>`.
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) principles, adapted to the project's `feat / fix / chore / docs / refactor / style` commit conventions. Versions are synchronized from `package.json` via `scripts/dev/version-to.sh`. Release tags follow `Stellar-v<major>.<minor>`.
 
 For the full architectural context behind any release, see [`docs/furthermore.md`](docs/furthermore.md). For dormant-maintenance guidance, see [`DORMANT.md`](DORMANT.md).
 
@@ -389,6 +389,27 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   ($999), Business ($2,199), Enterprise Internal ($14,999), and
   White-Label/OEM ($49,999/year or $99,999 one-time + 20%). Personal
   (Free) and Individual ($99) unchanged. Docs-only; no code changes.
+
+### Changed
+
+- **The dev-lane version manager became the zelynic shell entry.**
+  `scripts/dev/version-to.ts` is now `scripts/dev/version-to.sh` - a
+  self-contained bash port runnable exactly like zelynic's
+  `./scripts/dev/version-to.sh`: direct execution with no bun
+  invocation, the bare call prints the current version and usage,
+  `v`-prefixed or bare semver sets an absolute version, the
+  `patch|minor|major` bump words survive from the TypeScript tool, and
+  the zelynic `--commit` flag stages the touched surfaces and commits
+  them as `chore: prepare for release Stellar-vX.Y` (the RELEASE.md
+  convention). Every surface contract is preserved (package.json
+  source of truth, the README current-release line with its honest
+  absent-surface probes, the DORMANT.md capsule, the CHANGELOG.md
+  splice under `## [Unreleased]`, and `--dry-run` writes nothing);
+  `--commit` refuses an unchanged tree and stages only the four
+  surfaces, and `bun run bmi-update-version` / `bmi-bump:patch|minor|major`
+  keep working through the repointed package scripts. One
+  implementation, one file - no dual version manager to drift.
+  _(this commit)_
 
 ### Removed
 

@@ -343,7 +343,9 @@ The release checklist, tag rules, and rollback procedure live in
 ## Versioning
 
 The canonical version lives in `package.json` and is synchronized into
-the display documents via `scripts/dev/version-to.ts`.
+the display documents via `scripts/dev/version-to.sh`, the zelynic
+dev-lane entry (direct `./` execution, `patch|minor|major` bump words,
+`--dry-run`, `--commit`).
 
 Current release: `v21.8`.
 

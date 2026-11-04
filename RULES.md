@@ -51,7 +51,7 @@ wholesale orchestrator, nothing loose at the tree root.
 - `scripts/gates/` - atomic audit gates, one concern per file (`check-loc.ts`,
   `check-headers.ts`, `check-branding.ts`, `check-pwa-offline-shell.ts`,
   `audit-deps.ts`)
-- `scripts/dev/` - developer tools (`version-to.ts` version manager)
+- `scripts/dev/` - developer tools (`version-to.sh` version manager)
 - `scripts/ci/` - CI-lane helpers invoked by GitHub Actions workflows
 - `scripts/lib/` - shared code imported by gates (`audit-core-files.ts`)
 - `scripts/audit-allowlist.json` - gate data for the dependency-audit policy

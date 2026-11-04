@@ -20,7 +20,7 @@ before relying on a specific number, path, or symbol name.
 | [COMMERCIAL_LICENSE.md](../COMMERCIAL_LICENSE.md)   | The dual-license commercial terms                                              |
 | [AI_AGENTS_READ_THIS.md](../AI_AGENTS_READ_THIS.md) | The AI agent contract: what to refuse, what stays welcome                      |
 | [LICENSE](../LICENSE)                               | AGPL-3.0-only, the full text                                                   |
-| [CHANGELOG.md](../CHANGELOG.md)                     | The release ledger (Keep a Changelog), fed by scripts/dev/version-to.ts        |
+| [CHANGELOG.md](../CHANGELOG.md)                     | The release ledger (Keep a Changelog), fed by scripts/dev/version-to.sh        |
 
 ## Long-form documents (this directory)
 

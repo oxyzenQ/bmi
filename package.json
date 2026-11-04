@@ -34,10 +34,10 @@
 		"build:optimized": "NODE_ENV=production vite build --mode production",
 		"analyze": "vite build --mode analyze",
 		"verify": "bun run format:check && bun run audit:loc && bun run audit:headers && bun run audit:branding && bun run audit:pwa-offline && bun run check && bun run lint && bun run test:run && bun run build",
-		"bmi-update-version": "bun run scripts/dev/version-to.ts",
-		"bmi-bump:patch": "bun run scripts/dev/version-to.ts patch",
-		"bmi-bump:minor": "bun run scripts/dev/version-to.ts minor",
-		"bmi-bump:major": "bun run scripts/dev/version-to.ts major"
+		"bmi-update-version": "bash scripts/dev/version-to.sh",
+		"bmi-bump:patch": "bash scripts/dev/version-to.sh patch",
+		"bmi-bump:minor": "bash scripts/dev/version-to.sh minor",
+		"bmi-bump:major": "bash scripts/dev/version-to.sh major"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.1.0",
