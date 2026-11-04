@@ -371,14 +371,14 @@ function drawMiniGauge(
 	ctx.beginPath();
 	ctx.arc(cx, cy, radius + 18, 0, Math.PI * 2);
 	ctx.strokeStyle = 'rgba(255,255,255,0.075)';
-	ctx.lineWidth = 1;
+	ctx.lineWidth = 1.5;
 	ctx.stroke();
 
 	// Gauge track arc
 	ctx.beginPath();
 	ctx.arc(cx, cy, radius, 0, Math.PI * 2);
 	ctx.strokeStyle = 'rgba(255,255,255,0.090)';
-	ctx.lineWidth = 8;
+	ctx.lineWidth = 12;
 	ctx.stroke();
 
 	const segDefs = [
@@ -398,7 +398,7 @@ function drawMiniGauge(
 		ctx.beginPath();
 		ctx.arc(cx, cy, radius, a1, a2);
 		ctx.strokeStyle = hexToRgba(seg.color, 0.34);
-		ctx.lineWidth = 8;
+		ctx.lineWidth = 12;
 		ctx.lineCap = 'round';
 		ctx.stroke();
 	}
@@ -407,7 +407,7 @@ function drawMiniGauge(
 	ctx.beginPath();
 	ctx.arc(cx, cy, radius, startAngle, activeAngle);
 	ctx.strokeStyle = hexToRgba(accent, 0.62);
-	ctx.lineWidth = 8;
+	ctx.lineWidth = 12;
 	ctx.lineCap = 'round';
 	ctx.stroke();
 
@@ -415,23 +415,23 @@ function drawMiniGauge(
 	const dotY = cy + Math.sin(activeAngle) * radius;
 
 	ctx.beginPath();
-	ctx.arc(dotX, dotY, 9, 0, Math.PI * 2);
+	ctx.arc(dotX, dotY, 13, 0, Math.PI * 2);
 	ctx.fillStyle = PREMIUM.bg;
 	ctx.fill();
 
 	ctx.beginPath();
-	ctx.arc(dotX, dotY, 7, 0, Math.PI * 2);
+	ctx.arc(dotX, dotY, 10, 0, Math.PI * 2);
 	ctx.strokeStyle = hexToRgba(accent, 0.9);
-	ctx.lineWidth = 2.4;
+	ctx.lineWidth = 3.5;
 	ctx.stroke();
 
 	ctx.textAlign = 'center';
 	ctx.fillStyle = hexToRgba(accent, 0.56);
-	ctx.font = '800 22px system-ui, sans-serif';
-	ctx.fillText('BMI', cx, cy - 5);
+	ctx.font = '800 33px system-ui, sans-serif';
+	ctx.fillText('BMI', cx, cy - 7);
 	ctx.fillStyle = 'rgba(255,255,255,0.46)';
-	ctx.font = '700 17px system-ui, sans-serif';
-	ctx.fillText(safeBmi.toFixed(1), cx, cy + 18);
+	ctx.font = '700 25px system-ui, sans-serif';
+	ctx.fillText(safeBmi.toFixed(1), cx, cy + 27);
 }
 
 function drawPremiumFrame(
@@ -601,11 +601,11 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 	ctx.fillText(bmiText, centerX, bmiY);
 	ctx.restore();
 
-	// night-engrave-1: gauge radius 52 -> 64; outer ring clears the header
-	// divider (y 166 > 164), category pill (y 330 < 331), content edge (x 914 < 964).
-	const gaugeCx = centerX + 292;
-	const gaugeCy = bmiY - 58;
-	drawMiniGauge(ctx, gaugeCx, gaugeCy, 64, safeBmi, accent);
+	// night-style-1: radius 96 (+1.5x), top-right corner stamp at (890, 190);
+	// track edge clears header text, divider fade, pill (halo bottom 304 < 331).
+	const gaugeCx = centerX + 350;
+	const gaugeCy = bmiY - 116;
+	drawMiniGauge(ctx, gaugeCx, gaugeCy, 96, safeBmi, accent);
 
 	ctx.fillStyle = PREMIUM.text;
 	ctx.font = fitFontSize(
