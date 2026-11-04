@@ -108,7 +108,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   the set-but-never-read `--gauge-pulse-dur` family in BmiRadialGauge.
 
 - **The welcome-page logo, the share-card gauge, and the container
-  hover language were retuned (night-engrave-1).** The hero avatar
+  hover language were refined (night-engrave-1).** The hero avatar
   served the same 512px/282KB master PNG for every `srcset` slot, so
   the width descriptors did nothing; the slots now point at the real
   master assets they name (128/192/256/512) and the default `src`
