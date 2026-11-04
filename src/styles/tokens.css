@@ -441,7 +441,13 @@
 		linear-gradient(180deg, rgba(7, 7, 12, 0.82) 0%, rgba(0, 0, 0, 0.74) 100%),
 		linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(255, 255, 255, 0.035));
 	--container-glass-border-desktop: 3px solid rgba(190, 190, 210, 0.28);
-	--container-glass-filter-desktop: blur(10px) saturate(135%) brightness(1.04);
+	/* night-netrunner-1: blur radius diet 10px -> 8px. Blur cost scales
+           with radius and every glass surface re-filters its backdrop on
+           each scroll frame; 8px keeps the same frosted read on an
+           82-74% opaque glass at a visibly lower per-frame cost. The
+           saturate/brightness terms are fused color-matrix passes and
+           stay (they define the glass tint identity). */
+	--container-glass-filter-desktop: blur(8px) saturate(135%) brightness(1.04);
 	--container-glass-shadow-desktop:
 		0 16px 36px rgba(0, 0, 0, 0.38), 0 0 22px rgba(168, 85, 247, 0.08),
 		inset 0 1px 0 rgba(255, 255, 255, 0.08);
@@ -458,7 +464,11 @@
 	--container-glass-shadow: var(--container-glass-shadow-desktop);
 	--nav-glass-bg: rgba(0, 0, 0, 0.1);
 	--nav-glass-border-inline: 2px solid rgba(220, 220, 235, 0.24);
-	--nav-glass-filter: blur(12px) saturate(100%) brightness(2);
+	/* night-netrunner-1: 12px -> 9px and the literal no-op removed
+           (saturate(100%) is an identity transform that still cost a
+           scheduled filter op). brightness(2) stays - it compensates the
+           0.55-dimmed wallpaper so the nav glass reads at full luminance. */
+	--nav-glass-filter: blur(9px) brightness(2);
 	--nav-glass-shadow:
 		0 12px 30px rgba(0, 0, 0, 0.34), 0 0 20px rgba(168, 85, 247, 0.1),
 		inset 0 1px 0 rgba(255, 255, 255, 0.08);

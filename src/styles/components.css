@@ -34,6 +34,20 @@
 		border-color var(--dur-slow) var(--easing-smooth);
 }
 
+/* Nested glass opt-out (night-netrunner-1).
+   The results card nests six glass surfaces inside .bmi-card (two
+   stat-blocks, tdee-card, health-advice, age-advisory, bmi-explanation).
+   A nested backdrop-filter samples the already-composited output of the
+   outer glass and pays a full second filter stack on every scroll frame -
+   the dominant source of the post-result scroll micro lag on the
+   calculator page. The frost through an 82-74% opaque card is already
+   applied by the outer surface, so the inner blur adds nothing visible.
+   Drop the inner filters and let the outer glass do the work. */
+.bmi-card :is(.stat-block, .tdee-card, .health-advice, .age-advisory, .bmi-explanation) {
+	backdrop-filter: none !important;
+	-webkit-backdrop-filter: none !important;
+}
+
 /* ==============================
       BUTTON SYSTEM
       ============================== */
@@ -63,8 +77,12 @@ a.button {
 	background: var(--btn-bg);
 	border: var(--btn-border);
 	border-radius: var(--btn-radius);
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
+	/* night-netrunner-1: the per-button backdrop-filter is removed.
+           Every visible button paid its own blur pass per scroll frame (five
+           to eight blurred buttons on the gauge page alone), while the button
+           gradients are 55-70% opaque and sit on already frosted cards - the
+           blurred contribution was invisible. This was the single largest
+           recurring filter cost during scroll. */
 }
 
 .btn:hover,
