@@ -79,7 +79,6 @@ function fitFontSize(
 	return `${fontWeight} ${minSize}px system-ui, sans-serif`;
 }
 
-/** Helper: convert hex (#RRGGBB) to rgba string */
 function hexToRgba(hex: string, alpha: number): string {
 	const r = parseInt(hex.slice(1, 3), 16);
 	const g = parseInt(hex.slice(3, 5), 16);
@@ -87,7 +86,6 @@ function hexToRgba(hex: string, alpha: number): string {
 	return `rgba(${r},${g},${b},${alpha})`;
 }
 
-/** Helper: lighten a hex color by mixing toward white */
 function lightenHex(hex: string, amount: number): string {
 	const r = Math.min(255, parseInt(hex.slice(1, 3), 16) + Math.round(255 * amount));
 	const g = Math.min(255, parseInt(hex.slice(3, 5), 16) + Math.round(255 * amount));
@@ -376,15 +374,11 @@ function drawMiniGauge(
 	ctx.lineWidth = 1;
 	ctx.stroke();
 
-	// night-engrave-1: stroke and dot weights scale with the enlarged
-	// gauge radius so the ring keeps its optical density at 64px.
-	const trackWidth = 8;
-
 	// Gauge track arc
 	ctx.beginPath();
 	ctx.arc(cx, cy, radius, 0, Math.PI * 2);
 	ctx.strokeStyle = 'rgba(255,255,255,0.090)';
-	ctx.lineWidth = trackWidth;
+	ctx.lineWidth = 8;
 	ctx.stroke();
 
 	const segDefs = [
@@ -404,7 +398,7 @@ function drawMiniGauge(
 		ctx.beginPath();
 		ctx.arc(cx, cy, radius, a1, a2);
 		ctx.strokeStyle = hexToRgba(seg.color, 0.34);
-		ctx.lineWidth = trackWidth;
+		ctx.lineWidth = 8;
 		ctx.lineCap = 'round';
 		ctx.stroke();
 	}
@@ -413,7 +407,7 @@ function drawMiniGauge(
 	ctx.beginPath();
 	ctx.arc(cx, cy, radius, startAngle, activeAngle);
 	ctx.strokeStyle = hexToRgba(accent, 0.62);
-	ctx.lineWidth = trackWidth;
+	ctx.lineWidth = 8;
 	ctx.lineCap = 'round';
 	ctx.stroke();
 
@@ -607,11 +601,8 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 	ctx.fillText(bmiText, centerX, bmiY);
 	ctx.restore();
 
-	// night-engrave-1: result circle enlarged 52 -> 64 (radius) so the
-	// gauge reads as a first-class element beside the 150px BMI numeral.
-	// Cleared against the card grid: outer ring stays below the header
-	// divider (y 166 > 164), above the category pill (y 330 < 331) and
-	// inside the content edge (x 914 < 964).
+	// night-engrave-1: gauge radius 52 -> 64; outer ring clears the header
+	// divider (y 166 > 164), category pill (y 330 < 331), content edge (x 914 < 964).
 	const gaugeCx = centerX + 292;
 	const gaugeCy = bmiY - 58;
 	drawMiniGauge(ctx, gaugeCx, gaugeCy, 64, safeBmi, accent);
