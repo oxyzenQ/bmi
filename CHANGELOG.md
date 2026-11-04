@@ -88,6 +88,17 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Changed
 
+- **A depth responsive audit at the 375 x 667 floor came back clean
+  (night-style-2, recorded in docs/responsive-audit-375.md).** Every
+  pager section was stepped end to end in a real headless browser at
+  the owner's smallest supported viewport (plus the 667 x 375
+  landscape rotation) under a DOM-wide scanner that flags page-level
+  horizontal scroll and out-of-bounds boxes; the success modal,
+  language picker, Secure Export modal, the scrollable nav chip bar,
+  and a live-generated share card were exercised on top. Zero
+  overflow findings on every surface - the document records the
+  method, the per-surface results, and the re-run trigger.
+
 - **The wallpaper stack lifted out of near-black into a visible,
   moody masterclass backdrop (night-style-2).** Four layers were
   stacking to almost total darkness - desktop dimmed the wallpaper to
