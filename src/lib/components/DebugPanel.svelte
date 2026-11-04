@@ -630,7 +630,7 @@
 	}
 
 	.dp-auto-scroll input {
-		accent-color: var(--violet-50, #8b5cf6);
+		accent-color: var(--violet-50, #a855f7);
 	}
 
 	.dp-btn-clear {
@@ -702,7 +702,7 @@
 
 	.dp-log-module {
 		font-size: 0.7rem;
-		color: var(--violet-50, #8b5cf6);
+		color: var(--violet-50, #a855f7);
 		font-family: var(--font-mono-short, monospace);
 	}
 

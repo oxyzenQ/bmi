@@ -340,7 +340,7 @@
 	align-items: center;
 	gap: 0.4rem;
 	padding: 0.5rem 1.25rem;
-	background: linear-gradient(180deg, var(--deep-void-55), rgba(91, 33, 182, 0.7));
+	background: linear-gradient(180deg, var(--deep-void-55), rgba(107, 33, 168, 0.7));
 	border: 1px solid rgba(130, 130, 130, 0.3);
 	border-radius: var(--radius-pill);
 	color: var(--stellar-white);
@@ -355,7 +355,7 @@
 }
 
 .gauge-cta-btn:hover {
-	background: linear-gradient(135deg, var(--deep-void-65), rgba(91, 33, 182, 0.55));
+	background: linear-gradient(135deg, var(--deep-void-65), rgba(107, 33, 168, 0.55));
 	border-color: rgba(130, 130, 130, 0.45);
 	transform: translateY(-1px);
 }
@@ -677,7 +677,7 @@
 .staging-gear-icon {
 	color: var(--w-50);
 	animation: spin var(--dur-spin) linear infinite;
-	filter: drop-shadow(0 0 8px rgba(128, 0, 255, 0.3));
+	filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.3));
 }
 
 .staging-text {

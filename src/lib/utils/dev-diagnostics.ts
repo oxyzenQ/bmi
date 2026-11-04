@@ -113,7 +113,7 @@ export function initDevDiagnostics(): void {
 		console.log(
 			'%c[dev] %cBMI Stellar diagnostics available: window.__bmi_dev',
 			'color:#f59e0b;font-weight:bold',
-			'color:#a78bfa;font-weight:bold'
+			'color:#c084fc;font-weight:bold'
 		);
 		console.log(
 			'%c  Methods: %c.storage() %c.encryption() %c.backups() %c.env() %c.logs() %c.trace()',

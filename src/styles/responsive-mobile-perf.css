@@ -405,7 +405,7 @@
 	}
 
 	.btn-secondary {
-		background: linear-gradient(180deg, var(--deep-void-55), rgba(91, 33, 182, 0.7)) !important;
+		background: linear-gradient(180deg, var(--deep-void-55), rgba(107, 33, 168, 0.7)) !important;
 	}
 
 	/* Permanently disable transitions on glass cards.

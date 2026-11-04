@@ -43,14 +43,14 @@
    moved to global nav.css for unified navbar maintenance */
 
 .pager-theme .render-wallpaper {
-	color: var(--aurora-glow, #b266ff) !important;
+	color: var(--aurora-glow, #c084fc) !important;
 	transition:
 		color var(--dur-content) ease,
 		filter var(--dur-content) ease;
 }
 
 .pager-theme .theme-blackhole {
-	color: #b266ff;
+	color: #c084fc;
 	font-weight: 600;
 	text-shadow: 0 0 8px var(--purple-40, rgba(168, 85, 247, 0.4));
 }

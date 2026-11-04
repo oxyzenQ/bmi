@@ -34,7 +34,7 @@ export function warnDev(module: string, fn: string, message: string, error?: unk
 	console.warn(
 		`%c[warn] %c${tag}`,
 		'color:#f59e0b;font-weight:bold',
-		'color:#a78bfa;font-weight:bold',
+		'color:#c084fc;font-weight:bold',
 		message
 	);
 

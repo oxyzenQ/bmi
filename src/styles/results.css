@@ -240,12 +240,12 @@
 	font-weight: 600;
 	flex: 1;
 	justify-content: center;
-	background: linear-gradient(180deg, var(--deep-void-55), rgba(91, 33, 182, 0.7));
+	background: linear-gradient(180deg, var(--deep-void-55), rgba(107, 33, 168, 0.7));
 	border: 1px solid rgba(130, 130, 130, 0.3);
 }
 
 .action-btn:hover {
-	background: linear-gradient(135deg, var(--deep-void-65), rgba(91, 33, 182, 0.55));
+	background: linear-gradient(135deg, var(--deep-void-65), rgba(107, 33, 168, 0.55));
 	border-color: rgba(130, 130, 130, 0.45);
 	transform: translateY(-1px);
 }

@@ -114,7 +114,7 @@ export function endSpan(spanId: string): number {
 		console.debug(
 			`%c[trace] %c${span.spanId}${parentInfo} %c${duration.toFixed(1)}ms`,
 			'color:#06b6d4;font-weight:bold',
-			'color:#8b5cf6',
+			'color:#a855f7',
 			'color:#22c55e'
 		);
 	}

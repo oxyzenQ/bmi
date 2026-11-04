@@ -156,7 +156,7 @@
 	}
 
 	.error-link:hover {
-		color: var(--purple-80, #c4b5fd);
+		color: var(--purple-80, #d8b4fe);
 	}
 
 	@media (prefers-reduced-motion: reduce) {

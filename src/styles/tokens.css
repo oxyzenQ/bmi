@@ -34,15 +34,20 @@
       CSS VARIABLES
       ============================== */
 :root {
-	/* Primary cosmic colors */
-	--cosmic-blue: #9a4dff;
-	--cosmic-purple: #8000ff;
+	/* Primary cosmic colors — zelynic brand purple #A855F7 (RGB 168,85,247),
+   the cosmostrix branding color shared across the owner's projects.
+   Every purple family in this file converges on that one hue: the
+   violet/purple/neon ladders are alpha steps of it, the deep anchors
+   are its near-black shades, and the light tiers (#c084fc, #e9d5ff)
+   its tints. No other purple hue is allowed. */
+	--cosmic-blue: #a855f7;
+	--cosmic-purple: #a855f7;
 
 	/* Plasma theme (splash screen) */
 
 	/* Aurora beam colors */
-	--aurora-bright: #8000ff;
-	--aurora-glow: #b266ff;
+	--aurora-bright: #a855f7;
+	--aurora-glow: #c084fc;
 
 	/* Accent colors */
 	--stellar-white: #ffffff;
@@ -58,16 +63,16 @@
 	--accent-blue: var(--aurora-bright);
 
 	/* Glassmorphism & branding */
-	--bg-by-rezky: linear-gradient(135deg, #140826cc, #5b21b6cc);
-	--bg-last-by-rezky: linear-gradient(135deg, #1a0d33, #6d28d9);
+	--bg-by-rezky: linear-gradient(135deg, #120420cc, #6b21a8cc);
+	--bg-last-by-rezky: linear-gradient(135deg, #1a0630, #7e22ce);
 	--border-by-rezky: 3px solid rgba(130, 130, 130, 0.3);
 	--bg-cosmic: linear-gradient(
 		135deg,
-		#4e3383,
-		/* deep space violet */ #5b4ce0,
-		/* nebula core */ #8000ffda,
-		/* aurora violet */ #8000ff,
-		/* plasma purple */ #e2c7ff /* starlight highlight */
+		#581c87,
+		/* deep space violet */ #9333ea,
+		/* nebula core */ #a855f7da,
+		/* aurora violet */ #a855f7,
+		/* plasma purple */ #e9d5ff /* starlight highlight */
 	);
 
 	/* Animation/transition tuning */
@@ -168,22 +173,22 @@
 	/* Indigo (99,102,241) */
 
 	/* Violet (139,92,246) — primary purple glow */
-	--violet-8: rgba(139, 92, 246, 0.08);
-	--violet-10: rgba(139, 92, 246, 0.1);
-	--violet-12: rgba(139, 92, 246, 0.12);
-	--violet-15: rgba(139, 92, 246, 0.15);
-	--violet-18: rgba(139, 92, 246, 0.18);
-	--violet-20: rgba(139, 92, 246, 0.2);
-	--violet-22: rgba(139, 92, 246, 0.22);
-	--violet-25: rgba(139, 92, 246, 0.25);
-	--violet-30: rgba(139, 92, 246, 0.3);
-	--violet-32: rgba(139, 92, 246, 0.32);
-	--violet-34: rgba(139, 92, 246, 0.34);
-	--violet-45: rgba(139, 92, 246, 0.45);
-	--violet-50: rgba(139, 92, 246, 0.5);
+	--violet-8: rgba(168, 85, 247, 0.08);
+	--violet-10: rgba(168, 85, 247, 0.1);
+	--violet-12: rgba(168, 85, 247, 0.12);
+	--violet-15: rgba(168, 85, 247, 0.15);
+	--violet-18: rgba(168, 85, 247, 0.18);
+	--violet-20: rgba(168, 85, 247, 0.2);
+	--violet-22: rgba(168, 85, 247, 0.22);
+	--violet-25: rgba(168, 85, 247, 0.25);
+	--violet-30: rgba(168, 85, 247, 0.3);
+	--violet-32: rgba(168, 85, 247, 0.32);
+	--violet-34: rgba(168, 85, 247, 0.34);
+	--violet-45: rgba(168, 85, 247, 0.45);
+	--violet-50: rgba(168, 85, 247, 0.5);
 
 	/* Plum (147,51,234) */
-	--plum-0: rgba(147, 51, 234, 0);
+	--plum-0: rgba(168, 85, 247, 0);
 
 	/* Purple (168,85,247) */
 	--purple-5: rgba(168, 85, 247, 0.05);
@@ -195,7 +200,7 @@
 	/* Orchid (147,112,219) */
 
 	/* Neon-purple (128,0,255) */
-	--neon-15: rgba(128, 0, 255, 0.15);
+	--neon-15: rgba(168, 85, 247, 0.15);
 
 	/* Ghost-blue (120,120,255) */
 
@@ -313,9 +318,9 @@
 	--btn-height: 44px;
 	--btn-padding-x: 18px;
 	--btn-font: 600 0.95rem/1 'Inter Variable', system-ui, -apple-system, sans-serif;
-	--btn-bg: linear-gradient(135deg, var(--deep-void-base) cc, #5b21b6cc);
-	--btn-bg-hover: linear-gradient(135deg, #1a0d33, #6d28d9);
-	--btn-bg-active: linear-gradient(135deg, #10061f, #4c1d95);
+	--btn-bg: linear-gradient(135deg, var(--deep-void-base) cc, #6b21a8cc);
+	--btn-bg-hover: linear-gradient(135deg, #1a0630, #7e22ce);
+	--btn-bg-active: linear-gradient(135deg, #0d0418, #581c87);
 
 	--btn-border: 1px solid rgba(130, 130, 130, 0.3);
 	--btn-border-hover: 1px solid rgba(130, 130, 130, 0.45);
@@ -390,13 +395,13 @@
 	--modal-backdrop-dur: 0.15s;
 
 	/* ── DEEP-VOID GRADIENT SYSTEM ──
-       Centralizes rgba(20, 8, 38, ...) used in button gradients.
+       Centralizes the brand-hue near-black rgba(18, 4, 32, ...) used in button gradients.
        Used by components, navigation, and responsive overrides. */
-	--deep-void-base: #140826;
-	--deep-void-40: rgba(20, 8, 38, 0.4);
-	--deep-void-50: rgba(20, 8, 38, 0.5);
-	--deep-void-55: rgba(20, 8, 38, 0.55);
-	--deep-void-65: rgba(20, 8, 38, 0.65);
+	--deep-void-base: #120420;
+	--deep-void-40: rgba(18, 4, 32, 0.4);
+	--deep-void-50: rgba(18, 4, 32, 0.5);
+	--deep-void-55: rgba(18, 4, 32, 0.55);
+	--deep-void-65: rgba(18, 4, 32, 0.65);
 
 	/* ── COSMIC DEEP ──
        Fallback background for html element. */
@@ -434,15 +439,15 @@
 	--space-5: 1.5rem; /* 24px — card padding */
 	--container-glass-bg-desktop:
 		linear-gradient(180deg, rgba(7, 7, 12, 0.82) 0%, rgba(0, 0, 0, 0.74) 100%),
-		linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(255, 255, 255, 0.035));
+		linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(255, 255, 255, 0.035));
 	--container-glass-border-desktop: 3px solid rgba(190, 190, 210, 0.28);
 	--container-glass-filter-desktop: blur(10px) saturate(135%) brightness(1.04);
 	--container-glass-shadow-desktop:
-		0 16px 36px rgba(0, 0, 0, 0.38), 0 0 22px rgba(139, 92, 246, 0.08),
+		0 16px 36px rgba(0, 0, 0, 0.38), 0 0 22px rgba(168, 85, 247, 0.08),
 		inset 0 1px 0 rgba(255, 255, 255, 0.08);
 	--container-glass-bg-mobile:
 		linear-gradient(180deg, rgba(9, 9, 14, 0.82) 0%, rgba(0, 0, 0, 0.74) 100%),
-		linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(255, 255, 255, 0.035));
+		linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(255, 255, 255, 0.035));
 	--container-glass-border-mobile: 2px solid rgba(190, 190, 210, 0.24);
 	--container-glass-filter-mobile: none;
 	--container-glass-shadow-mobile:
@@ -455,15 +460,15 @@
 	--nav-glass-border-inline: 2px solid rgba(220, 220, 235, 0.24);
 	--nav-glass-filter: blur(12px) saturate(100%) brightness(2);
 	--nav-glass-shadow:
-		0 12px 30px rgba(0, 0, 0, 0.34), 0 0 20px rgba(139, 92, 246, 0.1),
+		0 12px 30px rgba(0, 0, 0, 0.34), 0 0 20px rgba(168, 85, 247, 0.1),
 		inset 0 1px 0 rgba(255, 255, 255, 0.08);
 	--nav-glass-bg-mobile:
 		linear-gradient(180deg, rgba(10, 10, 16, 0.84) 0%, rgba(0, 0, 0, 0.72) 100%),
-		linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(255, 255, 255, 0.04));
-	--nav-glass-border-inline-mobile: 1px solid rgba(139, 92, 246, 0.18);
+		linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(255, 255, 255, 0.04));
+	--nav-glass-border-inline-mobile: 1px solid rgba(168, 85, 247, 0.18);
 	--nav-glass-filter-mobile: none;
 	--nav-glass-shadow-mobile:
-		0 8px 22px rgba(0, 0, 0, 0.3), 0 0 14px rgba(139, 92, 246, 0.06),
+		0 8px 22px rgba(0, 0, 0, 0.3), 0 0 14px rgba(168, 85, 247, 0.06),
 		inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
 	/* ── SEMANTIC COLOR TOKENS ── */
@@ -486,7 +491,7 @@
 	--green-300-solid: rgba(134, 239, 172, 1); /* #86efac — delta within range */
 	--green-500-solid: rgba(34, 197, 94, 1); /* #22c55e — debug log ok */
 	--cyan-500-solid: rgba(6, 182, 212, 1); /* #06b6d4 — debug log span */
-	--violet-300-solid: rgba(196, 181, 253, 1); /* #c4b5fd — debug badge/tab text */
+	--violet-300-solid: rgba(196, 181, 253, 1); /* #d8b4fe — debug badge/tab text */
 	--slate-300-solid: rgba(203, 213, 225, 1); /* #cbd5e1 — sparkline stat text */
 	--emerald-solid: rgba(16, 185, 129, 1); /* #10b981 — normal weight category */
 	--warn-amber: rgba(245, 158, 11, 1); /* #f59e0b — warning/overweight icon */

@@ -83,12 +83,12 @@
 	.btn-confirm {
 		background: var(--bg-by-rezky);
 		color: var(--stellar-white);
-		border: 1px solid rgba(139, 92, 246, 0.45);
+		border: 1px solid rgba(168, 85, 247, 0.45);
 	}
 
 	.btn-confirm:hover {
 		background: var(--bg-last-by-rezky);
-		border-color: rgba(139, 92, 246, 0.6);
+		border-color: rgba(168, 85, 247, 0.6);
 		transform: translateY(-1px);
 	}
 

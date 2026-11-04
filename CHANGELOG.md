@@ -88,6 +88,22 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Changed
 
+- **Every purple in the UI now converges on the zelynic brand purple
+  #A855F7 (RGB 168,85,247), the cosmostrix branding color shared
+  across the owner's projects (night-style-2).** The stylesheet tree
+  carried five different purple hues (128,0,255 neon, 139,92,246
+  violet, 154,77,255 cosmic-blue, 147,51,234 plum, plus indigo-leaning
+  anchors 91,33,182 / 91,76,224); a repo-wide hue inventory found 69
+  literals and every one now maps to the brand hue with its alpha and
+  luminance role preserved - the violet/purple/neon ladders are
+  alpha steps of #A855F7, the button/void gradients ride its
+  tailwind-purple dark ramp (#6b21a8 / #7e22ce / #581c87 on the
+  retinted brand-hue near-black #120420), and the light tiers land on
+  #c084fc / #e9d5ff. The brand contract is documented at the top of
+  tokens.css; dev-console cosmetics (trace, warn-dev, dev-diagnostics)
+  and inert component fallbacks follow the same hue, and the
+  share-card canvas gets its own brand pass in the entries below.
+
 - **A stylesheet hygiene pass cleared the dead weight from the
   design-token layer (night-style-1).** Cross-referencing every class
   and custom property against all consumers (markup, svelte style
