@@ -28,11 +28,11 @@ b3sum assets/*.png docs/assets/*.png static/assets/*.png | sort -k2
 
 | file                                            | bytes   | blake3                                                             |
 | ----------------------------------------------- | ------- | ------------------------------------------------------------------ |
-| assets/demo-bmi-stellar-gauge-active.png        | 300991  | `1e3033f0037f9baecd8c02cf22348d6f60d58740969eed5b17db6292bb804e74` |
-| assets/demo-bmi-stellar-gauge.png               | 298717  | `d054393a4f9682500769ad048f32d4f783b21ba1f987ff40a333ec184dec3f09` |
-| assets/demo-bmi-stellar-home-page.png           | 429956  | `4a2da0c5cb9f1e49b215253f282973413eb101bd80d91423b957d8a02768a07a` |
-| assets/demo-bmi-stellar-results.png             | 500261  | `e1adf2191ba100f651a621e52ab8e07265fcec84c2e92aa4a45db6d74a13a6cb` |
-| assets/demo-bmi-stellar-snapshot.png            | 309802  | `00d7f7fd96e773917767694d56812edc5c1f3a988ab84b15edc97fd0b2c9de7e` |
+| assets/demo-bmi-stellar-gauge-active.png        | 328909  | `7b5ccec1c4c15df8cace7861584555d0cf37d70799f3f3fdc6ae1f3f8009eb24` |
+| assets/demo-bmi-stellar-gauge.png               | 332711  | `d2d4b7c66652232dde530b47b3b61e96cedf80b3776c29a7692313999ab48db5` |
+| assets/demo-bmi-stellar-home-page.png           | 450617  | `c504240b579c2619377f550e72585c2cf1a153703b0733acfeadd07eb6bca5f0` |
+| assets/demo-bmi-stellar-results.png             | 544385  | `5d7f252adde912c8f5f3a1ecdf4d480d00923d216caecbbf9063f77367b3a5a0` |
+| assets/demo-bmi-stellar-snapshot.png            | 345672  | `f0bb57ae882c4dd5079997594fd06116f98ddd78ed98932f20006e2323119df5` |
 | docs/assets/bmi-logo-masters.png                | 1319986 | `beecdc5c4e68ac0a1e2cd7f83604c00400fb4b327028e60906f007d4bd541002` |
 | static/assets/bmi-logo-masters-1024.png         | 1015126 | `e874e2237038e33fddc917cdada0911336a2ac6e9d17b270eea03480779ea47a` |
 | static/assets/bmi-logo-masters-128.png          | 20534   | `810583dfaafafd8453f8012068ede30e67a16f90474dcb10618c661bcd2293b3` |
