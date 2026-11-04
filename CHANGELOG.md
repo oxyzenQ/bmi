@@ -10,6 +10,8 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Unreleased]
 
+## [80.0.0]
+
 ## [80.0.0-night.2]
 
 ## [80.0.0-night.1]
