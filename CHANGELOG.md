@@ -115,7 +115,9 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   presentation attributes (where `var()` is invalid) to style
   attributes, and the gauge-skeleton zone bar now uses the same
   `--cat-*-50` ramp as the risk scale. The set-but-never-read
-  `--gauge-pulse-dur` family in BmiRadialGauge is still open.
+  `--gauge-pulse-dur` chain in BmiRadialGauge is gone too: the unused
+  state, its tier assignment, the inline custom property, and the two
+  orphaned `GAUGE.PULSE_DUR_*` constants in animation-config.
 
 - **The welcome-page logo, the share-card gauge, and the container
   hover language were refined (night-engrave-1).** The hero avatar

@@ -45,7 +45,6 @@
 	let strokeDuration = $state('0ms');
 	let strokeDurationFill = $state('0ms');
 	let strokeDelayFill = $state('0ms');
-	let pulseDuration = $state('1s');
 
 	// Compute performance tier and reduced motion at mount time (not module level)
 	// so lazy-loaded components get correct values
@@ -192,7 +191,6 @@
 		strokeDelayFill = ultraEnabled
 			? GAUGE.STROKE_DELAY_FILL_ENHANCED
 			: GAUGE.STROKE_DELAY_FILL_DEFAULT;
-		pulseDuration = ultraEnabled ? GAUGE.PULSE_DUR_ENHANCED : GAUGE.PULSE_DUR_DEFAULT;
 
 		if (appliedBmi > 0) {
 			displayBmi.set(appliedBmi, {
@@ -255,7 +253,7 @@
 			height={gaugeSize}
 			viewBox={`0 0 ${gaugeSize} ${gaugeSize}`}
 			aria-hidden="true"
-			style={`--gauge-stroke-dur: ${strokeDuration}; --gauge-stroke-dur-fill: ${strokeDurationFill}; --gauge-stroke-delay-fill: ${strokeDelayFill}; --gauge-pulse-dur: ${pulseDuration};`}
+			style={`--gauge-stroke-dur: ${strokeDuration}; --gauge-stroke-dur-fill: ${strokeDurationFill}; --gauge-stroke-delay-fill: ${strokeDelayFill};`}
 		>
 			<defs>
 				<linearGradient id="gaugeBackground" x1="0%" y1="0%" x2="100%" y2="100%">
