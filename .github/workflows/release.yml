@@ -200,6 +200,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3, SHA pin
         with:
+          tag_name: ${{ steps.tag.outputs.TAG_NAME }}
           name: ${{ steps.tag.outputs.TAG_NAME }}
           body: |
             ## What's Changed
@@ -214,8 +215,44 @@ jobs:
             bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip.sha512sum
             bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip
             bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip.sha512sum
-          draft: false
+          # An unmatched file name fails the release instead of logging
+          # the "does not match any files" warning that would publish an
+          # asset-less release silently.
+          fail_on_unmatched_files: true
+          # IMMUTABLE-RELEASE FIX (the zelynic night-dragon-maintenance-6
+          # shape): create the release as a DRAFT. GitHub's immutable-
+          # release feature locks the asset set the moment a release
+          # becomes published, and softprops/action-gh-release publishes
+          # on creation - so on this repo the v80.0.0-night.1 upload was
+          # rejected mid-flight and the published release shipped with
+          # zero assets. A draft stays mutable for the whole upload, and
+          # the "Publish Release (un-draft)" step below flips it to
+          # published only after every asset is in place.
+          draft: true
           prerelease: ${{ needs.validate-tag.outputs.prerelease }}
           # Pre-releases are never marked "latest" - the latest pointer
-          # only tracks stable releases.
+          # only tracks stable releases. The flags below are re-asserted
+          # authoritatively by the un-draft step, the one that actually
+          # publishes.
           make_latest: ${{ needs.validate-tag.outputs.prerelease != 'true' }}
+
+      # The un-draft half of the immutable-release fix: flip the draft
+      # to published only after every asset has uploaded, setting the
+      # prerelease and latest flags explicitly so the post-publish
+      # state is exactly what this workflow intends. The final
+      # gh release view is the post-condition read - a release still
+      # in draft here fails the step, never a silent half-publish.
+      - name: Publish Release (un-draft)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.TAG_NAME }}
+          IS_PRERELEASE: ${{ needs.validate-tag.outputs.prerelease }}
+        run: |
+          set -euo pipefail
+          if [ "${IS_PRERELEASE}" = "true" ]; then
+            gh release edit "${TAG}" --draft=false --prerelease=true --latest=false
+          else
+            gh release edit "${TAG}" --draft=false --prerelease=false --latest=true
+          fi
+          echo "--- Published release ---"
+          gh release view "${TAG}" --json url,isDraft,isPrerelease,isImmutable --jq '.'
