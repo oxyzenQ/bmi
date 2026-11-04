@@ -69,7 +69,7 @@ Always run `bun run audit:pwa-offline` after changing [src/service-worker.ts](sr
 - Local production build: `bun run build`
 - Preview production build: `bun run preview`
 - Vercel runtime: `nodejs24.x` in workflows
-- Release tags: `Stellar-v<major>.<minor>`
+- Release tags: `v<major>.<minor>.<patch>`
 - Version sync: `bun run bmi-update-version <version>`
 
 Do not edit version strings manually across files.

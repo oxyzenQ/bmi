@@ -4,13 +4,12 @@ name: Stellar Guard - Release
 on:
   push:
     tags:
-      - 'Stellar-*'
+      - 'v*'
 
 permissions:
   contents: write
 
 env:
-  RELEASE_TAG_PREFIX: Stellar
   NODE_VERSION: 24
   VERCEL_NODE_RUNTIME: nodejs24.x
 
@@ -34,8 +33,8 @@ jobs:
       - name: Validate tag format
         run: |
           TAG="${{ steps.tag.outputs.TAG_NAME }}"
-          if [[ ! "$TAG" =~ ^${RELEASE_TAG_PREFIX}-v[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid tag format: $TAG (expected ${RELEASE_TAG_PREFIX}-v<major>.<minor>)"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid tag format: $TAG (expected v<major>.<minor>.<patch>)"
             exit 1
           fi
 
@@ -44,10 +43,10 @@ jobs:
         run: |
           set -euo pipefail
           TAG="${{ steps.tag.outputs.TAG_NAME }}"
-          TAG_VERSION="${TAG#"${RELEASE_TAG_PREFIX}-v"}"
-          PACKAGE_SHORT="$(node -e "const [m='0',n='0']=require('./package.json').version.split('.');console.log(m+'.'+n)")"
-          if [ "$TAG_VERSION" != "$PACKAGE_SHORT" ]; then
-            echo "Tag $TAG does not match package.json v${PACKAGE_SHORT}"
+          TAG_VERSION="${TAG#v}"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
+            echo "Tag $TAG does not match package.json v${PACKAGE_VERSION}"
             exit 1
           fi
 

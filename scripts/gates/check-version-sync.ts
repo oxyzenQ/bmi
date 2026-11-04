@@ -6,7 +6,7 @@
  * package.json is the single version source of truth. Every display
  * surface must carry the same version or the tree is not committable:
  *   - DORMANT.md  "Version: `X.Y.Z`"  (the maintenance capsule, full version)
- *   - README.md   "Current release: `vX.Y`"  (short version)
+ *   - README.md   "Current release: `vX.Y.Z`"  (full version)
  *
  * Surfaces are probed honestly, the zelynic way: a surface that exists
  * but disagrees FAILS; a surface that does not exist at all is reported
@@ -17,7 +17,6 @@ import { readFile } from 'node:fs/promises';
 
 const pkg = JSON.parse(await readFile('package.json', 'utf8')) as { version?: string };
 const version = pkg.version ?? '';
-const short = version.split('.').slice(0, 2).join('.');
 
 const violations: string[] = [];
 
@@ -44,13 +43,11 @@ try {
 } catch {
 	readme = '';
 }
-const releaseMatch = readme.match(/Current release: `v(\d+\.\d+)`/);
+const releaseMatch = readme.match(/Current release: `v(\d+\.\d+(?:\.\d+)?)`/);
 if (!releaseMatch) {
 	console.log('note: README.md carries no "Current release" surface - nothing to police there');
-} else if (releaseMatch[1] !== short) {
-	violations.push(
-		`README.md current-release line v${releaseMatch[1]} != package.json short version v${short}`
-	);
+} else if (releaseMatch[1] !== version) {
+	violations.push(`README.md current-release line v${releaseMatch[1]} != package.json ${version}`);
 }
 
 if (violations.length > 0) {
@@ -61,6 +58,6 @@ if (violations.length > 0) {
 
 console.log(
 	`Version sync passed: package.json ${version} matches DORMANT.md${
-		releaseMatch ? ` and the README v${short} surface` : ''
+		releaseMatch ? ` and the README v${version} surface` : ''
 	}.`
 );

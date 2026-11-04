@@ -20,11 +20,11 @@
 # Surfaces updated (the night-improve-3 contracts, unchanged from the
 # TypeScript tool this file replaces):
 #   package.json  "version" - the source of truth, full X.Y.Z
-#   README.md     the "Current release: `vX.Y`" line, the "BMI Stellar vX.Y"
-#                 display title, the "badge/version-vX.Y-" badge URL, and
-#                 the 'alt="Version vX.Y"' badge alt - the short vX.Y shape
+#   README.md     the "Current release: `vX.Y.Z`" line, the "BMI Stellar
+#                 vX.Y.Z" display title, the "badge/version-vX.Y.Z-" badge
+#                 URL, and the 'alt="Version vX.Y.Z"' alt - full vX.Y.Z
 #   DORMANT.md    the "Version: `X.Y.Z`" capsule line - full X.Y.Z
-#   CHANGELOG.md  the "## [X.Y.Z] - Stellar-vX.Y" release heading spliced
+#   CHANGELOG.md  the "## [X.Y.Z]" release heading spliced
 #                 directly under "## [Unreleased]" (Keep a Changelog)
 #
 # Honest probes, the zelynic NIGHT-hunt-32 rule: a missing file, a
@@ -69,7 +69,7 @@ show_usage() {
         printf '  ./scripts/dev/version-to.sh <target> --dry-run  preview every rewrite, write nothing\n'
         printf '  ./scripts/dev/version-to.sh <target> --commit   update, then stage + commit the surfaces\n'
         printf '\n'
-        printf 'Surfaces: package.json (source of truth), README.md (vX.Y),\n'
+        printf 'Surfaces: package.json (source of truth), README.md (vX.Y.Z),\n'
         printf 'DORMANT.md (X.Y.Z), CHANGELOG.md (release heading).\n'
 }
 
@@ -132,7 +132,6 @@ patch | minor | major)
 *) NEW="${POSITIONAL#v}" ;;
 esac
 validate_version "${NEW}"
-SHORT="${NEW%.*}"
 
 CHANGED=0
 
@@ -181,27 +180,27 @@ if [ ! -f README.md ]; then
 else
         EXPR=()
         FOUND=0
-        if grep -qE "Current release: \`v[0-9]+\.[0-9]+\`" README.md; then
+        if grep -qE "Current release: \`v[0-9]+\.[0-9]+(\.[0-9]+)?\`" README.md; then
                 FOUND=$((FOUND + 1))
-                EXPR+=(-e "s/Current release: \`v[0-9]+\.[0-9]+\`/Current release: \`v${SHORT}\`/g")
+                EXPR+=(-e "s/Current release: \`v[0-9]+\.[0-9]+(\.[0-9]+)?\`/Current release: \`v${NEW}\`/g")
         else
                 warn "README.md current-release line - surface absent, nothing to rewrite"
         fi
         if grep -qE 'BMI Stellar v[0-9]+\.[0-9]+(\.[0-9]+)?' README.md; then
                 FOUND=$((FOUND + 1))
-                EXPR+=(-e "s/BMI Stellar v[0-9]+\.[0-9]+(\.[0-9]+)?/BMI Stellar v${SHORT}/g")
+                EXPR+=(-e "s/BMI Stellar v[0-9]+\.[0-9]+(\.[0-9]+)?/BMI Stellar v${NEW}/g")
         else
                 warn "README.md display title - surface absent, nothing to rewrite"
         fi
         if grep -qE 'badge/version-v[0-9]+\.[0-9]+(\.[0-9]+)?-' README.md; then
                 FOUND=$((FOUND + 1))
-                EXPR+=(-e "s/badge\/version-v[0-9]+\.[0-9]+(\.[0-9]+)?-/badge\/version-v${SHORT}-/g")
+                EXPR+=(-e "s/badge\/version-v[0-9]+\.[0-9]+(\.[0-9]+)?-/badge\/version-v${NEW}-/g")
         else
                 warn "README.md version badge - surface absent, nothing to rewrite"
         fi
         if grep -qE 'alt="Version v[0-9]+\.[0-9]+(\.[0-9]+)?"' README.md; then
                 FOUND=$((FOUND + 1))
-                EXPR+=(-e "s/alt=\"Version v[0-9]+\.[0-9]+(\.[0-9]+)?\"/alt=\"Version v${SHORT}\"/g")
+                EXPR+=(-e "s/alt=\"Version v[0-9]+\.[0-9]+(\.[0-9]+)?\"/alt=\"Version v${NEW}\"/g")
         else
                 warn "README.md badge alt text - surface absent, nothing to rewrite"
         fi
@@ -214,11 +213,11 @@ else
                         same "README.md - all ${FOUND} present surface(s) already current"
                 elif [ "${DRY_RUN}" = true ]; then
                         CHANGED=1
-                        same "README.md - would rewrite ${FOUND} surface(s) to v${SHORT} (dry run)"
+                        same "README.md - would rewrite ${FOUND} surface(s) to v${NEW} (dry run)"
                 else
                         cp "${TMP_WORK}" README.md
                         CHANGED=1
-                        ok "README.md - ${FOUND} surface(s) rewritten to v${SHORT}"
+                        ok "README.md - ${FOUND} surface(s) rewritten to v${NEW}"
                 fi
         fi
 fi
@@ -255,7 +254,7 @@ elif grep -qF "## [${NEW}]" CHANGELOG.md; then
 elif ! grep -q '^## \[Unreleased\]$' CHANGELOG.md; then
         warn "CHANGELOG.md - no ## [Unreleased] anchor found, nothing to write"
 else
-        awk -v heading="## [${NEW}] — Stellar-v${SHORT}" 'BEGIN { done = 0 }
+        awk -v heading="## [${NEW}]" 'BEGIN { done = 0 }
                 /^## \[Unreleased\]$/ && !done {
                         print
                         print ""
@@ -282,12 +281,12 @@ if [ "${CHANGED}" -eq 0 ]; then
 fi
 
 if [ "${DRY_RUN}" = true ]; then
-        printf '\033[0;32mPreview: %s -> v%s (display target v%s) - nothing written.\033[0m\n' "${CURRENT}" "${NEW}" "${SHORT}"
+        printf '\033[0;32mPreview: %s -> v%s - nothing written.\033[0m\n' "${CURRENT}" "${NEW}"
         printf '\n'
         exit 0
 fi
 
-printf '\033[0;32mVersion updated to v%s (display target v%s).\033[0m\n' "${NEW}" "${SHORT}"
+printf '\033[0;32mVersion updated to v%s.\033[0m\n' "${NEW}"
 printf 'next: git add package.json README.md DORMANT.md CHANGELOG.md && git commit\n'
 
 # --- --commit (the zelynic auto-commit shape) ---
@@ -308,6 +307,6 @@ if [ "${COMMIT}" = true ]; then
                 warn "nothing staged - the surfaces carry no change to commit"
                 exit 0
         fi
-        git commit -m "chore: prepare for release Stellar-v${SHORT}"
-        ok "Committed: chore: prepare for release Stellar-v${SHORT}"
+        git commit -m "chore: prepare for release v${NEW}"
+        ok "Committed: chore: prepare for release v${NEW}"
 fi

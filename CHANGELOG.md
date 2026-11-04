@@ -2,7 +2,7 @@
 
 All notable changes to **BMI Stellar** are documented in this file.
 
-The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) principles, adapted to the project's `feat / fix / chore / docs / refactor / style` commit conventions. Versions are synchronized from `package.json` via `scripts/dev/version-to.sh`. Release tags follow `Stellar-v<major>.<minor>`.
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) principles, adapted to the project's `feat / fix / chore / docs / refactor / style` commit conventions. Versions are synchronized from `package.json` via `scripts/dev/version-to.sh`. Release tags follow `v<major>.<minor>.<patch>` and match `package.json` exactly.
 
 For the full architectural context behind any release, see [`docs/furthermore.md`](docs/furthermore.md). For dormant-maintenance guidance, see [`DORMANT.md`](DORMANT.md).
 
@@ -94,7 +94,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   disagreeing surface fails, an absent surface is reported, never policed
   when absent). `scripts/dev/version-to.ts` gained the zelynic
   version-to.sh ledger ability: every bump splices a
-  `## [X.Y.Z] - Stellar-vX.Y` section directly under `## [Unreleased]`,
+  `## [X.Y.Z]` section directly under `## [Unreleased]`,
   with honest no-write probes for a missing anchor or an already-recorded
   version. The gate joins check-all, quick, audit, and the ci.yml
   workflow.
@@ -400,7 +400,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   `v`-prefixed or bare semver sets an absolute version, the
   `patch|minor|major` bump words survive from the TypeScript tool, and
   the zelynic `--commit` flag stages the touched surfaces and commits
-  them as `chore: prepare for release Stellar-vX.Y` (the RELEASE.md
+  them as `chore: prepare for release vX.Y.Z` (the RELEASE.md
   convention). Every surface contract is preserved (package.json
   source of truth, the README current-release line with its honest
   absent-surface probes, the DORMANT.md capsule, the CHANGELOG.md
@@ -417,7 +417,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   SHA-256, the GitHub Release upload list carries the new extension,
   and the README release-verification block plus the
   `.github/RELEASE.md` artifacts table follow. Already-published
-  releases keep their `.sha256` sidecars; the next `Stellar-v` tag is
+  releases keep their `.sha256` sidecars; the next tag is
   the first one verified with `sha512sum -c`. The app-internal
   integrity hashes (the AES-GCM backup envelope checksum and the
   HMAC-SHA256 export signatures) are untouched - different lane,
@@ -438,10 +438,25 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   now `getAppVersionDisplay()` and returns the exact `package.json`
   version (fallback `0.0.0`), so the About label, the hero edition
   line, and the document title all read `v80.0.0`. The README
-  release line keeps its short `vX.Y` form - that surface follows
-  the tag convention (`Stellar-v<major>.<minor>`), not the app
-  display. Backup envelopes and the PWA version compare already
+  release line carries the same full `vX.Y.Z` form - one version
+  format everywhere. Backup envelopes and the PWA version compare
+  already
   consumed the raw full version and are untouched. _(this commit)_
+- **The tag convention drops the Stellar prefix - one version format
+  everywhere.** Release tags are now plain semver
+  (`v<major>.<minor>.<patch>`, for example `v80.0.0`) matching
+  `package.json` exactly, replacing the short
+  `Stellar-v<major>.<minor>` shape. The release workflow triggers on
+  `v*` tags and validates the tag against the full package.json
+  version instead of the major.minor pair; version-to.sh rewrites
+  every README surface to the full `vX.Y.Z` form (its
+  current-release probe accepts the retired short shape so a bump
+  migrates it in place), commits as `chore: prepare for release
+vX.Y.Z`, and splices a plain `## [X.Y.Z]` changelog heading;
+  check-version-sync polices the full form and fails a lingering
+  short-form surface, so the README surface migrates in the same
+  commit. Already-published `Stellar-v*` tags keep their names; the
+  first `v*` tag is the next release. _(this commit)_
 
 ### Removed
 
@@ -596,4 +611,4 @@ When waking the project after a dormant period, expect `bun audit` to flag advis
 
 ---
 
-_Link mapping: `[21.x.0]` corresponds to git tag `Stellar-v21.x`. Commits referenced by short SHA can be inspected via `git show <sha>`._
+_Link mapping: `[21.x.0]` sections correspond to the historic `Stellar-v21.x` tags; sections from the `v*` tag era onward match `package.json` directly. Commits referenced by short SHA can be inspected via `git show <sha>`._

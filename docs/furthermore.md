@@ -322,7 +322,7 @@ bun run bmi-update-version <version>
 ./scripts/build.sh check-all
 ```
 
-Release tags must adhere to the format: `Stellar-v<major>.<minor>` (for example, `Stellar-v21.0`, `Stellar-v22.0`). The current release is `v21.7.0` (tag `Stellar-v21.7`).
+Release tags must adhere to the format: `v<major>.<minor>.<patch>` (for example, `v80.0.0`), matching `package.json` exactly.
 
 ## Known Constraints
 

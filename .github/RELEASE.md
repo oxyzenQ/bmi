@@ -9,15 +9,15 @@ bun run verify
 # 2. Update version (syncs package.json, README.md, DORMANT.md, CHANGELOG.md)
 ./scripts/dev/version-to.sh <version>   # the zelynic-style direct entry
 bun run bmi-update-version <version>    # the same manager through bun
-git add -A && git commit -m "chore: prepare for release Stellar-v<major>.<minor>"
+git add -A && git commit -m "chore: prepare for release v<major>.<minor>.<patch>"
 git push origin main
 
 # 3. Tag and push
-git tag Stellar-v<major>.<minor>
-git push origin Stellar-v<major>.<minor>
+git tag v<major>.<minor>.<patch>
+git push origin v<major>.<minor>.<patch>
 ```
 
-The workflow validates the tag format (`Stellar-v<major>.<minor>`) and version match, builds a static archive, generates a commit-based changelog, and publishes the GitHub Release with source + build artifacts.
+The workflow validates the tag format (`v<major>.<minor>.<patch>`) and exact version match, builds a static archive, generates a commit-based changelog, and publishes the GitHub Release with source + build artifacts.
 
 ## Artifacts
 
@@ -29,7 +29,7 @@ The workflow validates the tag format (`Stellar-v<major>.<minor>`) and version m
 
 ## Tag Format
 
-`Stellar-v<major>.<minor>` — must match `package.json` major.minor.
+`v<major>.<minor>.<patch>` — must match `package.json` exactly.
 
 ## Rollback
 

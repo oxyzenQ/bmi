@@ -328,7 +328,7 @@ not by a device farm.
 
 ## Release Verification
 
-Each tagged release (`Stellar-v<major>.<minor>`) ships source and build
+Each tagged release (`v<major>.<minor>.<patch>`) ships source and build
 archives with SHA-512 sidecar checksums, and the pipeline validates the
 tag against `package.json` before anything is built:
 
@@ -347,7 +347,7 @@ the display documents via `scripts/dev/version-to.sh`, the zelynic
 dev-lane entry (direct `./` execution, `patch|minor|major` bump words,
 `--dry-run`, `--commit`).
 
-Current release: `v21.8`.
+Current release: `v21.8.0`.
 
 The npm package is private (`private: true`): BMI Stellar ships as a
 Vercel-deployed web app and nothing is published to the npm registry.
@@ -358,9 +358,9 @@ Vercel-deployed web app and nothing is published to the npm registry.
 > maintenance capsule synchronized. Never edit release version strings
 > manually.
 
-Release tags follow the format `Stellar-v<major>.<minor>` (for
-example, `Stellar-v21.8`). The tag's major/minor pair must match
-`package.json` (for example, `21.8.0` → `Stellar-v21.8`).
+Release tags follow the format `v<major>.<minor>.<patch>` (for
+example, `v80.0.0`). The tag must match `package.json` exactly
+(for example, `80.0.0` → `v80.0.0`).
 
 ## Support
 
