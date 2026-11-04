@@ -88,6 +88,25 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Changed
 
+- **A stylesheet hygiene pass cleared the dead weight from the
+  design-token layer (night-style-1).** Cross-referencing every class
+  and custom property against all consumers (markup, svelte style
+  blocks, ts inline styles, static html) removed the never-landed
+  `.section-header-v2` refactor spread across seven stylesheets, the
+  unused `.notify-backdrop` and `.warn-ic`/`.warn-ic-lg` rules, three
+  tokens orphaned by them, and 137 zombie design tokens - unused
+  palette steps, dead glass/plasma knobs, the four `--wallpaper-*`
+  duplicates of `page-theme.ts` THEME_URLS, and the unused `--z-overlay`
+  plus `--modal-z-top`/`--modal-z-staging` aliases - together with the
+  dead `--pager-edge-fade`, the four unread `--ref-row-accent`
+  declarations, and the Layer 2 line of the z-index ladder doc.
+  tokens.css fell from 641 to 491 lines, below the 600 ratchet, so its
+  ledger entry is removed in the same change; the audit now reports
+  zero zombie classes and zero unconsumed stylesheet tokens. Two
+  findings are deliberately left for the owner: 21 pre-existing
+  dangling `var()` references that were never defined anywhere, and
+  the set-but-never-read `--gauge-pulse-dur` family in BmiRadialGauge.
+
 - **The welcome-page logo, the share-card gauge, and the container
   hover language were retuned (night-engrave-1).** The hero avatar
   served the same 512px/282KB master PNG for every `srcset` slot, so
@@ -98,10 +117,12 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   device pixel ratio - 108px @1x pulls 20KB instead of 282KB while 3x
   viewports still receive the 512px master for full sharpness. The
   generated result card drew its BMI circle at radius 52 beside the
-  150px numeral; the radius is now 64 with the dependent weights
-  scaled (strokes 7 -> 8, marker dot 9/7 at a 2.4 outline, inner
-  labels 22/17px), verified against the card grid so the outer ring
-  clears the header divider, the category pill and the content edge.
+  150px numeral; after an operator field test asked for +1.5x again the
+  circle now runs at radius 96 as a top-right corner stamp at (890,
+  190), with all dependent weights rescaled (track stroke 12, marker
+  dot 13/10 at a 3.5 outline, labels 33/25px) and the geometry verified
+  against the card grid: the track edge clears the header text, the
+  divider fade and the category pill.
   The glass containers (`.bmi-card`, `.footer-disclaimer`,
   `.about-card`, `.gauge-container`, `.reference-table`,
   `.form-card`) no longer run the hover shine sweep: the 200% x 200%
