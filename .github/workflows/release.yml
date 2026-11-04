@@ -154,7 +154,7 @@ jobs:
           cp LICENSE "$STAGE/"
           cp SECURITY.md "$STAGE/" 2>/dev/null || true
           cd "$STAGE" && zip -r "../bmi-stellar-source-${TAG}.zip" . && cd ..
-          sha256sum "bmi-stellar-source-${TAG}.zip" > "bmi-stellar-source-${TAG}.zip.sha256"
+          sha512sum "bmi-stellar-source-${TAG}.zip" > "bmi-stellar-source-${TAG}.zip.sha512"
           rm -rf "$STAGE"
 
       - name: Create build archive
@@ -166,7 +166,7 @@ jobs:
           cp README.md "$STAGE/" 2>/dev/null || true
           cp -r docs "$STAGE/" 2>/dev/null || true
           cd "$STAGE" && zip -r "../bmi-stellar-build-${TAG}.zip" . && cd ..
-          sha256sum "bmi-stellar-build-${TAG}.zip" > "bmi-stellar-build-${TAG}.zip.sha256"
+          sha512sum "bmi-stellar-build-${TAG}.zip" > "bmi-stellar-build-${TAG}.zip.sha512"
           rm -rf "$STAGE"
 
       - name: Create GitHub Release
@@ -183,8 +183,8 @@ jobs:
             [build](${{ github.server_url }}/${{ github.repository }}/releases/download/${{ steps.tag.outputs.TAG_NAME }}/bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip)
           files: |
             bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip
-            bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
+            bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip.sha512
             bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip
-            bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip.sha256
+            bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip.sha512
           draft: false
           prerelease: false

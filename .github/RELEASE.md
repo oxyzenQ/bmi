@@ -25,7 +25,7 @@ The workflow validates the tag format (`Stellar-v<major>.<minor>`) and version m
 | ------------------------------ | ------------------------------------- |
 | `bmi-stellar-source-{tag}.zip` | Full source, rebuild from scratch     |
 | `bmi-stellar-build-{tag}.zip`  | Pre-built static output, deploy ready |
-| `*.sha256`                     | Integrity checksums                   |
+| `*.sha512`                     | Integrity checksums                   |
 
 ## Tag Format
 

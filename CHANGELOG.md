@@ -411,6 +411,18 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   implementation, one file - no dual version manager to drift.
   _(this commit)_
 
+- **Release artifacts verify with SHA-512 sidecar checksums.** The
+  release pipeline (`.github/workflows/release.yml`) writes
+  `sha512sum` sidecars (`bmi-stellar-*-<TAG>.zip.sha512`) instead of
+  SHA-256, the GitHub Release upload list carries the new extension,
+  and the README release-verification block plus the
+  `.github/RELEASE.md` artifacts table follow. Already-published
+  releases keep their `.sha256` sidecars; the next `Stellar-v` tag is
+  the first one verified with `sha512sum -c`. The app-internal
+  integrity hashes (the AES-GCM backup envelope checksum and the
+  HMAC-SHA256 export signatures) are untouched - different lane,
+  different contract. _(this commit)_
+
 ### Removed
 
 - **Dormant static-deploy config** — removed `svelte.config.static.js` and its `@sveltejs/adapter-static` devDependency. The project deploys via `@sveltejs/adapter-vercel` (`svelte.config.js`); the alternate static config was referenced by no build, script, or doc — only by tolerant workflow path filters and a `|| true` release-staging copy, all of which are cleaned up in the same change. _(this commit)_

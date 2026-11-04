@@ -329,12 +329,12 @@ not by a device farm.
 ## Release Verification
 
 Each tagged release (`Stellar-v<major>.<minor>`) ships source and build
-archives with SHA-256 sidecar checksums, and the pipeline validates the
+archives with SHA-512 sidecar checksums, and the pipeline validates the
 tag against `package.json` before anything is built:
 
 ```bash
 # verify a downloaded archive
-sha256sum -c bmi-stellar-source-<TAG>.zip.sha256
+sha512sum -c bmi-stellar-source-<TAG>.zip.sha512
 ```
 
 The release checklist, tag rules, and rollback procedure live in
