@@ -37,30 +37,11 @@
 	margin-bottom: var(--section-margin-y);
 }
 
-/* Footer disclaimer warning icon */
-.footer-disclaimer .warn-ic {
-	color: var(--warn-yellow);
-	/* yellow-400 */
-	margin-right: 0.5rem;
-	position: relative;
-	top: 2px;
-	/* slight optical alignment */
-	filter: drop-shadow(0 0 6px var(--gold-35));
-}
-
 .footer-disclaimer .disclaimer-icon {
 	width: 100%;
 	display: flex;
 	justify-content: center;
 	margin-bottom: 0.5rem;
-}
-
-.footer-disclaimer .warn-ic-lg {
-	margin-right: 0;
-	top: 0;
-	color: var(--warn-yellow-light);
-	/* yellow-300 for brighter */
-	filter: drop-shadow(0 0 10px var(--gold-45));
 }
 
 .bmi-grid {

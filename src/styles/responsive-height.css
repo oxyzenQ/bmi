@@ -114,7 +114,6 @@
 	.gauge-container,
 	.reference-table,
 	.about-card,
-	.main-container .section-header-v2,
 	.footer-disclaimer,
 	.github-link {
 		min-height: 0;
@@ -124,7 +123,6 @@
 	.bmi-card,
 	.bmi-results-card,
 	.about-card:not(.about-card-merged),
-	.main-container .section-header-v2,
 	.footer-disclaimer {
 		padding-top: var(--rsp-height-card-padding-y);
 		padding-bottom: var(--rsp-height-card-padding-y);

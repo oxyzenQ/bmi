@@ -102,7 +102,6 @@
 	.about-card,
 	.gauge-container,
 	.goal-tracker,
-	.section-header-v2,
 	.reference-table,
 	.stat-block,
 	.tdee-card,
@@ -141,7 +140,6 @@
 	.footer-disclaimer,
 	.pwa-install-card,
 	.github-footer,
-	.section-header-v2,
 	.bmi-card:hover,
 	.form-card:hover {
 		transition: none !important;
@@ -485,8 +483,6 @@
 	.reference-table .ref-row,
 	.bmi-value,
 	.about-card-header :is(svg),
-	.footer-disclaimer .warn-ic,
-	.footer-disclaimer .warn-ic-lg,
 	.category-icon,
 	.icon-container :is(svg) {
 		filter: none !important;
@@ -586,7 +582,6 @@
      Keep the wallpaper visible through black alpha, but avoid blur layers
      inside panels/buttons while the user scrolls or types. */
 	.lang-backdrop,
-	.notify-backdrop,
 	.staging-backdrop {
 		background: var(--modal-backdrop-bg) !important;
 		-webkit-backdrop-filter: none !important;
@@ -635,8 +630,7 @@
 		transform: none !important;
 	}
 
-	.lang-backdrop.visible .lang-panel,
-	.notify-backdrop.visible .notify-float-box {
+	.lang-backdrop.visible .lang-panel {
 		transform: none !important;
 	}
 }

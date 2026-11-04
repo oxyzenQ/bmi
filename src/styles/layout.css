@@ -4,18 +4,6 @@
 /* ==============================
       ABOUT BMI SECTION
   ============================== */
-.section-header-v2 {
-	margin-top: clamp(2rem, 10vh, 7rem) !important;
-	border-radius: var(--radius-lg);
-}
-
-.main-container .section-header-v2 {
-	color: var(--stellar-white);
-	padding: 4rem;
-	text-align: center;
-	margin-bottom: clamp(7rem, 10vw, 7rem) !important;
-}
-
 .about-bmi-section .title {
 	margin-top: 1rem;
 	margin-bottom: 1rem;

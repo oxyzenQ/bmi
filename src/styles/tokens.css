@@ -309,8 +309,6 @@
 	--cat-yellow-40: rgba(255, 214, 0, 0.4);
 
 	/* Gold (250,204,21) */
-	--gold-35: rgba(250, 204, 21, 0.35);
-	--gold-45: rgba(250, 204, 21, 0.45);
 
 	/* Danger (239,68,68) */
 	--danger-42: rgba(239, 68, 68, 0.42);
@@ -632,7 +630,6 @@
 	--slate-50-solid: rgba(248, 250, 252, 1); /* #f8fafc — strong text, ref bold */
 	--slate-400-solid: rgba(148, 163, 184, 1); /* #94a3b8 — muted description text */
 	--warn-yellow: rgba(250, 204, 21, 1); /* #facc15 — warning icon yellow-400 */
-	--warn-yellow-light: rgba(253, 224, 71, 1); /* #fde047 — warning icon yellow-300 */
 	--cat-green-toast: rgba(0, 200, 83, 1); /* #00C853 — success toast */
 	--pill-text-blue: rgba(230, 240, 255, 1); /* #e6f0ff — pill indicator text */
 	--pill-dot-grey: rgba(161, 161, 170, 1); /* #a1a1aa — pill grey dot */

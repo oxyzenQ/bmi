@@ -56,7 +56,6 @@
 	}
 
 	.about-card:not(.about-card-merged),
-	.main-container .section-header-v2,
 	.footer-disclaimer {
 		padding: var(--rsp-desktop-panel-padding);
 		border-radius: var(--radius-xl);
@@ -136,7 +135,6 @@
 	.form-card,
 	.bmi-card,
 	.about-card:not(.about-card-merged),
-	.main-container .section-header-v2,
 	.footer-disclaimer {
 		min-height: auto;
 		padding: var(--rsp-card-padding);

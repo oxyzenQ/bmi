@@ -39,7 +39,6 @@
 .gauge-container,
 .reference-table,
 .about-card,
-.section-header-v2,
 .footer-disclaimer,
 .github-footer,
 .github-link,
@@ -135,7 +134,6 @@
 
 	.reference-table,
 	.about-bmi-grid,
-	.main-container .section-header-v2,
 	.footer-disclaimer,
 	.github-footer {
 		width: min(100%, var(--responsive-surface-max)) !important;
@@ -221,7 +219,6 @@
 	.reference-table,
 	.about-bmi-grid,
 	.about-card:not(.about-card-merged),
-	.main-container .section-header-v2,
 	.footer-disclaimer,
 	.github-footer {
 		width: min(100%, var(--responsive-surface-max)) !important;
@@ -254,8 +251,7 @@
 	/* Cards: full width, fluid padding and radius */
 	.form-card,
 	.bmi-card,
-	.about-card:not(.about-card-merged),
-	.main-container .section-header-v2 {
+	.about-card:not(.about-card-merged) {
 		width: 100%;
 		padding: clamp(1rem, 4.5vw, 1.5rem);
 		border-radius: clamp(16px, 5vw, 24px);
