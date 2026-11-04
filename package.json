@@ -1,7 +1,7 @@
 {
 	"name": "bmi-stellar",
 	"private": true,
-	"version": "80.0.0-night.1",
+	"version": "80.0.0-night.2",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev --host",
