@@ -94,7 +94,7 @@ body::before {
 	background-position: center;
 	background-repeat: no-repeat;
 	pointer-events: none;
-	filter: brightness(0.4);
+	filter: brightness(0.55);
 	/* Explicit GPU layer promotion — ensures the dimmed wallpaper
      is cached as a single compositor texture, zero per-frame paint.
      filter alone creates a compositing context on modern browsers,
@@ -123,7 +123,7 @@ body::after {
 	z-index: var(--z-base);
 	/* Negative z-index: intentional — gradient overlay behind content */
 	pointer-events: none;
-	background: linear-gradient(180deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.45));
+	background: linear-gradient(180deg, rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.32));
 }
 
 @supports (height: 100svh) {

@@ -88,6 +88,16 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Changed
 
+- **The wallpaper stack lifted out of near-black into a visible,
+  moody masterclass backdrop (night-style-2).** Four layers were
+  stacking to almost total darkness - desktop dimmed the wallpaper to
+  40% brightness under a 25-45% black gradient, mobile ran it at 50%
+  opacity under a 45-65% gradient. The wallpaper now renders at 55%
+  brightness on desktop / 65% opacity on touch devices, and the
+  overlays ease to 16-32% (desktop) and 28-45% (mobile), so the
+  blackhole art actually reads while the content glass keeps its
+  contrast; the stale comments that quoted the old values follow.
+
 - **Encrypted exports moved to format identifier `bmi-encrypted-v3`
   (night-style-2, owner call).** New backups emit v3 while the cipher
   stack is unchanged (AES-256-GCM, Argon2id with PBKDF2 legacy

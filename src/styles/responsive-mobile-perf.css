@@ -34,7 +34,7 @@
 	}
 
 	/* Simplify body::before on touch devices.
-     Desktop uses filter:brightness(0.4) to dim the wallpaper cheaply
+     Desktop uses filter:brightness(0.55) to dim the wallpaper cheaply
      (single cached texture). On mobile, opacity is even cheaper than
      filter — no GPU filter pass, no compositing layer promotion.
      Combined with the lighter body::after gradient, this achieves
@@ -45,7 +45,7 @@
      keeps the same visual result while letting the browser choose the
      cheapest composition strategy. */
 	body::before {
-		opacity: 0.5;
+		opacity: 0.65;
 		filter: none;
 		will-change: auto;
 		transform: none;
@@ -56,7 +56,7 @@
      overlay can be much lighter. A heavy overlay over a fully-bright
      wallpaper forced double compositing per frame during scroll. */
 	body::after {
-		background: linear-gradient(180deg, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.65));
+		background: linear-gradient(180deg, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.45));
 	}
 
 	/* Keep .pager-section on native compositor scrolling without
