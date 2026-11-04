@@ -36,13 +36,13 @@
 	import PagerSections from '$lib/components/page/PagerSections.svelte';
 	import StagingSpinner from '$lib/components/StagingSpinner.svelte';
 	import { t as _t, initLocale, localeVersion } from '$lib/i18n';
-	import { getAppVersionShort } from '$lib/utils/app-version';
+	import { getAppVersionDisplay } from '$lib/utils/app-version';
 	let _rv = $derived($localeVersion);
 	function t(key: string, params?: Record<string, string | number | undefined | null>): string {
 		void _rv;
 		return _t(key, params);
 	}
-	const appVersionTag = `v${getAppVersionShort()}`;
+	const appVersionTag = `v${getAppVersionDisplay()}`;
 	let metaTitle = $derived(t('meta.title', { version: appVersionTag }));
 	type BmiFormComponentType = typeof import('$lib/components/BmiForm.svelte').default;
 	type BmiResultsComponentType = typeof import('$lib/components/BmiResults.svelte').default;

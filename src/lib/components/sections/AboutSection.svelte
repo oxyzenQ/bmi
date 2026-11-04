@@ -23,10 +23,10 @@
 	import { promptPwaInstall, pwaInstallState } from '$lib/stores/pwa-install';
 	import { applyPwaUpdate, checkForPwaUpdate, pwaUpdateState } from '$lib/stores/pwa-update';
 	import { t as _t, localeVersion } from '$lib/i18n';
-	import { getStellarVersionLabel, getAppVersionShort } from '$lib/utils/app-version';
+	import { getStellarVersionLabel, getAppVersionDisplay } from '$lib/utils/app-version';
 
 	let { gitCommitId, gitBranch }: { gitCommitId: string; gitBranch: string } = $props();
-	const appVersionTag = `v${getAppVersionShort()}`;
+	const appVersionTag = `v${getAppVersionDisplay()}`;
 	let updateCheckingOverlay = $state(false);
 	let showInstallHelp = $state(false);
 	let showUpdateCheckNotice = $state(false);

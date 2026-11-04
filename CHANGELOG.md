@@ -432,6 +432,16 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   Returning visitors keep their saved `bmi.wallpaperTheme` choice -
   the anti-flash inline script in `app.html` applies stored values
   only and needs no change. _(this commit)_
+- **The website displays the full semver release version.** The About
+  section label read `Stellar v80.0` for a `80.0.0` release because
+  `getAppVersionShort()` stripped the patch segment; the helper is
+  now `getAppVersionDisplay()` and returns the exact `package.json`
+  version (fallback `0.0.0`), so the About label, the hero edition
+  line, and the document title all read `v80.0.0`. The README
+  release line keeps its short `vX.Y` form - that surface follows
+  the tag convention (`Stellar-v<major>.<minor>`), not the app
+  display. Backup envelopes and the PWA version compare already
+  consumed the raw full version and are untouched. _(this commit)_
 
 ### Removed
 
