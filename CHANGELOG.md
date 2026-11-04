@@ -88,6 +88,29 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ### Changed
 
+- **The welcome-page logo, the share-card gauge, and the container
+  hover language were retuned (night-engrave-1).** The hero avatar
+  served the same 512px/282KB master PNG for every `srcset` slot, so
+  the width descriptors did nothing; the slots now point at the real
+  master assets they name (128/192/256/512) and the default `src`
+  dropped to the 256px master, so the browser always lands on the
+  smallest file that still covers the layout size at the current
+  device pixel ratio - 108px @1x pulls 20KB instead of 282KB while 3x
+  viewports still receive the 512px master for full sharpness. The
+  generated result card drew its BMI circle at radius 52 beside the
+  150px numeral; the radius is now 64 with the dependent weights
+  scaled (strokes 7 -> 8, marker dot 9/7 at a 2.4 outline, inner
+  labels 22/17px), verified against the card grid so the outer ring
+  clears the header divider, the category pill and the content edge.
+  The glass containers (`.bmi-card`, `.footer-disclaimer`,
+  `.about-card`, `.gauge-container`, `.reference-table`,
+  `.form-card`) no longer run the hover shine sweep: the 200% x 200%
+  `::before` gradient layer, its `:hover` trigger and the two mobile
+  defense blocks that hid the pseudo-elements are gone, while the
+  clipping containment rule stays because absolutely positioned
+  children depend on it; hover now rests on the lift and border
+  transition only.
+
 - **The five README demo screenshots were re-shot against the live
   production build.** All five `assets/demo-bmi-stellar-*.png` surfaces
   (home page, gauge, gauge active, results, snapshot) were captured from
