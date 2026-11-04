@@ -252,7 +252,7 @@
 
 /* ==============================
       MICRO-INTERACTIONS
-      Button ripple, input glow, card shine
+      Button ripple, input glow
       ============================== */
 
 /* ── Button Ripple Effect ── */
@@ -284,7 +284,10 @@
 	background-color: var(--void-85);
 }
 
-/* ── Glass Card Shine Sweep on Hover ── */
+/* ── Container clipping containment ──
+   Rounded containers clip child paint (backdrop edges, absolute
+   overlays). The hover shine sweep that also lived on this layer was
+   removed (night-engrave-1); the clipping itself stays. */
 .bmi-card,
 .footer-disclaimer,
 .about-card,
@@ -293,42 +296,6 @@
 .form-card {
 	position: relative;
 	overflow: hidden;
-}
-
-/* Aurora shine sweep effect */
-.bmi-card::before,
-.footer-disclaimer::before,
-.about-card::before,
-.gauge-container::before,
-.reference-table::before,
-.form-card::before {
-	content: '';
-	position: absolute;
-	top: -50%;
-	left: -50%;
-	width: 200%;
-	height: 200%;
-	background: linear-gradient(
-		105deg,
-		transparent 40%,
-		var(--w-2) 45%,
-		var(--w-5) 50%,
-		var(--w-2) 55%,
-		transparent 60%
-	);
-	transform: translateX(-100%) rotate(15deg);
-	transition: transform var(--dur-slow) var(--easing-smooth);
-	pointer-events: none;
-	z-index: var(--z-content);
-}
-
-.bmi-card:hover::before,
-.footer-disclaimer:hover::before,
-.about-card:hover::before,
-.gauge-container:hover::before,
-.reference-table:hover::before,
-.form-card:hover::before {
-	transform: translateX(50%) rotate(15deg);
 }
 
 /* ── Pager Tab Active Glow Indicator ── */
@@ -344,15 +311,6 @@
 @media (prefers-reduced-motion: reduce) {
 	.btn-ripple {
 		animation: none;
-		display: none;
-	}
-	.bmi-card::before,
-	.footer-disclaimer::before,
-	.about-card::before,
-	.gauge-container::before,
-	.reference-table::before,
-	.form-card::before {
-		transition: none;
 		display: none;
 	}
 }

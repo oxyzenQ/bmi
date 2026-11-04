@@ -148,10 +148,9 @@
 		transform: none !important;
 	}
 
-	/* Calculator page is the densest touch surface. On mobile, remove
-     rounded-card clipping layers that were only needed for shine overlays,
-     and isolate layout without paint containment so dynamic result height
-     can still settle naturally. */
+	/* Calculator page is the densest touch surface. On mobile, relax
+     the rounded-card clipping layers and drop paint containment so
+     dynamic result height can still settle naturally. */
 	#calculator .form-card,
 	#calculator .bmi-card,
 	#calculator .bmi-results-card {
@@ -420,17 +419,6 @@
 		transition: none !important;
 	}
 
-	/* Permanently hide card pseudo-elements (shine sweep).
-     The 200%×200% positioned ::before is expensive to composite. */
-	.bmi-card::before,
-	.footer-disclaimer::before,
-	.about-card::before,
-	.gauge-container::before,
-	.reference-table::before,
-	.form-card::before {
-		display: none !important;
-	}
-
 	/* Permanently disable transitions on buttons.
      Prevents the browser from maintaining transition state. */
 	.btn,
@@ -581,17 +569,6 @@
 	.pager-btn-futuristic:hover,
 	.pager-btn-futuristic:active {
 		transform: none;
-	}
-
-	/* Remove pseudo-element shine sweeps permanently on touch.
-     Even when not scrolling, these oversized elements waste memory. */
-	.bmi-card::after,
-	.footer-disclaimer::after,
-	.about-card::after,
-	.gauge-container::after,
-	.reference-table::after,
-	.form-card::after {
-		display: none !important;
 	}
 
 	/* GPU compositing isolation on pager-shell.
