@@ -238,12 +238,12 @@ button[aria-disabled='true'] {
 	align-items: center;
 	justify-content: center;
 	margin-bottom: 1.5rem;
-	width: 108px;
-	height: 108px;
+	width: 128px;
+	height: 128px;
 	border-radius: var(--radius-pill);
-	padding: 0.6rem;
+	padding: 0;
 	background: none;
-	border: 2px solid var(--w-30);
+	/*border: 2px solid var(--w-30);*/
 	isolation: isolate;
 	overflow: hidden;
 }
