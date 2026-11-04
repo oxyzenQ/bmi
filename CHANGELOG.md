@@ -10,6 +10,8 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Unreleased]
 
+## [80.0.0-night.1]
+
 ### Added
 
 - **A GitHub repository row on the About page (about-repo-row).** The
