@@ -14,7 +14,6 @@
 	outline: none;
 	background: transparent;
 	--pager-top-inset: calc(env(safe-area-inset-top, 0px) + 58px);
-	--pager-edge-fade: 100px;
 	--nav-bar-h: 58px;
 }
 

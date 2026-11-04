@@ -93,7 +93,6 @@
 		--rsp-page-gutter: clamp(0.75rem, 2vw, 1.25rem);
 		--rsp-section-y: clamp(24px, 6vh, 90px);
 		--rsp-container-y: 100px;
-		--rsp-grid-padding: 14px;
 		--rsp-grid-gap: 1rem;
 		--rsp-card-padding: 1.25rem;
 		--rsp-results-padding: 1.75rem;

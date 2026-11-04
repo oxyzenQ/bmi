@@ -674,19 +674,15 @@
 }
 
 .reference-table .ref-row.ref-row-underweight {
-	--ref-row-accent: var(--blue-40);
 }
 
 .reference-table .ref-row.ref-row-normal {
-	--ref-row-accent: var(--emerald-40);
 }
 
 .reference-table .ref-row.ref-row-overweight {
-	--ref-row-accent: var(--cat-amber-40);
 }
 
 .reference-table .ref-row.ref-row-obese {
-	--ref-row-accent: var(--danger-42);
 	border-bottom-left-radius: var(--radius-xl);
 	border-bottom-right-radius: var(--radius-xl);
 }
