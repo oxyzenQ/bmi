@@ -115,6 +115,10 @@ export function prefersReducedMotion(): boolean {
  *
  * Uses hardwareConcurrency, deviceMemory, and connection.effectiveType.
  * Defaults to 'medium' when APIs are unavailable.
+ *
+ * The same thresholds run inline in app.html before first paint so the
+ * CSS tier token overrides (glass degradation policy in tokens.css)
+ * apply without a flash; keep the two implementations in sync.
  */
 export function getPerformanceTier(): 'high' | 'medium' | 'low' {
 	if (typeof window === 'undefined') return 'medium';

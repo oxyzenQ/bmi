@@ -11,8 +11,8 @@
    need a stronger fallback when blur is unavailable.
 
    Why at the END of the file:
-   - Touch media query (above) already disables backdrop-filter
-     and uses solid backgrounds — so this block is redundant there.
+   - Low-tier devices degrade through the data-performance-tier=
+     'low' token override in tokens.css, not through this file.
    - Desktop browsers that support backdrop-filter ignore this.
    - Only old / unsupported browsers (e.g. old Firefox, some WebViews)
      fall through to this fallback.

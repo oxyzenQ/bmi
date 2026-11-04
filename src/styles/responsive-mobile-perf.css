@@ -11,16 +11,12 @@
    and keep horizontal navigation from competing with diagonal swipes.
    ═══════════════════════════════════════════════════════════════ */
 @media (hover: none) and (pointer: coarse) {
-	:root {
-		--container-glass-bg: var(--container-glass-bg-mobile);
-		--container-glass-border: var(--container-glass-border-mobile);
-		--container-glass-filter: var(--container-glass-filter-mobile);
-		--container-glass-shadow: var(--container-glass-shadow-mobile);
-		--nav-glass-bg: var(--nav-glass-bg-mobile);
-		--nav-glass-border-inline: var(--nav-glass-border-inline-mobile);
-		--nav-glass-filter: var(--nav-glass-filter-mobile);
-		--nav-glass-shadow: var(--nav-glass-shadow-mobile);
-	}
+	/* Glass consistency (night-netrunner-2): the touch lane no longer
+	   swaps glass tokens. Premium frosted glass is the design identity
+	   on every device; degradation is hardware-tier based instead -
+	   html[data-performance-tier='low'] flips the same tokens to the
+	   lite variants in tokens.css. DevTools device emulation on desktop
+	   hardware therefore renders the exact premium glass users get. */
 
 	/* Native momentum scroll with predictable vertical intent. */
 	html {
@@ -87,33 +83,6 @@
 
 	.pager-shell {
 		touch-action: pan-y pinch-zoom !important;
-	}
-
-	/* Mobile fake-glass policy.
-     Real backdrop blur is expensive on touch scroll. Use a simple
-     translucent black surface with the shared border/radius so it still
-     reads as glass without paying the per-frame blur cost. */
-	.hero-content,
-	.form-card,
-	.bmi-card,
-	.footer-disclaimer,
-	.pwa-install-card,
-	.github-footer,
-	.about-card,
-	.gauge-container,
-	.goal-tracker,
-	.reference-table,
-	.stat-block,
-	.tdee-card,
-	.health-advice,
-	.age-advisory,
-	.bmi-explanation {
-		background: var(--container-glass-bg) !important;
-		-webkit-backdrop-filter: none !important;
-		backdrop-filter: none !important;
-		border: var(--container-glass-border) !important;
-		border-radius: var(--container-radius, var(--radius-lg)) !important;
-		box-shadow: var(--container-glass-shadow) !important;
 	}
 
 	/* Calculator cards: simplified surfaces, no containment.
@@ -424,8 +393,6 @@
 	a.button {
 		transition: none !important;
 		transition-delay: 0ms !important;
-		-webkit-backdrop-filter: none !important;
-		backdrop-filter: none !important;
 		transform: none !important;
 		touch-action: manipulation !important;
 	}
@@ -555,8 +522,6 @@
 	}
 
 	.pager-btn-futuristic {
-		backdrop-filter: none;
-		-webkit-backdrop-filter: none;
 		transition: none;
 		transform: none;
 		touch-action: manipulation;
@@ -578,27 +543,6 @@
 		contain: layout style;
 	}
 
-	/* Dialog/floating surfaces use the same mobile fake-glass rule.
-     Keep the wallpaper visible through black alpha, but avoid blur layers
-     inside panels/buttons while the user scrolls or types. */
-	.lang-backdrop,
-	.staging-backdrop {
-		background: var(--modal-backdrop-bg) !important;
-		-webkit-backdrop-filter: none !important;
-		backdrop-filter: none !important;
-		transition: none !important;
-	}
-
-	.lang-panel,
-	.notify-float-box {
-		background: var(--modal-panel-bg) !important;
-		-webkit-backdrop-filter: none !important;
-		backdrop-filter: none !important;
-		transform: none !important;
-		transition: none !important;
-		contain: none !important;
-	}
-
 	.notify-close,
 	.notify-btn,
 	.lang-close,
@@ -607,8 +551,6 @@
 	.btn-delete,
 	.btn-cancel,
 	.btn-warn {
-		-webkit-backdrop-filter: none !important;
-		backdrop-filter: none !important;
 		transform: none !important;
 		touch-action: manipulation;
 	}

@@ -125,6 +125,27 @@
 					// Failures (private mode, disabled storage, malformed value)
 					// fall through silently — the default CSS wallpaper applies.
 				}
+				try {
+					// Performance tier before paint (night-netrunner-2).
+					// Mirrors getPerformanceTier() in
+					// src/lib/utils/animation-config.ts - keep in sync.
+					// Low-tier devices must not flash premium glass before
+					// hydration flips the glass tokens to the lite variants.
+					var cores = navigator.hardwareConcurrency || 2;
+					var mem = navigator.deviceMemory === undefined ? 4 : navigator.deviceMemory;
+					var conn = navigator.connection;
+					var net = (conn && conn.effectiveType) || '4g';
+					var tier =
+						cores >= 8 && mem >= 8 && (net === '4g' || !conn)
+							? 'high'
+							: cores >= 4 && mem >= 4
+								? 'medium'
+								: 'low';
+					document.documentElement.dataset.performanceTier = tier;
+				} catch (e2) {
+					// Tier detection is best-effort; without it the premium
+					// glass default applies until hydration sets the tier.
+				}
 			})();
 		</script>
 

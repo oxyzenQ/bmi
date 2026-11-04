@@ -521,3 +521,23 @@
 	--text-on-amber: rgba(26, 26, 46, 1); /* #1a1a2e — text on amber background */
 	--slate-600-solid: rgba(71, 85, 105, 1); /* #475569 — axis label, time text */
 }
+
+/* ── GLASS DEGRADATION POLICY (night-netrunner-2) ──
+   Premium frosted glass is the design identity on every device: the
+   touch lane no longer swaps these tokens, so DevTools device
+   emulation on desktop hardware renders the exact premium glass.
+   Degradation is hardware-tier based only: genuinely weak devices
+   (html[data-performance-tier='low'], detected before paint in
+   app.html and mirrored by getPerformanceTier()) fall back to the
+   lite variants below. Keep this list identical to the touch-lane
+   swap it replaced. */
+html[data-performance-tier='low'] {
+	--container-glass-bg: var(--container-glass-bg-mobile);
+	--container-glass-border: var(--container-glass-border-mobile);
+	--container-glass-filter: var(--container-glass-filter-mobile);
+	--container-glass-shadow: var(--container-glass-shadow-mobile);
+	--nav-glass-bg: var(--nav-glass-bg-mobile);
+	--nav-glass-border-inline: var(--nav-glass-border-inline-mobile);
+	--nav-glass-filter: var(--nav-glass-filter-mobile);
+	--nav-glass-shadow: var(--nav-glass-shadow-mobile);
+}
