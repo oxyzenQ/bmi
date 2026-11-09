@@ -5,8 +5,13 @@ on:
   push:
   pull_request:
   schedule:
-    # Run at 8 AM SGT (00:00 UTC) every Monday
-    - cron: '0 0 * * 1'
+    # Weekly at 03:00 UTC (10:00 WIB) every Monday. Deliberately off the
+    # 00:00 Monday slot: self-heal and maintenance already fire there, and
+    # 00:00 Monday is GitHub's most congested schedule window where
+    # best-effort cron runs queue longest or get dropped. The push and
+    # pull_request triggers above remain the primary lanes; this schedule
+    # is the no-pushes-during-dormancy backstop.
+    - cron: '0 3 * * 1'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true

@@ -21,8 +21,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, SHA pin
 
-      - name: Install codespell
-        run: python3 -m pip install --user codespell
+      - name: Install codespell (pinned)
+        # Pinned to the same version gate-keepers.yml installs. A floating
+        # codespell would let a new upstream release turn this lane red on
+        # automation pushes during dormant periods (the docs spell-check
+        # only runs on push/PR, so a drifted dictionary surfaces exactly
+        # when nothing else moved).
+        run: python3 -m pip install --user "codespell==2.4.1"
 
       - name: Check documentation files
         run: |

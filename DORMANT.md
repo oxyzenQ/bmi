@@ -33,6 +33,15 @@ This mirrors `.github/workflows/ci.yml` step-by-step (format:check → audit:dep
 5. If `audit:deps` fails because new advisories were published against pinned transitive deps during the dormant period, bump the relevant `overrides` in `package.json` (do not weaken crypto deps). If no fixed release exists within the pinned major, add a temporary entry with a reason and an expiry to `scripts/audit-allowlist.json` instead of weakening the gate. Re-run `bun install` then `./scripts/build.sh check-all`.
 6. If CI fails only because GitHub Actions runners/actions changed, update workflow actions without touching app behavior.
 
+## CI During Dormancy
+
+- Scheduled guardians run weekly in UTC: dependency maintenance (Monday 00:00), security audit (Monday 00:30), actions self-heal (Monday 00:00), CodeQL (Monday 03:00), and the runtime probe (Sunday 01:00).
+- GitHub disables scheduled workflows after 60 days without repository activity and sends one notice. This is expected while dormant; re-enable each workflow from the Actions tab (or `gh workflow enable <name>`) as part of wake-up.
+- The actions self-heal and runtime probe push with `PAT_WORKFLOW`. If that secret expires while dormant, both lanes fail weekly until it is rotated in GitHub settings.
+- The dependency maintenance workflow commits with `GITHUB_TOKEN`, so its weekly commit does not trigger CI; it validates the refreshed lockfile inside the workflow before committing.
+- Every automation commit must stay format-clean (`prettier --check .` gates CI): the self-heal sweep writes single-space pin comments and the runtime probe runs prettier on `.github/workflows/` before committing. Keep new automation writers inside that contract.
+- A failed scheduled run sends notifications on purpose (the guardian contract). Fix the cause; do not disable a lane silently.
+
 ## Data Safety Rules
 
 Do not delete, rename, or migrate these without a compatibility plan:
