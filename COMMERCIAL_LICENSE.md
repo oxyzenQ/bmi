@@ -20,14 +20,13 @@ local-first data chain inside your own product, under your own brand.
 
 ## Licensing Tiers
 
-| Tier                | Price                                       | Target                                                      |
-| ------------------- | ------------------------------------------- | ----------------------------------------------------------- |
-| Personal            | Free (AGPL-3.0)                             | Hobby, personal, open-source contributions                  |
-| Individual          | $99/year                                    | Solo devs, freelancers, revenue < $100K/year                |
-| Professional        | $999/year                                   | Teams up to 5 seats, revenue < $500K/year, priority support |
-| Business            | $2,199/year                                 | SMB, revenue $100K–$10M/year                                |
-| Enterprise Internal | $14,999/year                                | Enterprise >$10M/year, internal use only, NO redistribution |
-| White-Label / OEM   | $49,999/year OR $99,999 one-time + 20%/year | Embedding or reselling in a shipped product                 |
+| Tier                | Price                                       | Target                                                         |
+| ------------------- | ------------------------------------------- | -------------------------------------------------------------- |
+| Personal            | Free (AGPL-3.0)                             | Hobby, personal, open-source contributions                     |
+| Professional        | $1,899/year                                 | Solo devs, freelancers, revenue < $100K/year, priority support |
+| Business            | $2,199/year                                 | SMB, revenue $100K–$10M/year                                   |
+| Enterprise Internal | $14,999/year                                | Enterprise >$10M/year, internal use only, NO redistribution    |
+| White-Label / OEM   | $49,999/year OR $99,999 one-time + 20%/year | Embedding or reselling in a shipped product                    |
 
 **Why BMI Stellar is priced like architecture, not an app.**
 BMI Stellar is not a health calculator. It is a local-first ledger with
@@ -40,6 +39,29 @@ validated data chain, the encryption stack, the PWA offline shell, and
 the gatekeeper that keeps it honest. That is not an app. That is
 infrastructure.
 
+### Why the entry tier is $1,899, not $99.
+
+BMI Stellar is not a hobbyist app. It ships four frozen, public audit
+records covering architecture, privacy, and infrastructure, a signed
+license certificate for every grant, and a gatekeeper suite that keeps
+every claim in this repository checkable. Its commercial buyer is a
+professional whose local-first infrastructure value pays off the
+Professional license in one shift, not a hobbyist whose commercial use
+is small and personal — the Personal tier (Free, AGPL-3.0) already
+covers hobby, learning, and open-source contributions completely. The
+Professional tier ($1,899/year) is the entry point for commercial use,
+carrying the same target the $99 Individual tier served (solo devs,
+freelancers, revenue under $100K/year).
+
+The anchor matches the owner's fleet standard: zelynic and zejtron both
+open their commercial ladders at Professional $1,899/year. The $99
+Individual tier is retired as of this revision.
+
+The standing grandfather pattern covers the retirement: any
+Individual-tier customer who bought before this revision is
+grandfathered at $99 for the term they bought — no existing customer
+pays more than they agreed to.
+
 ## What Each Tier Grants
 
 Every paid tier grants the same underlying asset — the full BMI Stellar
@@ -49,7 +71,6 @@ the gatekeeper — with these differences in legal scope:
 | Tier                | Closed-source use | Redistribution                       | Seats     | Support          |
 | ------------------- | ----------------- | ------------------------------------ | --------- | ---------------- |
 | Personal            | No (AGPL applies) | AGPL terms only                      | Unlimited | Community        |
-| Individual          | Yes               | None                                 | 1         | Best effort      |
 | Professional        | Yes               | None                                 | Up to 5   | Priority         |
 | Business            | Yes               | None beyond your own workforce       | Up to 25  | Priority         |
 | Enterprise Internal | Yes               | **None** — internal use only         | Unlimited | Priority + inbox |
@@ -96,15 +117,15 @@ the gatekeeper — with these differences in legal scope:
 ## Payment
 
 - **Card payments:** the owner's Ko-fi page —
-  [ko-fi.com/rezky](https://ko-fi.com/rezky) — for Individual,
-  Professional, and Business tiers.
+  [ko-fi.com/rezky](https://ko-fi.com/rezky) — for Professional and
+  Business tiers.
 - **Enterprise Internal and White-Label / OEM:** invoiced under a signed
   agreement (bank transfer). Contact channels live in
   [TRADEMARK.md §6](TRADEMARK.md) and on the
   [GitHub repository](https://github.com/oxyzenQ/bmi).
 - A 14-day money-back window applies once per licensee on the first
-  annual Individual, Professional, or Business purchase, provided no
-  redistribution has occurred.
+  annual Professional or Business purchase, provided no redistribution
+  has occurred.
 
 ## Warranty and Liability
 

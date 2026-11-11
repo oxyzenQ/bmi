@@ -383,14 +383,18 @@ bargain covers, and a commercial ladder for use that cannot carry it —
 closed-source deployments, network services, and embedding the code in
 shipped products:
 
-| Tier                | Price                                       | Target                                                      |
-| ------------------- | ------------------------------------------- | ----------------------------------------------------------- |
-| Personal            | Free (AGPL-3.0)                             | Hobby, personal, open-source contributions                  |
-| Individual          | $99/year                                    | Solo devs, freelancers, revenue < $100K/year                |
-| Professional        | $999/year                                   | Teams up to 5 seats, revenue < $500K/year, priority support |
-| Business            | $2,199/year                                 | SMB, revenue $100K–$10M/year                                |
-| Enterprise Internal | $14,999/year                                | Enterprise >$10M/year, internal use only, NO redistribution |
-| White-Label / OEM   | $49,999/year OR $99,999 one-time + 20%/year | Embedding or reselling in a shipped product                 |
+| Tier                | Price                                       | Target                                                         |
+| ------------------- | ------------------------------------------- | -------------------------------------------------------------- |
+| Personal            | Free (AGPL-3.0)                             | Hobby, personal, open-source contributions                     |
+| Professional        | $1,899/year                                 | Solo devs, freelancers, revenue < $100K/year, priority support |
+| Business            | $2,199/year                                 | SMB, revenue $100K–$10M/year                                   |
+| Enterprise Internal | $14,999/year                                | Enterprise >$10M/year, internal use only, NO redistribution    |
+| White-Label / OEM   | $49,999/year OR $99,999 one-time + 20%/year | Embedding or reselling in a shipped product                    |
+
+The $99 Individual tier is retired as of this revision — the entry paid
+tier is Professional ($1,899/year). Any Individual-tier customer who
+bought before this revision is grandfathered at $99 for the term they
+bought — no existing customer pays more than they agreed to.
 
 Full terms, payment instructions, and the authoritative table live in
 [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md).
