@@ -29,7 +29,7 @@ b3sum assets/*.png static/assets/*.png static/images/*.webp | sort -k2
 
 | file                                            | bytes   | blake3                                                             |
 | ----------------------------------------------- | ------- | ------------------------------------------------------------------ |
-| assets/bmi-logo-masters.png                     | 1319986 | `beecdc5c4e68ac0a1e2cd7f83604c00400fb4b327028e60906f007d4bd541002` |
+| assets/bmi-original-logo-2026.png               | 1319986 | `beecdc5c4e68ac0a1e2cd7f83604c00400fb4b327028e60906f007d4bd541002` |
 | assets/demo-bmi-stellar-gauge-active.png        | 328909  | `7b5ccec1c4c15df8cace7861584555d0cf37d70799f3f3fdc6ae1f3f8009eb24` |
 | assets/demo-bmi-stellar-gauge.png               | 332711  | `d2d4b7c66652232dde530b47b3b61e96cedf80b3776c29a7692313999ab48db5` |
 | assets/demo-bmi-stellar-home-page.png           | 450617  | `c504240b579c2619377f550e72585c2cf1a153703b0733acfeadd07eb6bca5f0` |
@@ -53,9 +53,10 @@ directory: the web-facing PWA derivatives live in `static/assets/` and
 the shipped web images live in `static/images/`, and a substituted icon
 or background ships to every installed client exactly like a
 substituted demo capture would. The master plate itself lives at the
-repository root, `assets/bmi-logo-masters.png`, beside its signature
-manifest — the same layout the sibling zelynic project uses — kept out
-of the deployed client on purpose because the service worker precaches
+repository root, `assets/bmi-original-logo-2026.png`, beside its
+signature manifest — the same layout and naming pattern the sibling
+zelynic project uses (`zelynic-original-logo-2026.png`) — kept out of
+the deployed client on purpose because the service worker precaches
 `static/` only (see BRANDING 3.1).
 
 When an asset legitimately changes, refresh the matching row and the

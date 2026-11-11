@@ -47,7 +47,7 @@ them.
 
 ### 3.1. Logo file
 
-The official logo is located at [`assets/bmi-logo-masters.png`](assets/bmi-logo-masters.png) at the repository root, the same layout the sibling zelynic project uses. The web-facing derivatives sized for the PWA (192, 216, 256, 512, 512-maskable, 1024) live in `static/assets/`; the full-resolution master is kept out of the deployed client so it does not enter the service-worker precache. Every brand image, including the master, carries a BLAKE3 digest in `assets/signature.b3sum` enforced by the signature-assets gate.
+The official logo is located at [`assets/bmi-original-logo-2026.png`](assets/bmi-original-logo-2026.png) at the repository root — the same layout and naming pattern the sibling zelynic project uses (`zelynic-original-logo-2026.png`). The web-facing derivatives sized for the PWA (192, 216, 256, 512, 512-maskable, 1024) live in `static/assets/`; the full-resolution master is kept out of the deployed client so it does not enter the service-worker precache. Every brand image, including the master, carries a BLAKE3 digest in `assets/signature.b3sum` enforced by the signature-assets gate.
 
 ### 3.2. Usage rules
 

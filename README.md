@@ -7,7 +7,7 @@
 > terms with the owner; nothing between.
 
 <div align="center">
-  <img src="static/assets/bmi-logo-masters-512.png" alt="bmi logo" width="260">
+  <img src="assets/bmi-original-logo-2026.png" alt="bmi logo" width="260">
 
   <h1>bmi</h1>
 

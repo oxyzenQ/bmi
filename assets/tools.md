@@ -10,14 +10,14 @@ does not re-derive them.
 ## rounded corners for the PWA logo derivatives
 
 The master logo ships 1254x1254 at
-[`assets/bmi-logo-masters.png`](bmi-logo-masters.png);
+[`assets/bmi-original-logo-2026.png`](bmi-original-logo-2026.png);
 the manifest and `src/app.html` render the derivatives at 128-1024. Cut
 the rounded alpha mask once at the master size (68 px corner radius, the
 same recipe as the sibling zelynic notes) and resize afterwards, so every
 derivative shares one rounded master:
 
 ```sh
-magick assets/bmi-logo-masters.png \
+magick assets/bmi-original-logo-2026.png \
         \( -size 1254x1254 xc:none -fill white -draw 'roundrectangle 0,0 1253,1253 68,68' \) \
         -alpha off -compose CopyOpacity -composite /tmp/bmi-stellar-round-1254.png
 
@@ -46,9 +46,9 @@ result fully opaque and square-cornered — rounded alpha has no business
 in a maskable tile:
 
 ```sh
-bg=$(magick assets/bmi-logo-masters.png -format '%[pixel:p{2,2}]' info:)
+bg=$(magick assets/bmi-original-logo-2026.png -format '%[pixel:p{2,2}]' info:)
 magick -size 512x512 xc:"$bg" \
-        \( assets/bmi-logo-masters.png -filter Lanczos -resize 368x368 \) \
+        \( assets/bmi-original-logo-2026.png -filter Lanczos -resize 368x368 \) \
         -gravity center -composite -strip -depth 8 \
         static/assets/bmi-logo-masters-512-maskable.png
 ```
