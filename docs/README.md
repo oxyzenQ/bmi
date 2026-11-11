@@ -28,7 +28,7 @@ before relying on a specific number, path, or symbol name.
 | ---------------------------------------------------- | ----------------------------------------------------------------- |
 | [furthermore.md](furthermore.md)                     | The full architectural context behind the releases                |
 | [AUDIT-2026-08.md](AUDIT-2026-08.md)                 | Frozen audit record, August 2026                                  |
-| [AUDIT-2026-11.md](AUDIT-2026-11.md)                 | Frozen audit record, November 2026 (brutal honesty pass)          |
+| [AUDIT-2026-11.md](AUDIT-2026-11.md)                 | Frozen audit record, November 2026 (exacting honesty pass)        |
 | [AUDIT-PRIVACY-2026-11.md](AUDIT-PRIVACY-2026-11.md) | Frozen privacy audit record, November 2026                        |
 | [AUDIT-INFRA-2026-11.md](AUDIT-INFRA-2026-11.md)     | The infra audit: the zelynic discipline sync (night-improve-1..8) |
 | [assets/](assets/)                                   | Brand master asset kept out of the deployed client                |

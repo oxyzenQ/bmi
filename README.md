@@ -238,7 +238,7 @@ See [SECURITY.md](SECURITY.md) for the full policy and the reporting process.
 **Local-first, boring, and honest — the ledger never lies.**
 
 bmi stays out of your way while doing serious work underneath: one
-page, one form, one hardened data chain. Features don't explode;
+page, one form, one hardened data chain. Features don't balloon;
 every release makes it slightly more stable, slightly faster, and
 easier to maintain while dormant.
 
