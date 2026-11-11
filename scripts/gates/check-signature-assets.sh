@@ -5,14 +5,14 @@
 # SIGNATURE ASSETS GATE
 #
 # The LTS brand-supply-chain lock: every image under assets/,
-# docs/assets/, and static/assets/ must match the BLAKE3 digest
-# recorded in assets/signature.b3sum, and every signed entry must
-# exist. Both directions are enforced, so a swapped, re-encoded, or
-# duplicated logo fails the gate, a silently added image fails the
-# gate, and a deleted asset fails the gate. The digest manifest is
-# regenerated only through the documented refresh policy in
-# assets/signature-assets.md (the row moves in the same commit as the
-# bytes, so the change is always visible in review).
+# docs/assets/, static/assets/, and static/images/ must match the
+# BLAKE3 digest recorded in assets/signature.b3sum, and every signed
+# entry must exist. Both directions are enforced, so a swapped,
+# re-encoded, or duplicated logo fails the gate, a silently added
+# image fails the gate, and a deleted asset fails the gate. The
+# digest manifest is regenerated only through the documented refresh
+# policy in assets/signature-assets.md (the row moves in the same
+# commit as the bytes, so the change is always visible in review).
 #
 # Tool: b3sum (the BLAKE3 team's canonical CLI). A missing tool is a
 # named skip in the gate-keepers lane, never a silent pass.
@@ -23,7 +23,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 MANIFEST="assets/signature.b3sum"
-SCAN_DIRS=(assets docs/assets static/assets)
+SCAN_DIRS=(assets docs/assets static/assets static/images)
 EXTENSIONS=(png jpg jpeg webp gif svg avif ico)
 
 if ! command -v b3sum >/dev/null 2>&1; then

@@ -180,6 +180,7 @@ jobs:
           cp -r src "$STAGE/" && cp -r static "$STAGE/" && cp -r scripts "$STAGE/"
           cp -r .github "$STAGE/" 2>/dev/null || true
           cp -r docs "$STAGE/" 2>/dev/null || true
+          cp -r assets "$STAGE/" 2>/dev/null || true
           cp package.json "$STAGE/"
           cp bun.lock "$STAGE/" 2>/dev/null || true
           cp svelte.config.js "$STAGE/" 2>/dev/null || true
