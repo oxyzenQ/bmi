@@ -303,8 +303,9 @@ GitHub workflows are located in `.github/workflows/`.
 | `maintenance.yml`       | Runs the `Maintenance deps weekly` lockfile refresh and direct commit flow                                                                 |
 | `self-heal-actions.yml` | Automatically updates minor/patch GitHub Action versions                                                                                   |
 | `runtime-probe.yml`     | Probes Node/Bun runtime compatibility                                                                                                      |
-| `security-audit.yml`    | Daily scheduled dependency + policy audit (loc, headers, pwa-offline)                                                                      |
+| `security-audit.yml`    | Weekly scheduled dependency + policy audit (loc, headers, pwa-offline)                                                                     |
 | `docs-ci.yml`           | Lints documentation files (prettier, yamllint, codespell)                                                                                  |
+| `gate-keepers.yml`      | The wholesale non-code lane: shellcheck, yamllint, actionlint, codespell, permissions, LOC cap, action pins, version surfaces              |
 
 ## Release Process
 
@@ -329,6 +330,6 @@ Release tags must adhere to the format: `v<major>.<minor>.<patch>` (for example,
 - **Backdrop Filters:** Older browsers lacking `backdrop-filter` support fallback to opaque surfaces via `responsive-backdrop.css` feature detection.
 - **Mobile Performance:** Touch devices utilize simpler, dark transparent surfaces in heavy scroll areas to reduce paint/compositor work. The `responsive-mobile-perf.css` layer disables or softens expensive effects such as `backdrop-filter`, heavy glows, and hover-only transitions on `(hover: none) and (pointer: coarse)` devices.
 - **Accessibility:** Users with `prefers-reduced-motion` enabled will experience disabled animations. Visual styling is preserved — only motion is suppressed.
-- **Build Environment:** The project pins Bun `1.3.11` (via `package.json#packageManager`) and Node `22.x` for local development. CI and release workflows run on Node 24 (`FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`, `NODE_VERSION=24`) with the Vercel runtime `nodejs24.x`. The `engines` field in `package.json` declares `node >=22 <25`.
+- **Build Environment:** The project pins Bun `1.3.11` (via `package.json#packageManager`) and Node `24.x` (via `.tool-versions`) for local development. CI and release workflows run on Node 24 (`FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`, `NODE_VERSION=24`) with the Vercel runtime `nodejs24.x`. The `engines` field in `package.json` declares `node >=22 <25`.
 - **Security Finality:** Encrypted backups fundamentally cannot be recovered without the user's passphrase. This is by design — there is no backdoor.
 - **Dormant Maintenance:** The project follows a low-touch maintenance cadence (see [`DORMANT.md`](../DORMANT.md)). When waking it up after a quiet period, expect `bun run audit:deps` to flag advisories published against pinned transitive deps in the interim — bump `overrides` in `package.json` (never weaken crypto deps), or add a temporary reason-and-expiry entry to `scripts/audit-allowlist.json` when no fixed release exists within the pinned major, and re-run `./scripts/build.sh check-all`.

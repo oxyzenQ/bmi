@@ -21,8 +21,8 @@ jobs:
     name: Build & Test
     runs-on: ubuntu-24.04
     # Full gate (audit, format, loc, headers, branding, pwa, typecheck,
-    # lint, test, build) takes ~5 min; 15 caps a hung runner at 3x.
-    timeout-minutes: 15
+    # lint, test, build) takes ~5 min; 10 caps a hung runner at 2x.
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code

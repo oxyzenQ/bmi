@@ -73,3 +73,11 @@ Enforced by `scripts/gates/check-name-case.py` over every tracked file
 and path - nothing excluded, untracked-but-not-ignored files included so
 a violation fails before the commit - with `file:line:token` output
 (night-improve-8, the zelynic name-case discipline).
+
+## CI Time Budget
+
+Every workflow job declares `timeout-minutes`, and no job may set it
+above **10 minutes**. A CI lane that cannot finish inside ten minutes
+is a design defect, not a runner problem - split the lane, cache the
+install, or shrink the work. Scheduled guardians (CodeQL, maintenance,
+runtime probe) live under the same ceiling.

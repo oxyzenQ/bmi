@@ -28,7 +28,7 @@ env:
 jobs:
   runtime-probe:
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 10
 
     steps:
       - name: Detect default branch

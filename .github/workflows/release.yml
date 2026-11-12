@@ -71,7 +71,7 @@ jobs:
     needs: validate-tag
     runs-on: ubuntu-24.04
     # Static build plus archive creation and release upload take ~5-8 min.
-    timeout-minutes: 20
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code

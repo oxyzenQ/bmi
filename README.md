@@ -179,8 +179,9 @@ src/
 ├── routes/                  # SvelteKit pages (+layout, +page, +error)
 ├── service-worker.ts        # PWA service worker
 scripts/                     # build.sh gatekeeper + gates/ audits + dev/ version tools (zelynic-aligned tree)
-docs/                        # Long-form docs + brand master asset
-.github/workflows/           # CI, docs-ci, release, security-audit, maintenance, self-heal, runtime-probe, codeql, gate-keepers
+assets/                      # Brand master plate + BLAKE3 signature digests
+docs/                        # Long-form docs (deep dive + frozen audit records)
+.github/workflows/           # CI, docs-ci, gate-keepers, release, security-audit, maintenance, self-heal, runtime-probe, codeql
 ```
 
 ## Architecture
@@ -296,10 +297,15 @@ seriously. Found something? **Report it privately** via
 
 ## Documentation
 
-- [CHANGELOG.md](CHANGELOG.md) — release history v20.0 → v21.7 plus the in-progress Unreleased section
+- [CHANGELOG.md](CHANGELOG.md) — release history v21.0 → v80.0.2 plus the in-progress Unreleased section
+- [docs/README.md](docs/README.md) — the documentation map
 - [docs/furthermore.md](docs/furthermore.md) — the architectural deep dive: CSS cascade, pager, crypto, PWA, share image (the flagship reference)
 - [docs/AUDIT-2026-08.md](docs/AUDIT-2026-08.md) — source code audit record (August 2026)
 - [docs/AUDIT-2026-11.md](docs/AUDIT-2026-11.md) — night-spark LTS depth audit record (November 2026)
+- [docs/AUDIT-PRIVACY-2026-11.md](docs/AUDIT-PRIVACY-2026-11.md) — privacy audit record (November 2026)
+- [docs/AUDIT-INFRA-2026-11.md](docs/AUDIT-INFRA-2026-11.md) — infra audit: the zelynic discipline sync (November 2026)
+- [docs/AUDIT-LTS-2026-11.md](docs/AUDIT-LTS-2026-11.md) — end-to-end real-usage readiness audit (November 2026)
+- [docs/responsive-audit-375.md](docs/responsive-audit-375.md) — the 375×667 responsive floor audit (November 2026)
 - [DORMANT.md](DORMANT.md) — the wake-up checklist for long quiet periods
 - [SECURITY.md](SECURITY.md) — reporting process, threat model, crypto details
 - [TRADEMARK.md](TRADEMARK.md) — trademark ownership, permitted uses, fork renaming rules
