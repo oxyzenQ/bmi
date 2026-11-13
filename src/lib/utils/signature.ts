@@ -108,9 +108,15 @@ const SIG_GOLDEN = 0x9e3779b97f4a7c15n;
 /**
  * One splitmix64 round. Written to mirror the generator byte-exactly;
  * changing one side requires changing both and re-running the tool.
+ *
+ * The `BigInt(...)` wraps around additions are explicit conversions, not
+ * algorithm changes: a JS `+` result feeds a bitwise operator as an
+ * implicit conversion (a `+` may produce a string), so the operand is
+ * converted explicitly. For bigint operands `BigInt(x)` is an identity
+ * and every computed value stays byte-identical to the generator.
  */
 function sigSplitmix64Mix(z: bigint): bigint {
-	const a = (z + SIG_GOLDEN) & SIG_MASK64;
+	const a = BigInt(z + SIG_GOLDEN) & SIG_MASK64;
 	const b = ((a ^ (a >> 30n)) * 0xbf58476d1ce4e5b9n) & SIG_MASK64;
 	const c = ((b ^ (b >> 27n)) * 0x94d049bb133111ebn) & SIG_MASK64;
 	return (c ^ (c >> 31n)) & SIG_MASK64;
@@ -122,7 +128,8 @@ function sigSplitmix64Mix(z: bigint): bigint {
  * and different per layer because the seeds differ.
  */
 export function maskFor(seed: bigint, index: number): bigint {
-	return sigSplitmix64Mix((seed + SIG_GOLDEN * BigInt(index + 1)) & SIG_MASK64);
+	const step = BigInt(index + 1);
+	return sigSplitmix64Mix(BigInt(seed + SIG_GOLDEN * step) & SIG_MASK64);
 }
 
 /**

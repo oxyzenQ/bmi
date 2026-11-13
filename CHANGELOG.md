@@ -39,6 +39,16 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   untouched: tests, the signature gate, and the `-V` surface keep the
   full canonical format.
 
+- **Explicit BigInt conversions in the provenance mixer
+  (night-codeql-conv-1).** CodeQL flagged the two splitmix64 additions
+  whose result feeds a bitwise operator: a JS `+` result may be a
+  string, so the bitwise operand reads as an implicit operand
+  conversion. The additions are now wrapped in explicit `BigInt(...)`,
+  the conversion the rule itself recommends — an identity for bigint
+  operands, so every computed value stays byte-identical to the Python
+  generator's mirror. The signature gate reports status=verified and
+  the full suite passes (523 tests, 35 files).
+
 ## [80.0.4]
 
 ## [80.0.3]
