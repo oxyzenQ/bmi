@@ -339,8 +339,10 @@ The rejected ideas stay recorded so nobody re-litigates them blind:
   script, or doc were removed in commit `007156f`.
 - **The unreferenced brand master in the shipping payload.** The
   1.0 MB master image sat in `static/`, precached on every install
-  while nothing rendered it; moved to `docs/assets/` in commit
-  `6c7c8d4`.
+  while nothing rendered it; it left the shipping payload in commit
+  `6c7c8d4` and the web-facing derivatives (192-1024 px) stay in
+  `static/assets/` under the retired-asset guard
+  (`scripts/gates/check-branding.ts`).
 
 ## Reading order for a new maintainer
 
