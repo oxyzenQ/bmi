@@ -75,7 +75,7 @@ BMI Stellar is local-first. BMI inputs, BMI history, goals, body-composition val
 
 The hosted production demo may load Vercel Analytics and Speed Insights for aggregate product/performance telemetry. Those integrations must never receive BMI values, history records, passphrases, encryption keys, backup payloads, or decrypted import contents.
 
-The app also checks for updates a few seconds after each production load by fetching two public GitHub URLs: this repository's `package.json` on `raw.githubusercontent.com` and the latest commit SHA on `api.github.com`. These are unauthenticated GET requests with no body, no credentials, and no health data; both endpoints are pinned in the production CSP `connect-src` allowlist, which is the complete set of third-party endpoints the app may contact.
+The app also checks for updates at most once every 12 hours per device by fetching two public GitHub URLs: this repository's `package.json` on `raw.githubusercontent.com` and the latest commit SHA on `api.github.com`. These are unauthenticated GET requests with no body, no credentials, and no health data; a failed or offline attempt is not counted toward the throttle window, and manual checks in About are immediate. Both endpoints are pinned in the production CSP `connect-src` allowlist, which is the complete set of third-party endpoints the app may contact.
 
 Users can explicitly export or share data:
 

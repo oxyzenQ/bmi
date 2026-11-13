@@ -116,7 +116,7 @@ The application is a single-page experience segmented into six primary sections:
 - Post-navigation cooldown: 520ms
 - Vertical intent threshold: 16px
 - Vertical scroll cancellation threshold: 28px
-- Recent touch-scroll guard: 240ms
+- Recent touch-scroll guard: 480ms (`SCROLL.TOUCH_SCROLL_MODE_IDLE_DELAY`)
 - Excluded targets: buttons, links, inputs, labels, and `[role="button"]` elements
 - Haptic feedback: 5ms vibration on successful navigation
 
@@ -152,16 +152,20 @@ The lazy-load utility (`src/lib/utils/lazy-load.ts`) uses `IntersectionObserver`
 
 ## Data Persistence
 
-All data remains client-side, managed via a storage abstraction layer (`src/lib/utils/storage.ts`) with localStorage as primary and IndexedDB as secondary. The full set of `STORAGE_KEYS` defined in `src/lib/utils/storage.ts` is:
+All data remains client-side, managed via a storage abstraction layer (`src/lib/utils/storage.ts`): IndexedDB (via `src/lib/utils/db.ts`) is the durable primary store and localStorage is the synchronous write-through mirror in front of an in-memory read cache. The full set of `STORAGE_KEYS` defined in `src/lib/utils/storage.ts` is:
 
-| Storage Key             | Store                  | Purpose                                                                                |
-| ----------------------- | ---------------------- | -------------------------------------------------------------------------------------- |
-| `bmi.history`           | localStorage           | Comprehensive BMI calculation history                                                  |
-| `bmi.goal`              | localStorage           | User's target BMI / weight goal                                                        |
-| `bmi.goal.start`        | localStorage           | Goal start reference (baseline for progress)                                           |
-| `bmi.unitSystem`        | localStorage           | User metric/imperial preference                                                        |
-| `bmi.locale`            | localStorage           | Selected language                                                                      |
-| `__encryption_verifier` | IndexedDB `meta` store | AES-GCM ciphertext of a known verifier string (confirms passphrase without storing it) |
+| Storage Key             | Store                    | Purpose                                                                                |
+| ----------------------- | ------------------------ | -------------------------------------------------------------------------------------- |
+| `bmi.history`           | localStorage + IndexedDB | Comprehensive BMI calculation history                                                  |
+| `bmi.goal`              | localStorage + IndexedDB | User's target BMI / weight goal                                                        |
+| `bmi.goal.start`        | localStorage + IndexedDB | Goal start reference (baseline for progress)                                           |
+| `bmi.unitSystem`        | localStorage + IndexedDB | User metric/imperial preference                                                        |
+| `bmi.locale`            | localStorage + IndexedDB | Selected language                                                                      |
+| `bmi.wallpaperTheme`    | localStorage + IndexedDB | Selected wallpaper theme                                                               |
+| `bmi.passphrase_hint`   | localStorage + IndexedDB | Optional user-written passphrase hint (never the passphrase itself)                    |
+| `bmi.updateCheckAt`     | localStorage only        | Last automatic update-check timestamp (the 12-hour throttle stamp)                     |
+| `__encryption_verifier` | IndexedDB `meta` store   | AES-GCM ciphertext of a known verifier string (confirms passphrase without storing it) |
+| `__schema_version`      | IndexedDB `meta` store   | Storage schema version marker for migrations                                           |
 
 > [!TIP]
 > The storage layer includes error-resilient fallbacks — `SecurityError`, `QuotaExceededError`, and JSON parse failures are caught gracefully with dev-only warnings. Cross-tab synchronization ensures state consistency when multiple tabs are open. The encryption verifier lives in the IndexedDB `meta` store (not localStorage) and is never the passphrase itself — only an authenticated ciphertext that can be tested against a candidate passphrase.
