@@ -14,8 +14,8 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 - **Dead direct `esbuild` dependency (night-total-hardening-1).** The
   runtime `dependencies` block declared `esbuild`, but nothing in the
-  tree ever imports it — `vite.config.ts` only passes `minify:
-  'esbuild'`, which is a Vite option key, and Vite carries its own
+  tree ever imports it: `vite.config.ts` passes the option
+  `minify: 'esbuild'` — a Vite option key — and Vite carries its own
   transitive esbuild. The direct entry forced a production-grade
   install of a package that is never used and widened the advisory
   surface. The `overrides.esbuild` pin stays: it still locks the
