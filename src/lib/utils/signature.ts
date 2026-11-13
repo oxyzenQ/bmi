@@ -102,24 +102,25 @@ export const MASKED_AUTHORS_FIELD =
 
 const SIG_MASK64 = (1n << 64n) - 1n;
 
-/** Golden-ratio increment (splitmix64's additive constant). */
-const SIG_GOLDEN = 0x9e3779b97f4a7c15n;
+/**
+ * Golden-ratio increment (splitmix64's additive constant). Written as a
+ * `BigInt("0x…")` conversion rather than an n-suffixed hex literal:
+ * CodeQL's JS value model cannot parse the latter (its literal analysis
+ * is float-based) and would read this constant as `undefined`, flagging
+ * every arithmetic use of it as an implicit operand conversion. The
+ * runtime value is identical.
+ */
+const SIG_GOLDEN = BigInt('0x9e3779b97f4a7c15');
 
 /**
  * One splitmix64 round. Written to mirror the generator byte-exactly;
  * changing one side requires changing both and re-running the tool.
- *
- * `BigInt.asUintN(64, x)` wraps `x` modulo 2^64, which for the
- * non-negative values in this mixer is exactly `x & SIG_MASK64` — the
- * generator's `(x) & MASK64` in Python. The wrap is spelled as a call
- * rather than a bitwise mask so the `+` result sits in call-argument
- * position: CodeQL's JS value model has no bigint, classifies a `+`
- * over TS-bigint operands as a string append, and reads a bitwise
- * operand fed by such a `+` as an implicit operand conversion. Every
- * computed value stays byte-identical to the generator.
+ * Every value here is a non-negative bigint, so `& SIG_MASK64` is the
+ * generator's `(x) & MASK64` in Python, and every computed value stays
+ * byte-identical to it.
  */
 function sigSplitmix64Mix(z: bigint): bigint {
-	const a = BigInt.asUintN(64, z + SIG_GOLDEN);
+	const a = (z + SIG_GOLDEN) & SIG_MASK64;
 	const b = ((a ^ (a >> 30n)) * 0xbf58476d1ce4e5b9n) & SIG_MASK64;
 	const c = ((b ^ (b >> 27n)) * 0x94d049bb133111ebn) & SIG_MASK64;
 	return (c ^ (c >> 31n)) & SIG_MASK64;
@@ -128,13 +129,11 @@ function sigSplitmix64Mix(z: bigint): bigint {
 /**
  * Mask stream for word `index`: mix(seed + (index + 1) * GOLDEN).
  * Index-addressable (no sequential state to mirror), deterministic,
- * and different per layer because the seeds differ. The wrap is
- * `BigInt.asUintN(64, ...)` for the same reason as in
- * `sigSplitmix64Mix` — value-identical to the generator's `& MASK64`.
+ * and different per layer because the seeds differ.
  */
 export function maskFor(seed: bigint, index: number): bigint {
 	const step = BigInt(index + 1);
-	return sigSplitmix64Mix(BigInt.asUintN(64, seed + SIG_GOLDEN * step));
+	return sigSplitmix64Mix((seed + SIG_GOLDEN * step) & SIG_MASK64);
 }
 
 /**

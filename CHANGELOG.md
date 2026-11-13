@@ -39,23 +39,27 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   untouched: tests, the signature gate, and the `-V` surface keep the
   full canonical format.
 
-- **Explicit 64-bit wraps in the provenance mixer
-  (night-codeql-conv-1).** CodeQL flagged the two splitmix64 additions
-  whose result feeds a bitwise operator. Root cause, from the query
-  and library sources: CodeQL's JS type system has no bigint, so a `+`
-  over TS-bigint operands is classified as a string append whose value
-  reads as a non-numeric string, and a `BigInt()` call passes its
-  argument's values through — the string-classified result then feeds
-  the bitwise operator as an implicit operand conversion. The two
-  maskings are now `BigInt.asUintN(64, ...)`: the addition sits in
-  call-argument position and the unmodeled call result breaks the
-  propagation. `asUintN(64, x)` is value-identical to the generator's
-  `x & MASK64` for the mixer's non-negative values, so every
-  fingerprint stays byte-exact — the signature gate reports
-  status=verified across all 7 recorded surfaces and the full suite
-  passes (523 tests, 35 files). An earlier attempt wrapping the
-  additions in explicit `BigInt(...)` did not silence the analyzer and
-  is superseded by this fix.
+- **Trackable value for the golden-ratio constant
+  (night-codeql-conv-1).** CodeQL flagged js/implicit-operand-conversion
+  on the provenance mixer three times, across three different
+  spellings of the same two expressions (`& mask`, an
+  explicit `BigInt(...)` wrap, then a `BigInt.asUintN(64, ...)` wrap).
+  The real cause, found by running the exact CI query bundle locally:
+  CodeQL's literal analysis parses literals as floats, cannot parse an
+  n-suffixed hex literal such as `0x9e3779b97f4a7c15n`, and therefore
+  reads the `SIG_GOLDEN` constant as `undefined` — every arithmetic or
+  bitwise use of it then reports an implicit conversion
+  ("undefined to number or string" / "undefined to number"). The
+  constant is now initialized as `BigInt("0x9e3779b97f4a7c15")`, which
+  the value model tracks; the runtime value is identical. The mixer
+  itself returns to the generator's exact `(x) & SIG_MASK64` spelling,
+  so the code mirrors `generate-provenance-words.py` line for line
+  again. Proof: the CI-identical query (codeql-bundle-v2.27.4) now
+  reports zero results on a database of the whole repo; the signature
+  gate reports status=verified across all 7 recorded surfaces; the
+  full suite passes (523 tests, 35 files). The two earlier attempts
+  (`BigInt(...)` and `BigInt.asUintN(64, ...)` wraps) did not address
+  the cause and are superseded by this fix.
 
 ## [80.0.4]
 
