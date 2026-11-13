@@ -109,14 +109,17 @@ const SIG_GOLDEN = 0x9e3779b97f4a7c15n;
  * One splitmix64 round. Written to mirror the generator byte-exactly;
  * changing one side requires changing both and re-running the tool.
  *
- * The `BigInt(...)` wraps around additions are explicit conversions, not
- * algorithm changes: a JS `+` result feeds a bitwise operator as an
- * implicit conversion (a `+` may produce a string), so the operand is
- * converted explicitly. For bigint operands `BigInt(x)` is an identity
- * and every computed value stays byte-identical to the generator.
+ * `BigInt.asUintN(64, x)` wraps `x` modulo 2^64, which for the
+ * non-negative values in this mixer is exactly `x & SIG_MASK64` — the
+ * generator's `(x) & MASK64` in Python. The wrap is spelled as a call
+ * rather than a bitwise mask so the `+` result sits in call-argument
+ * position: CodeQL's JS value model has no bigint, classifies a `+`
+ * over TS-bigint operands as a string append, and reads a bitwise
+ * operand fed by such a `+` as an implicit operand conversion. Every
+ * computed value stays byte-identical to the generator.
  */
 function sigSplitmix64Mix(z: bigint): bigint {
-	const a = BigInt(z + SIG_GOLDEN) & SIG_MASK64;
+	const a = BigInt.asUintN(64, z + SIG_GOLDEN);
 	const b = ((a ^ (a >> 30n)) * 0xbf58476d1ce4e5b9n) & SIG_MASK64;
 	const c = ((b ^ (b >> 27n)) * 0x94d049bb133111ebn) & SIG_MASK64;
 	return (c ^ (c >> 31n)) & SIG_MASK64;
@@ -125,11 +128,13 @@ function sigSplitmix64Mix(z: bigint): bigint {
 /**
  * Mask stream for word `index`: mix(seed + (index + 1) * GOLDEN).
  * Index-addressable (no sequential state to mirror), deterministic,
- * and different per layer because the seeds differ.
+ * and different per layer because the seeds differ. The wrap is
+ * `BigInt.asUintN(64, ...)` for the same reason as in
+ * `sigSplitmix64Mix` — value-identical to the generator's `& MASK64`.
  */
 export function maskFor(seed: bigint, index: number): bigint {
 	const step = BigInt(index + 1);
-	return sigSplitmix64Mix(BigInt(seed + SIG_GOLDEN * step) & SIG_MASK64);
+	return sigSplitmix64Mix(BigInt.asUintN(64, seed + SIG_GOLDEN * step));
 }
 
 /**

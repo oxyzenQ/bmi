@@ -39,15 +39,23 @@ For the full architectural context behind any release, see [`docs/furthermore.md
   untouched: tests, the signature gate, and the `-V` surface keep the
   full canonical format.
 
-- **Explicit BigInt conversions in the provenance mixer
+- **Explicit 64-bit wraps in the provenance mixer
   (night-codeql-conv-1).** CodeQL flagged the two splitmix64 additions
-  whose result feeds a bitwise operator: a JS `+` result may be a
-  string, so the bitwise operand reads as an implicit operand
-  conversion. The additions are now wrapped in explicit `BigInt(...)`,
-  the conversion the rule itself recommends — an identity for bigint
-  operands, so every computed value stays byte-identical to the Python
-  generator's mirror. The signature gate reports status=verified and
-  the full suite passes (523 tests, 35 files).
+  whose result feeds a bitwise operator. Root cause, from the query
+  and library sources: CodeQL's JS type system has no bigint, so a `+`
+  over TS-bigint operands is classified as a string append whose value
+  reads as a non-numeric string, and a `BigInt()` call passes its
+  argument's values through — the string-classified result then feeds
+  the bitwise operator as an implicit operand conversion. The two
+  maskings are now `BigInt.asUintN(64, ...)`: the addition sits in
+  call-argument position and the unmodeled call result breaks the
+  propagation. `asUintN(64, x)` is value-identical to the generator's
+  `x & MASK64` for the mixer's non-negative values, so every
+  fingerprint stays byte-exact — the signature gate reports
+  status=verified across all 7 recorded surfaces and the full suite
+  passes (523 tests, 35 files). An earlier attempt wrapping the
+  additions in explicit `BigInt(...)` did not silence the analyzer and
+  is superseded by this fix.
 
 ## [80.0.4]
 
