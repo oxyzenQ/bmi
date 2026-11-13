@@ -26,6 +26,7 @@ before relying on a specific number, path, or symbol name.
 
 | Document                                             | Purpose                                                                     |
 | ---------------------------------------------------- | --------------------------------------------------------------------------- |
+| [INNOVATIONS.md](INNOVATIONS.md)                     | The innovation ledger: every implemented mechanism in dependency order      |
 | [furthermore.md](furthermore.md)                     | The full architectural context behind the releases                          |
 | [AUDIT-2026-08.md](AUDIT-2026-08.md)                 | Frozen audit record, August 2026                                            |
 | [AUDIT-2026-11.md](AUDIT-2026-11.md)                 | Frozen audit record, November 2026 (exacting honesty pass)                  |
