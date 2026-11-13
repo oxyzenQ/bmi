@@ -10,6 +10,20 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Unreleased]
 
+### Fixed
+
+- **Consistent Signature and Depth-matrix rows on the About page
+  (night-cafe-1).** The two fingerprint info-row icons now match their
+  sibling rows: compact fixed 20px sizing with `flex-shrink: 0` (the
+  long Depth-matrix row could squeeze its icon below size), brand
+  purple for both icons instead of the inherited muted gray, and the
+  Depth-matrix row renders its compact body exactly once — the
+  duplicated `Depth-matrix:` label is stripped, the layer list is
+  shortened to `layers=d0,d1,d2`, and the row wraps safely on narrow
+  viewports. The contractual `depthLine` in `signature.ts` is
+  untouched: tests, the signature gate, and the `-V` surface keep the
+  full canonical format.
+
 ## [80.0.4]
 
 ## [80.0.3]

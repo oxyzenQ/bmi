@@ -48,6 +48,11 @@
 	white-space: nowrap;
 }
 
+.app-info .info-row.depth-row {
+	flex-wrap: wrap;
+	row-gap: 0.15rem;
+}
+
 .bmi-section {
 	margin-top: var(--section-margin-y);
 	margin-bottom: var(--section-margin-y);

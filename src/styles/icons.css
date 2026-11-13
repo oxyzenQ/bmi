@@ -38,7 +38,9 @@
    the large header icon sizing above.
    Uses higher specificity (.about-card .info-row) to guarantee win
    over any .about-card-header .Database rule in responsive files.
-   Color tokens match each icon's semantic meaning. */
+   flex-shrink: 0 keeps every row icon at its fixed size: long rows
+   (Depth-matrix, repository link) must wrap instead of squeezing
+   their icon. Color tokens match each icon's semantic meaning. */
 .about-card
 	.info-row
 	:is(
@@ -49,10 +51,12 @@
 		.GitCompare,
 		.Github,
 		.Scale,
-		.ShieldCheck
+		.ShieldCheck,
+		.Fingerprint
 	) {
 	width: 20px !important;
 	height: 20px !important;
+	flex-shrink: 0 !important;
 }
 
 /* info-row icon colors — semantic brand accents */
@@ -86,6 +90,12 @@
 
 .about-card .info-row .ShieldCheck {
 	color: var(--cat-green-90) !important;
+}
+
+/* Signature and Depth-matrix identity marks — brand purple on both,
+   never the inherited muted gray (they are one provenance pair). */
+.about-card .info-row .Fingerprint {
+	color: var(--cosmic-purple) !important;
 }
 
 /* Hero icons */

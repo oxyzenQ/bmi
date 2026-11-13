@@ -30,6 +30,13 @@
 	let { gitCommitId, gitBranch }: { gitCommitId: string; gitBranch: string } = $props();
 	const appVersionTag = `v${getAppVersionDisplay()}`;
 	const provenance = provenanceView();
+	// UI-compact Depth-matrix body: the contractual depthLine keeps its
+	// own "Depth-matrix:" prefix (tests and the -V surface pin it), so
+	// strip that duplicated label here and compact the layer list; the
+	// info-row strong label carries the name exactly once.
+	const depthBody = provenance.depthLine
+		.replace(/^Depth-matrix: /, '')
+		.replace('layers=d0:masked-words,d1:masked-words,d2:dual-fingerprint', 'layers=d0,d1,d2');
 	let updateCheckingOverlay = $state(false);
 	let showInstallHelp = $state(false);
 	let showUpdateCheckNotice = $state(false);
@@ -286,9 +293,9 @@
 								<Fingerprint class="Fingerprint" />
 								<strong>{t('about.signature')}:</strong>{BMI_STELLAR_SIGNATURE}
 							</p>
-							<p class="info-row">
+							<p class="info-row depth-row">
 								<Fingerprint class="Fingerprint" />
-								<strong>Depth-matrix:</strong>{provenance.depthLine}
+								<strong>Depth-matrix:</strong>{depthBody}
 							</p>
 						</div>
 					</div>
