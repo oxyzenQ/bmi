@@ -58,32 +58,18 @@ MODE="${MODE:-check-all}"
 BMI_VERSION="$("$BUN_BIN" -p "require('./package.json').version")"
 readonly BMI_VERSION
 
-# The depth signature (night-signature-1; masked in
-# night-signature-advanced-2): stored as an XOR-hex payload so the
-# attribution wording is not grep-able in this script. The same
-# payload lives in src/lib/utils/signature.ts; the decoder below
-# mirrors its runtime decoder and prints the plain attribution on
-# -V/--version and in the doctor tree. Enforced at every recorded
-# surface by scripts/gates/check-signature.ts (digest-pinned).
-readonly BMI_SIGNATURE_ENC="5d3b67015601730348366901567e35055727670f410f344a1d6e2f5c"
-
-sig_decode() {
-  local enc="$1" out="" i=0 idx byte pair oct
-  local mask=(47 94 29 106) # 0x2f 0x5e 0x1d 0x6a
-  while [ "$i" -lt "${#enc}" ]; do
-    pair="${enc:i:2}"
-    idx=$(( (i / 2) % 4 ))
-    byte=$(( 16#$pair ^ mask[idx] ))
-    printf -v oct '%03o' "$byte"
-    out+="\\$oct"
-    i=$((i + 2))
-  done
-  # One pass: %b expands every \NNN octal escape into its byte.
-  printf '%b' "$out"
+# The provenance depth matrix (night-signature-1; masked in
+# night-signature-advanced-2, mirroring the cosmostrix scheme): the
+# -V/--version surface materializes the masked 64-bit words from
+# src/lib/utils/signature.ts through the REAL runtime decoder (bun -
+# one implementation, no shell mirror to drift) and prints the
+# Signature, Depth-matrix, and Copyright lines with a live
+# status=verified/tampered verdict. The same matrix renders in the
+# About Depth-matrix row and is enforced fail-closed by
+# scripts/gates/check-signature.ts (BLAKE3-pinned).
+sig_report() {
+  "$BUN_BIN" -e "const { provenanceView } = await import('${ROOT}/src/lib/utils/signature'); const v = provenanceView(); console.log('Signature: ' + v.manifest); console.log(v.depthLine); console.log('Copyright: ' + v.authors);"
 }
-
-BMI_SIGNATURE_PLAIN="$(sig_decode "$BMI_SIGNATURE_ENC")"
-readonly BMI_SIGNATURE_PLAIN
 
 run_step() {
   local label="$1"; shift
@@ -117,7 +103,7 @@ doctor_fail() { echo "  │  [FAIL]  $1"; }
 
 show_version() {
   echo "BMI Stellar build script v${BMI_VERSION} (bmi-stellar)"
-  echo "Signature: ${BMI_SIGNATURE_PLAIN}"
+  sig_report
 }
 
 doctor() {
@@ -127,7 +113,11 @@ doctor() {
   echo "BMI Stellar doctor - environment diagnostics"
   echo ""
   echo "  ├─ Version: v${BMI_VERSION} (bmi-stellar, from package.json)"
-  echo "  ├─ Signature: ${BMI_SIGNATURE_PLAIN}"
+  local sig_report_out
+  sig_report_out="$(sig_report)"
+  echo "  ├─ $(sed -n '1p' <<<"$sig_report_out")"
+  echo "  ├─ $(sed -n '2p' <<<"$sig_report_out")"
+  echo "  ├─ $(sed -n '3p' <<<"$sig_report_out")"
   echo "  ├─ OS: $(uname -s) $(uname -m), $(nproc 2>/dev/null || echo '?') cores"
 
   bun_ver="$("$BUN_BIN" --version)"

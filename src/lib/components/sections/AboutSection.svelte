@@ -25,10 +25,11 @@
 	import { applyPwaUpdate, checkForPwaUpdate, pwaUpdateState } from '$lib/stores/pwa-update';
 	import { t as _t, localeVersion } from '$lib/i18n';
 	import { getStellarVersionLabel, getAppVersionDisplay } from '$lib/utils/app-version';
-	import { BMI_STELLAR_SIGNATURE } from '$lib/utils/signature';
+	import { BMI_STELLAR_SIGNATURE, provenanceView } from '$lib/utils/signature';
 
 	let { gitCommitId, gitBranch }: { gitCommitId: string; gitBranch: string } = $props();
 	const appVersionTag = `v${getAppVersionDisplay()}`;
+	const provenance = provenanceView();
 	let updateCheckingOverlay = $state(false);
 	let showInstallHelp = $state(false);
 	let showUpdateCheckNotice = $state(false);
@@ -284,6 +285,10 @@
 							<p class="info-row">
 								<Fingerprint class="Fingerprint" />
 								<strong>{t('about.signature')}:</strong>{BMI_STELLAR_SIGNATURE}
+							</p>
+							<p class="info-row">
+								<Fingerprint class="Fingerprint" />
+								<strong>Depth-matrix:</strong>{provenance.depthLine}
 							</p>
 						</div>
 					</div>

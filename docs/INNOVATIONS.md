@@ -318,37 +318,52 @@ never marked latest. There are no binaries to sign because the npm
 package is private and BMI Stellar ships as a Vercel-deployed web app
 — the README tells that story once.
 
-**24. The Depth Signature Matrix — attribution that cannot silently
-disappear (night-signature-1; masked in night-signature-advanced-2).**
-One canonical attribution string lives in `src/lib/utils/signature.ts`
-and is embedded at every recorded depth of the project — since the
-advanced-2 upgrade only as an XOR-masked hex payload, so grepping the
-tree for the wording finds nothing: a bulk find-and-replace rebrand
-cannot strip what it cannot see. The decoder reconstructs the string
-at runtime and every compiled surface still prints it: the About
-section renders it as a UI row beside the license, `src/app.html`
-carries it in the author meta as numeric character references
-(rendered plain by every browser), the PWA manifest
-(`static/manifest.json`) and the package manifest (`package.json`)
-record the masked payload as a machine-readable field, the offline
-shell footer signs itself from the decoded constant, and
-`scripts/build.sh` decodes the same payload in shell and prints it on
-`-V`/`--version` and in the doctor tree. The enforcement stays
-fail-closed and value-blind: `scripts/gates/check-signature.ts`
-imports the decoder, pins the decode against a SHA-256 digest
-recorded there — the plain wording exists nowhere in the tracked
-tree, not even in the gate — and probes every recorded surface for
-the masked form; the commit gate runs it cheap, and
-`signature.test.ts` pins the same digest without spelling the value,
-cross-checking the decode against the plain package author field as
-an independent oracle. TRADEMARK.md stays deliberately plain: the
-loud legal layer and the silent runtime layer are different tools —
-the notice proclaims ownership in public, the payload survives bulk
-rebranding. The honest limit is written into the constant's own
-header: the decoder is readable by design; masking kills the casual
-grep-and-strip path, not a determined reader, and stripping still
-requires editing the gate — a visible diff — with the AGPL-3.0-only
-license plus TRADEMARK.md making the legal cost real.
+**24. The Provenance Depth Matrix — attribution that cannot silently
+disappear (night-signature-1; night-signature-advanced-2 supersedes
+its draft, mirroring the cosmostrix scheme).** The ownership claim is
+embedded in `src/lib/utils/signature.ts` as three masked layers, so a
+`strings(1)`, `rg`, or custom scan over the tree or the built bundle
+finds nothing to strip. **D0**: the full Signature-line manifest
+(`BMI Stellar — Official Build by … 2026`) chunked into little-endian
+64-bit words and XOR-masked with a splitmix64 stream keyed by a
+per-layer seed. **D1**: the Copyright-line authors string, masked the
+same way under an independent seed — two independent encodings of the
+same identity, so patching one still leaves the other reconstructing
+the owner. **D2**: BLAKE3-256 digests over the clear bytes (via the
+already-present `@noble/hashes`, cross-checked against the canonical
+`b3sum` CLI by the generator), recomputed at runtime — `-V` reports
+`status=verified` or `status=tampered` on its `Depth-matrix:` line.
+The constants come from `scripts/release/generate-provenance-words.py`
+— the committed truth source, which carries the identity in plaintext
+by design exactly like TRADEMARK.md, self-checks its round-trip, and
+pins the strings(1)-invisibility floor (no printable run of four or
+more bytes survives masking). The runtime materializes both layers in
+one unmask pass feeding display and digest alike (the single-pass
+invariant), plus an identity binding: the authors string must start
+with the core extracted from the manifest, so an incoherent
+single-layer rebrand flips the status line. Every compiled surface
+still prints the plain attribution: the About section renders the
+signature row and a live `Depth-matrix:` row beside the license,
+`src/app.html` carries the author meta as numeric character references
+(rendered plain by every browser), the PWA and package manifests
+record the masked authors words as a machine-readable hex field, the
+offline shell footer signs itself from the materialized constant, and
+`scripts/build.sh -V` runs the real decoder through bun — one
+implementation, no shell mirror to drift. Enforcement is fail-closed
+and value-blind: `scripts/gates/check-signature.ts` verifies the
+runtime fold, recomputes unmask+fold independently, pins both D2
+digests against recorded values, checks the binding and the field
+parity, pins the invisibility floor mechanically, and probes all seven
+surfaces; `signature.test.ts` carries the plaintext oracles (test
+files are never bundled — the one legitimate plaintext carrier in the
+module) and simulates a patched word to prove the digest binds its
+data. The honest limit is written into the module's own header: this
+is provenance marking and tamper evidence, not DRM and not resistance
+to memory forensics — once materialized, the plaintext lives in
+process memory; masking kills the casual grep-and-strip path, not a
+determined reader, and stripping still requires editing the gate — a
+visible diff — with the AGPL-3.0-only license plus TRADEMARK.md making
+the legal cost real.
 
 ## Retired by verdict
 
