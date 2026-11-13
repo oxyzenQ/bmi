@@ -90,12 +90,14 @@ function offlineFallbackResponse(): Response {
 			}
 			h1 { font-size: 1.28rem; margin: 0 0 0.75rem; letter-spacing: 0; }
 			p { color: rgba(255, 255, 255, 0.78); line-height: 1.55; margin: 0; }
+			.sig { margin-top: 1.25rem; font-size: 0.8rem; letter-spacing: 0.04em; color: rgba(255, 255, 255, 0.5); }
 		</style>
 	</head>
 	<body>
 		<main>
 			<h1>BMI Stellar is offline</h1>
 			<p>Reconnect and refresh to load the latest app shell.</p>
+			<p class="sig">BMI Stellar — rezky_nightky (oxyzenQ) 2026</p>
 		</main>
 	</body>
 </html>`,

@@ -526,6 +526,7 @@ const en: TranslationDict = {
 	'about.type_apps': 'Type Apps',
 	'about.status': 'Status',
 	'about.license': 'License',
+	'about.signature': 'Signature',
 	'about.open_source': 'Open Source Project',
 	'about.maintenance': 'Maintenance',
 	'about.maintenance_active': 'Actively Maintained',

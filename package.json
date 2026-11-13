@@ -26,6 +26,7 @@
 		"audit:version-sync": "bun run scripts/gates/check-version-sync.ts",
 		"audit:pwa-offline": "bun run scripts/gates/check-pwa-offline-shell.ts",
 		"audit:branding": "bun run scripts/gates/check-branding.ts",
+		"audit:signature": "bun run scripts/gates/check-signature.ts",
 		"audit:deps": "bun run scripts/gates/audit-deps.ts",
 		"clean": "rm -rf .svelte-kit build dist node_modules/.cache",
 		"type-check": "svelte-check --tsconfig ./tsconfig.json",
@@ -82,6 +83,7 @@
 		"responsive"
 	],
 	"author": "rezky_nightky (oxyzenQ)",
+	"signature": "rezky_nightky (oxyzenQ) 2026",
 	"bugs": {
 		"url": "https://github.com/oxyzenQ/bmi/issues"
 	},

@@ -54,6 +54,7 @@ fi
 if [ -n "$BUN_BIN" ]; then
 	run_gate "loc ratchet (600/1000)" "$BUN_BIN" run audit:loc
 	run_gate "version surfaces" "$BUN_BIN" run audit:version-sync
+	run_gate "signature surfaces" "$BUN_BIN" run audit:signature
 else
 	echo "  [SKIP] loc ratchet + version surfaces (bun not installed)"
 fi

@@ -280,7 +280,7 @@ PRs and issues are welcome. The bar is the gatekeeper:
 ```
 
 This mirrors the GitHub Actions `ci.yml` workflow end-to-end (format +
-7 audits + type-check + lint + test:ci + build). `bun run verify` is
+8 audits + type-check + lint + test:ci + build). `bun run verify` is
 the lighter local variant (same steps except `audit:deps`, with
 `test:run` instead of `test:ci`). Development standards live in
 [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md), release operations
@@ -321,7 +321,7 @@ every commit via the CI workflow, and locally via the gatekeeper:
 
 | Lane              | What it proves                                                                                                     | One command                    |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------ |
-| Full gate         | Format + 7 audits + type-check + lint + the full test battery + production build, mirroring `ci.yml` step-for-step | `./scripts/build.sh check-all` |
+| Full gate         | Format + 8 audits + type-check + lint + the full test battery + production build, mirroring `ci.yml` step-for-step | `./scripts/build.sh check-all` |
 | Crypto lane       | AES-256-GCM, Argon2id, PBKDF2 legacy imports, history integrity vectors (Node env for native WebCrypto)            | `bun run test:crypto`          |
 | Fast lane         | The full suite minus the slow crypto/history-io files                                                              | `bun run test:fast`            |
 | Dependency policy | `bun audit` against the fail-closed allowlist (expired entries fail the gate)                                      | `bun run audit:deps`           |

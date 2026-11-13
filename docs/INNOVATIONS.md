@@ -318,6 +318,25 @@ never marked latest. There are no binaries to sign because the npm
 package is private and BMI Stellar ships as a Vercel-deployed web app
 — the README tells that story once.
 
+**24. The Depth Signature Matrix — attribution that cannot silently
+disappear (night-signature-1).** One canonical string,
+`rezky_nightky (oxyzenQ) 2026`, lives in
+`src/lib/utils/signature.ts` and is embedded at every recorded depth
+of the project: the About section renders it as a UI row beside the
+license, `src/app.html` carries it in the author meta, the PWA
+manifest (`static/manifest.json`) and the package manifest
+(`package.json`) record it as a machine-readable field, the offline
+shell footer signs itself with it, and `scripts/build.sh` prints it
+on `-V`/`--version` and in the doctor tree. The enforcement is a gate
+in the house style: `scripts/gates/check-signature.ts` probes every
+recorded surface and fails closed, the commit gate runs it cheap, and
+`signature.test.ts` pins the exact string plus the
+package-manifest parity. The honest limit is written into the
+constant's own header: an attacker holding the full source can reword
+anything — the point is that removal becomes a visible diff in the
+gate's own file, and the AGPL-3.0-only license plus TRADEMARK.md make
+the legal cost of a fake claim real.
+
 ## Retired by verdict
 
 The rejected ideas stay recorded so nobody re-litigates them blind:

@@ -558,6 +558,7 @@ const zh: TranslationDict = {
 	'about.type_apps': '\u5e94\u7528\u7c7b\u578b',
 	'about.status': '\u72b6\u6001',
 	'about.license': '\u8bb8\u53ef\u8bc1',
+	'about.signature': '\u7b7e\u540d',
 	'about.open_source': '\u5f00\u6e90\u9879\u76ee',
 	'about.maintenance': '\u7ef4\u62a4',
 	'about.maintenance_active': '\u79ef\u6781\u7ef4\u62a4\u4e2d',

@@ -58,6 +58,11 @@ MODE="${MODE:-check-all}"
 BMI_VERSION="$("$BUN_BIN" -p "require('./package.json').version")"
 readonly BMI_VERSION
 
+# The depth signature (night-signature-1): the canonical attribution
+# string from src/lib/utils/signature.ts, printed on -V/--version and
+# enforced at every recorded surface by scripts/gates/check-signature.ts.
+readonly BMI_SIGNATURE="rezky_nightky (oxyzenQ) 2026"
+
 run_step() {
   local label="$1"; shift
   if [ "$QUIET" -eq 1 ]; then
@@ -90,6 +95,7 @@ doctor_fail() { echo "  │  [FAIL]  $1"; }
 
 show_version() {
   echo "BMI Stellar build script v${BMI_VERSION} (bmi-stellar)"
+  echo "Signature: ${BMI_SIGNATURE}"
 }
 
 doctor() {
@@ -99,6 +105,7 @@ doctor() {
   echo "BMI Stellar doctor - environment diagnostics"
   echo ""
   echo "  ├─ Version: v${BMI_VERSION} (bmi-stellar, from package.json)"
+  echo "  ├─ Signature: ${BMI_SIGNATURE}"
   echo "  ├─ OS: $(uname -s) $(uname -m), $(nproc 2>/dev/null || echo '?') cores"
 
   bun_ver="$("$BUN_BIN" --version)"
@@ -178,6 +185,7 @@ check_all() {
   run_step "audit:headers"     "$BUN_BIN" run audit:headers
   run_step "audit:version-sync" "$BUN_BIN" run audit:version-sync
   run_step "audit:branding"    "$BUN_BIN" run audit:branding
+  run_step "audit:signature"   "$BUN_BIN" run audit:signature
   run_step "audit:pwa-offline" "$BUN_BIN" run audit:pwa-offline
   run_step "type-check"        "$BUN_BIN" run check
   run_step "lint"              "$BUN_BIN" run lint
@@ -192,6 +200,7 @@ quick() {
   run_step "audit:headers"     "$BUN_BIN" run audit:headers
   run_step "audit:version-sync" "$BUN_BIN" run audit:version-sync
   run_step "audit:branding"    "$BUN_BIN" run audit:branding
+  run_step "audit:signature"   "$BUN_BIN" run audit:signature
   run_step "audit:pwa-offline" "$BUN_BIN" run audit:pwa-offline
   run_step "type-check"        "$BUN_BIN" run check
   run_step "lint"              "$BUN_BIN" run lint
@@ -207,6 +216,7 @@ audit_only() {
   run_step "audit:headers"     "$BUN_BIN" run audit:headers
   run_step "audit:version-sync" "$BUN_BIN" run audit:version-sync
   run_step "audit:branding"    "$BUN_BIN" run audit:branding
+  run_step "audit:signature"   "$BUN_BIN" run audit:signature
   run_step "audit:pwa-offline" "$BUN_BIN" run audit:pwa-offline
 }
 
@@ -237,14 +247,15 @@ case "$MODE" in
 Usage: scripts/build.sh <mode>
 
 Modes:
-  check-all  Full CI gate (default). 12 steps: format + 7 audits + type-check + lint + test:ci + build.
+  check-all  Full CI gate (default). 13 steps: format + 8 audits + type-check + lint + test:ci + build.
   quick      Same as check-all but uses test:fast (skips crypto/history-io slow tests).
-  audit      Only format:check + the 7 audit-* steps.
+  audit      Only format:check + the 8 audit-* steps.
   test       Only vitest test:ci.
   build      Only vite production build.
   doctor     Environment diagnostics (bun/node pins, git identity, hooks,
              version surfaces, actions pins) - zelynic-style tree output.
-  -V         Print the script version, read live from package.json.
+  -V         Print the script version and the depth signature (the
+             version reads live from package.json).
 
 Flags:
   -q, --quiet  Essentials only: per-step OK / FAIL verdict lines, no

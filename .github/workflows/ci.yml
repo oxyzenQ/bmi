@@ -82,6 +82,9 @@ jobs:
       - name: Branding check
         run: bun run audit:branding
 
+      - name: Signature check
+        run: bun run audit:signature
+
       - name: PWA offline-shell check
         run: bun run audit:pwa-offline
 

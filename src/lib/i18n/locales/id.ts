@@ -527,6 +527,7 @@ const id: TranslationDict = {
 	'about.type_apps': 'Tipe Aplikasi',
 	'about.status': 'Status',
 	'about.license': 'Lisensi',
+	'about.signature': 'Tanda tangan',
 	'about.open_source': 'Proyek Open Source',
 	'about.maintenance': 'Pemeliharaan',
 	'about.maintenance_active': 'Aktif Dipelihara',

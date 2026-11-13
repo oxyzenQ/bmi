@@ -9,6 +9,7 @@
 		LockKeyhole,
 		GitBranch,
 		GitCompare,
+		Fingerprint,
 		PackageCheck,
 		PackagePlus,
 		ShieldCheck,
@@ -24,6 +25,7 @@
 	import { applyPwaUpdate, checkForPwaUpdate, pwaUpdateState } from '$lib/stores/pwa-update';
 	import { t as _t, localeVersion } from '$lib/i18n';
 	import { getStellarVersionLabel, getAppVersionDisplay } from '$lib/utils/app-version';
+	import { BMI_STELLAR_SIGNATURE } from '$lib/utils/signature';
 
 	let { gitCommitId, gitBranch }: { gitCommitId: string; gitBranch: string } = $props();
 	const appVersionTag = `v${getAppVersionDisplay()}`;
@@ -278,6 +280,10 @@
 							<p class="info-row">
 								<Scale class="Scale" />
 								<strong>{t('about.license')}:</strong>AGPL v3
+							</p>
+							<p class="info-row">
+								<Fingerprint class="Fingerprint" />
+								<strong>{t('about.signature')}:</strong>{BMI_STELLAR_SIGNATURE}
 							</p>
 						</div>
 					</div>

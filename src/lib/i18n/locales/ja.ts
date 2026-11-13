@@ -595,6 +595,7 @@ const ja: TranslationDict = {
 	'about.type_apps': '\u30a2\u30d7\u30ea\u30bf\u30a4\u30d7',
 	'about.status': '\u30b9\u30c6\u30fc\u30bf\u30b9',
 	'about.license': '\u30e9\u30a4\u30bb\u30f3\u30b9',
+	'about.signature': '\u7f72\u540d',
 	'about.open_source':
 		'\u30aa\u30fc\u30d7\u30f3\u30bd\u30fc\u30b9\u30d7\u30ed\u30b8\u30a7\u30af\u30c8',
 	'about.maintenance': '\u30e1\u30f3\u30c6\u30ca\u30f3\u30b9',
