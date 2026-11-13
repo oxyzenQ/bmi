@@ -10,6 +10,8 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Unreleased]
 
+## [80.0.5]
+
 ### Removed
 
 - **Dead direct `esbuild` dependency (night-total-hardening-1).** The
