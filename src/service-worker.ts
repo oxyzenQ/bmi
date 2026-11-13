@@ -6,6 +6,7 @@
 /// <reference lib="webworker" />
 
 import { base, build, files, version } from '$service-worker';
+import { BMI_STELLAR_SIGNATURE } from '$lib/utils/signature';
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
@@ -97,7 +98,7 @@ function offlineFallbackResponse(): Response {
 		<main>
 			<h1>BMI Stellar is offline</h1>
 			<p>Reconnect and refresh to load the latest app shell.</p>
-			<p class="sig">BMI Stellar — rezky_nightky (oxyzenQ) 2026</p>
+			<p class="sig">BMI Stellar — ${BMI_STELLAR_SIGNATURE}</p>
 		</main>
 	</body>
 </html>`,

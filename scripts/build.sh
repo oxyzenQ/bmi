@@ -58,10 +58,32 @@ MODE="${MODE:-check-all}"
 BMI_VERSION="$("$BUN_BIN" -p "require('./package.json').version")"
 readonly BMI_VERSION
 
-# The depth signature (night-signature-1): the canonical attribution
-# string from src/lib/utils/signature.ts, printed on -V/--version and
-# enforced at every recorded surface by scripts/gates/check-signature.ts.
-readonly BMI_SIGNATURE="rezky_nightky (oxyzenQ) 2026"
+# The depth signature (night-signature-1; masked in
+# night-signature-advanced-2): stored as an XOR-hex payload so the
+# attribution wording is not grep-able in this script. The same
+# payload lives in src/lib/utils/signature.ts; the decoder below
+# mirrors its runtime decoder and prints the plain attribution on
+# -V/--version and in the doctor tree. Enforced at every recorded
+# surface by scripts/gates/check-signature.ts (digest-pinned).
+readonly BMI_SIGNATURE_ENC="5d3b67015601730348366901567e35055727670f410f344a1d6e2f5c"
+
+sig_decode() {
+  local enc="$1" out="" i=0 idx byte pair oct
+  local mask=(47 94 29 106) # 0x2f 0x5e 0x1d 0x6a
+  while [ "$i" -lt "${#enc}" ]; do
+    pair="${enc:i:2}"
+    idx=$(( (i / 2) % 4 ))
+    byte=$(( 16#$pair ^ mask[idx] ))
+    printf -v oct '%03o' "$byte"
+    out+="\\$oct"
+    i=$((i + 2))
+  done
+  # One pass: %b expands every \NNN octal escape into its byte.
+  printf '%b' "$out"
+}
+
+BMI_SIGNATURE_PLAIN="$(sig_decode "$BMI_SIGNATURE_ENC")"
+readonly BMI_SIGNATURE_PLAIN
 
 run_step() {
   local label="$1"; shift
@@ -95,7 +117,7 @@ doctor_fail() { echo "  │  [FAIL]  $1"; }
 
 show_version() {
   echo "BMI Stellar build script v${BMI_VERSION} (bmi-stellar)"
-  echo "Signature: ${BMI_SIGNATURE}"
+  echo "Signature: ${BMI_SIGNATURE_PLAIN}"
 }
 
 doctor() {
@@ -105,7 +127,7 @@ doctor() {
   echo "BMI Stellar doctor - environment diagnostics"
   echo ""
   echo "  ├─ Version: v${BMI_VERSION} (bmi-stellar, from package.json)"
-  echo "  ├─ Signature: ${BMI_SIGNATURE}"
+  echo "  ├─ Signature: ${BMI_SIGNATURE_PLAIN}"
   echo "  ├─ OS: $(uname -s) $(uname -m), $(nproc 2>/dev/null || echo '?') cores"
 
   bun_ver="$("$BUN_BIN" --version)"

@@ -38,20 +38,20 @@ before relying on a specific number, path, or symbol name.
 
 ## The gates (scripts/)
 
-| Gate                                       | What it enforces                                                  |
-| ------------------------------------------ | ----------------------------------------------------------------- |
-| `scripts/gates/check-loc.ts`               | 1000 hard cap + the 600-line ratchet                              |
-| `scripts/gates/check-scripts-loc.sh`       | 1000 cap for scripts/** with the `# LOC_EXEMPT:` IOU              |
-| `scripts/gates/check-headers.ts`           | Copyright/SPDX headers on every core file                         |
-| `scripts/gates/check-branding.ts`          | No retired logo/screenshot assets come back                       |
-| `scripts/gates/check-signature.ts`         | The depth signature at every recorded surface (night-signature-1) |
-| `scripts/gates/check-pwa-offline-shell.ts` | The offline app-shell contract in the service worker              |
-| `scripts/gates/audit-deps.ts`              | Dependency advisories against the expiring allowlist              |
-| `scripts/gates/check-version-sync.ts`      | The version triangle (package.json, DORMANT, README)              |
-| `scripts/gates/check-name-case.py`         | BMI Stellar / bmi-stellar name casing over every tracked file     |
-| `scripts/gates/check-signature-assets.sh`  | BLAKE3 digests of the brand images (`assets/signature.b3sum`)     |
-| `scripts/gates/check-actions-pins.sh`      | Every `uses:` pin is a 40-hex SHA                                 |
-| `scripts/gates/check-permissions.sh`       | 644 files, 755 shebang executables                                |
-| `scripts/gates/check-commit-gate.sh`       | The fast pre-commit lane (the hook shim's engine)                 |
-| `scripts/gate-keepers.sh`                  | The wholesale non-code lane (one section per concern)             |
-| `scripts/ci/actions-version-sweep.sh`      | The tag-to-SHA heal engine (dry-run / apply)                      |
+| Gate                                       | What it enforces                                                          |
+| ------------------------------------------ | ------------------------------------------------------------------------- |
+| `scripts/gates/check-loc.ts`               | 1000 hard cap + the 600-line ratchet                                      |
+| `scripts/gates/check-scripts-loc.sh`       | 1000 cap for scripts/** with the `# LOC_EXEMPT:` IOU                      |
+| `scripts/gates/check-headers.ts`           | Copyright/SPDX headers on every core file                                 |
+| `scripts/gates/check-branding.ts`          | No retired logo/screenshot assets come back                               |
+| `scripts/gates/check-signature.ts`         | The masked depth signature: digest-pinned decode + every recorded surface |
+| `scripts/gates/check-pwa-offline-shell.ts` | The offline app-shell contract in the service worker                      |
+| `scripts/gates/audit-deps.ts`              | Dependency advisories against the expiring allowlist                      |
+| `scripts/gates/check-version-sync.ts`      | The version triangle (package.json, DORMANT, README)                      |
+| `scripts/gates/check-name-case.py`         | BMI Stellar / bmi-stellar name casing over every tracked file             |
+| `scripts/gates/check-signature-assets.sh`  | BLAKE3 digests of the brand images (`assets/signature.b3sum`)             |
+| `scripts/gates/check-actions-pins.sh`      | Every `uses:` pin is a 40-hex SHA                                         |
+| `scripts/gates/check-permissions.sh`       | 644 files, 755 shebang executables                                        |
+| `scripts/gates/check-commit-gate.sh`       | The fast pre-commit lane (the hook shim's engine)                         |
+| `scripts/gate-keepers.sh`                  | The wholesale non-code lane (one section per concern)                     |
+| `scripts/ci/actions-version-sweep.sh`      | The tag-to-SHA heal engine (dry-run / apply)                              |

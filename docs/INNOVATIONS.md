@@ -319,23 +319,36 @@ package is private and BMI Stellar ships as a Vercel-deployed web app
 — the README tells that story once.
 
 **24. The Depth Signature Matrix — attribution that cannot silently
-disappear (night-signature-1).** One canonical string,
-`rezky_nightky (oxyzenQ) 2026`, lives in
-`src/lib/utils/signature.ts` and is embedded at every recorded depth
-of the project: the About section renders it as a UI row beside the
-license, `src/app.html` carries it in the author meta, the PWA
-manifest (`static/manifest.json`) and the package manifest
-(`package.json`) record it as a machine-readable field, the offline
-shell footer signs itself with it, and `scripts/build.sh` prints it
-on `-V`/`--version` and in the doctor tree. The enforcement is a gate
-in the house style: `scripts/gates/check-signature.ts` probes every
-recorded surface and fails closed, the commit gate runs it cheap, and
-`signature.test.ts` pins the exact string plus the
-package-manifest parity. The honest limit is written into the
-constant's own header: an attacker holding the full source can reword
-anything — the point is that removal becomes a visible diff in the
-gate's own file, and the AGPL-3.0-only license plus TRADEMARK.md make
-the legal cost of a fake claim real.
+disappear (night-signature-1; masked in night-signature-advanced-2).**
+One canonical attribution string lives in `src/lib/utils/signature.ts`
+and is embedded at every recorded depth of the project — since the
+advanced-2 upgrade only as an XOR-masked hex payload, so grepping the
+tree for the wording finds nothing: a bulk find-and-replace rebrand
+cannot strip what it cannot see. The decoder reconstructs the string
+at runtime and every compiled surface still prints it: the About
+section renders it as a UI row beside the license, `src/app.html`
+carries it in the author meta as numeric character references
+(rendered plain by every browser), the PWA manifest
+(`static/manifest.json`) and the package manifest (`package.json`)
+record the masked payload as a machine-readable field, the offline
+shell footer signs itself from the decoded constant, and
+`scripts/build.sh` decodes the same payload in shell and prints it on
+`-V`/`--version` and in the doctor tree. The enforcement stays
+fail-closed and value-blind: `scripts/gates/check-signature.ts`
+imports the decoder, pins the decode against a SHA-256 digest
+recorded there — the plain wording exists nowhere in the tracked
+tree, not even in the gate — and probes every recorded surface for
+the masked form; the commit gate runs it cheap, and
+`signature.test.ts` pins the same digest without spelling the value,
+cross-checking the decode against the plain package author field as
+an independent oracle. TRADEMARK.md stays deliberately plain: the
+loud legal layer and the silent runtime layer are different tools —
+the notice proclaims ownership in public, the payload survives bulk
+rebranding. The honest limit is written into the constant's own
+header: the decoder is readable by design; masking kills the casual
+grep-and-strip path, not a determined reader, and stripping still
+requires editing the gate — a visible diff — with the AGPL-3.0-only
+license plus TRADEMARK.md making the legal cost real.
 
 ## Retired by verdict
 
