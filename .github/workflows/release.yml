@@ -10,8 +10,8 @@ permissions:
   contents: write
 
 env:
-  NODE_VERSION: 24
-  VERCEL_NODE_RUNTIME: nodejs24.x
+  NODE_VERSION: 26
+  VERCEL_NODE_RUNTIME: nodejs26.x
 
 jobs:
   validate-tag:
