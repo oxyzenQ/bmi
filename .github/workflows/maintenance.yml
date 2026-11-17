@@ -3,8 +3,10 @@ name: Stellar Guard - Dependency Maintenance
 
 on:
   schedule:
-    # Weekly at 00:00 UTC every Monday (07:00 WIB)
-    - cron: '0 0 * * 1'
+    # Weekly at 03:00 UTC every Sunday (10:00 WIB), the shared guardian
+    # anchor. security-audit.yml keeps a +30 min offset to audit the
+    # refreshed lockfile this workflow commits.
+    - cron: '0 3 * * 0'
   workflow_dispatch: {}
 
 permissions:

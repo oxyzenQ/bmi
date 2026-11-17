@@ -35,7 +35,7 @@ This mirrors `.github/workflows/ci.yml` step-by-step (format:check → audit:dep
 
 ## CI During Dormancy
 
-- Scheduled guardians run weekly in UTC: dependency maintenance (Monday 00:00), security audit (Monday 00:30), actions self-heal (Monday 00:00), CodeQL (Monday 03:00), and the runtime probe (Sunday 01:00).
+- Scheduled guardians run weekly on Sunday, WIB-morning anchored: dependency maintenance (Sunday 10:00 WIB), actions self-heal (Sunday 10:00 WIB), CodeQL (Sunday 10:00 WIB), runtime probe (Sunday 10:00 WIB), and the security audit (Sunday 10:30 WIB, 30 minutes after maintenance so it audits the refreshed lockfile).
 - GitHub disables scheduled workflows after 60 days without repository activity and sends one notice. This is expected while dormant; re-enable each workflow from the Actions tab (or `gh workflow enable <name>`) as part of wake-up.
 - The actions self-heal and runtime probe push with `PAT_WORKFLOW`. If that secret expires while dormant, both lanes fail weekly until it is rotated in GitHub settings.
 - The dependency maintenance workflow commits with `GITHUB_TOKEN`, so its weekly commit does not trigger CI; it validates the refreshed lockfile inside the workflow before committing.

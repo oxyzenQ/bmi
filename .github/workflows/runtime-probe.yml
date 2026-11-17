@@ -3,8 +3,9 @@ name: Stellar Guard - Runtime Probe
 
 on:
   schedule:
-    # Weekly at 01:00 UTC on Sunday.
-    - cron: '0 1 * * 0'
+    # Weekly at 03:00 UTC on Sunday (10:00 WIB), the shared guardian
+    # anchor.
+    - cron: '0 3 * * 0'
   workflow_dispatch:
     inputs:
       candidates:

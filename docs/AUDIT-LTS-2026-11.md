@@ -155,11 +155,12 @@ comment (`checkout v7.0.1`, `setup-node v7.1.0`, `setup-bun v2.2.0`,
 `cache v6.1.0`, `upload-artifact v7.0.2`, `download-artifact v8.0.2`,
 `codeql-action` bundle `2.27.4`, `action-gh-release v3.0.3`), enforced
 by the `check-actions-pins` gate. Weekly lanes keep the pins honest
-without human input: `self-heal-actions` (Mon 00:00 UTC) heals them to
-latest releases, `maintenance` (Mon 00:00) validates a deps-only
-`bun.lock` refresh through the full quality gate, `codeql` (Mon 00:00)
-and `security-audit` (Mon 00:05) rescan, and `runtime-probe` (Sun
-01:00) probes `nodejs24.x/26.x/28.x` with the full gate and prepares
+without human input: `self-heal-actions` (Sun 10:00 WIB / 03:00 UTC)
+heals them to latest releases, `maintenance` (Sun 10:00 WIB) validates
+a deps-only `bun.lock` refresh through the full quality gate,
+`codeql` (Sun 10:00 WIB) and `security-audit` (Sun 10:30 WIB, after
+the maintenance commit) rescan, and `runtime-probe` (Sun 10:00 WIB)
+probes `nodejs24.x/26.x/28.x` with the full gate and prepares
 the next Node bump as a reviewed change. Gate tools install
 verifiable: `yamllint==1.37.1` and `codespell==2.4.1` are exact pip
 pins, actionlint `1.7.7` is checked against the publisher checksum

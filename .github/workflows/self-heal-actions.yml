@@ -19,10 +19,11 @@
 
 name: Stellar Guard - Actions Self-Heal
 
-# This workflow runs once a week on Monday at 00:00 UTC (07:00 WIB).
+# This workflow runs once a week on Sunday at 03:00 UTC (10:00 WIB),
+# the shared guardian anchor.
 on:
   schedule:
-    - cron: '0 0 * * 1'
+    - cron: '0 3 * * 0'
   workflow_dispatch: {}
 
 concurrency:

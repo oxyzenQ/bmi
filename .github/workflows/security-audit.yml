@@ -3,15 +3,15 @@ name: Stellar Guard - Security Audit
 
 on:
   schedule:
-    # Weekly at 00:30 UTC every Monday (07:30 WIB).
-    # Runs 30 minutes AFTER maintenance.yml (00:00 UTC): the weekly deps
-    # refresh validates and commits its bun.lock roughly 00:05-00:10 UTC,
-    # so a 00:05 audit checked out the PRE-refresh lockfile and could red
-    # on an advisory the refresh had already fixed. 00:30 audits the
-    # refreshed tree. Daily cadence caused notif floods during dormant
-    # periods whenever a new CVE was published between Monday maintenance
-    # windows.
-    - cron: '30 0 * * 1'
+    # Weekly at 03:30 UTC every Sunday (10:30 WIB), 30 minutes AFTER the
+    # shared Sunday 10:00 WIB guardian anchor (maintenance.yml at 03:00
+    # UTC): the weekly deps refresh validates and commits its bun.lock
+    # roughly 03:05-03:10 UTC, so an audit firing at the anchor would
+    # check out the PRE-refresh lockfile and could red on an advisory
+    # the refresh had already fixed. 03:30 audits the refreshed tree.
+    # Daily cadence caused notif floods during dormant periods whenever
+    # a new CVE was published between weekly maintenance windows.
+    - cron: '30 3 * * 0'
   workflow_dispatch: {}
 
 permissions:
