@@ -68,6 +68,51 @@ if (hasDOM) {
 			}
 		}
 	})();
+
+	// ---------------------------------------------------------------------------
+	// Restore a functional localStorage when the host shadows it
+	// ---------------------------------------------------------------------------
+	// Node 26+ ships webstorage GA: a native `localStorage` binding exists
+	// on the worker global with an undefined value until
+	// --localstorage-file is provided (and pointing concurrent workers at
+	// one shared runner-side file would break test isolation anyway).
+	// Vitest's jsdom environment then drops jsdom's own storage:
+	// getWindowKeys filters out window keys that already exist on the
+	// global, so the key stays the native undefined binding and every
+	// test that touches localStorage reads undefined. Node 26 exposes the
+	// same broken state on `window` in this pool, so the storage cannot
+	// be copied back from jsdom - install a per-file in-memory Storage
+	// instead, matching jsdom's own unbacked-Map semantics. Node 24 and
+	// older (no native binding) already get jsdom's storage from vitest,
+	// making this guard a no-op there.
+	if (typeof localStorage === 'undefined' || typeof localStorage.clear !== 'function') {
+		const items = new Map<string, string>();
+		const storage = {
+			get length() {
+				return items.size;
+			},
+			key(index: number) {
+				return [...items.keys()][index] ?? null;
+			},
+			getItem(key: string) {
+				return items.has(key) ? (items.get(key) as string) : null;
+			},
+			setItem(key: string, value: string) {
+				items.set(key, String(value));
+			},
+			removeItem(key: string) {
+				items.delete(key);
+			},
+			clear() {
+				items.clear();
+			}
+		};
+		Object.defineProperty(globalThis, 'localStorage', {
+			value: storage,
+			configurable: true,
+			writable: true
+		});
+	}
 }
 
 // Verify environment setup
