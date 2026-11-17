@@ -98,7 +98,7 @@
 		"url": "git+https://github.com/oxyzenQ/bmi.git"
 	},
 	"engines": {
-		"node": ">=22 <25"
+		"node": ">=22 <27"
 	},
 	"packageManager": "bun@1.3.11",
 	"description": "Privacy-first BMI, TDEE, and body-composition companion with offline support, encrypted backups, progress charts, and responsive Stellar UI.",

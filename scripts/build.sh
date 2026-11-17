@@ -133,10 +133,10 @@ doctor() {
     node_ver="$(node --version)"
     node_major="${node_ver#v}"
     node_major="${node_major%%.*}"
-    if [ "$node_major" -ge 22 ] && [ "$node_major" -lt 25 ]; then
-      doctor_ok "Node ${node_ver} inside the engines range (>=22 <25)"
+    if [ "$node_major" -ge 22 ] && [ "$node_major" -lt 27 ]; then
+      doctor_ok "Node ${node_ver} inside the engines range (>=22 <27)"
     else
-      doctor_fail "Node ${node_ver} outside the engines range (>=22 <25)"
+      doctor_fail "Node ${node_ver} outside the engines range (>=22 <27)"
       health=1
     fi
   else
