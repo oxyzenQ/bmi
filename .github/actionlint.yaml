@@ -1,0 +1,13 @@
+---
+# Copyright (C) 2026 rezky_nightky
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# actionlint config: additional runner labels the built-in table does not
+# ship yet. The workflows pin ubuntu-26.04 (GA since changelog 2026-09-17),
+# but actionlint 1.7.x still enumerates ubuntu-24.04 as the newest Ubuntu,
+# so the label is registered here as a self-hosted-style label - the exact
+# escape hatch the [runner-label] finding suggests. Harmless once a newer
+# actionlint knows the label natively.
+self-hosted-runner:
+  labels:
+    - ubuntu-26.04
