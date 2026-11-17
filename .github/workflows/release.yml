@@ -32,10 +32,15 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      # Tag names are attacker-influenced input (anyone with write access can
+      # create a ref). Every run: block consumes the tag through an `env:`
+      # mapping, never through ${{ }} interpolation into the shell source, so
+      # a crafted ref can never inject bash syntax before the validators run.
       - name: Validate tag format and classify the release channel
         id: ver
+        env:
+          TAG: ${{ steps.tag.outputs.TAG_NAME }}
         run: |
-          TAG="${{ steps.tag.outputs.TAG_NAME }}"
           # Syntax only: vX.Y.Z (stable) or vX.Y.Z-<suffix> (pre-release).
           # Any '-' after the patch version is the whole pre-release
           # contract - no channel whitelist to maintain, the owner names
@@ -57,9 +62,10 @@ jobs:
 
       - name: Validate tag matches package version
         shell: bash
+        env:
+          TAG: ${{ steps.tag.outputs.TAG_NAME }}
         run: |
           set -euo pipefail
-          TAG="${{ steps.tag.outputs.TAG_NAME }}"
           TAG_VERSION="${TAG#v}"
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
           if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
@@ -134,8 +140,9 @@ jobs:
 
       - name: Generate changelog
         id: changelog
+        env:
+          TAG: ${{ steps.tag.outputs.TAG_NAME }}
         run: |
-          TAG="${{ steps.tag.outputs.TAG_NAME }}"
           if [ "${{ needs.validate-tag.outputs.prerelease }}" = "true" ]; then
             # Pre-release notes span from the previous tag of any
             # channel - users testing a pre-release build want the
@@ -172,9 +179,10 @@ jobs:
       # degradation.
       - name: Create source archive
         shell: bash
+        env:
+          TAG: ${{ steps.tag.outputs.TAG_NAME }}
         run: |
           set -euo pipefail
-          TAG="${{ steps.tag.outputs.TAG_NAME }}"
           STAGE="release-source"
           rm -rf "$STAGE" && mkdir -p "$STAGE"
           cp -r src "$STAGE/" && cp -r static "$STAGE/" && cp -r scripts "$STAGE/"
@@ -204,9 +212,10 @@ jobs:
 
       - name: Create build archive
         shell: bash
+        env:
+          TAG: ${{ steps.tag.outputs.TAG_NAME }}
         run: |
           set -euo pipefail
-          TAG="${{ steps.tag.outputs.TAG_NAME }}"
           STAGE="release-build"
           rm -rf "$STAGE" && mkdir -p "$STAGE/build"
           # The app payload, wherever the adapter put it. Since v80 the
