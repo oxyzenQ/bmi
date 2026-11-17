@@ -276,7 +276,16 @@ async function validateAndRepairCache(): Promise<void> {
 				err
 			);
 
-			const lsValue = localStorage.getItem(key);
+			const lsValue: string | null = (() => {
+				// localStorage can throw in private modes; if it does, there is
+				// no repair source, but the IndexedDB cache is still live and
+				// initStorage must not abort here.
+				try {
+					return localStorage.getItem(key);
+				} catch {
+					return null;
+				}
+			})();
 			if (lsValue !== null) {
 				try {
 					JSON.parse(lsValue);
