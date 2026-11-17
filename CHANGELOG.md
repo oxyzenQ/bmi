@@ -12,6 +12,115 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [80.0.6]
 
+### Changed
+
+- **Node 26 is the shipped runtime end to end.** CI (`NODE_VERSION: 26`),
+  the CodeQL and security-audit lanes, and the Vercel deployment
+  (`VERCEL_NODE_RUNTIME: nodejs26.x`) all moved off Node 24 in this
+  release window, so every lane builds and tests on the runtime the app
+  actually ships on. _(1fef790)_
+
+- **The engines range and every runtime surface agree on Node 26
+  (night-zen-lts-a).** The runtime upgrade landed on Nov 15 while four
+  surfaces still declared the old `>=22 <25` range, so the repo
+  contradicted itself about its own runtime: `package.json` engines now
+  reads `>=22 <27`, the build.sh doctor range check and both verdict
+  messages accept 22-26 (a Node 26 host - the CI runtime itself - no
+  longer fails its own environment diagnostics), the DORMANT.md wake-up
+  capsule states the new range, and the furthermore.md build-environment
+  bullet is rewritten from its stale Node 24 claim. _(e669bad)_
+
+- **The runner fleet pins ubuntu-26.04 ahead of the label drift
+  (night-zen-runner-1, night-zen-runner-2).** All 11 jobs across the
+  nine workflows moved from `ubuntu-24.04` to `ubuntu-26.04` (GA since
+  the 2026-09-17 changelog) while the `ubuntu-latest` label migrates
+  from 24.04 between Oct 19 and Nov 19, 2026 - riding the new LTS by
+  pin instead of inheriting label drift, with every push-triggered lane
+  proven on the new image (full check-all, CodeQL, Docs, the wholesale
+  gate-keepers suite). The wholesale gate caught a real tool-table lag
+  in the process: even the latest actionlint release (1.7.12, Mar 2026)
+  still enumerates ubuntu-24.04 as the newest Ubuntu label, so
+  `.github/actionlint.yaml` registers `ubuntu-26.04` through the
+  documented self-hosted-runner escape hatch - the exact remedy the
+  [runner-label] finding suggests, harmless once a future actionlint
+  knows the label natively. _(7b8fc98, 1f2ac8a)_
+
+- **Every scheduled CI lane consolidated on the Sunday 10:00 WIB
+  guardian anchor.** Dependency maintenance, the actions self-heal,
+  CodeQL, and the runtime probe now fire at the shared Sunday 03:00 UTC
+  (10:00 WIB) anchor; the security audit keeps its deliberate 30-minute
+  offset (Sunday 10:30 WIB / 03:30 UTC) so it still audits the bun.lock
+  refresh that maintenance commits minutes after the anchor, preserving
+  the documented audit-after-refresh ordering instead of reintroducing
+  the pre-refresh checkout race it was staggered against. The schedule
+  references in DORMANT.md and the LTS audit doc follow. _(1392128)_
+
+### Fixed
+
+- **The storage-repair path survives blocked localStorage
+  (night-zen-lts-b).** `validateAndRepairCache()` read the localStorage
+  repair source with a bare `localStorage.getItem(key)`; in private
+  modes where the API is blocked the call throws, the exception escaped
+  past the per-key repair logic, and `initStorage()` aborted its
+  post-population phase even though the IndexedDB cache was already
+  live. The read is wrapped in the try/catch idiom the rest of the
+  module uses: no repair source means no repair, never a lost
+  initialization. _(85e3fc6)_
+
+- **Backup restore is restricted to the storage key registry
+  (night-zen-lts-c).** `restoreLatestBackup()` replayed every key in
+  the IndexedDB snapshot into `storageSet`, so a same-origin compromise
+  that reshaped the backups store could inject arbitrary keys into the
+  storage layer through the restore path. The replay now filters
+  against `Object.values(STORAGE_KEYS)`: only keys the app owns can be
+  restored, unknown keys are skipped, and the validated read paths
+  still gate the restored values themselves. _(fe5b6c2)_
+
+- **Release tag names pass through env, never into shell source
+  (night-zen-lts-d).** Tag names are attacker-influenced input - git
+  refname rules allow quotes, dollars, semicolons, parentheses and
+  backticks - and interpolating `steps.tag.outputs.TAG_NAME` into a
+  `run:` script lets a crafted ref inject bash syntax ahead of the
+  format validators. The validate, changelog and both archive steps now
+  consume the tag through `env:` mappings (action-input usages such as
+  `tag_name:` and `files:` stay as expressions, which are data, not
+  shell); zero tag interpolations remain in `run:` sources. _(a69f21c)_
+
+- **A functional test localStorage under Node 26.** The CI lane failed
+  with 64 `Cannot read properties of undefined (reading 'clear')`
+  errors from the `localStorage.clear()` calls in test hooks: Node 26
+  GA ships a native webstorage binding with an undefined value until
+  `--localstorage-file` is provided, and jsdom's install no longer
+  applied the way it did on Node 24. The test setup now provisions a
+  real per-worker localStorage file, and the full 523-test suite runs
+  green on the Node 26 runner. _(f201b7c)_
+
+- **Four SvelteKit advisories remediated per the audit policy.** The
+  dependency audit gate went red against the pinned 2.70.2 lockfile:
+  `@sveltejs/kit` moves to 2.70.4 (latest 2.x), clearing
+  GHSA-mw6w-2fmv-pvw3 and GHSA-rqp5-r3wg-vg35, both fixed in 2.70.4;
+  GHSA-3r8g-jcqq-3p5j (high) and GHSA-6cf5-gc4q-fm3x (moderate) are
+  patched only in 3.1.1 and affect the experimental remote-functions
+  surface this app does not enable, so both are accepted in
+  `scripts/audit-allowlist.json` with those reasons and the 2027-05-01
+  expiry the other SvelteKit major-upgrade entries carry. _(12aa7d6)_
+
+- **Every stale asset-path and signature-scope reference synced to the
+  authoritative state (night-depth-cleanup-1).** The signature-assets
+  policy doc and the BLAKE3 manifest are the source of truth (scope:
+  `assets/`, `static/assets/`, `static/images/` - 18 signed entries;
+  master plate at `assets/bmi-original-logo-2026.png`), yet
+  `check-signature-assets.sh` still scanned the nonexistent
+  `docs/assets/` and `assets/tools.md` claimed the wallpaper set sits
+  outside the signature scope while the manifest signs all four
+  wallpaper images. Both ends now mirror the manifest, including the
+  example b3sum command. _(e83081a)_
+
+### Chore
+
+- Weekly dependency lockfile refresh, validated before commit with a
+  read-only token. _(234cd19)_
+
 ## [80.0.5]
 
 ### Removed
@@ -687,9 +796,10 @@ vX.Y.Z`, and splices a plain `## [X.Y.Z]` changelog heading;
 
 This project follows a low-touch maintenance cadence. Between minor releases, automated workflows handle:
 
-- **Weekly lockfile refresh** — `.github/workflows/maintenance.yml` runs `bun update --lockfile-only` every Monday 00:00 UTC, validates the result against the full CI gate, then commits directly to `main`.
-- **Daily security audit** — `.github/workflows/security-audit.yml` runs `bun audit` + policy checks at 00:00 UTC.
-- **GitHub Action self-heal** — `.github/workflows/self-heal-actions.yml` bumps action versions on patch/minor releases.
+- **Weekly lockfile refresh** — `.github/workflows/maintenance.yml` runs `bun update --lockfile-only` every Sunday 03:00 UTC (10:00 WIB), validates the result against the full CI gate, then commits directly to `main`.
+- **Weekly security audit** — `.github/workflows/security-audit.yml` runs `bun audit` + policy checks every Sunday 03:30 UTC (10:30 WIB), a deliberate 30-minute offset after the lockfile refresh so the audit sees the fresh `bun.lock` instead of racing it.
+- **GitHub Action self-heal** — `.github/workflows/self-heal-actions.yml` bumps action versions every Sunday 03:00 UTC (10:00 WIB) and on manual dispatch.
+- **Weekly CodeQL and runtime probe** — `.github/workflows/codeql.yml` and `.github/workflows/runtime-probe.yml` share the Sunday 03:00 UTC (10:00 WIB) guardian anchor.
 
 When waking the project after a dormant period, expect `bun audit` to flag advisories that were published in the interim — bump `overrides` in `package.json` (never weaken crypto deps) and re-run `./scripts/build.sh check-all`. Full guidance: [`DORMANT.md`](DORMANT.md).
 
