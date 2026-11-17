@@ -35,6 +35,20 @@
 			"severity": "low",
 			"reason": "No fixed deepmerge release exists yet (all published versions <= 4.3.1 are in the vulnerable range). Transitive dev-time dependency.",
 			"expires": "2027-05-01"
+		},
+		{
+			"id": "GHSA-3r8g-jcqq-3p5j",
+			"package": "@sveltejs/kit",
+			"severity": "high",
+			"reason": "Patched only in 3.1.1; no fixed 2.x release exists (the vulnerable range spans every 2.x from 2.42.0 through 3.1.0). Affects only the experimental remote functions form-parsing path, and this app does not enable remote functions. The fix is the 3.0/3.1 major upgrade, which is an owner decision, not a maintenance bump.",
+			"expires": "2027-05-01"
+		},
+		{
+			"id": "GHSA-6cf5-gc4q-fm3x",
+			"package": "@sveltejs/kit",
+			"severity": "moderate",
+			"reason": "Patched only in 3.1.1; no fixed 2.x release exists (the vulnerable range spans every 2.x from 2.60.1 through 3.1.0). Affects only the experimental remote functions flag with non-exported query.batch functions, which this app does not use. The fix is the 3.0/3.1 major upgrade, which is an owner decision, not a maintenance bump.",
+			"expires": "2027-05-01"
 		}
 	]
 }

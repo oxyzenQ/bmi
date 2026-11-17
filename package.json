@@ -44,7 +44,7 @@
 		"@eslint/compat": "^2.1.0",
 		"@eslint/js": "^10.0.1",
 		"@sveltejs/adapter-vercel": "^6.3.3",
-		"@sveltejs/kit": "2.70.2",
+		"@sveltejs/kit": "2.70.4",
 		"@sveltejs/vite-plugin-svelte": "7.1.2",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/svelte": "^5.3.1",
