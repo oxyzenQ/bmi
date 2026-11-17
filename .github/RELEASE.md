@@ -9,6 +9,11 @@ bun run verify
 # 2. Update version (syncs package.json, README.md, DORMANT.md, CHANGELOG.md)
 ./scripts/dev/version-to.sh <version>   # the zelynic-style direct entry
 bun run bmi-update-version <version>    # the same manager through bun
+#   CHANGELOG.md gets two automatic writes: the bare vX.Y.Z line in the
+#   ## [Released] ledger (newest first) and the ## [X.Y.Z] release
+#   section pre-filled from git history or the migrated Unreleased
+#   bullets. The draft states the what - write the why by hand before
+#   tagging.
 git add -A && git commit -m "chore: prepare for release v<major>.<minor>.<patch>"
 git push origin main
 

@@ -2,7 +2,7 @@
 
 All notable changes to **BMI Stellar** are documented in this file.
 
-The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) principles, adapted to the project's `feat / fix / chore / docs / refactor / style` commit conventions. Versions are synchronized from `package.json` via `scripts/dev/version-to.sh`. Release tags follow `v<major>.<minor>.<patch>` (a `-<suffix>` marks a pre-release) and match `package.json` exactly.
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) principles, adapted to the project's `feat / fix / chore / docs / refactor / style` commit conventions. Versions are synchronized from `package.json` via `scripts/dev/version-to.sh`: every bump records the bare version in the `## [Released]` ledger (newest first, the zelynic shape) and splices the release section under `## [Unreleased]` pre-filled - from the migrated Unreleased bullets when they exist, otherwise from the commit history since the previous reachable tag. Release tags follow `v<major>.<minor>.<patch>` (a `-<suffix>` marks a pre-release) and match `package.json` exactly.
 
 For the full architectural context behind any release, see [`docs/furthermore.md`](docs/furthermore.md). For dormant-maintenance guidance, see [`DORMANT.md`](DORMANT.md).
 

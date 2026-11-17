@@ -297,7 +297,7 @@ seriously. Found something? **Report it privately** via
 
 ## Documentation
 
-- [CHANGELOG.md](CHANGELOG.md) — release history v21.0 → v80.0.2 plus the in-progress Unreleased section
+- [CHANGELOG.md](CHANGELOG.md) — release history v21.0 → v80.0.6, the Released ledger, and the in-progress Unreleased section
 - [docs/README.md](docs/README.md) — the documentation map
 - [docs/furthermore.md](docs/furthermore.md) — the architectural deep dive: CSS cascade, pager, crypto, PWA, share image (the flagship reference)
 - [docs/AUDIT-2026-08.md](docs/AUDIT-2026-08.md) — source code audit record (August 2026)

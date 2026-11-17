@@ -25,8 +25,25 @@
 #                 vX.Y.Z" display title, the "badge/version-vX.Y.Z-" badge
 #                 URL, and the 'alt="Version vX.Y.Z"' alt - full vX.Y.Z
 #   DORMANT.md    the "Version: `X.Y.Z`" capsule line - full X.Y.Z
-#   CHANGELOG.md  the "## [X.Y.Z]" release heading spliced
-#                 directly under "## [Unreleased]" (Keep a Changelog)
+#   CHANGELOG.md  two writes (night-log-2, the night-log-1 lesson: the
+#                 old empty splice let 80.0.0-80.0.4 and 80.0.6 ship as
+#                 bare headings nobody filled):
+#                 1. the zelynic Released ledger (NIGHT-improve-76
+#                    shape): "## [Released]" above "## [Unreleased]"
+#                    gains the bare "vX.Y.Z" line, newest first;
+#                    created on first use, backfilled from the repo's
+#                    v* tags
+#                 2. the "## [X.Y.Z]" release section under
+#                    "## [Unreleased]" is never an empty heading again:
+#                    existing Unreleased bullets migrate into it (the
+#                    Keep a Changelog release event), an empty
+#                    Unreleased autofills from git history (commits
+#                    since the nearest previous reachable tag, grouped
+#                    feat/fix/chore/rest into Added/Changed/Fixed/Chore
+#                    bullets with short SHAs), and no reachable tag or
+#                    an empty range splices an italic manual-fill note
+#                    instead - the draft states the what, the why gets
+#                    written by hand before the tag
 #
 # A pre-release target (X.Y.Z-<suffix>, e.g. 80.0.0-night.1) moves the
 # same four surfaces - the suffix rides every pattern below.
@@ -63,6 +80,60 @@ validate_version() {
         fi
 }
 
+# --- CHANGELOG helpers (the night-log-2 ledger + autofill contract) ---
+
+# The repo's v* tags in the zelynic ledger order: newest first. GNU
+# sort -V places a pre-release line right after its stable, which is
+# exactly the order the ledger keeps.
+release_tag_list() {
+        git tag -l 'v*' 2>/dev/null | sort -rV
+}
+
+# The numeric core of a version string - everything before a -suffix.
+version_core() {
+        printf '%s' "$1" | sed 's/-.*//'
+}
+
+# The nearest previous tag BELOW the target that HEAD can actually
+# reach. Squashed history (the 2026-11 re-root) left the older tags on
+# a disconnected lineage, so reachability is probed per tag, never
+# assumed: the first tag in newest-first order whose numeric core is
+# below the target's AND that is an ancestor of HEAD wins. Prints the
+# v-prefixed tag name; fails when nothing qualifies.
+autofill_base_tag() {
+        local tgt_core tgt_num t t_core t_num
+        tgt_core="$(version_core "${NEW}")"
+        IFS=. read -r a b c <<<"${tgt_core}"
+        tgt_num=$((a * 1000000 + b * 1000 + c))
+        while IFS= read -r t; do
+                t_core="$(version_core "${t#v}")"
+                IFS=. read -r a b c <<<"${t_core}"
+                t_num=$((a * 1000000 + b * 1000 + c))
+                if [ "${t_num}" -lt "${tgt_num}" ] && git merge-base --is-ancestor "${t}" HEAD >/dev/null 2>&1; then
+                        printf '%s\n' "${t}"
+                        return 0
+                fi
+        done < <(release_tag_list)
+        return 1
+}
+
+# Every line between the Unreleased anchor and the next release heading
+# (or a --- separator): the bullets the owner wrote since the last
+# release, which migrate into the new release section verbatim.
+unreleased_body() {
+        awk '
+                /^## \[Unreleased\]$/ { inu = 1; next }
+                inu && (/^## \[/ || /^---$/) { exit }
+                inu { print }
+        ' CHANGELOG.md
+}
+
+# Strip leading and trailing blank lines, dependency-free - the body
+# must land as exactly one blank between the heading and its content.
+trim_blank_edges() {
+        awk '{ l[NR] = $0 } END { n = NR; while (n > 0 && l[n] == "") n--; s = 1; while (s <= n && l[s] == "") s++; for (i = s; i <= n; i++) print l[i] }'
+}
+
 show_usage() {
         printf '\033[0;36mBMI Stellar version manager\033[0m - the zelynic dev lane shape\n'
         printf '\n'
@@ -73,12 +144,13 @@ show_usage() {
         printf '  ./scripts/dev/version-to.sh <target> --dry-run  preview every rewrite, write nothing\n'
         printf '  ./scripts/dev/version-to.sh <target> --commit   update, then stage + commit the surfaces\n'
         printf '\n'
-        printf 'Surfaces: package.json (source of truth), README.md (vX.Y.Z),\n'
-        printf 'DORMANT.md (X.Y.Z), CHANGELOG.md (release heading).\n'
+	printf 'Surfaces: package.json (source of truth), README.md (vX.Y.Z),\n'
+	printf 'DORMANT.md (X.Y.Z), CHANGELOG.md (Released ledger + the\n'
+	printf 'pre-filled release section).\n'
 }
 
 TMP_WORK="$(mktemp)"
-trap 'rm -f "${TMP_WORK}" "${TMP_WORK}.out"' EXIT
+trap 'rm -f "${TMP_WORK}" "${TMP_WORK}.out" "${TMP_WORK}.raw" "${TMP_WORK}.body" "${TMP_WORK}.section" "${TMP_WORK}.ledger"' EXIT
 
 DRY_RUN=false
 COMMIT=false
@@ -250,35 +322,152 @@ else
         fi
 fi
 
-# --- CHANGELOG.md (the release heading under ## [Unreleased]) ---
-# The Keep a Changelog splice: the version heading lands directly under
-# the Unreleased anchor, so the unreleased bullets become the release's
-# bullets and Unreleased starts fresh on the next edit. An
-# already-recorded version or a missing anchor writes nothing.
+# --- CHANGELOG.md (the Released ledger + the pre-filled release section) ---
+# Two writes, one command (night-log-2, the night-log-1 lesson: the old
+# empty splice let 80.0.0-80.0.4 and 80.0.6 ship as bare headings nobody
+# filled):
+# 1. The zelynic Released ledger (NIGHT-improve-76): "## [Released]" with
+#    the bare vX.Y.Z lines, newest first, above "## [Unreleased]".
+#    Created on first use with a backfill from the repo's v* tags; the
+#    new version splices in under the blank spacer. An unexpected shape
+#    warns and writes nothing - a ledger this script did not create is
+#    not one it rewrites.
+# 2. The "## [X.Y.Z]" release section under "## [Unreleased]" is never
+#    an empty heading again: existing Unreleased bullets migrate into it
+#    (the Keep a Changelog release event), an empty Unreleased autofills
+#    from git history since the nearest previous reachable tag (grouped
+#    feat/fix/chore/rest into Added/Changed/Fixed/Chore bullets with
+#    short SHAs), and no reachable tag or an empty range splices an
+#    italic manual-fill note instead. The draft is editorial - the why
+#    still gets written by hand before the tag.
 if [ ! -f CHANGELOG.md ]; then
         warn "CHANGELOG.md - file absent, nothing to write"
-elif grep -qF "## [${NEW}]" CHANGELOG.md; then
-        same "CHANGELOG.md - ${NEW} already recorded, nothing to write"
 elif ! grep -q '^## \[Unreleased\]$' CHANGELOG.md; then
         warn "CHANGELOG.md - no ## [Unreleased] anchor found, nothing to write"
 else
-        awk -v heading="## [${NEW}]" 'BEGIN { done = 0 }
-                /^## \[Unreleased\]$/ && !done {
-                        print
-                        print ""
-                        print heading
-                        done = 1
-                        next
-                }
-                { print }
-        ' CHANGELOG.md >"${TMP_WORK}"
-        if [ "${DRY_RUN}" = true ]; then
-                CHANGED=1
-                same "CHANGELOG.md - would splice ## [${NEW}] under ## [Unreleased] (dry run)"
+        # --- 1. the Released ledger ---
+        if grep -qxF "v${NEW}" CHANGELOG.md; then
+                same "CHANGELOG.md ledger - v${NEW} already recorded, nothing to write"
+        elif grep -q '^## \[Released\]$' CHANGELOG.md; then
+                if [ -z "$(sed -n '/^## \[Released\]$/{n;p;}' CHANGELOG.md)" ]; then
+                        awk -v ver="v${NEW}" '
+                                /^## \[Released\]$/ && !done {
+                                        print
+                                        getline spacer
+                                        print spacer
+                                        print ver
+                                        done = 1
+                                        next
+                                }
+                                { print }
+                        ' CHANGELOG.md >"${TMP_WORK}"
+                        if [ "${DRY_RUN}" = true ]; then
+                                CHANGED=1
+                                same "CHANGELOG.md ledger - would splice v${NEW} (## [Released], newest first) (dry run)"
+                        else
+                                mv "${TMP_WORK}" CHANGELOG.md
+                                CHANGED=1
+                                ok "CHANGELOG.md ledger - v${NEW} recorded (## [Released], newest first)"
+                        fi
+                else
+                        warn "CHANGELOG.md ledger - unexpected ## [Released] shape (no blank spacer under the heading), nothing to write"
+                fi
         else
-                mv "${TMP_WORK}" CHANGELOG.md
-                CHANGED=1
-                ok "CHANGELOG.md - release heading ## [${NEW}] spliced under ## [Unreleased]"
+                # First use: create the ledger above Unreleased, backfilled
+                # from the repo's v* tags (newest first), the new version on top.
+                {
+                        printf '## [Released]\n\n'
+                        printf 'v%s\n' "${NEW}"
+                        release_tag_list
+                        printf '\n'
+                        sed -n '/^## \[Unreleased\]$/,$p' CHANGELOG.md
+                } >"${TMP_WORK}.ledger"
+                if [ "${DRY_RUN}" = true ]; then
+                        CHANGED=1
+                        same "CHANGELOG.md ledger - would create ## [Released] above ## [Unreleased], backfilled from the v* tags (dry run)"
+                else
+                        mv "${TMP_WORK}.ledger" CHANGELOG.md
+                        CHANGED=1
+                        ok "CHANGELOG.md ledger - ## [Released] created above ## [Unreleased], backfilled from the v* tags, v${NEW} on top"
+                fi
+        fi
+
+        # --- 2. the pre-filled release section ---
+        if grep -qF "## [${NEW}]" CHANGELOG.md; then
+                same "CHANGELOG.md - ## [${NEW}] already recorded, nothing to write"
+        else
+                unreleased_body | trim_blank_edges >"${TMP_WORK}.body"
+                if [ -s "${TMP_WORK}.body" ]; then
+                        SECTION_SOURCE="migrated the Unreleased bullets"
+                else
+                        SECTION_SOURCE="autofilled from git history"
+                        if BASE="$(autofill_base_tag)"; then
+                                git log --no-merges --format='%h%x09%s' "${BASE}..HEAD" >"${TMP_WORK}.raw" 2>/dev/null || :
+                                while IFS=$'\t' read -r sha subj; do
+                                        [ -n "${sha}" ] || continue
+                                        case "${subj}" in
+                                        "chore: prepare for release"*) continue ;;
+                                        feat*) sec="Added" ;;
+                                        fix*) sec="Fixed" ;;
+                                        chore*) sec="Chore" ;;
+                                        *) sec="Changed" ;;
+                                        esac
+                                        bullet="${subj}"
+                                        if printf '%s' "${subj}" | grep -qE '^[A-Za-z]+(\([^)]*\))?:[[:space:]]'; then
+                                                bullet="$(printf '%s' "${subj}" | sed -E 's/^[A-Za-z]+(\([^)]*\))?:[[:space:]]+//')"
+                                        fi
+                                        printf '%s\t- **%s** _(%s)_\n' "${sec}" "${bullet}" "${sha}"
+                                done <"${TMP_WORK}.raw" | awk -F'\t' '
+                                        { buf[$1] = buf[$1] $2 "\n"; seen[$1] = 1 }
+                                        END {
+                                                first = 1
+                                                split("Added Changed Fixed Chore", ord, " ")
+                                                for (i = 1; i <= 4; i++) {
+                                                        if (!seen[ord[i]]) continue
+                                                        if (!first) printf "\n"
+                                                        first = 0
+                                                        printf "### %s\n\n", ord[i]
+                                                        printf "%s", buf[ord[i]]
+                                                }
+                                        }
+                                ' >"${TMP_WORK}.body"
+                                rm -f "${TMP_WORK}.raw"
+                                if [ ! -s "${TMP_WORK}.body" ]; then
+                                        printf '_No commits recorded since %s - fill the section from the release diff manually._\n' "${BASE}" >"${TMP_WORK}.body"
+                                        SECTION_SOURCE="empty range since ${BASE}"
+                                fi
+                        else
+                                printf '_No previous tag reachable from HEAD - fill the section from the release diff manually._\n' >"${TMP_WORK}.body"
+                                SECTION_SOURCE="no reachable previous tag"
+                        fi
+                fi
+                # Splice between the Unreleased anchor and the next release
+                # heading: anchor, blank, section, blank, rest. The migrated or
+                # autofilled bullets become the release's bullets and
+                # Unreleased starts fresh.
+                {
+                        printf '## [%s]\n\n' "${NEW}"
+                        cat "${TMP_WORK}.body"
+                } >"${TMP_WORK}.section"
+                {
+                        sed -n '1,/^## \[Unreleased\]$/p' CHANGELOG.md
+                        printf '\n'
+                        cat "${TMP_WORK}.section"
+                        printf '\n'
+                        awk '
+                                /^## \[Unreleased\]$/ { inu = 1; next }
+                                inu && !seen && /^## \[/ { seen = 1 }
+                                seen { print }
+                        ' CHANGELOG.md
+                } >"${TMP_WORK}"
+                if [ "${DRY_RUN}" = true ]; then
+                        CHANGED=1
+                        same "CHANGELOG.md - would splice ## [${NEW}] under ## [Unreleased] (${SECTION_SOURCE}) (dry run)"
+                else
+                        mv "${TMP_WORK}" CHANGELOG.md
+                        CHANGED=1
+                        ok "CHANGELOG.md - ## [${NEW}] spliced under ## [Unreleased] (${SECTION_SOURCE})"
+                fi
         fi
 fi
 
