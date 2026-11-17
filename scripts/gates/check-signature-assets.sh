@@ -5,7 +5,7 @@
 # SIGNATURE ASSETS GATE
 #
 # The LTS brand-supply-chain lock: every image under assets/,
-# docs/assets/, static/assets/, and static/images/ must match the
+# static/assets/, and static/images/ must match the
 # BLAKE3 digest recorded in assets/signature.b3sum, and every signed
 # entry must exist. Both directions are enforced, so a swapped,
 # re-encoded, or duplicated logo fails the gate, a silently added
@@ -23,7 +23,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 MANIFEST="assets/signature.b3sum"
-SCAN_DIRS=(assets docs/assets static/assets static/images)
+SCAN_DIRS=(assets static/assets static/images)
 EXTENSIONS=(png jpg jpeg webp gif svg avif ico)
 
 if ! command -v b3sum >/dev/null 2>&1; then

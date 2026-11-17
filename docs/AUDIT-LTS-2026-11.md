@@ -109,7 +109,7 @@ owner-decision items stay as recorded in the infra audit doc.
 ## 5. Brand palette verification (the purple, grey, white focus)
 
 Checked against the original brand art, not just the docs: the logo
-master plate (`docs/assets/bmi-logo-masters.png`) is a dark plate
+master plate (`assets/bmi-original-logo-2026.png`) is a dark plate
 (black-to-navy field with violet accent detail), and the live design
 tokens resolve to the same family - `--cosmic-purple: #8000ff`,
 `--cosmic-blue: #9a4dff`, violet accent decomposition

@@ -73,20 +73,20 @@ magick upload/oxyzenQ-lite.png -filter Lanczos -resize '1920x1080^' \
 
 `-quality 80` keeps cosmic gradients band-free; `-define webp:method=6`
 trades encode time for bytes and belongs in every asset encode. The
-wallpaper set lives in `static/images/`, which is outside the BLAKE3
-signature scope (`assets/`, `docs/assets/`, `static/assets/`) — the
-digest refresh policy below does not apply to it.
+wallpaper set lives in `static/images/`, which is inside the BLAKE3
+signature scope (`assets/`, `static/assets/`, `static/images/`) — the
+digest refresh policy below applies to it.
 
 ## after any asset change
 
-Every image under `assets/`, `docs/assets/`, and `static/assets/`
+Every image under `assets/`, `static/assets/`, and `static/images/`
 carries a recorded BLAKE3 digest — see
 [signature-assets.md](signature-assets.md). Refresh the matching row and
 the matching `signature.b3sum` line in the same commit that replaces the
 bytes:
 
 ```sh
-b3sum assets/*.png docs/assets/*.png static/assets/*.png | sort -k2
+b3sum assets/*.png static/assets/*.png static/images/*.webp | sort -k2
 ```
 
 <!-- BMI-STELLAR-DISCLAIMER -->
