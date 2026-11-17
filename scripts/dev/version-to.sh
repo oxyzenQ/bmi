@@ -29,21 +29,27 @@
 #                 old empty splice let 80.0.0-80.0.4 and 80.0.6 ship as
 #                 bare headings nobody filled):
 #                 1. the zelynic Released ledger (NIGHT-improve-76
-#                    shape): "## [Released]" above "## [Unreleased]"
-#                    gains the bare "vX.Y.Z" line, newest first;
+#                    shape): "## [Released]" gains the bare "vX.Y.Z"
+#                    line under the blank spacer, newest first;
 #                    created on first use, backfilled from the repo's
-#                    v* tags
-#                 2. the "## [X.Y.Z]" release section under
-#                    "## [Unreleased]" is never an empty heading again:
-#                    existing Unreleased bullets migrate into it (the
-#                    Keep a Changelog release event), an empty
-#                    Unreleased autofills from git history (commits
-#                    since the nearest previous reachable tag, grouped
-#                    feat/fix/chore/rest into Added/Changed/Fixed/Chore
-#                    bullets with short SHAs), and no reachable tag or
-#                    an empty range splices an italic manual-fill note
-#                    instead - the draft states the what, the why gets
-#                    written by hand before the tag
+#                    v* tags (newest first by tag creation date)
+#                 2. the "## [X.Y.Z]" release section is never an
+#                    empty heading and never lands under
+#                    "## [Unreleased]" - it splices into the Released
+#                    area, right after the ledger, newest first
+#                    (night-log-3): existing Unreleased bullets
+#                    migrate into it (the Keep a Changelog release
+#                    event), an empty Unreleased autofills from git
+#                    history (commits since the nearest previous
+#                    reachable tag, grouped feat/fix/chore/rest into
+#                    Added/Changed/Fixed/Chore bullets with short
+#                    SHAs), and no reachable tag or an empty range
+#                    splices an italic manual-fill note instead - the
+#                    draft states the what, the why gets written by
+#                    hand before the tag. "## [Unreleased]" lives at
+#                    the bottom of the file and starts fresh after
+#                    every release; the first-use run relocates it
+#                    there from wherever it sat
 #
 # A pre-release target (X.Y.Z-<suffix>, e.g. 80.0.0-night.1) moves the
 # same four surfaces - the suffix rides every pattern below.
@@ -82,11 +88,12 @@ validate_version() {
 
 # --- CHANGELOG helpers (the night-log-2 ledger + autofill contract) ---
 
-# The repo's v* tags in the zelynic ledger order: newest first. GNU
-# sort -V places a pre-release line right after its stable, which is
-# exactly the order the ledger keeps.
+# The repo's v* tags in the zelynic ledger order: newest first by tag
+# creation date. creatordate, not version sort - the ledger records
+# when a version shipped, so a pre-release sits below the stable that
+# superseded it, wherever version order would rank it.
 release_tag_list() {
-        git tag -l 'v*' 2>/dev/null | sort -rV
+        git for-each-ref --sort=-creatordate --format='%(refname:short)' 'refs/tags/v*' 2>/dev/null
 }
 
 # The numeric core of a version string - everything before a -suffix.
@@ -134,6 +141,48 @@ trim_blank_edges() {
         awk '{ l[NR] = $0 } END { n = NR; while (n > 0 && l[n] == "") n--; s = 1; while (s <= n && l[s] == "") s++; for (i = s; i <= n; i++) print l[i] }'
 }
 
+# Print CHANGELOG.md lines [start, end] (end empty = through EOF). An
+# inverted range prints nothing - GNU sed prints the start line of an
+# inverted range once instead, which would duplicate a heading mid-splice.
+sed_lines() {
+        if [ -n "${2}" ] && [ "${2}" -ge "${1}" ]; then
+                sed -n "${1},${2}p" CHANGELOG.md
+        elif [ -z "${2}" ]; then
+                sed -n "${1},\$p" CHANGELOG.md
+        fi
+}
+
+# Append one block to a composition being built on stdout: trim its
+# blank edges, then emit it with one leading blank line only when it
+# survives the trim - an empty block never leaves a stray blank behind.
+emit_block() {
+        trim_blank_edges <"$1" >"${TMP_WORK}.piece"
+        if [ -s "${TMP_WORK}.piece" ]; then
+                printf '\n'
+                cat "${TMP_WORK}.piece"
+        fi
+}
+
+# Compose the spliced CHANGELOG on stdout: the file arguments arrive in
+# order, the first surviving piece prints trimmed and bare, every
+# following piece prints as one blank line plus its trimmed content, and
+# the file ends on a fresh "## [Unreleased]" anchor - so every boundary
+# in the composed file carries exactly one blank line.
+compose_splice() {
+        first=1
+        for piece in "$@"; do
+                trim_blank_edges <"${piece}" >"${TMP_WORK}.piece"
+                if [ -s "${TMP_WORK}.piece" ]; then
+                        if [ "${first}" -eq 0 ]; then
+                                printf '\n'
+                        fi
+                        cat "${TMP_WORK}.piece"
+                        first=0
+                fi
+        done
+        printf '\n## [Unreleased]\n'
+}
+
 show_usage() {
         printf '\033[0;36mBMI Stellar version manager\033[0m - the zelynic dev lane shape\n'
         printf '\n'
@@ -150,7 +199,7 @@ show_usage() {
 }
 
 TMP_WORK="$(mktemp)"
-trap 'rm -f "${TMP_WORK}" "${TMP_WORK}.out" "${TMP_WORK}.raw" "${TMP_WORK}.body" "${TMP_WORK}.section" "${TMP_WORK}.ledger"' EXIT
+trap 'rm -f "${TMP_WORK}" "${TMP_WORK}.out" "${TMP_WORK}.raw" "${TMP_WORK}.body" "${TMP_WORK}.section" "${TMP_WORK}.ledger" "${TMP_WORK}.head" "${TMP_WORK}.stack" "${TMP_WORK}.unrel" "${TMP_WORK}.piece" "${TMP_WORK}.p1" "${TMP_WORK}.p2" "${TMP_WORK}.p3"' EXIT
 
 DRY_RUN=false
 COMMIT=false
@@ -327,19 +376,25 @@ fi
 # empty splice let 80.0.0-80.0.4 and 80.0.6 ship as bare headings nobody
 # filled):
 # 1. The zelynic Released ledger (NIGHT-improve-76): "## [Released]" with
-#    the bare vX.Y.Z lines, newest first, above "## [Unreleased]".
-#    Created on first use with a backfill from the repo's v* tags; the
-#    new version splices in under the blank spacer. An unexpected shape
-#    warns and writes nothing - a ledger this script did not create is
-#    not one it rewrites.
-# 2. The "## [X.Y.Z]" release section under "## [Unreleased]" is never
-#    an empty heading again: existing Unreleased bullets migrate into it
-#    (the Keep a Changelog release event), an empty Unreleased autofills
-#    from git history since the nearest previous reachable tag (grouped
-#    feat/fix/chore/rest into Added/Changed/Fixed/Chore bullets with
-#    short SHAs), and no reachable tag or an empty range splices an
-#    italic manual-fill note instead. The draft is editorial - the why
-#    still gets written by hand before the tag.
+#    the bare vX.Y.Z lines, newest first by tag creation date. Created on
+#    first use with a backfill from the repo's v* tags - spliced in after
+#    the header prose, never rebuilt from the anchor down (the night-log-3
+#    fix: that rebuild used to eat the header); "## [Unreleased]" relocates
+#    to the bottom of the file with its body intact. The new version
+#    splices in under the blank spacer. An unexpected shape warns and
+#    writes nothing - a ledger this script did not create is not one it
+#    rewrites.
+# 2. The "## [X.Y.Z]" release section is never an empty heading and never
+#    lands under "## [Unreleased]" (the night-log-3 fix: the bump used to
+#    file the release under Unreleased): it splices into the Released
+#    area, right after the ledger, newest first. Existing Unreleased
+#    bullets migrate into it (the Keep a Changelog release event), an
+#    empty Unreleased autofills from git history since the nearest
+#    previous reachable tag (grouped feat/fix/chore/rest into
+#    Added/Changed/Fixed/Chore bullets with short SHAs), and no reachable
+#    tag or an empty range splices an italic manual-fill note instead.
+#    The draft is editorial - the why still gets written by hand before
+#    the tag.
 if [ ! -f CHANGELOG.md ]; then
         warn "CHANGELOG.md - file absent, nothing to write"
 elif ! grep -q '^## \[Unreleased\]$' CHANGELOG.md; then
@@ -373,22 +428,58 @@ else
                         warn "CHANGELOG.md ledger - unexpected ## [Released] shape (no blank spacer under the heading), nothing to write"
                 fi
         else
-                # First use: create the ledger above Unreleased, backfilled
-                # from the repo's v* tags (newest first), the new version on top.
+                # First use: restructure into the canonical shape as the
+                # ledger lands. The header prose (everything above the
+                # released stack, --- separator included) stays untouched;
+                # the "## [Released]" ledger slots in right after it,
+                # backfilled from the repo's v* tags (newest first by tag
+                # creation date), the new version on top; and
+                # "## [Unreleased]" moves to the bottom of the file with its
+                # body intact - the section step below migrates that body
+                # into the new release section. The ledger is spliced into
+                # the file, never rebuilt from the anchor down (the
+                # night-log-3 fix: that rebuild used to eat the header).
+                REL1="$(awk '/^## \[Unreleased\]$/ { next } !r && /^## \[/ { r = NR } END { print r }' CHANGELOG.md)"
+                ANCH="$(awk '/^## \[Unreleased\]$/ { print NR; exit }' CHANGELOG.md)"
+                UNREL_END="$(awk -v a="${ANCH}" '
+                        NR > a && /^## \[/ && !f { print NR - 1; f = 1; exit }
+                        END { if (!f) print NR }
+                ' CHANGELOG.md)"
+                if [ -z "${REL1}" ] || [ "${ANCH}" -lt "${REL1}" ]; then
+                        # legacy shape: the anchor sits above the released
+                        # stack (or there is no release section at all)
+                        sed_lines 1 "$((ANCH - 1))" >"${TMP_WORK}.head"
+                        sed_lines "${ANCH}" "${UNREL_END}" >"${TMP_WORK}.unrel"
+                        sed_lines "$((UNREL_END + 1))" "" >"${TMP_WORK}.stack"
+                else
+                        # the anchor already sits below the released stack
+                        sed_lines 1 "$((REL1 - 1))" >"${TMP_WORK}.head"
+                        sed_lines "${REL1}" "$((ANCH - 1))" >"${TMP_WORK}.stack"
+                        sed_lines "${ANCH}" "${UNREL_END}" >"${TMP_WORK}.unrel"
+                fi
                 {
+                        trim_blank_edges <"${TMP_WORK}.head" >"${TMP_WORK}.piece"
+                        if [ -s "${TMP_WORK}.piece" ]; then
+                                cat "${TMP_WORK}.piece"
+                                printf '\n'
+                        fi
                         printf '## [Released]\n\n'
                         printf 'v%s\n' "${NEW}"
                         release_tag_list
-                        printf '\n'
-                        sed -n '/^## \[Unreleased\]$/,$p' CHANGELOG.md
+                        emit_block "${TMP_WORK}.stack"
+                        emit_block "${TMP_WORK}.unrel"
                 } >"${TMP_WORK}.ledger"
                 if [ "${DRY_RUN}" = true ]; then
                         CHANGED=1
-                        same "CHANGELOG.md ledger - would create ## [Released] above ## [Unreleased], backfilled from the v* tags (dry run)"
+                        same "CHANGELOG.md ledger - would create ## [Released] after the header prose, backfilled from the v* tags, and relocate ## [Unreleased] to the bottom (dry run)"
                 else
                         mv "${TMP_WORK}.ledger" CHANGELOG.md
                         CHANGED=1
-                        ok "CHANGELOG.md ledger - ## [Released] created above ## [Unreleased], backfilled from the v* tags, v${NEW} on top"
+                        ok "CHANGELOG.md ledger - ## [Released] created after the header prose, backfilled from the v* tags, v${NEW} on top; ## [Unreleased] relocated to the bottom"
+                fi
+                TAGN="$(release_tag_list | wc -l)"
+                if [ "${TAGN}" -lt 2 ]; then
+                        warn "ledger backfilled from ${TAGN} local v* tag(s) - run 'git fetch --tags origin' and top the ledger up by hand if this looks short"
                 fi
         fi
 
@@ -441,32 +532,65 @@ else
                                 SECTION_SOURCE="no reachable previous tag"
                         fi
                 fi
-                # Splice between the Unreleased anchor and the next release
-                # heading: anchor, blank, section, blank, rest. The migrated or
-                # autofilled bullets become the release's bullets and
-                # Unreleased starts fresh.
+                # Splice into the Released area (night-log-3): the release
+                # record belongs right after the ledger, newest first - never
+                # under the Unreleased anchor. The anchor block dissolves (its
+                # body became this section's body) and the file ends on a
+                # fresh "## [Unreleased]" at the bottom.
                 {
                         printf '## [%s]\n\n' "${NEW}"
                         cat "${TMP_WORK}.body"
                 } >"${TMP_WORK}.section"
-                {
-                        sed -n '1,/^## \[Unreleased\]$/p' CHANGELOG.md
-                        printf '\n'
-                        cat "${TMP_WORK}.section"
-                        printf '\n'
-                        awk '
-                                /^## \[Unreleased\]$/ { inu = 1; next }
-                                inu && !seen && /^## \[/ { seen = 1 }
-                                seen { print }
-                        ' CHANGELOG.md
-                } >"${TMP_WORK}"
+                ANCH="$(awk '/^## \[Unreleased\]$/ { print NR; exit }' CHANGELOG.md)"
+                UNREL_END="$(awk -v a="${ANCH}" '
+                        NR > a && /^## \[/ && !f { print NR - 1; f = 1; exit }
+                        END { if (!f) print NR }
+                ' CHANGELOG.md)"
+                REL_LEDGER="$(awk '/^## \[Released\]$/ { print NR; exit }' CHANGELOG.md)"
+                if [ -n "${REL_LEDGER}" ]; then
+                        INSERT_AT="$(awk -v r="${REL_LEDGER}" '
+                                NR > r && /^## \[/ && $0 !~ /^## \[Unreleased\]$/ { print NR; exit }
+                        ' CHANGELOG.md)"
+                        if [ -z "${INSERT_AT}" ] && [ "${ANCH}" -gt "${REL_LEDGER}" ]; then
+                                # The ledger is the last release heading and the
+                                # anchor follows it - the new section becomes the
+                                # first release section, right before the anchor.
+                                INSERT_AT="${ANCH}"
+                        fi
+                else
+                        INSERT_AT="$(awk '/^## \[/ && $0 !~ /^## \[Unreleased\]$/ { print NR; exit }' CHANGELOG.md)"
+                fi
+                if [ -n "${INSERT_AT}" ] && [ "${INSERT_AT}" -gt "${ANCH}" ]; then
+                        # Degenerate shape: the anchor sits above the splice
+                        # point, inside the released area. Dissolve the anchor
+                        # block, land the section at the splice point, and end
+                        # on a fresh anchor.
+                        sed_lines 1 "$((ANCH - 1))" >"${TMP_WORK}.p1"
+                        sed_lines "$((UNREL_END + 1))" "$((INSERT_AT - 1))" >"${TMP_WORK}.p2"
+                        sed_lines "${INSERT_AT}" "" >"${TMP_WORK}.p3"
+                        compose_splice "${TMP_WORK}.p1" "${TMP_WORK}.p2" "${TMP_WORK}.section" "${TMP_WORK}.p3" >"${TMP_WORK}"
+                elif [ -n "${INSERT_AT}" ]; then
+                        # The normal shape: the section lands right after the
+                        # ledger (or after the header prose when no ledger
+                        # exists yet), before the released stack.
+                        sed_lines 1 "$((INSERT_AT - 1))" >"${TMP_WORK}.p1"
+                        sed_lines "${INSERT_AT}" "$((ANCH - 1))" >"${TMP_WORK}.p2"
+                        sed_lines "$((UNREL_END + 1))" "" >"${TMP_WORK}.p3"
+                        compose_splice "${TMP_WORK}.p1" "${TMP_WORK}.section" "${TMP_WORK}.p2" "${TMP_WORK}.p3" >"${TMP_WORK}"
+                else
+                        # No release section anywhere and no ledger: the section
+                        # lands right after the header prose, before the anchor.
+                        sed_lines 1 "$((ANCH - 1))" >"${TMP_WORK}.p1"
+                        sed_lines "$((UNREL_END + 1))" "" >"${TMP_WORK}.p2"
+                        compose_splice "${TMP_WORK}.p1" "${TMP_WORK}.section" "${TMP_WORK}.p2" >"${TMP_WORK}"
+                fi
                 if [ "${DRY_RUN}" = true ]; then
                         CHANGED=1
-                        same "CHANGELOG.md - would splice ## [${NEW}] under ## [Unreleased] (${SECTION_SOURCE}) (dry run)"
+                        same "CHANGELOG.md - would splice ## [${NEW}] into the Released area (${SECTION_SOURCE}) (dry run)"
                 else
                         mv "${TMP_WORK}" CHANGELOG.md
                         CHANGED=1
-                        ok "CHANGELOG.md - ## [${NEW}] spliced under ## [Unreleased] (${SECTION_SOURCE})"
+                        ok "CHANGELOG.md - ## [${NEW}] spliced into the Released area (${SECTION_SOURCE})"
                 fi
         fi
 fi

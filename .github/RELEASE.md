@@ -11,9 +11,11 @@ bun run verify
 bun run bmi-update-version <version>    # the same manager through bun
 #   CHANGELOG.md gets two automatic writes: the bare vX.Y.Z line in the
 #   ## [Released] ledger (newest first) and the ## [X.Y.Z] release
-#   section pre-filled from git history or the migrated Unreleased
-#   bullets. The draft states the what - write the why by hand before
-#   tagging.
+#   section spliced into the Released area, right after the ledger,
+#   pre-filled from git history or the migrated Unreleased bullets -
+#   never under ## [Unreleased], which sits at the bottom of the file
+#   and starts fresh after every release. The draft states the what -
+#   write the why by hand before tagging.
 git add -A && git commit -m "chore: prepare for release v<major>.<minor>.<patch>"
 git push origin main
 
