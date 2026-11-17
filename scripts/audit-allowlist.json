@@ -16,6 +16,13 @@
 			"expires": "2027-05-01"
 		},
 		{
+			"id": "GHSA-fc5q-39xc-vjpf",
+			"package": "picomatch",
+			"severity": "high",
+			"reason": "No fixed picomatch 4.x release exists yet (the latest published 4.0.7 is still inside the vulnerable range <=4.0.7) and both dependents (@rollup/pluginutils, @vercel/nft) pin ^4.0.2. Build-time tooling only - vite/rollup plugin matching and the Vercel adapter's file tracing - never shipped to the runtime bundle, and the ReDoS vector requires a hostile extglob pattern reaching picomatch at build time. Bump an override to the first fixed release when it lands.",
+			"expires": "2027-05-01"
+		},
+		{
 			"id": "GHSA-pfhg-q3qv-9q6r",
 			"package": "@sveltejs/kit",
 			"severity": "low",

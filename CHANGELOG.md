@@ -10,6 +10,20 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Unreleased]
 
+### Fixed
+
+- **New picomatch ReDoS advisory accepted per the audit policy.** The
+  dependency audit gate went red on GHSA-fc5q-39xc-vjpf (high, ReDoS
+  through single-branch repeated extglobs, vulnerable through 4.0.7):
+  no fixed picomatch 4.x release exists yet - the latest published
+  4.0.7 is still inside the range - and both dependents
+  (`@rollup/pluginutils`, `@vercel/nft`) pin `^4.0.2`, so the advisory
+  is accepted in `scripts/audit-allowlist.json` with the
+  build-time-only scope as the reason (vite/rollup plugin matching and
+  the Vercel adapter's file tracing, never shipped to the runtime
+  bundle) and the 2027-05-01 expiry, to be replaced by an override bump
+  the moment a fixed release lands.
+
 ## [80.0.6]
 
 ### Changed
