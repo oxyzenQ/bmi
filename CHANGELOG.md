@@ -10,6 +10,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Released]
 
+v80.0.7
 v80.0.6
 v80.0.5
 v80.0.4
@@ -19,6 +20,22 @@ v80.0.1
 v80.0.0
 v80.0.0-night.2
 v80.0.0-night.1
+
+## [80.0.7]
+
+### Fixed
+
+- **New picomatch ReDoS advisory accepted per the audit policy.** The
+  dependency audit gate went red on GHSA-fc5q-39xc-vjpf (high, ReDoS
+  through single-branch repeated extglobs, vulnerable through 4.0.7):
+  no fixed picomatch 4.x release exists yet - the latest published
+  4.0.7 is still inside the range - and both dependents
+  (`@rollup/pluginutils`, `@vercel/nft`) pin `^4.0.2`, so the advisory
+  is accepted in `scripts/audit-allowlist.json` with the
+  build-time-only scope as the reason (vite/rollup plugin matching and
+  the Vercel adapter's file tracing, never shipped to the runtime
+  bundle) and the 2027-05-01 expiry, to be replaced by an override bump
+  the moment a fixed release lands.
 
 ## [80.0.6]
 
@@ -818,17 +835,3 @@ When waking the project after a dormant period, expect `bun audit` to flag advis
 _Link mapping: `[21.x.0]` sections correspond to the historic `Stellar-v21.x` tags; sections from the `v*` tag era onward match `package.json` directly. Commits referenced by short SHA can be inspected via `git show <sha>`._
 
 ## [Unreleased]
-
-### Fixed
-
-- **New picomatch ReDoS advisory accepted per the audit policy.** The
-  dependency audit gate went red on GHSA-fc5q-39xc-vjpf (high, ReDoS
-  through single-branch repeated extglobs, vulnerable through 4.0.7):
-  no fixed picomatch 4.x release exists yet - the latest published
-  4.0.7 is still inside the range - and both dependents
-  (`@rollup/pluginutils`, `@vercel/nft`) pin `^4.0.2`, so the advisory
-  is accepted in `scripts/audit-allowlist.json` with the
-  build-time-only scope as the reason (vite/rollup plugin matching and
-  the Vercel adapter's file tracing, never shipped to the runtime
-  bundle) and the 2027-05-01 expiry, to be replaced by an override bump
-  the moment a fixed release lands.
