@@ -14,7 +14,7 @@ env:
 jobs:
   lint:
     name: Docs Spelling Check
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # Codespell pass over the whole doc tree takes well under a minute.
     timeout-minutes: 10
     steps:

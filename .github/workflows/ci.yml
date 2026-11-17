@@ -19,7 +19,11 @@ env:
 jobs:
   ci:
     name: Build & Test
-    runs-on: ubuntu-24.04
+    # Pinned to ubuntu-26.04 explicitly: the ubuntu-latest label migrates to
+    # Ubuntu 26.04 between Oct 19 and Nov 19, 2026 (runner-images #14748), and
+    # 24.04 ages out eventually - this repo rides the new LTS by pin instead
+    # of inheriting label drift.
+    runs-on: ubuntu-26.04
     # Full gate (audit, format, loc, headers, branding, pwa, typecheck,
     # lint, test, build) takes ~5 min; 10 caps a hung runner at 2x.
     timeout-minutes: 10

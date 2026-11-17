@@ -24,7 +24,7 @@ env:
 jobs:
   validate:
     name: Maintenance deps weekly validate
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
       contents: read
@@ -141,7 +141,7 @@ jobs:
 
   commit:
     name: Maintenance deps weekly commit
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     needs: validate
     if: needs.validate.outputs.changed == 'true'

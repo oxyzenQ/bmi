@@ -15,7 +15,7 @@ env:
 
 jobs:
   validate-tag:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     outputs:
       prerelease: ${{ steps.ver.outputs.prerelease }}
@@ -75,7 +75,7 @@ jobs:
 
   release:
     needs: validate-tag
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # Static build plus archive creation and release upload take ~5-8 min.
     timeout-minutes: 10
 
