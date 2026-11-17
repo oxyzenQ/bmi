@@ -182,8 +182,13 @@ export async function restoreLatestBackup(): Promise<boolean> {
 		setRestoreMode(true);
 
 		try {
-			// Restore all keys from snapshot
+			// Restore only registry keys from the snapshot. The blob lives in
+			// IndexedDB, which a same-origin compromise could have reshaped;
+			// the allowlist keeps the restore surface inside the keys the app
+			// owns, so unknown keys can never be injected into storage.
+			const restoreKeys = new Set<string>(Object.values(STORAGE_KEYS));
 			for (const [key, value] of Object.entries(snapshot)) {
+				if (!restoreKeys.has(key)) continue;
 				if (value !== null) {
 					storageSet(key, value);
 				} else {
