@@ -21,6 +21,7 @@ import { STORAGE_KEYS, storageGet, isStorageAvailable } from './storage';
 import { isIndexedDbAvailable } from './db';
 import { getEncryptionStatus } from './crypto';
 import { getBackupStatus } from './backup';
+import { getStoragePersistenceStatus } from './storage-persist';
 import { logger } from './logger';
 import { getSessionTraceId } from './trace';
 
@@ -58,7 +59,8 @@ export function initDevDiagnostics(): void {
 			// Environment info
 			result.__meta = {
 				localStorageAvailable: isStorageAvailable(),
-				indexedDbAvailable: isIndexedDbAvailable()
+				indexedDbAvailable: isIndexedDbAvailable(),
+				storagePersistence: getStoragePersistenceStatus()
 			};
 
 			return result;
@@ -77,6 +79,7 @@ export function initDevDiagnostics(): void {
 				browser: true,
 				localStorage: isStorageAvailable(),
 				indexedDB: isIndexedDbAvailable(),
+				storagePersistence: getStoragePersistenceStatus(),
 				timestamp: new Date().toISOString()
 			};
 		},

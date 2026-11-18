@@ -43,6 +43,7 @@
 	import { WifiOff } from 'lucide-svelte';
 	import NotifyFloat from '$lib/components/NotifyFloat.svelte';
 	import { initStorage } from '$lib/utils/storage';
+	import { requestStoragePersistence } from '$lib/utils/storage-persist';
 	import {
 		hydratePwaInstallState,
 		markPwaInstalled,
@@ -125,6 +126,9 @@
 				});
 			}
 			void initStorage();
+			// Eviction resistance: mark the ledger origin persistent so disk
+			// pressure cannot silently evict IndexedDB + localStorage.
+			void requestStoragePersistence();
 
 			// Button ripple micro-interaction
 			cleanupFns.push(initButtonRipple());

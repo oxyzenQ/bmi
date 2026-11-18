@@ -38,6 +38,8 @@ ctx.onmessage = (event: MessageEvent<KdfJob>) => {
 			new Uint8Array(job.salt),
 			job.options
 		);
+		// The hash buffer is transferred, not copied: the worker-side copy
+		// detaches on postMessage, so no raw key material survives here.
 		ctx.postMessage({ id: job.id, hash: hash.buffer }, [hash.buffer]);
 	} catch (err) {
 		ctx.postMessage({

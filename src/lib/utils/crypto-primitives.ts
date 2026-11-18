@@ -67,12 +67,24 @@ function toAB(src: Uint8Array): ArrayBuffer {
 	return ab;
 }
 
-/** Import a raw Argon2id hash as a non-extractable AES-256-GCM key. */
+/**
+ * Import a raw Argon2id hash as a non-extractable AES-256-GCM key.
+ * Single-ownership zeroization: importKey copies the material into the
+ * non-extractable key object and the caller's array is wiped on return —
+ * the raw bytes must never be reused after this call. The PBKDF2 path
+ * never exposes key material in JavaScript at all (deriveKey runs inside
+ * WebCrypto), so there is nothing to wipe there.
+ */
 export async function importAesKey(hashBytes: Uint8Array): Promise<CryptoKey> {
-	return crypto.subtle.importKey('raw', toAB(hashBytes), { name: 'AES-GCM', length: 256 }, false, [
-		'encrypt',
-		'decrypt'
-	]);
+	const key = await crypto.subtle.importKey(
+		'raw',
+		toAB(hashBytes),
+		{ name: 'AES-GCM', length: 256 },
+		false,
+		['encrypt', 'decrypt']
+	);
+	hashBytes.fill(0);
+	return key;
 }
 
 /**

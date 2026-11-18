@@ -438,6 +438,43 @@ measurement records shipping as CI artifacts. Honest limit: the harness
 proves the claims on one pinned browser and one emulated network
 profile per run — it is a reproducible measurement, not a device farm.
 
+**27. The Micro-Tier — eviction resistance, strict durability, and key
+zeroization (night-frontier-Z2).** Three sharpenings of the ledger's
+foundations, each closing a gap the class treats as unfixable. (1)
+Eviction resistance: the layout requests `navigator.storage.persist()`
+once per session (`storage-persist.ts`, a dependency leaf) and the
+result is surfaced through `__bmi_dev.storage()`/`env()` — a denial is
+reported honestly and never swallowed, so "the ledger never lies" rests
+on an explicit browser grant instead of an assumption about disk
+pressure. (2) Strict durability: every IndexedDB write transaction in
+`db.ts` opens with `durability: 'strict'` (`DURABLE_WRITE`), the hint
+that Chromium relaxed away from the implicit default in Chrome 121 —
+per spec the agent "may consider" a commit successful only after the
+changes reach persistent storage, so `tx.oncomplete` now lands after an
+OS-level flush on honoring engines. The support matrix is written down,
+not invented: the option is Baseline 2024 (newly available May 2024
+across major engines); engines outside that set may ignore it, and the
+hint only costs on commit — readonly transactions stay on the default.
+(3) Key zeroization: `importAesKey` is the single ownership point for
+raw Argon2id output — the material is copied into a non-extractable
+CryptoKey and the caller's array is wiped on return; the worker
+transfers its hash buffer (detaches worker-side), and the PBKDF2 path
+never exposes material in JavaScript at all. The compare-path audit
+found both integrity compares already constant-time (the ciphertext
+checksum via a XOR loop, the export signature via `crypto.subtle.verify`)
+and pinned them. Verification: the `db-durability.test.ts`,
+`storage-persist.test.ts`, and `crypto-zeroization.test.ts` batteries
+(19 tests — hint propagation to all five write transactions, grant /
+denial / failure / unsupported / idempotence paths, the wipe contract,
+cross-derivation interoperability), full battery 574 green,
+`svelte-check` clean. Honest limits: persistence is a request, not a
+guarantee — installed PWAs and engaged origins are auto-granted, others
+may be denied (surfaced, never hidden); strict durability trades commit
+latency for crash resilience and is a hint, not a guarantee; JavaScript
+passphrase strings cannot be wiped (WebCrypto never sees them raw
+because the derivation input passes through the worker boundary —
+documented physics, not solved).
+
 ## Retired by verdict
 
 The rejected ideas stay recorded so nobody re-litigates them blind:

@@ -247,6 +247,30 @@ unlocked. Sealing failure falls back to plaintext persistence (data
 preservation beats encryption coverage). Coverage is progressive:
 plaintext values seal on their next write during an unlocked session.
 
+### Micro-Tier: Eviction Resistance, Strict Durability, Key Zeroization
+
+Three foundation sharpenings, stated with their honest bounds:
+
+- **Eviction resistance** — the layout calls `navigator.storage.persist()`
+  once per session (`storage-persist.ts`). Installed PWAs and engaged
+  origins are auto-granted; a denial is surfaced through the diagnostics
+  status and a dev warning, never swallowed. It is a request, not a
+  guarantee.
+- **Strict durability** — every IndexedDB write transaction opens with
+  `durability: 'strict'`, the hint Chromium relaxed away from the
+  implicit default in Chrome 121. Per spec the agent "may consider" a
+  commit successful only after the changes reach persistent storage.
+  Support: Baseline 2024 (newly available May 2024 across major engines);
+  engines outside that set may ignore the hint. Readonly transactions
+  stay on the default — the hint only costs on commit.
+- **Key zeroization** — `importAesKey` is the single ownership point for
+  raw Argon2id output: the material is copied into a non-extractable
+  CryptoKey and the caller's array is wiped on return. The KDF worker
+  transfers its hash buffer (detaches worker-side); the PBKDF2 path
+  derives inside WebCrypto and never exposes material in JavaScript.
+  Both integrity compares are constant-time (the ciphertext checksum via
+  a XOR loop, the export-file signature via `crypto.subtle.verify`).
+
 > [!WARNING]
 > Users _must_ remember their passphrase. By design, there is absolutely no recovery mechanism if a passphrase is lost.
 

@@ -12,6 +12,15 @@
  * Durability contract: every write promise settles on transaction
  * completion (tx.oncomplete), never on request-level success, so a
  * mid-commit abort is always observed by the caller as a rejection.
+ *
+ * Durability hint (night-frontier-Z2): every write transaction opens
+ * with `durability: 'strict'` — the user agent may consider the commit
+ * successful only after the changes reach persistent storage. Chromium
+ * relaxed the implicit default from strict to relaxed in Chrome 121, so
+ * the explicit hint is what keeps the ledger's fsync-at-commit posture.
+ * It is a hint, not a guarantee (spec: "may consider"); engines outside
+ * the Baseline-2024 set may ignore it. Readonly transactions stay on the
+ * default — the hint only costs on commit.
  */
 
 import { warnDev } from './warn-dev';
@@ -22,6 +31,9 @@ const DB_VERSION = 1;
 const STORE_KV = 'keyvalue';
 const STORE_BACKUPS = 'backups';
 const STORE_META = 'meta';
+
+/** Strict-durability hint applied to every write transaction. */
+export const DURABLE_WRITE = { durability: 'strict' } as const;
 
 // ── Types ──
 export interface BackupRecord {
@@ -83,7 +95,7 @@ function openDb(): Promise<IDBDatabase> {
 export async function dbSet(key: string, value: string): Promise<void> {
 	const db = await openDb();
 	return new Promise((resolve, reject) => {
-		const tx = db.transaction(STORE_KV, 'readwrite');
+		const tx = db.transaction(STORE_KV, 'readwrite', DURABLE_WRITE);
 		const store = tx.objectStore(STORE_KV);
 		const req = store.put({ key, value });
 		req.onerror = () => {};
@@ -100,7 +112,7 @@ export async function dbSet(key: string, value: string): Promise<void> {
 export async function dbRemove(key: string): Promise<void> {
 	const db = await openDb();
 	return new Promise((resolve, reject) => {
-		const tx = db.transaction(STORE_KV, 'readwrite');
+		const tx = db.transaction(STORE_KV, 'readwrite', DURABLE_WRITE);
 		const store = tx.objectStore(STORE_KV);
 		const req = store.delete(key);
 		req.onerror = () => {};
@@ -146,7 +158,7 @@ export async function dbMetaGet(key: string): Promise<string | null> {
 export async function dbMetaSet(key: string, value: string): Promise<void> {
 	const db = await openDb();
 	return new Promise((resolve, reject) => {
-		const tx = db.transaction(STORE_META, 'readwrite');
+		const tx = db.transaction(STORE_META, 'readwrite', DURABLE_WRITE);
 		const store = tx.objectStore(STORE_META);
 		const req = store.put({ key, value });
 		req.onerror = () => {};
@@ -165,7 +177,7 @@ export async function dbMetaSet(key: string, value: string): Promise<void> {
 export async function dbBackupSave(record: Omit<BackupRecord, 'id'>): Promise<number> {
 	const db = await openDb();
 	return new Promise((resolve, reject) => {
-		const tx = db.transaction(STORE_BACKUPS, 'readwrite');
+		const tx = db.transaction(STORE_BACKUPS, 'readwrite', DURABLE_WRITE);
 		const store = tx.objectStore(STORE_BACKUPS);
 		const req = store.add(record);
 		req.onerror = () => {};
@@ -196,7 +208,7 @@ export async function dbBackupGetAll(): Promise<BackupRecord[]> {
 export async function dbBackupDelete(id: number): Promise<void> {
 	const db = await openDb();
 	return new Promise((resolve, reject) => {
-		const tx = db.transaction(STORE_BACKUPS, 'readwrite');
+		const tx = db.transaction(STORE_BACKUPS, 'readwrite', DURABLE_WRITE);
 		const store = tx.objectStore(STORE_BACKUPS);
 		const req = store.delete(id);
 		req.onerror = () => {};

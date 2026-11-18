@@ -219,6 +219,8 @@ instead of crashing a chart.
 - **Argon2id:** OWASP-recommended KDF (64 MiB memory, 3 iterations) — highly resistant to GPU cracking
 - **Zero Knowledge:** passphrases are never stored, cached, or transmitted; verification uses encrypted verifier ciphertext only
 - **Encrypted at rest (session-gated):** health values written during a passphrase-verified session seal under AES-256-GCM with a volatile Argon2id session key; sealed data survives in localStorage, IndexedDB, and backups, and a locked session can never overwrite it
+- **Eviction resistance:** the ledger requests persistent storage once per session and reports the grant honestly — a denial is surfaced, never hidden
+- **Strict durability:** every IndexedDB write transaction carries the `durability: 'strict'` hint (fsync-at-commit; Baseline 2024 across major engines, a hint per spec)
 - **Integrity:** SHA-256 checksums verify backup data against tampering
 - **Legacy support:** PBKDF2 (600,000 iterations, SHA-256) imports remain readable
 - **Input hardening:** import records are bounded by the same limits the calculator enforces; non-finite values are rejected on every path
