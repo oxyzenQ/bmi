@@ -189,6 +189,10 @@ export function launchChrome(
 	userDataDir: string,
 	port: number
 ): ReturnType<typeof Bun.spawn> {
+	// CI runners and containers typically forbid unprivileged user
+	// namespaces and ship a small /dev/shm, so the sandbox flags are part
+	// of the contract, not a workaround: without them the process dies
+	// before the debugging endpoint exists.
 	return Bun.spawn(
 		[
 			binaryPath,
@@ -197,12 +201,14 @@ export function launchChrome(
 			`--user-data-dir=${userDataDir}`,
 			'--no-first-run',
 			'--disable-gpu',
+			'--no-sandbox',
+			'--disable-dev-shm-usage',
 			'--window-size=1280,900',
 			'about:blank'
 		],
 		{
 			stdout: 'ignore',
-			stderr: 'ignore'
+			stderr: 'pipe'
 		}
 	);
 }
