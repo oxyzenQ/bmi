@@ -7,26 +7,25 @@
  * The signature provides integrity verification — it detects accidental
  * corruption and casual tampering of export files. It is NOT a security
  * mechanism against determined attackers: the HMAC key is embedded in the
- * client-side JS bundle and can be extracted by inspection.
- *
- * A per-export random salt is mixed into the MAC computation so that even
- * identical records produce different signatures every time. The key is split
- * into two base64 fragments and XOR-assembled at runtime as a minor deterrent
- * against trivial extraction — this is obfuscation only, not encryption.
- *
- * For actual secret protection, the optional AES-256-GCM encryption layer
- * (separate from this checksum) should be used with a user-provided passphrase.
+ * client-side JS bundle and can be extracted by inspection. A per-export
+ * random salt mixes into the MAC so identical records still produce
+ * different signatures; the key is split into two base64 fragments and
+ * XOR-assembled at runtime as a minor deterrent against trivial
+ * extraction — obfuscation only, not encryption. For actual secret
+ * protection, the optional AES-256-GCM encryption layer (separate from
+ * this checksum) is used with a user-provided passphrase.
  *
  * Envelope format:
  *   v0 (checksum 8-ch)  — FNV-1a 32-bit on records only        [legacy import only]
  *   v1 (checksum 16-ch) — FNV-1a+DJB2 64-bit on envelope       [legacy import only]
  *   v2 (checksum 64-ch) — SHA-256 256-bit on envelope           [legacy import only]
- *   v3 (signature 64-ch)— HMAC-SHA256 + salt + algorithm field  [current export]
+ *   v3 (signature 64-ch)— HMAC-SHA256 + salt + algorithm field  [legacy import]
+ *   v4 (signature 64-ch)— HMAC-SHA256 + salt + the continuity chain
+ *                         head (Z3: a backup taken earlier witnesses later tampering)
  *
- * All four formats are accepted on import for backward compatibility.
+ * All five formats are accepted on import for backward compatibility.
  *
- * NOTE: All localStorage reads/writes go through the centralized storage.ts
- * module to ensure the in-memory cache stays consistent across the app.
+ * NOTE: every storage read/write rides the centralized storage.ts module.
  */
 
 import { t } from '$lib/i18n';
@@ -34,12 +33,10 @@ import { STORAGE_KEYS, storageGet, storageSet } from './storage';
 import { warnDev } from './warn-dev';
 import type { BmiRecord } from '$lib/types/bmi-record';
 import { fnv1a, dualHash } from './legacy-hash';
-import { classifyBmi, getCategoryLabel } from './bmi-category';
+import { computeLedgerChain, sealLedgerChain } from './ledger-continuity';
 import { INPUT_LIMITS } from './bmi-calculator';
 
-// ---------------------------------------------------------------------------
-// Import error codes — structured, specific, no silent failures
-// ---------------------------------------------------------------------------
+// ── Import error codes — structured, specific, no silent failures ──
 
 export type ImportError =
 	| 'empty_file'
@@ -62,7 +59,9 @@ export const MAX_IMPORT_SIZE = 5 * 1024 * 1024;
 // ---------------------------------------------------------------------------
 
 /** Shape of the exported JSON file.
- *  v0–v2 use `checksum`; v3 uses `signature` + `algorithm` + `salt`.
+ *  v0–v2 use `checksum`; v3 uses `signature` + `algorithm` + `salt`;
+ *  v4 adds `chain` — the continuity head anchoring the records, riding
+ *  the user's own export as the zero-cloud witness (night-frontier-Z3).
  *  Legacy fields (`checksum`) are still read on import for backward compat.
  */
 interface ExportedEnvelope {
@@ -77,6 +76,13 @@ interface ExportedEnvelope {
 	algorithm?: string;
 	/** v3: random 32-char hex nonce */
 	salt?: string;
+	/** v4: the ledger continuity chain over the records as exported */
+	chain?: {
+		/** Chain head (SHA-256 hex) at export time */
+		head: string;
+		/** Number of records the chain covers */
+		length: number;
+	};
 	records: BmiRecord[];
 }
 
@@ -255,8 +261,8 @@ async function parseAndValidate(json: string): Promise<ParsedImportResult | Inva
 
 	const env = incoming;
 
-	// Version guard — only v0–v3 are known formats
-	if (typeof env.version === 'number' && env.version > 3) {
+	// Version guard — only v0–v4 are known formats
+	if (typeof env.version === 'number' && env.version > 4) {
 		return {
 			valid: false,
 			validation: {
@@ -277,7 +283,7 @@ async function parseAndValidate(json: string): Promise<ParsedImportResult | Inva
 	}
 
 	const recordsJson = JSON.stringify(records);
-	const result = await verifyIntegrity(env, recordsJson);
+	const result = await verifyIntegrity(env, recordsJson, records);
 
 	if (!result.valid) {
 		return {
@@ -337,23 +343,27 @@ export async function exportBmiHistory(passphrase?: string): Promise<string | nu
 		const recordsJson = JSON.stringify(records);
 		const exportedAt = new Date().toISOString();
 
-		// v3: HMAC-SHA256 with random salt
+		// v4: HMAC-SHA256 with random salt plus the continuity chain head —
+		// the export doubles as the user-held anchor.
+		const chain = await computeLedgerChain(records);
 		const salt = generateSalt();
 		const payload = JSON.stringify({
-			version: 3,
+			version: 4,
 			source: 'bmi-calculator',
 			exportedAt,
-			records: recordsJson
+			records: recordsJson,
+			chain
 		});
 		const signature = await computeHmac(payload, salt);
 
 		const envelope: ExportedEnvelope = {
-			version: 3,
+			version: 4,
 			source: 'bmi-calculator',
 			exportedAt,
 			algorithm: 'HMAC-SHA256',
 			salt,
 			signature,
+			chain,
 			records
 		};
 
@@ -365,7 +375,7 @@ export async function exportBmiHistory(passphrase?: string): Promise<string | nu
 			return await encrypt(envelopeJson, passphrase, {
 				exportedAt,
 				recordCount: records.length,
-				version: 3
+				version: 4
 			});
 		}
 
@@ -395,33 +405,56 @@ export interface ValidationResult {
  * Build the envelope payload string for integrity verification.
  * For v0 (FNV-1a, 8-char): records only (legacy).
  * For v1/v2/v3: full envelope with JSON-stringified records.
+ * For v4: the same plus the continuity chain the signature must cover.
  */
 function buildPayload(
 	version: number,
 	source: string,
 	exportedAt: string,
-	recordsJson: string
+	recordsJson: string,
+	chain?: { head: string; length: number }
 ): string {
 	if (version === 0) {
 		// Legacy v0: only records were hashed
 		return recordsJson;
 	}
-	// v1, v2, v3: full envelope was hashed
-	return JSON.stringify({ version, source, exportedAt, records: recordsJson });
+	// v1, v2, v3: full envelope was hashed (chain undefined → omitted)
+	// v4: the chain rides inside the signed payload
+	return JSON.stringify({ version, source, exportedAt, records: recordsJson, chain });
 }
 
 /**
- * Verify integrity with backward compatibility for all four formats:
- *   v3 + salt          → HMAC-SHA256 with random salt  (current)
- *   v2 (checksum 64-ch)→ SHA-256 on full envelope       (legacy)
- *   v1 (checksum 16-ch)→ FNV-1a + DJB2 on full envelope (legacy)
- *   v0 (checksum  8-ch)→ FNV-1a on records only         (legacy)
+ * Verify integrity with backward compatibility for all five formats:
+ * v4 (HMAC + chain) / v3 (HMAC) / v2 (SHA-256) / v1 (dual hash) / v0 (FNV-1a).
  */
 async function verifyIntegrity(
 	env: ExportedEnvelope,
-	recordsJson: string
+	recordsJson: string,
+	records: BmiRecord[]
 ): Promise<{ valid: boolean; integrityVersion: number; algorithm?: string }> {
 	const { version, source, exportedAt } = env;
+
+	// v4: HMAC over records + chain, PLUS the continuity cross-check —
+	// the envelope's chain must recompute exactly from its records
+	// (catches a producer bug independently of the HMAC).
+	if (
+		version === 4 &&
+		env.salt &&
+		env.signature &&
+		env.signature.length === 64 &&
+		env.chain &&
+		typeof env.chain.head === 'string' &&
+		typeof env.chain.length === 'number'
+	) {
+		const computed = await computeLedgerChain(records);
+		if (computed.head !== env.chain.head || computed.length !== env.chain.length) {
+			warnDev('history-io', 'verifyIntegrity', 'v4 chain does not recompute from its records');
+			return { valid: false, integrityVersion: 4, algorithm: env.algorithm };
+		}
+		const payload = buildPayload(version, source, exportedAt, recordsJson, env.chain);
+		const ok = await verifyHmac(env.signature, payload, env.salt);
+		return { valid: ok, integrityVersion: 4, algorithm: env.algorithm };
+	}
 
 	// v3: HMAC-SHA256 with per-export salt
 	if (version === 3 && env.salt && env.signature && env.signature.length === 64) {
@@ -656,6 +689,10 @@ export async function importBmiHistory(json: string, passphrase?: string): Promi
 			};
 		}
 		content = result.plaintext;
+
+		// Z3: await the unlock (30 s budget) - the write must never race the purge guard.
+		const { unlockAtRestSessionIfVerified } = await import('./crypto');
+		await unlockAtRestSessionIfVerified(passphrase, 30_000);
 	}
 
 	const result = await parseAndValidate(content);
@@ -674,6 +711,14 @@ export async function importBmiHistory(json: string, passphrase?: string): Promi
 			error: t('history.no_valid_records'),
 			errorCode: 'no_valid_records'
 		};
+	}
+
+	// Z3: the first passphrase-proven import on a device without a
+	// verifier establishes it (crypto.establishLedgerVerifier). Encrypted
+	// imports only — a plain import carries no passphrase to prove.
+	if (passphrase) {
+		const { establishLedgerVerifier } = await import('./crypto');
+		await establishLedgerVerifier(passphrase);
 	}
 
 	// Sort by timestamp
@@ -699,6 +744,8 @@ export async function importBmiHistory(json: string, passphrase?: string): Promi
 		return { success: false, count: 0, error: t('history.save_failed'), errorCode: 'save_failed' };
 	}
 
+	// The import re-anchors the witness onto the user's validated file.
+	void sealLedgerChain(records);
 	return {
 		success: true,
 		count: records.length,
@@ -709,52 +756,5 @@ export async function importBmiHistory(json: string, passphrase?: string): Promi
 }
 
 // ---------------------------------------------------------------------------
-// CSV Export — lightweight, no integrity check (human-readable format)
+// CSV export moved to history-csv.ts (night-frontier-Z3 domain split).
 // ---------------------------------------------------------------------------
-
-/**
- * Export BMI history as a CSV string suitable for spreadsheet apps.
- * Columns: Date, Time, BMI, Height (cm), Weight (kg), Age, Category
- * Returns `null` if no history exists.
- */
-export function exportBmiHistoryCsv(): string | null {
-	try {
-		const stored = storageGet(STORAGE_KEYS.HISTORY);
-		if (!stored) return null;
-
-		const parsed: unknown = JSON.parse(stored);
-		if (!Array.isArray(parsed) || parsed.length === 0) return null;
-
-		const records = parsed.filter(isValidRecord).map(toRecord);
-		if (records.length === 0) return null;
-
-		const rows: string[][] = [
-			['Date', 'Time', 'BMI', 'Height (cm)', 'Weight (kg)', 'Age', 'Category']
-		];
-
-		for (const r of records) {
-			const d = new Date(r.timestamp);
-			const date = d.toISOString().split('T')[0];
-			const time = d.toTimeString().split(' ')[0].slice(0, 5);
-			const bmi = r.bmi.toFixed(1);
-			const category = getCategoryLabel(classifyBmi(r.bmi));
-
-			rows.push([
-				date,
-				time,
-				bmi,
-				String(r.height),
-				String(r.weight),
-				r.age ? String(r.age) : '',
-				category
-			]);
-		}
-
-		return rows
-			.map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(','))
-			.join('\n');
-	} catch (err) {
-		warnDev('history-io', 'exportBmiHistoryCsv', 'CSV export failed', err);
-		return null;
-	}
-}

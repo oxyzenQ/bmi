@@ -409,6 +409,15 @@ the old one (the same decrypt-first physics as the existing envelope);
 coverage is progressive — plaintext values seal on their next write
 during an unlocked session, not retroactively; the session key is a
 volatile `CryptoKey` handle that is released on lock, not zeroed.
+Night-frontier-Z3 sharpening: the session's start moment had been a dead
+wire — `enableEncryption()` had no caller in any UI flow, so the
+verifier never existed and the seal never activated live (real code,
+real tests, unreachable product). The first passphrase-proven import
+now establishes the verifier (`establishLedgerVerifier`), the import
+path awaits the verifier-anchored unlock (30 s bounded budget) so the
+ledger write never races the purge guard, and the production CSP gained
+the narrow `wasm-unsafe-eval` token the KDF worker's Rust engine needs —
+all three proven live by the P7/P8/P9 claims.
 
 **26. The Runtime Proof Harness — a measurement, not a promise
 (night-frontier-Z1).** The last gap between the static gates and the
@@ -420,7 +429,7 @@ the tree) drives the production build served by `vite preview` inside a
 pinned, SHA-verified `chrome-headless-shell`
 (`download-chrome.sh` records the ZIP digest at adoption time and
 verifies every install fail-closed, because Chrome for Testing ships no
-per-build checksum). Eight fail-closed claims per run: the exact-value
+per-build checksum). Thirteen fail-closed claims per run: the exact-value
 matrix through the real UI (metric 22.86 / Normal Weight / Prime 0.91 /
 BMR 1649 / TDEE 2556, the imperial round-trip 22.85, and the Deurenberg
 18.1% card), the runtime egress inventory (every request inside the
@@ -431,13 +440,21 @@ network cut), Web Vitals budgets (LCP and CLS measured on the initial
 load, before harness interactions can enlarge the LCP candidate), and
 zero main-thread long tasks during the Argon2id export derivation (the
 window opens after the strength meter's debounced zxcvbn work settles,
-so the claim measures the derive/encrypt/deliver path). The harness
-exits non-zero if any claim fails; nothing is reported as proven that
+so the claim measures the derive/encrypt/deliver path), plus the
+night-frontier-Z3 five: the at-rest seal live (the establish import
+through the real UI, the verifier created, the write landing sealed),
+the purge guard (a locked calculation cannot overwrite the sealed
+ledger, raw envelope byte-identical), locked-read semantics (the export
+preview reads 0 records while locked, the unlock restores
+readability), the continuity witness riding real saves with the head
+matching an independent in-page recomputation, and the witness freeze
+(a device tamper leaves the witness untouched while the recomputed
+chain diverges). The harness exits non-zero if any claim fails; nothing is reported as proven that
 was not measured. It rides its own lane —
 `.github/workflows/runtime-proof.yml` on a weekly schedule and on
 demand — so the ten-minute CI budget law stays intact for per-push CI.
-Verification: three consecutive local PROVEN runs (8/8 claims), the
-measurement records shipping as CI artifacts. Honest limit: the harness
+Verification: two consecutive local PROVEN runs (13/13 claims) after
+night-frontier-Z3, the measurement records shipping as CI artifacts. Honest limit: the harness
 proves the claims on one pinned browser and one emulated network
 profile per run — it is a reproducible measurement, not a device farm.
 
@@ -519,6 +536,48 @@ regions is hygiene, not a security boundary; the app never uses the
 secret/associated-data ABI inputs (they exist so the KAT exercises the
 full core); and the JS engine stays loadable by design, so the fallback
 path remains a working, byte-identical route.
+
+**29. The Ledger Continuity Chain — the sequence itself becomes
+tamper-evident (night-frontier-Z3).** The physics gap: AES-GCM protects
+per-value and the HMAC signature protects per-file, but nothing
+protected the _sequence_ — a party with device access could truncate,
+reorder, or rewrite the history and the absence would be invisible to
+per-object AEAD. "The ledger never lies" was asserted; now it is
+provable. `src/lib/utils/ledger-continuity.ts` (a dependency leaf)
+builds a SHA-256 hash chain over the validated records in canonical
+form (fixed key order, ascending stable order) and seals the chain head
+as the witness `{ head, length }` in the IndexedDB meta store
+(`__history_chain_head`, the `__at_rest_salt` precedent). The witness
+advances only through legit writes — save, import, clear — and a save
+that observes a pre-state which does not match the witness FREEZES it
+instead of re-sealing: the evidence survives, and the ledger refuses to
+bless what it did not verify. The export envelope moves to v4: the
+chain head rides inside the HMAC payload and the import cross-checks
+that it recomputes from the records it anchors, so the user's own
+encrypted backup is the external witness — zero cloud witness, the
+anchor lives in the user's hand. Backups carry the witness (a restore
+re-installs it; a pre-Z3 snapshot tombstones it to honestly unanchored
+instead of falsely accusing). The audit reads four states — ok /
+violated / unanchored / sealed-opaque (a locked sealed ledger is not
+misread as tampered). Verification: the `ledger-continuity.test.ts`
+battery (chain math against an independent reference implementation, a
+160-case two-directional tamper property battery — truncate front and
+back and middle, adjacent swap, reorder, field edit, replay, foreign
+insertion — witness semantics, audit states, the save-path freeze, the
+backup witness travel) and the `history-io-continuity.test.ts` battery
+(v4 anchor recomputation, six-class v4 tamper rejection, the
+establish-on-import integration, verifier protection against
+later-file passphrases, the v0/v1/v2 legacy ladder), plus the live P10
+and P11 claims. Honest limits, stated in the same breath: a party who
+can rewrite both the history and the meta store can re-seal — absence
+of an external witness cannot be fixed on device, and the v4 export is
+the witness for exactly that attacker; a pure reordering of
+distinct-timestamp records is a logical no-op (every read sorts
+ascending) and is not treated as tampering, while equal-timestamp swaps
+stay visible through the stable sort; a failed seal degrades the
+witness to unanchored (never a stale false accusation); the audit
+result surfaces through the harness claims and the test batteries — a
+user-facing continuity banner is the named next step.
 
 ## Retired by verdict
 

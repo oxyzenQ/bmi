@@ -21,6 +21,20 @@
  *   P6  zero long tasks under KDF — the Argon2id export derivation
  *                                 runs in a worker; the main thread
  *                                 records no long task
+ *   P7  at-rest seal live        — the first passphrase-proven import
+ *                                 establishes the ledger verifier and
+ *                                 the ledger write lands sealed
+ *                                 (night-frontier-Z3)
+ *   P8  purge guard              — a locked session cannot overwrite
+ *                                 the sealed ledger
+ *   P9  locked-read semantics    — sealed values read as missing; the
+ *                                 verifier-anchored unlock restores
+ *                                 readability
+ *   P10 continuity witness live — the sealed chain head rides real
+ *                                 saves and matches the ledger it
+ *                                 covers (night-frontier-Z3)
+ *   P11 witness freeze           — after a device tamper the next save
+ *                                 refuses to bless unverified history
  *
  * Every proof is fail-closed: an infrastructure error fails its proof,
  * the harness exits non-zero, and nothing is reported as proven that was
@@ -94,7 +108,19 @@ async function waitForHttp(url: string, timeoutMs = 30000): Promise<void> {
 
 /** Injected before any page script: collect LCP/CLS/longtask evidence. */
 const COLLECTOR_SOURCE = `(() => {
-  window.__bmiProof = { vitals: {}, longTasks: [] };
+  window.__bmiProof = { vitals: {}, longTasks: [], lastExportBlobText: null };
+  try {
+    const origCreate = URL.createObjectURL.bind(URL);
+    URL.createObjectURL = (obj) => {
+      try {
+        if (obj instanceof Blob)
+          obj.text().then((t) => {
+            if (t.includes('bmi-encrypted-v3')) window.__bmiProof.lastExportBlobText = t;
+          });
+      } catch (e) {}
+      return origCreate(obj);
+    };
+  } catch (e) {}
   try {
     new PerformanceObserver((l) => {
       const es = l.getEntries();
@@ -193,6 +219,116 @@ const SW_STATE = `async () => {
   return { supported: true, controlled: navigator.serviceWorker.controller !== null };
 }`;
 
+/** In-page IndexedDB meta reader, interpolated into the seal-claim probes. */
+const READ_META = `(key) => new Promise((res) => {
+  const open = indexedDB.open('bmi-calculator');
+  open.onsuccess = () => {
+    const db = open.result;
+    const req = db.transaction('meta', 'readonly').objectStore('meta').get(key);
+    req.onsuccess = () => { db.close(); res(req.result ? req.result.value : null); };
+    req.onerror = () => { db.close(); res(null); };
+  };
+  open.onerror = () => res(null);
+})`;
+
+/**
+ * In-page continuity witness audit (night-frontier-Z3): reads the sealed
+ * head from the IndexedDB meta store and recomputes the chain over the
+ * raw stored history with an independent reference implementation of the
+ * construction (genesis seed, canonical fixed-key serialization,
+ * ascending stable order).
+ */
+const WITNESS_AUDIT = `async () => {
+  const readMeta = ${READ_META};
+  const enc = new TextEncoder();
+  const dig = async (t) => {
+    const b = await crypto.subtle.digest('SHA-256', enc.encode(t).buffer);
+    return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join('');
+  };
+  const raw = localStorage.getItem('bmi.history');
+  let link = await dig('bmi-stellar-ledger-v4-genesis');
+  let n = 0;
+  const sealed = Boolean(raw && raw.startsWith('bmi-at-rest-v1:'));
+  if (raw && !sealed) {
+    const arr = JSON.parse(raw);
+    arr.sort((a, b) => a.timestamp - b.timestamp);
+    for (const r of arr) {
+      const c = JSON.stringify({ timestamp: r.timestamp, bmi: r.bmi, height: r.height, weight: r.weight, age: r.age });
+      link = await dig(link + ':' + c);
+      n++;
+    }
+  }
+  const witnessRaw = await readMeta('__history_chain_head');
+  return {
+    witness: witnessRaw ? JSON.parse(witnessRaw) : null,
+    computed: sealed ? null : { head: link, length: n },
+    rawIsSealed: sealed
+  };
+}`;
+
+/** Feed a file through the real import input (the standard upload route). */
+const IMPORT_SET_FILE = `async (content) => {
+  const input = document.querySelector('input[type="file"]');
+  if (!input) throw new Error('missing import file input');
+  const file = new File([content], 'proof-import.json', { type: 'application/json' });
+  const dt = new DataTransfer();
+  dt.items.add(file);
+  input.files = dt.files;
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+  return true;
+}`;
+
+/** Wait for the encryption modal, fill every password field, submit. */
+const MODAL_SUBMIT = `async ({ passphrase }) => {
+  const deadline = Date.now() + 8000;
+  let dialog = null;
+  while (Date.now() < deadline) {
+    dialog = [...document.querySelectorAll('[role="dialog"]')].find((d) => d.querySelector('form'));
+    if (dialog && dialog.querySelectorAll('input[type="password"]').length >= 1) break;
+    await new Promise((r) => setTimeout(r, 300));
+    dialog = null;
+  }
+  if (!dialog) throw new Error('encryption modal never opened');
+  for (const input of dialog.querySelectorAll('input[type="password"]')) {
+    input.value = passphrase;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  // Let the debounced strength meter settle before the derivation window.
+  await new Promise((r) => setTimeout(r, 700));
+  dialog.querySelector('form').requestSubmit();
+  return true;
+}`;
+
+const MODAL_CLOSED = `() => !document.querySelector('[role="dialog"] form')`;
+
+/** Open the export modal and read the record-count preview row. */
+const EXPORT_PREVIEW_COUNT = `async () => {
+  const btn = [...document.querySelectorAll('button')].find(
+    (b) => (b.getAttribute('aria-label') || '') === 'Export BMI history'
+  );
+  if (!btn) throw new Error('missing export button');
+  btn.click();
+  const deadline = Date.now() + 8000;
+  let val = null;
+  while (Date.now() < deadline) {
+    const dialog = [...document.querySelectorAll('[role="dialog"]')].find((d) => d.querySelector('form'));
+    const row = dialog ? dialog.querySelector('.bmi-export-summary__val') : null;
+    if (row) { val = (row.textContent || '').trim(); break; }
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  const cancel = [...(document.querySelectorAll('[role="dialog"] .btn-cancel') || [])][0];
+  if (cancel) cancel.click();
+  // The next probe must not mistake this closing modal for its own
+  // target: wait until no modal form remains before returning.
+  const deadlineClose = Date.now() + 5000;
+  while (Date.now() < deadlineClose) {
+    if (!document.querySelector('[role="dialog"] form')) break;
+    await new Promise((r) => setTimeout(r, 200));
+  }
+  if (val === null) throw new Error('export summary record count never rendered');
+  return val;
+}`;
+
 /** Wait until any BMI readout on the page settles on the expected value. */
 async function waitForBmiValue(page: CdpPage, expected: string, timeoutMs = 8000): Promise<void> {
 	const deadline = Date.now() + timeoutMs;
@@ -225,11 +361,14 @@ async function closeCelebrationAndReturn(page: CdpPage): Promise<void> {
 	if (open) {
 		await page.evaluate(
 			`() => {
-          const btn = [...document.querySelectorAll('button')].find(
-            (b) => (b.getAttribute('aria-label') || '') === 'Close notification'
-          );
-          if (!btn) throw new Error('celebration modal has no close button');
-          btn.click();
+          const dialogs = [...document.querySelectorAll('[role="dialog"]')].filter((d) => !d.querySelector('form'));
+          for (const d of dialogs) {
+            const btn =
+              [...d.querySelectorAll('button')].find((b) => (b.getAttribute('aria-label') || '').toLowerCase().includes('close')) ||
+              d.querySelector('button');
+            if (btn) { btn.click(); return true; }
+          }
+          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
           return true;
         }`
 		);
@@ -275,6 +414,7 @@ async function main(): Promise<number> {
 	let server: ReturnType<typeof Bun.spawn> | null = null;
 	let chrome: ReturnType<typeof Bun.spawn> | null = null;
 	let page: CdpPage | null = null;
+	let exportFileText: string | null = null;
 	const userDir = mkdtempSync(join(tmpdir(), 'bmi-proof-'));
 
 	try {
@@ -449,6 +589,28 @@ async function main(): Promise<number> {
 			return `ls=[${inv.lsKeys.join(', ')}] idb=[${inv.storeNames.join(', ')}]`;
 		});
 
+		// ── P10: continuity witness rides real saves (night-frontier-Z3) ──
+		await prove(
+			'P10 continuity witness: the sealed head rides real saves and matches the ledger it covers',
+			async () => {
+				const audit = await page!.evaluate<{
+					witness: { head: string; length: number } | null;
+					computed: { head: string; length: number };
+				}>(WITNESS_AUDIT);
+				expect(audit.witness !== null, 'no continuity witness in the meta store after real saves');
+				expect(
+					audit.witness!.head === audit.computed.head,
+					'witness head does not match the recomputed chain'
+				);
+				expect(audit.witness!.length === audit.computed.length, 'witness length does not match');
+				expect(
+					audit.computed.length >= 2,
+					`witness covers only ${String(audit.computed.length)} records`
+				);
+				return `witness covers ${String(audit.computed.length)} records, head matches the recomputed chain`;
+			}
+		);
+
 		// ── P6: zero long tasks during the Argon2id export derivation ──
 		await prove(
 			'P6 zero main-thread long tasks during the Argon2id export derivation',
@@ -527,6 +689,257 @@ async function main(): Promise<number> {
 					`${String(longTasks.length)} main-thread long tasks during KDF: ${JSON.stringify(longTasks)}`
 				);
 				return 'modal completed with 0 long tasks on the main thread';
+			}
+		);
+
+		// ── P7: at-rest seal live (night-frontier-Z3) ──
+		await prove(
+			'P7 at-rest seal live: the first passphrase-proven import establishes the verifier and the ledger write lands sealed',
+			async () => {
+				// The P6 export delivered an encrypted v4 file; its blob was
+				// captured by the startup interceptor. Feed it through the
+				// real import input — the same path a user's file takes.
+				const deadlineBlob = Date.now() + 8000;
+				while (Date.now() < deadlineBlob) {
+					const text = await page!.evaluate<string | null>(
+						`() => window.__bmiProof.lastExportBlobText`
+					);
+					if (text) break;
+					await sleep(300);
+				}
+				const fileText = await page!.evaluate<string | null>(
+					`() => window.__bmiProof.lastExportBlobText`
+				);
+				expect(fileText !== null, 'the encrypted export blob was never captured');
+				exportFileText = fileText!;
+				const outer = JSON.parse(fileText!) as { format?: string; meta?: { version?: number } };
+				expect(outer.format === 'bmi-encrypted-v3', 'captured blob is not an encrypted envelope');
+				expect(outer.meta?.version === 4, 'the encrypted export does not carry a v4 anchor');
+
+				await page!.evaluate(IMPORT_SET_FILE, fileText);
+				await page!.evaluate(MODAL_SUBMIT, { passphrase: 'proof-harness-passphrase-1' });
+				const deadlineClose = Date.now() + 45000;
+				let closed = false;
+				while (Date.now() < deadlineClose) {
+					if (await page!.evaluate<boolean>(MODAL_CLOSED)) {
+						closed = true;
+						break;
+					}
+					await sleep(400);
+				}
+				expect(closed, 'import modal never closed after the establish import');
+
+				// The verifier exists, and the imported ledger write sealed.
+				const deadlineSealed = Date.now() + 15000;
+				let sealedRaw = false;
+				let verifier = null as string | null;
+				let enabled = null as string | null;
+				while (Date.now() < deadlineSealed) {
+					const state = await page!.evaluate<{
+						verifier: string | null;
+						enabled: string | null;
+						sealedRaw: boolean;
+					}>(`async () => {
+						const readMeta = ${READ_META};
+						return {
+							verifier: await readMeta('__encryption_verifier'),
+							enabled: await readMeta('__encryption_enabled'),
+							sealedRaw: (localStorage.getItem('bmi.history') || '').startsWith('bmi-at-rest-v1:')
+						};
+					}`);
+					verifier = state.verifier;
+					enabled = state.enabled;
+					sealedRaw = state.sealedRaw;
+					if (sealedRaw && verifier && enabled === '1') break;
+					await sleep(500);
+				}
+				expect(Boolean(verifier), 'ledger verifier was never established');
+				expect(enabled === '1', 'encryption flag never enabled');
+				expect(sealedRaw, 'the ledger write never sealed at rest');
+				const plaintextLeak = await page!.evaluate<string | null>(
+					`() => { const raw = localStorage.getItem('bmi.history') || ''; return raw.includes('"timestamp"') ? 'PLAINTEXT-AT-REST' : null; }`
+				);
+				expect(plaintextLeak === null, 'plaintext health data found in raw storage');
+				return 'verifier established, session registered, ledger write sealed (bmi-at-rest-v1)';
+			}
+		);
+
+		// ── P8: purge guard (locked session cannot overwrite the seal) ──
+		await prove(
+			'P8 purge guard: a locked session cannot overwrite the sealed ledger (raw envelope and witness untouched by a live calculation)',
+			async () => {
+				// Cold load: the volatile session key is gone, the ledger locks.
+				await page!.navigate(`${BASE_URL}/`);
+				await sleep(3000);
+				await page!.evaluate(`() => { location.hash = '#calculator'; return true; }`);
+				await sleep(800);
+				const before = await page!.evaluate<{ raw: string | null }>(
+					`() => ({ raw: localStorage.getItem('bmi.history') })`
+				);
+				expect(
+					Boolean(before.raw?.startsWith('bmi-at-rest-v1:')),
+					'history is not sealed before the purge attempt'
+				);
+				const witnessBefore = await page!.evaluate<{
+					witness: { head: string; length: number } | null;
+				}>(WITNESS_AUDIT);
+
+				// A live calculation while locked: the save must be refused.
+				await page!.evaluate(FILL_AND_CALC, { age: 30, height: 175, weight: 70.5 });
+				await sleep(2000);
+				await closeCelebrationAndReturn(page!);
+				const after = await page!.evaluate<{ raw: string | null }>(
+					`() => ({ raw: localStorage.getItem('bmi.history') })`
+				);
+				expect(after.raw !== null, 'sealed ledger vanished during the purge attempt');
+				expect(Boolean(after.raw?.startsWith('bmi-at-rest-v1:')), 'sealed envelope was replaced');
+				expect(after.raw === before.raw, 'raw envelope changed during the purge attempt');
+				const witnessAfter = await page!.evaluate<{
+					witness: { head: string; length: number } | null;
+				}>(WITNESS_AUDIT);
+				expect(
+					JSON.stringify(witnessAfter.witness) === JSON.stringify(witnessBefore.witness),
+					'the witness moved during the purge attempt'
+				);
+				return 'raw envelope byte-identical, witness untouched';
+			}
+		);
+
+		// ── P9: locked reads as missing; verifier-anchored unlock restores ──
+		await prove(
+			'P9 locked-read semantics: sealed values read as missing (export preview 0 records) and the unlock restores readability',
+			async () => {
+				await page!.evaluate(`() => { location.hash = '#calculator'; return true; }`);
+				await sleep(800);
+				const lockedCount = await page!.evaluate<string>(EXPORT_PREVIEW_COUNT);
+				expect(
+					lockedCount === '0',
+					`a locked session must read sealed values as missing (preview saw ${String(lockedCount)})`
+				);
+
+				// Unlock through the existing flow: decrypt of the user's own
+				// file, verifier-anchored session registration. The file text
+				// rides in the harness: the P8 reload reset the page.
+				expect(exportFileText !== null, 'the captured import file is gone');
+				await page!.evaluate(IMPORT_SET_FILE, exportFileText!);
+				await page!.evaluate(MODAL_SUBMIT, { passphrase: 'proof-harness-passphrase-1' });
+				const deadlineClose = Date.now() + 45000;
+				let closed = false;
+				while (Date.now() < deadlineClose) {
+					if (await page!.evaluate<boolean>(MODAL_CLOSED)) {
+						closed = true;
+						break;
+					}
+					await sleep(400);
+				}
+				if (!closed) {
+					const dump = await page!.evaluate<string>(
+						`() => { const d = [...document.querySelectorAll('[role="dialog"]')].find((x) => x.querySelector('form')); return d ? (d.textContent || '').slice(0, 200) : 'NO DIALOG'; }`
+					);
+					throw new Error(`unlock import modal never closed; dialog: ${dump}`);
+				}
+				await sleep(1500);
+
+				const deadlineSealed = Date.now() + 15000;
+				let sealedRaw = false;
+				while (Date.now() < deadlineSealed) {
+					sealedRaw = await page!.evaluate<boolean>(
+						`() => (localStorage.getItem('bmi.history') || '').startsWith('bmi-at-rest-v1:')`
+					);
+					if (sealedRaw) break;
+					await sleep(500);
+				}
+				expect(sealedRaw, 'the unlocked ledger never re-sealed');
+				const witnessDebug = await page!.evaluate<{
+					witness: { head: string; length: number } | null;
+					rawIsSealed: boolean;
+				}>(WITNESS_AUDIT);
+				const unlockedCount = await page!.evaluate<string>(EXPORT_PREVIEW_COUNT);
+				expect(
+					String(unlockedCount).trim() === '2',
+					`records are not readable again after the unlock (preview saw ${JSON.stringify(unlockedCount)}; witness=${JSON.stringify(witnessDebug.witness)})`
+				);
+				return `locked preview 0 records, unlocked preview ${unlockedCount}, envelope re-sealed`;
+			}
+		);
+
+		// ── P11: the witness freezes on a device tamper (night-frontier-Z3) ──
+		await prove(
+			'P11 witness freeze: after a device tamper the next save refuses to bless unverified history (witness unchanged, recomputed chain diverges)',
+			async () => {
+				const before = await page!.evaluate<{ witness: { head: string; length: number } | null }>(
+					WITNESS_AUDIT
+				);
+				expect(before.witness !== null, 'no witness before the tamper');
+
+				// Device-access attacker: replace the sealed ledger with a
+				// chosen, VALID plaintext history (foreign records).
+				const foreign = [
+					{ timestamp: 1_700_000_100_000, bmi: 24.9, height: 165, weight: 68, age: 44 },
+					{ timestamp: 1_700_000_200_000, bmi: 25.4, height: 165, weight: 69, age: 44 }
+				];
+				await page!.evaluate(
+					`(records) => { localStorage.setItem('bmi.history', JSON.stringify(records)); return true; }`,
+					foreign
+				);
+
+				// The user calculates: the save goes through (data
+				// preservation), but the witness must NOT advance over it.
+				await page!.evaluate(FILL_AND_CALC, { age: 30, height: 175, weight: 71 });
+				await sleep(2500);
+				await closeCelebrationAndReturn(page!);
+
+				const deadline = Date.now() + 10000;
+				let after: { witness: { head: string; length: number } | null } = { witness: null };
+				let stable = false;
+				let previous: string | null = null;
+				while (Date.now() < deadline) {
+					after = await page!.evaluate<{ witness: { head: string; length: number } | null }>(
+						WITNESS_AUDIT
+					);
+					const current = JSON.stringify(after.witness);
+					if (previous !== null && current === previous) {
+						stable = true;
+						break;
+					}
+					previous = current;
+					await sleep(700);
+				}
+				expect(stable, 'witness never settled');
+				expect(
+					JSON.stringify(after.witness) === JSON.stringify(before.witness),
+					'the witness moved over unverified history'
+				);
+				// The witness still covers exactly the pre-tamper ledger
+				// (2 records), while storage now holds 3 — the freeze is real.
+				expect(
+					after.witness!.length === 2,
+					`witness length drifted to ${String(after.witness!.length)}`
+				);
+
+				// And the head differs from the chain over the tampered pair:
+				// the divergence between witness and stored content is real.
+				const foreignChain = await page!.evaluate<{ head: string }>(
+					`async () => {
+						const enc = new TextEncoder();
+						const dig = async (t) => {
+							const b = await crypto.subtle.digest('SHA-256', enc.encode(t).buffer);
+							return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join('');
+						};
+						const arr = [
+							{ timestamp: 1700000100000, bmi: 24.9, height: 165, weight: 68, age: 44 },
+							{ timestamp: 1700000200000, bmi: 25.4, height: 165, weight: 69, age: 44 }
+						];
+						let link = await dig('bmi-stellar-ledger-v4-genesis');
+						for (const r of arr) {
+							const c = JSON.stringify({ timestamp: r.timestamp, bmi: r.bmi, height: r.height, weight: r.weight, age: r.age });
+							link = await dig(link + ':' + c);
+						}
+						return { head: link };
+					}`
+				);
+				expect(after.witness!.head !== foreignChain.head, 'the witness equals the tampered chain');
+				return `witness stayed at ${before.witness!.head.slice(0, 12)}... (length 2), diverged from the tampered chain`;
 			}
 		);
 

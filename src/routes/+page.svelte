@@ -8,13 +8,8 @@
 		prefersReducedMotion as checkReducedMotion
 	} from '$lib/utils/animation-config';
 	import { createLazyLoader, createPairedLazyLoader } from '$lib/utils/lazy-load';
-	import {
-		STORAGE_KEYS,
-		storageGet,
-		storageSet,
-		storageRemove,
-		storageInvalidate
-	} from '$lib/utils/storage';
+	import { STORAGE_KEYS, storageGet, storageSet, storageInvalidate } from '$lib/utils/storage';
+	import { clearLedgerHistory } from '$lib/utils/ledger-continuity';
 	import { calculateBmi, isBmiResult } from '$lib/utils/bmi-calculator';
 	import { warnDev, warnDevOnce } from '$lib/utils/warn-dev';
 	import { PAGER, SCROLL, HAPTIC, SECTIONS } from '$lib/utils/animation-config';
@@ -838,7 +833,7 @@
 		resultsRunId += 1;
 
 		if (browser) {
-			storageRemove(STORAGE_KEYS.HISTORY);
+			clearLedgerHistory();
 			lastSavedHistorySignature = null;
 		}
 	}

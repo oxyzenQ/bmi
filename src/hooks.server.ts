@@ -42,7 +42,12 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const cspDirectives = isDev
 		? [
 				"default-src 'self' 'unsafe-inline' 'unsafe-eval'",
-				"script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:",
+				// 'wasm-unsafe-eval' REQUIRED for the KDF worker's Rust engine
+				// (night-enhance-1): WebAssembly.instantiate is gated by this
+				// token, not by 'unsafe-eval'. Without it the engine's
+				// fail-closed gate refuses the artifact and every derivation
+				// falls back to the slower pure-JS engine.
+				"script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob:",
 				"style-src 'self' 'unsafe-inline'",
 				"font-src 'self' data:",
 				"img-src 'self' data: blob:",
@@ -58,7 +63,11 @@ export const handle: Handle = async ({ event, resolve }) => {
 				// Without this, production deployments (Vercel) render blank pages
 				// because the browser blocks inline __sveltekit bootstrap scripts.
 				// Vercel preview hosts also need vercel.live for the feedback toolbar.
-				`script-src 'self' 'unsafe-inline'${vercelLiveSrc}`,
+				// 'wasm-unsafe-eval' REQUIRED for the KDF worker's Rust engine —
+				// WebAssembly.instantiate is gated by this token, not by
+				// 'unsafe-inline'; without it the engine's fail-closed gate
+				// refuses the artifact and derivations fall back to pure JS.
+				`script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${vercelLiveSrc}`,
 				// 'unsafe-inline' needed for Svelte style:xxx directives and style={...} bindings
 				`style-src 'self' 'unsafe-inline'${vercelToolbarStyleSrc}`,
 				`font-src 'self' data:${vercelToolbarFontSrc}`,

@@ -201,6 +201,34 @@ suites, so the derived key does not depend on which path ran.
 | Parallelism   | 1                  | 1         |
 | Output length | 32 bytes (AES-256) | 32 bytes  |
 
+### Ledger Continuity Chain (night-frontier-Z3)
+
+The physics gap the envelope stack leaves open: AES-GCM protects per-value
+and the HMAC protects per-file, but nothing protects the _sequence_. The
+continuity chain closes it. Construction, stated exactly:
+
+```
+link_0 = SHA-256("bmi-stellar-ledger-v4-genesis")
+link_i = SHA-256(link_{i-1} + ":" + canonical(record_i))
+head   = link_n   (canonical: fixed key order timestamp/bmi/height/weight/age,
+                   ascending timestamp, stable sort)
+```
+
+| Aspect  | Contract                                                                    |
+| ------- | --------------------------------------------------------------------------- |
+| Witness | `{ head, length }` sealed in IndexedDB meta `__history_chain_head`          |
+| Re-seal | Only legit writes: save (pre-state must match), import, clear               |
+| Freeze  | A save over a mismatched pre-state does NOT re-seal - evidence is preserved |
+| Export  | v4 envelope carries `chain` inside the HMAC payload; import cross-checks it |
+| Backup  | The witness travels inside the backup snapshot; restore re-installs it      |
+| Audit   | ok / violated / unanchored / sealed-opaque (locked sealed ledger)           |
+
+Honest limits: a party who can rewrite both the history and the meta store
+can re-seal — the witness against that attacker is your own earlier v4
+export; a pure reorder of distinct-timestamp records is a logical no-op
+(every read sorts ascending); a legacy backup restore tombstones the
+witness (honestly unanchored) instead of accusing falsely.
+
 ### PBKDF2 (Legacy KDF)
 
 Supported for importing older backups. Not used for new encryptions.

@@ -87,6 +87,7 @@ in [docs/AUDIT-2026-11.md](docs/AUDIT-2026-11.md):
 | **Validated data chain**  | Every BMI record passes one hardened guard (`isValidRecord`): finite numbers, calculator bounds, timestamp sanity — on import, on export, and on every display read. Poisoned or pre-hardening data self-heals on the next save.                   |
 | **Encrypted backups**     | AES-256-GCM with Argon2id key derivation (OWASP-recommended), SHA-256 integrity checksums, and zero-knowledge passphrase verification. Legacy PBKDF2 imports stay supported.                                                                       |
 | **Encrypted at rest**     | Health values written during a passphrase-verified session seal under AES-256-GCM with a volatile Argon2id session key across localStorage, IndexedDB, and local backups — locked sessions read sealed data as missing and can never overwrite it. |
+| **Ledger continuity**     | A SHA-256 hash chain over the validated records, its head sealed on-device and anchored inside your own encrypted exports (v4) — truncation, replay, and content edits of the history are detectable, with no cloud witness anywhere.              |
 | **Signed exports**        | Export files carry an HMAC-SHA256 signature with a per-export random salt; re-exporting the same records produces a different signature by design.                                                                                                 |
 | **Comprehensive metrics** | BMI, category classification, BMI Prime, ideal weight range, TDEE (five activity levels), and Navy + BMI-based body-fat estimation — all computed locally.                                                                                         |
 | **Progress tracking**     | Interactive trend sparkline, goal tracking against target weight, and best-BMI snapshot state.                                                                                                                                                     |
@@ -236,7 +237,7 @@ See [SECURITY.md](SECURITY.md) for the full policy and the reporting process.
 - On-device storage is encrypted at rest only for values written during a passphrase-verified session (`bmi-at-rest-v1` seal: volatile Argon2id session key, AES-256-GCM, fresh IV per value) across localStorage, IndexedDB, and local backups; values written outside such sessions stay plaintext, a cold load starts locked until the passphrase is presented through an existing flow, and a locked session can never overwrite sealed data
 - The hosted demo may load Vercel Analytics and Speed Insights for aggregate telemetry; health values still never leave the device
 - Update checks contact two public GitHub URLs (the repo's `package.json` and latest commit) — unauthenticated GETs with no payload, no cookies, and no health data, but GitHub sees your IP, user agent, and timing. The automatic check runs at most once every 12 hours per device (a failed or offline attempt is not counted); the manual check in About is immediate
-- Legacy export checksums (v0–v2) are forgeable by design; the v3 HMAC detects accidental corruption and casual tampering, not a determined attacker with the bundle in hand
+- Legacy export checksums (v0–v2) are forgeable by design; the v3/v4 HMAC detects accidental corruption and casual tampering, not a determined attacker with the bundle in hand. The continuity chain (v4) detects history changes that bypass legit writes — including silent truncation — but a party who can rewrite both the history and the device's meta store can re-seal; the witness against that attacker is your own earlier export, which is why the anchor rides the v4 envelope. A pure reordering of distinct-timestamp records is a logical no-op (every read sorts ascending) and is not treated as tampering
 - Single-user, single-device by design — there is no cloud to sign into
 
 ## Philosophy
@@ -359,7 +360,7 @@ the display documents via `scripts/dev/version-to.sh`, the zelynic
 dev-lane entry (direct `./` execution, `patch|minor|major` bump words,
 `--dry-run`, `--commit`).
 
-Current release: `v80.0.7`.
+Current release: `v80.1.0`.
 
 The npm package is private (`private: true`): BMI Stellar ships as a
 Vercel-deployed web app and nothing is published to the npm registry.

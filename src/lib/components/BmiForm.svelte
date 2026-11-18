@@ -2,9 +2,9 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
 <script lang="ts">
 	import { Settings } from 'lucide-svelte';
+	import { exportBmiHistoryCsv } from '$lib/utils/history-csv';
 	import {
 		exportBmiHistory,
-		exportBmiHistoryCsv,
 		validateBmiImport,
 		importBmiHistory,
 		peekImportMeta,

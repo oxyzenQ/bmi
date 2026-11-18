@@ -10,6 +10,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Released]
 
+v80.1.0
 v80.0.7
 v80.0.6
 v80.0.5
@@ -20,6 +21,22 @@ v80.0.1
 v80.0.0
 v80.0.0-night.2
 v80.0.0-night.1
+
+## [80.1.0]
+
+### Added
+
+- **The Ledger Continuity Chain (S1, night-frontier-Z3).** A SHA-256 hash chain over the validated records, with the chain head sealed in the IndexedDB meta store as the continuity witness. AES-GCM protects per-value and the HMAC signature protects per-file; the chain now protects the sequence - truncation, replay, foreign insertion, and content edits of the device history are detectable, and a save that observes a pre-state which does not match the witness freezes the witness instead of silently re-anchoring tampered content. The export envelope moves to v4: the chain head rides the user's own encrypted backup, so a backup taken earlier witnesses later tampering (zero cloud witness). The legacy v0-v3 ladder stays importable; backups carry the witness so a restore never falsely accuses.
+
+### Fixed
+
+- **The at-rest session start moment (A1, night-frontier-Z3).** `enableEncryption()` had no caller in any UI flow, so the verifier never existed and innovation 25's seal never activated live - real code, real tests, dead wire. The first passphrase-proven import (a successful decrypt of the user's own valid ledger file) now establishes the verifier on a device without one; a device with a verifier keeps the innovation-25 guarantee unchanged.
+- **The unlock import raced the purge guard.** The fire-and-forget at-rest registration lost the race against the import's ledger write on a locked device, so the write was refused and the unlock modal deadlocked on save_failed. The import path now awaits the verifier-anchored unlock (a 30 s bounded budget) before its write.
+- **The production CSP denied WebAssembly.** `script-src` carried no `wasm-unsafe-eval` token, so the KDF worker's Rust engine (night-enhance-1) was refused by its own fail-closed digest gate and every derivation fell back to the slower pure-JS engine. Both CSP variants now carry the narrow token; the wasm engine is live in production.
+
+### Security
+
+- Runtime proof harness extended from 8 to 13 fail-closed claims: the at-rest seal live (P7), the purge guard (P8), locked-read semantics with the unlock restoring readability (P9), the continuity witness riding real saves (P10), and the witness freeze on a device tamper (P11). Two consecutive local runs PROVEN 13/13 on the production build in the pinned browser.
 
 ## [80.0.7]
 

@@ -5,7 +5,7 @@ This guide is the wake-up checklist for BMI Stellar after a quiet period of 1-5 
 ## Current Capsule
 
 - App: BMI Stellar
-- Version: `80.0.7`
+- Version: `80.1.0`
 - Runtime: Bun `1.3.11` from `package.json#packageManager`
 - Node range: `>=22 <27`
 - Framework: SvelteKit 2, Svelte 5, TypeScript
@@ -52,6 +52,7 @@ Do not delete, rename, or migrate these without a compatibility plan:
 - `STORAGE_KEYS.BMI_GOAL_START` / `bmi.goal.start` (localStorage)
 - `STORAGE_KEYS.UNIT_SYSTEM` / `bmi.unitSystem` (localStorage)
 - `STORAGE_KEYS.LOCALE` / `bmi.locale` (localStorage)
+- IndexedDB `meta` store entry `__history_chain_head` (the continuity witness, night-frontier-Z3: JSON `{ head, length }`; a restore tombstones it to an empty string for pre-Z3 snapshots - never delete it without clearing `bmi.history`, never rewrite it outside a legit write)
 - IndexedDB `meta` store entry `__encryption_verifier` (AES-GCM ciphertext of known verifier plaintext; never the passphrase itself)
 - IndexedDB `meta` store entry `__at_rest_salt` (device-local at-rest salt; not secret, defeats precomputation only)
 - At-rest seal format `bmi-at-rest-v1` (sealed health values behind the same storage keys; readable only with the ledger passphrase)

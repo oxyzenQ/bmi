@@ -13,9 +13,9 @@
 // See: https://github.com/nicedoc/vitest/issues/49
 
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { exportBmiHistoryCsv } from '../history-csv';
 import {
 	exportBmiHistory,
-	exportBmiHistoryCsv,
 	importBmiHistory,
 	validateBmiImport,
 	peekImportMeta
@@ -135,7 +135,7 @@ describe('history-io', () => {
 			expect(result).toBeNull();
 		});
 
-		it('exports valid BMI records with HMAC-SHA256 signature (v3)', async () => {
+		it('exports valid BMI records with HMAC-SHA256 signature (v4)', async () => {
 			const records = [
 				{ timestamp: 1700000000000, bmi: 22.5, height: 170, weight: 65 },
 				{ timestamp: 1700086400000, bmi: 22.1, height: 170, weight: 64.5 }
@@ -146,10 +146,10 @@ describe('history-io', () => {
 			expect(result).not.toBeNull();
 
 			const parsed = JSON.parse(result!);
-			expect(parsed.version).toBe(3);
+			expect(parsed.version).toBe(4);
 			expect(parsed.source).toBe('bmi-calculator');
 			expect(parsed.records).toHaveLength(2);
-			// v3 uses `signature` (not `checksum`)
+			// v4 uses `signature` (not `checksum`)
 			expect(parsed.signature).toHaveLength(64);
 			expect(parsed.checksum).toBeUndefined();
 			expect(parsed.algorithm).toBe('HMAC-SHA256');
@@ -237,7 +237,7 @@ describe('history-io', () => {
 			expect(result.errorCode).toBe('file_too_large');
 		});
 
-		it('accepts valid v3 HMAC export', async () => {
+		it('accepts valid v4 HMAC export', async () => {
 			const records = [{ timestamp: 1700000000000, bmi: 22.5, height: 170, weight: 65 }];
 			localStorageMock.getItem.mockReturnValue(JSON.stringify(records));
 			const exported = await exportBmiHistory();
@@ -246,7 +246,7 @@ describe('history-io', () => {
 			expect(result.valid).toBe(true);
 			expect(result.recordCount).toBe(1);
 			expect(result.integrityVerified).toBe(true);
-			expect(result.integrityVersion).toBe(3);
+			expect(result.integrityVersion).toBe(4);
 			expect(result.algorithm).toBe('HMAC-SHA256');
 		});
 
@@ -317,7 +317,7 @@ describe('history-io', () => {
 			expect(result.success).toBe(true);
 			expect(result.count).toBe(2);
 			expect(result.integrityVerified).toBe(true);
-			expect(result.integrityVersion).toBe(3);
+			expect(result.integrityVersion).toBe(4);
 			expect(result.algorithm).toBe('HMAC-SHA256');
 			expect(localStorageMock.setItem).toHaveBeenCalled();
 		});
@@ -353,7 +353,7 @@ describe('history-io', () => {
 			const decrypted = await decrypt(encrypted!, 'mySecretPassword123');
 			expect(decrypted).not.toBeNull();
 			const envelope = JSON.parse(decrypted!.plaintext);
-			expect(envelope.version).toBe(3);
+			expect(envelope.version).toBe(4);
 			expect(envelope.records).toHaveLength(1);
 		});
 

@@ -19,9 +19,12 @@ import {
 	dbBackupGetAll,
 	dbBackupLatest,
 	dbBackupSave,
+	dbMetaGet,
+	dbMetaSet,
 	isIndexedDbAvailable
 } from './db';
 import { t } from '$lib/i18n';
+import { META_LEDGER_CHAIN } from './ledger-continuity';
 import { STORAGE_KEYS, storageGetRaw } from './storage';
 import { warnDev } from './warn-dev';
 import { getAppVersionRaw } from './app-version';
@@ -78,6 +81,11 @@ export async function createBackup(
 				warnDev('backup', 'createBackup', 'Failed to parse history for record count', err);
 			}
 		}
+
+		// night-frontier-Z3: the continuity witness travels with the
+		// snapshot, so a restore re-installs the head that matches the
+		// restored history (a locked restore still lands both).
+		snapshot[META_LEDGER_CHAIN] = await dbMetaGet(META_LEDGER_CHAIN);
 
 		const data = JSON.stringify(snapshot);
 
@@ -201,6 +209,15 @@ export async function restoreLatestBackup(): Promise<boolean> {
 			// Always re-enable backup after restore
 			setRestoreMode(false);
 		}
+
+		// night-frontier-Z3: re-install the witness that belongs to the
+		// restored history. A pre-Z3 snapshot carries no head — tombstone
+		// it (an empty meta value reads as unanchored) so a stale head can
+		// never accuse the restored ledger falsely; the next legit write
+		// re-anchors. The restore-key allowlist above skips the meta key,
+		// so this is the only path it travels.
+		const witness = snapshot[META_LEDGER_CHAIN];
+		await dbMetaSet(META_LEDGER_CHAIN, typeof witness === 'string' ? witness : '');
 
 		// If an at-rest session is unlocked, re-open any sealed snapshot
 		// values into the cache so reads turn plaintext again. Sealed

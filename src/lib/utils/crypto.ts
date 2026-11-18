@@ -358,29 +358,18 @@ export async function decrypt(
 		}
 
 		// At-rest session unlock — verifier-anchored, never throws into
-		// callers, never blocks them. The unlock is an enhancement layered
-		// on top of the primary flow: it runs fire-and-forget behind a
-		// bounded race so a slow or broken IndexedDB (test stubs, private
-		// modes, pending upgrades) can never stall a decrypt. Values
-		// written before the background unlock completes stay plaintext
+		// callers, never blocks them: the unlock runs fire-and-forget behind
+		// a bounded race (unlockAtRestSessionIfVerified). The import path
+		// awaits the same check before its ledger write, so a locked
+		// device's import never races the purge guard. Values written
+		// before the background unlock completes elsewhere stay plaintext
 		// until their next write — documented in the ledger.
 		void (async () => {
-			try {
-				if (plaintext === VERIFIER_PLAINTEXT) {
-					await registerAtRestSession(passphrase);
-					await storageRefreshAtRestCache();
-				} else if (!isAtRestSessionUnlocked()) {
-					const verified = await Promise.race([
-						verifyPassphrase(passphrase),
-						new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 5_000))
-					]);
-					if (verified) {
-						await registerAtRestSession(passphrase);
-						await storageRefreshAtRestCache();
-					}
-				}
-			} catch (err) {
-				warnDev('crypto', 'decrypt', 'At-rest unlock check failed (session stays locked)', err);
+			if (plaintext === VERIFIER_PLAINTEXT) {
+				await registerAtRestSession(passphrase);
+				await storageRefreshAtRestCache();
+			} else {
+				await unlockAtRestSessionIfVerified(passphrase);
 			}
 		})();
 
@@ -450,6 +439,75 @@ export async function enableEncryption(passphrase: string): Promise<boolean> {
 			'Failed to enable encryption (verifier creation or DB write)',
 			err
 		);
+		return false;
+	}
+}
+
+/**
+ * Establish the ledger verifier from a passphrase-proven import
+ * (night-frontier-Z3).
+ *
+ * The at-rest session had no reachable start moment in the product:
+ * enableEncryption() was never wired to any UI flow, so the verifier
+ * never existed and the seal (innovation 25) never activated live —
+ * real code, real tests, dead wire. The honest minimal fix rides the
+ * one passphrase moment that already proves knowledge: a successful
+ * decrypt of the user's own valid ledger file. On a device WITHOUT a
+ * ledger verifier, that import establishes it and registers the
+ * session, so the imported write itself seals at rest. A device WITH a
+ * verifier keeps the innovation-25 guarantee unchanged: only a
+ * passphrase that verifies against the stored verifier can ever
+ * register, and export-file passphrases never create one.
+ *
+ * Never throws into the caller — establishment failure leaves the
+ * device as it was (plaintext writes, existing at-rest semantics).
+ */
+export async function establishLedgerVerifier(passphrase: string): Promise<void> {
+	try {
+		const status = await getEncryptionStatus();
+		if (status.hasPassphrase) return;
+		const established = await enableEncryption(passphrase);
+		warnDev(
+			'crypto',
+			'establishLedgerVerifier',
+			established
+				? 'First passphrase-proven import established the ledger verifier'
+				: 'Ledger verifier establishment failed (session stays locked)'
+		);
+	} catch (err) {
+		warnDev('crypto', 'establishLedgerVerifier', 'Verifier establishment check failed', err);
+	}
+}
+
+/**
+ * Verifier-anchored at-rest unlock, awaited (night-frontier-Z3).
+ *
+ * decrypt() runs this fire-and-forget so a slow unlock can never stall
+ * a file decrypt. The import path, however, must AWAIT it: on a locked
+ * device whose history is sealed, the import write hits the purge guard
+ * before the background registration lands, and the save is refused
+ * (the unlock modal would deadlock on save_failed). Awaiting here makes
+ * the unlock moment deterministic before the ledger write.
+ *
+ * Returns true when the session ended up unlocked (already unlocked, or
+ * the passphrase verified against the stored verifier).
+ */
+export async function unlockAtRestSessionIfVerified(
+	passphrase: string,
+	timeoutMs = 5_000
+): Promise<boolean> {
+	try {
+		if (isAtRestSessionUnlocked()) return true;
+		const verified = await Promise.race([
+			verifyPassphrase(passphrase),
+			new Promise<boolean>((resolve) => setTimeout(() => resolve(false), timeoutMs))
+		]);
+		if (!verified) return false;
+		await registerAtRestSession(passphrase);
+		await storageRefreshAtRestCache();
+		return true;
+	} catch (err) {
+		warnDev('crypto', 'unlockAtRestSessionIfVerified', 'At-rest unlock check failed', err);
 		return false;
 	}
 }

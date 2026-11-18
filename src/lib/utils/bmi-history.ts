@@ -3,6 +3,12 @@
 import { browser } from '$app/environment';
 import { STORAGE_KEYS, storageGetJSON, storageSetJSON } from './storage';
 import { isValidRecord, toRecord } from './history-io';
+import {
+	computeLedgerChain,
+	getSealedLedgerChain,
+	isHistorySealedOpaque,
+	reseatLedgerChainAfterSave
+} from './ledger-continuity';
 import type { BmiRecord } from '$lib/types/bmi-record';
 
 interface SaveBmiHistoryInput {
@@ -67,5 +73,54 @@ export function saveBmiToHistory(input: SaveBmiHistoryInput): string | null {
 	filtered.sort((a, b) => a.timestamp - b.timestamp);
 
 	storageSetJSON(STORAGE_KEYS.HISTORY, filtered);
+
+	// Continuity witness (night-frontier-Z3): the save is a legit write,
+	// but the blessing is conditional — the witness advances only when the
+	// pre-save state matched the sealed head. History that changed outside
+	// a legit path leaves the witness frozen (evidence preserved) instead
+	// of silently re-anchoring tampered content.
+	void reseatLedgerChainAfterSave(history, filtered);
+
 	return historySignature;
+}
+
+// ── Continuity audit (night-frontier-Z3) ──
+
+export type ContinuityState = 'ok' | 'violated' | 'unanchored' | 'sealed-opaque';
+
+export interface ContinuityAudit {
+	state: ContinuityState;
+	/** The sealed witness, when one exists and was readable. */
+	sealed: { head: string; length: number } | null;
+	/** The chain recomputed from the validated records. */
+	computed: { head: string; length: number } | null;
+}
+
+/**
+ * Measure the ledger continuity: recompute the chain over the validated
+ * records and compare it with the sealed witness.
+ *
+ *   ok            — the recomputed head matches the sealed witness
+ *   violated      — a witness exists and disagrees with the records:
+ *                   the history changed outside a legit write path
+ *   unanchored    — no witness exists (fresh device, degraded seal, or
+ *                   pre-Z3 data waiting for its first legit write)
+ *   sealed-opaque — the history is an at-rest envelope and the session
+ *                   is locked; continuity cannot be measured through a
+ *                   sealed value and must never be misread as tampered
+ *
+ * Never throws.
+ */
+export async function auditLedgerContinuity(): Promise<ContinuityAudit> {
+	if (isHistorySealedOpaque()) {
+		return { state: 'sealed-opaque', sealed: null, computed: null };
+	}
+	const sealed = await getSealedLedgerChain();
+	const records = readBmiHistory();
+	const computed = await computeLedgerChain(records);
+	if (sealed === null) {
+		return { state: 'unanchored', sealed: null, computed };
+	}
+	const ok = sealed.head === computed.head && sealed.length === computed.length;
+	return { state: ok ? 'ok' : 'violated', sealed, computed };
 }
