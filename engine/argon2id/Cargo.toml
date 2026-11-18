@@ -1,0 +1,22 @@
+# Copyright (C) 2026 rezky_nightky
+# SPDX-License-Identifier: AGPL-3.0-only
+[package]
+name = "bmi-stellar-argon2id"
+version = "1.0.0"
+edition = "2021"
+license = "AGPL-3.0-only"
+description = "The bmi-stellar Argon2id key-derivation engine compiled to WebAssembly"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+argon2 = { version = "0.6.0", default-features = false, features = ["kdf"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

@@ -89,12 +89,16 @@ export async function importAesKey(hashBytes: Uint8Array): Promise<CryptoKey> {
 
 /**
  * Derive an AES-256-GCM key from a passphrase + salt using Argon2id.
- * Uses @noble/hashes (pure JS, no WASM, tiny bundle footprint).
  *
- * The 64 MiB x 3 derivation blocks the calling thread for seconds, so
- * in production it is offloaded to a Web Worker (kdf.worker.ts). Any
- * worker failure falls back to the original main-thread path, which
- * produces byte-identical hashes.
+ * Engine order (night-enhance-1): in production the derivation is
+ * offloaded to the KDF worker (kdf.worker.ts), which tries the Rust
+ * wasm engine first (engine/argon2id, digest-verified before use) and
+ * keeps @noble/hashes as its in-worker fallback. This module's own
+ * main-thread path (tests, non-browser, worker failure) uses the
+ * pure-JS @noble/hashes engine. Every path implements the same
+ * standard Argon2id (RFC 9106) and is pinned byte-identical by the
+ * known-answer and cross-check suites, so the derived key does not
+ * depend on which path ran.
  */
 export async function deriveKeyArgon2(passphrase: string, salt: Uint8Array): Promise<CryptoKey> {
 	if (CAN_OFFLOAD_KDF && isKdfWorkerAvailable()) {

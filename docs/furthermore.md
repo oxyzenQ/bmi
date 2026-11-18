@@ -186,7 +186,13 @@ flowchart LR
 
 ### Argon2id (Primary KDF)
 
-Parameters follow OWASP 2023 recommendations. Uses `@noble/hashes/argon2.js` — pure JavaScript, no WASM dependency, minimal bundle size.
+Parameters follow OWASP 2023 recommendations. The derivation engine is the
+Rust wasm artifact compiled from `engine/argon2id` (digest-verified before
+use, provenance-checked against the crate in CI by `wasm-provenance.sh`);
+the pure-JS `@noble/hashes/argon2.js` engine remains as the fallback for
+any engine load or derive failure. Both engines implement standard Argon2id
+(RFC 9106) and are pinned byte-identical by the known-answer and cross-check
+suites, so the derived key does not depend on which path ran.
 
 | Parameter     | Production         | Test (CI) |
 | ------------- | ------------------ | --------- |

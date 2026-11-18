@@ -34,3 +34,7 @@ other ai/
 
 # Runtime proof harness (pinned browser binary)
 scripts/proof/.chrome/
+
+# Rust engine build output (the committed truth is the embedded module
+# plus the crate source; the wasm is rebuilt by wasm-provenance.sh)
+engine/argon2id/target/

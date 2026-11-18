@@ -103,3 +103,20 @@ jobs:
 
       - name: Build
         run: bun run build
+
+  wasm-provenance:
+    name: Rust engine provenance
+    # The committed embedded artifact must be the built artifact: this
+    # lane rebuilds engine/argon2id (toolchain pinned in
+    # rust-toolchain.toml, rustup resolves it on the runner) and demands
+    # fresh build == recorded digest == embedded base64. Byte-reproducible
+    # by path remapping, so any machine produces the same bytes.
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, SHA pin
+
+      - name: Verify the wasm artifact against the committed crate
+        run: bash scripts/ci/wasm-provenance.sh

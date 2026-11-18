@@ -104,8 +104,9 @@ schema guard would duplicate the chain's one guard.
 `src/lib/utils/crypto.ts`: AES-256-GCM authenticated encryption, a
 random 12-byte IV per encryption, a 16-byte salt, and Argon2id key
 derivation (64 MiB memory, 3 iterations, parallelism 1 — the OWASP
-2023 recommendation) via `@noble/hashes/argon2.js`, pure JavaScript
-with no WASM. Integrity rides the AES-GCM auth tag plus a SHA-256
+2023 recommendation) through the Rust wasm engine (innovation 28),
+with the pure-JS `@noble/hashes/argon2.js` engine as the fallback —
+both pinned byte-identical. Integrity rides the AES-GCM auth tag plus a SHA-256
 ciphertext checksum in `meta.checksum`. KDF auto-detection reads the
 `kdf` field: `'argon2id'` for current files, absent for legacy PBKDF2
 (600,000 iterations) imports. Legacy `bmi-encrypted-v1` envelopes stay
@@ -115,11 +116,13 @@ a documented constraint, not a hidden one.
 
 **6. The Off-Main-Thread Key Forge — the UI never freezes during
 derivation.** `src/lib/utils/kdf.worker.ts` +
-`src/lib/utils/kdf-worker-client.ts`: the pure-JS Argon2id at 64 MiB
-blocks its calling thread for real time on low-end devices, so the
-derivation runs in a dedicated Web Worker with the same parameters as
-the inline path; the UI awaits a promise while the worker burns the
-memory. The client has its own suite (`kdf-worker-client.test.ts`).
+`src/lib/utils/kdf-worker-client.ts`: the 64 MiB Argon2id blocks its
+calling thread for real time on low-end devices, so the derivation
+runs in a dedicated Web Worker — the wasm engine first (innovation 28),
+the pure-JS engine as the in-worker fallback — with the same
+parameters as the main-thread path; the UI awaits a promise while the
+worker burns the memory. The client has its own suite
+(`kdf-worker-client.test.ts`).
 
 **7. The Zero-Knowledge Verifier (v18.1).** When encryption is
 enabled, `enableEncryption()` encrypts a known verifier string
@@ -474,6 +477,48 @@ latency for crash resilience and is a hint, not a guarantee; JavaScript
 passphrase strings cannot be wiped (WebCrypto never sees them raw
 because the derivation input passes through the worker boundary —
 documented physics, not solved).
+
+**28. The Rust Key Forge Engine — one honest wasm seat, proven byte-level
+(night-enhance-1).** The one real compute hotspot in the tree was the
+Argon2id derivation itself; the calculator path is a single guarded
+division with nothing to profile. So the engine swap was scoped to
+exactly one seat: `engine/argon2id` (the only Rust crate in the tree)
+implements standard Argon2id (RFC 9106, version 0x13) through the
+RustCrypto `argon2` crate behind a plain C ABI
+(`engine_alloc` / `engine_free` / `engine_argon2id` with optional
+secret and associated-data regions, error codes, no wasm-bindgen
+runtime), compiles to `wasm32-unknown-unknown` with simd128
+(37,721 bytes), and ships embedded as base64 in the generated
+`src/lib/utils/kdf-wasm-embedded.ts` — the worker stays inline, offline,
+and fetch-free. The wrapper (`kdf-wasm-engine.ts`) is fail-closed in
+both directions: the artifact is refused unless its SHA-256 matches the
+recorded digest, and every engine refusal falls back to the pure-JS
+engine — availability never trumps correctness, and a hostile input can
+only lose the speedup, never produce a wrong key. Byte-identity is
+proven, not claimed: the RFC 9106 section 5.3 known-answer vector
+reproduces byte-for-byte in both engines, a deterministic 30-vector
+cross-check matrix (passphrases incl. empty and unicode, salt lengths,
+parameter combinations, output lengths) must agree byte-for-byte, one
+test anchors the real 64 MiB / t=3 / p=1 production parameters, error
+parity is pinned (what one engine rejects, both reject), and envelope
+interop proves a wasm-derived key decrypts what the JS engine encrypted
+and the reverse (`kdf-wasm-engine.test.ts`, `kdf.worker.test.ts`).
+Provenance is a lane, not a hope: the build is byte-reproducible
+(toolchain pinned in `rust-toolchain.toml`, absolute paths remapped to
+constant virtual paths through RUSTFLAGS — verified by rebuilding at
+two different machine paths), and the `wasm-provenance` CI job rebuilds
+from the committed crate and demands fresh-build == recorded digest ==
+embedded bytes on every push (`scripts/ci/wasm-provenance.sh`). The
+measured speedup on the bench machine is 11.3x at production parameters
+(2472 ms -> 219 ms, `scripts/dev/kdf-bench.ts`, interleaved rounds,
+byte-identity gated before timing; one machine, re-measurable any
+time). Honest limits: the bundle now carries both engines — the
+embedded base64 adds roughly 50 KB raw before the inline-worker
+encoding; the wasm-side zeroization of the passphrase and secret
+regions is hygiene, not a security boundary; the app never uses the
+secret/associated-data ABI inputs (they exist so the KAT exercises the
+full core); and the JS engine stays loadable by design, so the fallback
+path remains a working, byte-identical route.
 
 ## Retired by verdict
 

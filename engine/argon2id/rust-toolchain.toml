@@ -1,0 +1,9 @@
+# Copyright (C) 2026 rezky_nightky
+# SPDX-License-Identifier: AGPL-3.0-only
+# The engine toolchain is pinned so the committed artifact digest stays
+# reproducible: the same rustc patch build must produce the same wasm
+# bytes locally and in the wasm-provenance CI lane.
+[toolchain]
+channel = "1.100.0"
+profile = "minimal"
+targets = ["wasm32-unknown-unknown"]

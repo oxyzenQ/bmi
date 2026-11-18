@@ -216,7 +216,7 @@ function fallbackStrength(pw: string): StrengthResult {
 /**
  * Encrypt a string using AES-256-GCM with a passphrase.
  * Uses Argon2id for key derivation (new format).
- * Falls back to PBKDF2 only if Argon2 WASM fails.
+ * Falls back to PBKDF2 only if Argon2id key derivation fails.
  * Returns a JSON string containing the encrypted payload.
  * Optional meta is stored unencrypted for preview before decryption.
  */
