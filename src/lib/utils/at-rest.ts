@@ -1,0 +1,190 @@
+// Copyright (C) 2026 rezky_nightky
+// SPDX-License-Identifier: AGPL-3.0-only
+/**
+ * The at-rest ledger seal — health values encrypted at rest, not just on
+ * export.
+ *
+ * Closes the one honest limit the product documents ("local browser
+ * storage is not encrypted at rest") with a design that adds no new UI
+ * surface: the session unlocks through the passphrase moments that
+ * already exist (enable encryption, successful decrypt flows) and every
+ * later write to a health key is sealed transparently by storage.ts.
+ *
+ * Semantics, stated honestly:
+ *   - Sealing is session-gated. A cold load starts locked: sealed values
+ *     read as null until the passphrase is presented again. Locked data
+ *     is never destroyed — storage.ts refuses writes that would overwrite
+ *     a sealed value without a session key (the purge guard).
+ *   - The session key lives in volatile memory only, derived from the
+ *     ledger passphrase with Argon2id against a per-device random salt
+ *     kept in the IndexedDB meta store. It is never persisted, cached to
+ *     disk, or transmitted.
+ *   - Values are sealed with a fresh 12-byte IV per write; the AES-GCM
+ *     auth tag plus a SHA-256 ciphertext checksum carry integrity.
+ *   - Only the ledger passphrase ever seals or unseals. Passphrases typed
+ *     for export files that do not match the verifier never register.
+ *   - Sealing failure falls back to plaintext persistence (data
+ *     preservation beats encryption coverage), with a dev-only warning.
+ *
+ * Envelope format (bmi-at-rest-v1):
+ *   TAG + base64(JSON { v, iv, data, chk })
+ *   v    — envelope version (1)
+ *   iv   — base64 12-byte AES-GCM IV
+ *   data — base64 AES-256-GCM ciphertext
+ *   chk  — base64 SHA-256 of the data field (pre-decryption sanity check)
+ */
+
+import { dbMetaGet, dbMetaSet } from './db';
+import {
+	aesGcmDecrypt,
+	aesGcmEncrypt,
+	computeChecksum,
+	deriveKeyArgon2,
+	fromBase64,
+	randomBytes,
+	toBase64,
+	verifyChecksum,
+	IV_LENGTH,
+	SALT_LENGTH
+} from './crypto-primitives';
+import {
+	AT_REST_TAG,
+	clearAtRestSessionKey,
+	getAtRestSessionKey,
+	isAtRestSessionUnlocked,
+	isAtRestTagged,
+	setAtRestSessionKey
+} from './at-rest-state';
+import { warnDev } from './warn-dev';
+
+/** IndexedDB meta key holding the base64 at-rest salt (device-local). */
+export const META_AT_REST_SALT = '__at_rest_salt';
+
+const AT_REST_VERSION = 1;
+
+/** Envelope shape carried inside the tagged value. */
+interface AtRestEnvelope {
+	v: number;
+	iv: string;
+	data: string;
+	chk: string;
+}
+
+/**
+ * Read the at-rest salt from the meta store, creating a random one on
+ * first use. The salt is not secret — it only defeats precomputation.
+ * A stable salt means re-registering the same passphrase reproduces the
+ * same session key, so a disable/re-enable cycle keeps old sealed values
+ * readable.
+ */
+async function getOrCreateSalt(): Promise<Uint8Array> {
+	const stored = await dbMetaGet(META_AT_REST_SALT);
+	if (stored) {
+		return fromBase64(stored);
+	}
+	const salt = randomBytes(SALT_LENGTH);
+	await dbMetaSet(META_AT_REST_SALT, toBase64(salt));
+	return salt;
+}
+
+/**
+ * Register the session key for an unlocked session.
+ *
+ * Callers are the verifier-anchored passphrase moments in crypto.ts:
+ * enableEncryption() and a successful verifier/file decrypt that passed
+ * verifyPassphrase(). Derives the Argon2id session key (offloaded to the
+ * KDF worker in production) and installs it in the volatile slot.
+ * Throws on derivation failure — callers decide the fallback.
+ */
+export async function registerAtRestSession(passphrase: string): Promise<void> {
+	// The session key is deterministic (passphrase + device salt), so an
+	// already-unlocked session never re-derives. enableEncryption() clears
+	// the slot first, so a re-enable with a new passphrase always derives.
+	if (isAtRestSessionUnlocked()) return;
+	const salt = await getOrCreateSalt();
+	const key = await deriveKeyArgon2(passphrase, salt);
+	setAtRestSessionKey(key);
+}
+
+/**
+ * Drop the session key. The session returns to locked state: sealed
+ * values read as null again and writes to health keys are refused while
+ * a sealed value exists. Existing sealed values are untouched.
+ */
+export function clearAtRestSession(): void {
+	clearAtRestSessionKey();
+}
+
+/** True while an unlocked session is active. */
+export function isAtRestUnlocked(): boolean {
+	return isAtRestSessionUnlocked();
+}
+
+/**
+ * Seal a plaintext value into the tagged at-rest format using the
+ * session key and a fresh random IV. Throws when no session key is
+ * installed — storage.ts guards this, but the check stays here so the
+ * invariant holds no matter the caller.
+ */
+export async function sealAtRestValue(plaintext: string): Promise<string> {
+	if (!isAtRestSessionUnlocked()) {
+		throw new Error('at-rest seal called without an unlocked session');
+	}
+	const sessionKey = getAtRestSessionKey();
+	if (!sessionKey) {
+		throw new Error('at-rest seal called without an unlocked session');
+	}
+	const iv = randomBytes(IV_LENGTH);
+	const ciphertext = await aesGcmEncrypt(sessionKey, iv, new TextEncoder().encode(plaintext));
+	const data = toBase64(ciphertext);
+	const envelope: AtRestEnvelope = {
+		v: AT_REST_VERSION,
+		iv: toBase64(iv),
+		data,
+		chk: await computeChecksum(data)
+	};
+	return AT_REST_TAG + toBase64(new TextEncoder().encode(JSON.stringify(envelope)));
+}
+
+/**
+ * Open a sealed value back to plaintext. Returns null on any failure:
+ * wrong session key (passphrase changed since sealing), tampered
+ * envelope, checksum mismatch, or corrupted base64. Never throws.
+ */
+export async function openAtRestValue(sealed: string): Promise<string | null> {
+	if (!isAtRestTagged(sealed)) return null;
+	try {
+		const json = new TextDecoder().decode(fromBase64(sealed.slice(AT_REST_TAG.length)));
+		const envelope = JSON.parse(json) as AtRestEnvelope;
+		if (envelope.v !== AT_REST_VERSION || !envelope.iv || !envelope.data || !envelope.chk) {
+			warnDev('at-rest', 'openAtRestValue', 'Sealed envelope is missing required fields');
+			return null;
+		}
+		if (!(await verifyChecksum(envelope.data, envelope.chk))) {
+			warnDev('at-rest', 'openAtRestValue', 'Sealed envelope checksum mismatch — tampered data');
+			return null;
+		}
+		const sessionKey = getAtRestSessionKey();
+		if (!sessionKey) {
+			warnDev('at-rest', 'openAtRestValue', 'No session key while opening a sealed value');
+			return null;
+		}
+		const plaintext = await aesGcmDecrypt(
+			sessionKey,
+			fromBase64(envelope.iv),
+			fromBase64(envelope.data)
+		);
+		return new TextDecoder().decode(plaintext);
+	} catch (err) {
+		if (err instanceof DOMException && err.name === 'OperationError') {
+			warnDev(
+				'at-rest',
+				'openAtRestValue',
+				'AES-GCM auth tag mismatch — sealed under a different passphrase'
+			);
+		} else {
+			warnDev('at-rest', 'openAtRestValue', 'Opening sealed value failed', err);
+		}
+		return null;
+	}
+}

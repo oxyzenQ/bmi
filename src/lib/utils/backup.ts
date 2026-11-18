@@ -22,7 +22,7 @@ import {
 	isIndexedDbAvailable
 } from './db';
 import { t } from '$lib/i18n';
-import { STORAGE_KEYS, storageGet } from './storage';
+import { STORAGE_KEYS, storageGetRaw } from './storage';
 import { warnDev } from './warn-dev';
 import { getAppVersionRaw } from './app-version';
 
@@ -58,11 +58,13 @@ export async function createBackup(
 	if (!browser || !isIndexedDbAvailable()) return false;
 
 	try {
-		// Snapshot all storage keys into a single JSON blob
+		// Snapshot all storage keys into a single JSON blob.
+		// Raw reads: a sealed at-rest ledger must back up sealed, so a
+		// locked session still produces a restorable snapshot.
 		const snapshot: Record<string, string | null> = {};
 		const keys = Object.values(STORAGE_KEYS);
 		for (const key of keys) {
-			snapshot[key] = storageGet(key);
+			snapshot[key] = storageGetRaw(key);
 		}
 
 		// Count history records for metadata
@@ -199,6 +201,12 @@ export async function restoreLatestBackup(): Promise<boolean> {
 			// Always re-enable backup after restore
 			setRestoreMode(false);
 		}
+
+		// If an at-rest session is unlocked, re-open any sealed snapshot
+		// values into the cache so reads turn plaintext again. Sealed
+		// values that fail to open stay sealed — never destroyed.
+		const { storageRefreshAtRestCache } = await import('./storage');
+		await storageRefreshAtRestCache();
 
 		return true;
 	} catch (err) {

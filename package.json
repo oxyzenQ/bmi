@@ -19,7 +19,7 @@
 		"test:ui": "vitest --ui",
 		"test:run": "vitest --run",
 		"test:fast": "vitest run --exclude='**/crypto*.test.ts' --exclude='**/history-io*.test.ts'",
-		"test:crypto": "vitest run src/lib/utils/__tests__/crypto.test.ts src/lib/utils/__tests__/history-io.test.ts",
+		"test:crypto": "vitest run src/lib/utils/__tests__/crypto.test.ts src/lib/utils/__tests__/crypto-at-rest.test.ts src/lib/utils/__tests__/at-rest-state.test.ts src/lib/utils/__tests__/history-io.test.ts",
 		"test:ci": "vitest run --pool=forks --maxWorkers=2",
 		"audit:loc": "bun run scripts/gates/check-loc.ts",
 		"audit:headers": "bun run scripts/gates/check-headers.ts",

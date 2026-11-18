@@ -73,9 +73,13 @@ vi.mock('$lib/utils/storage', () => ({
 		BMI_GOAL_START: 'bmi.goal.start'
 	},
 	storageGet: mockStorageGet,
+	// Raw reads share the same fixture surface: backups snapshot whatever
+	// the storage layer holds, sealed or plaintext.
+	storageGetRaw: mockStorageGet,
 	storageSet: vi.fn(),
 	storageRemove: vi.fn(),
-	setRestoreMode: vi.fn()
+	setRestoreMode: vi.fn(),
+	storageRefreshAtRestCache: vi.fn(async () => {})
 }));
 
 // Mock db.ts — reference hoisted functions

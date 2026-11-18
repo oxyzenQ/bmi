@@ -15,6 +15,13 @@
  */
 
 import { browser } from '$app/environment';
+import {
+	isAtRestHealthKey,
+	isAtRestTagged,
+	isLatestAtRestMirrorSeq,
+	nextAtRestMirrorSeq,
+	shouldProtectAtRest
+} from './at-rest-state';
 import { dbGetAll, dbMetaGet, dbMetaSet, dbRemove, dbSet, isIndexedDbAvailable } from './db';
 import { warnDev, warnDevOnce } from './warn-dev';
 
@@ -84,7 +91,7 @@ let _idbWriteSeqCounter = 0;
  * write B arrives, A will complete normally. But B is guaranteed to run AFTER A,
  * so the final IndexedDB state is always B (the latest value).
  */
-function dbSetGuarded(key: string, value: string): void {
+function dbSetGuarded(key: string, value: string | Promise<string>): void {
 	const seq = ++_idbWriteSeqCounter;
 	idbWriteSeq.set(key, seq);
 
@@ -93,7 +100,14 @@ function dbSetGuarded(key: string, value: string): void {
 	const run = (): Promise<void> => {
 		// Skip if this write has been superseded by a newer storageSet().
 		if (idbWriteSeq.get(key) !== seq) return Promise.resolve();
-		return dbSet(key, value)
+		// Plain values start their dbSet synchronously (first write for a
+		// key runs immediately); sealed envelopes resolve their ciphertext
+		// before the write lands.
+		const write =
+			value instanceof Promise
+				? Promise.resolve(value).then((resolved) => dbSet(key, resolved))
+				: dbSet(key, value);
+		return write
 			.catch((err) => {
 				// Only warn if this is still the latest write.
 				// If a newer write arrived while dbSet was in-flight, the failure is noise.
@@ -264,6 +278,9 @@ async function validateAndRepairCache(): Promise<void> {
 	for (const key of jsonKeys) {
 		const value = cache.get(key);
 		if (value === null || value === undefined) continue;
+		// Sealed envelopes are not JSON by design — not corruption; a
+		// locked ledger must survive init untouched.
+		if (isAtRestTagged(value)) continue;
 
 		try {
 			JSON.parse(value);
@@ -276,16 +293,7 @@ async function validateAndRepairCache(): Promise<void> {
 				err
 			);
 
-			const lsValue: string | null = (() => {
-				// localStorage can throw in private modes; if it does, there is
-				// no repair source, but the IndexedDB cache is still live and
-				// initStorage must not abort here.
-				try {
-					return localStorage.getItem(key);
-				} catch {
-					return null;
-				}
-			})();
+			const lsValue: string | null = readLocalStorageRaw(key);
 			if (lsValue !== null) {
 				try {
 					JSON.parse(lsValue);
@@ -384,22 +392,38 @@ async function migrateFromLocalStorage(): Promise<void> {
 	await dbMetaSet(META_MIGRATED_KEY, '1');
 }
 
-/**
- * Read a value from cache (populated from IndexedDB on init).
- * Falls back to localStorage if cache is empty (pre-init or IndexedDB unavailable).
- * Returns null if the key does not exist.
- */
-export function storageGet(key: string): string | null {
-	if (cache.has(key)) return cache.get(key) ?? null;
+/** Read a raw value from localStorage without throwing; null when unavailable. */
+function readLocalStorageRaw(key: string): string | null {
 	try {
-		const value = localStorage.getItem(key);
-		cache.set(key, value);
-		return value;
+		return localStorage.getItem(key);
 	} catch (err) {
-		warnDev('storage', 'storageGet', `Failed to read key: ${key}`, err);
-		cache.set(key, null);
+		warnDev('storage', 'readLocalStorageRaw', `Failed to read key: ${key}`, err);
 		return null;
 	}
+}
+
+/**
+ * Read a value from cache, falling back to localStorage when cold. Sealed
+ * at-rest values never surface synchronously: locked sessions read them as
+ * missing; unlocked sessions have had them decrypted into the cache by
+ * storageRefreshAtRestCache() at unlock time.
+ */
+export function storageGet(key: string): string | null {
+	const raw = storageGetRaw(key);
+	if (raw !== null && isAtRestTagged(raw)) return null;
+	return raw;
+}
+
+/**
+ * Read the raw stored value without at-rest translation — sealed keys
+ * return their sealed envelope string. Used by the backup snapshot (a
+ * sealed ledger backs up sealed) and by the at-rest cache refresh.
+ */
+export function storageGetRaw(key: string): string | null {
+	if (cache.has(key)) return cache.get(key) ?? null;
+	const value = readLocalStorageRaw(key);
+	cache.set(key, value);
+	return value;
 }
 
 /**
@@ -416,22 +440,68 @@ export interface StorageSetOptions {
  * The Promise also awaits the IndexedDB write for durability when await-ed.
  */
 export function storageSet(key: string, value: string, options?: StorageSetOptions): boolean {
+	const protecting = !_restoreInProgress && shouldProtectAtRest(key);
 	let success = true;
-	try {
-		localStorage.setItem(key, value);
-		cache.set(key, value);
-	} catch (err) {
-		// localStorage write failed — still update cache but report failure
-		warnDev('storage', 'storageSet', `Failed to write key: ${key}`, err);
-		success = false;
-		cache.set(key, value);
+
+	if (!protecting && !_restoreInProgress) {
+		// Purge guard: never overwrite a sealed value without a session key
+		// (restore mode is exempt — it re-persists raw snapshot values).
+		const currentRaw = cache.has(key) ? cache.get(key) : readLocalStorageRaw(key);
+		if (isAtRestTagged(currentRaw)) {
+			warnDevOnce(
+				'storage',
+				'storageSet:sealed',
+				`Refusing to overwrite sealed value for key: ${key} — ledger is locked`
+			);
+			return false;
+		}
+		try {
+			localStorage.setItem(key, value);
+		} catch (err) {
+			// localStorage write failed — still update cache but report failure
+			warnDev('storage', 'storageSet', `Failed to write key: ${key}`, err);
+			success = false;
+		}
 	}
+
+	cache.set(key, value);
 
 	// Async write to IndexedDB (fire-and-forget, non-blocking).
 	// Per-key serialization ensures writes for the same key execute in order,
 	// so the final IndexedDB value always matches the latest storageSet() call.
 	if (browser && isIndexedDbAvailable()) {
-		dbSetGuarded(key, value);
+		if (protecting) {
+			// Seal asynchronously, then persist the envelope. The mirror
+			// sequence token is taken synchronously (call order), so only
+			// the latest sealed value can land in localStorage.
+			const seq = nextAtRestMirrorSeq(key);
+			const persisted = (async (): Promise<string> => {
+				try {
+					const { sealAtRestValue } = await import('./at-rest');
+					return await sealAtRestValue(value);
+				} catch (err) {
+					warnDev(
+						'storage',
+						'storageSet:seal',
+						`At-rest sealing failed — writing plaintext for key: ${key}`,
+						err
+					);
+					return value;
+				}
+			})();
+			void persisted.then((sealed) => {
+				if (isLatestAtRestMirrorSeq(key, seq)) {
+					try {
+						localStorage.setItem(key, sealed);
+					} catch {
+						/* quota — the IndexedDB truth is still durable */
+					}
+				}
+				dbSetGuarded(key, sealed);
+			});
+		} else {
+			dbSetGuarded(key, value);
+		}
 	}
 
 	// Auto-backup on history data change (skip during restore)
@@ -440,6 +510,24 @@ export function storageSet(key: string, value: string, options?: StorageSetOptio
 	}
 
 	return success;
+}
+
+/**
+ * Refresh plaintext into the cache for every sealed health key after an
+ * at-rest session registers, so an unlocked session serves plaintext
+ * synchronously again. Values that fail to open stay sealed.
+ */
+export async function storageRefreshAtRestCache(): Promise<void> {
+	const { openAtRestValue } = await import('./at-rest');
+	for (const key of Object.values(STORAGE_KEYS)) {
+		if (!isAtRestHealthKey(key)) continue;
+		const raw = cache.has(key) ? cache.get(key) : readLocalStorageRaw(key);
+		if (raw === null || !isAtRestTagged(raw)) continue;
+		const plaintext = await openAtRestValue(raw);
+		if (plaintext !== null) {
+			cache.set(key, plaintext);
+		}
+	}
 }
 
 /**

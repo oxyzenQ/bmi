@@ -32,12 +32,12 @@ encrypted and signed, and audited by a gatekeeper that mirrors CI
 step-for-step. The engine is the data chain, not the UI — the pager,
 the gauge, and the share cards exist to serve it.
 
-Honest limits, stated plainly: local browser storage (localStorage and
-the IndexedDB backup) is not encrypted at rest — the AES-256-GCM layer
-protects exported files; legacy export checksums (v0-v2) are forgeable
-by design and survive only so old imports keep reading; the product is
-single-user, single-device by construction, with no cloud to sign
-into.
+Honest limits, stated plainly: health values seal at rest only when
+written during a passphrase-verified session — values from sessions that
+never present the passphrase stay plaintext (innovation 25); legacy
+export checksums (v0-v2) are forgeable by design and survive only so old
+imports keep reading; the product is single-user, single-device by
+construction, with no cloud to sign into.
 
 ## The innovations, in dependency order
 
@@ -364,6 +364,48 @@ process memory; masking kills the casual grep-and-strip path, not a
 determined reader, and stripping still requires editing the gate — a
 visible diff — with the AGPL-3.0-only license plus TRADEMARK.md making
 the legal cost real.
+
+**25. The At-Rest Ledger Seal — health values encrypted at rest, not just
+on export (night-frontier-Z1).** Closes the documented honest limit
+("local browser storage is not encrypted at rest") without adding a new
+UI surface: the session unlocks through the passphrase moments that
+already exist, and every later write to a health key seals transparently
+inside `storage.ts`. The engine is `src/lib/utils/at-rest.ts`; the
+synchronous state leaf `at-rest-state.ts` carries the seal tag, the
+health-key scope (exactly `bmi.history`, `bmi.goal`, `bmi.goal.start`,
+pinned by a STORAGE_KEYS drift-guard test), and the mirror sequence
+tokens; `crypto-primitives.ts` is the dependency leaf holding the KDF
+and checksum surface moved verbatim out of `crypto.ts` (which shrank
+below the 600-line ratchet and left the ledger). Semantics, stated
+honestly: sealing is session-gated — the Argon2id session key derives
+from the ledger passphrase against a per-device random salt
+(`__at_rest_salt` in the IndexedDB meta store) and lives in volatile
+memory only while unlocked; registration happens in `enableEncryption()`
+and in verifier-anchored successful decrypts (`verifyPassphrase()`, and a
+bounded five-second fire-and-forget check behind every successful file
+decrypt that can never stall the caller — values written before it
+completes stay plaintext until their next write). Sealed values are
+`bmi-at-rest-v1:` + base64 JSON envelopes with a fresh 12-byte IV per
+value, AES-GCM auth tag plus a SHA-256 ciphertext checksum. The cache
+holds plaintext while unlocked; the localStorage mirror and IndexedDB
+hold envelopes, ordered by the sequence tokens; `createBackup` snapshots
+raw via `storageGetRaw`, so a locked ledger backs up sealed, and a
+restore re-opens it once unlocked. Locked reads return null, and
+`storageSet` refuses to overwrite a sealed value (the purge guard), so a
+locked session can never destroy sealed data; `initStorage` skips sealed
+values in the corruption-repair path; sealing failure falls back to
+plaintext persistence with a dev-only warning. Verification: the
+`at-rest-state.test.ts` leaf battery plus the `crypto-at-rest.test.ts`
+node-env battery (28 integration tests: round-trips, tamper and corrupt
+envelopes, salt persistence, purge guard, mirror ordering, fail-open,
+restore round-trips, zero-change canaries), 555 tests green,
+`svelte-check` clean. Honest limits: a cold load starts locked — sealed
+values read as missing until the passphrase is presented through an
+existing flow; re-enabling under a new passphrase locks seals made under
+the old one (the same decrypt-first physics as the existing envelope);
+coverage is progressive — plaintext values seal on their next write
+during an unlocked session, not retroactively; the session key is a
+volatile `CryptoKey` handle that is released on lock, not zeroed.
 
 ## Retired by verdict
 

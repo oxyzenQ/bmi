@@ -219,6 +219,34 @@ Supported for importing older backups. Not used for new encryptions.
 
 `enableEncryption()` encrypts a known verifier string with the passphrase and stores the ciphertext in IndexedDB. `verifyPassphrase()` decrypts it — a wrong passphrase triggers AES-GCM auth tag mismatch, returning `false`. The passphrase itself is never stored.
 
+### At-Rest Ledger Seal
+
+Health values (`bmi.history`, `bmi.goal`, `bmi.goal.start`) seal at rest —
+not just on export. When an unlocked session is active, `storageSet`
+encrypts the persisted value into a `bmi-at-rest-v1` envelope while the
+in-memory cache keeps plaintext for synchronous reads:
+
+| Property    | Value                                                        |
+| ----------- | ------------------------------------------------------------ |
+| Envelope    | `bmi-at-rest-v1:` + base64 JSON `{ v, iv, data, chk }`       |
+| Cipher      | AES-256-GCM, fresh 12-byte IV per value                      |
+| Session key | Argon2id(passphrase, `__at_rest_salt`), volatile memory only |
+| Integrity   | AES-GCM auth tag + SHA-256 checksum of the ciphertext        |
+| Coverage    | localStorage mirror, IndexedDB truth, and local backups      |
+
+The session unlocks through existing flows only — enabling encryption, a
+`verifyPassphrase` success, or a successful file decrypt whose passphrase
+verifies against the stored verifier (checked behind a bounded
+fire-and-forget race that can never stall a decrypt). A cold load starts
+locked: sealed values read as missing until the passphrase is presented
+again. A locked session can never destroy sealed data — `storageSet`
+refuses to overwrite a sealed value (the purge guard), `initStorage`
+treats sealed envelopes as intact rather than corrupted, backups snapshot
+raw so a locked ledger backs up sealed, and restore re-opens it once
+unlocked. Sealing failure falls back to plaintext persistence (data
+preservation beats encryption coverage). Coverage is progressive:
+plaintext values seal on their next write during an unlocked session.
+
 > [!WARNING]
 > Users _must_ remember their passphrase. By design, there is absolutely no recovery mechanism if a passphrase is lost.
 

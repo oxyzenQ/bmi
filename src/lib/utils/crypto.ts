@@ -19,6 +19,14 @@
  *   - verifyPassphrase() decrypts the stored verifier (not a self-test)
  *   - Wrong passphrase → AES-GCM auth tag mismatch → false
  *
+ * At-rest session unlock (night-frontier-Z1):
+ *   - The low-level primitives live in crypto-primitives.ts (a dependency
+ *     leaf shared with at-rest.ts); this module keeps the envelope stack.
+ *   - enableEncryption() and verifier-anchored successful decrypts register
+ *     the at-rest session key, so later writes to health keys seal at rest.
+ *   - Only a passphrase that verifies against the stored verifier can ever
+ *     register — export-file passphrases that fail verification never do.
+ *
  * Backward compatibility:
  *   - Files encrypted with PBKDF2 (no kdf field) auto-detected and still decryptable
  *   - Non-encrypted files import correctly (auto-detected)
@@ -28,46 +36,34 @@
  */
 
 import { browser } from '$app/environment';
-import { argon2idHashInWorker, isKdfWorkerAvailable } from './kdf-worker-client';
+import {
+	ARGON2_OPTIONS,
+	computeChecksum as computeChecksumB64,
+	verifyChecksum as verifyChecksumB64,
+	deriveKey,
+	deriveKeyArgon2,
+	deriveKeyPBKDF2,
+	fromBase64,
+	randomBytes,
+	toBase64,
+	IV_LENGTH,
+	SALT_LENGTH
+} from './crypto-primitives';
+import { clearAtRestSession, registerAtRestSession } from './at-rest';
+import { isAtRestSessionUnlocked } from './at-rest-state';
 import { dbMetaGet, dbMetaSet, isIndexedDbAvailable } from './db';
-import { STORAGE_KEYS, storageGet, storageRemove, storageSet } from './storage';
+import {
+	STORAGE_KEYS,
+	storageGet,
+	storageRefreshAtRestCache,
+	storageRemove,
+	storageSet
+} from './storage';
 import { warnDev } from './warn-dev';
 
-// ── Constants ──
-const PBKDF2_ITERATIONS = 600_000;
-const SALT_LENGTH = 16; // 128-bit salt
-const IV_LENGTH = 12; // 96-bit IV for AES-GCM
-
-/**
- * Argon2id parameters — tuned for mobile safety.
- * Based on OWASP 2023 recommendations for password hashing.
- *
- * In test mode (`vitest`), uses lightweight params (1 MiB, 1 iteration) so
- * CI crypto tests finish deterministically without timeouts.
- *
- * Production params:
- *   m:  64 MiB memory cost — resistant to GPU attacks
- *   t:  3 iterations — harder for brute force
- *   p:  1 parallelism — single thread for mobile compatibility
- *   dkLen: 32 bytes (256-bit → AES-256 key)
- */
-const IS_TEST = import.meta.env?.MODE === 'test';
-
-const ARGON2_OPTIONS = IS_TEST
-	? { m: 1024, t: 1, p: 1, dkLen: 32 } // lightweight — CI-friendly
-	: {
-			m: 64 * 1024, // 64 MiB memory cost (OWASP 2023)
-			t: 3, // 3 iterations
-			p: 1, // parallelism (single thread for mobile)
-			dkLen: 32 // 256-bit output → AES-256 key
-		};
-
-/**
- * Offload guard for the KDF worker: production browser builds only.
- * Tests (IS_TEST) and non-browser environments stay on the main thread
- * so crypto behavior remains deterministic and byte-identical.
- */
-const CAN_OFFLOAD_KDF = !IS_TEST && browser && typeof Worker !== 'undefined';
+// Public checksum helpers moved to crypto-primitives.ts; re-exported so
+// every existing import path keeps working.
+export { computeChecksum, verifyChecksum } from './crypto-primitives';
 
 const META_ENCRYPTION_KEY = '__encryption_enabled';
 const META_ENCRYPTION_VERIFIER = '__encryption_verifier';
@@ -114,172 +110,6 @@ export interface EncryptedPayload {
 export interface EncryptionStatus {
 	enabled: boolean;
 	hasPassphrase: boolean;
-}
-
-// ── Key management ──
-
-/**
- * Extract a clean ArrayBuffer from a Uint8Array.
- * WebCrypto (both browser and Node.js) sometimes rejects Uint8Array.buffer
- * when the backing store is SharedArrayBuffer or has an offset.
- * Copying into a fresh ArrayBuffer guarantees a valid BufferSource.
- */
-function toAB(src: Uint8Array): ArrayBuffer {
-	const ab = new ArrayBuffer(src.length);
-	new Uint8Array(ab).set(src);
-	return ab;
-}
-
-/** Import a raw Argon2id hash as a non-extractable AES-256-GCM key. */
-async function importAesKey(hashBytes: Uint8Array): Promise<CryptoKey> {
-	return crypto.subtle.importKey('raw', toAB(hashBytes), { name: 'AES-GCM', length: 256 }, false, [
-		'encrypt',
-		'decrypt'
-	]);
-}
-
-/**
- * Derive an AES-256-GCM key from a passphrase + salt using Argon2id.
- * Uses @noble/hashes (pure JS, no WASM, tiny bundle footprint).
- *
- * The 64 MiB x 3 derivation blocks the calling thread for seconds, so
- * in production it is offloaded to a Web Worker (kdf.worker.ts). Any
- * worker failure falls back to the original main-thread path, which
- * produces byte-identical hashes.
- */
-async function deriveKeyArgon2(passphrase: string, salt: Uint8Array): Promise<CryptoKey> {
-	if (CAN_OFFLOAD_KDF && isKdfWorkerAvailable()) {
-		try {
-			const hashBytes = await argon2idHashInWorker(passphrase, salt, ARGON2_OPTIONS);
-			return await importAesKey(hashBytes);
-		} catch (err) {
-			warnDev('crypto', 'deriveKeyArgon2', 'KDF worker failed — deriving on main thread', err);
-		}
-	}
-
-	const { argon2id } = await import('@noble/hashes/argon2.js');
-	const hashBytes = argon2id(new TextEncoder().encode(passphrase), salt, ARGON2_OPTIONS);
-	return importAesKey(hashBytes);
-}
-
-/** Derive an AES-256-GCM key from a passphrase + salt using PBKDF2 (legacy). */
-async function deriveKeyPBKDF2(passphrase: string, salt: Uint8Array): Promise<CryptoKey> {
-	const encoder = new TextEncoder();
-	const keyMaterial = await crypto.subtle.importKey(
-		'raw',
-		toAB(encoder.encode(passphrase)),
-		'PBKDF2',
-		false,
-		['deriveKey']
-	);
-
-	return crypto.subtle.deriveKey(
-		{
-			name: 'PBKDF2',
-			salt: toAB(salt),
-			iterations: PBKDF2_ITERATIONS,
-			hash: 'SHA-256'
-		},
-		keyMaterial,
-		{ name: 'AES-GCM', length: 256 },
-		false,
-		['encrypt', 'decrypt']
-	);
-}
-
-/**
- * Derive a key using the KDF specified in the payload.
- * Falls back to PBKDF2 for legacy payloads (no kdf field).
- */
-async function deriveKey(
-	passphrase: string,
-	salt: Uint8Array,
-	kdf?: 'argon2id' | 'pbkdf2'
-): Promise<CryptoKey> {
-	if (kdf === 'argon2id') {
-		try {
-			return await deriveKeyArgon2(passphrase, salt);
-		} catch (err) {
-			// Argon2 unavailable — fall back to PBKDF2
-			warnDev('crypto', 'deriveKey', 'Argon2id unavailable, falling back to PBKDF2', err);
-			return deriveKeyPBKDF2(passphrase, salt);
-		}
-	}
-	// Default / legacy: PBKDF2
-	return deriveKeyPBKDF2(passphrase, salt);
-}
-
-/** Generate cryptographically random bytes. */
-function randomBytes(length: number): Uint8Array {
-	const bytes = new Uint8Array(length);
-	crypto.getRandomValues(bytes);
-	return bytes;
-}
-
-/** Convert Uint8Array to base64 string. */
-function toBase64(bytes: Uint8Array): string {
-	let binary = '';
-	for (let i = 0; i < bytes.length; i++) {
-		binary += String.fromCharCode(bytes[i]);
-	}
-	return btoa(binary);
-}
-
-/** Convert base64 string to Uint8Array. */
-function fromBase64(base64: string): Uint8Array {
-	const binary = atob(base64);
-	const bytes = new Uint8Array(binary.length);
-	for (let i = 0; i < binary.length; i++) {
-		bytes[i] = binary.charCodeAt(i);
-	}
-	return bytes;
-}
-
-// ── SHA-256 checksum (ciphertext integrity) ──
-
-/**
- * Compute SHA-256 checksum of ciphertext (not plaintext).
- * Stored unencrypted in meta.checksum to detect envelope tampering
- * without leaking plaintext equality fingerprints.
- *
- * Why ciphertext, not plaintext:
- *   - A plaintext checksum would leak equality: two files with the same
- *     content would share the same checksum, even if encrypted differently.
- *   - AES-GCM already provides integrity via its auth tag, so the plaintext
- *     checksum was redundant for correctness. The ciphertext checksum adds
- *     a lightweight pre-decryption sanity check at no extra cost.
- */
-export async function computeChecksum(data: string): Promise<string> {
-	const encoder = new TextEncoder();
-	const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data));
-	return toBase64(new Uint8Array(hashBuffer));
-}
-
-/**
- * Verify ciphertext against stored checksum.
- * Returns true if the data matches, false if tampered.
- */
-export async function verifyChecksum(data: string, checksum: string): Promise<boolean> {
-	const computed = await computeChecksum(data);
-	// Constant-time comparison (Web Crypto has no timingSafeEqual on SubtleCrypto)
-	try {
-		const a = Uint8Array.from(atob(computed), (c) => c.charCodeAt(0));
-		const b = Uint8Array.from(atob(checksum), (c) => c.charCodeAt(0));
-		if (a.length !== b.length) return false;
-		let result = 0;
-		for (let i = 0; i < a.length; i++) {
-			result |= a[i] ^ b[i]; // XOR — accumulates differences without early exit
-		}
-		return result === 0;
-	} catch (err) {
-		warnDev(
-			'crypto',
-			'verifyChecksum',
-			'Checksum comparison failed — possibly corrupted base64',
-			err
-		);
-		return false;
-	}
 }
 
 // ── Passphrase hint (local only) ──
@@ -427,7 +257,7 @@ export async function encrypt(
 	);
 
 	const ciphertextB64 = toBase64(new Uint8Array(ciphertext));
-	const checksum = await computeChecksum(ciphertextB64);
+	const checksum = await computeChecksumB64(ciphertextB64);
 
 	const payload: EncryptedPayload = {
 		format: 'bmi-encrypted-v3',
@@ -460,6 +290,12 @@ export async function encrypt(
  * against stored checksum. Uses ciphertext (not plaintext) to avoid
  * leaking plaintext equality fingerprints. Separate from AES-GCM
  * auth tag — provides a lightweight pre-decryption sanity check.
+ *
+ * At-rest unlock (night-frontier-Z1): a successful decrypt proves
+ * knowledge of the passphrase. Decrypts of the verifier register the
+ * at-rest session directly; file decrypts register only after the
+ * passphrase verifies against the stored verifier, so only the ledger
+ * passphrase can ever unlock the session.
  */
 export async function decrypt(
 	encryptedJson: string,
@@ -518,8 +354,35 @@ export async function decrypt(
 		// Verify ciphertext checksum if present (detects envelope tampering)
 		let integrityOk = true;
 		if (payload.meta?.checksum) {
-			integrityOk = await verifyChecksum(payload.data, payload.meta.checksum);
+			integrityOk = await verifyChecksumB64(payload.data, payload.meta.checksum);
 		}
+
+		// At-rest session unlock — verifier-anchored, never throws into
+		// callers, never blocks them. The unlock is an enhancement layered
+		// on top of the primary flow: it runs fire-and-forget behind a
+		// bounded race so a slow or broken IndexedDB (test stubs, private
+		// modes, pending upgrades) can never stall a decrypt. Values
+		// written before the background unlock completes stay plaintext
+		// until their next write — documented in the ledger.
+		void (async () => {
+			try {
+				if (plaintext === VERIFIER_PLAINTEXT) {
+					await registerAtRestSession(passphrase);
+					await storageRefreshAtRestCache();
+				} else if (!isAtRestSessionUnlocked()) {
+					const verified = await Promise.race([
+						verifyPassphrase(passphrase),
+						new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 5_000))
+					]);
+					if (verified) {
+						await registerAtRestSession(passphrase);
+						await storageRefreshAtRestCache();
+					}
+				}
+			} catch (err) {
+				warnDev('crypto', 'decrypt', 'At-rest unlock check failed (session stays locked)', err);
+			}
+		})();
 
 		return { plaintext, integrityOk };
 	} catch (err) {
@@ -555,6 +418,8 @@ export function isEncrypted(json: string): boolean {
  *   1. Encrypt a known test string (VERIFIER_PLAINTEXT) with the passphrase
  *   2. Store the encrypted verifier in IndexedDB
  *   3. Later, verifyPassphrase() decrypts this stored verifier to validate
+ *   4. Register the at-rest session so health values seal at rest from
+ *      this session onward (registration failure never fails the enable)
  *
  * The passphrase itself is NEVER stored — only the verifier ciphertext.
  * A wrong passphrase will fail AES-GCM authentication (auth tag mismatch).
@@ -567,6 +432,16 @@ export async function enableEncryption(passphrase: string): Promise<boolean> {
 		const verifier = await encrypt(VERIFIER_PLAINTEXT, passphrase);
 		await dbMetaSet(META_ENCRYPTION_VERIFIER, verifier);
 		await dbMetaSet(META_ENCRYPTION_KEY, '1');
+
+		// At-rest session: clear any stale key first so a re-enable with a
+		// new passphrase always re-derives against the new passphrase.
+		clearAtRestSession();
+		try {
+			await registerAtRestSession(passphrase);
+			await storageRefreshAtRestCache();
+		} catch (err) {
+			warnDev('crypto', 'enableEncryption', 'At-rest session registration failed', err);
+		}
 		return true;
 	} catch (err) {
 		warnDev(
@@ -582,11 +457,13 @@ export async function enableEncryption(passphrase: string): Promise<boolean> {
 /**
  * Disable encryption. Clears the verifier so stored passphrase can no longer be validated.
  * Does NOT decrypt existing encrypted data — the user must decrypt first.
+ * Also clears the at-rest session key; sealed values stay sealed and locked.
  */
 export async function disableEncryption(): Promise<void> {
 	if (!browser || !isIndexedDbAvailable()) return;
 	await dbMetaSet(META_ENCRYPTION_KEY, '0');
 	await dbMetaSet(META_ENCRYPTION_VERIFIER, '');
+	clearAtRestSession();
 }
 
 /**
@@ -624,6 +501,7 @@ export async function getEncryptionStatus(): Promise<EncryptionStatus> {
  * version decrypts the VERIFIER stored by enableEncryption().
  *
  * - Correct passphrase → decrypt succeeds → plaintext matches → true
+ *   (and the decrypt path registers the at-rest session)
  * - Wrong passphrase → AES-GCM auth tag mismatch → null → false
  * - No verifier stored → returns false (encryption not enabled)
  */

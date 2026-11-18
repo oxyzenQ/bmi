@@ -52,6 +52,8 @@ Do not delete, rename, or migrate these without a compatibility plan:
 - `STORAGE_KEYS.UNIT_SYSTEM` / `bmi.unitSystem` (localStorage)
 - `STORAGE_KEYS.LOCALE` / `bmi.locale` (localStorage)
 - IndexedDB `meta` store entry `__encryption_verifier` (AES-GCM ciphertext of known verifier plaintext; never the passphrase itself)
+- IndexedDB `meta` store entry `__at_rest_salt` (device-local at-rest salt; not secret, defeats precomputation only)
+- At-rest seal format `bmi-at-rest-v1` (sealed health values behind the same storage keys; readable only with the ledger passphrase)
 - IndexedDB `backups` store (encrypted backup blobs)
 - Encrypted backup format `bmi-encrypted-v3` (legacy `bmi-encrypted-v1` readable)
 - Argon2id and PBKDF2 legacy import support

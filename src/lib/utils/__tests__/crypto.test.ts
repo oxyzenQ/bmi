@@ -378,8 +378,9 @@ describe('enableEncryption + verifyPassphrase (verifier-based)', () => {
 		const result = await enableEncryption('my-secret-passphrase');
 		expect(result).toBe(true);
 
-		// Verify dbMetaSet was called: once for verifier, once for enabled flag
-		expect(mockDbMetaSet).toHaveBeenCalledTimes(2);
+		// Verify dbMetaSet was called: verifier, enabled flag, and the
+		// at-rest salt created by the session registration (night-frontier-Z1)
+		expect(mockDbMetaSet).toHaveBeenCalledTimes(3);
 
 		// Find the call that stored the verifier
 		const verifierCall = mockDbMetaSet.mock.calls.find(

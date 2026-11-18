@@ -81,20 +81,21 @@ Every claim below maps to a mechanism in the source — the deep dive
 lives in [docs/furthermore.md](docs/furthermore.md), the audit trail
 in [docs/AUDIT-2026-11.md](docs/AUDIT-2026-11.md):
 
-| Edge                      | Detail                                                                                                                                                                                                                           |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Local-first ledger**    | Inputs, history, and goals stay in browser storage behind one abstraction (`src/lib/utils/storage.ts`: memory cache → localStorage → IndexedDB). No account, no sync, no server-side health database.                            |
-| **Validated data chain**  | Every BMI record passes one hardened guard (`isValidRecord`): finite numbers, calculator bounds, timestamp sanity — on import, on export, and on every display read. Poisoned or pre-hardening data self-heals on the next save. |
-| **Encrypted backups**     | AES-256-GCM with Argon2id key derivation (OWASP-recommended), SHA-256 integrity checksums, and zero-knowledge passphrase verification. Legacy PBKDF2 imports stay supported.                                                     |
-| **Signed exports**        | Export files carry an HMAC-SHA256 signature with a per-export random salt; re-exporting the same records produces a different signature by design.                                                                               |
-| **Comprehensive metrics** | BMI, category classification, BMI Prime, ideal weight range, TDEE (five activity levels), and Navy + BMI-based body-fat estimation — all computed locally.                                                                       |
-| **Progress tracking**     | Interactive trend sparkline, goal tracking against target weight, and best-BMI snapshot state.                                                                                                                                   |
-| **Premium share cards**   | 1080×1080 Canvas-rendered PNG cards with a premium frame, mini gauge, category scale, and i18n-safe text.                                                                                                                        |
-| **Multilingual**          | English, Indonesian, Japanese, and Chinese with universal unit symbols (kg, cm, lb, in, kcal) across all locales.                                                                                                                |
-| **Offline PWA**           | Installable, service-worker precache, offline app shell, Web Vitals monitoring.                                                                                                                                                  |
-| **Accessibility first**   | Keyboard-visible focus states, ARIA dialog/radiogroup patterns, semantic status regions, `prefers-reduced-motion` support.                                                                                                       |
-| **Performance adaptive**  | Three-tier animation system (high/medium/low), strict touch intent detection, mobile-specific visual simplification.                                                                                                             |
-| **Gatekeeper parity**     | `./scripts/build.sh check-all` mirrors the `ci.yml` workflow step-for-step — the local verdict and the CI verdict are the same verdict.                                                                                          |
+| Edge                      | Detail                                                                                                                                                                                                                                             |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Local-first ledger**    | Inputs, history, and goals stay in browser storage behind one abstraction (`src/lib/utils/storage.ts`: memory cache → localStorage → IndexedDB). No account, no sync, no server-side health database.                                              |
+| **Validated data chain**  | Every BMI record passes one hardened guard (`isValidRecord`): finite numbers, calculator bounds, timestamp sanity — on import, on export, and on every display read. Poisoned or pre-hardening data self-heals on the next save.                   |
+| **Encrypted backups**     | AES-256-GCM with Argon2id key derivation (OWASP-recommended), SHA-256 integrity checksums, and zero-knowledge passphrase verification. Legacy PBKDF2 imports stay supported.                                                                       |
+| **Encrypted at rest**     | Health values written during a passphrase-verified session seal under AES-256-GCM with a volatile Argon2id session key across localStorage, IndexedDB, and local backups — locked sessions read sealed data as missing and can never overwrite it. |
+| **Signed exports**        | Export files carry an HMAC-SHA256 signature with a per-export random salt; re-exporting the same records produces a different signature by design.                                                                                                 |
+| **Comprehensive metrics** | BMI, category classification, BMI Prime, ideal weight range, TDEE (five activity levels), and Navy + BMI-based body-fat estimation — all computed locally.                                                                                         |
+| **Progress tracking**     | Interactive trend sparkline, goal tracking against target weight, and best-BMI snapshot state.                                                                                                                                                     |
+| **Premium share cards**   | 1080×1080 Canvas-rendered PNG cards with a premium frame, mini gauge, category scale, and i18n-safe text.                                                                                                                                          |
+| **Multilingual**          | English, Indonesian, Japanese, and Chinese with universal unit symbols (kg, cm, lb, in, kcal) across all locales.                                                                                                                                  |
+| **Offline PWA**           | Installable, service-worker precache, offline app shell, Web Vitals monitoring.                                                                                                                                                                    |
+| **Accessibility first**   | Keyboard-visible focus states, ARIA dialog/radiogroup patterns, semantic status regions, `prefers-reduced-motion` support.                                                                                                                         |
+| **Performance adaptive**  | Three-tier animation system (high/medium/low), strict touch intent detection, mobile-specific visual simplification.                                                                                                                               |
+| **Gatekeeper parity**     | `./scripts/build.sh check-all` mirrors the `ci.yml` workflow step-for-step — the local verdict and the CI verdict are the same verdict.                                                                                                            |
 
 ### vs typical health calculators
 
@@ -216,6 +217,7 @@ instead of crashing a chart.
 - **AES-256-GCM:** encrypted exports use authenticated encryption with a random 12-byte IV
 - **Argon2id:** OWASP-recommended KDF (64 MiB memory, 3 iterations) — highly resistant to GPU cracking
 - **Zero Knowledge:** passphrases are never stored, cached, or transmitted; verification uses encrypted verifier ciphertext only
+- **Encrypted at rest (session-gated):** health values written during a passphrase-verified session seal under AES-256-GCM with a volatile Argon2id session key; sealed data survives in localStorage, IndexedDB, and backups, and a locked session can never overwrite it
 - **Integrity:** SHA-256 checksums verify backup data against tampering
 - **Legacy support:** PBKDF2 (600,000 iterations, SHA-256) imports remain readable
 - **Input hardening:** import records are bounded by the same limits the calculator enforces; non-finite values are rejected on every path
@@ -228,7 +230,7 @@ See [SECURITY.md](SECURITY.md) for the full policy and the reporting process.
 
 - BMI, TDEE, and body-fat estimates are **screening metrics**, not medical diagnoses
 - History and goals live in browser storage: **clearing site data clears the ledger**; the IndexedDB backup is local resilience, not sync
-- Local backups (IndexedDB) and on-device storage are **not encrypted at rest** — the AES-256-GCM layer protects **exported files** and anything you encrypt yourself
+- On-device storage is encrypted at rest only for values written during a passphrase-verified session (`bmi-at-rest-v1` seal: volatile Argon2id session key, AES-256-GCM, fresh IV per value) across localStorage, IndexedDB, and local backups; values written outside such sessions stay plaintext, a cold load starts locked until the passphrase is presented through an existing flow, and a locked session can never overwrite sealed data
 - The hosted demo may load Vercel Analytics and Speed Insights for aggregate telemetry; health values still never leave the device
 - Update checks contact two public GitHub URLs (the repo's `package.json` and latest commit) — unauthenticated GETs with no payload, no cookies, and no health data, but GitHub sees your IP, user agent, and timing. The automatic check runs at most once every 12 hours per device (a failed or offline attempt is not counted); the manual check in About is immediate
 - Legacy export checksums (v0–v2) are forgeable by design; the v3 HMAC detects accidental corruption and casual tampering, not a determined attacker with the bundle in hand
