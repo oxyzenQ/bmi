@@ -31,3 +31,6 @@ worklog.md
 codex/
 agent/
 other ai/
+
+# Runtime proof harness (pinned browser binary)
+scripts/proof/.chrome/

@@ -407,6 +407,37 @@ coverage is progressive — plaintext values seal on their next write
 during an unlocked session, not retroactively; the session key is a
 volatile `CryptoKey` handle that is released on lock, not zeroed.
 
+**26. The Runtime Proof Harness — a measurement, not a promise
+(night-frontier-Z1).** The last gap between the static gates and the
+truth was runtime behavior: the README said real-device behavior is
+covered by the PWA audit and the runtime probe, "not by a device farm".
+`scripts/proof/` closes it. A zero-dependency CDP client
+(`cdp-client.ts`, Bun's native WebSocket — no automation dependency in
+the tree) drives the production build served by `vite preview` inside a
+pinned, SHA-verified `chrome-headless-shell`
+(`download-chrome.sh` records the ZIP digest at adoption time and
+verifies every install fail-closed, because Chrome for Testing ships no
+per-build checksum). Eight fail-closed claims per run: the exact-value
+matrix through the real UI (metric 22.86 / Normal Weight / Prime 0.91 /
+BMR 1649 / TDEE 2556, the imperial round-trip 22.85, and the Deurenberg
+18.1% card), the runtime egress inventory (every request inside the
+disclosed allowlist, exactly one update-check request pair on a fresh
+device), the storage inventory (exactly the named keys and stores), the
+offline shell contract (the service worker serves the real app with the
+network cut), Web Vitals budgets (LCP and CLS measured on the initial
+load, before harness interactions can enlarge the LCP candidate), and
+zero main-thread long tasks during the Argon2id export derivation (the
+window opens after the strength meter's debounced zxcvbn work settles,
+so the claim measures the derive/encrypt/deliver path). The harness
+exits non-zero if any claim fails; nothing is reported as proven that
+was not measured. It rides its own lane —
+`.github/workflows/runtime-proof.yml` on a weekly schedule and on
+demand — so the ten-minute CI budget law stays intact for per-push CI.
+Verification: three consecutive local PROVEN runs (8/8 claims), the
+measurement records shipping as CI artifacts. Honest limit: the harness
+proves the claims on one pinned browser and one emulated network
+profile per run — it is a reproducible measurement, not a device farm.
+
 ## Retired by verdict
 
 The rejected ideas stay recorded so nobody re-litigates them blind:

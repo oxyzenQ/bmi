@@ -327,17 +327,18 @@ The service worker (`src/service-worker.ts`) is registered as an ES module in pr
 
 GitHub workflows are located in `.github/workflows/`.
 
-| Workflow                | Purpose                                                                                                                                    |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `ci.yml`                | Executes format, audits, type-checking, linting, tests, and the final build — the source of truth mirrored by `scripts/build.sh check-all` |
-| `codeql.yml`            | Performs automated GitHub CodeQL security analysis                                                                                         |
-| `release.yml`           | Publishes GitHub Release with changelog and artifacts                                                                                      |
-| `maintenance.yml`       | Runs the `Maintenance deps weekly` lockfile refresh and direct commit flow                                                                 |
-| `self-heal-actions.yml` | Automatically updates minor/patch GitHub Action versions                                                                                   |
-| `runtime-probe.yml`     | Probes Node/Bun runtime compatibility                                                                                                      |
-| `security-audit.yml`    | Weekly scheduled dependency + policy audit (loc, headers, pwa-offline)                                                                     |
-| `docs-ci.yml`           | Lints documentation files (prettier, yamllint, codespell)                                                                                  |
-| `gate-keepers.yml`      | The wholesale non-code lane: shellcheck, yamllint, actionlint, codespell, permissions, LOC cap, action pins, version surfaces              |
+| Workflow                | Purpose                                                                                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ci.yml`                | Executes format, audits, type-checking, linting, tests, and the final build — the source of truth mirrored by `scripts/build.sh check-all`           |
+| `codeql.yml`            | Performs automated GitHub CodeQL security analysis                                                                                                   |
+| `release.yml`           | Publishes GitHub Release with changelog and artifacts                                                                                                |
+| `maintenance.yml`       | Runs the `Maintenance deps weekly` lockfile refresh and direct commit flow                                                                           |
+| `self-heal-actions.yml` | Automatically updates minor/patch GitHub Action versions                                                                                             |
+| `runtime-probe.yml`     | Probes Node/Bun runtime compatibility                                                                                                                |
+| `runtime-proof.yml`     | Weekly/on-demand runtime proofs: eight fail-closed claims (exact values, egress, storage, offline shell, Vitals, KDF long tasks) in a pinned browser |
+| `security-audit.yml`    | Weekly scheduled dependency + policy audit (loc, headers, pwa-offline)                                                                               |
+| `docs-ci.yml`           | Lints documentation files (prettier, yamllint, codespell)                                                                                            |
+| `gate-keepers.yml`      | The wholesale non-code lane: shellcheck, yamllint, actionlint, codespell, permissions, LOC cap, action pins, version surfaces                        |
 
 ## Release Process
 

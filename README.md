@@ -138,27 +138,28 @@ bun run preview   # serve the production build locally
 
 ## Core Scripts
 
-| Command                                          | Description                                                           |
-| ------------------------------------------------ | --------------------------------------------------------------------- |
-| `bun run dev`                                    | Start local dev server with HMR                                       |
-| `bun run check`                                  | Svelte and TypeScript diagnostics                                     |
-| `bun run lint`                                   | ESLint with Svelte plugin                                             |
-| `bun run test`                                   | Vitest in watch mode                                                  |
-| `bun run test:run`                               | Single test run                                                       |
-| `bun run test:ci`                                | CI-friendly test run (forked, 2 workers)                              |
-| `bun run test:fast`                              | Fast test run (excludes crypto/history-io)                            |
-| `bun run test:crypto`                            | Run only crypto + history-io test suites                              |
-| `bun run build`                                  | Production build                                                      |
-| `bun run preview`                                | Serve the production build locally                                    |
-| `bun run format`                                 | Prettier auto-format                                                  |
-| `bun run format:check`                           | Prettier check (no write)                                             |
-| `bun run verify`                                 | Full local gate: format + 4 audits + check + lint + test:run + build  |
-| `./scripts/build.sh check-all`                   | Gatekeeper mirroring CI (same as `verify` + `audit:deps` + `test:ci`) |
-| `bun run audit:deps`                             | Policy-gated dependency audit (blocking + allowlist-aware)            |
-| `bun run lint:fix`                               | ESLint auto-fix                                                       |
-| `bun run clean`                                  | Remove `.svelte-kit`, `build`, `dist`, `node_modules/.cache`          |
-| `bun run bmi-update-version <version>`           | Sync version across all canonical files                               |
-| `bun run bmi-update-version --dry-run <version>` | Preview a version update without writing                              |
+| Command                                          | Description                                                                                              |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `bun run dev`                                    | Start local dev server with HMR                                                                          |
+| `bun run check`                                  | Svelte and TypeScript diagnostics                                                                        |
+| `bun run lint`                                   | ESLint with Svelte plugin                                                                                |
+| `bun run test`                                   | Vitest in watch mode                                                                                     |
+| `bun run test:run`                               | Single test run                                                                                          |
+| `bun run test:ci`                                | CI-friendly test run (forked, 2 workers)                                                                 |
+| `bun run test:fast`                              | Fast test run (excludes crypto/history-io)                                                               |
+| `bun run test:crypto`                            | Run only crypto + history-io test suites                                                                 |
+| `bun run build`                                  | Production build                                                                                         |
+| `bun run preview`                                | Serve the production build locally                                                                       |
+| `bun run format`                                 | Prettier auto-format                                                                                     |
+| `bun run format:check`                           | Prettier check (no write)                                                                                |
+| `bun run verify`                                 | Full local gate: format + 4 audits + check + lint + test:run + build                                     |
+| `./scripts/build.sh check-all`                   | Gatekeeper mirroring CI (same as `verify` + `audit:deps` + `test:ci`)                                    |
+| `./scripts/proof/run-proof.sh [report]`          | Runtime proof harness: eight fail-closed runtime claims against the production build in a pinned browser |
+| `bun run audit:deps`                             | Policy-gated dependency audit (blocking + allowlist-aware)                                               |
+| `bun run lint:fix`                               | ESLint auto-fix                                                                                          |
+| `bun run clean`                                  | Remove `.svelte-kit`, `build`, `dist`, `node_modules/.cache`                                             |
+| `bun run bmi-update-version <version>`           | Sync version across all canonical files                                                                  |
+| `bun run bmi-update-version --dry-run <version>` | Preview a version update without writing                                                                 |
 
 ## Project Layout
 
@@ -179,7 +180,7 @@ src/
 ├── styles/                  # 18-file modular CSS cascade
 ├── routes/                  # SvelteKit pages (+layout, +page, +error)
 ├── service-worker.ts        # PWA service worker
-scripts/                     # build.sh gatekeeper + gates/ audits + dev/ version tools (zelynic-aligned tree)
+scripts/                     # build.sh gatekeeper + gates/ audits + dev/ version tools + proof/ runtime proofs (zelynic-aligned tree)
 assets/                      # Brand master plate + BLAKE3 signature digests
 docs/                        # Long-form docs (deep dive + frozen audit records)
 .github/workflows/           # CI, docs-ci, gate-keepers, release, security-audit, maintenance, self-heal, runtime-probe, codeql
