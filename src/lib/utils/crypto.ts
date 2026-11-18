@@ -37,7 +37,7 @@
 
 import { browser } from '$app/environment';
 import {
-	ARGON2_OPTIONS,
+	META_ENCRYPTION_VERIFIER,
 	computeChecksum as computeChecksumB64,
 	verifyChecksum as verifyChecksumB64,
 	deriveKey,
@@ -59,6 +59,7 @@ import {
 	storageRemove,
 	storageSet
 } from './storage';
+import { getKdfOptions } from './kdf-ladder';
 import { warnDev } from './warn-dev';
 
 // Public checksum helpers moved to crypto-primitives.ts; re-exported so
@@ -66,7 +67,6 @@ import { warnDev } from './warn-dev';
 export { computeChecksum, verifyChecksum } from './crypto-primitives';
 
 const META_ENCRYPTION_KEY = '__encryption_enabled';
-const META_ENCRYPTION_VERIFIER = '__encryption_verifier';
 // Passphrase hint stored in localStorage (see setPassphraseHint / getPassphraseHint below)
 
 /** Known plaintext encrypted during enableEncryption() for later passphrase verification. */
@@ -233,13 +233,17 @@ export async function encrypt(
 	let kdfParams: EncryptedPayload['kdfParams'];
 
 	try {
-		key = await deriveKeyArgon2(passphrase, salt);
+		// night-frontier-Z4: the device's current ladder rung derives the
+		// key, and the exact parameters ride the envelope — the reader
+		// (any device, any tier) derives with the writer's rung.
+		const options = getKdfOptions();
+		key = await deriveKeyArgon2(passphrase, salt, options);
 		kdfParams = {
 			type: 2,
-			mem: ARGON2_OPTIONS.m,
-			time: ARGON2_OPTIONS.t,
-			parallelism: ARGON2_OPTIONS.p,
-			hashLen: ARGON2_OPTIONS.dkLen
+			mem: options.m,
+			time: options.t,
+			parallelism: options.p,
+			hashLen: options.dkLen
 		};
 	} catch (err) {
 		// Argon2 unavailable — fall back to PBKDF2
@@ -339,7 +343,11 @@ export async function decrypt(
 		const ciphertext = fromBase64(payload.data);
 		const kdf = payload.kdf || 'pbkdf2'; // Default to PBKDF2 for legacy
 
-		const key = await deriveKey(passphrase, salt, kdf);
+		// night-frontier-Z4: the envelope's recorded parameters drive the
+		// derivation (the writer's ladder rung); invalid parameters fail
+		// closed. Absent parameters (pre-ladder files) hit the fixed
+		// legacy defaults inside deriveKey.
+		const key = await deriveKey(passphrase, salt, kdf, payload.kdfParams);
 
 		const plaintextBuf = await crypto.subtle.decrypt(
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any

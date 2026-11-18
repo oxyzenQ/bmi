@@ -25,6 +25,7 @@ import {
 } from './db';
 import { t } from '$lib/i18n';
 import { META_LEDGER_CHAIN } from './ledger-continuity';
+import { mirrorVaultSnapshot, readVaultSnapshot } from './vault-backup';
 import { STORAGE_KEYS, storageGetRaw } from './storage';
 import { warnDev } from './warn-dev';
 import { getAppVersionRaw } from './app-version';
@@ -95,6 +96,16 @@ export async function createBackup(
 			recordCount,
 			data
 		});
+
+		// night-frontier-Z4: the vault tier — the same snapshot mirrors
+		// into OPFS through the flush worker (write, FLUSH, close), the
+		// second durable home. Fire-and-forget: the backup's outcome and
+		// timing never depend on the mirror.
+		void mirrorVaultSnapshot(data)
+			.then((r) => {
+				if (!r.ok) warnDev('backup', 'createBackup', `Vault mirror skipped: ${String(r.reason)}`);
+			})
+			.catch((err) => warnDev('backup', 'createBackup', 'Vault mirror failed', err));
 
 		// Prune oldest backups if we exceed the limit
 		await pruneOldBackups();
@@ -181,9 +192,24 @@ export async function restoreLatestBackup(): Promise<boolean> {
 
 	try {
 		const latest = await dbBackupLatest();
-		if (!latest) return false;
 
-		const snapshot = JSON.parse(latest.data) as Record<string, string | null>;
+		// night-frontier-Z4: the vault tier is the fallback home — when
+		// the IndexedDB rotation is empty or unreadable, the latest
+		// flushed OPFS snapshot still restores. IDB stays primary.
+		let data: string | null = latest?.data ?? null;
+		if (data === null) {
+			data = await readVaultSnapshot();
+			if (data !== null) {
+				warnDev(
+					'backup',
+					'restoreLatestBackup',
+					'IndexedDB rotation empty — restoring from the OPFS vault fallback'
+				);
+			}
+		}
+		if (data === null) return false;
+
+		const snapshot = JSON.parse(data) as Record<string, string | null>;
 
 		// Import dynamically to avoid circular dependency
 		const { storageSet, storageRemove, setRestoreMode } = await import('./storage');

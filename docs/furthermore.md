@@ -201,6 +201,38 @@ suites, so the derived key does not depend on which path ran.
 | Parallelism   | 1                  | 1         |
 | Output length | 32 bytes (AES-256) | 32 bytes  |
 
+### OPFS flush() Vault Tier (night-frontier-Z4)
+
+`durability: 'strict'` is a hint; `FileSystemSyncAccessHandle.flush()`
+is the fsync-shaped primitive. The latest rolling snapshot mirrors into
+the origin's private file system (`vault-backup.json`) through a worker:
+write → `flush()` → `close()`, single-flight, fire-and-forget. The
+IndexedDB rotation stays primary; the vault is the fallback home the
+restore path uses when the rotation is empty or unreadable. The
+storage-inventory law enumerates the OPFS root in the same commit.
+
+| Aspect   | Contract                                                                |
+| -------- | ----------------------------------------------------------------------- |
+| File     | exactly `vault-backup.json` at the OPFS root (P3 asserts the inventory) |
+| Write    | sync access handle in the worker; flush before close, structurally      |
+| Read     | `getFile().text()` on the main thread — no worker needed                |
+| Fallback | restore uses the vault when the IndexedDB rotation is gone              |
+| Degrade  | engines without sync handles: IndexedDB-only vault, honestly reported   |
+
+### Device-Tier Argon2id Ladder (night-frontier-Z4)
+
+The derivation rung scales from the capability engine
+(`getPerformanceTier`): high 64 MiB / t3, medium 32 MiB / t3, low
+19 MiB / t2 — the OWASP floor (m ≥ 19456 KiB, t ≥ 2, p ≥ 1) clamps
+every rung, and read-side caps (1 GiB / t64 / p8) refuse absurd
+parameters fail-closed. The finding that makes it safe: `kdfParams`
+was recorded in envelopes but never used by decrypt — the fixed bundle
+options made it decoration. Decrypt now honors the envelope's rung
+(the writer's), and the at-rest session anchors on the stored
+verifier's rung, so a tier change between sessions never re-derives a
+different key from the sealed ledger. Pre-ladder envelopes decrypt
+with the fixed legacy defaults (64 MiB / t3) they were written with.
+
 ### Ledger Continuity Chain (night-frontier-Z3)
 
 The physics gap the envelope stack leaves open: AES-GCM protects per-value

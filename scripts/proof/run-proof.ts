@@ -48,6 +48,23 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { CdpPage, launchChrome, waitForDebugger } from './cdp-client';
+import {
+	COLLECTOR_SOURCE,
+	FILL_AND_CALC,
+	CLICK_RADIO,
+	READ_RESULTS,
+	READ_LONGTASKS,
+	READ_VITALS,
+	READ_STORAGE,
+	SW_STATE,
+	READ_META,
+	WITNESS_AUDIT,
+	IMPORT_SET_FILE,
+	MODAL_SUBMIT,
+	MODAL_CLOSED,
+	EXPORT_PREVIEW_COUNT,
+	VAULT_AUDIT
+} from './page-sources';
 
 // ── Configuration ──
 const REPO_ROOT = resolve(import.meta.dir, '../..');
@@ -67,6 +84,9 @@ const EGRESS_ALLOWLIST = [
 	'raw.githubusercontent.com',
 	'api.github.com'
 ];
+
+/** The named OPFS surface (night-frontier-Z4, DORMANT.md Data Safety Rules). */
+const ALLOWED_OPFS_FILES = new Set(['vault-backup.json']);
 
 /** The named storage surface (DORMANT.md Data Safety Rules). */
 const ALLOWED_LS_KEYS = new Set([
@@ -105,229 +125,6 @@ async function waitForHttp(url: string, timeoutMs = 30000): Promise<void> {
 	}
 	throw new Error(`Preview server did not answer at ${url}`);
 }
-
-/** Injected before any page script: collect LCP/CLS/longtask evidence. */
-const COLLECTOR_SOURCE = `(() => {
-  window.__bmiProof = { vitals: {}, longTasks: [], lastExportBlobText: null };
-  try {
-    const origCreate = URL.createObjectURL.bind(URL);
-    URL.createObjectURL = (obj) => {
-      try {
-        if (obj instanceof Blob)
-          obj.text().then((t) => {
-            if (t.includes('bmi-encrypted-v3')) window.__bmiProof.lastExportBlobText = t;
-          });
-      } catch (e) {}
-      return origCreate(obj);
-    };
-  } catch (e) {}
-  try {
-    new PerformanceObserver((l) => {
-      const es = l.getEntries();
-      const last = es[es.length - 1];
-      for (const e of es) {
-        if (window.__bmiProof.vitals.firstLcp === undefined) {
-          // First candidate = the paint that carries the initial content.
-          window.__bmiProof.vitals.firstLcp = e.startTime;
-        }
-        window.__bmiProof.vitals.lastLcp = e.startTime;
-        const el = e.element;
-        window.__bmiProof.vitals.lastLcpEl = el
-          ? String(el.className || el.tagName || '').slice(0, 80)
-          : '';
-      }
-    }).observe({ type: 'largest-contentful-paint', buffered: true });
-  } catch (e) {}
-  try {
-    new PerformanceObserver((l) => {
-      for (const e of l.getEntries()) {
-        if (!e.hadRecentInput) window.__bmiProof.vitals.cls = (window.__bmiProof.vitals.cls || 0) + e.value;
-      }
-    }).observe({ type: 'layout-shift', buffered: true });
-  } catch (e) {}
-  try {
-    new PerformanceObserver((l) => {
-      for (const e of l.getEntries()) {
-        window.__bmiProof.longTasks.push({ start: Math.round(e.startTime), dur: Math.round(e.duration) });
-      }
-    }).observe({ type: 'longtask', buffered: true });
-  } catch (e) {}
-})();`;
-
-// ── In-page helpers (evaluated inside the page) ──
-const FILL_AND_CALC = `async ({ age, height, weight }) => {
-  const set = (id, val) => {
-    const el = document.getElementById(id);
-    if (!el) throw new Error('missing input #' + id);
-    el.value = val;
-    el.dispatchEvent(new Event('input', { bubbles: true }));
-  };
-  set('age', String(age));
-  set('height', String(height));
-  set('weight', String(weight));
-  await new Promise((r) => setTimeout(r, 150));
-  const btn = document.querySelector('form button[type="submit"].btn-primary');
-  if (!btn) throw new Error('missing calculate button');
-  btn.click();
-  return true;
-}`;
-
-const CLICK_RADIO = `({ groupAria, index, text }) => {
-  const group = [...document.querySelectorAll('[role="radiogroup"]')].find(
-    (g) => (g.getAttribute('aria-label') || '') === groupAria
-  );
-  if (!group) throw new Error('missing radiogroup: ' + groupAria);
-  const radios = [...group.querySelectorAll('[role="radio"]')];
-  let target = null;
-  if (typeof index === 'number') target = radios[index];
-  if (text) {
-    target = radios.find((r) => (r.textContent || '').trim().toLowerCase().includes(text.toLowerCase()));
-  }
-  if (!target) throw new Error('missing radio in ' + groupAria);
-  target.click();
-  return true;
-}`;
-
-const READ_RESULTS = `() => {
-  const value = document.querySelector('.bmi-value')?.textContent?.trim() ?? '';
-  const category = document.querySelector('.bmi-category')?.textContent?.trim() ?? '';
-  const prime = document.querySelector('.stat-number')?.textContent?.trim() ?? '';
-  return { value, category, prime };
-}`;
-
-const READ_LONGTASKS = `() => window.__bmiProof.longTasks.map((t) => t.dur)`;
-
-const READ_VITALS = `() => window.__bmiProof.vitals`;
-
-const READ_STORAGE = `async () => {
-  const lsKeys = Object.keys(localStorage).sort();
-  const storeNames = await new Promise((resolve) => {
-    const open = indexedDB.open('bmi-calculator');
-    open.onsuccess = () => {
-      const names = [...open.result.objectStoreNames];
-      open.result.close();
-      resolve(names);
-    };
-    open.onerror = () => resolve([]);
-  });
-  return { lsKeys, storeNames: storeNames.sort() };
-}`;
-
-const SW_STATE = `async () => {
-  if (!('serviceWorker' in navigator)) return { supported: false, controlled: false };
-  const reg = await navigator.serviceWorker.getRegistration();
-  return { supported: true, controlled: navigator.serviceWorker.controller !== null };
-}`;
-
-/** In-page IndexedDB meta reader, interpolated into the seal-claim probes. */
-const READ_META = `(key) => new Promise((res) => {
-  const open = indexedDB.open('bmi-calculator');
-  open.onsuccess = () => {
-    const db = open.result;
-    const req = db.transaction('meta', 'readonly').objectStore('meta').get(key);
-    req.onsuccess = () => { db.close(); res(req.result ? req.result.value : null); };
-    req.onerror = () => { db.close(); res(null); };
-  };
-  open.onerror = () => res(null);
-})`;
-
-/**
- * In-page continuity witness audit (night-frontier-Z3): reads the sealed
- * head from the IndexedDB meta store and recomputes the chain over the
- * raw stored history with an independent reference implementation of the
- * construction (genesis seed, canonical fixed-key serialization,
- * ascending stable order).
- */
-const WITNESS_AUDIT = `async () => {
-  const readMeta = ${READ_META};
-  const enc = new TextEncoder();
-  const dig = async (t) => {
-    const b = await crypto.subtle.digest('SHA-256', enc.encode(t).buffer);
-    return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join('');
-  };
-  const raw = localStorage.getItem('bmi.history');
-  let link = await dig('bmi-stellar-ledger-v4-genesis');
-  let n = 0;
-  const sealed = Boolean(raw && raw.startsWith('bmi-at-rest-v1:'));
-  if (raw && !sealed) {
-    const arr = JSON.parse(raw);
-    arr.sort((a, b) => a.timestamp - b.timestamp);
-    for (const r of arr) {
-      const c = JSON.stringify({ timestamp: r.timestamp, bmi: r.bmi, height: r.height, weight: r.weight, age: r.age });
-      link = await dig(link + ':' + c);
-      n++;
-    }
-  }
-  const witnessRaw = await readMeta('__history_chain_head');
-  return {
-    witness: witnessRaw ? JSON.parse(witnessRaw) : null,
-    computed: sealed ? null : { head: link, length: n },
-    rawIsSealed: sealed
-  };
-}`;
-
-/** Feed a file through the real import input (the standard upload route). */
-const IMPORT_SET_FILE = `async (content) => {
-  const input = document.querySelector('input[type="file"]');
-  if (!input) throw new Error('missing import file input');
-  const file = new File([content], 'proof-import.json', { type: 'application/json' });
-  const dt = new DataTransfer();
-  dt.items.add(file);
-  input.files = dt.files;
-  input.dispatchEvent(new Event('change', { bubbles: true }));
-  return true;
-}`;
-
-/** Wait for the encryption modal, fill every password field, submit. */
-const MODAL_SUBMIT = `async ({ passphrase }) => {
-  const deadline = Date.now() + 8000;
-  let dialog = null;
-  while (Date.now() < deadline) {
-    dialog = [...document.querySelectorAll('[role="dialog"]')].find((d) => d.querySelector('form'));
-    if (dialog && dialog.querySelectorAll('input[type="password"]').length >= 1) break;
-    await new Promise((r) => setTimeout(r, 300));
-    dialog = null;
-  }
-  if (!dialog) throw new Error('encryption modal never opened');
-  for (const input of dialog.querySelectorAll('input[type="password"]')) {
-    input.value = passphrase;
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-  }
-  // Let the debounced strength meter settle before the derivation window.
-  await new Promise((r) => setTimeout(r, 700));
-  dialog.querySelector('form').requestSubmit();
-  return true;
-}`;
-
-const MODAL_CLOSED = `() => !document.querySelector('[role="dialog"] form')`;
-
-/** Open the export modal and read the record-count preview row. */
-const EXPORT_PREVIEW_COUNT = `async () => {
-  const btn = [...document.querySelectorAll('button')].find(
-    (b) => (b.getAttribute('aria-label') || '') === 'Export BMI history'
-  );
-  if (!btn) throw new Error('missing export button');
-  btn.click();
-  const deadline = Date.now() + 8000;
-  let val = null;
-  while (Date.now() < deadline) {
-    const dialog = [...document.querySelectorAll('[role="dialog"]')].find((d) => d.querySelector('form'));
-    const row = dialog ? dialog.querySelector('.bmi-export-summary__val') : null;
-    if (row) { val = (row.textContent || '').trim(); break; }
-    await new Promise((r) => setTimeout(r, 300));
-  }
-  const cancel = [...(document.querySelectorAll('[role="dialog"] .btn-cancel') || [])][0];
-  if (cancel) cancel.click();
-  // The next probe must not mistake this closing modal for its own
-  // target: wait until no modal form remains before returning.
-  const deadlineClose = Date.now() + 5000;
-  while (Date.now() < deadlineClose) {
-    if (!document.querySelector('[role="dialog"] form')) break;
-    await new Promise((r) => setTimeout(r, 200));
-  }
-  if (val === null) throw new Error('export summary record count never rendered');
-  return val;
-}`;
 
 /** Wait until any BMI readout on the page settles on the expected value. */
 async function waitForBmiValue(page: CdpPage, expected: string, timeoutMs = 8000): Promise<void> {
@@ -578,7 +375,11 @@ async function main(): Promise<number> {
 
 		// ── P3: storage inventory ──
 		await prove('P3 storage inventory: exactly the named keys and stores', async () => {
-			const inv = await page!.evaluate<{ lsKeys: string[]; storeNames: string[] }>(READ_STORAGE);
+			const inv = await page!.evaluate<{
+				lsKeys: string[];
+				storeNames: string[];
+				opfsFiles: string[] | null;
+			}>(READ_STORAGE);
 			const unknownKeys = inv.lsKeys.filter((k) => !ALLOWED_LS_KEYS.has(k));
 			expect(unknownKeys.length === 0, `unknown localStorage keys: ${unknownKeys.join(', ')}`);
 			const unknownStores = inv.storeNames.filter((s) => !ALLOWED_IDB_STORES.has(s));
@@ -586,7 +387,11 @@ async function main(): Promise<number> {
 			for (const store of ['keyvalue', 'backups', 'meta']) {
 				expect(inv.storeNames.includes(store), `missing IndexedDB store: ${store}`);
 			}
-			return `ls=[${inv.lsKeys.join(', ')}] idb=[${inv.storeNames.join(', ')}]`;
+			expect(inv.opfsFiles !== null, 'OPFS unreadable in the proof browser');
+			const unknownOpfs = inv.opfsFiles!.filter((f) => !ALLOWED_OPFS_FILES.has(f));
+			expect(unknownOpfs.length === 0, `unknown OPFS files: ${unknownOpfs.join(', ')}`);
+			expect(inv.opfsFiles!.includes('vault-backup.json'), 'the vault file is missing from OPFS');
+			return `ls=[${inv.lsKeys.join(', ')}] idb=[${inv.storeNames.join(', ')}] opfs=[${inv.opfsFiles!.join(', ')}]`;
 		});
 
 		// ── P10: continuity witness rides real saves (night-frontier-Z3) ──
@@ -608,6 +413,31 @@ async function main(): Promise<number> {
 					`witness covers only ${String(audit.computed.length)} records`
 				);
 				return `witness covers ${String(audit.computed.length)} records, head matches the recomputed chain`;
+			}
+		);
+
+		// ── P12: the OPFS flush() vault tier (night-frontier-Z4) ──
+		await prove(
+			'P12 vault tier: the OPFS vault file is flush-written and byte-equivalent to the latest IndexedDB backup',
+			async () => {
+				const audit = await page!.evaluate<{
+					opfs: { files: string[]; bytes: number; text: string } | null;
+					idbLatest: { utf8: number; ts: number } | null;
+				}>(VAULT_AUDIT);
+				expect(audit.opfs !== null, 'OPFS unreadable in the proof browser');
+				expect(
+					audit.opfs!.files.length === 1 && audit.opfs!.files[0] === 'vault-backup.json',
+					`OPFS root holds ${JSON.stringify(audit.opfs!.files)}, not exactly the vault file`
+				);
+				expect(audit.opfs!.bytes > 0, 'the vault file is empty');
+				const snapshot = JSON.parse(audit.opfs!.text) as Record<string, unknown>;
+				expect('bmi.history' in snapshot, 'the vault snapshot does not carry the history key');
+				expect(audit.idbLatest !== null, 'no IndexedDB backup exists to compare against');
+				expect(
+					audit.opfs!.bytes === audit.idbLatest!.utf8,
+					`vault bytes ${String(audit.opfs!.bytes)} != latest IDB snapshot bytes ${String(audit.idbLatest!.utf8)}`
+				);
+				return `vault=${String(audit.opfs!.bytes)}B matches the latest IDB snapshot (flush path live)`;
 			}
 		);
 
@@ -761,6 +591,43 @@ async function main(): Promise<number> {
 				);
 				expect(plaintextLeak === null, 'plaintext health data found in raw storage');
 				return 'verifier established, session registered, ledger write sealed (bmi-at-rest-v1)';
+			}
+		);
+
+		// ── P13: the device-tier KDF ladder (night-frontier-Z4) ──
+		await prove(
+			'P13 kdf ladder: production envelopes carry device-tier argon2id parameters at or above the OWASP floor',
+			async () => {
+				const text = await page!.evaluate<string | null>(
+					`() => window.__bmiProof.lastExportBlobText`
+				);
+				expect(text !== null, 'no captured envelope to inspect');
+				const outer = JSON.parse(text!) as {
+					kdf?: string;
+					kdfParams?: {
+						type: number;
+						mem: number;
+						time: number;
+						parallelism: number;
+						hashLen: number;
+					};
+				};
+				expect(outer.kdf === 'argon2id', 'the production envelope did not use argon2id');
+				expect(outer.kdfParams !== undefined, 'the envelope carries no kdf parameters');
+				const p = outer.kdfParams!;
+				expect(
+					p.type === 2 && p.hashLen === 32,
+					`wrong kdf type or hash length: ${JSON.stringify(p)}`
+				);
+				expect(
+					p.mem >= 19456 && p.time >= 2 && p.parallelism >= 1,
+					`below the OWASP floor: ${JSON.stringify(p)}`
+				);
+				expect(
+					[65536, 32768, 19456].includes(p.mem),
+					`mem ${String(p.mem)} KiB is not a ladder rung`
+				);
+				return `envelope rung: m=${String(p.mem)} KiB, t=${String(p.time)}, p=${String(p.parallelism)} (this device's tier)`;
 			}
 		);
 

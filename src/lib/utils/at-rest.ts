@@ -45,8 +45,15 @@ import {
 	toBase64,
 	verifyChecksum,
 	IV_LENGTH,
-	SALT_LENGTH
+	SALT_LENGTH,
+	META_ENCRYPTION_VERIFIER
 } from './crypto-primitives';
+import {
+	envelopeParamsToOptions,
+	LEGACY_KDF_OPTIONS,
+	validateEnvelopeKdfParams
+} from './kdf-ladder';
+import type { Argon2Options } from './kdf-worker-client';
 import {
 	AT_REST_TAG,
 	clearAtRestSessionKey,
@@ -96,13 +103,40 @@ async function getOrCreateSalt(): Promise<Uint8Array> {
  * KDF worker in production) and installs it in the volatile slot.
  * Throws on derivation failure — callers decide the fallback.
  */
+/**
+ * The derivation rung the stored verifier records (night-frontier-Z4).
+ * The session key must be tier-stable: a device that changes tier
+ * between sessions must re-derive the SAME key from the sealed ledger,
+ * so the rung comes from the verifier envelope, never from the current
+ * ladder. No verifier (never enabled, pre-ladder) → the fixed legacy
+ * defaults those devices derived with.
+ */
+async function readVerifierKdfOptions(): Promise<Argon2Options> {
+	try {
+		const stored = await dbMetaGet(META_ENCRYPTION_VERIFIER);
+		if (!stored) return LEGACY_KDF_OPTIONS;
+		const payload = JSON.parse(stored) as { kdfParams?: unknown };
+		if (!validateEnvelopeKdfParams(payload.kdfParams)) return LEGACY_KDF_OPTIONS;
+		return envelopeParamsToOptions(payload.kdfParams);
+	} catch (err) {
+		warnDev(
+			'at-rest',
+			'readVerifierKdfOptions',
+			'Verifier rung read failed — legacy defaults',
+			err
+		);
+		return LEGACY_KDF_OPTIONS;
+	}
+}
+
 export async function registerAtRestSession(passphrase: string): Promise<void> {
-	// The session key is deterministic (passphrase + device salt), so an
-	// already-unlocked session never re-derives. enableEncryption() clears
-	// the slot first, so a re-enable with a new passphrase always derives.
+	// The session key is deterministic (passphrase + device salt + the
+	// verifier's recorded rung), so an already-unlocked session never
+	// re-derives. enableEncryption() clears the slot first, so a
+	// re-enable with a new passphrase always derives.
 	if (isAtRestSessionUnlocked()) return;
 	const salt = await getOrCreateSalt();
-	const key = await deriveKeyArgon2(passphrase, salt);
+	const key = await deriveKeyArgon2(passphrase, salt, await readVerifierKdfOptions());
 	setAtRestSessionKey(key);
 }
 

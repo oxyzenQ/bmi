@@ -91,22 +91,27 @@ published values, that BMI stays finite and deterministic for
 extreme-but-valid inputs at every boundary of `INPUT_LIMITS`, and that
 BMR/TDEE produce exact scientific values across the full age span.
 
-**4. The Rolling Auto-Backup Vault — three snapshots deep.**
+**4. The Rolling Auto-Backup Vault — three snapshots deep, plus the
+flush() tier (night-frontier-Z4).**
 `src/lib/utils/backup.ts` keeps the last three rolling backups in
 IndexedDB, triggered on data change and before any import overwrite
 (the oldest auto-deletes on each new backup). Every snapshot carries
 its timestamp, the app version, and the record count; `getBackupStatus()`
 drives the "last backup" indicator. Restore writes raw by design —
 safe because every read path validates (innovation 2), so a per-key
-schema guard would duplicate the chain's one guard.
+schema guard would duplicate the chain's one guard. The vault tier
+(innovation 30) is the second durable home for the latest snapshot.
 
-**5. The Encrypted Envelope — `bmi-encrypted-v3`.**
+**5. The Encrypted Envelope — `bmi-encrypted-v3`, now tier-aware.**
 `src/lib/utils/crypto.ts`: AES-256-GCM authenticated encryption, a
 random 12-byte IV per encryption, a 16-byte salt, and Argon2id key
-derivation (64 MiB memory, 3 iterations, parallelism 1 — the OWASP
-2023 recommendation) through the Rust wasm engine (innovation 28),
-with the pure-JS `@noble/hashes/argon2.js` engine as the fallback —
-both pinned byte-identical. Integrity rides the AES-GCM auth tag plus a SHA-256
+derivation through the Rust wasm engine (innovation 28), with the
+pure-JS `@noble/hashes/argon2.js` engine as the fallback — both pinned
+byte-identical. Since night-frontier-Z4 the derivation rung comes from
+the device-tier ladder (innovation 31) and RIDES THE ENVELOPE: the
+`kdfParams` field stopped being decoration and drives decryption, so a
+vault sealed at any rung opens on any device. Integrity rides the AES-GCM
+auth tag plus a SHA-256
 ciphertext checksum in `meta.checksum`. KDF auto-detection reads the
 `kdf` field: `'argon2id'` for current files, absent for legacy PBKDF2
 (600,000 iterations) imports. Legacy `bmi-encrypted-v1` envelopes stay
@@ -429,7 +434,7 @@ the tree) drives the production build served by `vite preview` inside a
 pinned, SHA-verified `chrome-headless-shell`
 (`download-chrome.sh` records the ZIP digest at adoption time and
 verifies every install fail-closed, because Chrome for Testing ships no
-per-build checksum). Thirteen fail-closed claims per run: the exact-value
+per-build checksum). Fifteen fail-closed claims per run: the exact-value
 matrix through the real UI (metric 22.86 / Normal Weight / Prime 0.91 /
 BMR 1649 / TDEE 2556, the imperial round-trip 22.85, and the Deurenberg
 18.1% card), the runtime egress inventory (every request inside the
@@ -449,12 +454,20 @@ preview reads 0 records while locked, the unlock restores
 readability), the continuity witness riding real saves with the head
 matching an independent in-page recomputation, and the witness freeze
 (a device tamper leaves the witness untouched while the recomputed
-chain diverges). The harness exits non-zero if any claim fails; nothing is reported as proven that
+chain diverges), plus the night-frontier-Z4 two: the OPFS vault tier
+(the vault file exists in the origin's private file system, written
+through the sync-access-handle flush worker, and is byte-equivalent to
+the latest IndexedDB snapshot — the storage-inventory law moved in the
+same commit and now enumerates the OPFS root) and the KDF ladder (the
+production envelope carries the device's actual argon2id rung at or
+above the OWASP floor). The harness exits non-zero if any claim fails; nothing is reported as proven that
 was not measured. It rides its own lane —
 `.github/workflows/runtime-proof.yml` on a weekly schedule and on
 demand — so the ten-minute CI budget law stays intact for per-push CI.
-Verification: two consecutive local PROVEN runs (13/13 claims) after
-night-frontier-Z3, the measurement records shipping as CI artifacts. Honest limit: the harness
+Verification: PROVEN 15/15 runs after night-frontier-Z4 (the page-side
+probe sources moved to `scripts/proof/page-sources.ts` to stay under
+the 1000-line hard cap as the claim set grew), the measurement records
+shipping as CI artifacts. Honest limit: the harness
 proves the claims on one pinned browser and one emulated network
 profile per run — it is a reproducible measurement, not a device farm.
 
@@ -578,6 +591,68 @@ stay visible through the stable sort; a failed seal degrades the
 witness to unanchored (never a stale false accusation); the audit
 result surfaces through the harness claims and the test batteries — a
 user-facing continuity banner is the named next step.
+
+**30. The OPFS flush() Vault Tier — a second durable home with a real
+fsync (night-frontier-Z4).** `durability: 'strict'` on IndexedDB
+commits is a hint the user agent may ignore — Chrome 121 quietly
+relaxed the implicit default — while
+`FileSystemSyncAccessHandle.flush()` is the fsync-shaped primitive the
+platform actually offers: it blocks until the bytes reach the storage
+backend. `vault-opfs.ts` holds the primitive (truncate, write, FLUSH,
+close — the ordering is structural and testable against a handle spy),
+`vault.worker.ts` is the worker shim (the sync handle is
+worker-only), and `vault-backup.ts` mirrors every rolling snapshot
+into the origin's private file system — single-flight, fire-and-forget,
+never failing the backup that produced it. The vault holds exactly the
+latest snapshot as the fallback home: when the IndexedDB rotation is
+empty or unreadable, the restore path falls back to the flushed copy
+(allowlist still enforced). The storage-inventory law moved in the same
+commit: the P3 runtime claim now enumerates the OPFS root
+(`vault-backup.json` and nothing else) beside the localStorage keys
+and the IndexedDB stores. Verification: the `vault-opfs.test.ts`
+battery (flush ordering, byte counts incl. multibyte UTF-8,
+close-on-failure, overwrite after truncate, honest nulls, the
+no-worker degrade) and the `backup-vault.test.ts` integration battery
+(exact-byte mirroring, fire-and-forget, the vault fallback restore
+with the witness, the allowlist), plus the live P3 and P12 claims.
+Honest limits: sync access handles are Chromium-only — engines without
+them degrade to the IndexedDB-only vault, reported honestly by the
+status; the vault holds the latest snapshot, not a rotation; flush()
+proving end-to-end fsync semantics is beyond what software can
+observe — what is proven is that the call returned and the bytes read
+back byte-identical.
+
+**31. The Device-Tier Argon2id Ladder — adaptive cost, fixed floor
+(night-frontier-Z4).** One fixed derivation cost taxes the extremes:
+64 MiB / 3 iterations is seconds of burn on a low-end phone and
+milliseconds on a desktop. `kdf-ladder.ts` scales the rung from the
+capability engine that already exists (getPerformanceTier:
+hardwareConcurrency + deviceMemory + connection): high 64 MiB / t3,
+medium 32 MiB / t3, low 19 MiB / t2 — with the OWASP Argon2id floor
+(m ≥ 19456 KiB, t ≥ 2, p ≥ 1) clamped under every rung, and read-side
+caps (1 GiB / t64 / p8) that refuse absurd parameters fail-closed.
+The discovery that makes tier variance safe: the envelope's
+`kdfParams` field had always been RECORDED but never USED — decrypt
+derived with the bundle's fixed options, making the recorded rung
+decoration. Night-frontier-Z4 makes decrypt HONOR the envelope's
+parameters (the writer's rung — the cross-device contract: a vault
+sealed at any rung opens on any device), and the at-rest session
+anchors its derivation on the stored verifier's recorded rung, so a
+tier change between sessions never re-derives a different key from
+the sealed ledger. Verification: the `kdf-ladder.test.ts` battery
+(the floor under every tier, the exact rung mapping, cross-rung
+decrypts in both directions, the legacy no-parameters contract via
+the fixed legacy defaults, eleven tampered-parameter refusals, the
+identity probe, the tier-stability integration), plus the live P13
+claim (the production envelope's rung at or above the floor, pinned
+to a real ladder value). Honest limits: the tier is a heuristic
+(self-reported hardware signals); below-floor parameters can still be
+READ within the caps — the floor governs what this app produces, not
+what it refuses to open, because the passphrase is the gate;
+test-mode parameters stay CI-friendly and below the floor by design,
+excluded from every production path; prior art exists in password
+managers — the novelty here is the envelope-driven cross-device
+contract and the verifier-anchored session stability.
 
 ## Retired by verdict
 

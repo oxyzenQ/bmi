@@ -2,19 +2,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // @vitest-environment node
 //
-// This test file requires the node environment for native crypto.subtle.
-// jsdom's crypto.subtle is non-functional in Bun 1.3.11 CI runners.
+// Node environment: jsdom's crypto.subtle is non-functional in the
+// Bun CI runners, native subtle is needed here.
 //
-// Supermassive verification battery for the at-rest ledger seal
-// (night-frontier-Z1): seal/open round-trips, session lifecycle, salt
-// persistence, storage integration (sealed persistence layers, locked
-// reads, the purge guard, mirror ordering, fail-open sealing), the
-// crypto unlock hooks, backup/restore round-trips, and canaries that
-// pin zero behavior change for sessions that never register.
-//
-// Determinism note: the sealing write path is asynchronous, so every
-// test waits for the terminal persisted state through vi.waitFor
-// (awaitSealed / awaitPlain) instead of racing the write queue.
+// The at-rest ledger seal battery (night-frontier-Z1): round-trips,
+// session lifecycle, salt persistence, storage integration (sealed
+// layers, locked reads, purge guard, mirror ordering, fail-open),
+// unlock hooks, backup/restore, zero-change canaries. Determinism:
+// every test waits for terminal state via vi.waitFor, never racing
+// the write queue.
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -58,8 +54,7 @@ vi.mock('../db', () => ({
 	dbBackupDelete: vi.fn(async () => {})
 }));
 
-// The app version reader touches package metadata; pin it for the
-// backup snapshot tests.
+// The app version reader touches package metadata; pin it for backups.
 vi.mock('../app-version', () => ({
 	getAppVersionRaw: () => '80.0.7'
 }));
@@ -256,19 +251,25 @@ describe('seal and open round-trips', () => {
 		await expect(openAtRestValue('no tag at all')).resolves.toBeNull();
 	});
 
-	it('creates the at-rest salt once and reuses it across registrations', async () => {
-		await registerAtRestSession(PW);
-		const saltA = dbState.meta.get(META_AT_REST_SALT);
-		expect(saltA).toBeTruthy();
-		clearAtRestSession();
-		await registerAtRestSession(PW);
-		expect(dbState.meta.get(META_AT_REST_SALT)).toBe(saltA);
-		// Same passphrase + same salt → same session key → old seals open.
-		const sealed = await sealAtRestValue('deterministic key');
-		clearAtRestSession();
-		await registerAtRestSession(PW);
-		await expect(openAtRestValue(sealed)).resolves.toBe('deterministic key');
-	});
+	// Runs beside the ladder battery's production-rung derives; the
+	// default 10 s budget starves under that load on shared runners.
+	it(
+		'creates the at-rest salt once and reuses it across registrations',
+		{ timeout: 20_000 },
+		async () => {
+			await registerAtRestSession(PW);
+			const saltA = dbState.meta.get(META_AT_REST_SALT);
+			expect(saltA).toBeTruthy();
+			clearAtRestSession();
+			await registerAtRestSession(PW);
+			expect(dbState.meta.get(META_AT_REST_SALT)).toBe(saltA);
+			// Same passphrase + same salt → same session key → old seals open.
+			const sealed = await sealAtRestValue('deterministic key');
+			clearAtRestSession();
+			await registerAtRestSession(PW);
+			await expect(openAtRestValue(sealed)).resolves.toBe('deterministic key');
+		}
+	);
 });
 
 describe('storage integration — sealed persistence layers', () => {

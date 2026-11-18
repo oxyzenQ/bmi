@@ -10,6 +10,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Released]
 
+v80.2.0
 v80.1.0
 v80.0.7
 v80.0.6
@@ -21,6 +22,18 @@ v80.0.1
 v80.0.0
 v80.0.0-night.2
 v80.0.0-night.1
+
+## [80.2.0]
+
+### Added
+
+- **The OPFS flush() vault tier (B1, night-frontier-Z4).** `durability: 'strict'` is a hint; `FileSystemSyncAccessHandle.flush()` is the fsync-shaped primitive. The latest rolling backup snapshot now mirrors into the origin's private file system (`vault-backup.json`) through a worker — truncate, write, flush, close, single-flight, fire-and-forget — as the second durable home behind the IndexedDB rotation. When the rotation is empty or unreadable, the restore path falls back to the flushed copy, allowlist still enforced. The storage-inventory law moved in the same commit: the P3 runtime claim now enumerates the OPFS root beside the localStorage keys and the IndexedDB stores.
+
+- **The Device-Tier Argon2id Ladder (B2, night-frontier-Z4).** The derivation rung adapts to the device through the existing capability engine — high 64 MiB / t3, medium 32 MiB / t3, low 19 MiB / t2 — with the OWASP Argon2id floor clamped under every rung and read-side caps refusing absurd parameters fail-closed. The finding that makes tier variance safe: the envelope's `kdfParams` was always recorded but never used — decrypt now honors the envelope's recorded rung (a vault sealed on a low-end phone opens on a desktop and vice versa), and the at-rest session anchors on the stored verifier's rung so a tier change between sessions never re-derives a different key from the sealed ledger. Pre-ladder envelopes decrypt with the fixed legacy defaults they were written with.
+
+### Security
+
+- Runtime proof harness extended from 13 to 15 fail-closed claims: the OPFS vault tier (the flushed file byte-equivalent to the latest IndexedDB snapshot) and the KDF ladder (the production envelope's rung at or above the OWASP floor, pinned to a real ladder value). Two consecutive local runs PROVEN 15/15 on the production build in the pinned browser.
 
 ## [80.1.0]
 

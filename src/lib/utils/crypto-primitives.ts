@@ -14,7 +14,16 @@
  */
 
 import { browser } from '$app/environment';
-import { argon2idHashInWorker, isKdfWorkerAvailable } from './kdf-worker-client';
+import {
+	argon2idHashInWorker,
+	isKdfWorkerAvailable,
+	type Argon2Options
+} from './kdf-worker-client';
+import {
+	envelopeParamsToOptions,
+	LEGACY_KDF_OPTIONS,
+	validateEnvelopeKdfParams
+} from './kdf-ladder';
 import { warnDev } from './warn-dev';
 
 // ── Constants ──
@@ -37,16 +46,14 @@ export const IV_LENGTH = 12; // 96-bit IV for AES-GCM
  */
 const IS_TEST = import.meta.env?.MODE === 'test';
 
-const ARGON2_OPTIONS = IS_TEST
-	? { m: 1024, t: 1, p: 1, dkLen: 32 } // lightweight — CI-friendly
-	: {
-			m: 64 * 1024, // 64 MiB memory cost (OWASP 2023)
-			t: 3, // 3 iterations
-			p: 1, // parallelism (single thread for mobile)
-			dkLen: 32 // 256-bit output → AES-256 key
-		};
+/** IndexedDB meta key holding the AES-GCM verifier envelope. */
+export const META_ENCRYPTION_VERIFIER = '__encryption_verifier';
 
-export { IS_TEST, ARGON2_OPTIONS };
+// The derivation parameters live in the device-tier ladder
+// (kdf-ladder.ts, night-frontier-Z4): the encrypt path takes the
+// device's current rung, the decrypt path takes the envelope's recorded
+// rung, and the fixed pre-ladder defaults cover legacy envelopes.
+export { IS_TEST };
 
 /**
  * Offload guard for the KDF worker: production browser builds only.
@@ -100,10 +107,24 @@ export async function importAesKey(hashBytes: Uint8Array): Promise<CryptoKey> {
  * known-answer and cross-check suites, so the derived key does not
  * depend on which path ran.
  */
-export async function deriveKeyArgon2(passphrase: string, salt: Uint8Array): Promise<CryptoKey> {
+/**
+ * Derive an AES-256-GCM key with Argon2id. The parameters come from the
+ * caller: the encrypt path passes the device ladder's current rung
+ * (night-frontier-Z4), the decrypt path passes the envelope's recorded
+ * parameters (the writer's rung — the cross-device contract), and the
+ * at-rest session passes the stored verifier's rung (tier-stable across
+ * sessions). No explicit options means the fixed legacy defaults — the
+ * parameters every pre-ladder envelope was written with.
+ */
+export async function deriveKeyArgon2(
+	passphrase: string,
+	salt: Uint8Array,
+	options?: Argon2Options
+): Promise<CryptoKey> {
+	const params = options ?? LEGACY_KDF_OPTIONS;
 	if (CAN_OFFLOAD_KDF && isKdfWorkerAvailable()) {
 		try {
-			const hashBytes = await argon2idHashInWorker(passphrase, salt, ARGON2_OPTIONS);
+			const hashBytes = await argon2idHashInWorker(passphrase, salt, params);
 			return await importAesKey(hashBytes);
 		} catch (err) {
 			warnDev('crypto', 'deriveKeyArgon2', 'KDF worker failed — deriving on main thread', err);
@@ -111,7 +132,7 @@ export async function deriveKeyArgon2(passphrase: string, salt: Uint8Array): Pro
 	}
 
 	const { argon2id } = await import('@noble/hashes/argon2.js');
-	const hashBytes = argon2id(new TextEncoder().encode(passphrase), salt, ARGON2_OPTIONS);
+	const hashBytes = argon2id(new TextEncoder().encode(passphrase), salt, params);
 	return importAesKey(hashBytes);
 }
 
@@ -142,14 +163,29 @@ export async function deriveKeyPBKDF2(passphrase: string, salt: Uint8Array): Pro
 
 /**
  * Derive a key using the KDF specified in the payload.
- * Falls back to PBKDF2 for legacy payloads (no kdf field).
+ * Falls back to PBKDF2 for legacy payloads (no kdf field). For
+ * argon2id payloads the envelope's recorded parameters drive the
+ * derivation when present (night-frontier-Z4) and the fixed legacy
+ * defaults cover pre-ladder files; invalid parameters fail closed.
  */
 export async function deriveKey(
 	passphrase: string,
 	salt: Uint8Array,
-	kdf?: 'argon2id' | 'pbkdf2'
+	kdf?: 'argon2id' | 'pbkdf2',
+	kdfParams?: unknown
 ): Promise<CryptoKey> {
 	if (kdf === 'argon2id') {
+		if (kdfParams !== undefined) {
+			if (!validateEnvelopeKdfParams(kdfParams)) {
+				warnDev(
+					'crypto-primitives',
+					'deriveKey',
+					'Envelope kdfParams failed validation — refusing to derive'
+				);
+				throw new Error('invalid kdf params in envelope');
+			}
+			return deriveKeyArgon2(passphrase, salt, envelopeParamsToOptions(kdfParams));
+		}
 		try {
 			return await deriveKeyArgon2(passphrase, salt);
 		} catch (err) {
