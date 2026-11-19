@@ -1,0 +1,172 @@
+// Copyright (C) 2026 rezky_nightky
+// SPDX-License-Identifier: AGPL-3.0-only
+/**
+ * The shell integrity gate (night-frontier-Z7, B3 - the
+ * cache-integrity-gated shell).
+ *
+ * The service worker precaches the app shell and its build assets into
+ * a versioned Cache Storage bucket, and serves them offline forever.
+ * Cache Storage is same-origin state an out-of-band writer can reach
+ * (device access, hostile extensions, a corrupted disk): a poisoned
+ * precache entry survives every reload until the cache version turns
+ * over. This module gives the update path a digest gate: at INSTALL
+ * every precached body is SHA-256-digested into a manifest stored
+ * alongside the assets; at ACTIVATE the manifest is re-verified entry
+ * by entry, a mismatching entry is DELETED (it can never be served
+ * again from this cache) and re-fetched from the network when the
+ * network allows; the old-cache cleanup runs only once the gate has no
+ * unresolved verdicts. Cache poisoning cannot survive an update.
+ *
+ * The gate rides the existing usability law: `isUsableAppShell` decides
+ * whether an HTML response may act as the shell; the digest manifest
+ * decides whether the CACHE those responses live in may be trusted
+ * through an update.
+ *
+ * Honest limits, in the same breath:
+ *   - Workbox precaching ships revision hashes today; the rare part
+ *     here is the gate ADOPTION in a hand-written service worker - the
+ *     primitive is prior art, the enforcement point is new.
+ *   - The service worker itself is the root of trust: it computes the
+ *     digests and reads them back. A compromised SW is outside this
+ *     model (it could rewrite both sides); the gate targets state that
+ *     OUTLIVES the SW - Cache Storage entries.
+ *   - Verification runs on the update path (install/activate), not on
+ *     every fetch: between installs a poisoned entry could serve if it
+ *     was written after the last activation. The gate's claim is
+ *     exactly the brief's: poisoning cannot SURVIVE an update.
+ *   - Only the precache (build + static files + the shell) is
+ *     digested; the runtime cache holds network-fetched content the
+ *     origin already served, and digesting it per fetch would cost the
+ *     offline path real time for no threat-model gain.
+ *   - Old caches from pre-Z7 versions carry no manifest; their entries
+ *     fall back to the existing usability checks (honest degrade, the
+ *     gate adopts forward, never misfires backward).
+ */
+
+/** The synthetic cache entry holding the digest manifest. */
+export const INTEGRITY_MANIFEST_KEY = '__shell-integrity-v1';
+
+/** The manifest shape: one SHA-256 hex per precached URL. */
+export interface ShellIntegrityManifest {
+	v: 1;
+	digests: Record<string, string>;
+}
+
+/** The minimum Cache surface this module touches (testable without SW globals). */
+export interface CacheLike {
+	match(request: RequestInfo | URL): Promise<Response | undefined>;
+	put(request: RequestInfo | URL, response: Response): Promise<void>;
+	delete(request: RequestInfo | URL): Promise<boolean>;
+	keys(): Promise<Request[]>;
+}
+
+async function sha256Hex(bytes: ArrayBuffer): Promise<string> {
+	const digest = await crypto.subtle.digest('SHA-256', bytes);
+	return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function bodyDigest(cache: CacheLike, url: string): Promise<string | null> {
+	try {
+		const response = await cache.match(url);
+		if (!response || !response.ok) return null;
+		return await sha256Hex(await response.clone().arrayBuffer());
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Digest every precached entry and store the manifest inside the same
+ * cache. Throws when any entry is unreadable at install time - the
+ * caller (install) aborts the cache, exactly like a failed addAll.
+ */
+export async function buildIntegrityManifest(
+	cache: CacheLike,
+	urls: readonly string[]
+): Promise<ShellIntegrityManifest> {
+	const digests: Record<string, string> = {};
+	for (const url of urls) {
+		const digest = await bodyDigest(cache, url);
+		if (digest === null) {
+			throw new Error(`shell integrity: precached entry unreadable at ${url}`);
+		}
+		digests[url] = digest;
+	}
+	const manifest: ShellIntegrityManifest = { v: 1, digests };
+	await cache.put(
+		INTEGRITY_MANIFEST_KEY,
+		new Response(JSON.stringify(manifest), {
+			headers: { 'Content-Type': 'application/json' }
+		})
+	);
+	return manifest;
+}
+
+async function readManifest(cache: CacheLike): Promise<ShellIntegrityManifest | null> {
+	try {
+		const response = await cache.match(INTEGRITY_MANIFEST_KEY);
+		if (!response) return null;
+		const parsed = (await response.json()) as ShellIntegrityManifest;
+		if (parsed?.v !== 1 || typeof parsed.digests !== 'object' || parsed.digests === null) {
+			return null;
+		}
+		return parsed;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Verify a cache against its stored manifest: every digest mismatch or
+ * missing entry is DELETED immediately (a poisoned entry can never be
+ * served from this cache again), then re-fetched from the network with
+ * `cache: 'reload'` when possible (healed entries are re-digested into
+ * the manifest). An unreadable manifest returns 'unverified' - the
+ * honest degrade for pre-Z7 caches, which keep the existing usability
+ * checks.
+ */
+export async function verifyIntegrityGate(
+	cache: CacheLike,
+	networkFetch: typeof fetch = fetch
+): Promise<
+	{ status: 'unverified' } | { status: 'verified'; healed: string[]; poisoned: string[] }
+> {
+	const manifest = await readManifest(cache);
+	if (!manifest) return { status: 'unverified' };
+	const healed: string[] = [];
+	const poisoned: string[] = [];
+	const digests: Record<string, string> = {};
+	for (const [url, expected] of Object.entries(manifest.digests)) {
+		const actual = await bodyDigest(cache, url);
+		if (actual === expected) {
+			digests[url] = expected;
+			continue;
+		}
+		// Mismatch or missing: the entry loses its seat in this cache
+		// before anything else happens.
+		await cache.delete(url);
+		try {
+			const fresh = await networkFetch(url, { cache: 'reload' });
+			if (fresh && fresh.ok) {
+				await cache.put(url, fresh.clone());
+				const redigest = await bodyDigest(cache, url);
+				if (redigest !== null) {
+					digests[url] = redigest;
+					healed.push(url);
+					continue;
+				}
+			}
+		} catch {
+			// Offline or refused: the entry stays deleted - poisoned state
+			// does not survive, availability is re-earned from the network.
+		}
+		poisoned.push(url);
+	}
+	await cache.put(
+		INTEGRITY_MANIFEST_KEY,
+		new Response(JSON.stringify({ v: 1, digests } satisfies ShellIntegrityManifest), {
+			headers: { 'Content-Type': 'application/json' }
+		})
+	);
+	return { status: 'verified', healed, poisoned };
+}

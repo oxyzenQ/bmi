@@ -209,6 +209,28 @@ prompt is captured via `beforeinstallprompt` only when a real user
 gesture can call `prompt()`. The contract is enforced by a gate —
 `scripts/gates/check-pwa-offline-shell.ts` audits the source-level
 shell contract in CI, so the offline promise cannot silently rot.
+Night-frontier-Z7 sharpening (B3, the cache-integrity-gated shell):
+the offline promise gets a second gate — the precache itself. At
+INSTALL every precached body is SHA-256-digested into an integrity
+manifest stored beside the assets (`shell-integrity.ts`, a leaf
+testable without SW globals); at ACTIVATE the manifest is re-verified
+entry by entry, a mismatching entry is DELETED before anything else
+can serve it and re-fetched with `cache: 'reload'` when the network
+allows, and the old-cache cleanup waits for a gate with no unresolved
+verdicts — a poisoned, unhealed cache keeps the previous buckets alive
+as the fallback instead of inheriting their trust. Cache poisoning
+cannot survive an update. Honest limits, stated plainly: workbox
+precaching ships revision hashes (the primitive is prior art — the
+rare part is the gate ADOPTION in a hand-written service worker); the
+service worker is the root of trust (a compromised SW is outside this
+model — the gate targets state that OUTLIVES it); verification runs on
+the update path, not per fetch; only the precache is digested (the
+runtime cache holds origin-served content); pre-Z7 caches carry no
+manifest and read 'unverified' (the gate adopts forward, never
+misfires backward). The battery drives the REAL module against a fake
+Cache bucket: tamper→delete→refetch→heal byte-for-byte, offline
+poison loses its seat and its manifest attestation, damaged manifests
+read unverified, and the digests cross-check against noble.
 
 **13. The i18n Engine and the Universal Unit Law.**
 `src/lib/i18n/index.ts` + `src/lib/i18n/locales/`: flat dot-notation

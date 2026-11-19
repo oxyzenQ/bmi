@@ -7,6 +7,7 @@
 
 import { base, build, files, version } from '$service-worker';
 import { BMI_STELLAR_SIGNATURE } from '$lib/utils/signature';
+import { buildIntegrityManifest, verifyIntegrityGate } from '$lib/utils/shell-integrity';
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
@@ -150,12 +151,18 @@ sw.addEventListener('install', (event) => {
 			.then(async (cache) => {
 				await cache.addAll(PRECACHE_URLS);
 				await fetchAndCacheAppShell(cache);
+				// Night-frontier-Z7 (B3): digest every precached body into the
+				// integrity manifest stored beside the assets. A failure here
+				// aborts the install exactly like a failed addAll - an
+				// unverifiable cache never activates.
+				await buildIntegrityManifest(cache, PRECACHE_URLS);
 			})
 			.then(() => sw.skipWaiting())
 	);
 });
 
 // Activate event - clean up old caches only after this version has a usable shell
+// AND its integrity gate has no unresolved verdicts (night-frontier-Z7, B3).
 sw.addEventListener('activate', (event) => {
 	event.waitUntil(
 		(async () => {
@@ -169,7 +176,17 @@ sw.addEventListener('activate', (event) => {
 				}
 			}
 
-			if (isUsableAppShell(shell)) {
+			// The integrity gate: re-verify every precached entry against the
+			// install-time manifest. Mismatches are deleted on the spot (a
+			// poisoned entry can never be served again) and re-fetched when
+			// the network allows. Old-cache cleanup waits for a gate with no
+			// unresolved verdicts - a poisoned, unhealed cache keeps the
+			// previous buckets alive as the fallback instead of inheriting
+			// their trust.
+			const gate = await verifyIntegrityGate(cache);
+			const gateClear = gate.status === 'unverified' || gate.poisoned.length === 0;
+
+			if (isUsableAppShell(shell) && gateClear) {
 				const keys = await caches.keys();
 				await Promise.all(
 					keys

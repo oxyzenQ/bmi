@@ -400,7 +400,10 @@ vi.stubGlobal('navigator', {
 	}
 });
 
-const vaultWitnessJson = (witness: Record<string, unknown> | { head: string; length: number; mode?: 'keyed'; kf?: string } | null): void => {
+const vaultWitnessJson = (
+	witness:
+		Record<string, unknown> | { head: string; length: number; mode?: 'keyed'; kf?: string } | null
+): void => {
 	if (witness === null) {
 		vaultMirror.snapshot = null;
 		return;
