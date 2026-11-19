@@ -11,7 +11,12 @@ const requiredSnippets = [
 	'await fetchAndCacheAppShell(cache);',
 	'await cache.put(APP_SHELL_URL, response.clone());',
 	'async function findCachedAppShell()',
-	'if (isUsableAppShell(shell)) {',
+	'if (isUsableAppShell(shell) && gateClear) {',
+	// night-frontier-Z7 (B3): the cleanup also waits for the integrity
+	// gate - a poisoned, unhealed cache keeps the previous buckets alive
+	// as the fallback instead of inheriting their trust.
+	'const gate = await verifyIntegrityGate(cache);',
+	"const gateClear = gate.status === 'unverified' || gate.poisoned.length === 0;",
 	'cache.put(APP_SHELL_URL, response.clone())',
 	'offlineFallbackResponse()'
 ];
