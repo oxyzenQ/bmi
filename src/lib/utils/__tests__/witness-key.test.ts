@@ -4,26 +4,31 @@
 //
 // night-frontier-Z6 - the witness attestation key battery.
 //
-// Proves the keyed witness law's keystone invariants:
-//   1. Install discipline: the material is copied, the caller's array
-//      is wiped on return (the importAesKey discipline), the length is
-//      enforced, and reinstalling replaces and wipes the old key.
-//   2. Zeroization proof: after wipeWitnessKey(), the exact array the
-//      module held is all zeros - observable through the MAC closure
-//      itself, which must then compute EXACTLY what a zero-key HMAC
-//      computes. A JS array that merely "dropped" its reference could
-//      never be proven like this.
-//   3. The MAC is real HMAC-SHA256: pinned against WebCrypto's
-//      subtle.sign for sample messages (the same cross-implementation
-//      check the chain battery runs against the reference).
-//   4. The fingerprint is public, stable for the same material, and
-//      distinct across material - and it dies with the key.
+// Two custody paths, both proven:
+//   ENGINE (default here: the digest-verified artifact loads in Node):
+//     the material lives in a keystore slot inside the engine's linear
+//     memory, the MAC runs in-engine, and the lock wipe is the engine's
+//     own volatile zeroization - after it, a fresh install proves the
+//     slot system works and getWitnessMac is null (the deep slot-level
+//     invariant: armed hmac, zero-report wipe, use-after-wipe refusal -
+//     is pinned by the engine battery).
+//   JS FALLBACK (forced): the material is a wipeable array; the
+//     zeroization proof is the surviving MAC closure, which must
+//     compute EXACTLY what a zero-key HMAC computes after the wipe - a
+//     proof no dropped-reference JS object offers.
+//
+// Shared install discipline: the caller array is wiped on install, the
+// length is enforced, reinstalling replaces and wipes the old key, and
+// the fingerprint is public, stable per material, and distinct across
+// material.
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { hmac } from '@noble/hashes/hmac.js';
 import { sha256 } from '@noble/hashes/sha2.js';
 import {
 	_resetWitnessKeyForTesting,
+	_forceWitnessFallbackForTesting,
+	_witnessKeyPathForTesting,
 	getWitnessKeyFingerprint,
 	getWitnessMac,
 	hasWitnessKey,
@@ -58,68 +63,34 @@ async function webCryptoHmacHex(key: Uint8Array, msg: Uint8Array): Promise<strin
 	return bytesToHex(new Uint8Array(sig));
 }
 
+const SAMPLE = 'witness custody proof sample';
+const sampleMsg = (): Uint8Array => new TextEncoder().encode(SAMPLE);
+
 beforeEach(() => {
 	_resetWitnessKeyForTesting();
 });
 
-describe('witness key install discipline', () => {
-	it('copies the material and wipes the caller array on return', () => {
+describe('witness key install discipline (both custody paths)', () => {
+	it('copies the material and wipes the caller array on return', async () => {
 		const material = keyBytes(1);
-		installWitnessKey(material);
+		await installWitnessKey(material);
 		// The caller's array is dead after install - every byte zero.
 		expect(material.every((b) => b === 0)).toBe(true);
 		expect(hasWitnessKey()).toBe(true);
 		expect(getWitnessKeyFingerprint()).not.toBeNull();
+		expect(_witnessKeyPathForTesting()).not.toBeNull();
 	});
 
-	it('enforces the 32-byte key length fail-closed', () => {
-		expect(() => installWitnessKey(new Uint8Array(31))).toThrow(/32 bytes/);
-		expect(() => installWitnessKey(new Uint8Array(33))).toThrow(/32 bytes/);
+	it('enforces the 32-byte key length fail-closed', async () => {
+		await expect(installWitnessKey(new Uint8Array(31))).rejects.toThrow(/32 bytes/);
+		await expect(installWitnessKey(new Uint8Array(33))).rejects.toThrow(/32 bytes/);
 		expect(hasWitnessKey()).toBe(false);
 	});
 
-	it('replaces an installed key and wipes the old material', () => {
-		installWitnessKey(keyBytes(2));
-		const oldMac = getWitnessMac()!;
-		const oldOutput = oldMac(new TextEncoder().encode('ledger sample'));
-		installWitnessKey(keyBytes(3));
-		const newMac = getWitnessMac()!;
-		const newOutput = newMac(new TextEncoder().encode('ledger sample'));
-		expect(bytesToHex(newOutput)).not.toBe(bytesToHex(oldOutput));
-		// The OLD closure now computes under wiped (zeroed) bytes: it can
-		// never produce the old key's tag again.
-		const zeroKey = new Uint8Array(32);
-		expect(bytesToHex(oldMac(new TextEncoder().encode('ledger sample')))).toBe(
-			bytesToHex(hmac(sha256, zeroKey, new TextEncoder().encode('ledger sample')))
-		);
-	});
-});
-
-describe('witness key zeroization proof (the invariant JS cannot fake)', () => {
-	it('proves all-zero material after wipe through the surviving MAC closure', () => {
-		installWitnessKey(keyBytes(4));
+	it('is real HMAC-SHA256: matches WebCrypto subtle.sign', async () => {
+		await installWitnessKey(keyBytes(2));
 		const mac = getWitnessMac()!;
-		const sample = new TextEncoder().encode('witness zeroization proof');
-		const before = bytesToHex(mac(sample));
-		wipeWitnessKey();
-		// The module dropped the key, but the closure still references the
-		// exact array - and that array MUST now be all zeros: the wiped MAC
-		// equals the zero-key MAC, byte for byte, and differs from the
-		// installed key's tag.
-		const zeroKey = new Uint8Array(32);
-		expect(bytesToHex(mac(sample))).toBe(bytesToHex(hmac(sha256, zeroKey, sample)));
-		expect(bytesToHex(mac(sample))).not.toBe(before);
-		expect(hasWitnessKey()).toBe(false);
-		expect(getWitnessKeyFingerprint()).toBeNull();
-		expect(getWitnessMac()).toBeNull();
-	});
-});
-
-describe('witness mac is real HMAC-SHA256', () => {
-	it('matches WebCrypto subtle.sign across sample messages', async () => {
-		installWitnessKey(keyBytes(5));
-		const mac = getWitnessMac()!;
-		const key = keyBytes(5);
+		const key = keyBytes(2);
 		const samples = [
 			'',
 			'genesis link',
@@ -127,38 +98,99 @@ describe('witness mac is real HMAC-SHA256', () => {
 			'unicode record: 身体质量指数'
 		];
 		for (const text of samples) {
-			const msg = new TextEncoder().encode(text);
-			expect(bytesToHex(mac(msg))).toBe(await webCryptoHmacHex(key, msg));
+			expect(bytesToHex(mac(new TextEncoder().encode(text)))).toBe(
+				await webCryptoHmacHex(key, new TextEncoder().encode(text))
+			);
 		}
 	});
 
-	it('produces distinct tags for distinct messages (no collisions)', () => {
-		installWitnessKey(keyBytes(6));
-		const mac = getWitnessMac()!;
-		const a = bytesToHex(mac(new TextEncoder().encode('record 1')));
-		const b = bytesToHex(mac(new TextEncoder().encode('record 2')));
-		expect(a).not.toBe(b);
-		expect(a).toHaveLength(64);
-	});
-});
-
-describe('witness key fingerprint (public attestation identity)', () => {
-	it('is stable for the same material and distinct across material', () => {
-		installWitnessKey(keyBytes(7));
+	it('fingerprint: stable per material, distinct across material, dies with the key', async () => {
+		await installWitnessKey(keyBytes(3));
 		const first = getWitnessKeyFingerprint();
-		installWitnessKey(keyBytes(7));
+		await installWitnessKey(keyBytes(3));
 		expect(getWitnessKeyFingerprint()).toBe(first);
-		installWitnessKey(keyBytes(8));
+		await installWitnessKey(keyBytes(4));
 		expect(getWitnessKeyFingerprint()).not.toBe(first);
-	});
-
-	it('matches the SHA-256 hex of the material exactly', () => {
-		const key = keyBytes(9);
-		installWitnessKey(new Uint8Array(key));
-		expect(getWitnessKeyFingerprint()).toBe(bytesToHex(sha256(key)));
+		expect(getWitnessKeyFingerprint()).toBe(bytesToHex(sha256(keyBytes(4))));
+		wipeWitnessKey();
+		expect(getWitnessKeyFingerprint()).toBeNull();
 	});
 
 	it('exposes the documented key length constant', () => {
 		expect(WITNESS_MAC_LENGTH).toBe(32);
+	});
+});
+
+describe('engine custody path (the default when the artifact loads)', () => {
+	it('custodies the key in the engine and MACs in-engine', async () => {
+		await installWitnessKey(keyBytes(5));
+		expect(_witnessKeyPathForTesting()).toBe('engine');
+		const mac = getWitnessMac()!;
+		// The in-engine tag agrees with noble: one construction, two engines.
+		expect(bytesToHex(mac(sampleMsg()))).toBe(await webCryptoHmacHex(keyBytes(5), sampleMsg()));
+	});
+
+	it('a replaced key wipes the old slot: the old closure can never sign again', async () => {
+		await installWitnessKey(keyBytes(6));
+		const oldMac = getWitnessMac()!;
+		const before = bytesToHex(oldMac(sampleMsg()));
+		await installWitnessKey(keyBytes(7));
+		// The engine slot refused (use after wipe is an ABI refusal), the
+		// fingerprint moved, and the new key's tag differs.
+		expect(() => oldMac(sampleMsg())).toThrow(/keystore refusal/);
+		expect(bytesToHex(getWitnessMac()!(sampleMsg()))).not.toBe(before);
+	});
+
+	it('the wipe disarms the slot: nothing can sign after lock', async () => {
+		await installWitnessKey(keyBytes(8));
+		const mac = getWitnessMac()!;
+		expect(bytesToHex(mac(sampleMsg()))).toBeTruthy();
+		wipeWitnessKey();
+		expect(hasWitnessKey()).toBe(false);
+		expect(getWitnessMac()).toBeNull();
+		// The surviving closure hits a wiped slot: refused, never a
+		// zero-key computation.
+		expect(() => mac(sampleMsg())).toThrow(/keystore refusal/);
+		// A fresh install works again: the slot system, not the instance,
+		// was the thing under test.
+		await installWitnessKey(keyBytes(9));
+		expect(getWitnessMac()!(sampleMsg())).toBeTruthy();
+	});
+});
+
+describe('JS fallback custody path (forced; the honest degrade)', () => {
+	beforeEach(() => {
+		_forceWitnessFallbackForTesting(true);
+	});
+
+	it('custodies the key as wipeable JS bytes', async () => {
+		await installWitnessKey(keyBytes(10));
+		expect(_witnessKeyPathForTesting()).toBe('js');
+		const mac = getWitnessMac()!;
+		expect(bytesToHex(mac(sampleMsg()))).toBe(await webCryptoHmacHex(keyBytes(10), sampleMsg()));
+	});
+
+	it('proves all-zero material after wipe through the surviving MAC closure', async () => {
+		await installWitnessKey(keyBytes(11));
+		const mac = getWitnessMac()!;
+		const before = bytesToHex(mac(sampleMsg()));
+		wipeWitnessKey();
+		// The module dropped the key, but the closure still references the
+		// exact array - and that array MUST now be all zeros: the wiped MAC
+		// equals the zero-key MAC, byte for byte, and differs from the
+		// installed key's tag.
+		const zeroKey = new Uint8Array(32);
+		expect(bytesToHex(mac(sampleMsg()))).toBe(bytesToHex(hmac(sha256, zeroKey, sampleMsg())));
+		expect(bytesToHex(mac(sampleMsg()))).not.toBe(before);
+		expect(hasWitnessKey()).toBe(false);
+		expect(getWitnessMac()).toBeNull();
+	});
+
+	it('a replaced key wipes the old array: the old closure computes under zeros', async () => {
+		await installWitnessKey(keyBytes(12));
+		const oldMac = getWitnessMac()!;
+		await installWitnessKey(keyBytes(13));
+		const zeroKey = new Uint8Array(32);
+		expect(bytesToHex(oldMac(sampleMsg()))).toBe(bytesToHex(hmac(sha256, zeroKey, sampleMsg())));
 	});
 });

@@ -27,6 +27,21 @@
 
 import { ARGON2ID_WASM_BASE64, ARGON2ID_WASM_SHA256 } from './kdf-wasm-embedded';
 
+/** Engine error codes, mirrored from engine/argon2id/src/lib.rs. */
+const ERR = {
+	NULL: 1,
+	PARAMS: 2,
+	DERIVE: 3,
+	KEYSLOT: 4
+} as const;
+
+const ERR_MESSAGES: Record<number, string> = {
+	[ERR.NULL]: 'engine received a null buffer for a non-empty region',
+	[ERR.PARAMS]: 'argon2id parameters rejected (memory/lanes/iterations/output/salt bounds)',
+	[ERR.DERIVE]: 'argon2id derivation failed inside the engine',
+	[ERR.KEYSLOT]: 'keystore refusal (bad handle, slot not armed, no free slot, or use after wipe)'
+};
+
 /** Derive options, mirroring the KDF worker protocol (and noble's opts). */
 export interface WasmEngineOptions {
 	m: number;
@@ -39,23 +54,20 @@ export interface WasmEngineOptions {
 	personalization?: Uint8Array;
 }
 
-/** Engine error codes, mirrored from engine/argon2id/src/lib.rs. */
-const ERR = {
-	NULL: 1,
-	PARAMS: 2,
-	DERIVE: 3
-} as const;
-
-const ERR_MESSAGES: Record<number, string> = {
-	[ERR.NULL]: 'engine received a null buffer for a non-empty region',
-	[ERR.PARAMS]: 'argon2id parameters rejected (memory/lanes/iterations/output/salt bounds)',
-	[ERR.DERIVE]: 'argon2id derivation failed inside the engine'
-};
-
 /** The loaded engine: derives through the C ABI over the linear memory. */
 export interface Argon2idWasmEngine {
 	readonly abiVersion: number;
 	derive(password: Uint8Array, salt: Uint8Array, options: WasmEngineOptions): Uint8Array;
+	/** Keystore capacity (night-frontier-Z6). */
+	keystoreSlots(): number;
+	/** Install one 32-byte key; returns the 1-based handle (0 = refusal). The engine volatile-zeroizes the stage region it copies. */
+	keystorePut(stage: Uint8Array): number;
+	/** HMAC-SHA256 under an armed slot's key; the key never leaves the slot. Throws on refusal. */
+	keystoreHmac(handle: number, msg: Uint8Array): Uint8Array;
+	/** Volatile-zeroize a slot and disarm it. Throws on an invalid handle. */
+	keystoreWipe(handle: number): void;
+	/** The provable invariant: the slot self-reports all-zero from inside the sandbox. */
+	keystoreIsZeroed(handle: number): boolean;
 }
 
 interface EngineExports {
@@ -79,6 +91,17 @@ interface EngineExports {
 		outPtr: number,
 		outLen: number
 	): number;
+	engine_keystore_slots(): number;
+	engine_keystore_put(stagePtr: number, stageLen: number): number;
+	engine_keystore_hmac(
+		handle: number,
+		msgPtr: number,
+		msgLen: number,
+		outPtr: number,
+		outLen: number
+	): number;
+	engine_keystore_wipe(handle: number): number;
+	engine_keystore_is_zeroed(handle: number): number;
 }
 
 let enginePromise: Promise<Argon2idWasmEngine | null> | null = null;
@@ -146,7 +169,11 @@ async function instantiateEmbeddedEngine(): Promise<Argon2idWasmEngine | null> {
 
 	const instance = (await WebAssembly.instantiate(toArrayBuffer(bytes), {})).instance;
 	const e = instance.exports as unknown as EngineExports;
-	if (typeof e.engine_argon2id !== 'function' || typeof e.engine_alloc !== 'function') {
+	if (
+		typeof e.engine_argon2id !== 'function' ||
+		typeof e.engine_alloc !== 'function' ||
+		typeof e.engine_keystore_put !== 'function'
+	) {
 		console.warn('[kdf-wasm-engine] artifact does not expose the expected ABI; refusing');
 		return null;
 	}
@@ -222,6 +249,54 @@ async function instantiateEmbeddedEngine(): Promise<Argon2idWasmEngine | null> {
 				if (secretPtr) e.engine_free(secretPtr, options.key!.length);
 				if (adPtr) e.engine_free(adPtr, options.personalization!.length);
 			}
+		},
+		// ── The keystore seat (night-frontier-Z6) ──
+		keystoreSlots(): number {
+			return e.engine_keystore_slots();
+		},
+		keystorePut(stage: Uint8Array): number {
+			if (stage.length !== 32) {
+				throw new Error('keystore install requires exactly 32 bytes');
+			}
+			const mem = e.memory;
+			const stagePtr = put(mem, stage);
+			try {
+				const handle = e.engine_keystore_put(stagePtr, stage.length);
+				return handle;
+			} finally {
+				// The engine volatile-zeroized the linear-memory stage copy
+				// before returning; the region dies with the free.
+				e.engine_free(stagePtr, stage.length);
+			}
+		},
+		keystoreHmac(handle: number, msg: Uint8Array): Uint8Array {
+			const mem = e.memory;
+			const msgPtr = msg.length > 0 ? put(mem, msg) : 0;
+			const outPtr = e.engine_alloc(32);
+			if (!outPtr) throw new Error('keystore output alloc failed');
+			try {
+				const rc = e.engine_keystore_hmac(handle, msgPtr, msg.length, outPtr, 32);
+				if (rc !== 0) {
+					throw new Error(ERR_MESSAGES[rc] ?? `engine error code ${rc}`);
+				}
+				return new Uint8Array(e.memory.buffer, outPtr, 32).slice();
+			} finally {
+				if (msgPtr) e.engine_free(msgPtr, msg.length);
+				e.engine_free(outPtr, 32);
+			}
+		},
+		keystoreWipe(handle: number): void {
+			const rc = e.engine_keystore_wipe(handle);
+			if (rc !== 0) {
+				throw new Error(ERR_MESSAGES[rc] ?? `engine error code ${rc}`);
+			}
+		},
+		keystoreIsZeroed(handle: number): boolean {
+			const rc = e.engine_keystore_is_zeroed(handle);
+			if (rc === ERR.KEYSLOT) {
+				throw new Error(ERR_MESSAGES[rc]);
+			}
+			return rc === 1;
 		}
 	};
 	return engine;

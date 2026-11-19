@@ -361,6 +361,13 @@ Three foundation sharpenings, stated with their honest bounds:
   derives inside WebCrypto and never exposes material in JavaScript.
   Both integrity compares are constant-time (the ciphertext checksum via
   a XOR loop, the export-file signature via `crypto.subtle.verify`).
+  Night-frontier-Z6 adds the provable seat: the witness attestation key
+  custodies in the wasm engine's keystore (volatile-zeroized on lock,
+  self-reported all-zero from inside the sandbox) or, without the
+  engine, in a wipeable JS array whose zeroization is proven through the
+  surviving MAC closure. The AES session key remains a volatile
+  CryptoKey handle released to GC on lock — no zeroing API exists, and
+  that stays documented physics.
 
 > [!WARNING]
 > Users _must_ remember their passphrase. By design, there is absolutely no recovery mechanism if a passphrase is lost.

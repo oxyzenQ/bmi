@@ -14,6 +14,16 @@
  * state can no longer re-seal: computing the next link requires the
  * key, and the key requires the passphrase.
  *
+ * Custody, engine-first: when the digest-verified wasm engine loads,
+ * the key material lives in a KEYSOTE SLOT inside the engine's linear
+ * memory and the raw bytes never travel back through the ABI - every
+ * later use is an in-engine HMAC-SHA256, and the lock wipe is the
+ * engine's own volatile zeroization, self-reported all-zero by the
+ * engine itself (the invariant the engine battery pins). When the
+ * engine is unavailable, the JS fallback holds a wipeable array whose
+ * zeroization is provable the JS-side way: after the wipe, the
+ * surviving MAC closure computes exactly what a zero-key HMAC computes.
+ *
  * Design, stated exactly:
  *   - The key material is HKDF-SHA256 over the at-rest session's raw
  *     Argon2id output (salt: the per-device at-rest salt; info:
@@ -24,33 +34,31 @@
  *   - While a session is unlocked, `getWitnessMac()` hands out a
  *     SYNCHRONOUS HMAC-SHA256 function so the witness chain can run as
  *     a tight loop without one async WebCrypto round-trip per record.
- *   - On lock the key is WIPED, not merely dropped: the stored array is
- *     overwritten with zeros, and the wipe is provable - a test can
- *     read every byte and demand all zeros (a guarantee no GC-managed
- *     JS object offers).
  *   - The key fingerprint (SHA-256 hex of the material) is a PUBLIC
  *     identifier: it lets the witness and the reseat path prove the
  *     sealed witness and the installed key belong to the same
  *     passphrase without storing or leaking anything secret.
  *
  * Honest limits, in the same breath as the claims:
- *   - JavaScript bytes readable by this module are readable by any
- *     origin script; the wipe is a determinism and hygiene guarantee,
- *     not resistance to a running attacker. The wasm custody seat
- *     (the same engine that forges the key) keeps the per-operation
- *     material out of the JS data flow and proves the all-zero
- *     post-lock invariant over its whole linear memory.
+ *   - Wasm linear memory is readable from the host by design (that is
+ *     how the ABI passes data at all), so custody here means the
+ *     wrapper code never handles the key per-operation and the
+ *     zeroization is deterministic and provable - not resistance to a
+ *     host-level reader. The install moment touches the raw bytes once
+ *     (they arrive from the session establishment in JS, like the
+ *     passphrase itself); after install the caller's array is wiped.
+ *   - JavaScript fallback bytes are readable by any origin script; the
+ *     wipe is a determinism guarantee, not resistance to a running
+ *     attacker.
  *   - A plaintext ledger (no passphrase ever presented) has no witness
  *     key and keeps the unkeyed chain - the law upgrades the
  *     passphrase-protected class and leaves the rest exactly as
  *     documented.
- *   - Installation touches the raw bytes once (they arrive from the
- *     session establishment in JS, like the passphrase itself); after
- *     install the caller's array is wiped, mirroring importAesKey.
  */
 
 import { hmac } from '@noble/hashes/hmac.js';
 import { sha256 } from '@noble/hashes/sha2.js';
+import { loadArgon2idEngine, type Argon2idWasmEngine } from './kdf-wasm-engine';
 
 /** The HKDF info label the session establishment derives this key with. */
 export const WITNESS_MAC_INFO = 'bmi-stellar-witness-mac-v1';
@@ -65,8 +73,11 @@ export const WITNESS_MAC_LENGTH = 32;
  */
 export type WitnessMac = (msg: Uint8Array) => Uint8Array;
 
-let witnessKey: Uint8Array | null = null;
+let engineInstance: Argon2idWasmEngine | null = null;
+let engineHandle: number | null = null;
+let jsKey: Uint8Array | null = null;
 let witnessFingerprint: string | null = null;
+let fallbackOnly = false;
 
 function toHex(bytes: Uint8Array): string {
 	return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
@@ -74,30 +85,65 @@ function toHex(bytes: Uint8Array): string {
 
 /**
  * Install the witness attestation key for this unlocked session.
- * Copies the material into the module-owned slot and WIPES the caller's
- * array on return (the importAesKey discipline: raw material must never
- * be reused after the install). Installing while a key is already
- * installed replaces it and wipes the old material first.
+ * Engine-first: the material is handed to the keystore seat (which
+ * volatile-zeroizes its own copy of the stage), and the raw bytes never
+ * return to JS. Without the engine, the JS fallback holds a wipeable
+ * array. Either way the caller's array is WIPED on return (the
+ * importAesKey discipline: raw material must never be reused after the
+ * install), and installing while a key is already installed replaces
+ * the old one and wipes it first.
  */
-export function installWitnessKey(material: Uint8Array): void {
+export async function installWitnessKey(material: Uint8Array): Promise<void> {
 	if (material.length !== WITNESS_MAC_LENGTH) {
 		throw new Error(`witness key must be ${WITNESS_MAC_LENGTH} bytes`);
 	}
 	wipeWitnessKey();
-	witnessKey = new Uint8Array(material);
-	witnessFingerprint = toHex(sha256(material));
+	const fingerprint = toHex(sha256(material));
+	if (!fallbackOnly) {
+		try {
+			const engine = await loadArgon2idEngine();
+			if (engine) {
+				const handle = engine.keystorePut(material);
+				if (handle > 0) {
+					engineInstance = engine;
+					engineHandle = handle;
+					witnessFingerprint = fingerprint;
+					material.fill(0);
+					return;
+				}
+			}
+		} catch {
+			// Engine refusal or load failure: the JS fallback below is the
+			// documented degrade - availability never trumps correctness.
+		}
+	}
+	jsKey = new Uint8Array(material);
+	witnessFingerprint = fingerprint;
 	material.fill(0);
 }
 
 /**
- * Wipe the installed key: the module-owned array is overwritten with
- * zeros and the fingerprint drops. Provable - a test reads every byte
- * after this call and demands all zeros.
+ * Wipe the installed key. Engine path: the keystore slot is
+ * volatile-zeroized and disarmed inside the engine (the slot then
+ * refuses every use - use after wipe is an ABI refusal, not a zero-key
+ * computation). JS path: the module-owned array is overwritten with
+ * zeros - provable through the surviving MAC closure. The fingerprint
+ * drops in both cases.
  */
 export function wipeWitnessKey(): void {
-	if (witnessKey) {
-		witnessKey.fill(0);
-		witnessKey = null;
+	if (engineInstance && engineHandle !== null) {
+		try {
+			engineInstance.keystoreWipe(engineHandle);
+		} catch {
+			// An already-wiped or refusing slot is fine here: the outcome
+			// this module owes is "no usable key", which holds either way.
+		}
+	}
+	engineInstance = null;
+	engineHandle = null;
+	if (jsKey) {
+		jsKey.fill(0);
+		jsKey = null;
 	}
 	witnessFingerprint = null;
 }
@@ -109,8 +155,13 @@ export function wipeWitnessKey(): void {
  * accuse what it cannot attest.
  */
 export function getWitnessMac(): WitnessMac | null {
-	if (!witnessKey) return null;
-	const key = witnessKey;
+	if (engineInstance && engineHandle !== null) {
+		const engine = engineInstance;
+		const handle = engineHandle;
+		return (msg: Uint8Array) => engine.keystoreHmac(handle, msg);
+	}
+	if (!jsKey) return null;
+	const key = jsKey;
 	return (msg: Uint8Array) => hmac(sha256, key, msg);
 }
 
@@ -126,7 +177,19 @@ export function getWitnessKeyFingerprint(): string | null {
 
 /** True while a witness key is installed (an unlocked, keyed session). */
 export function hasWitnessKey(): boolean {
-	return witnessKey !== null;
+	return engineHandle !== null || jsKey !== null;
+}
+
+/** Force the JS fallback path (test hook: pins both custody stories). */
+export function _forceWitnessFallbackForTesting(force: boolean): void {
+	fallbackOnly = force;
+}
+
+/** @internal Test-only: which custody path currently holds the key. */
+export function _witnessKeyPathForTesting(): 'engine' | 'js' | null {
+	if (engineHandle !== null) return 'engine';
+	if (jsKey !== null) return 'js';
+	return null;
 }
 
 /**
@@ -135,4 +198,5 @@ export function hasWitnessKey(): boolean {
  */
 export function _resetWitnessKeyForTesting(): void {
 	wipeWitnessKey();
+	fallbackOnly = false;
 }

@@ -33,11 +33,16 @@ WASM="$CRATE/target/wasm32-unknown-unknown/release/bmi_stellar_argon2id.wasm"
 # dependency that injects dead or malicious code could drift BOTH
 # consistently - the owner refreshes and the new artifact re-embeds.
 # The ceiling makes any significant growth impossible to refresh
-# silently: past 45,000 bytes (the engine is ~37.7 KB, ~19% headroom
-# for legitimate feature work) the refresh refuses, and growing the
+# silently: past this budget the refresh refuses, and growing the
 # budget becomes a deliberate, reviewable edit of this constant - the
 # same trust model as the scanner digest pin.
-WASM_MAX_BYTES=45000
+#
+# 45000 -> 50000 (night-frontier-Z6, deliberate): the keystore seat
+# adds key custody to the engine - HMAC-SHA256 (the RustCrypto pair,
+# sharing no digest machinery with argon2's blake2) plus the custody
+# ABI. The engine is ~49.1 KB; the headroom above it is deliberately
+# thin so future growth still trips this wire.
+WASM_MAX_BYTES=50000
 
 MODE="verify"
 for arg in "$@"; do

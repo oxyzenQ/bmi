@@ -440,6 +440,13 @@ path awaits the verifier-anchored unlock (30 s bounded budget) so the
 ledger write never races the purge guard, and the production CSP gained
 the narrow `wasm-unsafe-eval` token the KDF worker's Rust engine needs —
 all three proven live by the P7/P8/P9 claims.
+Night-frontier-Z6 sharpening: the session's Argon2id derivation now
+yields BOTH keys in one pass (`deriveSessionKeys`) — the AES seal key
+and the witness attestation material, an HKDF-SHA256 subkey
+domain-separated over the SAME raw output. One 64 MiB burn, two
+purposes, no extra cost, tier-stable through the verifier rung, and the
+witness key installs (engine keystore first, wipeable-JS fallback) at
+every passphrase-proven registration and wipes at every lock.
 
 **26. The Runtime Proof Harness — a measurement, not a promise
 (night-frontier-Z1).** The last gap between the static gates and the
@@ -524,6 +531,18 @@ latency for crash resilience and is a hint, not a guarantee; JavaScript
 passphrase strings cannot be wiped (WebCrypto never sees them raw
 because the derivation input passes through the worker boundary —
 documented physics, not solved).
+Night-frontier-Z6 sharpening: the zeroization story gains a PROVABLE
+seat. The witness attestation key (innovation 29's keyed law) installs
+through one of two custody paths: the wasm engine's keystore (the
+engine volatile-zeroizes its slot on lock and SELF-REPORTS all-zero
+from inside the sandbox — an invariant a test can hold the artifact to,
+impossible for any dropped-reference JS object) or the wipeable-JS-array
+fallback (whose zeroization is proven through the surviving MAC
+closure: after the wipe it computes exactly what a zero-key HMAC
+computes). The one honest limit that does NOT move: the AES session
+key stays a volatile non-extractable CryptoKey handle released to GC on
+lock — no WebCrypto API exists to zero it, and that platform physics is
+documented, not solved.
 
 **28. The Rust Key Forge Engine — one honest wasm seat, proven byte-level
 (night-enhance-1).** The one real compute hotspot in the tree was the
@@ -590,6 +609,29 @@ JavaScript manifest, lockfile checksums, and CI fetch paths sit under
 the same posture through `scripts/gates/check-supply-chain.ts` — which
 caught and closed the one real unpinned-fetch hole the tree had on its
 first run.
+Night-frontier-Z6 sharpening — the keystore seat: the engine is no
+longer only a key forge, it is also KEY CUSTODY. The witness
+attestation key (innovation 29's keyed law) installs into fixed slots
+inside the engine's linear memory and never travels back through the
+ABI as raw bytes: every later use is an in-engine HMAC-SHA256
+(`hmac` + `sha2`, the RustCrypto pair, exact-pinned, byte-identical to
+the noble fallback), the lock wipe is the engine's own
+volatile-zeroization, and the slot SELF-REPORTS all-zero
+(`engine_keystore_is_zeroed`) — the invariant is provable, not
+conventional. Handles are opaque tokens (slot + install generation), so
+a stale closure from a replaced key can never reach the re-armed slot:
+use after wipe and use after rotation are ABI refusals, not zero-key
+computations. The honest boundary is written in the crate's own header:
+wasm linear memory stays readable from the host by design, so custody
+means the wrapper never handles the key per-operation and the
+zeroization is deterministic and provable — not resistance to a
+host-level reader. The artifact grew 37.7 KB -> 48.983 KB, and the
+provenance ceiling moved with it as a deliberate, reviewable edit
+(WASM_MAX_BYTES 45000 -> 50000, the growth documented in the diff —
+the digest gate and the thin remaining headroom keep the tripwire
+live); `cargo fmt --check` + `clippy -D warnings` + the
+`wasm-provenance` three-way digest chain (fresh build == recorded ==
+embedded) all pin the new bytes.
 
 **29. The Ledger Continuity Chain — the sequence itself becomes
 tamper-evident (night-frontier-Z3).** The physics gap: AES-GCM protects

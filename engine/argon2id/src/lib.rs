@@ -39,6 +39,40 @@
 //! ) -> u32                               // ERR_* code, 0 = success
 //! ```
 //!
+//! Night-frontier-Z6 adds the keystore seat - the engine is no longer
+//! only a key forge, it is also key custody. The witness attestation
+//! key lives in fixed slots inside the linear memory and NEVER travels
+//! back through the ABI as raw bytes: the host installs it once and
+//! every later use is an in-engine HMAC-SHA256 over host-provided
+//! messages.
+//!
+//! ```text
+//! engine_keystore_slots() -> u32                       // capacity
+//! engine_keystore_put(stage_ptr, stage_len) -> handle  // opaque; 0 refusal
+//! engine_keystore_hmac(handle, msg_ptr, msg_len, out_ptr, out_len) -> ERR_*
+//! engine_keystore_wipe(handle) -> ERR_*                // volatile zeroize
+//! engine_keystore_is_zeroed(handle) -> 1 | 0 | ERR_*   // the provable invariant
+//! ```
+//!
+//! Handles are OPAQUE TOKENS, not slot indices: each carries its slot
+//! plus the install generation, so a stale handle from a replaced
+//! generation refuses everywhere (a wiped-then-rearmed slot can never
+//! be reached by an old closure - the "never signs again" property the
+//! witness-key battery pins). 0 means refusal, mirroring `engine_alloc`.
+//! `put` accepts exactly 32 bytes (one HMAC-SHA256 key), copies them
+//! into the slot, zeroizes the stage region the host handed over, and
+//! arms the slot. `wipe` volatile-zeroizes the slot bytes and disarms
+//! it; a wiped or never-armed slot refuses every `hmac` call
+//! (fail-closed: use after wipe is impossible by ABI contract, not by
+//! convention). `is_zeroed` lets the host PROVE the wipe: the slot
+//! self-reports all-zero from inside the sandbox where the bytes live -
+//! an invariant no dropped-reference JS object can offer. Honest
+//! boundary: the linear memory itself stays readable from the host by
+//! wasm design (that is how the ABI passes data at all), so custody
+//! here means the wrapper code never handles the key and the
+//! zeroization is deterministic and provable - not resistance to a
+//! host-level reader.
+//!
 //! All pointers are offsets into the instance linear memory (u32-sized
 //! on wasm32); the host passes indices returned by `engine_alloc`.
 //!
@@ -50,8 +84,11 @@
 //! | 1    | a non-null pointer with a zero length, or null ptr |
 //! | 2    | parameters rejected (m below the 8*p floor, t or p |
 //! |      | zero, output below the 4-byte minimum, salt below  |
-//! |      | the 8-byte minimum, or an oversized request)       |
+//! |      | the 8-byte minimum, an oversized request, or a     |
+//! |      | keystore length that is not exactly 32 bytes)      |
 //! | 3    | the derivation itself failed                       |
+//! | 4    | keystore refusal (bad handle, slot not armed, no   |
+//! |      | free slot, or a use-after-wipe attempt)            |
 //!
 //! Any panic would abort the instance (`panic = "abort"`); the wrapper
 //! treats a trap like any other engine failure and falls back to the
@@ -64,9 +101,16 @@
 //! before returning: the linear-memory copies of the raw inputs do not
 //! outlive the call. The caller wipes its own copies; the derived key
 //! bytes are the caller's responsibility (imported into a
-//! non-extractable CryptoKey and wiped there).
+//! non-extractable CryptoKey and wiped there). The keystore slot is
+//! volatile-zeroized by `engine_keystore_wipe` and self-reports its
+//! zero state; the stage region handed to `engine_keystore_put` is
+//! zeroized before the call returns.
 
 use argon2::{Algorithm, Argon2, AssociatedData, ParamsBuilder, Version};
+use hmac::{Hmac, Mac};
+use sha2::Sha256;
+use std::cell::Cell;
+use std::sync::atomic::{AtomicU32, AtomicU8, Ordering};
 
 /// Success.
 pub const ERR_OK: u32 = 0;
@@ -76,6 +120,9 @@ pub const ERR_NULL: u32 = 1;
 pub const ERR_PARAMS: u32 = 2;
 /// The derivation itself failed.
 pub const ERR_DERIVE: u32 = 3;
+/// Keystore refusal: bad handle, slot not armed, no free slot, or use
+/// after wipe.
+pub const ERR_KEYSLOT: u32 = 4;
 
 /// Allocate `len` bytes of scratch space in the linear memory.
 ///
@@ -256,4 +303,207 @@ pub unsafe extern "C" fn engine_argon2id(
 #[no_mangle]
 pub extern "C" fn engine_abi_version() -> u32 {
 	1
+}
+
+// ── The keystore seat (night-frontier-Z6) ──
+// Key custody inside the engine's linear memory. Slots are fixed-size
+// statics; the only door is the ABI below. The wasm32-unknown-unknown
+// target is single-threaded by definition (no atomics, no threads), so
+// a Cell-backed slot with a target-scoped Sync promise is sound here:
+// there is no second thread to race, and the artifact is never built
+// with wasm threads enabled.
+
+/// One HMAC-SHA256 key per slot (the witness attestation key length).
+const SLOT_KEY_LEN: usize = 32;
+/// Fixed capacity: eight concurrent custody slots is generous for a
+/// single-ledger app and keeps the surface auditable.
+const SLOT_COUNT: usize = 8;
+/// Slot state: 0 free, 1 armed, 2 wiped (a wiped slot refuses use).
+const SLOT_FREE: u8 = 0;
+const SLOT_ARMED: u8 = 1;
+const SLOT_WIPED: u8 = 2;
+
+/// A key slot: interior mutability over a fixed byte array.
+struct KeySlot(Cell<[u8; SLOT_KEY_LEN]>);
+// SAFETY: the wasm32-unknown-unknown target is single-threaded by
+// definition - the crate is never built with threads or atomics, so no
+// concurrent access to a slot can exist inside the instance.
+unsafe impl Sync for KeySlot {}
+
+static KEYSTORE_KEYS: [KeySlot; SLOT_COUNT] =
+	[const { KeySlot(Cell::new([0u8; SLOT_KEY_LEN])) }; SLOT_COUNT];
+static KEYSTORE_STATE: [AtomicU8; SLOT_COUNT] = [const { AtomicU8::new(SLOT_FREE) }; SLOT_COUNT];
+/// The install generation each slot last armed under. Handles carry the
+/// generation, so a handle from a replaced installation is refused even
+/// though the slot index itself was reused.
+static KEYSTORE_GEN: [AtomicU32; SLOT_COUNT] = [const { AtomicU32::new(0) }; SLOT_COUNT];
+/// The global generation counter: every install mints a fresh handle.
+static NEXT_GEN: AtomicU32 = AtomicU32::new(0);
+
+/// The low 4 bits hold the slot index + 1 (SLOT_COUNT is 8); the rest
+/// is the generation.
+const HANDLE_SLOT_MASK: u32 = 0xf;
+
+/// Decode an opaque handle into its slot and expected generation.
+/// Returns none for a zero handle, a slot past capacity, or a slot
+/// whose recorded generation does not match the handle's.
+fn decode_handle(handle: u32) -> Option<usize> {
+	if handle == 0 {
+		return None;
+	}
+	let idx = (handle & HANDLE_SLOT_MASK) as usize - 1;
+	if idx >= SLOT_COUNT {
+		return None;
+	}
+	let gen = handle >> 4;
+	if KEYSTORE_GEN[idx].load(Ordering::Relaxed) != gen {
+		return None;
+	}
+	Some(idx)
+}
+
+/// Volatile-zeroize a slot: the same discipline as `zeroize_raw`, over
+/// a slot the engine owns. The write goes through `write_volatile`, so
+/// the compiler may not elide it - the zeroing is deterministic, which
+/// is what makes the invariant provable rather than conventional.
+fn zeroize_slot(idx: usize) {
+	let slot = &KEYSTORE_KEYS[idx].0;
+	// SAFETY: a shared reference into a static slot, mutated through a
+	// volatile pointer write - sound on the single-threaded target and
+	// required for the elision-proof zeroing.
+	let ptr = slot.as_ptr() as *mut u8;
+	for i in 0..SLOT_KEY_LEN {
+		// SAFETY: in-bounds by construction (i < SLOT_KEY_LEN).
+		unsafe {
+			core::ptr::write_volatile(ptr.add(i), 0u8);
+		}
+	}
+}
+
+/// Total keystore capacity, so the wrapper can assert the protocol
+/// before the first install.
+#[no_mangle]
+pub extern "C" fn engine_keystore_slots() -> u32 {
+	SLOT_COUNT as u32
+}
+
+/// Install one 32-byte key into a free slot and zero the stage region.
+///
+/// Returns the 1-based handle, or 0 mapped from `ERR_KEYSLOT` when no
+/// slot is free. The stage region the host handed over is
+/// volatile-zeroized before this call returns, so the JS-side copy of
+/// the material dies here inside the sandbox.
+///
+/// # Safety
+///
+/// `stage_ptr` must be valid for `stage_len` bytes of initialized data.
+#[no_mangle]
+pub unsafe extern "C" fn engine_keystore_put(stage_ptr: *const u8, stage_len: usize) -> u32 {
+	if stage_len != SLOT_KEY_LEN {
+		return ERR_PARAMS;
+	}
+	let stage = match raw_slice(stage_ptr, stage_len) {
+		Ok(v) => v,
+		Err(e) => return e,
+	};
+	let idx =
+		match (0..SLOT_COUNT).find(|&i| KEYSTORE_STATE[i].load(Ordering::Relaxed) != SLOT_ARMED) {
+			Some(i) => i,
+			None => return ERR_KEYSLOT,
+		};
+	let mut key = [0u8; SLOT_KEY_LEN];
+	key.copy_from_slice(stage);
+	KEYSTORE_KEYS[idx].0.set(key);
+	KEYSTORE_STATE[idx].store(SLOT_ARMED, Ordering::Relaxed);
+	// Mint a fresh opaque handle: slot + generation. Any stale handle
+	// for this slot (from a replaced installation) refuses everywhere.
+	let gen = NEXT_GEN.fetch_add(1, Ordering::Relaxed);
+	KEYSTORE_GEN[idx].store(gen, Ordering::Relaxed);
+	// The stage copy does not outlive the call.
+	zeroize_raw(stage_ptr, stage_len);
+	(gen << 4) | (idx as u32 + 1)
+}
+
+/// HMAC-SHA256 under an armed slot's key. The key bytes never leave the
+/// slot; the message comes in through the ABI, the 32-byte tag goes out.
+///
+/// # Safety
+///
+/// `msg_ptr` readable for `msg_len` bytes; `out_ptr` writable for
+/// `out_len` bytes; regions must not overlap.
+#[no_mangle]
+pub unsafe extern "C" fn engine_keystore_hmac(
+	handle: u32,
+	msg_ptr: *const u8,
+	msg_len: usize,
+	out_ptr: *mut u8,
+	out_len: usize,
+) -> u32 {
+	let Some(idx) = decode_handle(handle) else {
+		return ERR_KEYSLOT;
+	};
+	if KEYSTORE_STATE[idx].load(Ordering::Relaxed) != SLOT_ARMED {
+		// Use after wipe (or before install) is a refusal, not a zero-key
+		// computation: a wiped slot can never sign anything.
+		return ERR_KEYSLOT;
+	}
+	let msg = match raw_slice(msg_ptr, msg_len) {
+		Ok(v) => v,
+		Err(e) => return e,
+	};
+	let out = match raw_slice_mut(out_ptr, out_len) {
+		Ok(v) => v,
+		Err(e) => return e,
+	};
+	if out.len() != SLOT_KEY_LEN {
+		return ERR_PARAMS;
+	}
+	let mut mac = match Hmac::<Sha256>::new_from_slice(&KEYSTORE_KEYS[idx].0.get()) {
+		Ok(m) => m,
+		Err(_) => return ERR_KEYSLOT,
+	};
+	mac.update(msg);
+	let tag = mac.finalize().into_bytes();
+	out.copy_from_slice(&tag);
+	ERR_OK
+}
+
+/// Wipe a slot: volatile-zeroize the key bytes and disarm the slot.
+/// The operation is idempotent over valid handles; an invalid handle
+/// refuses.
+///
+/// # Safety
+///
+/// This function dereferences no host pointers - the unsafe surface is
+/// the ABI itself (the host must hold a valid handle).
+#[no_mangle]
+pub unsafe extern "C" fn engine_keystore_wipe(handle: u32) -> u32 {
+	let Some(idx) = decode_handle(handle) else {
+		return ERR_KEYSLOT;
+	};
+	zeroize_slot(idx);
+	KEYSTORE_STATE[idx].store(SLOT_WIPED, Ordering::Relaxed);
+	ERR_OK
+}
+
+/// The provable invariant: 1 when the slot's bytes are all zero, 0 when
+/// any byte differs, `ERR_KEYSLOT` for an invalid handle. The self-report
+/// runs inside the sandbox where the bytes live - the host can pin this
+/// across a put/wipe cycle and hold the artifact to it.
+///
+/// # Safety
+///
+/// This function dereferences no host pointers - the unsafe surface is
+/// the ABI itself (the host must hold a valid handle).
+#[no_mangle]
+pub unsafe extern "C" fn engine_keystore_is_zeroed(handle: u32) -> u32 {
+	let Some(idx) = decode_handle(handle) else {
+		return ERR_KEYSLOT;
+	};
+	let key = KEYSTORE_KEYS[idx].0.get();
+	if key.iter().all(|&b| b == 0) {
+		1
+	} else {
+		0
+	}
 }

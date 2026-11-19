@@ -182,8 +182,17 @@ if (execPatternFailures === 0) {
 
 // ── the engine crate: exact pin + the deny.toml verdicts stay deny ───────
 const cargoToml = readFileSync('engine/argon2id/Cargo.toml', 'utf8');
-const depSection = cargoToml.split('[dependencies]')[1]?.split('[')[0] ?? '';
-const versionLines = [...depSection.matchAll(/version\s*=\s*"([^"]+)"/g)].map((m) => m[1]);
+// The section ends at the next TOML header line. The old split-at-first-
+// '[' parser truncated the section at the argon2 line's `["kdf"]` value
+// array, leaving every later dependency invisible to this gate - the
+// night-frontier-Z6 keystore pins (hmac, sha2) rode in unwatched. Parse
+// line-by-line instead: robust to inline arrays and future formatting.
+const depLines: string[] = [];
+for (const line of (cargoToml.split('[dependencies]')[1] ?? '').split('\n')) {
+	if (line.startsWith('[')) break;
+	depLines.push(line);
+}
+const versionLines = [...depLines.join('\n').matchAll(/version\s*=\s*"([^"]+)"/g)].map((m) => m[1]);
 if (versionLines.length === 0) {
 	fail(
 		'engine/argon2id/Cargo.toml declares no dependency versions - the exact-pin contract is unparseable'

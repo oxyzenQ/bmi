@@ -361,3 +361,104 @@ describe('kdf wasm engine fail-closed loading', () => {
 		expect(restored!.abiVersion).toBe(1);
 	});
 });
+
+// ── night-frontier-Z6: the keystore seat battery ──
+// The engine is no longer only a key forge, it is also key custody.
+// The deep slot-level invariants, pinned against the digest-verified
+// artifact:
+//   1. Byte-identity: the in-engine HMAC-SHA256 equals noble's - one
+//      construction, two engines, zero tolerance.
+//   2. The armed slot self-reports NOT-zero; the wiped slot
+//      self-reports all-zero AND refuses every further use: the
+//      zeroization is deterministic (volatile writes) and use after
+//      wipe is an ABI refusal, not a zero-key computation.
+//   3. Fail-closed everywhere: wrong stage length, wrong handle, wrong
+//      output length - all refused.
+
+import { hmac } from '@noble/hashes/hmac.js';
+import { sha256 } from '@noble/hashes/sha2.js';
+
+describe('kdf wasm engine keystore seat (night-frontier-Z6)', () => {
+	const putKey = (seed: number): Uint8Array =>
+		new Uint8Array(32).map((_, i) => (seed + i * 13) & 0xff);
+	const msgOf = (text: string): Uint8Array => new TextEncoder().encode(text);
+	const hexOf = (bytes: Uint8Array): string => Buffer.from(bytes).toString('hex');
+
+	it('exposes the keystore capacity the wrapper asserts', () => {
+		expect(engine.keystoreSlots()).toBeGreaterThanOrEqual(4);
+	});
+
+	it('the in-engine HMAC-SHA256 equals noble byte-for-byte (both modes)', () => {
+		const key = putKey(21);
+		const handle = engine.keystorePut(new Uint8Array(key));
+		expect(handle).toBeGreaterThan(0);
+		const samples = ['', 'genesis link', 'unicode: 身体質量指数', '{"timestamp":1,"bmi":22.86}'];
+		for (const text of samples) {
+			const msg = msgOf(text);
+			const engineTag = engine.keystoreHmac(handle, msg);
+			const nobleTag = hmac(sha256, key, msg);
+			expect(hexOf(engineTag)).toBe(hexOf(nobleTag));
+		}
+		// The armed slot self-reports NOT-zero.
+		expect(engine.keystoreIsZeroed(handle)).toBe(false);
+		engine.keystoreWipe(handle);
+	});
+
+	it('the wipe is provable: the slot self-reports all-zero and refuses use', () => {
+		const key = putKey(22);
+		const handle = engine.keystorePut(new Uint8Array(key));
+		expect(engine.keystoreIsZeroed(handle)).toBe(false);
+		const tag = hexOf(engine.keystoreHmac(handle, msgOf('armed slot signs')));
+		expect(tag).toBe(hexOf(hmac(sha256, key, msgOf('armed slot signs'))));
+		engine.keystoreWipe(handle);
+		// The provable invariant: the slot reports all-zero from inside
+		// the sandbox where the bytes live.
+		expect(engine.keystoreIsZeroed(handle)).toBe(true);
+		// Use after wipe is an ABI refusal - never a zero-key computation.
+		expect(() => engine.keystoreHmac(handle, msgOf('after wipe'))).toThrow(/keystore refusal/);
+		// A fresh install re-arms the slot system under a NEW opaque
+		// handle (the old handle's generation is dead forever).
+		const handle2 = engine.keystorePut(new Uint8Array(key));
+		expect(handle2).toBeGreaterThan(0);
+		expect(handle2).not.toBe(handle);
+		expect(engine.keystoreIsZeroed(handle2)).toBe(false);
+		engine.keystoreWipe(handle2);
+	});
+
+	it('fails closed on every malformed keystore input', () => {
+		// Wrong stage length.
+		expect(() => engine.keystorePut(new Uint8Array(31))).toThrow(/exactly 32 bytes/);
+		// Invalid handles: zero, past capacity.
+		expect(() => engine.keystoreHmac(0, msgOf('x'))).toThrow(/keystore refusal/);
+		expect(() => engine.keystoreHmac(engine.keystoreSlots() + 1, msgOf('x'))).toThrow(
+			/keystore refusal/
+		);
+		expect(() => engine.keystoreWipe(0)).toThrow(/keystore refusal/);
+		expect(() => engine.keystoreIsZeroed(0)).toThrow(/keystore refusal/);
+		// Never-installed handle: nothing was armed there.
+		expect(() => engine.keystoreHmac(engine.keystoreSlots(), msgOf('x'))).toThrow(
+			/keystore refusal/
+		);
+	});
+
+	it('custodies multiple concurrent slots without cross-talk', () => {
+		const keyA = putKey(31);
+		const keyB = putKey(32);
+		const handleA = engine.keystorePut(new Uint8Array(keyA));
+		const handleB = engine.keystorePut(new Uint8Array(keyB));
+		expect(handleA).not.toBe(handleB);
+		expect(hexOf(engine.keystoreHmac(handleA, msgOf('dual')))).toBe(
+			hexOf(hmac(sha256, keyA, msgOf('dual')))
+		);
+		expect(hexOf(engine.keystoreHmac(handleB, msgOf('dual')))).toBe(
+			hexOf(hmac(sha256, keyB, msgOf('dual')))
+		);
+		engine.keystoreWipe(handleA);
+		// Wiping A leaves B armed and correct.
+		expect(engine.keystoreIsZeroed(handleA)).toBe(true);
+		expect(hexOf(engine.keystoreHmac(handleB, msgOf('dual')))).toBe(
+			hexOf(hmac(sha256, keyB, msgOf('dual')))
+		);
+		engine.keystoreWipe(handleB);
+	});
+});

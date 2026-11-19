@@ -147,7 +147,7 @@ export async function registerAtRestSession(passphrase: string): Promise<void> {
 		await readVerifierKdfOptions()
 	);
 	setAtRestSessionKey(aesKey);
-	installWitnessKey(witnessMacKey);
+	await installWitnessKey(witnessMacKey);
 }
 
 /**

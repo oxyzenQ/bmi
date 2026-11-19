@@ -169,7 +169,7 @@ async function keyedReferenceHead(
 describe('keyed witness chain math (night-frontier-Z6)', () => {
 	it('matches an independent WebCrypto HMAC reference implementation', async () => {
 		const key = witnessKeyBytes(0x6b65);
-		installWitnessKey(new Uint8Array(key));
+		await installWitnessKey(new Uint8Array(key));
 		const prng = makePrng(0x7a36);
 		const records = randomRecords(prng, 12);
 		const chain = await computeWitnessChain(records as never, 'keyed');
@@ -183,7 +183,7 @@ describe('keyed witness chain math (night-frontier-Z6)', () => {
 
 	it('seals keyed with the mode and fingerprint when a key is installed', async () => {
 		const key = witnessKeyBytes(0x1111);
-		installWitnessKey(new Uint8Array(key));
+		await installWitnessKey(new Uint8Array(key));
 		const records = randomRecords(makePrng(0x2222), 4) as never;
 		await sealLedgerChain(records);
 		const sealed = await getSealedLedgerChain();
@@ -197,7 +197,7 @@ describe('keyed witness chain math (night-frontier-Z6)', () => {
 
 	it('diverges the keyed head from the plain head for the same records', async () => {
 		const key = witnessKeyBytes(0x3333);
-		installWitnessKey(new Uint8Array(key));
+		await installWitnessKey(new Uint8Array(key));
 		const records = randomRecords(makePrng(0x4444), 6) as never;
 		const plain = await computeLedgerChain(records);
 		const keyed = await computeWitnessChain(records, 'keyed');
@@ -208,7 +208,7 @@ describe('keyed witness chain math (night-frontier-Z6)', () => {
 
 	it('stays byte-identical for an empty ledger (genesis head, length zero)', async () => {
 		const key = witnessKeyBytes(0x5555);
-		installWitnessKey(new Uint8Array(key));
+		await installWitnessKey(new Uint8Array(key));
 		const genesis = await sha256HexInput('bmi-stellar-ledger-v4-genesis');
 		const keyed = await computeWitnessChain([], 'keyed');
 		expect(keyed).toEqual({ head: genesis, length: 0 });
@@ -229,7 +229,7 @@ describe('keyed witness chain math (night-frontier-Z6)', () => {
 describe('keyed witness semantics (night-frontier-Z6)', () => {
 	it('advances keyed on a legit save transition and freezes on a tampered pre-state', async () => {
 		const key = witnessKeyBytes(0x7f11);
-		installWitnessKey(new Uint8Array(key));
+		await installWitnessKey(new Uint8Array(key));
 		const pre = randomRecords(makePrng(0x8f11), 4) as never;
 		await sealLedgerChain(pre);
 		const before = await getSealedLedgerChain();
@@ -251,7 +251,7 @@ describe('keyed witness semantics (night-frontier-Z6)', () => {
 
 	it('steps the witness aside (tombstone) when the attestation key is gone', async () => {
 		const key = witnessKeyBytes(0xb111);
-		installWitnessKey(new Uint8Array(key));
+		await installWitnessKey(new Uint8Array(key));
 		const records = randomRecords(makePrng(0xc111), 3) as never;
 		await sealLedgerChain(records);
 		const sealed = await getSealedLedgerChain();
@@ -272,13 +272,13 @@ describe('keyed witness semantics (night-frontier-Z6)', () => {
 
 	it('steps aside on passphrase rotation and re-anchors under the new key', async () => {
 		const keyA = witnessKeyBytes(0xf111);
-		installWitnessKey(new Uint8Array(keyA));
+		await installWitnessKey(new Uint8Array(keyA));
 		const records = randomRecords(makePrng(0x0221), 3) as never;
 		await sealLedgerChain(records);
 		const kfA = getWitnessKeyFingerprint();
 		// Rotation: a new passphrase installed a new attestation key.
 		const keyB = witnessKeyBytes(0x1221);
-		installWitnessKey(new Uint8Array(keyB));
+		await installWitnessKey(new Uint8Array(keyB));
 		expect(getWitnessKeyFingerprint()).not.toBe(kfA);
 		await reseatLedgerChainAfterSave(records, randomRecords(makePrng(0x2221), 4) as never);
 		// Honest step-aside: no stale anchor, no false violation.
@@ -296,7 +296,7 @@ describe('keyed witness semantics (night-frontier-Z6)', () => {
 		const records = randomRecords(makePrng(0x4221), 3) as never;
 		await sealLedgerChain(records);
 		expect((await getSealedLedgerChain())!.mode).toBeUndefined();
-		installWitnessKey(witnessKeyBytes(0x5221));
+		await installWitnessKey(witnessKeyBytes(0x5221));
 		const next = randomRecords(makePrng(0x6221), 4) as never;
 		await reseatLedgerChainAfterSave(records, next);
 		const sealed = await getSealedLedgerChain();
@@ -306,7 +306,7 @@ describe('keyed witness semantics (night-frontier-Z6)', () => {
 
 	it('treats a damaged keyed witness as attestable-by-nothing, not as plain', async () => {
 		const key = witnessKeyBytes(0x7221);
-		installWitnessKey(new Uint8Array(key));
+		await installWitnessKey(new Uint8Array(key));
 		await sealLedgerChain(randomRecords(makePrng(0x8221), 2) as never);
 		// Damage the fingerprint field: the witness must NOT fall back to
 		// plain reading (a plain recomputation would accuse honest records).
@@ -331,7 +331,7 @@ describe('keyed witness audit states (night-frontier-Z6)', () => {
 	it('reports witness-opaque for a keyed witness without the key', async () => {
 		const records = randomRecords(makePrng(0x9221), 3);
 		lsStore.set(HISTORY, JSON.stringify(records));
-		installWitnessKey(witnessKeyBytes(0xa221));
+		await installWitnessKey(witnessKeyBytes(0xa221));
 		await sealLedgerChain(records as never);
 		wipeWitnessKey();
 		const audit = await auditLedgerContinuity();
@@ -343,7 +343,7 @@ describe('keyed witness audit states (night-frontier-Z6)', () => {
 	it('reports ok and violated under a keyed witness with the key installed', async () => {
 		const records = randomRecords(makePrng(0xb221), 4);
 		lsStore.set(HISTORY, JSON.stringify(records));
-		installWitnessKey(witnessKeyBytes(0xc221));
+		await installWitnessKey(witnessKeyBytes(0xc221));
 		await sealLedgerChain(records as never);
 		expect((await auditLedgerContinuity()).state).toBe('ok');
 		// Device tamper under a keyed witness: the audit must still accuse.
