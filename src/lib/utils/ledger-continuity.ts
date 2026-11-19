@@ -58,6 +58,8 @@ import {
 	readVaultWitness,
 	recordsAgainstChain,
 	parseWitnessRaw,
+	isSealFailedWitnessRaw,
+	SEAL_FAILED_WITNESS,
 	type LedgerChain
 } from './ledger-vault-anchor';
 import { warnDev, warnDevOnce } from './warn-dev';
@@ -183,10 +185,31 @@ async function sealWithCurrentMode(records: BmiRecord[]): Promise<void> {
 		warnDev(
 			'ledger-continuity',
 			'sealWithCurrentMode',
-			'Witness seal failed — degrading to unanchored',
+			'Witness seal failed — degrading to the typed seal-failure marker',
 			err
 		);
-		await dbMetaSet(META_LEDGER_CHAIN, '').catch(() => {});
+		// Night-frontier-Z9: a seal FAILURE writes the typed marker, not the
+		// empty string — "I failed to witness" is a different statement from
+		// "I am not here" (a deliberate tombstone), and the audit plus the
+		// vault-veto path can now tell them apart by name. Both read as no
+		// witness to every consumer (fail-closed, pre-Z9 behavior).
+		await dbMetaSet(META_LEDGER_CHAIN, SEAL_FAILED_WITNESS).catch(() => {});
+	}
+}
+
+/**
+ * Whether the meta witness entry is the typed seal-failure marker
+ * (night-frontier-Z9): the ledger DID try to witness and the seal
+ * failed — a seal-degraded state, distinct from a deliberate wipe (the
+ * empty-string tombstone) and from a live witness. The audit surfaces
+ * this as `sealDegraded` next to its `unanchored` state.
+ */
+export async function isLedgerWitnessSealDegraded(): Promise<boolean> {
+	try {
+		return isSealFailedWitnessRaw(await dbMetaGet(META_LEDGER_CHAIN));
+	} catch (err) {
+		warnDev('ledger-continuity', 'isLedgerWitnessSealDegraded', 'Witness marker read failed', err);
+		return false;
 	}
 }
 
@@ -288,15 +311,20 @@ export function reseatLedgerChainAfterSave(
 			// recovery stays the documented one - import your own v4
 			// backup or clear the ledger). A stale copy (different length),
 			// no vault, or an attestation state the bridge cannot compare
-			// is silence, never evidence.
+			// is silence, never evidence. The typed seal-failure marker
+			// (Z9) names its own state: the meta entry says "I failed to
+			// witness", not "I was wiped" — the veto below can say which.
 			const vault = await readVaultWitness();
 			if (vault && vault.length === preRecords.length) {
 				const verdict = await recordsAgainstChain(preRecords, vault);
 				if (verdict === false) {
+					const sealDegraded = await isLedgerWitnessSealDegraded();
 					warnDevOnce(
 						'ledger-continuity',
 						'vault-veto',
-						'The vault anchor disagrees at the same length — the meta witness was wiped over a changed ledger; refusing to re-anchor (recovery: import your own v4 backup or clear the ledger)'
+						sealDegraded
+							? 'The vault anchor disagrees at the same length and the meta entry is a seal-failure marker — a degraded seal plus a changed ledger is exactly the suspicious edge; refusing to re-anchor (recovery: import your own v4 backup or clear the ledger)'
+							: 'The vault anchor disagrees at the same length — the meta witness was wiped over a changed ledger; refusing to re-anchor (recovery: import your own v4 backup or clear the ledger)'
 					);
 					return;
 				}

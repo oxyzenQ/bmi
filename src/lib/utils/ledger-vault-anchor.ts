@@ -56,14 +56,37 @@ export interface LedgerChain {
 }
 
 /**
+ * The TYPED seal-failure marker (night-frontier-Z9): what the meta
+ * witness entry holds when a seal attempt itself failed, instead of the
+ * empty string a deliberate tombstone writes. The distinction is the
+ * honesty sharpener — "I failed to witness" is a different statement
+ * from "I am not here", and the audit plus the vault-veto path can now
+ * say which one they are looking at (the Z7 honest edge — a seal-failure
+ * tombstone plus an in-place edit — is nameable instead of reading
+ * identically to a wiped witness). Fail-closed by construction: the
+ * marker carries no head and no length, so every witness consumer reads
+ * it as NO WITNESS (unanchored, never violated) — pre-Z9 data and
+ * unknown shapes keep the exact same behavior.
+ */
+export const SEAL_FAILED_WITNESS = '{"t":"seal-failed"}';
+
+/** True when a raw witness entry is the typed seal-failure marker. */
+export function isSealFailedWitnessRaw(raw: string | null | undefined): boolean {
+	return typeof raw === 'string' && raw === SEAL_FAILED_WITNESS;
+}
+
+/**
  * Parse a raw witness JSON string into a LedgerChain. Fail-closed
  * toward honesty: a keyed marker means keyed even when the fingerprint
  * field is damaged (the witness then reads as attestable-by-nothing,
  * never as a plain witness that could accuse records with a
- * recomputation the seal never ran), and any unknown mode reads as no
- * witness at all - unanchored, never violated.
+ * recomputation the seal never ran), the seal-failure marker reads as
+ * no witness at all (it is a statement about the seal, not an anchor),
+ * and any unknown mode reads as no witness at all - unanchored, never
+ * violated.
  */
 export function parseWitnessRaw(raw: string): LedgerChain | null {
+	if (isSealFailedWitnessRaw(raw)) return null;
 	try {
 		const parsed = JSON.parse(raw) as Partial<LedgerChain>;
 		if (typeof parsed.head !== 'string' || typeof parsed.length !== 'number') return null;

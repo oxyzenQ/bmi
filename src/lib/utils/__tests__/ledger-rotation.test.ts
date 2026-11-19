@@ -21,7 +21,7 @@
 //      the witness is untouched by the rotation itself and the sealed
 //      values stay sealed (the purge guard still protects them).
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Polyfill localStorage for @vitest-environment node (no DOM)
 const lsStore = new Map<string, string>();
@@ -39,10 +39,19 @@ const dbState = vi.hoisted(() => ({
 	kv: new Map<string, string>()
 }));
 
+// The seal-failure toggle (night-frontier-Z9): the witness seal can be
+// forced to fail ONCE so the typed marker path is provable live — the
+// marker write itself must still land (it rides the same meta key).
+const sealCtl = vi.hoisted(() => ({ armed: false, consumed: false }));
+
 vi.mock('../db', () => ({
 	isIndexedDbAvailable: () => true,
 	dbMetaGet: vi.fn(async (key: string) => dbState.meta.get(key) ?? null),
 	dbMetaSet: vi.fn(async (key: string, value: string) => {
+		if (sealCtl.armed && !sealCtl.consumed && key === '__history_chain_head') {
+			sealCtl.consumed = true;
+			throw new Error('forced witness seal failure');
+		}
 		dbState.meta.set(key, value);
 		return undefined;
 	}),
@@ -87,7 +96,7 @@ import { commitImportedRecords } from '../bmi-history';
 import { toRecord } from '../history-io';
 import { auditLedgerContinuity } from '../bmi-history';
 import { _drainLedgerContinuityForTesting, META_LEDGER_CHAIN } from '../ledger-continuity';
-import { parseWitnessRaw } from '../ledger-vault-anchor';
+import { parseWitnessRaw, SEAL_FAILED_WITNESS } from '../ledger-vault-anchor';
 
 const PW_ONE = 'rotation passphrase one';
 const PW_TWO = 'rotation passphrase two';
@@ -269,5 +278,61 @@ describe('unlocked rotation re-seals the ledger (night-frontier-Z9)', () => {
 		expect(isAtRestUnlocked()).toBe(false);
 		expect(storageGet(HISTORY)).toBeNull();
 		expect(storageGetRaw(HISTORY)).toBe(sealedEnvelope);
+	});
+});
+
+describe('typed tombstones: seal failure is not a wipe (night-frontier-Z9)', () => {
+	afterEach(() => {
+		sealCtl.armed = false;
+		sealCtl.consumed = false;
+	});
+
+	it('a seal failure writes the typed marker and the audit names it', async () => {
+		await enableEncryption(PW_ONE);
+		commitImportedRecords(HISTORY_RECORDS.map((r) => toRecord(r)));
+		await awaitSealedEnvelope(HISTORY);
+		// Force the witness seal itself to fail on the next legit write
+		// (once — the marker write must land).
+		sealCtl.armed = true;
+		sealCtl.consumed = false;
+		await commitImportedRecords([
+			toRecord({ timestamp: 1_700_172_800_000, bmi: 23.8, height: 176, weight: 71.5, age: 30 })
+		]);
+		await _drainLedgerContinuityForTesting();
+		sealCtl.armed = false;
+		sealCtl.consumed = false;
+
+		// The meta entry is the MARKER, not the empty string: "I failed to
+		// witness" is now a different statement from "I am not here".
+		expect(dbState.meta.get(META_LEDGER_CHAIN)).toBe(SEAL_FAILED_WITNESS);
+		// Fail-closed compat is free: the marker is no witness anywhere.
+		expect(parseWitnessRaw(SEAL_FAILED_WITNESS)).toBeNull();
+		const audit = await auditLedgerContinuity();
+		expect(audit.state).toBe('unanchored');
+		expect(audit.sealDegraded).toBe(true);
+
+		// The marker does not block recovery: the next legit save re-anchors
+		// (the vault consult still guards it), and the degradation clears.
+		await commitImportedRecords([
+			toRecord({ timestamp: 1_700_259_200_000, bmi: 23.9, height: 176, weight: 71.6, age: 30 })
+		]);
+		await _drainLedgerContinuityForTesting();
+		const sealed = parseWitnessRaw(dbState.meta.get(META_LEDGER_CHAIN) ?? '');
+		expect(sealed).not.toBeNull();
+		expect(sealed!.mode).toBe('keyed');
+		const auditAfter = await auditLedgerContinuity();
+		expect(auditAfter.state).toBe('ok');
+		expect(auditAfter.sealDegraded).toBe(false);
+	});
+
+	it('a deliberate tombstone stays the empty string and reads as unwiped', async () => {
+		await enableEncryption(PW_ONE);
+		commitImportedRecords(HISTORY_RECORDS.map((r) => toRecord(r)));
+		await awaitSealedEnvelope(HISTORY);
+		// The deliberate wipe (the existing tombstone route): empty string.
+		dbState.meta.set(META_LEDGER_CHAIN, '');
+		const audit = await auditLedgerContinuity();
+		expect(audit.state).toBe('unanchored');
+		expect(audit.sealDegraded).toBe(false);
 	});
 });

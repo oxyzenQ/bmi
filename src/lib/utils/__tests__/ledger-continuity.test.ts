@@ -105,6 +105,7 @@ import {
 import { createBackup, restoreLatestBackup } from '../backup';
 import { AT_REST_TAG, _resetAtRestStateForTesting } from '../at-rest-state';
 import { _resetWitnessKeyForTesting } from '../witness-key';
+import { parseWitnessRaw, SEAL_FAILED_WITNESS } from '../ledger-vault-anchor';
 
 const HISTORY = STORAGE_KEYS.HISTORY;
 
@@ -356,8 +357,12 @@ describe('ledger continuity witness semantics', () => {
 			throw new Error('idb write failed');
 		});
 		await sealLedgerChain(randomRecords(makePrng(38), 2) as never);
-		// The witness degraded: no stale anchor survives to accuse falsely.
-		expect(dbState.meta.get(META_LEDGER_CHAIN)).toBe('');
+		// The witness degraded: no stale anchor survives to accuse falsely —
+		// and night-frontier-Z9 makes the degradation TYPED: the marker says
+		// "I failed to witness" (a different statement from a deliberate
+		// wipe) and reads as no witness to every consumer.
+		expect(dbState.meta.get(META_LEDGER_CHAIN)).toBe(SEAL_FAILED_WITNESS);
+		expect(parseWitnessRaw(SEAL_FAILED_WITNESS)).toBeNull();
 		if (original) dbState.meta.set(META_LEDGER_CHAIN, original);
 	});
 

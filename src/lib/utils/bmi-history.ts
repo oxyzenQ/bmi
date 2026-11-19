@@ -7,6 +7,7 @@ import {
 	computeWitnessChain,
 	getSealedLedgerChain,
 	isHistorySealedOpaque,
+	isLedgerWitnessSealDegraded,
 	reseatLedgerChainAfterSave,
 	sealLedgerChain
 } from './ledger-continuity';
@@ -163,6 +164,15 @@ export interface ContinuityAudit {
 		mode?: 'keyed';
 		agreesWithRecords: boolean;
 	} | null;
+	/**
+	 * The typed seal-failure marker (night-frontier-Z9): true when the
+	 * meta witness entry says "I failed to witness" (a seal attempt
+	 * failed) rather than "I am not here" (a deliberate wipe) or holding
+	 * a live witness. The state stays `unanchored` — the marker is a
+	 * statement about the seal, not an anchor — but the difference is
+	 * nameable instead of reading identically to a wiped witness.
+	 */
+	sealDegraded?: boolean;
 }
 
 /**
@@ -189,7 +199,13 @@ export interface ContinuityAudit {
  */
 export async function auditLedgerContinuity(): Promise<ContinuityAudit> {
 	if (isHistorySealedOpaque()) {
-		return { state: 'sealed-opaque', sealed: null, computed: null, vaultEvidence: null };
+		return {
+			state: 'sealed-opaque',
+			sealed: null,
+			computed: null,
+			vaultEvidence: null,
+			sealDegraded: false
+		};
 	}
 	const sealed = await getSealedLedgerChain();
 	// Night-frontier-Z6: a keyed witness recomputes ONLY under its own
@@ -203,6 +219,13 @@ export async function auditLedgerContinuity(): Promise<ContinuityAudit> {
 	}
 	const records = readBmiHistory();
 	const computed = await computeWitnessChain(records, sealed?.mode === 'keyed' ? 'keyed' : 'plain');
+	const sealDegraded =
+		sealed === null
+			? // Night-frontier-Z9: name the seal-degraded state — the meta entry
+				// is the typed seal-failure marker ("I failed to witness"), not a
+				// deliberate wipe ("I am not here") and not a live witness.
+				await isLedgerWitnessSealDegraded()
+			: false;
 	if (sealed === null) {
 		// Night-frontier-Z7: with no meta witness, the OPFS vault copy is
 		// the only anchor left - surface its verdict instead of silence.
@@ -219,12 +242,19 @@ export async function auditLedgerContinuity(): Promise<ContinuityAudit> {
 						length: vault.length,
 						mode: vault.mode,
 						agreesWithRecords: verdict
-					}
+					},
+					sealDegraded
 				};
 			}
 		}
-		return { state: 'unanchored', sealed: null, computed, vaultEvidence: null };
+		return { state: 'unanchored', sealed: null, computed, vaultEvidence: null, sealDegraded };
 	}
 	const ok = sealed.head === computed.head && sealed.length === computed.length;
-	return { state: ok ? 'ok' : 'violated', sealed, computed, vaultEvidence: null };
+	return {
+		state: ok ? 'ok' : 'violated',
+		sealed,
+		computed,
+		vaultEvidence: null,
+		sealDegraded: false
+	};
 }
