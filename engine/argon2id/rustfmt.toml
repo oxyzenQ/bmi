@@ -1,0 +1,6 @@
+# Copyright (C) 2026 rezky_nightky
+# SPDX-License-Identifier: AGPL-3.0-only
+# The engine source follows the house indentation (tabs, matching every
+# TypeScript tree in the repo); rustfmt's default is spaces, so the
+# formatting gate pins the same style rustfmt enforces and checks.
+hard_tabs = true
