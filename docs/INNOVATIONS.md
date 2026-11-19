@@ -797,6 +797,33 @@ attacker's plain recomputation never matching a keyed head. The keystone
 test proves the zeroization invariant the JS path CAN prove: after the
 wipe, the surviving MAC closure computes exactly what a zero-key HMAC
 computes — a proof no dropped-reference JS object offers.
+Night-frontier-Z9 sharpening — the rotation re-seal: the rotation
+tombstone the batteries pinned was honest, but the SOURCE showed a
+deeper cost. enableEncryption() cleared the session FIRST, so the
+witness tombstoned only at the NEXT legit save — the window between
+the rotation and that save was the one moment tampering could happen
+unobserved (no installed key could verify anything) — and every value
+sealed under the old key became permanent-opaque under the new one:
+the rotation lockout. The deeper route runs when the rotation happens
+in an ALREADY-UNLOCKED session, where the old key does not need to die
+blind: `ledger-rotation.ts` holds ONE ledger-lock section that (1)
+verifies the current ledger one last time UNDER THE OLD KEY (the
+`witnessRotationVerdict` law — the reseat rules applied verbatim,
+mode-aware, the Z7 vault veto included), (2) captures the plaintext of
+every health key the unlocked refresh already opened, (3) swaps the
+seats, (4) re-seals the captured values under the NEW seat (ordinary
+storageSet: fresh IV per value), and (5) re-anchors the witness under
+the NEW key. No blind window, no lockout — the first post-rotation
+save rides a verified, keyed witness. A `frozen` verdict (old head
+mismatch, unattestable old witness, or the vault veto) NEVER
+re-anchors: the freeze rule is untouched and the witness stays as
+evidence — while the values STILL re-seal, because persistence is not
+blessing and the user keeps access to their own data (the audit reads
+that state witness-opaque, never violated). A rotation while LOCKED
+keeps the honest route byte-identical: the tombstone stays what a
+rotation that cannot verify anything deserves. The battery pins all
+four: no lockout, the in-section re-anchor, the freeze with values
+re-sealed, and the locked route.
 Night-frontier-Z6 sharpening (the chain checkpoint law): the hunting
 finding under the chain was physics, not semantics — every link waited
 on one `crypto.subtle.digest` round-trip, twice per save, so a ledger at
@@ -846,6 +873,23 @@ cannot by itself separate tamper from the rare honest edge (a
 seal-failure tombstone plus an in-place edit between backup and save) —
 the freeze preserves the evidence and the user re-anchors deliberately,
 exactly like the Z3 rule it extends.
+Night-frontier-Z9 sharpening — typed tombstones: that honest edge was
+invisible because a seal failure and a deliberate wipe both wrote the
+empty string — "I failed to witness" read identically to "I am not
+here". A seal failure now writes the typed marker
+(`SEAL_FAILED_WITNESS`, `{"t":"seal-failed"}`) while a deliberate
+tombstone stays the empty string, and the difference is nameable: the
+continuity audit carries `sealDegraded` next to its `unanchored` state
+(a stable field, false whenever a live witness exists), and the
+vault-veto warning says which state it is looking at when a
+same-length disagreement freezes the re-anchor — a degraded seal plus
+a changed ledger is exactly the suspicious edge, now said in plain
+words. Fail-closed by construction: the marker carries no head and no
+length, so every witness consumer reads it as NO WITNESS (unanchored,
+never violated) — pre-Z9 data and unknown shapes keep the exact same
+behavior, compat is free, and the marker never blocks recovery (the
+next legit save re-anchors through it, the vault consult still
+guarding).
 
 **30. The OPFS flush() Vault Tier — a second durable home with a real
 fsync (night-frontier-Z4).** `durability: 'strict'` on IndexedDB

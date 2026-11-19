@@ -247,14 +247,14 @@ head   = link_n   (canonical: fixed key order timestamp/bmi/height/weight/age,
                    ascending timestamp, stable sort)
 ```
 
-| Aspect  | Contract                                                                                                                                        |
-| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Witness | `{ head, length }` sealed in IndexedDB meta `__history_chain_head`; a keyed witness carries `mode: 'keyed'` and the public key fingerprint `kf` |
-| Re-seal | Only legit writes: save (pre-state must match), import, clear                                                                                   |
-| Freeze  | A save over a mismatched pre-state does NOT re-seal - evidence is preserved                                                                     |
-| Export  | v4 envelope carries the PLAIN `chain` inside the HMAC payload; import cross-checks it (portable, keyless)                                       |
-| Backup  | The witness travels inside the backup snapshot; restore re-installs it                                                                          |
-| Audit   | ok / violated / unanchored / sealed-opaque (locked sealed ledger) / witness-opaque (keyed witness without its key)                              |
+| Aspect  | Contract                                                                                                                                                                 |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Witness | `{ head, length }` sealed in IndexedDB meta `__history_chain_head`; a keyed witness carries `mode: 'keyed'` and the public key fingerprint `kf`                          |
+| Re-seal | Only legit writes: save (pre-state must match), import, clear                                                                                                            |
+| Freeze  | A save over a mismatched pre-state does NOT re-seal - evidence is preserved                                                                                              |
+| Export  | v4 envelope carries the PLAIN `chain` inside the HMAC payload; import cross-checks it (portable, keyless)                                                                |
+| Backup  | The witness travels inside the backup snapshot; restore re-installs it                                                                                                   |
+| Audit   | ok / violated / unanchored (+ `sealDegraded`: the typed seal-failure marker, Z9) / sealed-opaque (locked sealed ledger) / witness-opaque (keyed witness without its key) |
 
 **The keyed witness law (night-frontier-Z6).** For a passphrase-protected
 ledger the device witness is a keyed chain: every record link runs under
@@ -271,7 +271,12 @@ SEALED witness's mode (never the current one), verifies the fingerprint
 belongs to the same passphrase, and upgrades a plain witness to keyed on
 the first legit save after an unlock. A keyed witness whose key is gone
 (locked edge, passphrase rotation) steps aside to honestly unanchored —
-it can neither bless nor accuse, and the audit reports `witness-opaque`
+it can neither bless nor accuse, and the audit reports `witness-opaque`.
+Since night-frontier-Z9, a rotation in an ALREADY-UNLOCKED session
+re-seals instead: the old key verifies the ledger one last time, the
+values re-seal under the new key, and the witness re-anchors in the
+same ledger-lock section — no blind window, no lockout; a frozen
+verdict keeps the witness as evidence while the values still re-seal
 instead of a false violation.
 
 **The tri-home witness (night-frontier-Z7).** The witness lives in
