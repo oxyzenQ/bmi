@@ -307,7 +307,7 @@ pub extern "C" fn engine_abi_version() -> u32 {
 
 // ── The keystore seat (night-frontier-Z6) ──
 // Key custody inside the engine's linear memory. Slots are fixed-size
-// statics; the only door is the ABI below. The wasm32-unknown-unknown
+// static variables; the only door is the ABI below. The wasm32-unknown-unknown
 // target is single-threaded by definition (no atomics, no threads), so
 // a Cell-backed slot with a target-scoped Sync promise is sound here:
 // there is no second thread to race, and the artifact is never built
