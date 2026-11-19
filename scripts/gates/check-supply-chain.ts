@@ -81,7 +81,7 @@ for (const [name, deps] of sections) {
 			continue;
 		}
 		if (!/^[\^~>=<]?[\d]/.test(range) && !lower.startsWith('npm:')) {
-			fail(`${name}: ${dep} has an unparseable range "${range}"`);
+			fail(`${name}: ${dep} has an unparsable range "${range}"`);
 		}
 	}
 }
