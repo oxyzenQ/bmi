@@ -25,6 +25,7 @@ import {
 } from './db';
 import { t } from '$lib/i18n';
 import { META_LEDGER_CHAIN } from './ledger-continuity';
+import { withLedgerLock } from './ledger-lock';
 import { mirrorVaultSnapshot, readVaultSnapshot } from './vault-backup';
 import { STORAGE_KEYS, storageGetRaw } from './storage';
 import { warnDev } from './warn-dev';
@@ -214,36 +215,43 @@ export async function restoreLatestBackup(): Promise<boolean> {
 		// Import dynamically to avoid circular dependency
 		const { storageSet, storageRemove, setRestoreMode } = await import('./storage');
 
-		// Suppress backup triggers during restore to prevent recursive backup creation
-		setRestoreMode(true);
+		// night-frontier-Z5: the restore is a legit ledger write — the key
+		// sweep and the witness re-install hold the origin-wide ledger lock
+		// as one critical section, so a concurrent legit save in another
+		// tab can never interleave between the restore and the witness it
+		// belongs to.
+		await withLedgerLock(async () => {
+			// Suppress backup triggers during restore to prevent recursive backup creation
+			setRestoreMode(true);
 
-		try {
-			// Restore only registry keys from the snapshot. The blob lives in
-			// IndexedDB, which a same-origin compromise could have reshaped;
-			// the allowlist keeps the restore surface inside the keys the app
-			// owns, so unknown keys can never be injected into storage.
-			const restoreKeys = new Set<string>(Object.values(STORAGE_KEYS));
-			for (const [key, value] of Object.entries(snapshot)) {
-				if (!restoreKeys.has(key)) continue;
-				if (value !== null) {
-					storageSet(key, value);
-				} else {
-					storageRemove(key);
+			try {
+				// Restore only registry keys from the snapshot. The blob lives in
+				// IndexedDB, which a same-origin compromise could have reshaped;
+				// the allowlist keeps the restore surface inside the keys the app
+				// owns, so unknown keys can never be injected into storage.
+				const restoreKeys = new Set<string>(Object.values(STORAGE_KEYS));
+				for (const [key, value] of Object.entries(snapshot)) {
+					if (!restoreKeys.has(key)) continue;
+					if (value !== null) {
+						storageSet(key, value);
+					} else {
+						storageRemove(key);
+					}
 				}
+			} finally {
+				// Always re-enable backup after restore
+				setRestoreMode(false);
 			}
-		} finally {
-			// Always re-enable backup after restore
-			setRestoreMode(false);
-		}
 
-		// night-frontier-Z3: re-install the witness that belongs to the
-		// restored history. A pre-Z3 snapshot carries no head — tombstone
-		// it (an empty meta value reads as unanchored) so a stale head can
-		// never accuse the restored ledger falsely; the next legit write
-		// re-anchors. The restore-key allowlist above skips the meta key,
-		// so this is the only path it travels.
-		const witness = snapshot[META_LEDGER_CHAIN];
-		await dbMetaSet(META_LEDGER_CHAIN, typeof witness === 'string' ? witness : '');
+			// night-frontier-Z3: re-install the witness that belongs to the
+			// restored history. A pre-Z3 snapshot carries no head — tombstone
+			// it (an empty meta value reads as unanchored) so a stale head can
+			// never accuse the restored ledger falsely; the next legit write
+			// re-anchors. The restore-key allowlist above skips the meta key,
+			// so this is the only path it travels.
+			const witness = snapshot[META_LEDGER_CHAIN];
+			await dbMetaSet(META_LEDGER_CHAIN, typeof witness === 'string' ? witness : '');
+		});
 
 		// If an at-rest session is unlocked, re-open any sealed snapshot
 		// values into the cache so reads turn plaintext again. Sealed

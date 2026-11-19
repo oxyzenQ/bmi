@@ -10,6 +10,7 @@
 	import { createLazyLoader, createPairedLazyLoader } from '$lib/utils/lazy-load';
 	import { STORAGE_KEYS, storageGet, storageSet, storageInvalidate } from '$lib/utils/storage';
 	import { clearLedgerHistory } from '$lib/utils/ledger-continuity';
+	import { installForeignTabCoherence } from '$lib/utils/storage-coherence';
 	import { calculateBmi, isBmiResult } from '$lib/utils/bmi-calculator';
 	import { warnDev, warnDevOnce } from '$lib/utils/warn-dev';
 	import { PAGER, SCROLL, HAPTIC, SECTIONS } from '$lib/utils/animation-config';
@@ -666,6 +667,9 @@
 			}
 		};
 		window.addEventListener('storage', onStorage);
+		// night-frontier-Z5: foreign-tab health-key writes drop their cache
+		// entries here, so this realm's reads never serve a stale pre-state.
+		const uninstallForeignCoherence = installForeignTabCoherence();
 
 		window.addEventListener('hashchange', onHashChange);
 
@@ -704,6 +708,7 @@
 			window.removeEventListener('hashchange', onHashChange);
 			window.removeEventListener('resize', onResize);
 			window.removeEventListener('storage', onStorage);
+			uninstallForeignCoherence();
 			if (enableNavPointerDrag) {
 				navShell?.removeEventListener('pointerdown', handleNavPointerDown);
 				navShell?.removeEventListener('pointermove', handleNavPointerMove);

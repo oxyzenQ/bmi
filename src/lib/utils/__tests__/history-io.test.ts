@@ -68,40 +68,14 @@ const localStorageMock = {
 	})
 };
 
-// Mock IndexedDB
-const mockIndexedDb = {
-	open: vi.fn().mockReturnValue({
-		onupgradeneeded: null as unknown,
-		onsuccess: null as unknown,
-		onerror: null as unknown,
-		result: {
-			transaction: vi.fn().mockReturnValue({
-				objectStore: vi.fn().mockReturnValue({
-					get: vi.fn().mockReturnValue({ onsuccess: null, onerror: null, result: null }),
-					put: vi.fn().mockReturnValue({ onsuccess: null, onerror: null }),
-					delete: vi.fn().mockReturnValue({ onsuccess: null, onerror: null }),
-					getAll: vi.fn().mockReturnValue({ onsuccess: null, onerror: null, result: [] }),
-					add: vi.fn().mockReturnValue({ onsuccess: null, onerror: null }),
-					index: vi
-						.fn()
-						.mockReturnValue({ getAll: vi.fn().mockReturnValue({ onsuccess: null, result: [] }) })
-				}),
-				complete: null,
-				onerror: null
-			}),
-			createObjectStore: vi.fn().mockReturnValue({
-				createIndex: vi.fn()
-			}),
-			objectStoreNames: {
-				contains: vi.fn().mockReturnValue(false)
-			},
-			close: vi.fn()
-		}
-	})
-};
-
+// night-frontier-Z5: this suite runs in localStorage-only mode. The
+// import commit now drains the witness seal under the ledger lock, so
+// IndexedDB must settle deterministically — a never-resolving stub
+// would hang the awaited seal. Absent IndexedDB is a documented,
+// supported degradation (initStorage falls back to the mirror), and
+// these tests assert the mirror and the envelopes, never IDB state.
 Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock, writable: true });
-Object.defineProperty(globalThis, 'indexedDB', { value: mockIndexedDb, writable: true });
+vi.stubGlobal('indexedDB', undefined);
 
 describe('history-io', () => {
 	beforeEach(() => {

@@ -1,14 +1,18 @@
 // Copyright (C) 2026 rezky_nightky
 // SPDX-License-Identifier: AGPL-3.0-only
 import { browser } from '$app/environment';
-import { STORAGE_KEYS, storageGetJSON, storageSetJSON } from './storage';
+import { STORAGE_KEYS, storageGetJSON, storageSet, storageSetJSON } from './storage';
 import { isValidRecord, toRecord } from './history-io';
 import {
 	computeLedgerChain,
 	getSealedLedgerChain,
 	isHistorySealedOpaque,
-	reseatLedgerChainAfterSave
+	reseatLedgerChainAfterSave,
+	sealLedgerChain
 } from './ledger-continuity';
+import { withLedgerLock } from './ledger-lock';
+import { refreshHealthKeysFromMirror } from './storage-coherence';
+import { warnDev } from './warn-dev';
 import type { BmiRecord } from '$lib/types/bmi-record';
 
 interface SaveBmiHistoryInput {
@@ -26,6 +30,19 @@ export function buildHistorySignature(
 	ageNum?: number
 ): string {
 	return [bmi.toFixed(4), heightCm.toFixed(2), weightKg.toFixed(2), ageNum ?? ''].join('|');
+}
+
+// night-frontier-Z5: the single-writer law. Every legit ledger write
+// (save, import, restore, clear) holds the origin-wide ledger lock as
+// one critical section: freshness refresh, validated read, merge,
+// mirror write, and the witness reseat/seal drain. Inside the section
+// the pre-state can never go stale, so the reseat blessing observes
+// exactly the state the lock ordered.
+let lastLedgerWrite: Promise<void> = Promise.resolve();
+
+/** @internal Test-only: resolve when the last save's locked section drained. */
+export function _drainLedgerWritesForTesting(): Promise<void> {
+	return lastLedgerWrite;
 }
 
 /**
@@ -57,31 +74,65 @@ export function saveBmiToHistory(input: SaveBmiHistoryInput): string | null {
 	const historySignature = buildHistorySignature(input.bmi, input.heightCm, input.weightKg, ageNum);
 	if (input.lastSignature === historySignature) return input.lastSignature;
 
-	// Validated read — poisoned records are dropped here, so the write below
-	// replaces storage contents with clean data (self-healing on every save).
-	const history = readBmiHistory();
+	// Validated read + merge inside the locked section: the merge base is
+	// always the freshest cross-tab state, never this realm's stale cache.
+	const write = withLedgerLock(async () => {
+		await refreshHealthKeysFromMirror();
+		const history = readBmiHistory();
+		const oneYearAgo = Date.now() - 365 * 24 * 60 * 60 * 1000;
+		const filtered = history.filter((record) => record.timestamp > oneYearAgo);
+		filtered.push({
+			timestamp: Date.now(),
+			bmi: input.bmi,
+			height: input.heightCm,
+			weight: input.weightKg,
+			age: ageNum
+		});
+		filtered.sort((a, b) => a.timestamp - b.timestamp);
 
-	const oneYearAgo = Date.now() - 365 * 24 * 60 * 60 * 1000;
-	const filtered = history.filter((record) => record.timestamp > oneYearAgo);
-	filtered.push({
-		timestamp: Date.now(),
-		bmi: input.bmi,
-		height: input.heightCm,
-		weight: input.weightKg,
-		age: ageNum
+		storageSetJSON(STORAGE_KEYS.HISTORY, filtered);
+
+		// Continuity witness (night-frontier-Z3): the save is a legit write,
+		// but the blessing is conditional — the witness advances only when the
+		// pre-save state matched the sealed head. History that changed outside
+		// a legit path leaves the witness frozen (evidence preserved) instead
+		// of silently re-anchoring tampered content. The reseat drains inside
+		// the section, so the lock release and the witness advance are one
+		// ordered step cross-tab.
+		await reseatLedgerChainAfterSave(history, filtered);
 	});
-	filtered.sort((a, b) => a.timestamp - b.timestamp);
+	const settled = write.catch((err) => {
+		warnDev(
+			'bmi-history',
+			'saveBmiToHistory',
+			'Ledger write failed — the witness degrades honestly',
+			err
+		);
+	});
+	lastLedgerWrite = settled;
+	void settled;
 
-	storageSetJSON(STORAGE_KEYS.HISTORY, filtered);
-
-	// Continuity witness (night-frontier-Z3): the save is a legit write,
-	// but the blessing is conditional — the witness advances only when the
-	// pre-save state matched the sealed head. History that changed outside
-	// a legit path leaves the witness frozen (evidence preserved) instead
-	// of silently re-anchoring tampered content.
-	void reseatLedgerChainAfterSave(history, filtered);
-
+	// The signature returns synchronously: the caller's dedupe contract
+	// is unchanged, only the merge moved under the lock.
 	return historySignature;
+}
+
+/**
+ * The import commit (night-frontier-Z5): freshness, the overwrite, and
+ * the witness re-anchor travel under the ledger lock as one critical
+ * section, so a concurrent legit save in another tab can never
+ * interleave between the overwrite and the re-anchor. history-io
+ * delegates its final write here through a dynamic import — this module
+ * sits below history-io in the dependency graph and must never point
+ * back at it statically.
+ */
+export async function commitImportedRecords(records: BmiRecord[]): Promise<boolean> {
+	return withLedgerLock(async () => {
+		await refreshHealthKeysFromMirror();
+		const ok = storageSet(STORAGE_KEYS.HISTORY, JSON.stringify(records), { skipBackup: true });
+		await sealLedgerChain(records);
+		return ok;
+	});
 }
 
 // ── Continuity audit (night-frontier-Z3) ──

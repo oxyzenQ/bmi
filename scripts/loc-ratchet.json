@@ -8,7 +8,7 @@
 		"src/lib/i18n/locales/ja.ts": 676,
 		"src/lib/i18n/locales/zh.ts": 631,
 		"scripts/proof/run-proof.ts": 993,
-		"src/lib/utils/__tests__/history-io.test.ts": 726,
+		"src/lib/utils/__tests__/history-io.test.ts": 700,
 		"src/lib/utils/history-io.ts": 760,
 		"src/lib/utils/storage.ts": 618,
 		"src/lib/utils/share-image.ts": 961,

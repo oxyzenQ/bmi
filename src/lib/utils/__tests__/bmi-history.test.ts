@@ -1,7 +1,12 @@
 // Copyright (C) 2026 rezky_nightky
 // SPDX-License-Identifier: AGPL-3.0-only
 import { beforeEach, describe, expect, it } from 'vitest';
-import { buildHistorySignature, readBmiHistory, saveBmiToHistory } from '../bmi-history';
+import {
+	buildHistorySignature,
+	readBmiHistory,
+	saveBmiToHistory,
+	_drainLedgerWritesForTesting
+} from '../bmi-history';
 import { STORAGE_KEYS, storageInvalidateAll, storageSetJSON } from '../storage';
 
 const now = Date.now();
@@ -60,7 +65,7 @@ describe('readBmiHistory (validated read path)', () => {
 });
 
 describe('saveBmiToHistory self-healing write', () => {
-	it('purges poisoned records from storage on the next save', () => {
+	it('purges poisoned records from storage on the next save', async () => {
 		localStorage.setItem(
 			STORAGE_KEYS.HISTORY,
 			`[{"timestamp":${now - 60_000},"bmi":1e999,"height":170,"weight":70,"age":30}]`
@@ -75,6 +80,8 @@ describe('saveBmiToHistory self-healing write', () => {
 			lastSignature: null
 		});
 		expect(signature).not.toBeNull();
+		// The merge runs inside the locked section — drain it, then read.
+		await _drainLedgerWritesForTesting();
 
 		const stored = readBmiHistory();
 		expect(stored).toHaveLength(1); // poison gone, only the new record remains

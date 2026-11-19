@@ -29,11 +29,11 @@
  */
 
 import { t } from '$lib/i18n';
-import { STORAGE_KEYS, storageGet, storageSet } from './storage';
+import { STORAGE_KEYS, storageGet } from './storage';
 import { warnDev } from './warn-dev';
 import type { BmiRecord } from '$lib/types/bmi-record';
 import { fnv1a, dualHash } from './legacy-hash';
-import { computeLedgerChain, sealLedgerChain } from './ledger-continuity';
+import { computeLedgerChain } from './ledger-continuity';
 import { INPUT_LIMITS } from './bmi-calculator';
 
 // ── Import error codes — structured, specific, no silent failures ──
@@ -737,15 +737,15 @@ export async function importBmiHistory(json: string, passphrase?: string): Promi
 		warnDev('history-io', 'importBmiHistory', 'Pre-import backup block failed', err);
 	}
 
-	// Override (replace) existing data via centralized storage
-	// skipBackup: true — we already created a backup above
-	const ok = storageSet(STORAGE_KEYS.HISTORY, JSON.stringify(records), { skipBackup: true });
+	// Override (replace) through the single-writer commit (night-frontier-Z5):
+	// freshness, the overwrite, and the witness re-anchor hold the ledger
+	// lock as one critical section — a concurrent legit save in another tab
+	// can never interleave. The commit lives one dynamic import below.
+	const { commitImportedRecords } = await import('./bmi-history');
+	const ok = await commitImportedRecords(records);
 	if (!ok) {
 		return { success: false, count: 0, error: t('history.save_failed'), errorCode: 'save_failed' };
 	}
-
-	// The import re-anchors the witness onto the user's validated file.
-	void sealLedgerChain(records);
 	return {
 		success: true,
 		count: records.length,

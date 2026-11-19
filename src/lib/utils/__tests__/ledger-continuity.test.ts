@@ -96,7 +96,12 @@ import {
 	clearLedgerHistory,
 	_drainLedgerContinuityForTesting
 } from '../ledger-continuity';
-import { auditLedgerContinuity, saveBmiToHistory, readBmiHistory } from '../bmi-history';
+import {
+	auditLedgerContinuity,
+	saveBmiToHistory,
+	readBmiHistory,
+	_drainLedgerWritesForTesting
+} from '../bmi-history';
 import { createBackup, restoreLatestBackup } from '../backup';
 import { AT_REST_TAG, _resetAtRestStateForTesting } from '../at-rest-state';
 
@@ -357,8 +362,8 @@ describe('ledger continuity witness semantics', () => {
 	it('clear seals the empty-ledger witness and empties history', async () => {
 		lsStore.set(HISTORY, JSON.stringify(randomRecords(makePrng(41), 3)));
 		await sealLedgerChain(randomRecords(makePrng(42), 3) as never);
-		clearLedgerHistory();
-		await sealLedgerChain([]); // drain the queue behind the clear's seal
+		// The clear drains its own genesis seal inside the locked section.
+		await clearLedgerHistory();
 		const genesis = await sha256HexInput('bmi-stellar-ledger-v4-genesis');
 		expect(lsStore.has(HISTORY)).toBe(false);
 		expect(await getSealedLedgerChain()).toEqual({ head: genesis, length: 0 });
@@ -430,8 +435,8 @@ describe('ledger continuity save-path integration (real storage layer)', () => {
 			lastSignature: null
 		});
 		expect(signature).not.toBeNull();
-		// Drain the fire-and-forget witness update, then audit.
-		await _drainLedgerContinuityForTesting();
+		// Drain the locked write section (it awaits the witness update), then audit.
+		await _drainLedgerWritesForTesting();
 		const audit = await auditLedgerContinuity();
 		expect(audit.state).toBe('ok');
 		expect(audit.computed!.length).toBe(1);
@@ -456,9 +461,9 @@ describe('ledger continuity save-path integration (real storage layer)', () => {
 			age: '30',
 			lastSignature: null
 		});
-		// Drain the save's witness update WITHOUT re-sealing: the freeze
+		// Drain the locked write section WITHOUT re-sealing: the freeze
 		// must come from the production path, not from test interference.
-		await _drainLedgerContinuityForTesting();
+		await _drainLedgerWritesForTesting();
 		expect(await getSealedLedgerChain()).toEqual(witness);
 		expect((await auditLedgerContinuity()).state).toBe('violated');
 	});

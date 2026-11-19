@@ -48,7 +48,8 @@
  */
 
 import { dbMetaGet, dbMetaSet } from './db';
-import { STORAGE_KEYS, storageGetRaw } from './storage';
+import { STORAGE_KEYS, storageGetRaw, storageInvalidate } from './storage';
+import { withLedgerLock } from './ledger-lock';
 import { isAtRestTagged } from './at-rest-state';
 import { isAtRestUnlocked } from './at-rest';
 import { warnDev, warnDevOnce } from './warn-dev';
@@ -131,6 +132,10 @@ export async function getSealedLedgerChain(): Promise<LedgerChain | null> {
 // The witness is device state; overlapping legit writes must seal in the
 // order they were decided, so every seal goes through one queue (the
 // same per-key serialization discipline storage.ts uses for values).
+// Cross-tab, the single-writer law (night-frontier-Z5) holds the
+// origin-wide ledger lock across each legit write, so this per-realm
+// queue only ever sees sections the lock has already ordered; the
+// lock-free internals here run inside a held section.
 let sealTask: Promise<void> = Promise.resolve();
 
 function enqueueSeal(step: () => Promise<void>): Promise<void> {
@@ -225,10 +230,18 @@ export function _drainLedgerContinuityForTesting(): Promise<void> {
 /**
  * Clear the history key and seal the empty-ledger witness (genesis/0).
  * The explicit reset moment: the user chose to start a fresh ledger.
+ * night-frontier-Z5: removal and the genesis seal hold the ledger lock
+ * as one critical section, and the same-realm cache entry drops with
+ * the mirror — a cleared ledger must read as cleared in this realm
+ * immediately, or the next legit save would merge over a stale
+ * pre-state and freeze the witness against honest use.
  */
-export function clearLedgerHistory(): void {
-	storageRemoveHistory();
-	void sealLedgerChain([]);
+export async function clearLedgerHistory(): Promise<void> {
+	await withLedgerLock(async () => {
+		storageRemoveHistory();
+		storageInvalidate(STORAGE_KEYS.HISTORY);
+		await sealLedgerChain([]);
+	});
 }
 
 function storageRemoveHistory(): void {
