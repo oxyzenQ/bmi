@@ -1038,6 +1038,32 @@ asynchronously under the lock (the synchronous signature return keeps
 the caller's dedupe contract unchanged — the record lands one lock-wait
 later, invisible outside a contended tab).
 
+**33. The Burn Bounds (night-depth-hardening-5).** Endurance is a
+security surface: two attacker-controlled inputs could degrade the app
+forever without ever "failing" once. The envelope KDF read-side caps
+tightened from 1 GiB / t 64 / p 8 to 256 MiB / t 8 / p 4 — the old
+ceiling let one hostile encrypted-backup file burn the KDF worker to an
+OOM per passphrase attempt, while the highest rung the app itself ever
+writes is 64 MiB / t 3 / p 1, so the caps hold a 4x headroom and bound
+the burn to seconds (`kdf-ladder.ts`, pinned by an explicit battery
+assertion). The import record cap (`MAX_IMPORT_RECORDS = 10,000`,
+`history-io.ts`) refuses before any integrity work, because the
+ledger's save floor is O(N) sync hashes and one uncapped hostile file
+was a durable per-save tax; 10,000 records is roughly 27 years of
+daily entries. In the same pass the duplicated import pre-guard merged
+into `importPlaintextOrFail` (a corrupted encrypted payload now answers
+`corrupted_file` on the validate path too), one `bytesToHex` leaf
+replaced seven hand-rolled copies, the deterministic surfaces were
+verified at peak (pure IEEE arithmetic in the metrics core, no
+iteration-order dependence in the engine, the artifact digest pinned by
+construction), and the deterministic tiebreak for same-millisecond
+records was considered and rejected: re-ordering an existing hash chain
+false-positives the witness on upgrade for affected ledgers — the
+migration cost exceeds the edge. Verification: `history-io-caps.test.ts`
+(the cap refuses before integrity, the i18n mapping holds),
+`kdf-ladder.test.ts` (the caps pin + the tampered-parameter matrix),
+and the depth audit rides as `docs/AUDIT-DEPTH-2026-11.md`.
+
 ## The never-be charter
 
 The innovation ledger above could grow forever unless something bounds
