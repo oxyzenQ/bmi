@@ -28,5 +28,6 @@ describe('bmi-form-helpers', () => {
 	it('maps import error codes to existing i18n keys', () => {
 		expect(importErrorKey('wrong_passphrase')).toBe('history.wrong_passphrase');
 		expect(importErrorKey('save_failed')).toBe('history.save_failed');
+		expect(importErrorKey('too_many_records')).toBe('history.too_many_records');
 	});
 });

@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 /** Canvas-based premium purple-black BMI result card generator (shareable PNG). */
 
-import { t, getLocale } from '$lib/i18n';
+import { t } from '$lib/i18n';
 import { CATEGORY_COLORS, COLORS, isBmiCategory, getCategoryLabel } from './bmi-category';
+import { formatShareTimestamp } from './share';
 
 /** Uppercase for Latin text; no-op for CJK/Korean (no case distinction). */
 function localeToUpper(text: string): string {
@@ -895,16 +896,7 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 	ctx.fillText(brandLine, centerX, footerBrandY);
 
 	const now = new Date();
-	const timestamp = (() => {
-		try {
-			return now.toLocaleString(getLocale() === 'zh' ? 'zh-CN' : getLocale(), {
-				dateStyle: 'medium',
-				timeStyle: 'short'
-			});
-		} catch {
-			return now.toLocaleString('en', { dateStyle: 'medium', timeStyle: 'short' });
-		}
-	})();
+	const timestamp = formatShareTimestamp(now);
 
 	ctx.fillStyle = 'rgba(255,255,255,0.34)';
 	ctx.font = '500 17px system-ui, sans-serif';

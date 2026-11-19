@@ -1,5 +1,8 @@
 // Copyright (C) 2026 rezky_nightky
 // SPDX-License-Identifier: AGPL-3.0-only
+
+import { bytesToHex } from './hex';
+
 /**
  * The shell integrity gate (night-frontier-Z7, B3 - the
  * cache-integrity-gated shell).
@@ -73,7 +76,7 @@ export interface CacheLike {
 
 async function sha256Hex(bytes: ArrayBuffer): Promise<string> {
 	const digest = await crypto.subtle.digest('SHA-256', bytes);
-	return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+	return bytesToHex(new Uint8Array(digest));
 }
 
 async function bodyDigest(cache: CacheLike, url: string): Promise<string | null> {

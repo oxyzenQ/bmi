@@ -105,18 +105,3 @@ export function warnDevOnce(
 		);
 	}
 }
-
-/**
- * @internal Test-only: reset the dedup map. Must be called between tests
- * to avoid cross-test pollution from the shared module-level Map.
- */
-export function _resetDedupForTesting(): void {
-	_dedup.clear();
-}
-
-/**
- * @internal Test-only: get the current dedup map size.
- */
-export function _getDedupSize(): number {
-	return _dedup.size;
-}

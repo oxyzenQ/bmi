@@ -43,6 +43,7 @@
  */
 
 import { sha256 } from '@noble/hashes/sha2.js';
+import { bytesToHex } from './hex';
 import type { WitnessMac } from './witness-key';
 import type { BmiRecord } from '$lib/types/bmi-record';
 
@@ -107,10 +108,6 @@ function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
 		if (a[i] !== b[i]) return false;
 	}
 	return true;
-}
-
-function bytesToHex(bytes: Uint8Array): string {
-	return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 function pruneCaches(): void {

@@ -18,8 +18,6 @@ const zh: TranslationDict = {
 	'nav.aria_label': 'BMI \u8ba1\u7b97\u5668',
 	'nav.sections_aria': '\u5206\u9875',
 	'nav.theme_aria': '\u5207\u6362\u58c1\u7eb8\u827a\u672f',
-	'nav.on': '\u5f00',
-	'nav.off': '\u5173',
 	'nav.theme': '\u827a\u672f\uff1a',
 	'nav.blackhole': '\u9ed1\u6d1e',
 	'nav.spaceship': '\u5b87\u5b99\u98de\u8239',
@@ -33,12 +31,6 @@ const zh: TranslationDict = {
 	'nav.info': '\u4fe1\u606f',
 
 	// ── Section tabs ──
-	'tab.welcome': '\u6b22\u8fce',
-	'tab.calculator': '\u8ba1\u7b97\u5668',
-	'tab.gauge': '\u4eea\u8868',
-	'tab.reference': '\u53c2\u8003',
-	'tab.about': '\u5173\u4e8e',
-	'tab.info': '\u4fe1\u606f',
 
 	// ── Notifications ──
 	'notify.close_aria': '\u5173\u95ed\u901a\u77e5',
@@ -161,8 +153,6 @@ const zh: TranslationDict = {
 	'crypto.meta_date': '\u521b\u5efa\u65e5\u671f',
 	'crypto.meta_records': '\u8bb0\u5f55\u6570',
 	'crypto.meta_version': '\u683c\u5f0f',
-	'crypto.passphrase_warning':
-		'\u8bf7\u786e\u4fdd\u60a8\u8bb0\u4f4f\u5bc6\u7801\u3002\u5bc6\u7801\u65e0\u6cd5\u6062\u590d\u3002',
 	'crypto.strength_hint':
 		'\u4f7f\u7528 12+ \u4e2a\u5b57\u7b26\uff0c\u5305\u542b\u6570\u5b57\u548c\u7b26\u53f7\uff0c\u4ee5\u83b7\u5f97\u6700\u4f73\u5b89\u5168\u6027',
 
@@ -251,7 +241,6 @@ const zh: TranslationDict = {
 	'results.copied': '\u5df2\u590d\u5236\u5230\u526a\u8d34\u677f\uff01',
 	'results.copied_short': '\u5df2\u590d\u5236\uff01',
 	'results.copy_failed': '\u590d\u5236\u5931\u8d25',
-	'results.image_saved': '\u56fe\u7247\u5df2\u4fdd\u5b58\uff01',
 	'results.image_failed': '\u56fe\u7247\u751f\u6210\u5931\u8d25',
 	'results.image_downloaded': '\u56fe\u7247\u5df2\u4e0b\u8f7d\uff01',
 	'results.what_this_means': '\u8fd9\u610f\u5473\u7740\uff1a',
@@ -484,6 +473,8 @@ const zh: TranslationDict = {
 		'\u68c0\u6d4b\u5230\u7be1\u6539\u2014\u6821\u9a8c\u548c\u4e0d\u5339\u914d\u3002\u6587\u4ef6\u5728\u5bfc\u51fa\u540e\u5df2\u88ab\u4fee\u6539\u3002',
 	'history.empty_file': '\u6587\u4ef6\u4e3a\u7a7a\uff080 \u5b57\u8282\uff09\u3002',
 	'history.file_too_large': '\u6587\u4ef6\u8fc7\u5927\uff08\u6700\u5927 5 MB\uff09\u3002',
+	'history.too_many_records':
+		'\u8bb0\u5f55\u8fc7\u591a\uff08\u4e0a\u9650 10,000 \u6761\uff09\u3002',
 	'history.unsupported_version':
 		'\u4e0d\u652f\u6301\u7684\u6587\u4ef6\u7248\u672c\u3002\u8bf7\u66f4\u65b0\u60a8\u7684\u5e94\u7528\u540e\u91cd\u8bd5\u3002',
 	'history.import_success': '\u6210\u529f\u5bfc\u5165 {count} \u6761\u8bb0\u5f55',
@@ -504,8 +495,6 @@ const zh: TranslationDict = {
 	'goal.current_bmi': '\u5f53\u524d BMI',
 	'goal.remaining': '\u5269\u4f59',
 	'goal.start_bmi': '\u8d77\u59cb BMI',
-	'goal.progress': '\u8fdb\u5ea6',
-	'goal.progress_from_start': '\u8fdb\u5ea6\uff08\u4ece\u8d77\u59cb\u8d77\uff09',
 	'goal.achieved': '\u76ee\u6807\u5df2\u8fbe\u6210\uff01',
 	'goal.no_goal':
 		'\u8fd8\u672a\u8bbe\u5b9a\u76ee\u6807\u3002\u8ba1\u7b97\u60a8\u7684 BMI \u5e76\u8bbe\u5b9a\u76ee\u6807\u6765\u8ddf\u8e2a\u8fdb\u5ea6\u3002',
@@ -521,8 +510,6 @@ const zh: TranslationDict = {
 
 	// ── PWA ──
 	'pwa.install_title': '安装 BMI Stellar',
-	'pwa.install_description':
-		'将 BMI Stellar 添加到设备，获得更快启动、离线访问和接近原生应用的体验。',
 	'pwa.not_installed_description':
 		'BMI 应用尚未安装在您的设备上。安装 BMI Stellar 可获得更快启动、离线访问和接近原生应用的体验。',
 	'pwa.installed_title': 'BMI Stellar 已安装',
@@ -535,9 +522,7 @@ const zh: TranslationDict = {
 	'pwa.update_check_failed': '检查更新失败。请检查连接后重试。',
 	'pwa.update_now': '立即更新',
 	'pwa.install_fallback': '请使用浏览器地址栏中的安装图标，或打开浏览器菜单并选择安装应用。',
-	'pwa.install_text': '\u5b89\u88c5\u6b64\u5e94\u7528\u4ee5\u4fbf\u5feb\u901f\u8bbf\u95ee',
 	'pwa.install_btn': '\u5b89\u88c5',
-	'pwa.dismiss': '\u5173\u95ed',
 	'pwa.offline': '\u79bb\u7ebf',
 
 	// ── About Section ──
@@ -559,9 +544,6 @@ const zh: TranslationDict = {
 	'about.status': '\u72b6\u6001',
 	'about.license': '\u8bb8\u53ef\u8bc1',
 	'about.signature': '\u7b7e\u540d',
-	'about.open_source': '\u5f00\u6e90\u9879\u76ee',
-	'about.maintenance': '\u7ef4\u62a4',
-	'about.maintenance_active': '\u79ef\u6781\u7ef4\u62a4\u4e2d',
 
 	'about.limit_title': 'BMI \u80fd\u8bf4\u660e\u548c\u4e0d\u80fd\u8bf4\u660e\u7684',
 	'about.limit_p1':
@@ -606,20 +588,8 @@ const zh: TranslationDict = {
 		'BMI \u662f\u7b5b\u67e5\u5de5\u5177\uff0c\u4e0d\u5e94\u4f5c\u4e3a\u552f\u4e00\u7684\u8bca\u65ad\u65b9\u6cd5\u3002\u8bf7\u54a8\u8be2\u533b\u7597\u4e13\u4e1a\u4eba\u58eb\u8fdb\u884c\u5168\u9762\u7684\u5065\u5eb7\u8bc4\u4f30\u3002',
 	'info.copyright':
 		'\u00a9 2025-{n} rezky_nightky (oxyzenQ) \u3002\u4fdd\u7559\u6240\u6709\u6743\u5229\u3002',
-	'backup.checking': '\u6b63\u5728\u68c0\u67e5\u5907\u4efd\u72b6\u6001...',
-	'backup.auto_hint':
-		'\u5f53\u60a8\u4fdd\u5b58 BMI \u8ba1\u7b97\u7ed3\u679c\u65f6\uff0c\u5907\u4efd\u4f1a\u81ea\u52a8\u521b\u5efa\u3002',
 
 	// ── Backup Status ──
-	'backup.last': '\u4e0a\u6b21\u5907\u4efd\uff1a{time}',
-	'backup.stored_locally': '\u6570\u636e\u672c\u5730\u5b58\u50a8',
-	'backup.none': '\u6682\u65e0\u5907\u4efd',
-	'backup.restore': '\u6062\u590d\u4e0a\u6b21\u5907\u4efd',
-	'backup.restore_confirm':
-		'\u7528\u4e0a\u6b21\u5907\u4efd\u66ff\u6362\u5f53\u524d\u6570\u636e\uff1f\u5f53\u524d\u6570\u636e\u5c06\u88ab\u8986\u76d6\u3002',
-	'backup.restore_success': '\u5907\u4efd\u6062\u590d\u6210\u529f',
-	'backup.restore_failed': '\u5907\u4efd\u6062\u590d\u5931\u8d25',
-	'backup.records': '{n} \u6761\u8bb0\u5f55',
 
 	// ── Relative time ──
 	'time.just_now': '\u521a\u624d',

@@ -19,8 +19,6 @@ const en: TranslationDict = {
 	'nav.aria_label': 'BMI Calculator',
 	'nav.sections_aria': 'Sections',
 	'nav.theme_aria': 'Toggle wallpaper art',
-	'nav.on': 'On',
-	'nav.off': 'Off',
 	'nav.theme': 'Art :',
 	'nav.blackhole': 'Black Hole',
 	'nav.spaceship': 'Spaceship',
@@ -34,12 +32,6 @@ const en: TranslationDict = {
 	'nav.info': 'Info',
 
 	// ── Section tabs ──
-	'tab.welcome': 'Welcome',
-	'tab.calculator': 'Calculator',
-	'tab.gauge': 'Gauge',
-	'tab.reference': 'Reference',
-	'tab.about': 'About',
-	'tab.info': 'Info',
 
 	// ── Notifications ──
 	'notify.close_aria': 'Close notification',
@@ -157,7 +149,6 @@ const en: TranslationDict = {
 	'crypto.meta_date': 'Created',
 	'crypto.meta_records': 'Records',
 	'crypto.meta_version': 'Format',
-	'crypto.passphrase_warning': 'Make sure you remember your passphrase. It cannot be recovered.',
 	'crypto.strength_hint': 'Use 12+ characters with numbers and symbols for best security',
 
 	// ── Crack time (localized) ──
@@ -243,7 +234,6 @@ const en: TranslationDict = {
 	'results.copied': 'Copied to clipboard!',
 	'results.copied_short': 'Copied!',
 	'results.copy_failed': 'Failed to copy',
-	'results.image_saved': 'Image saved!',
 	'results.image_failed': 'Failed to generate image',
 	'results.image_downloaded': 'Image downloaded!',
 	'results.what_this_means': 'What this means:',
@@ -453,6 +443,7 @@ const en: TranslationDict = {
 		'Tamper detected \u2014 checksum mismatch. The file has been modified since export.',
 	'history.empty_file': 'The file is empty (0 bytes).',
 	'history.file_too_large': 'File is too large (max 5 MB).',
+	'history.too_many_records': 'Too many records (max 10,000).',
 	'history.unsupported_version': 'Unsupported file version. Please update your app and try again.',
 
 	// ── BMI Categories (shared) ──
@@ -471,8 +462,6 @@ const en: TranslationDict = {
 	'goal.current_bmi': 'Current BMI',
 	'goal.remaining': 'Remaining',
 	'goal.start_bmi': 'Start BMI',
-	'goal.progress': 'Progress',
-	'goal.progress_from_start': 'Progress (from start)',
 	'goal.achieved': 'Goal Achieved!',
 	'goal.no_goal': 'No goal set. Calculate your BMI and set a target to track your progress.',
 	'goal.set_first': 'Calculate your BMI first to set a goal.',
@@ -487,8 +476,6 @@ const en: TranslationDict = {
 
 	// ── PWA ──
 	'pwa.install_title': 'Install BMI Stellar',
-	'pwa.install_description':
-		'Add BMI Stellar to your device for faster launch, offline access, and an app-like experience.',
 	'pwa.not_installed_description':
 		"BMI apps haven't installed on your devices. Install BMI Stellar for faster launch, offline access, and an app-like experience.",
 	'pwa.installed_title': 'BMI Stellar installed',
@@ -503,9 +490,7 @@ const en: TranslationDict = {
 	'pwa.update_now': 'Update now',
 	'pwa.install_fallback':
 		'Use the Install icon in your browser address bar, or open the browser menu and choose Install app.',
-	'pwa.install_text': 'Install this app for quick access',
 	'pwa.install_btn': 'Install',
-	'pwa.dismiss': 'Dismiss',
 	'pwa.offline': 'Offline',
 
 	// ── About Section ──
@@ -527,9 +512,6 @@ const en: TranslationDict = {
 	'about.status': 'Status',
 	'about.license': 'License',
 	'about.signature': 'Signature',
-	'about.open_source': 'Open Source Project',
-	'about.maintenance': 'Maintenance',
-	'about.maintenance_active': 'Actively Maintained',
 
 	'about.limit_title': 'What BMI Can and Cannot Tell You',
 	'about.limit_p1':
@@ -572,19 +554,8 @@ const en: TranslationDict = {
 	'info.disclaimer':
 		'BMI is a screening tool and should not be used as a sole diagnostic method. Please consult healthcare professionals for comprehensive health assessment.',
 	'info.copyright': '© 2025-{n} rezky_nightky (oxyzenQ). All rights reserved.',
-	'backup.checking': 'Checking backup status...',
-	'backup.auto_hint': 'Backups are created automatically when you save BMI calculations.',
 
 	// ── Backup Status ──
-	'backup.last': 'Last backup: {time}',
-	'backup.stored_locally': 'Data stored locally',
-	'backup.none': 'No backup yet',
-	'backup.restore': 'Restore last backup',
-	'backup.restore_confirm':
-		'Replace current data with the last backup? Current data will be overwritten.',
-	'backup.restore_success': 'Backup restored successfully',
-	'backup.restore_failed': 'Failed to restore backup',
-	'backup.records': '{n} record(s)',
 
 	// ── Relative time ──
 	'time.just_now': 'just now',

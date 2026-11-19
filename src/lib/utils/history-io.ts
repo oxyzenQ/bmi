@@ -35,12 +35,14 @@ import type { BmiRecord } from '$lib/types/bmi-record';
 import { fnv1a, dualHash } from './legacy-hash';
 import { computeLedgerChain } from './ledger-continuity';
 import { INPUT_LIMITS } from './bmi-calculator';
+import { bytesToHex } from './hex';
 
 // ── Import error codes — structured, specific, no silent failures ──
 
 export type ImportError =
 	| 'empty_file'
 	| 'file_too_large'
+	| 'too_many_records'
 	| 'invalid_json'
 	| 'invalid_format'
 	| 'unsupported_version'
@@ -53,6 +55,13 @@ export type ImportError =
 
 /** Max allowed import file size (5 MB) */
 export const MAX_IMPORT_SIZE = 5 * 1024 * 1024;
+
+/** Max records an import may carry (night-depth-hardening-5). The
+ * ledger's save floor is O(N) sync hashes (ledger-chain), so one
+ * uncapped hostile file becomes a durable per-save tax forever; 10k
+ * records is roughly 27 years of daily entries — a burn bound, not a
+ * feature limit. */
+export const MAX_IMPORT_RECORDS = 10_000;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -129,7 +138,7 @@ async function getHmacKey(): Promise<CryptoKey> {
 function generateSalt(): string {
 	const bytes = new Uint8Array(16);
 	crypto.getRandomValues(bytes);
-	return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+	return bytesToHex(bytes);
 }
 
 /** Compute HMAC-SHA256(salt || payload). Returns 64-char hex. */
@@ -137,7 +146,7 @@ async function computeHmac(payload: string, salt: string): Promise<string> {
 	const key = await getHmacKey();
 	const data = new TextEncoder().encode(salt + payload);
 	const sig = await crypto.subtle.sign('HMAC', key, data);
-	return Array.from(new Uint8Array(sig), (b) => b.toString(16).padStart(2, '0')).join('');
+	return bytesToHex(new Uint8Array(sig));
 }
 
 /** Verify an HMAC-SHA256 signature. Uses crypto.subtle.verify for constant-time comparison. */
@@ -161,7 +170,7 @@ async function computeHash(data: string): Promise<string> {
 	const dataBuffer = encoder.encode(data);
 	const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
 	const hashArray = new Uint8Array(hashBuffer);
-	return Array.from(hashArray, (b) => b.toString(16).padStart(2, '0')).join('');
+	return bytesToHex(hashArray);
 }
 
 // ---------------------------------------------------------------------------
@@ -279,6 +288,18 @@ async function parseAndValidate(json: string): Promise<ParsedImportResult | Inva
 		return {
 			valid: false,
 			validation: { valid: false, error: t('history.no_records'), errorCode: 'no_valid_records' }
+		};
+	}
+
+	// The burn bound: refuse past the record cap BEFORE any integrity work.
+	if (records.length > MAX_IMPORT_RECORDS) {
+		return {
+			valid: false,
+			validation: {
+				valid: false,
+				error: t('history.too_many_records'),
+				errorCode: 'too_many_records'
+			}
 		};
 	}
 
@@ -494,38 +515,70 @@ async function verifyIntegrity(
  * Validate an imported JSON string without touching storage.
  * Use this to pre-check a file before asking the user for confirmation.
  */
+/**
+ * Shared import pre-guard (night-depth-hardening-5): the size gate and,
+ * for encrypted payloads, the structure pre-check + passphrase decrypt,
+ * run once for both entry points (validate and import) instead of the
+ * two drifted copies. A corrupted encrypted payload answers
+ * corrupted_file instead of a misleading wrong_passphrase; a sound one
+ * decrypts or refuses with the honest code. `decrypted` tells the
+ * import path whether the at-rest unlock must actually run.
+ */
+async function importPlaintextOrFail(
+	json: string,
+	passphrase?: string
+): Promise<
+	| { ok: true; content: string; decrypted: boolean }
+	| { ok: false; error: string; errorCode: ImportError }
+> {
+	// Size guard — reject files exceeding MAX_IMPORT_SIZE before any processing
+	if (json.length > MAX_IMPORT_SIZE) {
+		return { ok: false, error: t('history.file_too_large'), errorCode: 'file_too_large' };
+	}
+
+	const { isEncrypted } = await import('./crypto');
+	if (!isEncrypted(json)) return { ok: true, content: json, decrypted: false };
+
+	if (!passphrase) {
+		return {
+			ok: false,
+			error: t('history.encrypted_no_passphrase'),
+			errorCode: 'encrypted_no_passphrase'
+		};
+	}
+
+	// Validate encrypted payload structure before attempting decryption
+	let payload: Record<string, unknown>;
+	try {
+		payload = JSON.parse(json);
+	} catch (err) {
+		warnDev('history-io', 'importPlaintextOrFail', 'Failed to parse encrypted payload', err);
+		return { ok: false, error: t('history.corrupted_file'), errorCode: 'corrupted_file' };
+	}
+	if (!payload.salt || !payload.iv || !payload.data) {
+		return { ok: false, error: t('history.corrupted_file'), errorCode: 'corrupted_file' };
+	}
+
+	const { decrypt } = await import('./crypto');
+	const result = await decrypt(json, passphrase);
+	if (result === null) {
+		return { ok: false, error: t('history.wrong_passphrase'), errorCode: 'wrong_passphrase' };
+	}
+	if (!result.integrityOk) {
+		return { ok: false, error: t('history.tampered_file'), errorCode: 'integrity_failed' };
+	}
+	return { ok: true, content: result.plaintext, decrypted: true };
+}
+
 export async function validateBmiImport(
 	json: string,
 	passphrase?: string
 ): Promise<ValidationResult> {
-	// Size guard — reject files exceeding MAX_IMPORT_SIZE before any processing
-	if (json.length > MAX_IMPORT_SIZE) {
-		return { valid: false, error: t('history.file_too_large'), errorCode: 'file_too_large' };
+	const guarded = await importPlaintextOrFail(json, passphrase);
+	if (!guarded.ok) {
+		return { valid: false, error: guarded.error, errorCode: guarded.errorCode };
 	}
-
-	// Auto-detect encrypted payload
-	let content = json;
-	const { isEncrypted } = await import('./crypto');
-	if (isEncrypted(json)) {
-		if (!passphrase) {
-			return {
-				valid: false,
-				error: t('history.encrypted_no_passphrase'),
-				errorCode: 'encrypted_no_passphrase'
-			};
-		}
-		const { decrypt } = await import('./crypto');
-		const result = await decrypt(json, passphrase);
-		if (result === null) {
-			return { valid: false, error: t('history.wrong_passphrase'), errorCode: 'wrong_passphrase' };
-		}
-		if (!result.integrityOk) {
-			return { valid: false, error: t('history.tampered_file'), errorCode: 'integrity_failed' };
-		}
-		content = result.plaintext;
-	}
-
-	const result = await parseAndValidate(content);
+	const result = await parseAndValidate(guarded.content);
 	return result.validation;
 }
 
@@ -622,80 +675,18 @@ export async function importBmiHistory(json: string, passphrase?: string): Promi
 		return { success: false, count: 0, error: t('history.empty_file'), errorCode: 'empty_file' };
 	}
 
-	// Size guard — reject files exceeding MAX_IMPORT_SIZE before parsing
-	if (json.length > MAX_IMPORT_SIZE) {
-		return {
-			success: false,
-			count: 0,
-			error: t('history.file_too_large'),
-			errorCode: 'file_too_large'
-		};
+	const guarded = await importPlaintextOrFail(json, passphrase);
+	if (!guarded.ok) {
+		return { success: false, count: 0, error: guarded.error, errorCode: guarded.errorCode };
 	}
 
-	// Auto-detect and decrypt if encrypted and passphrase provided
-	let content = json;
-	const { isEncrypted } = await import('./crypto');
-	if (isEncrypted(json)) {
-		if (!passphrase) {
-			return {
-				success: false,
-				count: 0,
-				error: t('history.encrypted_no_passphrase'),
-				errorCode: 'encrypted_no_passphrase'
-			};
-		}
-		// Validate encrypted payload structure before attempting decryption
-		let payload: Record<string, unknown>;
-		try {
-			payload = JSON.parse(json);
-		} catch (err) {
-			warnDev(
-				'history-io',
-				'importBmiHistory',
-				'Failed to parse encrypted payload for validation',
-				err
-			);
-			return {
-				success: false,
-				count: 0,
-				error: t('history.corrupted_file'),
-				errorCode: 'corrupted_file'
-			};
-		}
-		if (!payload.salt || !payload.iv || !payload.data) {
-			return {
-				success: false,
-				count: 0,
-				error: t('history.corrupted_file'),
-				errorCode: 'corrupted_file'
-			};
-		}
-		const { decrypt } = await import('./crypto');
-		const result = await decrypt(json, passphrase);
-		if (result === null) {
-			return {
-				success: false,
-				count: 0,
-				error: t('history.wrong_passphrase'),
-				errorCode: 'wrong_passphrase'
-			};
-		}
-		if (!result.integrityOk) {
-			return {
-				success: false,
-				count: 0,
-				error: t('history.tampered_file'),
-				errorCode: 'integrity_failed'
-			};
-		}
-		content = result.plaintext;
-
-		// Z3: await the unlock (30 s budget) - the write must never race the purge guard.
+	// Z3: await the unlock (30 s budget) - the write must never race the purge guard.
+	if (guarded.decrypted && passphrase) {
 		const { unlockAtRestSessionIfVerified } = await import('./crypto');
 		await unlockAtRestSessionIfVerified(passphrase, 30_000);
 	}
 
-	const result = await parseAndValidate(content);
+	const result = await parseAndValidate(guarded.content);
 
 	if (!result.valid) {
 		const code = result.validation.errorCode ?? 'invalid_format';

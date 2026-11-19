@@ -24,7 +24,8 @@ elif [ -x "$HOME/.bun/bin/bun" ]; then
   BUN_BIN="$HOME/.bun/bin/bun"
   export PATH="$HOME/.bun/bin:$PATH"
 else
-  echo "error: bun not found. Install from https://bun.sh (project pins bun@1.3.11)." >&2
+  pin="$(sed -n 's/.*"packageManager": *"bun@\([^"]*\)".*/\1/p' package.json)"
+  echo "error: bun not found. Install from https://bun.sh (project pins bun@${pin:-unknown})." >&2
   exit 1
 fi
 

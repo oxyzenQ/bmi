@@ -38,8 +38,15 @@ import { getPerformanceTier } from './animation-config';
 /** The OWASP Argon2id floor: 19 MiB, 2 iterations, parallelism 1. */
 export const OWASP_FLOOR = { m: 19456, t: 2, p: 1 } as const;
 
-/** Read-side caps — parameters beyond these are refused (fail-closed). */
-export const KDF_CAPS = { m: 1048576, t: 64, p: 8 } as const;
+/**
+ * Read-side caps — parameters beyond these are refused (fail-closed).
+ * Sized for burn, not for reach (night-depth-hardening-5): the highest
+ * rung this app ever writes is 64 MiB / t 3 / p 1, so the caps keep a 4x
+ * memory headroom while bounding a hostile envelope to a few seconds per
+ * passphrase attempt — the previous 1 GiB / t 64 ceiling let one crafted
+ * file burn the KDF worker to an OOM inside the tab.
+ */
+export const KDF_CAPS = { m: 262144, t: 8, p: 4 } as const;
 
 /** The production ladder, high to low. Every rung sits at or above the floor. */
 export const KDF_LADDER: Record<'high' | 'medium' | 'low', { m: number; t: number; p: number }> = {

@@ -88,7 +88,7 @@ jobs:
     # exit non-zero and annotate loudly instead of scrolling past as
     # yellow text.
     runs-on: ubuntu-26.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     continue-on-error: true
 
     steps:
@@ -97,6 +97,11 @@ jobs:
 
       - name: Install the Rust toolchain
         uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # @stable, SHA pin
+        with:
+          # Pinned to the engine toolchain (night-depth-hardening-5): the
+          # action's floating @stable default contradicts this lane's own
+          # "red means a new advisory, never a new scanner release" law.
+          toolchain: '1.100.0'
 
       - name: Install cargo-audit (pinned 0.22.2)
         run: cargo install cargo-audit --version 0.22.2 --locked

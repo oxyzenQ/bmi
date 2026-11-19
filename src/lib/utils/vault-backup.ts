@@ -51,8 +51,10 @@ export interface VaultBackupStatus {
 let workerPromise: Promise<Worker> | null = null;
 let broken = false;
 let nextJobId = 1;
-let pending: Map<number, { resolve: (r: VaultMirrorResult) => void; reject: (e: Error) => void }> =
-	new Map();
+const pending: Map<
+	number,
+	{ resolve: (r: VaultMirrorResult) => void; reject: (e: Error) => void }
+> = new Map();
 /** The latest mirror outcome, surfaced by the status. */
 let lastMirrorOk = false;
 
@@ -172,13 +174,4 @@ export async function getVaultBackupStatus(): Promise<VaultBackupStatus> {
 	} catch {
 		return { available: false, mirrored: lastMirrorOk, bytes: null };
 	}
-}
-
-/** @internal Test-only: reset singleton state between tests. */
-export function _resetVaultForTesting(): void {
-	workerPromise?.then((w) => w.terminate()).catch(() => {});
-	workerPromise = null;
-	broken = false;
-	pending = new Map();
-	lastMirrorOk = false;
 }

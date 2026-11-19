@@ -208,7 +208,7 @@ jobs:
     # `wasm-provenance.sh --refresh` flow, never this sweep. A sweep that
     # cannot prove artifact parity fails loudly instead of shipping.
     runs-on: ubuntu-26.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     permissions:
       contents: read
     outputs:

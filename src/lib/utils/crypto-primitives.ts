@@ -28,7 +28,7 @@ import { WITNESS_MAC_INFO, WITNESS_MAC_LENGTH } from './witness-key';
 import { warnDev } from './warn-dev';
 
 // ── Constants ──
-export const PBKDF2_ITERATIONS = 600_000;
+const PBKDF2_ITERATIONS = 600_000;
 export const SALT_LENGTH = 16; // 128-bit salt
 export const IV_LENGTH = 12; // 96-bit IV for AES-GCM
 
@@ -54,7 +54,6 @@ export const META_ENCRYPTION_VERIFIER = '__encryption_verifier';
 // (kdf-ladder.ts, night-frontier-Z4): the encrypt path takes the
 // device's current rung, the decrypt path takes the envelope's recorded
 // rung, and the fixed pre-ladder defaults cover legacy envelopes.
-export { IS_TEST };
 
 /**
  * Offload guard for the KDF worker: production browser builds only.

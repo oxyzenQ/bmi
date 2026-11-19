@@ -11,6 +11,23 @@ import { t, getLocale } from '$lib/i18n';
 import { getCategoryLabel } from './bmi-category';
 import { warnDev } from './warn-dev';
 
+/**
+ * The share footer timestamp: locale-aware, with a safe 'en' fallback
+ * when the runtime lacks the locale data (a share or a canvas render
+ * must never throw on an exotic locale). One home for both the text
+ * share and the card forge (night-depth-hardening-5 dragon hunt).
+ */
+export function formatShareTimestamp(date: Date = new Date()): string {
+	try {
+		return date.toLocaleString(getLocale() === 'zh' ? 'zh-CN' : getLocale(), {
+			dateStyle: 'medium',
+			timeStyle: 'short'
+		});
+	} catch {
+		return date.toLocaleString('en', { dateStyle: 'medium', timeStyle: 'short' });
+	}
+}
+
 export interface BmiShareData {
 	bmi: number;
 	category: string;
@@ -50,7 +67,7 @@ export function formatBmiText(data: BmiShareData): string {
 
 	text += `\n${t('share.footer')}`;
 	text += `\nhttps://bmi-stellar.vercel.app`;
-	text += `\n${new Date().toLocaleString(getLocale() === 'zh' ? 'zh-CN' : getLocale(), { dateStyle: 'medium', timeStyle: 'short' })}`;
+	text += `\n${formatShareTimestamp()}`;
 
 	return text;
 }

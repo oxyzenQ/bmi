@@ -32,6 +32,7 @@ export function importErrorKey(code: ImportError): string {
 	const map: Record<ImportError, string> = {
 		empty_file: 'history.empty_file',
 		file_too_large: 'history.file_too_large',
+		too_many_records: 'history.too_many_records',
 		invalid_json: 'history.invalid_json',
 		invalid_format: 'history.invalid_format',
 		unsupported_version: 'history.unsupported_version',

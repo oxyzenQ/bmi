@@ -18,8 +18,6 @@ const id: TranslationDict = {
 	'nav.aria_label': 'Kalkulator BMI',
 	'nav.sections_aria': 'Bagian',
 	'nav.theme_aria': 'Toggle art wallpaper',
-	'nav.on': 'Nyala',
-	'nav.off': 'Mati',
 	'nav.theme': 'Art :',
 	'nav.blackhole': 'Lubang Hitam',
 	'nav.spaceship': 'Pesawat Luar Angkasa',
@@ -33,12 +31,6 @@ const id: TranslationDict = {
 	'nav.info': 'Info',
 
 	// ── Section tabs ──
-	'tab.welcome': 'Selamat Datang',
-	'tab.calculator': 'Kalkulator',
-	'tab.gauge': 'Gauge',
-	'tab.reference': 'Referensi',
-	'tab.about': 'Tentang',
-	'tab.info': 'Info',
 
 	// ── Notifications ──
 	'notify.close_aria': 'Tutup notifikasi',
@@ -156,7 +148,6 @@ const id: TranslationDict = {
 	'crypto.meta_date': 'Dibuat',
 	'crypto.meta_records': 'Data',
 	'crypto.meta_version': 'Format',
-	'crypto.passphrase_warning': 'Pastikan Anda mengingat passphrase. Tidak dapat dipulihkan.',
 	'crypto.strength_hint': 'Gunakan 12+ karakter dengan angka dan simbol untuk keamanan terbaik',
 
 	// ── Crack time (localized) ──
@@ -243,7 +234,6 @@ const id: TranslationDict = {
 	'results.copied': 'Disalin ke clipboard!',
 	'results.copied_short': 'Disalin!',
 	'results.copy_failed': 'Gagal menyalin',
-	'results.image_saved': 'Gambar tersimpan!',
 	'results.image_failed': 'Gagal membuat gambar',
 	'results.image_downloaded': 'Gambar terunduh!',
 	'results.what_this_means': 'Apa artinya ini:',
@@ -454,6 +444,7 @@ const id: TranslationDict = {
 		'Terdeteksi perubahan — checksum tidak cocok. File telah dimodifikasi sejak diekspor.',
 	'history.empty_file': 'File kosong (0 byte).',
 	'history.file_too_large': 'File terlalu besar (maks 5 MB).',
+	'history.too_many_records': 'Terlalu banyak catatan (maks 10.000).',
 	'history.unsupported_version': 'Versi file tidak didukung. Silakan perbarui aplikasi Anda.',
 
 	// ── BMI Categories (shared) ──
@@ -472,8 +463,6 @@ const id: TranslationDict = {
 	'goal.current_bmi': 'BMI Saat Ini',
 	'goal.remaining': 'Tersisa',
 	'goal.start_bmi': 'BMI Awal',
-	'goal.progress': 'Progres',
-	'goal.progress_from_start': 'Progres (dari awal)',
 	'goal.achieved': 'Target Tercapai!',
 	'goal.no_goal': 'Belum ada target. Hitung BMI Anda dan tetapkan target untuk melacak progres.',
 	'goal.set_first': 'Hitung BMI Anda terlebih dahulu untuk menetapkan target.',
@@ -488,8 +477,6 @@ const id: TranslationDict = {
 
 	// ── PWA ──
 	'pwa.install_title': 'Instal BMI Stellar',
-	'pwa.install_description':
-		'Tambahkan BMI Stellar ke perangkat Anda untuk akses lebih cepat, dukungan luring, dan pengalaman seperti aplikasi.',
 	'pwa.not_installed_description':
 		'Aplikasi BMI belum terinstal di perangkat Anda. Instal BMI Stellar untuk akses lebih cepat, dukungan luring, dan pengalaman seperti aplikasi.',
 	'pwa.installed_title': 'BMI Stellar sudah terinstal',
@@ -504,9 +491,7 @@ const id: TranslationDict = {
 	'pwa.update_now': 'Update sekarang',
 	'pwa.install_fallback':
 		'Gunakan ikon Instal di address bar browser, atau buka menu browser lalu pilih Instal aplikasi.',
-	'pwa.install_text': 'Instal aplikasi ini untuk akses cepat',
 	'pwa.install_btn': 'Instal',
-	'pwa.dismiss': 'Tutup',
 	'pwa.offline': 'Luring',
 
 	// ── About Section ──
@@ -528,9 +513,6 @@ const id: TranslationDict = {
 	'about.status': 'Status',
 	'about.license': 'Lisensi',
 	'about.signature': 'Tanda tangan',
-	'about.open_source': 'Proyek Open Source',
-	'about.maintenance': 'Pemeliharaan',
-	'about.maintenance_active': 'Aktif Dipelihara',
 
 	'about.limit_title': 'Apa yang Bisa dan Tidak Bisa Dijelaskan BMI',
 	'about.limit_p1':
@@ -573,19 +555,8 @@ const id: TranslationDict = {
 	'info.disclaimer':
 		'BMI adalah alat skrining dan tidak boleh digunakan sebagai satu-satunya metode diagnostik. Silakan berkonsultasi dengan profesional kesehatan untuk penilaian kesehatan yang komprehensif.',
 	'info.copyright': '© 2025-{n} rezky_nightky (oxyzenQ). Semua hak dilindungi.',
-	'backup.checking': 'Memeriksa status cadangan...',
-	'backup.auto_hint': 'Cadangan dibuat otomatis saat Anda menyimpan perhitungan BMI.',
 
 	// ── Backup Status ──
-	'backup.last': 'Cadangan terakhir: {time}',
-	'backup.stored_locally': 'Data disimpan secara lokal',
-	'backup.none': 'Belum ada cadangan',
-	'backup.restore': 'Pulihkan cadangan terakhir',
-	'backup.restore_confirm':
-		'Ganti data saat ini dengan cadangan terakhir? Data saat ini akan ditimpa.',
-	'backup.restore_success': 'Cadangan berhasil dipulihkan',
-	'backup.restore_failed': 'Gagal memulihkan cadangan',
-	'backup.records': '{n} catatan',
 
 	// ── Relative time ──
 	'time.just_now': 'baru saja',

@@ -206,6 +206,14 @@ describe('the cross-device contract: envelope parameters drive decryption', () =
 		expect(result!.plaintext).toBe(PLAINTEXT);
 	});
 
+	it('pins the tightened read-side caps — a burn ceiling, not reach (night-depth-hardening-5)', () => {
+		// The old 1 GiB / t 64 ceiling let one hostile envelope OOM the
+		// KDF worker. The caps sit 4x above the highest rung this app
+		// writes (64 MiB / t 3 / p 1) and still bound a crafted file to
+		// seconds per attempt. Raise only with the burn math redone.
+		expect(KDF_CAPS).toEqual({ m: 262144, t: 8, p: 4 });
+	});
+
 	it('tampered parameters fail closed (mem=8, absurd caps, wrong type, wrong hashLen)', async () => {
 		_setKdfLadderOverrideForTesting(LEGACY_KDF_OPTIONS);
 		const envelope = JSON.parse(await encrypt(PLAINTEXT, PW)) as {

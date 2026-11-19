@@ -59,6 +59,7 @@
 import { hmac } from '@noble/hashes/hmac.js';
 import { sha256 } from '@noble/hashes/sha2.js';
 import { loadArgon2idEngine, type Argon2idWasmEngine } from './kdf-wasm-engine';
+import { bytesToHex } from './hex';
 
 /** The HKDF info label the session establishment derives this key with. */
 export const WITNESS_MAC_INFO = 'bmi-stellar-witness-mac-v1';
@@ -79,10 +80,6 @@ let jsKey: Uint8Array | null = null;
 let witnessFingerprint: string | null = null;
 let fallbackOnly = false;
 
-function toHex(bytes: Uint8Array): string {
-	return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
-}
-
 /**
  * Install the witness attestation key for this unlocked session.
  * Engine-first: the material is handed to the keystore seat (which
@@ -98,7 +95,7 @@ export async function installWitnessKey(material: Uint8Array): Promise<void> {
 		throw new Error(`witness key must be ${WITNESS_MAC_LENGTH} bytes`);
 	}
 	wipeWitnessKey();
-	const fingerprint = toHex(sha256(material));
+	const fingerprint = bytesToHex(sha256(material));
 	if (!fallbackOnly) {
 		try {
 			const engine = await loadArgon2idEngine();

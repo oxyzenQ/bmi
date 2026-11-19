@@ -77,7 +77,7 @@ export function targetCanScrollVertically(
 	return direction === 'up' ? state.canScrollUp : state.canScrollDown;
 }
 
-export function targetCanScrollHorizontally(
+function targetCanScrollHorizontally(
 	target: HTMLElement | null,
 	pagerEl: HTMLElement | null,
 	dx: number
