@@ -11,7 +11,27 @@
 
 /** Injected before any page script: collect LCP/CLS/longtask evidence. */
 export const COLLECTOR_SOURCE = `(() => {
-  window.__bmiProof = { vitals: {}, longTasks: [], lastExportBlobText: null };
+  window.__bmiProof = { vitals: {}, longTasks: [], lastExportBlobText: null, wasmInstantiations: { count: 0, bytes: 0 } };
+  try {
+    const noteWasm = (len) => {
+      window.__bmiProof.wasmInstantiations.count += 1;
+      window.__bmiProof.wasmInstantiations.bytes += len || 0;
+    };
+    const origInstantiate = WebAssembly.instantiate.bind(WebAssembly);
+    WebAssembly.instantiate = (bytes, imports) => {
+      try {
+        noteWasm(bytes instanceof ArrayBuffer ? bytes.byteLength : 0);
+      } catch (e) {}
+      return origInstantiate(bytes, imports);
+    };
+    const origStreaming = WebAssembly.instantiateStreaming.bind(WebAssembly);
+    WebAssembly.instantiateStreaming = (source, imports) => {
+      try {
+        noteWasm(0);
+      } catch (e) {}
+      return origStreaming(source, imports);
+    };
+  } catch (e) {}
   try {
     const origCreate = URL.createObjectURL.bind(URL);
     URL.createObjectURL = (obj) => {
@@ -219,6 +239,25 @@ export const WITNESS_AUDIT = `async () => {
     computed: sealed ? null : { head: link, length: n },
     rawIsSealed: sealed
   };
+}`;
+
+/** night-frontier-Z8 (P16): the wasm seat presence plus the sealed envelope law, recomputed
+ *  independently in the page - the checksum rule is the app's own (SHA-256 over the base64
+ *  data string), the IV length is the GCM standard 12 bytes, the envelope version is 1. */
+export const SEAL_CUSTODY_AUDIT = `async () => {
+  const wasm = window.__bmiProof.wasmInstantiations || { count: 0, bytes: 0 };
+  const raw = localStorage.getItem('bmi.history') || '';
+  const sealed = raw.startsWith('bmi-at-rest-v1:');
+  let envelope = { v: 0, ivBytes: 0, chkMatches: false };
+  if (sealed) {
+    const enc = new TextEncoder();
+    const dec = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    const json = JSON.parse(new TextDecoder().decode(dec(raw.slice('bmi-at-rest-v1:'.length))));
+    const digest = await crypto.subtle.digest('SHA-256', enc.encode(json.data).buffer);
+    const chk = btoa(String.fromCharCode(...new Uint8Array(digest)));
+    envelope = { v: json.v, ivBytes: dec(json.iv).length, chkMatches: chk === json.chk };
+  }
+  return { wasm, sealed, envelope };
 }`;
 
 /** Feed a file through the real import input (the standard upload route). */

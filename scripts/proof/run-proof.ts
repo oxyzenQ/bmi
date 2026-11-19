@@ -22,6 +22,7 @@
  *   P13 kdf ladder (production rungs at or above the OWASP floor)
  *   P14 single-writer law (lock serialization, union survives)
  *   P15 import gauntlet (poison refused: 0 unhandled, 0 egress, witness untouched) — Z7
+ *   P16 seal custody live (one wasm engine instantiation, v1 envelope law, checksum recomputes) — Z8
  *
  * Every proof is fail-closed: an infrastructure error fails its proof,
  * the harness exits non-zero, and nothing is reported as proven that was
@@ -55,7 +56,8 @@ import {
 	VAULT_AUDIT,
 	READ_LEDGER_STATE,
 	PROBE_LOCK_SERIALIZATION,
-	MERGED_LEDGER_AUDIT
+	MERGED_LEDGER_AUDIT,
+	SEAL_CUSTODY_AUDIT
 } from './page-sources';
 
 // ── Configuration ──
@@ -99,6 +101,12 @@ type GauntletVerdict = {
 	unhandledErrors: string[];
 	egressDelta: number;
 	witnessAfter: { head: string } | null;
+};
+
+/** The P16 verdict (night-frontier-Z8): the wasm seat presence plus the envelope law. */
+type SealCustodyVerdict = {
+	wasm: { count: number; bytes: number };
+	envelope: { v: number; ivBytes: number; chkMatches: boolean };
 };
 
 /** Web Vitals budgets (ms / unitless). */
@@ -218,8 +226,7 @@ async function main(): Promise<number> {
 	try {
 		// ── Bring-up ──
 		console.log('proof: starting vite preview and pinned chrome-headless-shell');
-		// Spawn the vite CLI directly so the kill in the cleanup path takes
-		// down the actual server process, not an intermediate `bun run`.
+		// Spawn the vite CLI directly so the cleanup kill takes down the actual server process, not an intermediate `bun run`.
 		server = Bun.spawn(
 			[
 				'./node_modules/.bin/vite',
@@ -269,9 +276,7 @@ async function main(): Promise<number> {
 
 		await page.navigate(`${BASE_URL}/`);
 		await sleep(4500); // hydration + service-worker activation + first update check
-		// Snapshot the initial-load Vitals before any harness interaction:
-		// later paints (calculation results, gauge) enlarge the LCP
-		// candidate, so the budget applies to the load, not the session.
+		// Snapshot the initial-load Vitals before any harness interaction: later paints (calculation results, gauge) enlarge the LCP candidate, so the budget applies to the load, not the session.
 		const initialVitals = await page.evaluate<Record<string, number>>(READ_VITALS);
 		await page.evaluate(`() => { location.hash = '#calculator'; return true; }`);
 		await sleep(800); // lazy section mount
@@ -421,9 +426,7 @@ async function main(): Promise<number> {
 		await prove(
 			'P14 single-writer law: the platform lock serializes exclusive requests, and a stale second tab merges over fresh state — the union survives, the witness blesses every legit write',
 			async () => {
-				// The law rides the Web Locks API; fail closed when absent —
-				// a fallback-only platform proves the per-realm discipline,
-				// not the origin-wide law.
+				// The law rides the Web Locks API; fail closed when absent — a fallback-only platform proves the per-realm discipline, not the origin-wide law.
 				const locksLive = await page!.evaluate<boolean>(
 					`() => Boolean(navigator.locks && typeof navigator.locks.request === 'function')`
 				);
@@ -431,14 +434,11 @@ async function main(): Promise<number> {
 					locksLive,
 					'navigator.locks is unavailable — the single-writer law cannot prove its full form here'
 				);
-				// Exclusive-mode discipline: the second request waits for the
-				// first to release (the platform primitive the law rides).
+				// Exclusive-mode discipline: the second request waits for the first to release (the platform primitive the law rides).
 				const serialized = await page!.evaluate<number>(PROBE_LOCK_SERIALIZATION);
 				expect(serialized === 1, 'the platform lock manager did not serialize exclusive requests');
-				// The race, deterministic: tab B opens while the ledger holds
-				// two records and caches that view; tab A then lands a third
-				// record. Tab B's locked write must refresh from the mirror
-				// first and merge — the union survives, the witness blesses it.
+				// The race, deterministic: tab B opens while the ledger holds two records and caches that view; tab A
+				// then lands a third. Tab B's locked write must refresh from the mirror first and merge — the union survives.
 				const tabB = await CdpPage.connect(BROWSER_PORT);
 				await tabB.enableDomains();
 				try {
@@ -446,14 +446,11 @@ async function main(): Promise<number> {
 					await sleep(3500); // hydration; tab B's cache = the 2-record ledger
 					await page!.evaluate(`() => { location.hash = '#calculator'; return true; }`);
 					await sleep(800);
-					// P1b left the persisted unit system imperial — return to
-					// metric so the 175/70.2 inputs mean cm/kg.
+					// P1b left the persisted unit system imperial — return to metric so the 175/70.2 inputs mean cm/kg.
 					await page!.evaluate(CLICK_RADIO, { groupAria: 'Unit system', text: 'Metric' });
 					await sleep(300);
 					await page!.evaluate(FILL_AND_CALC, { age: 30, height: 175, weight: 70.2 });
-					// The claim is about the save, not the display: poll the ledger
-					// until tab A's third record has landed (the record identity is
-					// its timestamp, whatever value the gauge renders).
+					// The claim is about the save, not the display: poll the ledger until tab A's third record has landed (the record identity is its timestamp).
 					const deadlineA = Date.now() + 10000;
 					let afterA: { count: number; lastTimestamp: number } | null = null;
 					while (Date.now() < deadlineA) {
@@ -467,10 +464,8 @@ async function main(): Promise<number> {
 						await sleep(300);
 					}
 					expect(afterA !== null, "tab A's third record never landed in the ledger");
-					// Tab B saves with its stale view — a real calculation through
-					// the same UI, not a scripted storage write. Mount the
-					// calculator first, then restore metric (its fresh load
-					// inherited P1b's persisted imperial unit system).
+					// Tab B saves with its stale view — a real calculation through the same UI, not a scripted storage write.
+					// Mount the calculator first, then restore metric (its fresh load inherited P1b's imperial unit system).
 					await tabB.evaluate(`() => { location.hash = '#calculator'; return true; }`);
 					await sleep(800);
 					await tabB.evaluate(CLICK_RADIO, { groupAria: 'Gender', index: 0 });
@@ -504,8 +499,7 @@ async function main(): Promise<number> {
 						audit.witness!.length === 4,
 						`the witness covers ${String(audit.witness!.length)} records, expected 4`
 					);
-					// Let the data-change backup + vault mirror drain before P12's
-					// byte-equivalence audit.
+					// Let the data-change backup + vault mirror drain before P12's byte-equivalence audit.
 					await sleep(2500);
 					return `union of 4 records survived (tab A's record present), witness matches the chain over the union`;
 				} finally {
@@ -557,8 +551,7 @@ async function main(): Promise<number> {
         }`
 				);
 				expect(Boolean(clicked), 'export button click failed');
-				// Poll until both passphrase fields are mounted: the shell and
-				// the modal content arrive across a short transition.
+				// Poll until both passphrase fields are mounted: the shell and the modal content arrive across a short transition.
 				const deadlineModal = Date.now() + 5000;
 				let modalReady = false;
 				while (Date.now() < deadlineModal) {
@@ -586,12 +579,10 @@ async function main(): Promise<number> {
             input.dispatchEvent(new Event('input', { bubbles: true }));
           }
           const form = dialog.querySelector('form');
-          // Let the strength meter settle first: its debounced zxcvbn
-          // analysis is main-thread work unrelated to the KDF claim.
+          // Let the strength meter settle first: its debounced zxcvbn analysis is main-thread work
+          // unrelated to the KDF claim. The derivation window starts HERE: the modal is mounted, filled,
+          // and the meter has settled, so any long task recorded from here belongs to the derive path.
           await new Promise((r) => setTimeout(r, 700));
-          // The derivation window starts HERE: the modal is mounted,
-          // filled, and the meter has settled, so any long task recorded
-          // from this point belongs to the derive/encrypt/deliver path.
           window.__bmiProof.longTasks = [];
           form.requestSubmit();
           return true;
@@ -624,9 +615,8 @@ async function main(): Promise<number> {
 		await prove(
 			'P7 at-rest seal live: the first passphrase-proven import establishes the verifier and the ledger write lands sealed',
 			async () => {
-				// The P6 export delivered an encrypted v4 file; its blob was
-				// captured by the startup interceptor. Feed it through the
-				// real import input — the same path a user's file takes.
+				// The P6 export delivered an encrypted v4 file, captured by the startup interceptor. Feed it
+				// through the real import input — the same path a user's file takes.
 				const deadlineBlob = Date.now() + 8000;
 				while (Date.now() < deadlineBlob) {
 					const text = await page!.evaluate<string | null>(
@@ -782,9 +772,8 @@ async function main(): Promise<number> {
 					`a locked session must read sealed values as missing (preview saw ${String(lockedCount)})`
 				);
 
-				// Unlock through the existing flow: decrypt of the user's own
-				// file, verifier-anchored session registration. The file text
-				// rides in the harness: the P8 reload reset the page.
+				// Unlock through the existing flow: decrypt of the user's own file, verifier-anchored session
+				// registration. The file text rides in the harness: the P8 reload reset the page.
 				expect(exportFileText !== null, 'the captured import file is gone');
 				await page!.evaluate(IMPORT_SET_FILE, exportFileText!);
 				await page!.evaluate(MODAL_SUBMIT, { passphrase: 'proof-harness-passphrase-1' });
@@ -820,9 +809,7 @@ async function main(): Promise<number> {
 					rawIsSealed: boolean;
 				}>(WITNESS_AUDIT);
 				const unlockedCount = await page!.evaluate<string>(EXPORT_PREVIEW_COUNT);
-				// Readability restored: the preview must show exactly the
-				// records the witness covers (whatever the imported ledger's
-				// length — the count rides the file, not this claim).
+				// Readability restored: the preview must show exactly the records the witness covers (the count rides the file, not this claim).
 				expect(
 					String(unlockedCount).trim() === String(witnessDebug.witness?.length ?? -1),
 					`records are not readable again after the unlock (preview saw ${JSON.stringify(unlockedCount)}; witness=${JSON.stringify(witnessDebug.witness)})`
@@ -840,8 +827,7 @@ async function main(): Promise<number> {
 				);
 				expect(before.witness !== null, 'no witness before the tamper');
 
-				// Device-access attacker: replace the sealed ledger with a
-				// chosen, VALID plaintext history (foreign records).
+				// Device-access attacker: replace the sealed ledger with a chosen, VALID plaintext history (foreign records).
 				const foreign = [
 					{ timestamp: 1_700_000_100_000, bmi: 24.9, height: 165, weight: 68, age: 44 },
 					{ timestamp: 1_700_000_200_000, bmi: 25.4, height: 165, weight: 69, age: 44 }
@@ -851,8 +837,7 @@ async function main(): Promise<number> {
 					foreign
 				);
 
-				// The user calculates: the save goes through (data
-				// preservation), but the witness must NOT advance over it.
+				// The user calculates: the save goes through (data preservation), but the witness must NOT advance over it.
 				await page!.evaluate(FILL_AND_CALC, { age: 30, height: 175, weight: 71 });
 				await sleep(2500);
 				await closeCelebrationAndReturn(page!);
@@ -878,16 +863,14 @@ async function main(): Promise<number> {
 					JSON.stringify(after.witness) === JSON.stringify(before.witness),
 					'the witness moved over unverified history'
 				);
-				// The witness still covers exactly the pre-tamper ledger —
-				// every record the freeze protected — while storage now holds
-				// one more. The freeze is real at any ledger length.
+				// The witness still covers exactly the pre-tamper ledger — every record the freeze protected — while
+				// storage now holds one more. The freeze is real at any ledger length.
 				expect(
 					after.witness!.length === before.witness!.length,
 					`witness length drifted from ${String(before.witness!.length)} to ${String(after.witness!.length)}`
 				);
 
-				// And the head differs from the chain over the tampered pair:
-				// the divergence between witness and stored content is real.
+				// And the head differs from the chain over the tampered pair: the divergence between witness and stored content is real.
 				const foreignChain = await page!.evaluate<{ head: string }>(
 					`async () => {
 						const enc = new TextEncoder();
@@ -931,6 +914,24 @@ async function main(): Promise<number> {
 				const headAfter = gauntlet.witnessAfter ? gauntlet.witnessAfter.head : null;
 				expect(headAfter === headBefore, 'the witness moved during the gauntlet');
 				return `gauntlet=${String(gauntlet.imports)} payloads refused, witness untouched, residue=${JSON.stringify(gauntlet.residue)}`;
+			}
+		);
+
+		// ── P16: the seal custody live (night-frontier-Z8) ──
+		await prove(
+			'P16 seal custody live: exactly one wasm engine instantiation (the digest-verified seat) and the sealed ledger obeys the v1 envelope law with an independently recomputed checksum',
+			async () => {
+				const audit = await page!.evaluate<SealCustodyVerdict>(SEAL_CUSTODY_AUDIT);
+				const { wasm, envelope } = audit;
+				expect(
+					envelope.v === 1 && envelope.ivBytes === 12 && envelope.chkMatches,
+					`no sealed v1 envelope with a recomputing checksum (sealed=${String(audit.sealed)} v=${String(envelope.v)} iv=${String(envelope.ivBytes)}B chk=${String(envelope.chkMatches)})`
+				);
+				expect(
+					wasm.count === 1 && wasm.bytes >= 50000 && wasm.bytes <= 72000,
+					`expected one engine-band wasm instantiation, saw ${String(wasm.count)} at ${String(wasm.bytes)} bytes`
+				);
+				return `engine seat live (${String(audit.wasm.bytes)}-byte artifact), envelope v1 with a 12-byte IV and a recomputing checksum`;
 			}
 		);
 
