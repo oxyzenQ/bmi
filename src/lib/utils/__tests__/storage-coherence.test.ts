@@ -33,14 +33,27 @@ const GOAL_START = STORAGE_KEYS.BMI_GOAL_START;
 const UNIT = STORAGE_KEYS.UNIT_SYSTEM;
 
 function dispatchForeignStorageEvent(key: string | null): void {
-	// The two-argument form is the spec's canonical constructor and the
-	// init dict IS honored at runtime (browsers + jsdom: the coherence
-	// listener reads event.key from it, and this battery proves the
-	// invalidation end-to-end). CodeQL's DOM model declares the
-	// StorageEvent constructor with fewer parameters - an analyzer-model
-	// gap, not a code bug. Suppressed by intent:
-	// codeql[js/superfluous-trailing-arguments]
-	window.dispatchEvent(new StorageEvent('storage', { key, newValue: 'foreign-write' }));
+	// The legacy event-construction route, deliberately. CodeQL resolves
+	// the modern `new StorageEvent(type, initDict)` to a parameterless
+	// ambient constructor — proven against the exact 2.27.4 bundle with a
+	// minimal repro (MessageEvent resolves fine, StorageEvent does not) —
+	// so the two-argument form can never pass that analysis, and the
+	// inline suppression comment does not honor this query. This route is
+	// the spec's own construction API with identical listener semantics —
+	// proven under jsdom for parity against the constructor, and this
+	// battery itself proves the coherence listener reads event.key from it.
+	const event = document.createEvent('StorageEvent');
+	event.initStorageEvent(
+		'storage',
+		false,
+		false,
+		key,
+		null,
+		'foreign-write',
+		window.location.origin,
+		null
+	);
+	window.dispatchEvent(event);
 }
 
 let uninstall: (() => void) | null = null;
