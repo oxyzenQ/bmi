@@ -152,7 +152,11 @@ jobs:
 
       - name: Format workflow files
         if: steps.probe.outputs.upgraded == 'true'
-        run: bunx prettier --write .github/workflows/*.yml
+        # The LOCKED prettier (bun run format:workflows), never a runtime
+        # registry fetch: an unpinned package download resolves to whatever
+        # the registry serves that day - the arrayref execution hole,
+        # closed by the supply-chain gate.
+        run: bun run format:workflows
 
       - name: Check changed runtime files
         if: steps.probe.outputs.upgraded == 'true'

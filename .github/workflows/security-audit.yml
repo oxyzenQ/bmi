@@ -65,6 +65,9 @@ jobs:
       - name: Dependency audit
         run: bun run audit:deps
 
+      - name: Supply-chain policy audit
+        run: bun run audit:supply-chain
+
       - name: LOC policy audit
         run: bun run audit:loc
 

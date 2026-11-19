@@ -192,6 +192,7 @@ doctor() {
 check_all() {
   run_step "format:check"      "$BUN_BIN" run format:check
   run_step "audit:deps"        "$BUN_BIN" run audit:deps
+  run_step "audit:supply-chain" "$BUN_BIN" run audit:supply-chain
   run_step "audit:loc"         "$BUN_BIN" run audit:loc
   run_step "audit:scripts-loc" bash scripts/gates/check-scripts-loc.sh
   run_step "audit:headers"     "$BUN_BIN" run audit:headers
@@ -223,6 +224,7 @@ quick() {
 audit_only() {
   run_step "format:check"      "$BUN_BIN" run format:check
   run_step "audit:deps"        "$BUN_BIN" run audit:deps
+  run_step "audit:supply-chain" "$BUN_BIN" run audit:supply-chain
   run_step "audit:loc"         "$BUN_BIN" run audit:loc
   run_step "audit:scripts-loc" bash scripts/gates/check-scripts-loc.sh
   run_step "audit:headers"     "$BUN_BIN" run audit:headers
