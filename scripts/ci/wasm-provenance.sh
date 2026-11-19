@@ -38,10 +38,11 @@ WASM="$CRATE/target/wasm32-unknown-unknown/release/bmi_stellar_argon2id.wasm"
 # same trust model as the scanner digest pin.
 #
 # 45000 -> 50000 (night-frontier-Z6, deliberate): the keystore seat
-# adds key custody to the engine - HMAC-SHA256 (the RustCrypto pair,
-# sharing no digest machinery with argon2's blake2) plus the custody
-# ABI. The engine is ~49.1 KB; the headroom above it is deliberately
-# thin so future growth still trips this wire.
+# adds key custody to the engine - HMAC-SHA256 (the RustCrypto
+# digest-0.10 pair; its four duplicated ecosystem crates are accepted
+# in deny.toml with recorded reasons) plus the custody ABI. The engine
+# is ~49.0 KB; the headroom above it is deliberately thin so future
+# growth still trips this wire.
 WASM_MAX_BYTES=50000
 
 MODE="verify"

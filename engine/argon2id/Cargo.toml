@@ -26,10 +26,12 @@ argon2 = { version = "=0.6.0", default-features = false, features = ["kdf"] }
 # The keystore seat's HMAC-SHA256 (night-frontier-Z6): the RustCrypto
 # pair, exact-pinned under the same rule - the engine-side tag must be
 # byte-identical to the noble fallback path the JS battery pins. The
-# digest-0.10 pair is deliberate: argon2's blake2 already ships that
-# digest/generic-array machinery, so the keystore adds no second copy
-# of it (the 0.11 pair measured 12 KB heavier, past the artifact
-# ceiling the provenance gate enforces).
+# digest-0.10 pair is deliberate: it compiles clean, keeps the
+# artifact under the ceiling, and its four duplicated digest-ecosystem
+# crates (block-buffer, cpufeatures, crypto-common, digest - argon2's
+# blake2 rides the 0.11 majors) are accepted in deny.toml as exact-pin
+# bounded, no_std, single-crate-seat exceptions with the honest reason
+# recorded there.
 hmac = { version = "=0.12.1", default-features = false }
 sha2 = { version = "=0.10.9", default-features = false }
 

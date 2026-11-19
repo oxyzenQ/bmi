@@ -30,6 +30,18 @@ yanked = "deny"
 # Duplicate versions in a 16-crate tree mean something sneaked in twice.
 multiple-versions = "deny"
 wildcards = "deny"
+# night-frontier-Z6, deliberate and bounded: the keystore seat's
+# HMAC-SHA256 rides the digest-0.10 majors while argon2 0.6's blake2
+# rides digest 0.11. Exactly four ecosystem crates exist twice as a
+# result - each side exact-pinned via Cargo.lock, no_std, and the
+# engine is a single-crate seat (no workspace mixing). The skip list is
+# the honest record of that trade; anything else duplicating fails.
+skip = [
+	{ name = "digest" },
+	{ name = "block-buffer" },
+	{ name = "cpufeatures" },
+	{ name = "crypto-common" },
+]
 
 [sources]
 unknown-registry = "deny"
