@@ -141,3 +141,13 @@ jobs:
 
       - name: Rust clippy gate
         run: (cd engine/argon2id && cargo clippy --all-targets -- -D warnings)
+
+      - name: Install cargo-deny (digest-pinned scanner)
+        run: bash scripts/ci/install-cargo-deny.sh
+
+      - name: Dependency policy gate (bans and sources)
+        # The arrayref structural policy (engine/argon2id/deny.toml),
+        # blocking on every push: no git source, no unknown registry, no
+        # duplicate versions, no wildcards. The scanner binary is
+        # verified against a committed digest before it is trusted.
+        run: (cd engine/argon2id && cargo deny check bans sources)

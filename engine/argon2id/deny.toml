@@ -1,0 +1,36 @@
+# Copyright (C) 2026 rezky_nightky
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# THE STRUCTURAL SUPPLY-CHAIN POLICY for the engine crate
+# (night-supply-1, the arrayref incident class: a compromised
+# maintainer account republished a popular crate so it depended on a
+# build-script payload crate, and the malicious versions rode
+# semver-compatible resolutions for 86-107 minutes before detection).
+#
+# Two lanes enforce this file:
+#   - ci.yml wasm-provenance and maintenance.yml rust-validate run
+#     `cargo deny check bans sources` - BLOCKING, every push and every
+#     sweep: no git source, no unknown registry, no duplicate versions,
+#     no wildcard requirements anywhere in the tree.
+#   - security-audit.yml rust-engine-audit runs `cargo deny check
+#     advisories` on the Sunday clock - observation-only, with
+#     vulnerabilities and yanked versions denied (a yanked crate in a
+#     committed lockfile is exactly the arrayref resolution shape).
+#
+# The engine tree today is one direct dependency on the official
+# registry; this policy keeps it that way by construction.
+
+[advisories]
+version = 2
+# A yanked crate in a committed lockfile means a resolution pulled a
+# version the registry itself has withdrawn - deny it outright.
+yanked = "deny"
+
+[bans]
+# Duplicate versions in a 16-crate tree mean something sneaked in twice.
+multiple-versions = "deny"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

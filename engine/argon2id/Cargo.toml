@@ -16,7 +16,13 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-argon2 = { version = "0.6.0", default-features = false, features = ["kdf"] }
+# Exact-pin, the arrayref lesson (night-supply-1): the direct dependency
+# can never ride a semver-compatible republish into the build - only the
+# owner's deliberate edit moves this line. Transitive versions stay
+# pinned by the committed Cargo.lock, refresh under the cargo-deny
+# structural policy (deny.toml) and the wasm parity gate, and the
+# advisory DB watches the tree weekly.
+argon2 = { version = "=0.6.0", default-features = false, features = ["kdf"] }
 
 [profile.release]
 opt-level = 3

@@ -274,6 +274,14 @@ jobs:
         if: steps.changes.outputs.changed == 'true'
         run: (cd engine/argon2id && cargo clippy --all-targets -- -D warnings)
 
+      - name: Install cargo-deny (digest-pinned scanner)
+        if: steps.changes.outputs.changed == 'true'
+        run: bash scripts/ci/install-cargo-deny.sh
+
+      - name: Dependency policy gate (bans and sources)
+        if: steps.changes.outputs.changed == 'true'
+        run: (cd engine/argon2id && cargo deny check bans sources)
+
       - name: Wasm artifact parity gate
         if: steps.changes.outputs.changed == 'true'
         run: bash scripts/ci/wasm-provenance.sh

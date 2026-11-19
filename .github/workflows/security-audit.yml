@@ -100,3 +100,14 @@ jobs:
 
       - name: Audit the engine lockfile
         run: cargo audit --file engine/argon2id/Cargo.lock --deny warnings
+
+      - name: Install cargo-deny (digest-pinned scanner)
+        run: bash scripts/ci/install-cargo-deny.sh
+
+      - name: Advisory policy check (same DB, second engine)
+        # cargo-deny's advisory engine over the same lockfile - the
+        # zelynic belt-and-braces shape. The deny.toml advisory policy
+        # denies vulnerabilities and yanked crates outright; this job
+        # stays observation-only, so a finding is the owner's morning
+        # signal rather than a blocked push.
+        run: (cd engine/argon2id && cargo deny check advisories)
