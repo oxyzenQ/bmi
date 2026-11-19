@@ -235,6 +235,39 @@ misfires backward). The battery drives the REAL module against a fake
 Cache bucket: tamper→delete→refetch→heal byte-for-byte, offline
 poison loses its seat and its manifest attestation, damaged manifests
 read unverified, and the digests cross-check against noble.
+Night-frontier-Z10 sharpening — the bounded window: the honest limit
+above ("verification runs on the update path, not on every fetch")
+left a poisoned entry able to serve until the NEXT update, which can
+be weeks away — while the repo's own law says digesting per fetch
+would cost the offline path real time for no threat-model gain. The
+window closes without breaking that law: ONE manifest entry is
+re-digested per NAVIGATION EVENT, round-robin, with the activate
+sweep's delete/heal semantics verbatim (`verifyNextIntegrityEntry`) —
+amortized to one match plus one SHA-256 of a single entry per
+navigation, the whole precache re-verified every N navigations (N =
+manifest size). The B3 claim upgrades: poisoning cannot survive a
+BOUNDED number of navigations, not just an update. The required
+second half was in the source: the service worker caches navigation
+shells at runtime, so a fresh shell's manifest digest goes stale
+after the first navigation and a runtime verify that hit it offline
+would delete the only offline shell copy and fail to heal. The reseat
+law applies — a legit runtime write re-seats its manifest digests at
+the moment of the write (`noteShellWrite`, the ledger's reseat
+discipline carried into the shell), so the gate's invariant is "the
+manifest matches the cache after every legit write; any other
+divergence is an out-of-band write" and a navigation-rewritten shell
+can never false-heal on a later sweep. Manifest mutations (re-seat,
+round-robin verdict, full sweep) share one per-realm serializer; the
+absent-manifest degrade stays 'unverified', and a runtime note never
+ARMS a pre-Z7 cache (its other entries were never digested — arming
+would false-accuse them). The battery pins the cycle order, the
+bounded detection of mid-cycle poison (at most N navigations, the
+seat dropped, the cycle shrinking around it), the heal-through-network
+carrying its new digest, the re-seat that prevents the false offline
+heal, the upsert adoption of a runtime-written route, and the honest
+degrades; the PWA offline-shell gate audits the wiring statically
+(the SW cannot run in vitest — the semantics are proven live where
+they live).
 
 **13. The i18n Engine and the Universal Unit Law.**
 `src/lib/i18n/index.ts` + `src/lib/i18n/locales/`: flat dot-notation

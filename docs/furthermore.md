@@ -467,7 +467,7 @@ All compact numeric contexts use **universal unit symbols** (kg, cm, lb, in, kca
 | Categories  | health, fitness, lifestyle, utilities                        |
 | Shortcuts   | "Calculate BMI" (`/#calculator`), "View Results" (`/#gauge`) |
 
-The service worker (`src/service-worker.ts`) is registered as an ES module in production only. The PWA install prompt is captured via `beforeinstallprompt` only when a user-facing install affordance can call `prompt()` from a real gesture. Update detection runs automatically after a short delay and only surfaces the refresh notification when version metadata is stable enough to avoid first-load false positives.
+The service worker (`src/service-worker.ts`) is registered as an ES module in production only. The PWA install prompt is captured via `beforeinstallprompt` only when a user-facing install affordance can call `prompt()` from a real gesture. Update detection runs automatically after a short delay and only surfaces the refresh notification when version metadata is stable enough to avoid first-load false positives. The precache integrity gate (night-frontier-Z7, B3) verifies the manifest at install/activate; since night-frontier-Z10 the window between updates is bounded too: one precache entry is re-digested per navigation event, round-robin, with the sweep's delete/heal semantics, and the navigation shells the worker itself caches re-seat their manifest digests at the moment of the write (the reseat law) — poisoning cannot survive a bounded number of navigations, and a legit write can never false-heal.
 
 ## CI/CD Workflows
 
