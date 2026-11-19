@@ -28,6 +28,17 @@ CRATE="$ROOT/engine/argon2id"
 EMBEDDED="$ROOT/src/lib/utils/kdf-wasm-embedded.ts"
 WASM="$CRATE/target/wasm32-unknown-unknown/release/bmi_stellar_argon2id.wasm"
 
+# THE ARTIFACT SIZE CEILING (night-supply-1, the arrayref tripwire):
+# the digest gate proves the embedded bytes are the built bytes, but a
+# dependency that injects dead or malicious code could drift BOTH
+# consistently - the owner refreshes and the new artifact re-embeds.
+# The ceiling makes any significant growth impossible to refresh
+# silently: past 45,000 bytes (the engine is ~37.7 KB, ~19% headroom
+# for legitimate feature work) the refresh refuses, and growing the
+# budget becomes a deliberate, reviewable edit of this constant - the
+# same trust model as the scanner digest pin.
+WASM_MAX_BYTES=45000
+
 MODE="verify"
 for arg in "$@"; do
 	case "$arg" in
@@ -53,7 +64,18 @@ echo "building engine/argon2id -> wasm32-unknown-unknown (pinned toolchain, --lo
 [ -f "$WASM" ] || { echo "error: build produced no wasm artifact" >&2; exit 1; }
 DIGEST="$(sha256sum "$WASM" | cut -d' ' -f1)"
 B64="$(base64 -w 0 "$WASM")"
-echo "fresh artifact digest: $DIGEST ($(wc -c <"$WASM") bytes)"
+SIZE="$(wc -c <"$WASM")"
+echo "fresh artifact digest: $DIGEST ($SIZE bytes)"
+
+size_ceiling_check() {
+	local what="$1" bytes="$2"
+	if [ "$bytes" -gt "$WASM_MAX_BYTES" ]; then
+		echo "error: ${what} is ${bytes} bytes, past the ${WASM_MAX_BYTES}-byte ceiling" >&2
+		echo "the engine artifact grew beyond the committed budget - review what moved before raising WASM_MAX_BYTES" >&2
+		exit 1
+	fi
+}
+size_ceiling_check "the fresh artifact" "$SIZE"
 
 if [ "$MODE" = "refresh" ]; then
 	TMP="${EMBEDDED}.tmp"
@@ -108,5 +130,7 @@ if [ "$EMBEDDED_DIGEST" != "$DIGEST" ]; then
 	echo "the embedded base64 does not decode to the recorded artifact" >&2
 	exit 1
 fi
+EMBEDDED_SIZE="$(printf '%s' "$EMBEDDED_B64" | base64 -d | wc -c)"
+size_ceiling_check "the embedded artifact" "$EMBEDDED_SIZE"
 
-echo "wasm provenance verified: fresh build == recorded digest == embedded bytes"
+echo "wasm provenance verified: fresh build == recorded digest == embedded bytes, $SIZE bytes under the $WASM_MAX_BYTES-byte ceiling"
