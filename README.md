@@ -258,13 +258,47 @@ easier to maintain while dormant.
 - **Small and audited** — policy-gated dependency audit, header audit, LOC audit, PWA offline-shell audit
 - **Gatekeeper-governed** — the same gate locally and in CI
 
-### What bmi will NEVER be
+### never-be — the identity contract
 
-- No accounts or login
-- No cloud health database or silent sync
-- No telemetry of health values
-- No server-side processing of body metrics
-- No selling or sharing of user data — there is nothing collected to sell
+These lines are the boundaries bmi will never cross, no matter how
+reasonable a feature request sounds. Every denial is grounded in an
+invariant the codebase already enforces, not in taste. Crossing a line
+is not a feature request; it is a different product.
+
+- **Never a daemon** — no background service, no always-running
+  process, no worker that outlives the tab; bmi exists while you use it
+  and stops when you stop.
+- **Never sound** — no audio feedback, no chimes, no notification
+  noise; a silent tool by design.
+- **Never a game** — no points, streaks, achievements, or leaderboards;
+  a number and its honest trend are the whole product.
+- **Never an account** — no login, no identity, no profile; the ledger
+  is bound to your device and your passphrase, not to a server.
+- **Never a server** — no backend, no API, no cloud health database, no
+  silent sync; there is nothing bmi calls and nothing that calls bmi.
+- **Never a data collector** — health values never leave the device; no
+  telemetry on your metrics, nothing collected to sell or share — there
+  is nothing collected.
+- **Never a medical device** — BMI is a screening number, not a
+  diagnosis, a prescription, or a replacement for a clinician.
+- **Never cloud inference** — no AI or model calls; every computation
+  is local and inspectable (the wasm engine and its byte-identical JS
+  fallback).
+- **Never an app-store binary** — the browser is the platform: one
+  static deploy, an offline-first PWA, no native shell, no gatekeeper
+  between you and the build.
+- **Never ads** — no advertising, no affiliate links, no monetized
+  attention.
+- **Never an unverifiable dependency** — registry-only ranges, an empty
+  lifecycle-script trust list, digest-pinned scanners, no unpinned
+  runtime fetch; a dependency whose bytes cannot be pinned is a
+  dependency bmi does not take (night-supply-1).
+
+The gates enforce the technical subset of this contract
+(audit:supply-chain, the offline-shell gate, the provenance chain); the
+charter covers the product subset. Changing the charter is a
+product-identity decision — the heaviest kind of change this repository
+admits.
 
 ### Maintenance mode
 

@@ -754,6 +754,34 @@ asynchronously under the lock (the synchronous signature return keeps
 the caller's dedupe contract unchanged — the record lands one lock-wait
 later, invisible outside a contended tab).
 
+## The never-be charter
+
+The innovation ledger above could grow forever unless something bounds
+it — so the boundary is written down as a contract in
+[README.md](../README.md) under `### never-be`: bmi will never be a
+daemon, never sound, never a game, never an account, never a server,
+never a data collector, never a medical device, never cloud inference,
+never an app-store binary, never ads, and never a holder of an
+unverifiable dependency.
+
+The charter is not aspiration; every line is the product-identity side
+of an invariant the code already enforces on the technical side.
+Local-first and zero-knowledge are why there is no server, no account,
+and no collector — the ledger's durable homes are on the device
+(innovation 30) and sealed at rest. The byte-identical dual-engine rule
+(innovation 28) is why there is no cloud inference: computation stays
+local and inspectable. The offline static PWA shape, enforced by the
+offline-shell gate, is why there is no daemon and no app-store binary.
+The supply-chain policy (night-supply-1) is why no unverifiable
+dependency rides in. And dormancy discipline is why there is no sound
+and no game: the cheapest way to keep a tool maintainable while
+dormant is to refuse the features that make software loud.
+
+The gates enforce the technical subset; the charter covers the product
+subset. Changing the charter is a product-identity decision — the
+heaviest kind of change this repository admits — and a proposal that
+crosses a line is not a feature request; it is a different product.
+
 ## Retired by verdict
 
 The rejected ideas stay recorded so nobody re-litigates them blind:
