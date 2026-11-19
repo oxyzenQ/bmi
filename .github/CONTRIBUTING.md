@@ -63,7 +63,7 @@ bun run verify
 ```
 
 > [!IMPORTANT]
-> Always run `bun run verify` before pushing. This gate runs `format:check + check + lint + test:run + build` and catches regressions that individual commands may miss.
+> Always run `bun run verify` before pushing. This gate runs `format:check` + four audits + `check` + `lint` + `test:run` + `build` and catches regressions that individual commands may miss.
 
 ## Project Architecture
 
@@ -79,7 +79,7 @@ src/lib/i18n/           # Locale engine + 4 translation dictionaries (en, id, ja
 src/lib/stores/         # PWA install/update reactive state
 src/lib/actions/        # Svelte actions (DOM portal)
 src/lib/types/          # TypeScript type definitions
-src/styles/             # 17-file modular CSS cascade (see below)
+src/styles/             # 18-file modular CSS cascade (see below)
 src/routes/             # SvelteKit pages and layouts
 scripts/                # Maintenance scripts (bmi-update-version)
 ```
@@ -101,10 +101,11 @@ Styles follow a strict import order in `+layout.svelte`. Each layer builds on th
 11. `responsive-height.css` — Height breakpoints
 12. `responsive-backdrop.css` — `backdrop-filter` feature fallbacks
 13. `nav.css` — Pager navigation and bottom controls
-14. `lang-switcher.css` — Language switcher panel
-15. `animation.css` — Skeleton loading and micro-interactions
-16. `responsive-mobile-perf.css` — Touch-device rendering and scroll performance overrides
-17. `responsive-content.css` — Final responsive correction layer
+14. `pager.css` — Pager shell and wallpaper theme backgrounds
+15. `lang-switcher.css` — Language switcher panel
+16. `animation.css` — Skeleton loading and micro-interactions
+17. `responsive-mobile-perf.css` — Touch-device rendering and scroll performance overrides
+18. `responsive-content.css` — Final responsive correction layer
 
 See [Furthermore Docs](../docs/furthermore.md) for the full architecture diagram.
 

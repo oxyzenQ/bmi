@@ -224,14 +224,13 @@ storage-inventory law enumerates the OPFS root in the same commit.
 The derivation rung scales from the capability engine
 (`getPerformanceTier`): high 64 MiB / t3, medium 32 MiB / t3, low
 19 MiB / t2 — the OWASP floor (m ≥ 19456 KiB, t ≥ 2, p ≥ 1) clamps
-every rung, and read-side caps (1 GiB / t64 / p8) refuse absurd
-parameters fail-closed. The finding that makes it safe: `kdfParams`
-was recorded in envelopes but never used by decrypt — the fixed bundle
-options made it decoration. Decrypt now honors the envelope's rung
-(the writer's), and the at-rest session anchors on the stored
-verifier's rung, so a tier change between sessions never re-derives a
-different key from the sealed ledger. Pre-ladder envelopes decrypt
-with the fixed legacy defaults (64 MiB / t3) they were written with.
+every rung, and read-side caps (256 MiB / t8 / p4, the
+night-depth-hardening-5 burn ceiling) refuse absurd parameters
+fail-closed. The full law — the recorded-but-never-used `kdfParams`
+discovery, the decrypt-honors-rung cross-device contract, the at-rest
+session anchor — lives in `docs/INNOVATIONS.md` §31; pre-ladder
+envelopes decrypt with the fixed legacy defaults (64 MiB / t3) they
+were written with.
 
 ### Ledger Continuity Chain (night-frontier-Z3)
 
@@ -473,18 +472,18 @@ The service worker (`src/service-worker.ts`) is registered as an ES module in pr
 
 GitHub workflows are located in `.github/workflows/`.
 
-| Workflow                | Purpose                                                                                                                                              |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ci.yml`                | Executes format, audits, type-checking, linting, tests, and the final build — the source of truth mirrored by `scripts/build.sh check-all`           |
-| `codeql.yml`            | Performs automated GitHub CodeQL security analysis                                                                                                   |
-| `release.yml`           | Publishes GitHub Release with changelog and artifacts                                                                                                |
-| `maintenance.yml`       | Runs the `Maintenance deps weekly` lockfile refresh and direct commit flow                                                                           |
-| `self-heal-actions.yml` | Automatically updates minor/patch GitHub Action versions                                                                                             |
-| `runtime-probe.yml`     | Probes Node/Bun runtime compatibility                                                                                                                |
-| `runtime-proof.yml`     | Weekly/on-demand runtime proofs: eight fail-closed claims (exact values, egress, storage, offline shell, Vitals, KDF long tasks) in a pinned browser |
-| `security-audit.yml`    | Weekly scheduled dependency + policy audit (loc, headers, pwa-offline)                                                                               |
-| `docs-ci.yml`           | Lints documentation files (prettier, yamllint, codespell)                                                                                            |
-| `gate-keepers.yml`      | The wholesale non-code lane: shellcheck, yamllint, actionlint, codespell, permissions, LOC cap, action pins, version surfaces                        |
+| Workflow                | Purpose                                                                                                                                                         |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ci.yml`                | Executes format, audits, type-checking, linting, tests, and the final build — mirrored by `scripts/build.sh check-all`, which adds `audit:supply-chain` locally |
+| `codeql.yml`            | Performs automated GitHub CodeQL security analysis                                                                                                              |
+| `release.yml`           | Publishes GitHub Release with changelog and artifacts                                                                                                           |
+| `maintenance.yml`       | Runs the `Maintenance deps weekly` lockfile refresh and direct commit flow                                                                                      |
+| `self-heal-actions.yml` | Automatically updates minor/patch GitHub Action versions                                                                                                        |
+| `runtime-probe.yml`     | Probes Node/Bun runtime compatibility                                                                                                                           |
+| `runtime-proof.yml`     | Weekly/on-demand runtime proofs: sixteen fail-closed claims (P1–P16, exact values through seal custody) in a pinned browser                                     |
+| `security-audit.yml`    | Weekly scheduled dependency + policy audit (deps, supply-chain, loc, headers, pwa-offline)                                                                      |
+| `docs-ci.yml`           | Lints documentation files (prettier, yamllint, codespell)                                                                                                       |
+| `gate-keepers.yml`      | The wholesale non-code lane: shellcheck, yamllint, actionlint, codespell, permissions, LOC cap, action pins, version surfaces                                   |
 
 ## Release Process
 

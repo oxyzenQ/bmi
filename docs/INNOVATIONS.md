@@ -59,8 +59,9 @@ contract is pinned by `db-atomicity.test.ts`;
 `SecurityError`, `QuotaExceededError`, and JSON parse failures degrade
 gracefully with dev-only warnings — a poisoned or full store never
 throws into the UI. The whole storage surface is named and minimal
-(`bmi.history`, `bmi.goal`, `bmi.goal.start`, `bmi.unitSystem`,
-`bmi.locale`, plus the encryption verifier in IndexedDB).
+(`bmi.history`, `bmi.unitSystem`, `bmi.wallpaperTheme`, `bmi.locale`,
+`bmi.goal`, `bmi.goal.start`, `bmi.passphrase_hint`, plus the
+encryption verifier in IndexedDB).
 Night-frontier-Z5 sharpening: the escalator's queues were per-realm —
 two tabs raced the same origin storage with no shared mutex. The
 single-writer law (innovation 32) now holds the origin-wide ledger
@@ -561,8 +562,10 @@ the page (window.onerror + unhandledrejection taps), zero egress delta
 must be byte-identical before and after). The probe sources live in
 `page-sources.ts` (the file the claim set uses to keep `run-proof.ts`
 under its cap); the header claim list is one line per claim.
-Verification: PROVEN 15/15 runs after night-frontier-Z4 (the page-side
-probe sources moved to `scripts/proof/page-sources.ts` to stay under
+Verification: PROVEN 16/16 since night-frontier-Z8 grew the claim set
+to P16 (the seal-custody claim — one wasm engine instantiation, the v1
+envelope law, the checksum recompute; the page-side probe sources moved
+to `scripts/proof/page-sources.ts` to stay under
 the 1000-line hard cap as the claim set grew), the measurement records
 shipping as CI artifacts. Honest limit: the harness
 proves the claims on one pinned browser and one emulated network
@@ -962,7 +965,8 @@ capability engine that already exists (getPerformanceTier:
 hardwareConcurrency + deviceMemory + connection): high 64 MiB / t3,
 medium 32 MiB / t3, low 19 MiB / t2 — with the OWASP Argon2id floor
 (m ≥ 19456 KiB, t ≥ 2, p ≥ 1) clamped under every rung, and read-side
-caps (1 GiB / t64 / p8) that refuse absurd parameters fail-closed.
+caps (256 MiB / t8 / p4, the night-depth-hardening-5 burn ceiling —
+see 33) that refuse absurd parameters fail-closed.
 The discovery that makes tier variance safe: the envelope's
 `kdfParams` field had always been RECORDED but never USED — decrypt
 derived with the bundle's fixed options, making the recorded rung

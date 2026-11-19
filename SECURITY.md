@@ -108,7 +108,7 @@ Used for all new encryptions. Parameters follow OWASP 2023 recommendations.
 | Salt length   | 16 bytes (128-bit)     | 16 bytes         |
 | Output length | 32 bytes (AES-256 key) | 32 bytes         |
 
-Implementation: `@noble/hashes/argon2.js` — pure JavaScript, no WASM, auditable source, minimal bundle.
+Implementation: the digest-verified Rust wasm engine (`engine/argon2id`, RFC 9106 through RustCrypto, provenance-checked in CI) is the primary derivation seat; `@noble/hashes/argon2.js` is the byte-identical JavaScript fallback — auditable source, minimal bundle.
 
 ### PBKDF2 (Legacy KDF)
 

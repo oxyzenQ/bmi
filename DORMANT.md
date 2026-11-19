@@ -28,7 +28,7 @@ bun install --frozen-lockfile
 ./scripts/build.sh check-all
 ```
 
-This mirrors `.github/workflows/ci.yml` step-by-step (format:check → audit:deps → audit:loc → audit:headers → audit:branding → audit:pwa-offline → check → lint → test:ci → build). The lighter `bun run verify` is acceptable for quick local iteration but skips `audit:deps` and uses `test:run` instead of `test:ci`.
+This runs the full chain (format:check → the nine audits → check → lint → test:ci → build — the exact enumeration lives in `scripts/build.sh` under `check_all`). The lighter `bun run verify` runs four of the nine audits and uses `test:run` instead of `test:ci`.
 
 4. If the frozen install fails because the ecosystem moved, upgrade Bun/Node first, then make dependency changes in a dedicated maintenance commit.
 5. If `audit:deps` fails because new advisories were published against pinned transitive deps during the dormant period, bump the relevant `overrides` in `package.json` (do not weaken crypto deps). If no fixed release exists within the pinned major, add a temporary entry with a reason and an expiry to `scripts/audit-allowlist.json` instead of weakening the gate. Re-run `bun install` then `./scripts/build.sh check-all`.
@@ -70,7 +70,7 @@ BMI inputs, history, goals, encryption verifier data, and backups are device-loc
 Use a production build or deployed preview.
 
 1. Open the app online.
-2. Navigate through Home, Calculator, Gauge, Reference, About, and Settings.
+2. Navigate through Welcome, Calculator, Gauge, Reference, About, and Info.
 3. Install the PWA.
 4. Close all app/browser tabs.
 5. Disable network.
@@ -84,7 +84,7 @@ Always run `bun run audit:pwa-offline` after changing [src/service-worker.ts](sr
 
 - Local production build: `bun run build`
 - Preview production build: `bun run preview`
-- Vercel runtime: `nodejs24.x` in workflows
+- Vercel runtime: `nodejs26.x` in workflows
 - Release tags: `v<major>.<minor>.<patch>` (pre-release: `-<suffix>`)
 - Version sync: `bun run bmi-update-version <version>`
 

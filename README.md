@@ -97,7 +97,7 @@ in [docs/AUDIT-2026-11.md](docs/AUDIT-2026-11.md):
 | **Offline PWA**           | Installable, service-worker precache with a digest-integrity gate (install/activate verification plus a round-robin re-verification per navigation, night-frontier-Z10 — poisoning cannot survive a bounded number of navigations), offline app shell, Web Vitals monitoring. |
 | **Accessibility first**   | Keyboard-visible focus states, ARIA dialog/radiogroup patterns, semantic status regions, `prefers-reduced-motion` support.                                                                                                                                                    |
 | **Performance adaptive**  | Three-tier animation system (high/medium/low), strict touch intent detection, mobile-specific visual simplification.                                                                                                                                                          |
-| **Gatekeeper parity**     | `./scripts/build.sh check-all` mirrors the `ci.yml` workflow step-for-step — the local verdict and the CI verdict are the same verdict.                                                                                                                                       |
+| **Gatekeeper parity**     | `./scripts/build.sh check-all` runs the `ci.yml` chain — format, nine audits, type-check, lint, test:ci, build — one step wider than CI (`audit:supply-chain` also runs locally), so the local verdict and the CI verdict are the same verdict.                               |
 
 ### vs typical health calculators
 
@@ -113,7 +113,7 @@ in [docs/AUDIT-2026-11.md](docs/AUDIT-2026-11.md):
 
 - [Bun](https://bun.sh) — the exact version is pinned in `packageManager`
   (`package.json`); CI resolves it from there, fail-closed
-- Node.js 22–24 (the tooling `engines` range) for editor integrations
+- Node.js 22–26 (the tooling `engines` range) for editor integrations
 
 ### Run locally
 
@@ -140,28 +140,28 @@ bun run preview   # serve the production build locally
 
 ## Core Scripts
 
-| Command                                          | Description                                                                                              |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| `bun run dev`                                    | Start local dev server with HMR                                                                          |
-| `bun run check`                                  | Svelte and TypeScript diagnostics                                                                        |
-| `bun run lint`                                   | ESLint with Svelte plugin                                                                                |
-| `bun run test`                                   | Vitest in watch mode                                                                                     |
-| `bun run test:run`                               | Single test run                                                                                          |
-| `bun run test:ci`                                | CI-friendly test run (forked, 2 workers)                                                                 |
-| `bun run test:fast`                              | Fast test run (excludes crypto/history-io)                                                               |
-| `bun run test:crypto`                            | Run only crypto + history-io test suites                                                                 |
-| `bun run build`                                  | Production build                                                                                         |
-| `bun run preview`                                | Serve the production build locally                                                                       |
-| `bun run format`                                 | Prettier auto-format                                                                                     |
-| `bun run format:check`                           | Prettier check (no write)                                                                                |
-| `bun run verify`                                 | Full local gate: format + 4 audits + check + lint + test:run + build                                     |
-| `./scripts/build.sh check-all`                   | Gatekeeper mirroring CI (same as `verify` + `audit:deps` + `test:ci`)                                    |
-| `./scripts/proof/run-proof.sh [report]`          | Runtime proof harness: eight fail-closed runtime claims against the production build in a pinned browser |
-| `bun run audit:deps`                             | Policy-gated dependency audit (blocking + allowlist-aware)                                               |
-| `bun run lint:fix`                               | ESLint auto-fix                                                                                          |
-| `bun run clean`                                  | Remove `.svelte-kit`, `build`, `dist`, `node_modules/.cache`                                             |
-| `bun run bmi-update-version <version>`           | Sync version across all canonical files                                                                  |
-| `bun run bmi-update-version --dry-run <version>` | Preview a version update without writing                                                                 |
+| Command                                          | Description                                                                                                 |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `bun run dev`                                    | Start local dev server with HMR                                                                             |
+| `bun run check`                                  | Svelte and TypeScript diagnostics                                                                           |
+| `bun run lint`                                   | ESLint with Svelte plugin                                                                                   |
+| `bun run test`                                   | Vitest in watch mode                                                                                        |
+| `bun run test:run`                               | Single test run                                                                                             |
+| `bun run test:ci`                                | CI-friendly test run (forked, 2 workers)                                                                    |
+| `bun run test:fast`                              | Fast test run (excludes crypto/history-io)                                                                  |
+| `bun run test:crypto`                            | Run only crypto + history-io test suites                                                                    |
+| `bun run build`                                  | Production build                                                                                            |
+| `bun run preview`                                | Serve the production build locally                                                                          |
+| `bun run format`                                 | Prettier auto-format                                                                                        |
+| `bun run format:check`                           | Prettier check (no write)                                                                                   |
+| `bun run verify`                                 | Full local gate: format + 4 audits + check + lint + test:run + build                                        |
+| `./scripts/build.sh check-all`                   | Wholesale gate: format + 9 audits + type-check + lint + test:ci + build (the full `scripts/build.sh` chain) |
+| `./scripts/proof/run-proof.sh [report]`          | Runtime proof harness: sixteen fail-closed runtime claims against the production build in a pinned browser  |
+| `bun run audit:deps`                             | Policy-gated dependency audit (blocking + allowlist-aware)                                                  |
+| `bun run lint:fix`                               | ESLint auto-fix                                                                                             |
+| `bun run clean`                                  | Remove `.svelte-kit`, `build`, `dist`, `node_modules/.cache`                                                |
+| `bun run bmi-update-version <version>`           | Sync version across all canonical files                                                                     |
+| `bun run bmi-update-version --dry-run <version>` | Preview a version update without writing                                                                    |
 
 ## Project Layout
 
@@ -238,7 +238,7 @@ See [SECURITY.md](SECURITY.md) for the full policy and the reporting process.
 - On-device storage is encrypted at rest only for values written during a passphrase-verified session (`bmi-at-rest-v1` seal: volatile Argon2id session key, AES-256-GCM, fresh IV per value) across localStorage, IndexedDB, and local backups; values written outside such sessions stay plaintext, a cold load starts locked until the passphrase is presented through an existing flow, and a locked session can never overwrite sealed data; since night-frontier-Z8 the session seal key lives in the wasm engine's custody when the artifact loads (an AES-256-GCM slot whose lock wipe self-reports all-zero), with the byte-identical WebCrypto fallback otherwise
 - The hosted demo may load Vercel Analytics and Speed Insights for aggregate telemetry; health values still never leave the device
 - Update checks contact two public GitHub URLs (the repo's `package.json` and latest commit) — unauthenticated GETs with no payload, no cookies, and no health data, but GitHub sees your IP, user agent, and timing. The automatic check runs at most once every 12 hours per device (a failed or offline attempt is not counted); the manual check in About is immediate
-- Legacy export checksums (v0–v2) are forgeable by design; the v3/v4 HMAC detects accidental corruption and casual tampering, not a determined attacker with the bundle in hand. KDF rungs below the OWASP floor can still be READ (within strict caps) — the floor governs what this app produces, not what it refuses to open. The continuity chain (v4) detects history changes that bypass legit writes — including silent truncation — and the plain anchor in the envelope stays recomputable from the file alone. Since night-frontier-Z6, a passphrase-protected ledger seals its device witness under an HMAC chain keyed by the passphrase: rewriting both the history and the device's meta store can re-seal a witness only for a plaintext ledger, because the next keyed link requires the attestation key and the key requires the passphrase. A keyed witness whose key is unavailable (locked edge) neither blesses nor accuses — the audit reads it as witness-opaque; since night-frontier-Z9, a passphrase rotation in an already-unlocked session instead re-seals the ledger under the new key in one locked section (old head verified under the old key, values re-sealed, witness re-anchored — no blind window, no lockout), and a rotation that cannot verify anything keeps the honest tombstone route. A seal failure writes a typed marker (`{"t":"seal-failed"}`), so "I failed to witness" is distinguishable from "I am not here" Since night-frontier-Z7 the witness also lives in the OPFS vault mirror (the flush-written latest backup snapshot), and a meta-witness wipe no longer escapes the freeze rule: a same-length disagreement with the vault copy vetoes the re-anchor — erasing the witness is not erasing the evidence. A pure reordering of distinct-timestamp records is a logical no-op (every read sorts ascending) and is not treated as tampering
+- Legacy export checksums (v0–v2) are forgeable by design; the v3/v4 HMAC detects accidental corruption and casual tampering, not a determined attacker with the bundle in hand. KDF rungs below the OWASP floor can still be READ (within strict caps) — the floor governs what this app produces, not what it refuses to open. The continuity chain (v4) detects history changes that bypass legit writes — including silent truncation — and the plain anchor in the envelope stays recomputable from the file alone. Since night-frontier-Z6, a passphrase-protected ledger seals its device witness under an HMAC chain keyed by the passphrase: rewriting both the history and the device's meta store can re-seal a witness only for a plaintext ledger, because the next keyed link requires the attestation key and the key requires the passphrase. A keyed witness whose key is unavailable (locked edge) neither blesses nor accuses — the audit reads it as witness-opaque; since night-frontier-Z9, a passphrase rotation in an already-unlocked session instead re-seals the ledger under the new key in one locked section (old head verified under the old key, values re-sealed, witness re-anchored — no blind window, no lockout), and a rotation that cannot verify anything keeps the honest tombstone route. A seal failure writes a typed marker (`{"t":"seal-failed"}`), so "I failed to witness" is distinguishable from "I am not here". Since night-frontier-Z7 the witness also lives in the OPFS vault mirror (the flush-written latest backup snapshot), and a meta-witness wipe no longer escapes the freeze rule: a same-length disagreement with the vault copy vetoes the re-anchor — erasing the witness is not erasing the evidence. A pure reordering of distinct-timestamp records is a logical no-op (every read sorts ascending) and is not treated as tampering
 - Single-user, single-device by design — there is no cloud to sign into
 - The single-writer lock is advisory (the Web Locks API): engines without it degrade to per-realm serialization only, and it orders legit writers — device-access tampering stays the business of the continuity chain, not the lock
 
@@ -322,8 +322,8 @@ PRs and issues are welcome. The bar is the gatekeeper:
 ```
 
 This mirrors the GitHub Actions `ci.yml` workflow end-to-end (format +
-8 audits + type-check + lint + test:ci + build). `bun run verify` is
-the lighter local variant (same steps except `audit:deps`, with
+9 audits + type-check + lint + test:ci + build). `bun run verify` is
+the lighter local variant (four of the nine audits, with
 `test:run` instead of `test:ci`). Development standards live in
 [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md), release operations
 in [.github/RELEASE.md](.github/RELEASE.md). Contributions land with
@@ -339,7 +339,7 @@ seriously. Found something? **Report it privately** via
 
 ## Documentation
 
-- [CHANGELOG.md](CHANGELOG.md) — release history v21.0 → v80.0.6, the Released ledger, and the in-progress Unreleased section
+- [CHANGELOG.md](CHANGELOG.md) — release history v21.0 → v80.3.0-night.1, the Released ledger, and the in-progress Unreleased section
 - [docs/README.md](docs/README.md) — the documentation map
 - [docs/furthermore.md](docs/furthermore.md) — the architectural deep dive: CSS cascade, pager, crypto, PWA, share image (the flagship reference)
 - [docs/AUDIT-2026-08.md](docs/AUDIT-2026-08.md) — source code audit record (August 2026)
