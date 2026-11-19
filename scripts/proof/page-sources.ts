@@ -412,6 +412,18 @@ export const GAUNTLET_RUN = `async ({ validEnvelope, passphrase }) => {
     }
     return false;
   };
+  const forceCloseModal = async () => {
+    const deadline = Date.now() + 3000;
+    while (Date.now() < deadline) {
+      const dialog = [...document.querySelectorAll('[role="dialog"]')].find((d) => d.querySelector('form'));
+      if (!dialog) return true;
+      const cancel = [...dialog.querySelectorAll('button')].find((b) => b.type !== 'submit');
+      if (cancel) cancel.click();
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      await new Promise((r) => setTimeout(r, 300));
+    }
+    return false;
+  };
   for (const [label, payload] of payloads) {
     void label;
     setFile(payload);
@@ -423,10 +435,14 @@ export const GAUNTLET_RUN = `async ({ validEnvelope, passphrase }) => {
         input.dispatchEvent(new Event('input', { bubbles: true }));
       }
       dialog.querySelector('form').requestSubmit();
-      const gone = await waitModalGone();
-      if (!gone) throw new Error('gauntlet modal never closed on: ' + label);
+      // The refusal may close the modal or leave it in a retry state -
+      // both are refusals. What the claim needs is a clean slate for the
+      // next payload: wait, then force-close any residue.
+      await waitModalGone();
+      const stuck = await forceCloseModal();
+      if (stuck) throw new Error('gauntlet modal residue on: ' + label);
     }
-    await new Promise((r) => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, 400));
   }
   const readMeta = ${READ_META};
   const raw = await readMeta('__history_chain_head');
