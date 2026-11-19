@@ -92,6 +92,15 @@ const ALLOWED_LS_KEYS = new Set([
 ]);
 const ALLOWED_IDB_STORES = new Set(['keyvalue', 'backups', 'meta']);
 
+/** The gauntlet probe shapes (night-frontier-Z7, P15). */
+type GauntletBefore = { witnessBefore: { head: string } | null };
+type GauntletVerdict = {
+	imports: number;
+	unhandledErrors: string[];
+	egressDelta: number;
+	witnessAfter: { head: string } | null;
+};
+
 /** Web Vitals budgets (ms / unitless). */
 const LCP_BUDGET_MS = 2500;
 const CLS_BUDGET = 0.1;
@@ -903,6 +912,28 @@ async function main(): Promise<number> {
 			}
 		);
 
+		// ── P15: the Import Gauntlet (night-frontier-Z7) ──
+		await prove(
+			'P15 import gauntlet: every poisoned envelope refused, witness and ledger untouched',
+			async () => {
+				expect(exportFileText !== null, 'no valid encrypted export captured for the gauntlet');
+				const before = await page!.evaluate<GauntletBefore>(GAUNTLET_SETUP);
+				const gauntlet = await page!.evaluate<GauntletVerdict>(GAUNTLET_RUN, {
+					validEnvelope: exportFileText!,
+					passphrase: 'proof-harness-passphrase-1'
+				});
+				expect(gauntlet.imports >= 9, `the gauntlet ran ${String(gauntlet.imports)} payloads`);
+				expect(
+					gauntlet.unhandledErrors.length === 0 && gauntlet.egressDelta === 0,
+					`poison caused unhandled errors or egress: ${gauntlet.unhandledErrors.join(' | ')}`
+				);
+				const headBefore = before.witnessBefore ? before.witnessBefore.head : null;
+				const headAfter = gauntlet.witnessAfter ? gauntlet.witnessAfter.head : null;
+				expect(headAfter === headBefore, 'the witness moved during the gauntlet');
+				return `gauntlet=${String(gauntlet.imports)} payloads refused, witness untouched`;
+			}
+		);
+
 		// ── P4: offline shell contract ──
 		await prove('P4 offline shell: the service worker serves the real app shell', async () => {
 			// One online reload lets the registered worker claim the page.
@@ -923,35 +954,6 @@ async function main(): Promise<number> {
 			expect(Boolean(hero), 'app shell did not render offline (hero title missing)');
 			return 'shell served offline, hero present';
 		});
-
-		// ── P15: the Import Gauntlet (night-frontier-Z7) ──
-		await prove(
-			'P15 import gauntlet: every poisoned envelope refused, witness and ledger untouched',
-			async () => {
-				expect(exportFileText !== null, 'no valid encrypted export captured for the gauntlet');
-				const before = await page!.evaluate<{ witnessBefore: { head: string } | null }>(
-					GAUNTLET_SETUP
-				);
-				const gauntlet = await page!.evaluate<{
-					imports: number;
-					unhandledErrors: string[];
-					egressDelta: number;
-					witnessAfter: { head: string } | null;
-				}>(GAUNTLET_RUN, {
-					validEnvelope: exportFileText!,
-					passphrase: 'proof-harness-passphrase-1'
-				});
-				expect(gauntlet.imports >= 9, `the gauntlet ran ${String(gauntlet.imports)} payloads`);
-				expect(
-					gauntlet.unhandledErrors.length === 0 && gauntlet.egressDelta === 0,
-					`poison caused unhandled errors or egress: ${gauntlet.unhandledErrors.join(' | ')}`
-				);
-				const headBefore = before.witnessBefore ? before.witnessBefore.head : null;
-				const headAfter = gauntlet.witnessAfter ? gauntlet.witnessAfter.head : null;
-				expect(headAfter === headBefore, 'the witness moved during the gauntlet');
-				return `gauntlet=${String(gauntlet.imports)} payloads refused, witness untouched`;
-			}
-		);
 
 		// ── Verdict ──
 		const failed = results.filter((r) => !r.ok);

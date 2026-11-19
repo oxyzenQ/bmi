@@ -251,14 +251,23 @@ export function reseatLedgerChainAfterSave(
 		// compares like with like.
 		if (sealed.mode === 'keyed') {
 			const kf = getWitnessKeyFingerprint();
-			if (!getWitnessMac() || kf !== sealed.kf) {
-				// The attestation key is gone or belongs to another passphrase
-				// (locked edge, passphrase rotation). The witness can neither
-				// verify this pre-state nor accuse it - it steps aside to
-				// honestly unanchored, and the next legit save re-anchors.
-				// The external witness (the user's own v4 export, a plain
-				// anchor) is untouched by this.
-				await tombstoneWitness('attestation key unavailable or rotated');
+			if (!getWitnessMac()) {
+				// Locked (or otherwise keyless) session: the witness can be
+				// neither verified nor advanced - it STAYS, evidence
+				// preserved. A refused write (the purge guard blocks locked
+				// saves) must never reshape the witness: erasing a valid
+				// keyed seal is exactly what an attacker wants and what the
+				// P8 contract forbids. The audit reads this state as
+				// witness-opaque, and the next unlock resumes attestability.
+				return;
+			}
+			if (kf !== sealed.kf) {
+				// The installed key belongs to another passphrase (rotation):
+				// the old seal can never be verified again, so it steps aside
+				// to honestly unanchored and the next legit save re-anchors
+				// under the new key. The external witness (the user's own v4
+				// export, a plain anchor) is untouched by this.
+				await tombstoneWitness('attestation key rotated');
 				return;
 			}
 		}

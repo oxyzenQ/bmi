@@ -249,7 +249,7 @@ describe('keyed witness semantics (night-frontier-Z6)', () => {
 		expect(await getSealedLedgerChain()).toEqual(after);
 	});
 
-	it('steps the witness aside (tombstone) when the attestation key is gone', async () => {
+	it('leaves the witness frozen when the attestation key is gone (silence, evidence preserved)', async () => {
 		const key = witnessKeyBytes(0xb111);
 		await installWitnessKey(new Uint8Array(key));
 		const records = randomRecords(makePrng(0xc111), 3) as never;
@@ -260,14 +260,16 @@ describe('keyed witness semantics (night-frontier-Z6)', () => {
 		// an attacker's plain recomputation never will either.
 		const plain = await computeLedgerChain(records);
 		expect(plain.head).not.toBe(sealed!.head);
-		// A legit write without the key: the witness neither blesses nor
-		// accuses - it steps aside to honestly unanchored.
+		// A write attempt without the key: the witness can be neither
+		// verified nor advanced - it STAYS. A refused write must never
+		// reshape the witness: erasing a valid keyed seal is exactly what
+		// an attacker wants and what the purge-guard contract forbids.
 		const next = randomRecords(makePrng(0xd111), 4) as never;
 		await reseatLedgerChainAfterSave(records, next);
-		expect(await getSealedLedgerChain()).toBeNull();
-		// The next legit save re-anchors - plain, because no key exists.
+		expect(await getSealedLedgerChain()).toEqual(sealed);
+		// Repeated keyless attempts keep it frozen, never degraded.
 		await reseatLedgerChainAfterSave(next, randomRecords(makePrng(0xe111), 5) as never);
-		expect((await getSealedLedgerChain())!.mode).toBeUndefined();
+		expect(await getSealedLedgerChain()).toEqual(sealed);
 	});
 
 	it('steps aside on passphrase rotation and re-anchors under the new key', async () => {
