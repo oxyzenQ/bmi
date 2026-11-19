@@ -35,6 +35,18 @@
  *                                 covers (night-frontier-Z3)
  *   P11 witness freeze           — after a device tamper the next save
  *                                 refuses to bless unverified history
+ *   P12 vault tier               — the OPFS flush vault holds the
+ *                                 latest snapshot byte-equivalent to
+ *                                 the latest IndexedDB backup
+ *                                 (night-frontier-Z4)
+ *   P13 kdf ladder               — production envelopes carry the
+ *                                 device-tier argon2id rung at or above
+ *                                 the OWASP floor (night-frontier-Z4)
+ *   P14 single-writer law        — the platform lock serializes
+ *                                 exclusive requests and a stale second
+ *                                 tab merges over fresh state; the
+ *                                 union survives, the witness blesses
+ *                                 it (night-frontier-Z5)
  *
  * Every proof is fail-closed: an infrastructure error fails its proof,
  * the harness exits non-zero, and nothing is reported as proven that was
@@ -63,7 +75,10 @@ import {
 	MODAL_SUBMIT,
 	MODAL_CLOSED,
 	EXPORT_PREVIEW_COUNT,
-	VAULT_AUDIT
+	VAULT_AUDIT,
+	READ_LEDGER_STATE,
+	PROBE_LOCK_SERIALIZATION,
+	MERGED_LEDGER_AUDIT
 } from './page-sources';
 
 // ── Configuration ──
@@ -416,6 +431,103 @@ async function main(): Promise<number> {
 			}
 		);
 
+		// ── P14: the single-writer law across two tabs (night-frontier-Z5) ──
+		await prove(
+			'P14 single-writer law: the platform lock serializes exclusive requests, and a stale second tab merges over fresh state — the union survives, the witness blesses every legit write',
+			async () => {
+				// The law rides the Web Locks API; fail closed when absent —
+				// a fallback-only platform proves the per-realm discipline,
+				// not the origin-wide law.
+				const locksLive = await page!.evaluate<boolean>(
+					`() => Boolean(navigator.locks && typeof navigator.locks.request === 'function')`
+				);
+				expect(
+					locksLive,
+					'navigator.locks is unavailable — the single-writer law cannot prove its full form here'
+				);
+				// Exclusive-mode discipline: the second request waits for the
+				// first to release (the platform primitive the law rides).
+				const serialized = await page!.evaluate<number>(PROBE_LOCK_SERIALIZATION);
+				expect(serialized === 1, 'the platform lock manager did not serialize exclusive requests');
+				// The race, deterministic: tab B opens while the ledger holds
+				// two records and caches that view; tab A then lands a third
+				// record. Tab B's locked write must refresh from the mirror
+				// first and merge — the union survives, the witness blesses it.
+				const tabB = await CdpPage.connect(BROWSER_PORT);
+				await tabB.enableDomains();
+				try {
+					await tabB.navigate(`${BASE_URL}/`);
+					await sleep(3500); // hydration; tab B's cache = the 2-record ledger
+					await page!.evaluate(`() => { location.hash = '#calculator'; return true; }`);
+					await sleep(800);
+					// P1b left the persisted unit system imperial — return to
+					// metric so the 175/70.2 inputs mean cm/kg.
+					await page!.evaluate(CLICK_RADIO, { groupAria: 'Unit system', text: 'Metric' });
+					await sleep(300);
+					await page!.evaluate(FILL_AND_CALC, { age: 30, height: 175, weight: 70.2 });
+					// The claim is about the save, not the display: poll the ledger
+					// until tab A's third record has landed (the record identity is
+					// its timestamp, whatever value the gauge renders).
+					const deadlineA = Date.now() + 10000;
+					let afterA: { count: number; lastTimestamp: number } | null = null;
+					while (Date.now() < deadlineA) {
+						const current = await page!.evaluate<{ count: number; lastTimestamp: number }>(
+							READ_LEDGER_STATE
+						);
+						if (current.count === 3) {
+							afterA = current;
+							break;
+						}
+						await sleep(300);
+					}
+					expect(afterA !== null, "tab A's third record never landed in the ledger");
+					// Tab B saves with its stale view — a real calculation through
+					// the same UI, not a scripted storage write. Mount the
+					// calculator first, then restore metric (its fresh load
+					// inherited P1b's persisted imperial unit system).
+					await tabB.evaluate(`() => { location.hash = '#calculator'; return true; }`);
+					await sleep(800);
+					await tabB.evaluate(CLICK_RADIO, { groupAria: 'Gender', index: 0 });
+					await tabB.evaluate(CLICK_RADIO, { groupAria: 'Activity level', index: 2 });
+					await tabB.evaluate(CLICK_RADIO, { groupAria: 'Unit system', text: 'Metric' });
+					await sleep(300);
+					await tabB.evaluate(FILL_AND_CALC, { age: 28, height: 168, weight: 61 });
+					await sleep(2500); // the locked section + the witness drain
+					const audit = await tabB.evaluate<{
+						witness: { head: string; length: number } | null;
+						computed: { head: string; length: number } | null;
+						count: number;
+						hasTabARecord: boolean;
+					}>(MERGED_LEDGER_AUDIT, { lastTimestamp: afterA!.lastTimestamp });
+					expect(
+						audit.count === 4,
+						`the merged ledger holds ${String(audit.count)} records, expected 4`
+					);
+					expect(
+						Boolean(audit.hasTabARecord),
+						"tab A's third record was dropped by tab B's stale write"
+					);
+					expect(audit.witness !== null, 'no witness after the merged save');
+					expect(audit.computed !== null, 'the chain never recomputed over the union');
+					expect(
+						audit.witness!.head === audit.computed!.head &&
+							audit.witness!.length === audit.computed!.length,
+						'the witness does not match the recomputed chain over the union'
+					);
+					expect(
+						audit.witness!.length === 4,
+						`the witness covers ${String(audit.witness!.length)} records, expected 4`
+					);
+					// Let the data-change backup + vault mirror drain before P12's
+					// byte-equivalence audit.
+					await sleep(2500);
+					return `union of 4 records survived (tab A's record present), witness matches the chain over the union`;
+				} finally {
+					await tabB.close().catch(() => {});
+				}
+			}
+		);
+
 		// ── P12: the OPFS flush() vault tier (night-frontier-Z4) ──
 		await prove(
 			'P12 vault tier: the OPFS vault file is flush-written and byte-equivalent to the latest IndexedDB backup',
@@ -722,8 +834,11 @@ async function main(): Promise<number> {
 					rawIsSealed: boolean;
 				}>(WITNESS_AUDIT);
 				const unlockedCount = await page!.evaluate<string>(EXPORT_PREVIEW_COUNT);
+				// Readability restored: the preview must show exactly the
+				// records the witness covers (whatever the imported ledger's
+				// length — the count rides the file, not this claim).
 				expect(
-					String(unlockedCount).trim() === '2',
+					String(unlockedCount).trim() === String(witnessDebug.witness?.length ?? -1),
 					`records are not readable again after the unlock (preview saw ${JSON.stringify(unlockedCount)}; witness=${JSON.stringify(witnessDebug.witness)})`
 				);
 				return `locked preview 0 records, unlocked preview ${unlockedCount}, envelope re-sealed`;
@@ -777,11 +892,12 @@ async function main(): Promise<number> {
 					JSON.stringify(after.witness) === JSON.stringify(before.witness),
 					'the witness moved over unverified history'
 				);
-				// The witness still covers exactly the pre-tamper ledger
-				// (2 records), while storage now holds 3 — the freeze is real.
+				// The witness still covers exactly the pre-tamper ledger —
+				// every record the freeze protected — while storage now holds
+				// one more. The freeze is real at any ledger length.
 				expect(
-					after.witness!.length === 2,
-					`witness length drifted to ${String(after.witness!.length)}`
+					after.witness!.length === before.witness!.length,
+					`witness length drifted from ${String(before.witness!.length)} to ${String(after.witness!.length)}`
 				);
 
 				// And the head differs from the chain over the tampered pair:
@@ -806,7 +922,7 @@ async function main(): Promise<number> {
 					}`
 				);
 				expect(after.witness!.head !== foreignChain.head, 'the witness equals the tampered chain');
-				return `witness stayed at ${before.witness!.head.slice(0, 12)}... (length 2), diverged from the tampered chain`;
+				return `witness stayed at ${before.witness!.head.slice(0, 12)}... (length ${String(before.witness!.length)}), diverged from the tampered chain`;
 			}
 		);
 

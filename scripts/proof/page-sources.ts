@@ -283,3 +283,52 @@ export const EXPORT_PREVIEW_COUNT = `async () => {
   if (val === null) throw new Error('export summary record count never rendered');
   return val;
 }`;
+
+// ── night-frontier-Z5: the single-writer law probes ──
+
+/** The ledger view the race claims poll: record count plus the newest timestamp. */
+export const READ_LEDGER_STATE = `() => {
+  const raw = JSON.parse(localStorage.getItem('bmi.history') || '[]');
+  return { count: raw.length, lastTimestamp: raw.length ? raw[raw.length - 1].timestamp : 0 };
+}`;
+
+/**
+ * Exclusive-mode serialization probe: two requests on one named lock,
+ * the second gated behind the first's release. Returns 1 when the
+ * platform granted them strictly in order (a-start, a-end, b-start).
+ */
+export const PROBE_LOCK_SERIALIZATION = `async () => {
+  const events = [];
+  let release;
+  const gate = new Promise((r) => { release = r; });
+  const first = navigator.locks.request('bmi-proof-probe', { mode: 'exclusive' }, async () => {
+    events.push('a-start');
+    await gate;
+    events.push('a-end');
+  });
+  const second = navigator.locks.request('bmi-proof-probe', { mode: 'exclusive' }, async () => {
+    events.push('b-start');
+  });
+  await new Promise((r) => setTimeout(r, 150));
+  release();
+  await first;
+  await second;
+  return events.join(',') === 'a-start,a-end,b-start' ? 1 : 0;
+}`;
+
+/**
+ * The merged-ledger audit (the Z5 race verdict, read from tab B): the
+ * continuity witness against an independent recomputation over the raw
+ * stored history, the record count, and whether tab A's record —
+ * identified by its exact timestamp — survived tab B's stale write.
+ */
+export const MERGED_LEDGER_AUDIT = `async ({ lastTimestamp }) => {
+  const audit = await (${WITNESS_AUDIT})();
+  const raw = JSON.parse(localStorage.getItem('bmi.history') || '[]');
+  return {
+    witness: audit.witness,
+    computed: audit.computed,
+    count: raw.length,
+    hasTabARecord: raw.some((r) => r.timestamp === lastTimestamp)
+  };
+}`;
