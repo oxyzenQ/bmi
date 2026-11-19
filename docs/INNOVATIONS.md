@@ -133,7 +133,18 @@ runs in a dedicated Web Worker — the wasm engine first (innovation 28),
 the pure-JS engine as the in-worker fallback — with the same
 parameters as the main-thread path; the UI awaits a promise while the
 worker burns the memory. The client has its own suite
-(`kdf-worker-client.test.ts`).
+(`kdf-worker-client.test.ts`). Night-frontier-Z6 sharpening: the
+engine-first ordering is pinned by the worker behavior battery
+(`kdf.worker.test.ts` — the wasm engine derives first and
+byte-identical; an unavailable or trapping engine falls back without
+changing a byte), and the artifact chain that keeps the primary seat
+real now rides the zelynic Dragon Guard maintenance lineage: the
+weekly Cargo sweep with a dependency-only diff and staged bot commit,
+formatting and strict clippy on every push beside the provenance
+digest, the wasm parity gate refusing a sweep it cannot prove,
+cargo-audit over the engine lockfile, and the three-surface
+version-sync gate tying `rust-toolchain.toml`, the Cargo.toml MSRV,
+and the maintenance workflow to one toolchain version.
 
 **7. The Zero-Knowledge Verifier (v18.1).** When encryption is
 enabled, `enableEncryption()` encrypts a known verifier string
@@ -555,6 +566,19 @@ regions is hygiene, not a security boundary; the app never uses the
 secret/associated-data ABI inputs (they exist so the KAT exercises the
 full core); and the JS engine stays loadable by design, so the fallback
 path remains a working, byte-identical route.
+Night-frontier-Z6 sharpening: the maintenance lane grows around the
+artifact — the weekly dependency sweep
+(`scripts/ci/sweep-rust-workspaces.sh`, the zelynic Dragon Guard port)
+updates every committed Cargo workspace, proves the moved lane with
+cargo fmt `--check` and clippy `-D warnings`, and refuses to ship
+without the wasm parity gate (a dependency bump that changes the built
+bytes fails loudly; the embedded artifact's one writer stays the
+owner's deliberate `--refresh` flow). The toolchain version lives in
+three synced surfaces (`rust-toolchain.toml` channel, the Cargo.toml
+`rust-version` MSRV, the maintenance workflow's `RUST_VERSION`) tied by
+`scripts/gates/check-rust-version-sync.sh` in gate-keepers section 13,
+and cargo-audit scans the engine lockfile weekly (pinned scanner,
+`--deny warnings`, observation-only).
 
 **29. The Ledger Continuity Chain — the sequence itself becomes
 tamper-evident (night-frontier-Z3).** The physics gap: AES-GCM protects
