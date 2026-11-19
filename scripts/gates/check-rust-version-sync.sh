@@ -34,9 +34,12 @@ if [ "$fail" -ne 0 ]; then
 	exit 1
 fi
 
-toolchain="$(sed -n 's/^channel *= *"\([^"]*\)".*$/\1/p' "$TOOLCHAIN" | head -1)"
-msrv="$(sed -n 's/^rust-version *= *"\([^"]*\)".*$/\1/p' "$MANIFEST" | head -1)"
-workflow="$(sed -n 's/^  RUST_VERSION: *"\([^"]*\)".*$/\1/p' "$WORKFLOW" | head -1)"
+toolchain="$(sed -n 's/^[[:space:]]*channel[[:space:]]*=[[:space:]]*["\x27]\([^"\x27]*\)["\x27].*$/\1/p' "$TOOLCHAIN" | head -1)"
+msrv="$(sed -n 's/^[[:space:]]*rust-version[[:space:]]*=[[:space:]]*["\x27]\([^"\x27]*\)["\x27].*$/\1/p' "$MANIFEST" | head -1)"
+# The workflow surface must be the env value itself, not a ${{ }} reference:
+# both quote styles and any indentation are tolerated (prettier rewrites the
+# quoting when it formats the workflow).
+workflow="$(sed -n 's/^[[:space:]]*RUST_VERSION:[[:space:]]*["\x27]\([^"${}]*\)["\x27].*$/\1/p' "$WORKFLOW" | head -1)"
 
 echo "rust-toolchain.toml channel:   ${toolchain:-(missing)}"
 echo "Cargo.toml rust-version:       ${msrv:-(missing)}"
