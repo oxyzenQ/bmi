@@ -15,12 +15,17 @@
  *     read as null until the passphrase is presented again. Locked data
  *     is never destroyed — storage.ts refuses writes that would overwrite
  *     a sealed value without a session key (the purge guard).
- *   - The session key lives in volatile memory only, derived from the
- *     ledger passphrase with Argon2id against a per-device random salt
- *     kept in the IndexedDB meta store. It is never persisted, cached to
- *     disk, or transmitted.
+ *   - The session seal key lives in the engine's custody while unlocked
+ *     (night-frontier-Z8): an opaque AES-256-GCM slot inside the wasm
+ *     engine, sealed and opened in-engine, wiped with a self-reported
+ *     all-zero proof at lock. The WebCrypto fallback keeps the
+ *     documented physics (a non-extractable handle released to GC).
+ *     Either way the key is never persisted, cached to disk, or
+ *     transmitted.
  *   - Values are sealed with a fresh 12-byte IV per write; the AES-GCM
- *     auth tag plus a SHA-256 ciphertext checksum carry integrity.
+ *     auth tag plus a SHA-256 ciphertext checksum carry integrity. Both
+ *     custody sides implement the standard GCM, so the envelope is
+ *     byte-identical no matter which side sealed it.
  *   - Only the ledger passphrase ever seals or unseals. Passphrases typed
  *     for export files that do not match the verifier never register.
  *   - Sealing failure falls back to plaintext persistence (data
@@ -36,8 +41,6 @@
 
 import { dbMetaGet, dbMetaSet } from './db';
 import {
-	aesGcmDecrypt,
-	aesGcmEncrypt,
 	computeChecksum,
 	deriveSessionKeys,
 	fromBase64,
@@ -62,6 +65,7 @@ import {
 	isAtRestTagged,
 	setAtRestSessionKey
 } from './at-rest-state';
+import { installSealKey, openWithKey, sealWithKey, wipeSealKey } from './seal-key';
 import { installWitnessKey, wipeWitnessKey } from './witness-key';
 import { warnDev } from './warn-dev';
 
@@ -137,16 +141,17 @@ export async function registerAtRestSession(passphrase: string): Promise<void> {
 	// re-enable with a new passphrase always derives.
 	if (isAtRestSessionUnlocked()) return;
 	const salt = await getOrCreateSalt();
-	// Night-frontier-Z6: one Argon2id pass yields BOTH keys — the seal
-	// key and the witness attestation material (HKDF domain separation).
-	// installWitnessKey copies the material and wipes the returned array,
-	// so the raw session output never outlives this call in JS.
-	const { aesKey, witnessMacKey } = await deriveSessionKeys(
+	// Night-frontier-Z6: one Argon2id pass yields BOTH keys - the seal
+	// key material and the witness attestation material (HKDF domain
+	// separation). Night-frontier-Z8: the raw material installs into the
+	// engine's seal custody (or the WebCrypto fallback) and dies there -
+	// single ownership, consumed exactly once by installSealKey.
+	const { sessionRaw, witnessMacKey } = await deriveSessionKeys(
 		passphrase,
 		salt,
 		await readVerifierKdfOptions()
 	);
-	setAtRestSessionKey(aesKey);
+	setAtRestSessionKey(await installSealKey(sessionRaw));
 	await installWitnessKey(witnessMacKey);
 }
 
@@ -154,10 +159,15 @@ export async function registerAtRestSession(passphrase: string): Promise<void> {
  * Drop the session key. The session returns to locked state: sealed
  * values read as null again and writes to health keys are refused while
  * a sealed value exists. Existing sealed values are untouched. The
- * witness attestation key is WIPED with it — a keyed witness can then
- * neither bless nor accuse until the next passphrase-proven unlock.
+ * engine-custodied seal key is VOLATILE-ZEROIZED with a self-reported
+ * all-zero proof before the reference drops (night-frontier-Z8; the
+ * WebCrypto fallback releases its handle to GC - the documented
+ * physics). The witness attestation key is WIPED with it - a keyed
+ * witness can then neither bless nor accuse until the next
+ * passphrase-proven unlock.
  */
 export function clearAtRestSession(): void {
+	wipeSealKey(getAtRestSessionKey());
 	clearAtRestSessionKey();
 	wipeWitnessKey();
 }
@@ -169,7 +179,7 @@ export function isAtRestUnlocked(): boolean {
 
 /**
  * Seal a plaintext value into the tagged at-rest format using the
- * session key and a fresh random IV. Throws when no session key is
+ * session seat and a fresh random IV. Throws when no session seat is
  * installed — storage.ts guards this, but the check stays here so the
  * invariant holds no matter the caller.
  */
@@ -177,12 +187,12 @@ export async function sealAtRestValue(plaintext: string): Promise<string> {
 	if (!isAtRestSessionUnlocked()) {
 		throw new Error('at-rest seal called without an unlocked session');
 	}
-	const sessionKey = getAtRestSessionKey();
-	if (!sessionKey) {
+	const seat = getAtRestSessionKey();
+	if (!seat) {
 		throw new Error('at-rest seal called without an unlocked session');
 	}
 	const iv = randomBytes(IV_LENGTH);
-	const ciphertext = await aesGcmEncrypt(sessionKey, iv, new TextEncoder().encode(plaintext));
+	const ciphertext = await sealWithKey(seat, iv, new TextEncoder().encode(plaintext));
 	const data = toBase64(ciphertext);
 	const envelope: AtRestEnvelope = {
 		v: AT_REST_VERSION,
@@ -211,19 +221,18 @@ export async function openAtRestValue(sealed: string): Promise<string | null> {
 			warnDev('at-rest', 'openAtRestValue', 'Sealed envelope checksum mismatch — tampered data');
 			return null;
 		}
-		const sessionKey = getAtRestSessionKey();
-		if (!sessionKey) {
+		const seat = getAtRestSessionKey();
+		if (!seat) {
 			warnDev('at-rest', 'openAtRestValue', 'No session key while opening a sealed value');
 			return null;
 		}
-		const plaintext = await aesGcmDecrypt(
-			sessionKey,
-			fromBase64(envelope.iv),
-			fromBase64(envelope.data)
-		);
+		const plaintext = await openWithKey(seat, fromBase64(envelope.iv), fromBase64(envelope.data));
 		return new TextDecoder().decode(plaintext);
 	} catch (err) {
-		if (err instanceof DOMException && err.name === 'OperationError') {
+		const isAuthFailure =
+			(err instanceof DOMException && err.name === 'OperationError') ||
+			(err instanceof Error && err.message.includes('authentication failed'));
+		if (isAuthFailure) {
 			warnDev(
 				'at-rest',
 				'openAtRestValue',

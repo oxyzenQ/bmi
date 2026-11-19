@@ -89,8 +89,13 @@ import {
 import { enableEncryption, encrypt, decrypt, verifyPassphrase, disableEncryption } from '../crypto';
 import { deriveKeyArgon2, randomBytes, toBase64, fromBase64 } from '../crypto-primitives';
 import { registerAtRestSession, sealAtRestValue, openAtRestValue } from '../at-rest';
-import { _resetAtRestStateForTesting, shouldProtectAtRest } from '../at-rest-state';
+import {
+	_resetAtRestStateForTesting,
+	getAtRestSessionKey,
+	shouldProtectAtRest
+} from '../at-rest-state';
 import { _resetWitnessKeyForTesting } from '../witness-key';
+import { _resetSealKeyForTesting } from '../seal-key';
 const PW = 'ladder-passphrase-1';
 const PLAINTEXT = 'the vault payload that must survive a tier change';
 
@@ -102,6 +107,7 @@ beforeEach(() => {
 	_setKdfLadderOverrideForTesting(null);
 	storageInvalidateAll();
 	_resetIdbWriteSeqForTesting();
+	_resetSealKeyForTesting(getAtRestSessionKey());
 	_resetAtRestStateForTesting();
 	_resetWitnessKeyForTesting();
 	initStorage();
@@ -262,6 +268,7 @@ describe('the at-rest session is tier-stable across changes', () => {
 		expect(sealed.startsWith('bmi-at-rest-v1:')).toBe(true);
 
 		// Cold load: the session key is gone, the verifier stays.
+		_resetSealKeyForTesting(getAtRestSessionKey());
 		_resetAtRestStateForTesting();
 		_resetWitnessKeyForTesting();
 

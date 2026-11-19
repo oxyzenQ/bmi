@@ -61,9 +61,9 @@ describe('at-rest state leaf', () => {
 		}
 	});
 
-	it('protects health keys only while a session key is installed', () => {
+	it('protects health keys only while a session seat is installed', () => {
 		expect(shouldProtectAtRest(HISTORY)).toBe(false);
-		setAtRestSessionKey({} as CryptoKey);
+		setAtRestSessionKey({ custody: 'webcrypto', key: {} as CryptoKey });
 		expect(shouldProtectAtRest(HISTORY)).toBe(true);
 		expect(shouldProtectAtRest(LOCALE)).toBe(false);
 	});

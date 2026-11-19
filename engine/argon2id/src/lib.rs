@@ -443,8 +443,11 @@ pub extern "C" fn engine_keystore_slots() -> u32 {
 
 /// Install one 32-byte key into a free slot and zero the stage region.
 ///
-/// Returns the 1-based handle, or 0 mapped from `ERR_KEYSLOT` when no
-/// slot is free. The stage region the host handed over is
+/// Returns the 1-based handle, or 0 on every refusal (the handle-space
+/// contract: "0 means refusal, mirroring `engine_alloc"`). A refusal
+/// must never collide with a valid handle shape - error codes 1..5 all
+/// share the low nibble with gen-0 handles, so the refusal values cannot
+/// leak into the handle space. The stage region the host handed over is
 /// volatile-zeroized before this call returns, so the JS-side copy of
 /// the material dies here inside the sandbox.
 ///
@@ -454,16 +457,16 @@ pub extern "C" fn engine_keystore_slots() -> u32 {
 #[no_mangle]
 pub unsafe extern "C" fn engine_keystore_put(stage_ptr: *const u8, stage_len: usize) -> u32 {
 	if stage_len != SLOT_KEY_LEN {
-		return ERR_PARAMS;
+		return 0;
 	}
 	let stage = match raw_slice(stage_ptr, stage_len) {
 		Ok(v) => v,
-		Err(e) => return e,
+		Err(_) => return 0,
 	};
 	let idx =
 		match (0..SLOT_COUNT).find(|&i| KEYSTORE_STATE[i].load(Ordering::Relaxed) != SLOT_ARMED) {
 			Some(i) => i,
-			None => return ERR_KEYSLOT,
+			None => return 0,
 		};
 	let mut key = [0u8; SLOT_KEY_LEN];
 	key.copy_from_slice(stage);
@@ -578,7 +581,8 @@ pub unsafe extern "C" fn engine_keystore_is_zeroed(handle: u32) -> u32 {
 /// Install one 32-byte AES-256-GCM key into a free slot and zero the
 /// stage region. Returns the 1-based opaque handle (the same handle
 /// space as the HMAC keystore: `engine_keystore_wipe` and
-/// `engine_keystore_is_zeroed` operate on both kinds).
+/// `engine_keystore_is_zeroed` operate on both kinds), or 0 on every
+/// refusal (the same no-collision contract as `engine_keystore_put`).
 ///
 /// # Safety
 ///
@@ -586,16 +590,16 @@ pub unsafe extern "C" fn engine_keystore_is_zeroed(handle: u32) -> u32 {
 #[no_mangle]
 pub unsafe extern "C" fn engine_seal_put(stage_ptr: *const u8, stage_len: usize) -> u32 {
 	if stage_len != SLOT_KEY_LEN {
-		return ERR_PARAMS;
+		return 0;
 	}
 	let stage = match raw_slice(stage_ptr, stage_len) {
 		Ok(v) => v,
-		Err(e) => return e,
+		Err(_) => return 0,
 	};
 	let idx =
 		match (0..SLOT_COUNT).find(|&i| KEYSTORE_STATE[i].load(Ordering::Relaxed) != SLOT_ARMED) {
 			Some(i) => i,
-			None => return ERR_KEYSLOT,
+			None => return 0,
 		};
 	let mut key = [0u8; SLOT_KEY_LEN];
 	key.copy_from_slice(stage);

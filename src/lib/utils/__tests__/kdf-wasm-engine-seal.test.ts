@@ -254,4 +254,26 @@ describe('kdf wasm engine seal seat (night-frontier-Z8)', () => {
 		expect(handle2).not.toBe(handle);
 		engine.keystoreWipe(handle2);
 	});
+
+	it('a full keystore refuses both seats with 0 - a refusal never collides with a handle', () => {
+		const handles: number[] = [];
+		for (let i = 0; i < engine.keystoreSlots(); i++) {
+			const handle = engine.sealPut(new Uint8Array(sealKey(91 + i)));
+			expect(handle).toBeGreaterThan(0);
+			handles.push(handle);
+		}
+		// Every slot armed: BOTH puts refuse with 0 (mirroring
+		// engine_alloc). Error codes 1..5 share the low nibble with gen-0
+		// handles, so a refusal value in the handle space would hand the
+		// caller a seat that can never work - the contract is 0, pinned
+		// here as the regression guard for exactly that collision.
+		expect(engine.sealPut(new Uint8Array(sealKey(99)))).toBe(0);
+		expect(engine.keystorePut(new Uint8Array(sealKey(99)))).toBe(0);
+		for (const handle of handles) engine.keystoreWipe(handle);
+		// Capacity returns after the wipes; the last seat wipes too so
+		// the battery never leaks armed slots across describes.
+		const rearmed = engine.sealPut(new Uint8Array(sealKey(99)));
+		expect(rearmed).toBeGreaterThan(0);
+		engine.keystoreWipe(rearmed);
+	});
 });

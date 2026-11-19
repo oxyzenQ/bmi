@@ -3,17 +3,21 @@
 /**
  * Synchronous state leaf for the at-rest ledger seal.
  *
- * This module is a leaf: it imports nothing, so storage.ts can read the
- * at-rest state synchronously on every read/write without creating a
- * dependency cycle with crypto.ts or at-rest.ts.
+ * This module is a leaf: it imports nothing at runtime, so storage.ts
+ * can read the at-rest state synchronously on every read/write without
+ * creating a dependency cycle with crypto.ts or at-rest.ts.
  *
  * It carries three pieces of state:
- *   1. The session key slot — a non-extractable AES-256-GCM key derived
- *      from the ledger passphrase, held in volatile memory only while an
- *      unlocked session is active. It is never persisted anywhere.
- *   2. The health-key scope — exactly the storage keys whose values hold
+ *   1. The session key seat - where the AES-256-GCM seal key lives while
+ *      an unlocked session is active (night-frontier-Z8). The engine
+ *      custody holds an opaque slot handle inside the wasm engine (the
+ *      material never travels back through the ABI and the lock wipe is
+ *      provable); the WebCrypto fallback holds a non-extractable key
+ *      whose physics stay documented (released to GC at lock). It is
+ *      never persisted anywhere.
+ *   2. The health-key scope - exactly the storage keys whose values hold
  *      health data (history, goal, goal baseline). Preferences never seal.
- *   3. Per-key mirror sequence numbers — so the async sealing path can
+ *   3. Per-key mirror sequence numbers - so the async sealing path can
  *      only ever write the latest value into the localStorage mirror,
  *      keeping the mirror consistent with the IndexedDB truth.
  */
@@ -50,20 +54,32 @@ export function getAtRestHealthKeys(): string[] {
 	return [...AT_REST_HEALTH_KEYS];
 }
 
-// ── Session key slot ──
-// Volatile by design: the key exists only while an unlocked session is
+// ── Session key seat ──
+// Volatile by design: the seat exists only while an unlocked session is
 // active and dies with the tab. There is deliberately no persistence
 // path — a sealed ledger stays sealed on cold load until the passphrase
 // is presented again through an existing flow.
-let _sessionKey: CryptoKey | null = null;
+//
+// The seat kinds (night-frontier-Z8):
+//   - engine: the material sits in an opaque keystore slot inside the
+//     wasm engine (seal-key.ts drives it; the raw bytes never return
+//     through the ABI and the wipe self-reports all-zero).
+//   - webcrypto: the documented fallback physics - a non-extractable
+//     CryptoKey whose material no WebCrypto API can actively zero;
+//     dropping the last reference releases it to GC.
+export type AtRestSealKey =
+	{ custody: 'engine'; handle: number } | { custody: 'webcrypto'; key: CryptoKey };
 
-/** Install the derived session key (called after a successful unlock). */
-export function setAtRestSessionKey(key: CryptoKey): void {
+let _sessionKey: AtRestSealKey | null = null;
+
+/** Install the derived session key seat (called after a successful unlock). */
+export function setAtRestSessionKey(key: AtRestSealKey): void {
 	_sessionKey = key;
 }
 
-/** Drop the session key reference. CryptoKey material cannot be actively
- * zeroed via WebCrypto; dropping the last reference releases it to GC. */
+/** Drop the session seat reference. The engine custody wipe runs BEFORE
+ * this drop (at-rest.ts owns that order); in the webcrypto fallback the
+ * dropped reference is the only zeroization physics there is. */
 export function clearAtRestSessionKey(): void {
 	_sessionKey = null;
 }
@@ -74,10 +90,10 @@ export function isAtRestSessionUnlocked(): boolean {
 }
 
 /**
- * Read the session key handle. Returns null while locked. Only at-rest.ts
- * consumes this; storage.ts and the UI never see the key handle.
+ * Read the session key seat. Returns null while locked. Only at-rest.ts
+ * consumes this; storage.ts and the UI never see the seat.
  */
-export function getAtRestSessionKey(): CryptoKey | null {
+export function getAtRestSessionKey(): AtRestSealKey | null {
 	return _sessionKey;
 }
 

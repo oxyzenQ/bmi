@@ -5,8 +5,7 @@
 // Node environment: jsdom's crypto.subtle is non-functional on the Bun
 // CI runners - native subtle is needed here. The at-rest ledger seal
 // battery (night-frontier-Z1): round-trips, session lifecycle, salt
-// persistence, storage integration (sealed layers, locked reads, purge
-// guard, mirror ordering, fail-open), unlock hooks, backup/restore,
+// persistence, storage integration, unlock hooks, backup/restore,
 // zero-change canaries. Every test waits for terminal state via
 // vi.waitFor, never racing the write queue.
 
@@ -73,6 +72,7 @@ import {
 	AT_REST_TAG,
 	_resetAtRestStateForTesting,
 	clearAtRestSessionKey,
+	getAtRestSessionKey,
 	isAtRestTagged,
 	shouldProtectAtRest
 } from '../at-rest-state';
@@ -108,6 +108,7 @@ import {
 import { createBackup } from '../backup';
 import { dbBackupSave } from '../db';
 import { _resetWitnessKeyForTesting } from '../witness-key';
+import { _resetSealKeyForTesting } from '../seal-key';
 
 const PW = 'correct horse battery staple ledger';
 const PW_OTHER = 'a completely different passphrase';
@@ -145,11 +146,7 @@ async function awaitSealed(key: string): Promise<void> {
 	await _getIdbWriteQueue(key);
 }
 
-/**
- * Wait until the persisted seal of a key opens back to exactly the given
- * plaintext and both layers agree — deterministic across overlapping
- * async seal chains on the same key.
- */
+/** Wait until the persisted seal opens back to exactly the expected plaintext, both layers agreeing. */
 async function awaitSealedOpeningTo(key: string, expected: string): Promise<void> {
 	await vi.waitFor(
 		async () => {
@@ -163,16 +160,16 @@ async function awaitSealedOpeningTo(key: string, expected: string): Promise<void
 	await _getIdbWriteQueue(key);
 }
 
-/**
- * Wait until the terminal persisted state of a key is exactly the given
- * plaintext (fail-open or unprotected writes), then drain the queue.
- */
+/** Wait until the terminal persisted state of a key is exactly the given plaintext, then drain. */
 async function awaitPlain(key: string, expected: string): Promise<void> {
 	await vi.waitFor(() => expect(lsStore.get(key)).toBe(expected));
 	await _getIdbWriteQueue(key);
 }
 
 beforeEach(() => {
+	// Wipe with the seat in hand FIRST (the production lock order), so
+	// no engine slot leaks armed across tests.
+	_resetSealKeyForTesting(getAtRestSessionKey());
 	_resetAtRestStateForTesting();
 	_resetWitnessKeyForTesting();
 	_resetIdbWriteSeqForTesting();
@@ -187,6 +184,7 @@ beforeEach(() => {
 
 describe('seal and open round-trips', () => {
 	beforeEach(() => {
+		_resetSealKeyForTesting(getAtRestSessionKey());
 		_resetAtRestStateForTesting();
 		_resetWitnessKeyForTesting();
 		dbState.meta.clear();

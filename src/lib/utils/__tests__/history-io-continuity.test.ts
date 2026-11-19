@@ -94,10 +94,11 @@ import {
 	META_LEDGER_CHAIN
 } from '../ledger-continuity';
 import { enableEncryption, getEncryptionStatus, verifyPassphrase } from '../crypto';
-import { AT_REST_TAG, _resetAtRestStateForTesting } from '../at-rest-state';
+import { AT_REST_TAG, _resetAtRestStateForTesting, getAtRestSessionKey } from '../at-rest-state';
 import { fnv1a, dualHash } from '../legacy-hash';
 import { exportBmiHistoryCsv } from '../history-csv';
 import { _resetWitnessKeyForTesting, getWitnessKeyFingerprint } from '../witness-key';
+import { _resetSealKeyForTesting } from '../seal-key';
 
 const HISTORY = STORAGE_KEYS.HISTORY;
 const PW = 'ledger-passphrase-one';
@@ -116,6 +117,7 @@ beforeEach(() => {
 	dbState.backups = [];
 	storageInvalidateAll();
 	_resetIdbWriteSeqForTesting();
+	_resetSealKeyForTesting(getAtRestSessionKey());
 	_resetAtRestStateForTesting();
 	_resetWitnessKeyForTesting();
 	initStorage();
@@ -251,6 +253,7 @@ describe('establish-on-import: the at-rest session start moment (Z3 fix)', () =>
 
 		// Simulate the cold reload: the volatile session key is gone while
 		// the sealed history and the verifier stay on the device.
+		_resetSealKeyForTesting(getAtRestSessionKey());
 		_resetAtRestStateForTesting();
 		_resetWitnessKeyForTesting();
 		storageInvalidateAll();

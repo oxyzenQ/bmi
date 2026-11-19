@@ -150,13 +150,18 @@ export async function deriveKeyArgon2(
 
 /**
  * Derive the AT-REST SESSION KEYS in one Argon2id pass (night-frontier-Z6):
- * the AES-256-GCM seal key and the witness attestation material — an
+ * the seal key material and the witness attestation material — an
  * HKDF-SHA256 subkey (RFC 5869) domain-separated by the info label
  * "bmi-stellar-witness-mac-v1" over the SAME raw session output, salted
  * with the per-device at-rest salt. One derivation, two purposes, zero
- * extra 64 MiB burns. The raw material dies inside importAesKey exactly
- * as before; only the derived, domain-separated subkey leaves (and the
- * caller installs it through witness-key.ts, which wipes its input).
+ * extra 64 MiB burns.
+ *
+ * Single ownership (night-frontier-Z8): the raw session output returns
+ * UNCONSUMED and the caller owns its destruction - the seal-key install
+ * consumes it (the engine slot volatile-zeroizes its copy of the stage;
+ * the WebCrypto fallback dies inside the importAesKey wipe). The raw
+ * material must never be reused after the install call. The witness
+ * subkey installs through witness-key.ts, which wipes its input too.
  * Tier stability: the caller pins the rung (the verifier's), so the
  * subkey is stable across sessions for the same passphrase and rotates
  * exactly when the passphrase does.
@@ -165,11 +170,10 @@ export async function deriveSessionKeys(
 	passphrase: string,
 	salt: Uint8Array,
 	options?: Argon2Options
-): Promise<{ aesKey: CryptoKey; witnessMacKey: Uint8Array }> {
+): Promise<{ sessionRaw: Uint8Array; witnessMacKey: Uint8Array }> {
 	const hashBytes = await argon2idRawBytes(passphrase, salt, options);
 	const { hkdf } = await import('@noble/hashes/hkdf.js');
 	const { sha256 } = await import('@noble/hashes/sha2.js');
-	// HKDF BEFORE the wipe: importAesKey zeroes hashBytes on return.
 	const witnessMacKey = hkdf(
 		sha256,
 		hashBytes,
@@ -177,8 +181,7 @@ export async function deriveSessionKeys(
 		new TextEncoder().encode(WITNESS_MAC_INFO),
 		WITNESS_MAC_LENGTH
 	);
-	const aesKey = await importAesKey(hashBytes);
-	return { aesKey, witnessMacKey };
+	return { sessionRaw: hashBytes, witnessMacKey };
 }
 
 /** Derive an AES-256-GCM key from a passphrase + salt using PBKDF2 (legacy). */
