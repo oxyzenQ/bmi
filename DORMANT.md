@@ -99,6 +99,8 @@ Do not edit version strings manually across files.
 - Keep dependency update automation PR-first unless an emergency hotfix requires direct push.
 - Avoid adding runtime dependencies for small scripts or maintenance checks.
 - Avoid a bare `bun update --lockfile-only`: it rewrites the manifest ranges in `package.json` and can inject major overrides. Make targeted override bumps per advisory instead (the weekly workflow already restores `package.json` after its refresh).
+- The engine dependency tree rides a structural supply-chain policy (night-supply-1): `argon2` is exact-pinned (`=0.6.0`), `engine/argon2id/deny.toml` denies git sources, unknown registries, duplicate versions, and yanked crates, and `cargo deny check bans sources` blocks every push and every swept lane. The cargo-deny scanner installs through a committed digest (`scripts/ci/install-cargo-deny.sh`) — never fetch-executed. Cargo never executes in a job that holds write permission: build gates run read-only, commit jobs only copy and stage files.
+- Run `bun run audit:supply-chain` after any manifest, lockfile, or CI change: it pins the registry-only ranges, the empty lifecycle-script trust list, the no-unpinned-fetch and no-pipe-exec rules across workflows and scripts, the well-formed recorded lock checksums, and the engine exact-pin plus deny.toml verdicts.
 
 ## Core Code Rules
 

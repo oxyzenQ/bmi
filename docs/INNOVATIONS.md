@@ -578,7 +578,18 @@ three synced surfaces (`rust-toolchain.toml` channel, the Cargo.toml
 `rust-version` MSRV, the maintenance workflow's `RUST_VERSION`) tied by
 `scripts/gates/check-rust-version-sync.sh` in gate-keepers section 13,
 and cargo-audit scans the engine lockfile weekly (pinned scanner,
-`--deny warnings`, observation-only).
+`--deny warnings`, observation-only). The night-supply-1 hardening
+closes the arrayref incident class: the direct dependency is
+exact-pinned (`=0.6.0` — a semver-compatible republish can never
+resolve), `deny.toml` denies git sources, unknown registries, duplicate
+versions, and yanked crates, the cargo-deny scanner installs through a
+committed digest (computed once, double-checked against upstream,
+verified on every run), the wasm artifact carries a 45,000-byte ceiling
+so injected code cannot drift past the refresh flow silently, and the
+JavaScript manifest, lockfile checksums, and CI fetch paths sit under
+the same posture through `scripts/gates/check-supply-chain.ts` — which
+caught and closed the one real unpinned-fetch hole the tree had on its
+first run.
 
 **29. The Ledger Continuity Chain — the sequence itself becomes
 tamper-evident (night-frontier-Z3).** The physics gap: AES-GCM protects
