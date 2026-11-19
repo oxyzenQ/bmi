@@ -379,9 +379,14 @@ Three foundation sharpenings, stated with their honest bounds:
   custodies in the wasm engine's keystore (volatile-zeroized on lock,
   self-reported all-zero from inside the sandbox) or, without the
   engine, in a wipeable JS array whose zeroization is proven through the
-  surviving MAC closure. The AES session key remains a volatile
-  CryptoKey handle released to GC on lock — no zeroing API exists, and
-  that stays documented physics.
+  surviving MAC closure. Night-frontier-Z8 extends the same custody to
+  the at-rest session seal key (`seal-key.ts`): the raw session material
+  installs into an AES-256-GCM engine slot, every seal and open runs
+  in-engine in the standard GCM construction (byte-identical to
+  WebCrypto, pinned both directions), and the lock wipe self-reports
+  all-zero from inside the sandbox. Without the engine, the seat falls
+  back to the non-extractable CryptoKey — the released-to-GC physics
+  stays the documented fallback, never the primary.
 
 > [!WARNING]
 > Users _must_ remember their passphrase. By design, there is absolutely no recovery mechanism if a passphrase is lost.

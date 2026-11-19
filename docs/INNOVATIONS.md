@@ -37,7 +37,11 @@ written during a passphrase-verified session — values from sessions that
 never present the passphrase stay plaintext (innovation 25); legacy
 export checksums (v0-v2) are forgeable by design and survive only so old
 imports keep reading; the product is single-user, single-device by
-construction, with no cloud to sign into.
+construction, with no cloud to sign into. Since night-frontier-Z8 the
+custody arc is complete: the passphrase bytes, the witness attestation
+key, and the at-rest seal key all live in provable engine custody while
+a session is unlocked (each with its honest fallback, each wipe
+self-reporting all-zero from inside the sandbox).
 
 ## The innovations, in dependency order
 
@@ -575,10 +579,32 @@ from inside the sandbox — an invariant a test can hold the artifact to,
 impossible for any dropped-reference JS object) or the wipeable-JS-array
 fallback (whose zeroization is proven through the surviving MAC
 closure: after the wipe it computes exactly what a zero-key HMAC
-computes). The one honest limit that does NOT move: the AES session
+computes). The one honest limit Z6 leaves standing: the AES session
 key stays a volatile non-extractable CryptoKey handle released to GC on
-lock — no WebCrypto API exists to zero it, and that platform physics is
-documented, not solved.
+lock — no WebCrypto API exists to zero it. That exact limit is what
+night-frontier-Z8 retires.
+Night-frontier-Z8 sharpening: the seal key JOINS the custody arc. The
+at-rest session seat becomes a two-kind union in `at-rest-state.ts`: an
+opaque AES-256-GCM slot inside the wasm engine (`seal-key.ts` — the
+raw session material installs once, every seal and open is an in-engine
+GCM operation, and the lock wipe is the engine's own volatile
+zeroization with the self-reported all-zero proof, checked on every
+lock and pinned by the `seal-key.test.ts` battery) or the documented
+WebCrypto fallback (importAesKey, released to GC — the physics Z6
+documented). The single-ownership law moves with it:
+`deriveSessionKeys` returns the raw material UNCONSUMED and the install
+consumes it exactly once on every path (the engine zeroizes its stage
+copy; importAesKey wipes the fallback). The sealed format does not
+move: `bmi-at-rest-v1` keeps its shape (version 1, 12-byte IV, AES-GCM
+tag inside the data, the SHA-256 ciphertext checksum), both sides
+implement the standard GCM, and the batteries pin byte-identity in BOTH
+directions plus the full-keystore degrade. Honest limits, in the same
+breath: wasm linear memory stays readable from the host by design (the
+same boundary the witness key documents — custody means the wrapper
+never handles the key per-operation and the zeroization is
+deterministic and provable); the WebCrypto fallback keeps the old
+physics; and a full keystore degrades honestly to the fallback seat
+instead of handing out a seat that cannot work.
 
 **28. The Rust Key Forge Engine — one honest wasm seat, proven byte-level
 (night-enhance-1).** The one real compute hotspot in the tree was the
@@ -668,6 +694,33 @@ the digest gate and the thin remaining headroom keep the tripwire
 live); `cargo fmt --check` + `clippy -D warnings` + the
 `wasm-provenance` three-way digest chain (fresh build == recorded ==
 embedded) all pin the new bytes.
+Night-frontier-Z8 sharpening — the seal seat: the keystore becomes a
+TWO-KIND custody. New AES-256-GCM slots hold the at-rest session seal
+key (innovation 27's Z8 law): `engine_seal_put` /
+`engine_seal_seal` / `engine_seal_open` implement the standard GCM
+construction (RustCrypto `aes-gcm`, exact-pinned `=0.10.3`, no_std, no
+allocator and no RNG — the detached in-place APIs only) in the WebCrypto
+layout (ciphertext ++ 16-byte tag), with the nonce pinned to 12 bytes,
+the plaintext region zeroized on seal, and the output region zeroized
+before an auth-failure refusal (`ERR_AUTH`, error code 5 — a failed
+open never leaves readable garbage). The seat kinds are fail-closed
+against each other: an HMAC slot refuses every seal call and a GCM slot
+refuses every hmac call, so the witness key can never be an AES key and
+the seal key can never sign. ABI version 1 -> 2, and the wrapper
+refuses any other version before instantiation. The seal battery pins
+the NIST GCM test case 13 vector through the real ABI, a WebCrypto
+parity matrix across a generation boundary, bidirectional envelope
+interop, failure parity on flipped bits, and the provable wipe. The
+battery also caught a latent Z6 bug, fixed in the same change: a
+keystore refusal returned `ERR_KEYSLOT` as the put's return value, and
+4 collides with a valid gen-0 handle shape — both puts now honor their
+own documented contract (0 on every refusal, mirroring `engine_alloc`),
+pinned by an engine-level regression test. The artifact grew
+48.983 KB -> 67.447 KB (software AES rounds plus the GHASH multiply;
+the profile stays opt-level 3 because the benched Argon2id speedup is
+not traded for size), and the provenance ceiling moved with it as a
+deliberate, reviewable edit (WASM_MAX_BYTES 50000 -> 72000, the growth
+documented in the diff, the headroom deliberately thin).
 
 **29. The Ledger Continuity Chain — the sequence itself becomes
 tamper-evident (night-frontier-Z3).** The physics gap: AES-GCM protects
