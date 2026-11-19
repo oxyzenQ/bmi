@@ -52,7 +52,7 @@ Do not delete, rename, or migrate these without a compatibility plan:
 - `STORAGE_KEYS.BMI_GOAL_START` / `bmi.goal.start` (localStorage)
 - `STORAGE_KEYS.UNIT_SYSTEM` / `bmi.unitSystem` (localStorage)
 - `STORAGE_KEYS.LOCALE` / `bmi.locale` (localStorage)
-- OPFS file `vault-backup.json` (night-frontier-Z4: the flush-written vault tier, the latest backup snapshot as the second durable home; restore falls back to it when the IndexedDB rotation is gone — never edit it by hand, never add files to the OPFS root, the P3 inventory law asserts it stays exactly this one)
+- OPFS file `vault-backup.json` (night-frontier-Z4: the flush-written vault tier, the latest backup snapshot as the second durable home; restore falls back to it when the IndexedDB rotation is gone — never edit it by hand, never add files to the OPFS root, the P3 inventory law asserts it stays exactly this one; since night-frontier-Z7 the snapshot's witness entry is a CONSUMED anchor — the tri-home law consults it before any unanchored re-anchor)
 - IndexedDB `meta` store entry `__history_chain_head` (the continuity witness, night-frontier-Z3: JSON `{ head, length }` for a plain witness; night-frontier-Z6 adds `{ mode: 'keyed', kf }` for a passphrase-protected ledger — `kf` is the public SHA-256 fingerprint of the attestation key, never secret material; a restore tombstones it to an empty string for pre-Z3 snapshots - never delete it without clearing `bmi.history`, never rewrite it outside a legit write)
 - IndexedDB `meta` store entry `__encryption_verifier` (AES-GCM ciphertext of known verifier plaintext; never the passphrase itself)
 - IndexedDB `meta` store entry `__at_rest_salt` (device-local at-rest salt; not secret, defeats precomputation only)

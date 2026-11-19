@@ -10,6 +10,7 @@ import {
 	reseatLedgerChainAfterSave,
 	sealLedgerChain
 } from './ledger-continuity';
+import { readVaultWitness, recordsAgainstChain } from './ledger-vault-anchor';
 import { getWitnessKeyFingerprint, getWitnessMac } from './witness-key';
 import { withLedgerLock } from './ledger-lock';
 import { refreshHealthKeysFromMirror } from './storage-coherence';
@@ -146,6 +147,22 @@ export interface ContinuityAudit {
 	sealed: { head: string; length: number; mode?: 'keyed'; kf?: string } | null;
 	/** The chain recomputed from the validated records. */
 	computed: { head: string; length: number } | null;
+	/**
+	 * The OPFS vault's witness copy, when it can speak on an unanchored
+	 * ledger (night-frontier-Z7, the tri-home witness): the flush-mirrored
+	 * backup snapshot carries the witness live at backup time. Present
+	 * only when its length matches the recomputed records (a stale copy
+	 * is silence, never evidence) and its mode is comparable in this
+	 * session; `agreesWithRecords` says whether the records reproduce
+	 * that anchor. An unanchored ledger whose vault anchor disagrees is
+	 * exactly the tombstone-escape signature.
+	 */
+	vaultEvidence: {
+		head: string;
+		length: number;
+		mode?: 'keyed';
+		agreesWithRecords: boolean;
+	} | null;
 }
 
 /**
@@ -156,7 +173,9 @@ export interface ContinuityAudit {
  *   violated       — a witness exists and disagrees with the records:
  *                    the history changed outside a legit write path
  *   unanchored     — no witness exists (fresh device, degraded seal, or
- *                    pre-Z3 data waiting for its first legit write)
+ *                    pre-Z3 data waiting for its first legit write); the
+ *                    vaultEvidence field may carry the second home's
+ *                    verdict when the vault copy can compare
  *   sealed-opaque  — the history is an at-rest envelope and the session
  *                    is locked; continuity cannot be measured through a
  *                    sealed value and must never be misread as tampered
@@ -170,7 +189,7 @@ export interface ContinuityAudit {
  */
 export async function auditLedgerContinuity(): Promise<ContinuityAudit> {
 	if (isHistorySealedOpaque()) {
-		return { state: 'sealed-opaque', sealed: null, computed: null };
+		return { state: 'sealed-opaque', sealed: null, computed: null, vaultEvidence: null };
 	}
 	const sealed = await getSealedLedgerChain();
 	// Night-frontier-Z6: a keyed witness recomputes ONLY under its own
@@ -179,14 +198,33 @@ export async function auditLedgerContinuity(): Promise<ContinuityAudit> {
 	if (sealed?.mode === 'keyed') {
 		const kf = getWitnessKeyFingerprint();
 		if (!getWitnessMac() || kf !== sealed.kf) {
-			return { state: 'witness-opaque', sealed, computed: null };
+			return { state: 'witness-opaque', sealed, computed: null, vaultEvidence: null };
 		}
 	}
 	const records = readBmiHistory();
 	const computed = await computeWitnessChain(records, sealed?.mode === 'keyed' ? 'keyed' : 'plain');
 	if (sealed === null) {
-		return { state: 'unanchored', sealed: null, computed };
+		// Night-frontier-Z7: with no meta witness, the OPFS vault copy is
+		// the only anchor left - surface its verdict instead of silence.
+		const vault = await readVaultWitness();
+		if (vault && vault.length === records.length) {
+			const verdict = await recordsAgainstChain(records, vault);
+			if (verdict !== 'unknown') {
+				return {
+					state: 'unanchored',
+					sealed: null,
+					computed,
+					vaultEvidence: {
+						head: vault.head,
+						length: vault.length,
+						mode: vault.mode,
+						agreesWithRecords: verdict
+					}
+				};
+			}
+		}
+		return { state: 'unanchored', sealed: null, computed, vaultEvidence: null };
 	}
 	const ok = sealed.head === computed.head && sealed.length === computed.length;
-	return { state: ok ? 'ok' : 'violated', sealed, computed };
+	return { state: ok ? 'ok' : 'violated', sealed, computed, vaultEvidence: null };
 }

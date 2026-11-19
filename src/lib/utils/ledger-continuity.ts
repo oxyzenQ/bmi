@@ -54,6 +54,12 @@ import { isAtRestTagged } from './at-rest-state';
 import { isAtRestUnlocked } from './at-rest';
 import { getWitnessKeyFingerprint, getWitnessMac, type WitnessMac } from './witness-key';
 import { computeChainSync } from './ledger-chain';
+import {
+	readVaultWitness,
+	recordsAgainstChain,
+	parseWitnessRaw,
+	type LedgerChain
+} from './ledger-vault-anchor';
 import { warnDev, warnDevOnce } from './warn-dev';
 import type { BmiRecord } from '$lib/types/bmi-record';
 
@@ -61,20 +67,11 @@ import type { BmiRecord } from '$lib/types/bmi-record';
 export const META_LEDGER_CHAIN = '__history_chain_head';
 
 /**
- * The sealed witness: chain head plus the length it covers. A keyed
- * witness (night-frontier-Z6) carries `mode: 'keyed'` and the PUBLIC
- * key fingerprint `kf` (SHA-256 hex of the attestation key material),
- * so the reseat path proves the witness and the installed key belong to
- * the same passphrase before it recomputes anything. Legacy witnesses
- * and plaintext ledgers omit both fields - the plain SHA-256 chain
- * unchanged.
+ * The sealed witness shape. Defined in ledger-vault-anchor.ts (the
+ * tri-home bridge, night-frontier-Z7) and re-exported here so every
+ * existing import path keeps working.
  */
-export interface LedgerChain {
-	head: string;
-	length: number;
-	mode?: 'keyed';
-	kf?: string;
-}
+export type { LedgerChain } from './ledger-vault-anchor';
 
 /**
  * Canonical serialization of one record: fixed key order, age omitted
@@ -137,23 +134,7 @@ export async function getSealedLedgerChain(): Promise<LedgerChain | null> {
 	try {
 		const raw = await dbMetaGet(META_LEDGER_CHAIN);
 		if (!raw) return null;
-		const parsed = JSON.parse(raw) as Partial<LedgerChain>;
-		if (typeof parsed.head !== 'string' || typeof parsed.length !== 'number') return null;
-		// Fail-closed toward honesty: a keyed marker means keyed even when
-		// the fingerprint field is damaged (the witness then reads as
-		// attestable-by-nothing, never as a plain witness that could accuse
-		// records with a recomputation the seal never ran), and any unknown
-		// mode reads as no witness at all - unanchored, never violated.
-		if (parsed.mode === 'keyed') {
-			return {
-				head: parsed.head,
-				length: parsed.length,
-				mode: 'keyed',
-				kf: typeof parsed.kf === 'string' ? parsed.kf : undefined
-			};
-		}
-		if (parsed.mode !== undefined) return null;
-		return { head: parsed.head, length: parsed.length };
+		return parseWitnessRaw(raw);
 	} catch (err) {
 		warnDev('ledger-continuity', 'getSealedLedgerChain', 'Failed to read the sealed witness', err);
 		return null;
@@ -240,7 +221,28 @@ export function reseatLedgerChainAfterSave(
 			return;
 		}
 		if (sealed === null) {
-			// Unanchored (fresh device or degraded seal): anchor now.
+			// Unanchored: consult the vault mirror before blessing anything
+			// (night-frontier-Z7, the tri-home witness). A wiped witness is
+			// the one way the freeze rule could be escaped - the anchor
+			// deleted instead of disobeyed. The OPFS vault copy survives
+			// that wipe, so a same-length disagreement freezes the
+			// re-anchor (blessing would destroy the vault's evidence; the
+			// recovery stays the documented one - import your own v4
+			// backup or clear the ledger). A stale copy (different length),
+			// no vault, or an attestation state the bridge cannot compare
+			// is silence, never evidence.
+			const vault = await readVaultWitness();
+			if (vault && vault.length === preRecords.length) {
+				const verdict = await recordsAgainstChain(preRecords, vault);
+				if (verdict === false) {
+					warnDevOnce(
+						'ledger-continuity',
+						'vault-veto',
+						'The vault anchor disagrees at the same length — the meta witness was wiped over a changed ledger; refusing to re-anchor (recovery: import your own v4 backup or clear the ledger)'
+					);
+					return;
+				}
+			}
 			await sealWithCurrentMode(newRecords);
 			return;
 		}

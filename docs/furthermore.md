@@ -274,6 +274,20 @@ the first legit save after an unlock. A keyed witness whose key is gone
 it can neither bless nor accuse, and the audit reports `witness-opaque`
 instead of a false violation.
 
+**The tri-home witness (night-frontier-Z7).** The witness lives in
+three homes: the live IndexedDB meta entry, the IndexedDB backup
+rotation, and the OPFS vault (the flush-mirrored latest snapshot).
+Z7 makes the vault copy CONSUMED, not just a restore artifact: before
+any unanchored re-anchor, the reseat path consults the vault witness —
+a meta-witness wipe is the one way the freeze rule could be escaped,
+and a same-length disagreement with the second home vetoes the
+re-anchor (blessing would destroy the vault's evidence; recovery:
+import your own v4 backup or clear the ledger). A stale copy is
+silence, never evidence; a keyed copy compares only under its own
+attestation key. The audit surfaces the second home's verdict as
+`vaultEvidence` on the unanchored path — the tombstone-escape signature
+is visible, not buried.
+
 Honest limits: for a PLAINTEXT ledger (no passphrase ever presented)
 there is no key, so a party who can rewrite both the history and the
 meta store can re-seal the unkeyed witness — the witness against that

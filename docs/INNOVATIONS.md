@@ -732,6 +732,31 @@ two realms hold two caches and must agree (the two-realm battery), and
 the chain battery proves warm heads equal cold heads equal an
 independent reference across every tamper class, append sequence, and
 stride boundary.
+Night-frontier-Z7 sharpening (the tri-home witness): the freeze rule's
+one escape hatch was deleting the witness itself — rewrite the history
+at the same record length, tombstone the meta entry, and the next legit
+save saw no witness and re-anchored over the rewritten records. The
+OPFS vault (innovation 30) already carries the witness inside the
+flush-mirrored backup snapshot; Z7 makes that copy CONSUMED: before any
+unanchored re-anchor, the reseat path consults the vault witness
+(ledger-vault-anchor.ts, mode-aware through the same attestation-key
+law). A same-length disagreement vetoes the re-anchor — blessing would
+destroy the vault's evidence, and recovery stays the documented one
+(import your own v4 backup or clear the ledger). A stale copy
+(different length) is silence, never evidence: the ledger may have
+legitimately grown since the backup. A keyed vault witness compares
+only under its own attestation key, else 'unknown' — neither bless nor
+accuse. The audit surfaces the second home's verdict as vaultEvidence
+on the unanchored path, so the tombstone-escape signature (unanchored +
+disagreeing vault) is visible to the surface and the harness, and the
+witness parse + reseat + audit batteries prove the veto, the proven
+re-anchor, the staleness silence, and the fail-closed parse rules
+against the REAL vault-backup parse path (the OPFS platform boundary is
+stubbed, nothing else). Honest limit, named: a same-length disagreement
+cannot by itself separate tamper from the rare honest edge (a
+seal-failure tombstone plus an in-place edit between backup and save) —
+the freeze preserves the evidence and the user re-anchors deliberately,
+exactly like the Z3 rule it extends.
 
 **30. The OPFS flush() Vault Tier — a second durable home with a real
 fsync (night-frontier-Z4).** `durability: 'strict'` on IndexedDB

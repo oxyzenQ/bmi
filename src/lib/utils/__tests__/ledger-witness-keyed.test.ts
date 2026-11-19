@@ -360,3 +360,216 @@ describe('keyed witness audit states (night-frontier-Z6)', () => {
 		expect(plain.head).not.toBe(audit.sealed!.head);
 	});
 });
+
+// ── night-frontier-Z7: the tri-home witness ──
+// The vault mirror (the flush-written OPFS copy of the latest backup
+// snapshot) carries the witness live at backup time. The reseat path
+// consults it before any unanchored re-anchor: a meta-witness wipe is
+// the one way the freeze rule could be escaped, and a same-length
+// disagreement with the second home freezes the re-anchor - blessing
+// would destroy the vault's evidence.
+
+import { parseWitnessRaw } from '../ledger-vault-anchor';
+import { VAULT_WITNESS_META_KEY } from '../vault-backup';
+
+// The bridge reads the vault through the REAL vault-backup module; the
+// battery stubs the platform boundary (navigator.storage.getDirectory)
+// with an in-memory OPFS root holding exactly what a flush() would have
+// written - the raw snapshot JSON with the witness entry the backup
+// path embeds. The parse path is the production parse path.
+const vaultMirror = vi.hoisted(() => ({ snapshot: null as string | null }));
+
+vi.stubGlobal('navigator', {
+	storage: {
+		getDirectory: async () => ({
+			getFileHandle: async (name: string, options?: { create?: boolean }) => {
+				if (name !== 'vault-backup.json') {
+					throw new Error(`no such file: ${name}`);
+				}
+				if (vaultMirror.snapshot === null && !options?.create) {
+					throw new Error('vault file absent');
+				}
+				return {
+					getFile: async () => ({
+						text: async () => vaultMirror.snapshot ?? '',
+						size: vaultMirror.snapshot?.length ?? 0
+					})
+				};
+			}
+		})
+	}
+});
+
+const vaultWitnessJson = (witness: Record<string, unknown> | { head: string; length: number; mode?: 'keyed'; kf?: string } | null): void => {
+	if (witness === null) {
+		vaultMirror.snapshot = null;
+		return;
+	}
+	vaultMirror.snapshot = JSON.stringify({
+		'bmi.history': '[]',
+		[VAULT_WITNESS_META_KEY]: JSON.stringify(witness)
+	});
+};
+
+describe('tri-home witness: the vault anchor vetoes a wiped witness (night-frontier-Z7)', () => {
+	it('a same-length history rewrite behind a wiped witness is vetoed', async () => {
+		const key = witnessKeyBytes(0x9001);
+		await installWitnessKey(new Uint8Array(key));
+		const original = randomRecords(makePrng(0x9002), 5);
+		await sealLedgerChain(original as never);
+		vaultWitnessJson(await getSealedLedgerChain());
+		// Out-of-band attack: rewrite the history at the SAME length and
+		// wipe the meta witness - the freeze rule's one escape hatch.
+		const tampered = original.map((r, i) => (i === 2 ? { ...r, weight: r.weight + 33 } : r));
+		lsStore.set(HISTORY, JSON.stringify(tampered));
+		dbState.meta.set(META_LEDGER_CHAIN, '');
+		// The next legit save observes the tombstone - and the vault
+		// refuses to bless it.
+		await reseatLedgerChainAfterSave(
+			tampered as never,
+			[
+				...tampered,
+				{ timestamp: 1_700_020_000_000, bmi: 22.9, height: 175, weight: 70, age: 30 }
+			] as never
+		);
+		expect(await getSealedLedgerChain()).toBeNull();
+		// The vault's evidence survives untouched.
+		expect(vaultMirror.snapshot).not.toBeNull();
+	});
+
+	it('an honest wiped witness re-anchors: the second home proves the records', async () => {
+		const key = witnessKeyBytes(0x9101);
+		await installWitnessKey(new Uint8Array(key));
+		const records = randomRecords(makePrng(0x9102), 4);
+		await sealLedgerChain(records as never);
+		vaultWitnessJson(await getSealedLedgerChain());
+		// The meta witness is wiped but the records are UNTOUCHED: the
+		// vault proves them and the re-anchor proceeds.
+		lsStore.set(HISTORY, JSON.stringify(records));
+		dbState.meta.set(META_LEDGER_CHAIN, '');
+		const next = [
+			...records,
+			{ timestamp: 1_700_030_000_000, bmi: 22.4, height: 175, weight: 71, age: 30 }
+		];
+		await reseatLedgerChainAfterSave(records as never, next as never);
+		const sealed = await getSealedLedgerChain();
+		expect(sealed).not.toBeNull();
+		expect(sealed!.mode).toBe('keyed');
+		expect(sealed!.head).toBe((await computeWitnessChain(next as never, 'keyed')).head);
+	});
+
+	it('a stale vault copy (different length) is silence, never evidence', async () => {
+		const key = witnessKeyBytes(0x9201);
+		await installWitnessKey(new Uint8Array(key));
+		const old = randomRecords(makePrng(0x9202), 3);
+		vaultWitnessJson({
+			head: (await computeWitnessChain(old as never, 'keyed')).head,
+			length: 3,
+			mode: 'keyed',
+			kf: getWitnessKeyFingerprint()
+		});
+		// The ledger legitimately grew since the backup: a re-anchor is
+		// free to proceed without the stale copy's opinion.
+		const grown = randomRecords(makePrng(0x9203), 5);
+		await reseatLedgerChainAfterSave(old as never, grown as never);
+		const sealed = await getSealedLedgerChain();
+		expect(sealed).not.toBeNull();
+		expect(sealed!.head).toBe((await computeWitnessChain(grown as never, 'keyed')).head);
+	});
+
+	it('a keyed vault anchor without its key answers unknown: no blessing, no accusation', async () => {
+		const otherKey = witnessKeyBytes(0x9301);
+		await installWitnessKey(new Uint8Array(otherKey));
+		const records = randomRecords(makePrng(0x9302), 4);
+		vaultWitnessJson({
+			head: 'a'.repeat(64),
+			length: 4,
+			mode: 'keyed',
+			kf: 'deadbeef'
+		});
+		await reseatLedgerChainAfterSave(records as never, randomRecords(makePrng(0x9303), 5) as never);
+		expect(await getSealedLedgerChain()).not.toBeNull();
+	});
+
+	it('no vault copy at all keeps the plain unanchored re-anchor', async () => {
+		vaultWitnessJson(null);
+		const records = randomRecords(makePrng(0x9401), 3);
+		await reseatLedgerChainAfterSave(records as never, randomRecords(makePrng(0x9402), 4) as never);
+		const sealed = await getSealedLedgerChain();
+		expect(sealed).not.toBeNull();
+		expect(sealed!.mode).toBeUndefined();
+	});
+});
+
+describe('tri-home witness: the audit surfaces the vault verdict (night-frontier-Z7)', () => {
+	it('unanchored + disagreeing vault = the tombstone-escape signature', async () => {
+		const key = witnessKeyBytes(0x9501);
+		await installWitnessKey(new Uint8Array(key));
+		const original = randomRecords(makePrng(0x9502), 4);
+		await sealLedgerChain(original as never);
+		vaultWitnessJson(await getSealedLedgerChain());
+		const tampered = original.map((r, i) => (i === 1 ? { ...r, bmi: r.bmi + 9 } : r));
+		lsStore.set(HISTORY, JSON.stringify(tampered));
+		dbState.meta.set(META_LEDGER_CHAIN, '');
+		storageInvalidateAll();
+		const audit = await auditLedgerContinuity();
+		expect(audit.state).toBe('unanchored');
+		expect(audit.vaultEvidence).not.toBeNull();
+		expect(audit.vaultEvidence!.agreesWithRecords).toBe(false);
+		expect(audit.vaultEvidence!.length).toBe(4);
+		expect(audit.vaultEvidence!.mode).toBe('keyed');
+	});
+
+	it('unanchored + agreeing vault carries the proof, not silence', async () => {
+		const key = witnessKeyBytes(0x9601);
+		await installWitnessKey(new Uint8Array(key));
+		const records = randomRecords(makePrng(0x9602), 4);
+		await sealLedgerChain(records as never);
+		vaultWitnessJson(await getSealedLedgerChain());
+		lsStore.set(HISTORY, JSON.stringify(records));
+		dbState.meta.set(META_LEDGER_CHAIN, '');
+		storageInvalidateAll();
+		const audit = await auditLedgerContinuity();
+		expect(audit.state).toBe('unanchored');
+		expect(audit.vaultEvidence!.agreesWithRecords).toBe(true);
+	});
+
+	it('a stale vault copy leaves the audit evidence silent', async () => {
+		vaultWitnessJson({ head: 'b'.repeat(64), length: 99 });
+		lsStore.set(HISTORY, JSON.stringify(randomRecords(makePrng(0x9701), 3)));
+		storageInvalidateAll();
+		const audit = await auditLedgerContinuity();
+		expect(audit.state).toBe('unanchored');
+		expect(audit.vaultEvidence).toBeNull();
+	});
+});
+
+describe('tri-home witness: the raw copy parser (night-frontier-Z7)', () => {
+	it('pins the vault snapshot key to the live meta key', () => {
+		expect(VAULT_WITNESS_META_KEY).toBe(META_LEDGER_CHAIN);
+	});
+
+	it('parses plain, keyed, damaged-keyed, unknown-mode, and garbage fail-closed', () => {
+		expect(parseWitnessRaw(JSON.stringify({ head: 'a'.repeat(64), length: 2 }))).toEqual({
+			head: 'a'.repeat(64),
+			length: 2
+		});
+		const keyed = parseWitnessRaw(
+			JSON.stringify({ head: 'b'.repeat(64), length: 3, mode: 'keyed', kf: 'f'.repeat(64) })
+		);
+		expect(keyed!.mode).toBe('keyed');
+		expect(keyed!.kf).toBe('f'.repeat(64));
+		// Damaged fingerprint: attestable-by-nothing, never plain.
+		const damaged = parseWitnessRaw(
+			JSON.stringify({ head: 'c'.repeat(64), length: 3, mode: 'keyed' })
+		);
+		expect(damaged!.mode).toBe('keyed');
+		expect(damaged!.kf).toBeUndefined();
+		// Unknown mode and malformed JSON read as no witness at all.
+		expect(
+			parseWitnessRaw(JSON.stringify({ head: 'd'.repeat(64), length: 1, mode: 'future' }))
+		).toBeNull();
+		expect(parseWitnessRaw('not json at all')).toBeNull();
+		expect(parseWitnessRaw(JSON.stringify({ head: 42, length: 'x' }))).toBeNull();
+	});
+});

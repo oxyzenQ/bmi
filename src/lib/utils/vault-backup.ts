@@ -24,6 +24,15 @@
 import VaultWorkerCtor from './vault.worker?worker&inline';
 import { VAULT_FILE } from './vault-opfs';
 
+/**
+ * The snapshot entry the continuity witness travels under (the same
+ * IndexedDB meta key `META_LEDGER_CHAIN` names in ledger-continuity).
+ * Declared here instead of imported to keep this module a leaf — the
+ * ledger battery pins the two constants equal, so drift fails a test,
+ * not a user's ledger (night-frontier-Z7).
+ */
+export const VAULT_WITNESS_META_KEY = '__history_chain_head';
+
 export interface VaultMirrorResult {
 	ok: boolean;
 	bytes?: number;
@@ -124,6 +133,28 @@ export async function readVaultSnapshot(): Promise<string | null> {
 		return await file.text();
 	} catch {
 		// Absent file or unavailable OPFS — the honest "no vault copy".
+		return null;
+	}
+}
+
+/**
+ * Read the continuity witness copy the vault snapshot carries
+ * (night-frontier-Z7, the tri-home witness). Returns the raw witness
+ * JSON string, or null when the vault is absent, unreadable, or the
+ * snapshot predates the witness (pre-Z3) or carries a damaged entry.
+ * The caller owns the parse — this module stays a leaf and never
+ * imports the ledger modules.
+ */
+export async function readVaultWitnessRaw(): Promise<string | null> {
+	const snapshot = await readVaultSnapshot();
+	if (snapshot === null) return null;
+	try {
+		const parsed = JSON.parse(snapshot) as Record<string, unknown>;
+		const witness = parsed[VAULT_WITNESS_META_KEY];
+		return typeof witness === 'string' && witness.length > 0 ? witness : null;
+	} catch {
+		// A snapshot that is not the shape the app wrote: the honest
+		// "no vault copy" — never evidence either way.
 		return null;
 	}
 }
