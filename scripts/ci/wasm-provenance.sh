@@ -43,7 +43,15 @@ WASM="$CRATE/target/wasm32-unknown-unknown/release/bmi_stellar_argon2id.wasm"
 # in deny.toml with recorded reasons) plus the custody ABI. The engine
 # is ~49.0 KB; the headroom above it is deliberately thin so future
 # growth still trips this wire.
-WASM_MAX_BYTES=50000
+#
+# 50000 -> 72000 (night-frontier-Z8, deliberate): the seal seat adds
+# AES-256-GCM custody for the at-rest session seal key (the RustCrypto
+# aes-gcm stack, exact-pinned; software AES rounds plus the GHASH
+# polynomial multiply are the growth). The engine is ~67.6 KB; the
+# profile stays opt-level 3 because the Argon2id speedup is a shipped,
+# benched claim - size is spent on the seal seat, speed is not traded
+# away to save it. The headroom above it stays deliberately thin.
+WASM_MAX_BYTES=72000
 
 MODE="verify"
 for arg in "$@"; do

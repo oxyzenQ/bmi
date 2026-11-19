@@ -14,6 +14,10 @@
  *     before instantiation; a mismatch means the artifact was tampered
  *     with or corrupted, and the engine is refused (the worker falls
  *     back to the pure-JS engine - slower, byte-identical keys).
+ *   - The artifact must expose the expected ABI surface AND speak the
+ *     expected ABI version (EXPECTED_ABI_VERSION); anything else refuses
+ *     - a stale or foreign artifact can never be driven with this
+ *     wrapper.
  *   - Every derivation maps engine error codes onto thrown Errors, so
  *     a hostile or malformed input can never yield a wrong key: it
  *     either throws or produces the same bytes the JS engine would.
@@ -32,15 +36,20 @@ const ERR = {
 	NULL: 1,
 	PARAMS: 2,
 	DERIVE: 3,
-	KEYSLOT: 4
+	KEYSLOT: 4,
+	AUTH: 5
 } as const;
 
 const ERR_MESSAGES: Record<number, string> = {
 	[ERR.NULL]: 'engine received a null buffer for a non-empty region',
 	[ERR.PARAMS]: 'argon2id parameters rejected (memory/lanes/iterations/output/salt bounds)',
 	[ERR.DERIVE]: 'argon2id derivation failed inside the engine',
-	[ERR.KEYSLOT]: 'keystore refusal (bad handle, slot not armed, no free slot, or use after wipe)'
+	[ERR.KEYSLOT]: 'keystore refusal (bad handle, slot not armed, no free slot, or use after wipe)',
+	[ERR.AUTH]: 'engine AES-GCM authentication failed (wrong key or tampered ciphertext)'
 };
+
+/** The ABI protocol this wrapper speaks; a different artifact refuses. */
+const EXPECTED_ABI_VERSION = 2;
 
 /** Derive options, mirroring the KDF worker protocol (and noble's opts). */
 export interface WasmEngineOptions {
@@ -68,6 +77,12 @@ export interface Argon2idWasmEngine {
 	keystoreWipe(handle: number): void;
 	/** The provable invariant: the slot self-reports all-zero from inside the sandbox. */
 	keystoreIsZeroed(handle: number): boolean;
+	/** Install one 32-byte AES-256-GCM seal key (night-frontier-Z8); returns the 1-based handle (0 = refusal). The engine volatile-zeroizes the stage region it copies. */
+	sealPut(stage: Uint8Array): number;
+	/** AES-256-GCM seal under an armed seal slot: returns ciphertext ++ 16-byte tag (the WebCrypto layout). Throws on refusal; the nonce must be exactly 12 bytes. */
+	sealSeal(handle: number, nonce: Uint8Array, aad: Uint8Array, msg: Uint8Array): Uint8Array;
+	/** AES-256-GCM open under an armed seal slot: ctTag = ciphertext ++ tag; returns the plaintext. Throws on auth failure or refusal. */
+	sealOpen(handle: number, nonce: Uint8Array, aad: Uint8Array, ctTag: Uint8Array): Uint8Array;
 }
 
 interface EngineExports {
@@ -102,6 +117,29 @@ interface EngineExports {
 	): number;
 	engine_keystore_wipe(handle: number): number;
 	engine_keystore_is_zeroed(handle: number): number;
+	engine_seal_put(stagePtr: number, stageLen: number): number;
+	engine_seal_seal(
+		handle: number,
+		noncePtr: number,
+		nonceLen: number,
+		aadPtr: number,
+		aadLen: number,
+		msgPtr: number,
+		msgLen: number,
+		outPtr: number,
+		outLen: number
+	): number;
+	engine_seal_open(
+		handle: number,
+		noncePtr: number,
+		nonceLen: number,
+		aadPtr: number,
+		aadLen: number,
+		msgPtr: number,
+		msgLen: number,
+		outPtr: number,
+		outLen: number
+	): number;
 }
 
 let enginePromise: Promise<Argon2idWasmEngine | null> | null = null;
@@ -172,9 +210,18 @@ async function instantiateEmbeddedEngine(): Promise<Argon2idWasmEngine | null> {
 	if (
 		typeof e.engine_argon2id !== 'function' ||
 		typeof e.engine_alloc !== 'function' ||
-		typeof e.engine_keystore_put !== 'function'
+		typeof e.engine_keystore_put !== 'function' ||
+		typeof e.engine_seal_seal !== 'function' ||
+		typeof e.engine_seal_open !== 'function'
 	) {
 		console.warn('[kdf-wasm-engine] artifact does not expose the expected ABI; refusing');
+		return null;
+	}
+	const abiVersion = e.engine_abi_version();
+	if (abiVersion !== EXPECTED_ABI_VERSION) {
+		console.warn(
+			`[kdf-wasm-engine] artifact ABI version ${abiVersion} != expected ${EXPECTED_ABI_VERSION}; refusing`
+		);
 		return null;
 	}
 
@@ -186,7 +233,7 @@ async function instantiateEmbeddedEngine(): Promise<Argon2idWasmEngine | null> {
 	}
 
 	const engine: Argon2idWasmEngine = {
-		abiVersion: e.engine_abi_version(),
+		abiVersion,
 		derive(password: Uint8Array, salt: Uint8Array, options: WasmEngineOptions): Uint8Array {
 			const { m, t, p, dkLen } = options;
 			// Parameter sanity mirrors the engines: fail here with a clear
@@ -297,6 +344,90 @@ async function instantiateEmbeddedEngine(): Promise<Argon2idWasmEngine | null> {
 				throw new Error(ERR_MESSAGES[rc]);
 			}
 			return rc === 1;
+		},
+		// ── The seal seat (night-frontier-Z8) ──
+		sealPut(stage: Uint8Array): number {
+			if (stage.length !== 32) {
+				throw new Error('seal install requires exactly 32 bytes');
+			}
+			const mem = e.memory;
+			const stagePtr = put(mem, stage);
+			try {
+				return e.engine_seal_put(stagePtr, stage.length);
+			} finally {
+				// The engine volatile-zeroized the linear-memory stage copy
+				// before returning; the region dies with the free.
+				e.engine_free(stagePtr, stage.length);
+			}
+		},
+		sealSeal(handle: number, nonce: Uint8Array, aad: Uint8Array, msg: Uint8Array): Uint8Array {
+			if (nonce.length !== 12) {
+				throw new Error('the GCM nonce must be exactly 12 bytes');
+			}
+			const mem = e.memory;
+			const noncePtr = put(mem, nonce);
+			const aadPtr = aad.length > 0 ? put(mem, aad) : 0;
+			const msgPtr = msg.length > 0 ? put(mem, msg) : 0;
+			const outPtr = e.engine_alloc(msg.length + 16);
+			if (!outPtr) throw new Error('seal output alloc failed');
+			try {
+				const rc = e.engine_seal_seal(
+					handle,
+					noncePtr,
+					nonce.length,
+					aadPtr,
+					aad.length,
+					msgPtr,
+					msg.length,
+					outPtr,
+					msg.length + 16
+				);
+				if (rc !== 0) {
+					throw new Error(ERR_MESSAGES[rc] ?? `engine error code ${rc}`);
+				}
+				return new Uint8Array(e.memory.buffer, outPtr, msg.length + 16).slice();
+			} finally {
+				e.engine_free(noncePtr, nonce.length);
+				if (aadPtr) e.engine_free(aadPtr, aad.length);
+				if (msgPtr) e.engine_free(msgPtr, msg.length);
+				e.engine_free(outPtr, msg.length + 16);
+			}
+		},
+		sealOpen(handle: number, nonce: Uint8Array, aad: Uint8Array, ctTag: Uint8Array): Uint8Array {
+			if (nonce.length !== 12) {
+				throw new Error('the GCM nonce must be exactly 12 bytes');
+			}
+			if (ctTag.length < 16) {
+				throw new Error('the sealed payload must carry the 16-byte GCM tag');
+			}
+			const mem = e.memory;
+			const noncePtr = put(mem, nonce);
+			const aadPtr = aad.length > 0 ? put(mem, aad) : 0;
+			const msgPtr = put(mem, ctTag);
+			const outPtr = e.engine_alloc(ctTag.length - 16);
+			if (!outPtr) throw new Error('seal output alloc failed');
+			try {
+				const rc = e.engine_seal_open(
+					handle,
+					noncePtr,
+					nonce.length,
+					aadPtr,
+					aad.length,
+					msgPtr,
+					ctTag.length,
+					outPtr,
+					ctTag.length - 16
+				);
+				if (rc !== 0) {
+					throw new Error(ERR_MESSAGES[rc] ?? `engine error code ${rc}`);
+				}
+				return new Uint8Array(e.memory.buffer, outPtr, ctTag.length - 16).slice();
+			} finally {
+				e.engine_free(noncePtr, nonce.length);
+				if (aadPtr) e.engine_free(aadPtr, aad.length);
+				e.engine_free(msgPtr, ctTag.length);
+				e.engine_free(outPtr, ctTag.length - 16);
+			}
 		}
 	};
 	return engine;

@@ -34,6 +34,14 @@ argon2 = { version = "=0.6.0", default-features = false, features = ["kdf"] }
 # recorded there.
 hmac = { version = "=0.12.1", default-features = false }
 sha2 = { version = "=0.10.9", default-features = false }
+# The seal seat's AES-256-GCM (night-frontier-Z8): the RustCrypto AEAD,
+# exact-pinned under the same rule - the engine-side ciphertext and tag
+# must be byte-identical to the WebCrypto fallback path the parity
+# battery pins (same key, nonce, plaintext, and associated data produce
+# the same bytes; both sides implement the standard GCM construction).
+# default-features = false keeps the seat no_std and deterministic: the
+# detached in-place APIs need no allocator, no RNG, and no hashbrown.
+aes-gcm = { version = "=0.10.3", default-features = false, features = ["aes"] }
 
 [profile.release]
 opt-level = 3

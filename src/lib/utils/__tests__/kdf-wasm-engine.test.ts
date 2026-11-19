@@ -122,7 +122,7 @@ describe('kdf wasm engine artifact provenance', () => {
 	});
 
 	it('exposes the expected ABI version', () => {
-		expect(engine.abiVersion).toBe(1);
+		expect(engine.abiVersion).toBe(2);
 	});
 });
 
@@ -358,7 +358,7 @@ describe('kdf wasm engine fail-closed loading', () => {
 		embeddedState.sha = real.ARGON2ID_WASM_SHA256;
 		const restored = await loadArgon2idEngine();
 		expect(restored).not.toBeNull();
-		expect(restored!.abiVersion).toBe(1);
+		expect(restored!.abiVersion).toBe(2);
 	});
 });
 

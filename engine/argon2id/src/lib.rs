@@ -54,6 +54,37 @@
 //! engine_keystore_is_zeroed(handle) -> 1 | 0 | ERR_*   // the provable invariant
 //! ```
 //!
+//! Night-frontier-Z8 adds the seal seat - the keystore becomes a
+//! two-kind custody: HMAC-SHA256 slots (the witness attestation key,
+//! Z6) and AES-256-GCM slots (the at-rest session seal key). The seal
+//! key is installed into its own slot and every later use is an
+//! in-engine GCM operation: the raw key bytes NEVER travel back through
+//! the ABI, and the lock wipe is the same volatile zeroization with the
+//! same self-reported all-zero proof. The seat implements the standard
+//! GCM construction (RustCrypto `aes-gcm`), so a sealed envelope is
+//! byte-identical no matter which side sealed it - the parity battery
+//! pins the engine against the WebCrypto fallback over a randomized
+//! matrix and both directions of the envelope interop.
+//!
+//! ```text
+//! engine_seal_put(stage_ptr, stage_len) -> handle       // 32-byte AES key; opaque
+//! engine_seal_seal(handle, nonce_ptr, nonce_len, aad_ptr, aad_len,
+//!                  msg_ptr, msg_len, out_ptr, out_len) -> ERR_*
+//!                 // out = ciphertext ++ 16-byte tag (the WebCrypto layout)
+//! engine_seal_open(handle, nonce_ptr, nonce_len, aad_ptr, aad_len,
+//!                  msg_ptr, msg_len, out_ptr, out_len) -> ERR_*
+//!                 // msg = ciphertext ++ tag; out = plaintext on success
+//! ```
+//!
+//! The seat kinds are fail-closed against each other: a GCM slot refuses
+//! every `engine_keystore_hmac` call and an HMAC slot refuses every seal
+//! call - the witness key can never be used as an AES key and the seal
+//! key can never sign. `nonce_len` must be exactly 12 (the GCM standard
+//! nonce; the at-rest envelope's IV length). The seal call volatile-
+//! zeroizes the plaintext region before returning; the open call
+//! volatile-zeroizes the output region before an ERR_AUTH refusal, so a
+//! failed open never leaves readable garbage behind.
+//!
 //! Handles are OPAQUE TOKENS, not slot indices: each carries its slot
 //! plus the install generation, so a stale handle from a replaced
 //! generation refuses everywhere (a wiped-then-rearmed slot can never
@@ -89,6 +120,8 @@
 //! | 3    | the derivation itself failed                       |
 //! | 4    | keystore refusal (bad handle, slot not armed, no   |
 //! |      | free slot, or a use-after-wipe attempt)            |
+//! | 5    | the GCM authentication failed (wrong key or a      |
+//! |      | tampered ciphertext; the output region is zeroed)  |
 //!
 //! Any panic would abort the instance (`panic = "abort"`); the wrapper
 //! treats a trap like any other engine failure and falls back to the
@@ -104,8 +137,14 @@
 //! non-extractable CryptoKey and wiped there). The keystore slot is
 //! volatile-zeroized by `engine_keystore_wipe` and self-reports its
 //! zero state; the stage region handed to `engine_keystore_put` is
-//! zeroized before the call returns.
+//! zeroized before the call returns. The seal seat (Z8) adds two more:
+//! the plaintext region handed to `engine_seal_seal` is zeroized before
+//! the call returns, and the output region handed to `engine_seal_open`
+//! is zeroized before an auth-failure refusal - a failed open never
+//! leaves readable garbage behind.
 
+use aes_gcm::aead::AeadInPlace;
+use aes_gcm::{Aes256Gcm, Nonce, Tag};
 use argon2::{Algorithm, Argon2, AssociatedData, ParamsBuilder, Version};
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
@@ -123,6 +162,8 @@ pub const ERR_DERIVE: u32 = 3;
 /// Keystore refusal: bad handle, slot not armed, no free slot, or use
 /// after wipe.
 pub const ERR_KEYSLOT: u32 = 4;
+/// The GCM authentication failed (wrong key or tampered ciphertext).
+pub const ERR_AUTH: u32 = 5;
 
 /// Allocate `len` bytes of scratch space in the linear memory.
 ///
@@ -302,7 +343,7 @@ pub unsafe extern "C" fn engine_argon2id(
 /// the first derivation.
 #[no_mangle]
 pub extern "C" fn engine_abi_version() -> u32 {
-	1
+	2
 }
 
 // ── The keystore seat (night-frontier-Z6) ──
@@ -313,7 +354,8 @@ pub extern "C" fn engine_abi_version() -> u32 {
 // there is no second thread to race, and the artifact is never built
 // with wasm threads enabled.
 
-/// One HMAC-SHA256 key per slot (the witness attestation key length).
+/// One 32-byte key per slot (the witness attestation key length and the
+/// AES-256 seal key length - both custody seats use the same width).
 const SLOT_KEY_LEN: usize = 32;
 /// Fixed capacity: eight concurrent custody slots is generous for a
 /// single-ledger app and keeps the surface auditable.
@@ -322,6 +364,13 @@ const SLOT_COUNT: usize = 8;
 const SLOT_FREE: u8 = 0;
 const SLOT_ARMED: u8 = 1;
 const SLOT_WIPED: u8 = 2;
+/// Slot kind (night-frontier-Z8): what an armed slot holds. The kinds
+/// are fail-closed against each other - an HMAC slot refuses every seal
+/// call, a GCM slot refuses every hmac call, so the witness key can
+/// never be used as an AES key and the seal key can never sign.
+const SLOT_KIND_NONE: u8 = 0;
+const SLOT_KIND_HMAC: u8 = 1;
+const SLOT_KIND_GCM: u8 = 2;
 
 /// A key slot: interior mutability over a fixed byte array.
 struct KeySlot(Cell<[u8; SLOT_KEY_LEN]>);
@@ -333,6 +382,11 @@ unsafe impl Sync for KeySlot {}
 static KEYSTORE_KEYS: [KeySlot; SLOT_COUNT] =
 	[const { KeySlot(Cell::new([0u8; SLOT_KEY_LEN])) }; SLOT_COUNT];
 static KEYSTORE_STATE: [AtomicU8; SLOT_COUNT] = [const { AtomicU8::new(SLOT_FREE) }; SLOT_COUNT];
+/// What each slot last held (kind is armed-scoped: it only matters while
+/// SLOT_ARMED, and it rides the generation so a replaced installation
+/// cannot be reached by a stale closure anyway).
+static KEYSTORE_KIND: [AtomicU8; SLOT_COUNT] =
+	[const { AtomicU8::new(SLOT_KIND_NONE) }; SLOT_COUNT];
 /// The install generation each slot last armed under. Handles carry the
 /// generation, so a handle from a replaced installation is refused even
 /// though the slot index itself was reused.
@@ -415,6 +469,7 @@ pub unsafe extern "C" fn engine_keystore_put(stage_ptr: *const u8, stage_len: us
 	key.copy_from_slice(stage);
 	KEYSTORE_KEYS[idx].0.set(key);
 	KEYSTORE_STATE[idx].store(SLOT_ARMED, Ordering::Relaxed);
+	KEYSTORE_KIND[idx].store(SLOT_KIND_HMAC, Ordering::Relaxed);
 	// Mint a fresh opaque handle: slot + generation. Any stale handle
 	// for this slot (from a replaced installation) refuses everywhere.
 	let gen = NEXT_GEN.fetch_add(1, Ordering::Relaxed);
@@ -445,6 +500,10 @@ pub unsafe extern "C" fn engine_keystore_hmac(
 	if KEYSTORE_STATE[idx].load(Ordering::Relaxed) != SLOT_ARMED {
 		// Use after wipe (or before install) is a refusal, not a zero-key
 		// computation: a wiped slot can never sign anything.
+		return ERR_KEYSLOT;
+	}
+	if KEYSTORE_KIND[idx].load(Ordering::Relaxed) != SLOT_KIND_HMAC {
+		// Kind cross-use is a refusal: a GCM (seal) slot can never sign.
 		return ERR_KEYSLOT;
 	}
 	let msg = match raw_slice(msg_ptr, msg_len) {
@@ -506,4 +565,211 @@ pub unsafe extern "C" fn engine_keystore_is_zeroed(handle: u32) -> u32 {
 	} else {
 		0
 	}
+}
+
+// ── The seal seat (night-frontier-Z8) ──
+// AES-256-GCM custody for the at-rest session seal key. The construction
+// is the standard GCM (RustCrypto `aes-gcm`), so the output layout is the
+// WebCrypto layout - ciphertext followed by the 16-byte tag - and the
+// envelope the at-rest seal writes does not change with the engine.
+// Refusals follow the keystore discipline: wrong kind, wiped, or unknown
+// handle never produces bytes, they produce an error code.
+
+/// Install one 32-byte AES-256-GCM key into a free slot and zero the
+/// stage region. Returns the 1-based opaque handle (the same handle
+/// space as the HMAC keystore: `engine_keystore_wipe` and
+/// `engine_keystore_is_zeroed` operate on both kinds).
+///
+/// # Safety
+///
+/// `stage_ptr` must be valid for `stage_len` bytes of initialized data.
+#[no_mangle]
+pub unsafe extern "C" fn engine_seal_put(stage_ptr: *const u8, stage_len: usize) -> u32 {
+	if stage_len != SLOT_KEY_LEN {
+		return ERR_PARAMS;
+	}
+	let stage = match raw_slice(stage_ptr, stage_len) {
+		Ok(v) => v,
+		Err(e) => return e,
+	};
+	let idx =
+		match (0..SLOT_COUNT).find(|&i| KEYSTORE_STATE[i].load(Ordering::Relaxed) != SLOT_ARMED) {
+			Some(i) => i,
+			None => return ERR_KEYSLOT,
+		};
+	let mut key = [0u8; SLOT_KEY_LEN];
+	key.copy_from_slice(stage);
+	KEYSTORE_KEYS[idx].0.set(key);
+	KEYSTORE_STATE[idx].store(SLOT_ARMED, Ordering::Relaxed);
+	KEYSTORE_KIND[idx].store(SLOT_KIND_GCM, Ordering::Relaxed);
+	let gen = NEXT_GEN.fetch_add(1, Ordering::Relaxed);
+	KEYSTORE_GEN[idx].store(gen, Ordering::Relaxed);
+	// The stage copy does not outlive the call.
+	zeroize_raw(stage_ptr, stage_len);
+	(gen << 4) | (idx as u32 + 1)
+}
+
+/// Resolve an armed GCM slot for the seal operations: the shared
+/// handle/state checks plus the kind gate (an HMAC slot refuses).
+fn seal_slot(handle: u32) -> Result<usize, u32> {
+	let Some(idx) = decode_handle(handle) else {
+		return Err(ERR_KEYSLOT);
+	};
+	if KEYSTORE_STATE[idx].load(Ordering::Relaxed) != SLOT_ARMED {
+		// Use after wipe (or before install): a wiped slot can never seal.
+		return Err(ERR_KEYSLOT);
+	}
+	if KEYSTORE_KIND[idx].load(Ordering::Relaxed) != SLOT_KIND_GCM {
+		// Kind cross-use is a refusal: an HMAC slot can never seal.
+		return Err(ERR_KEYSLOT);
+	}
+	Ok(idx)
+}
+
+/// Arm the GCM cipher over an armed GCM slot. The `KeyInit` import is
+/// function-local on purpose: at module scope it would make the HMAC
+/// seat's `new_from_slice` ambiguous between the `KeyInit` and `Mac`
+/// traits (both exist in the digest/aead pair).
+fn arm_cipher(idx: usize) -> Result<Aes256Gcm, u32> {
+	use aes_gcm::aead::KeyInit;
+	Aes256Gcm::new_from_slice(&KEYSTORE_KEYS[idx].0.get()).map_err(|_| ERR_KEYSLOT)
+}
+
+/// AES-256-GCM seal under an armed GCM slot: `out` receives the
+/// ciphertext followed by the 16-byte tag (the WebCrypto layout), so
+/// `out_len` must equal `msg_len + 16`. The nonce must be exactly 12
+/// bytes. The plaintext region the host handed over is volatile-zeroized
+/// before this call returns - the linear-memory copy of the plaintext
+/// does not outlive the call.
+///
+/// # Safety
+///
+/// `nonce_ptr` readable for `nonce_len` bytes, `aad_ptr` for `aad_len`,
+/// `msg_ptr` for `msg_len`; `out_ptr` writable for `out_len` bytes.
+/// Regions must not overlap.
+#[no_mangle]
+pub unsafe extern "C" fn engine_seal_seal(
+	handle: u32,
+	nonce_ptr: *const u8,
+	nonce_len: usize,
+	aad_ptr: *const u8,
+	aad_len: usize,
+	msg_ptr: *const u8,
+	msg_len: usize,
+	out_ptr: *mut u8,
+	out_len: usize,
+) -> u32 {
+	let idx = match seal_slot(handle) {
+		Ok(i) => i,
+		Err(e) => return e,
+	};
+	let nonce = match raw_slice(nonce_ptr, nonce_len) {
+		Ok(v) => v,
+		Err(e) => return e,
+	};
+	if nonce.len() != 12 {
+		return ERR_PARAMS;
+	}
+	let aad = match raw_slice(aad_ptr, aad_len) {
+		Ok(v) => v,
+		Err(e) => return e,
+	};
+	let msg = match raw_slice(msg_ptr, msg_len) {
+		Ok(v) => v,
+		Err(e) => return e,
+	};
+	let out = match raw_slice_mut(out_ptr, out_len) {
+		Ok(v) => v,
+		Err(e) => return e,
+	};
+	if out.len() != msg.len() + 16 {
+		return ERR_PARAMS;
+	}
+	let cipher = match arm_cipher(idx) {
+		Ok(c) => c,
+		Err(e) => return e,
+	};
+	out[..msg.len()].copy_from_slice(msg);
+	match cipher.encrypt_in_place_detached(Nonce::from_slice(nonce), aad, &mut out[..msg.len()]) {
+		Ok(tag) => out[msg.len()..].copy_from_slice(&tag),
+		Err(_) => return ERR_DERIVE,
+	}
+	// The plaintext copy does not outlive the call.
+	zeroize_raw(msg_ptr, msg_len);
+	ERR_OK
+}
+
+/// AES-256-GCM open under an armed GCM slot: `msg` carries the
+/// ciphertext followed by the 16-byte tag, `out` receives the plaintext
+/// (`out_len` must equal `msg_len - 16`). An authentication failure
+/// volatile-zeroizes the output region and refuses with `ERR_AUTH` - a
+/// failed open never leaves readable garbage behind. On success the
+/// ciphertext region the host handed over is volatile-zeroized.
+///
+/// # Safety
+///
+/// `nonce_ptr` readable for `nonce_len` bytes, `aad_ptr` for `aad_len`,
+/// `msg_ptr` for `msg_len`; `out_ptr` writable for `out_len` bytes.
+/// Regions must not overlap.
+#[no_mangle]
+pub unsafe extern "C" fn engine_seal_open(
+	handle: u32,
+	nonce_ptr: *const u8,
+	nonce_len: usize,
+	aad_ptr: *const u8,
+	aad_len: usize,
+	msg_ptr: *const u8,
+	msg_len: usize,
+	out_ptr: *mut u8,
+	out_len: usize,
+) -> u32 {
+	let idx = match seal_slot(handle) {
+		Ok(i) => i,
+		Err(e) => return e,
+	};
+	let nonce = match raw_slice(nonce_ptr, nonce_len) {
+		Ok(v) => v,
+		Err(e) => return e,
+	};
+	if nonce.len() != 12 {
+		return ERR_PARAMS;
+	}
+	let aad = match raw_slice(aad_ptr, aad_len) {
+		Ok(v) => v,
+		Err(e) => return e,
+	};
+	let msg = match raw_slice(msg_ptr, msg_len) {
+		Ok(v) => v,
+		Err(e) => return e,
+	};
+	let out = match raw_slice_mut(out_ptr, out_len) {
+		Ok(v) => v,
+		Err(e) => return e,
+	};
+	if msg.len() < 16 || out.len() != msg.len() - 16 {
+		return ERR_PARAMS;
+	}
+	let cipher = match arm_cipher(idx) {
+		Ok(c) => c,
+		Err(e) => return e,
+	};
+	let (ct, tag) = msg.split_at(msg.len() - 16);
+	out[..ct.len()].copy_from_slice(ct);
+	match cipher.decrypt_in_place_detached(
+		Nonce::from_slice(nonce),
+		aad,
+		&mut out[..ct.len()],
+		Tag::from_slice(tag),
+	) {
+		Ok(()) => {}
+		Err(_) => {
+			// The failed open leaves no readable garbage: the output
+			// region is volatile-zeroized before the refusal.
+			zeroize_raw(out_ptr, out_len);
+			return ERR_AUTH;
+		}
+	}
+	// The ciphertext copy does not outlive the call.
+	zeroize_raw(msg_ptr, msg_len);
+	ERR_OK
 }
