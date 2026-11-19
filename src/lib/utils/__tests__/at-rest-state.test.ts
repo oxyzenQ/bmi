@@ -20,6 +20,7 @@ import {
 	shouldProtectAtRest
 } from '../at-rest-state';
 import { STORAGE_KEYS } from '../storage';
+import { _resetWitnessKeyForTesting } from '../witness-key';
 
 const HISTORY = STORAGE_KEYS.HISTORY;
 const GOAL = STORAGE_KEYS.BMI_GOAL;
@@ -28,6 +29,7 @@ const LOCALE = STORAGE_KEYS.LOCALE;
 
 beforeEach(() => {
 	_resetAtRestStateForTesting();
+	_resetWitnessKeyForTesting();
 });
 
 describe('at-rest state leaf', () => {

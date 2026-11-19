@@ -241,25 +241,50 @@ continuity chain closes it. Construction, stated exactly:
 
 ```
 link_0 = SHA-256("bmi-stellar-ledger-v4-genesis")
-link_i = SHA-256(link_{i-1} + ":" + canonical(record_i))
+link_i = SHA-256(link_{i-1} + ":" + canonical(record_i))        (plain mode)
+link_i = HMAC-SHA256(K_w, link_{i-1} + ":" + canonical(record_i)) (keyed mode)
 head   = link_n   (canonical: fixed key order timestamp/bmi/height/weight/age,
                    ascending timestamp, stable sort)
 ```
 
-| Aspect  | Contract                                                                    |
-| ------- | --------------------------------------------------------------------------- |
-| Witness | `{ head, length }` sealed in IndexedDB meta `__history_chain_head`          |
-| Re-seal | Only legit writes: save (pre-state must match), import, clear               |
-| Freeze  | A save over a mismatched pre-state does NOT re-seal - evidence is preserved |
-| Export  | v4 envelope carries `chain` inside the HMAC payload; import cross-checks it |
-| Backup  | The witness travels inside the backup snapshot; restore re-installs it      |
-| Audit   | ok / violated / unanchored / sealed-opaque (locked sealed ledger)           |
+| Aspect  | Contract                                                                                                                                        |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Witness | `{ head, length }` sealed in IndexedDB meta `__history_chain_head`; a keyed witness carries `mode: 'keyed'` and the public key fingerprint `kf` |
+| Re-seal | Only legit writes: save (pre-state must match), import, clear                                                                                   |
+| Freeze  | A save over a mismatched pre-state does NOT re-seal - evidence is preserved                                                                     |
+| Export  | v4 envelope carries the PLAIN `chain` inside the HMAC payload; import cross-checks it (portable, keyless)                                       |
+| Backup  | The witness travels inside the backup snapshot; restore re-installs it                                                                          |
+| Audit   | ok / violated / unanchored / sealed-opaque (locked sealed ledger) / witness-opaque (keyed witness without its key)                              |
 
-Honest limits: a party who can rewrite both the history and the meta store
-can re-seal — the witness against that attacker is your own earlier v4
-export; a pure reorder of distinct-timestamp records is a logical no-op
-(every read sorts ascending); a legacy backup restore tombstones the
-witness (honestly unanchored) instead of accusing falsely.
+**The keyed witness law (night-frontier-Z6).** For a passphrase-protected
+ledger the device witness is a keyed chain: every record link runs under
+the witness attestation key, an HKDF-SHA256 subkey (info
+`bmi-stellar-witness-mac-v1`, salted with the per-device at-rest salt)
+derived in the SAME Argon2id pass that builds the session seal key — one
+derivation, two purposes, zero extra 64 MiB burns. The key installs at
+every passphrase-proven registration (the verifier moments) and is
+wiped, not dropped, on lock. The physics upgrade: a party who rewrites
+both the history and the meta store can no longer re-seal the device
+witness — computing the next link requires the key, and the key requires
+the passphrase. The reseat path recomputes the pre-state under the
+SEALED witness's mode (never the current one), verifies the fingerprint
+belongs to the same passphrase, and upgrades a plain witness to keyed on
+the first legit save after an unlock. A keyed witness whose key is gone
+(locked edge, passphrase rotation) steps aside to honestly unanchored —
+it can neither bless nor accuse, and the audit reports `witness-opaque`
+instead of a false violation.
+
+Honest limits: for a PLAINTEXT ledger (no passphrase ever presented)
+there is no key, so a party who can rewrite both the history and the
+meta store can re-seal the unkeyed witness — the witness against that
+attacker remains your own earlier v4 export (the plain anchor,
+recomputable from the file alone, keyless by design); a pure reorder of
+distinct-timestamp records is a logical no-op (every read sorts
+ascending); a legacy backup restore tombstones the witness (honestly
+unanchored) instead of accusing falsely. The attestation key material is
+wipeable JS bytes (or, with the Z6 keystore seat, engine-custody bytes)
+— the wipe is a determinism guarantee with a provable all-zero
+invariant, not resistance to a running attacker.
 
 ### PBKDF2 (Legacy KDF)
 

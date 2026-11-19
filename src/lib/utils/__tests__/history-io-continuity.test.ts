@@ -87,11 +87,17 @@ import {
 	_resetIdbWriteSeqForTesting
 } from '../storage';
 import { exportBmiHistory, importBmiHistory, validateBmiImport } from '../history-io';
-import { computeLedgerChain, getSealedLedgerChain, META_LEDGER_CHAIN } from '../ledger-continuity';
+import {
+	computeLedgerChain,
+	computeWitnessChain,
+	getSealedLedgerChain,
+	META_LEDGER_CHAIN
+} from '../ledger-continuity';
 import { enableEncryption, getEncryptionStatus, verifyPassphrase } from '../crypto';
 import { AT_REST_TAG, _resetAtRestStateForTesting } from '../at-rest-state';
 import { fnv1a, dualHash } from '../legacy-hash';
 import { exportBmiHistoryCsv } from '../history-csv';
+import { _resetWitnessKeyForTesting, getWitnessKeyFingerprint } from '../witness-key';
 
 const HISTORY = STORAGE_KEYS.HISTORY;
 const PW = 'ledger-passphrase-one';
@@ -111,6 +117,7 @@ beforeEach(() => {
 	storageInvalidateAll();
 	_resetIdbWriteSeqForTesting();
 	_resetAtRestStateForTesting();
+	_resetWitnessKeyForTesting();
 	initStorage();
 });
 
@@ -218,12 +225,19 @@ describe('establish-on-import: the at-rest session start moment (Z3 fix)', () =>
 			{ timeout: 8000, interval: 50 }
 		);
 
-		// And the witness landed exactly on the imported records.
+		// And the witness landed exactly on the imported records. The
+		// establish-on-import flow registered the at-rest session, so the
+		// witness seals KEYED (night-frontier-Z6): the passphrase-proven
+		// import is exactly the moment the keyed law activates.
 		await vi.waitFor(
 			async () => {
 				const sealed = await getSealedLedgerChain();
-				const expected = await computeLedgerChain(RECORDS);
-				expect(sealed).toEqual(expected);
+				const expected = await computeWitnessChain(RECORDS as never, 'keyed');
+				expect(sealed).toEqual({
+					...expected,
+					mode: 'keyed',
+					kf: getWitnessKeyFingerprint()
+				});
 			},
 			{ timeout: 8000, interval: 50 }
 		);
@@ -238,6 +252,7 @@ describe('establish-on-import: the at-rest session start moment (Z3 fix)', () =>
 		// Simulate the cold reload: the volatile session key is gone while
 		// the sealed history and the verifier stay on the device.
 		_resetAtRestStateForTesting();
+		_resetWitnessKeyForTesting();
 		storageInvalidateAll();
 
 		// Before the fix, the fire-and-forget registration lost the race

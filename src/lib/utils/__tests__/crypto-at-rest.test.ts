@@ -111,6 +111,7 @@ import {
 } from '../storage';
 import { createBackup } from '../backup';
 import { dbBackupSave } from '../db';
+import { _resetWitnessKeyForTesting } from '../witness-key';
 
 const PW = 'correct horse battery staple ledger';
 const PW_OTHER = 'a completely different passphrase';
@@ -177,6 +178,7 @@ async function awaitPlain(key: string, expected: string): Promise<void> {
 
 beforeEach(() => {
 	_resetAtRestStateForTesting();
+	_resetWitnessKeyForTesting();
 	_resetIdbWriteSeqForTesting();
 	storageInvalidateAll();
 	setRestoreMode(false);
@@ -190,6 +192,7 @@ beforeEach(() => {
 describe('seal and open round-trips', () => {
 	beforeEach(() => {
 		_resetAtRestStateForTesting();
+		_resetWitnessKeyForTesting();
 		dbState.meta.clear();
 	});
 

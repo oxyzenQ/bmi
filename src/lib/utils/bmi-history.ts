@@ -4,12 +4,13 @@ import { browser } from '$app/environment';
 import { STORAGE_KEYS, storageGetJSON, storageSet, storageSetJSON } from './storage';
 import { isValidRecord, toRecord } from './history-io';
 import {
-	computeLedgerChain,
+	computeWitnessChain,
 	getSealedLedgerChain,
 	isHistorySealedOpaque,
 	reseatLedgerChainAfterSave,
 	sealLedgerChain
 } from './ledger-continuity';
+import { getWitnessKeyFingerprint, getWitnessMac } from './witness-key';
 import { withLedgerLock } from './ledger-lock';
 import { refreshHealthKeysFromMirror } from './storage-coherence';
 import { warnDev } from './warn-dev';
@@ -137,12 +138,12 @@ export async function commitImportedRecords(records: BmiRecord[]): Promise<boole
 
 // ── Continuity audit (night-frontier-Z3) ──
 
-export type ContinuityState = 'ok' | 'violated' | 'unanchored' | 'sealed-opaque';
+export type ContinuityState = 'ok' | 'violated' | 'unanchored' | 'sealed-opaque' | 'witness-opaque';
 
 export interface ContinuityAudit {
 	state: ContinuityState;
 	/** The sealed witness, when one exists and was readable. */
-	sealed: { head: string; length: number } | null;
+	sealed: { head: string; length: number; mode?: 'keyed'; kf?: string } | null;
 	/** The chain recomputed from the validated records. */
 	computed: { head: string; length: number } | null;
 }
@@ -151,14 +152,19 @@ export interface ContinuityAudit {
  * Measure the ledger continuity: recompute the chain over the validated
  * records and compare it with the sealed witness.
  *
- *   ok            — the recomputed head matches the sealed witness
- *   violated      — a witness exists and disagrees with the records:
- *                   the history changed outside a legit write path
- *   unanchored    — no witness exists (fresh device, degraded seal, or
- *                   pre-Z3 data waiting for its first legit write)
- *   sealed-opaque — the history is an at-rest envelope and the session
- *                   is locked; continuity cannot be measured through a
- *                   sealed value and must never be misread as tampered
+ *   ok             — the recomputed head matches the sealed witness
+ *   violated       — a witness exists and disagrees with the records:
+ *                    the history changed outside a legit write path
+ *   unanchored     — no witness exists (fresh device, degraded seal, or
+ *                    pre-Z3 data waiting for its first legit write)
+ *   sealed-opaque  — the history is an at-rest envelope and the session
+ *                    is locked; continuity cannot be measured through a
+ *                    sealed value and must never be misread as tampered
+ *   witness-opaque — a keyed witness (night-frontier-Z6) exists but the
+ *                    attestation key is unavailable in this session
+ *                    (locked edge, passphrase rotation): the witness can
+ *                    neither bless nor accuse, and must never be misread
+ *                    as violated by a recomputation the seal never ran
  *
  * Never throws.
  */
@@ -167,8 +173,17 @@ export async function auditLedgerContinuity(): Promise<ContinuityAudit> {
 		return { state: 'sealed-opaque', sealed: null, computed: null };
 	}
 	const sealed = await getSealedLedgerChain();
+	// Night-frontier-Z6: a keyed witness recomputes ONLY under its own
+	// attestation key. Without it (or under a rotated key) the honest
+	// answer is that continuity cannot be measured - not a violation.
+	if (sealed?.mode === 'keyed') {
+		const kf = getWitnessKeyFingerprint();
+		if (!getWitnessMac() || kf !== sealed.kf) {
+			return { state: 'witness-opaque', sealed, computed: null };
+		}
+	}
 	const records = readBmiHistory();
-	const computed = await computeLedgerChain(records);
+	const computed = await computeWitnessChain(records, sealed?.mode === 'keyed' ? 'keyed' : 'plain');
 	if (sealed === null) {
 		return { state: 'unanchored', sealed: null, computed };
 	}

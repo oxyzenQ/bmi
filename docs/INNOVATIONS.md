@@ -639,6 +639,33 @@ honest use. Every legit write now holds the origin-wide ledger lock
 the witness advance are one ordered step cross-tab — and the freeze
 rule stands untouched for out-of-band writers (proven by the
 two-realm tamper battery).
+Night-frontier-Z6 sharpening — the keyed witness law: the honest limit
+above was the last sentence standing between the ledger and a
+compromised-device attacker. For a passphrase-protected ledger the
+witness now seals as a KEYED chain: every record link runs under the
+witness attestation key (`witness-key.ts`, an HKDF-SHA256 subkey over
+the SAME raw Argon2id session output the at-rest seal derives — one
+derivation, two purposes, no extra 64 MiB burn, tier-stable through the
+verifier rung, rotating exactly when the passphrase does). The reseat
+path recomputes the pre-state under the SEALED witness's mode, verifies
+the public fingerprint binds the witness to the installed key, and a
+keyed witness whose key is unavailable (locked edge, passphrase
+rotation) steps aside to honestly unanchored — it can neither bless nor
+accuse, and the audit gained the fifth state `witness-opaque` for
+exactly that case. The re-seal sentence upgrades: rewriting both the
+history and the meta store can re-seal only a PLAINTEXT ledger's
+witness, because the next keyed link requires the key and the key
+requires the passphrase. The export anchor stays plain on purpose —
+portable, keyless, recomputable from the file alone on any device
+forever. The keyed chain is proven against an independent WebCrypto
+HMAC reference, the eight-class tamper battery reruns under the key
+(every tamper still flips the head, every logical no-op still does
+not), and the batteries pin the rotation tombstone, the plain-to-keyed
+upgrade, the empty-ledger genesis invariance across modes, and the
+attacker's plain recomputation never matching a keyed head. The keystone
+test proves the zeroization invariant the JS path CAN prove: after the
+wipe, the surviving MAC closure computes exactly what a zero-key HMAC
+computes — a proof no dropped-reference JS object offers.
 
 **30. The OPFS flush() Vault Tier — a second durable home with a real
 fsync (night-frontier-Z4).** `durability: 'strict'` on IndexedDB

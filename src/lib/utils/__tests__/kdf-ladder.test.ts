@@ -90,6 +90,7 @@ import { enableEncryption, encrypt, decrypt, verifyPassphrase, disableEncryption
 import { deriveKeyArgon2, randomBytes, toBase64, fromBase64 } from '../crypto-primitives';
 import { registerAtRestSession, sealAtRestValue, openAtRestValue } from '../at-rest';
 import { _resetAtRestStateForTesting, shouldProtectAtRest } from '../at-rest-state';
+import { _resetWitnessKeyForTesting } from '../witness-key';
 const PW = 'ladder-passphrase-1';
 const PLAINTEXT = 'the vault payload that must survive a tier change';
 
@@ -102,6 +103,7 @@ beforeEach(() => {
 	storageInvalidateAll();
 	_resetIdbWriteSeqForTesting();
 	_resetAtRestStateForTesting();
+	_resetWitnessKeyForTesting();
 	initStorage();
 });
 
@@ -261,6 +263,7 @@ describe('the at-rest session is tier-stable across changes', () => {
 
 		// Cold load: the session key is gone, the verifier stays.
 		_resetAtRestStateForTesting();
+		_resetWitnessKeyForTesting();
 
 		// Re-register while the device reads as a heavier tier: the rung
 		// must still come from the verifier (low), not the current ladder.

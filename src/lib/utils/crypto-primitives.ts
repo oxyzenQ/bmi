@@ -24,6 +24,7 @@ import {
 	LEGACY_KDF_OPTIONS,
 	validateEnvelopeKdfParams
 } from './kdf-ladder';
+import { WITNESS_MAC_INFO, WITNESS_MAC_LENGTH } from './witness-key';
 import { warnDev } from './warn-dev';
 
 // ── Constants ──
@@ -116,24 +117,68 @@ export async function importAesKey(hashBytes: Uint8Array): Promise<CryptoKey> {
  * sessions). No explicit options means the fixed legacy defaults — the
  * parameters every pre-ladder envelope was written with.
  */
+/**
+ * The raw Argon2id bytes for a passphrase + salt, through the engine
+ * order above. The bytes are WIPEABLE caller material: whoever receives
+ * them owns their destruction (importAesKey wipes; the session-key
+ * derivation below reads them before that wipe).
+ */
+async function argon2idRawBytes(
+	passphrase: string,
+	salt: Uint8Array,
+	options?: Argon2Options
+): Promise<Uint8Array> {
+	const params = options ?? LEGACY_KDF_OPTIONS;
+	if (CAN_OFFLOAD_KDF && isKdfWorkerAvailable()) {
+		try {
+			return await argon2idHashInWorker(passphrase, salt, params);
+		} catch (err) {
+			warnDev('crypto', 'deriveKeyArgon2', 'KDF worker failed — deriving on main thread', err);
+		}
+	}
+	const { argon2id } = await import('@noble/hashes/argon2.js');
+	return argon2id(new TextEncoder().encode(passphrase), salt, params);
+}
+
 export async function deriveKeyArgon2(
 	passphrase: string,
 	salt: Uint8Array,
 	options?: Argon2Options
 ): Promise<CryptoKey> {
-	const params = options ?? LEGACY_KDF_OPTIONS;
-	if (CAN_OFFLOAD_KDF && isKdfWorkerAvailable()) {
-		try {
-			const hashBytes = await argon2idHashInWorker(passphrase, salt, params);
-			return await importAesKey(hashBytes);
-		} catch (err) {
-			warnDev('crypto', 'deriveKeyArgon2', 'KDF worker failed — deriving on main thread', err);
-		}
-	}
+	return importAesKey(await argon2idRawBytes(passphrase, salt, options));
+}
 
-	const { argon2id } = await import('@noble/hashes/argon2.js');
-	const hashBytes = argon2id(new TextEncoder().encode(passphrase), salt, params);
-	return importAesKey(hashBytes);
+/**
+ * Derive the AT-REST SESSION KEYS in one Argon2id pass (night-frontier-Z6):
+ * the AES-256-GCM seal key and the witness attestation material — an
+ * HKDF-SHA256 subkey (RFC 5869) domain-separated by the info label
+ * "bmi-stellar-witness-mac-v1" over the SAME raw session output, salted
+ * with the per-device at-rest salt. One derivation, two purposes, zero
+ * extra 64 MiB burns. The raw material dies inside importAesKey exactly
+ * as before; only the derived, domain-separated subkey leaves (and the
+ * caller installs it through witness-key.ts, which wipes its input).
+ * Tier stability: the caller pins the rung (the verifier's), so the
+ * subkey is stable across sessions for the same passphrase and rotates
+ * exactly when the passphrase does.
+ */
+export async function deriveSessionKeys(
+	passphrase: string,
+	salt: Uint8Array,
+	options?: Argon2Options
+): Promise<{ aesKey: CryptoKey; witnessMacKey: Uint8Array }> {
+	const hashBytes = await argon2idRawBytes(passphrase, salt, options);
+	const { hkdf } = await import('@noble/hashes/hkdf.js');
+	const { sha256 } = await import('@noble/hashes/sha2.js');
+	// HKDF BEFORE the wipe: importAesKey zeroes hashBytes on return.
+	const witnessMacKey = hkdf(
+		sha256,
+		hashBytes,
+		salt,
+		new TextEncoder().encode(WITNESS_MAC_INFO),
+		WITNESS_MAC_LENGTH
+	);
+	const aesKey = await importAesKey(hashBytes);
+	return { aesKey, witnessMacKey };
 }
 
 /** Derive an AES-256-GCM key from a passphrase + salt using PBKDF2 (legacy). */

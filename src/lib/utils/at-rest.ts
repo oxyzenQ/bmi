@@ -39,7 +39,7 @@ import {
 	aesGcmDecrypt,
 	aesGcmEncrypt,
 	computeChecksum,
-	deriveKeyArgon2,
+	deriveSessionKeys,
 	fromBase64,
 	randomBytes,
 	toBase64,
@@ -62,6 +62,7 @@ import {
 	isAtRestTagged,
 	setAtRestSessionKey
 } from './at-rest-state';
+import { installWitnessKey, wipeWitnessKey } from './witness-key';
 import { warnDev } from './warn-dev';
 
 /** IndexedDB meta key holding the base64 at-rest salt (device-local). */
@@ -136,17 +137,29 @@ export async function registerAtRestSession(passphrase: string): Promise<void> {
 	// re-enable with a new passphrase always derives.
 	if (isAtRestSessionUnlocked()) return;
 	const salt = await getOrCreateSalt();
-	const key = await deriveKeyArgon2(passphrase, salt, await readVerifierKdfOptions());
-	setAtRestSessionKey(key);
+	// Night-frontier-Z6: one Argon2id pass yields BOTH keys — the seal
+	// key and the witness attestation material (HKDF domain separation).
+	// installWitnessKey copies the material and wipes the returned array,
+	// so the raw session output never outlives this call in JS.
+	const { aesKey, witnessMacKey } = await deriveSessionKeys(
+		passphrase,
+		salt,
+		await readVerifierKdfOptions()
+	);
+	setAtRestSessionKey(aesKey);
+	installWitnessKey(witnessMacKey);
 }
 
 /**
  * Drop the session key. The session returns to locked state: sealed
  * values read as null again and writes to health keys are refused while
- * a sealed value exists. Existing sealed values are untouched.
+ * a sealed value exists. Existing sealed values are untouched. The
+ * witness attestation key is WIPED with it — a keyed witness can then
+ * neither bless nor accuse until the next passphrase-proven unlock.
  */
 export function clearAtRestSession(): void {
 	clearAtRestSessionKey();
+	wipeWitnessKey();
 }
 
 /** True while an unlocked session is active. */

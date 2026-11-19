@@ -52,6 +52,7 @@ import { STORAGE_KEYS, storageGetRaw, storageInvalidate } from './storage';
 import { withLedgerLock } from './ledger-lock';
 import { isAtRestTagged } from './at-rest-state';
 import { isAtRestUnlocked } from './at-rest';
+import { getWitnessKeyFingerprint, getWitnessMac, type WitnessMac } from './witness-key';
 import { warnDev, warnDevOnce } from './warn-dev';
 import type { BmiRecord } from '$lib/types/bmi-record';
 
@@ -61,10 +62,20 @@ export const META_LEDGER_CHAIN = '__history_chain_head';
 /** The seed the chain starts from; also the head of an empty ledger. */
 const GENESIS_SEED = 'bmi-stellar-ledger-v4-genesis';
 
-/** The sealed witness: chain head plus the length it covers. */
+/**
+ * The sealed witness: chain head plus the length it covers. A keyed
+ * witness (night-frontier-Z6) carries `mode: 'keyed'` and the PUBLIC
+ * key fingerprint `kf` (SHA-256 hex of the attestation key material),
+ * so the reseat path proves the witness and the installed key belong to
+ * the same passphrase before it recomputes anything. Legacy witnesses
+ * and plaintext ledgers omit both fields - the plain SHA-256 chain
+ * unchanged.
+ */
 export interface LedgerChain {
 	head: string;
 	length: number;
+	mode?: 'keyed';
+	kf?: string;
 }
 
 let genesisPromise: Promise<string> | null = null;
@@ -105,14 +116,45 @@ export function canonicalRecordJson(record: BmiRecord): string {
  * a replay, an insertion, or a truncation always does. Every legit writer
  * passes validated records; the sort here makes the chain independent of
  * each writer's local ordering.
+ *
+ * Mode contract (night-frontier-Z6): `'plain'` is the historical
+ * SHA-256 chain — byte-identical, the export anchor and the
+ * plaintext-ledger witness. `'keyed'` runs every record link under the
+ * witness attestation key (HMAC-SHA256) and THROWS when no key is
+ * installed: a caller that cannot attest must neither bless nor accuse.
+ * The genesis link stays the plain seed digest in both modes — an empty
+ * ledger has nothing to MAC, and the genesis is a public constant.
  */
-export async function computeLedgerChain(records: BmiRecord[]): Promise<LedgerChain> {
+export async function computeWitnessChain(
+	records: BmiRecord[],
+	mode: 'plain' | 'keyed'
+): Promise<LedgerChain> {
+	let mac: WitnessMac | null = null;
+	if (mode === 'keyed') {
+		mac = getWitnessMac();
+		if (!mac) throw new Error('keyed witness chain requested without an attestation key');
+	}
 	let link = await ledgerGenesis();
 	const ordered = [...records].sort((a, b) => a.timestamp - b.timestamp);
 	for (const record of ordered) {
-		link = await sha256Hex(new TextEncoder().encode(`${link}:${canonicalRecordJson(record)}`));
+		const input = new TextEncoder().encode(`${link}:${canonicalRecordJson(record)}`);
+		link = mac ? toHex(mac(input)) : await sha256Hex(input);
 	}
 	return { head: link, length: records.length };
+}
+
+/**
+ * The plain chain — the byte-identical historical construction. The
+ * export envelope (history-io v4) and every existing consumer keep this
+ * exact contract: a portable, self-verifiable anchor that needs no key,
+ * no session, and no device state.
+ */
+export async function computeLedgerChain(records: BmiRecord[]): Promise<LedgerChain> {
+	return computeWitnessChain(records, 'plain');
+}
+
+function toHex(bytes: Uint8Array): string {
+	return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 /** Read the sealed witness. Returns null when none exists (unanchored). */
@@ -122,6 +164,20 @@ export async function getSealedLedgerChain(): Promise<LedgerChain | null> {
 		if (!raw) return null;
 		const parsed = JSON.parse(raw) as Partial<LedgerChain>;
 		if (typeof parsed.head !== 'string' || typeof parsed.length !== 'number') return null;
+		// Fail-closed toward honesty: a keyed marker means keyed even when
+		// the fingerprint field is damaged (the witness then reads as
+		// attestable-by-nothing, never as a plain witness that could accuse
+		// records with a recomputation the seal never ran), and any unknown
+		// mode reads as no witness at all - unanchored, never violated.
+		if (parsed.mode === 'keyed') {
+			return {
+				head: parsed.head,
+				length: parsed.length,
+				mode: 'keyed',
+				kf: typeof parsed.kf === 'string' ? parsed.kf : undefined
+			};
+		}
+		if (parsed.mode !== undefined) return null;
 		return { head: parsed.head, length: parsed.length };
 	} catch (err) {
 		warnDev('ledger-continuity', 'getSealedLedgerChain', 'Failed to read the sealed witness', err);
@@ -148,24 +204,44 @@ function enqueueSeal(step: () => Promise<void>): Promise<void> {
 
 /**
  * Seal the witness for the given records (a legit re-anchor moment:
- * import, clear). Internal seal failures degrade the witness to absent —
- * "no anchor" is honest, a stale anchor would be a false accusation.
+ * import, clear). The seal runs in the CURRENT attestation mode: keyed
+ * when a witness key is installed, plain otherwise. Internal seal
+ * failures degrade the witness to absent — "no anchor" is honest, a
+ * stale anchor would be a false accusation.
  */
 export function sealLedgerChain(records: BmiRecord[]): Promise<void> {
 	return enqueueSeal(async () => {
-		try {
-			const chain = await computeLedgerChain(records);
-			await dbMetaSet(META_LEDGER_CHAIN, JSON.stringify(chain));
-		} catch (err) {
-			warnDev(
-				'ledger-continuity',
-				'sealLedgerChain',
-				'Witness seal failed — degrading to unanchored',
-				err
-			);
-			await dbMetaSet(META_LEDGER_CHAIN, '').catch(() => {});
-		}
+		await sealWithCurrentMode(records);
 	});
+}
+
+/** The seal itself, in the current attestation mode. */
+async function sealWithCurrentMode(records: BmiRecord[]): Promise<void> {
+	try {
+		const mode = getWitnessMac() ? 'keyed' : 'plain';
+		const chain = await computeWitnessChain(records, mode);
+		const witness: LedgerChain =
+			mode === 'keyed' ? { ...chain, mode, kf: getWitnessKeyFingerprint() ?? undefined } : chain;
+		await dbMetaSet(META_LEDGER_CHAIN, JSON.stringify(witness));
+	} catch (err) {
+		warnDev(
+			'ledger-continuity',
+			'sealWithCurrentMode',
+			'Witness seal failed — degrading to unanchored',
+			err
+		);
+		await dbMetaSet(META_LEDGER_CHAIN, '').catch(() => {});
+	}
+}
+
+/**
+ * Tombstone the witness: an attestation state the ledger can no longer
+ * vouch for (locked edge, passphrase rotation) reads as honestly
+ * unanchored, never as a stale anchor that would accuse honest use.
+ */
+async function tombstoneWitness(reason: string): Promise<void> {
+	warnDevOnce('ledger-continuity', 'tombstone', `Witness stepped aside: ${reason}`);
+	await dbMetaSet(META_LEDGER_CHAIN, '').catch(() => {});
 }
 
 /**
@@ -190,12 +266,28 @@ export function reseatLedgerChainAfterSave(
 		}
 		if (sealed === null) {
 			// Unanchored (fresh device or degraded seal): anchor now.
-			await sealNow(newRecords);
+			await sealWithCurrentMode(newRecords);
 			return;
 		}
-		const pre = await computeLedgerChain(preRecords);
+		// Night-frontier-Z6: the pre-state recomputes under the SEALED
+		// witness's attestation mode, never the current one - the blessing
+		// compares like with like.
+		if (sealed.mode === 'keyed') {
+			const kf = getWitnessKeyFingerprint();
+			if (!getWitnessMac() || kf !== sealed.kf) {
+				// The attestation key is gone or belongs to another passphrase
+				// (locked edge, passphrase rotation). The witness can neither
+				// verify this pre-state nor accuse it - it steps aside to
+				// honestly unanchored, and the next legit save re-anchors.
+				// The external witness (the user's own v4 export, a plain
+				// anchor) is untouched by this.
+				await tombstoneWitness('attestation key unavailable or rotated');
+				return;
+			}
+		}
+		const pre = await computeWitnessChain(preRecords, sealed.mode === 'keyed' ? 'keyed' : 'plain');
 		if (pre.head === sealed.head && pre.length === sealed.length) {
-			await sealNow(newRecords);
+			await sealWithCurrentMode(newRecords);
 			return;
 		}
 		warnDevOnce(
@@ -204,19 +296,6 @@ export function reseatLedgerChainAfterSave(
 			'Continuity witness mismatch — history changed outside a legit write; witness stays frozen'
 		);
 	});
-}
-
-/** Unqueued seal used inside queued steps (the queue serializes callers). */
-function sealNow(records: BmiRecord[]): Promise<void> {
-	return (async () => {
-		try {
-			const chain = await computeLedgerChain(records);
-			await dbMetaSet(META_LEDGER_CHAIN, JSON.stringify(chain));
-		} catch (err) {
-			warnDev('ledger-continuity', 'sealNow', 'Witness seal failed — degrading to unanchored', err);
-			await dbMetaSet(META_LEDGER_CHAIN, '').catch(() => {});
-		}
-	})();
 }
 
 /** @internal Test-only: resolve when all queued witness work has drained. */
