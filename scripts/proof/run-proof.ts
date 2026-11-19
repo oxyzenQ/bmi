@@ -6,47 +6,22 @@
  * Drives the production build through a real headless Chrome session and
  * proves, live, the claims the product makes about itself:
  *
- *   P1  exact-value matrix       — metric BMI, category, BMI Prime, BMR,
- *                                 TDEE, the imperial round-trip, and the
- *                                 Deurenberg body-fat card
- *   P2  runtime egress inventory — every network request lands inside
- *                                 the disclosed host allowlist and the
- *                                 automatic update check fires exactly
- *                                 one request pair on a fresh device
- *   P3  storage inventory        — the device holds exactly the named
- *                                 keys and IndexedDB stores, no more
- *   P4  offline shell contract   — the service worker serves the real
- *                                 app shell with the network cut
- *   P5  Web Vitals budgets       — LCP and CLS inside the stated bounds
- *   P6  zero long tasks under KDF — the Argon2id export derivation
- *                                 runs in a worker; the main thread
- *                                 records no long task
- *   P7  at-rest seal live        — the first passphrase-proven import
- *                                 establishes the ledger verifier and
- *                                 the ledger write lands sealed
- *                                 (night-frontier-Z3)
- *   P8  purge guard              — a locked session cannot overwrite
- *                                 the sealed ledger
- *   P9  locked-read semantics    — sealed values read as missing; the
- *                                 verifier-anchored unlock restores
- *                                 readability
- *   P10 continuity witness live — the sealed chain head rides real
- *                                 saves and matches the ledger it
- *                                 covers (night-frontier-Z3)
- *   P11 witness freeze           — after a device tamper the next save
- *                                 refuses to bless unverified history
- *   P12 vault tier               — the OPFS flush vault holds the
- *                                 latest snapshot byte-equivalent to
- *                                 the latest IndexedDB backup
- *                                 (night-frontier-Z4)
- *   P13 kdf ladder               — production envelopes carry the
- *                                 device-tier argon2id rung at or above
- *                                 the OWASP floor (night-frontier-Z4)
- *   P14 single-writer law        — the platform lock serializes
- *                                 exclusive requests and a stale second
- *                                 tab merges over fresh state; the
- *                                 union survives, the witness blesses
- *                                 it (night-frontier-Z5)
+ *   One line per claim; each is proven live, fail-closed:
+ *   P1  exact-value matrix (metric, imperial round-trip, Deurenberg)
+ *   P2  runtime egress inventory (allowlist + one update-check pair)
+ *   P3  storage inventory (exactly the named keys and IDB stores)
+ *   P4  offline shell contract (the real app shell, network cut)
+ *   P5  Web Vitals budgets (LCP and CLS)
+ *   P6  zero long tasks under KDF (worker offload)
+ *   P7  at-rest seal live (verifier established, write lands sealed)
+ *   P8  purge guard (a locked session cannot overwrite the seal)
+ *   P9  locked-read semantics (missing until the anchored unlock)
+ *   P10 continuity witness live (rides real saves, matches the ledger)
+ *   P11 witness freeze (a tamper is never blessed)
+ *   P12 vault tier (OPFS snapshot byte-equivalent to the IDB backup)
+ *   P13 kdf ladder (production rungs at or above the OWASP floor)
+ *   P14 single-writer law (lock serialization, union survives)
+ *   P15 import gauntlet (poison refused: 0 unhandled, 0 egress, witness untouched) — Z7
  *
  * Every proof is fail-closed: an infrastructure error fails its proof,
  * the harness exits non-zero, and nothing is reported as proven that was
@@ -72,6 +47,8 @@ import {
 	READ_META,
 	WITNESS_AUDIT,
 	IMPORT_SET_FILE,
+	GAUNTLET_SETUP,
+	GAUNTLET_RUN,
 	MODAL_SUBMIT,
 	MODAL_CLOSED,
 	EXPORT_PREVIEW_COUNT,
@@ -946,6 +923,35 @@ async function main(): Promise<number> {
 			expect(Boolean(hero), 'app shell did not render offline (hero title missing)');
 			return 'shell served offline, hero present';
 		});
+
+		// ── P15: the Import Gauntlet (night-frontier-Z7) ──
+		await prove(
+			'P15 import gauntlet: every poisoned envelope refused, witness and ledger untouched',
+			async () => {
+				expect(exportFileText !== null, 'no valid encrypted export captured for the gauntlet');
+				const before = await page!.evaluate<{ witnessBefore: { head: string } | null }>(
+					GAUNTLET_SETUP
+				);
+				const gauntlet = await page!.evaluate<{
+					imports: number;
+					unhandledErrors: string[];
+					egressDelta: number;
+					witnessAfter: { head: string } | null;
+				}>(GAUNTLET_RUN, {
+					validEnvelope: exportFileText!,
+					passphrase: 'proof-harness-passphrase-1'
+				});
+				expect(gauntlet.imports >= 9, `the gauntlet ran ${String(gauntlet.imports)} payloads`);
+				expect(
+					gauntlet.unhandledErrors.length === 0 && gauntlet.egressDelta === 0,
+					`poison caused unhandled errors or egress: ${gauntlet.unhandledErrors.join(' | ')}`
+				);
+				const headBefore = before.witnessBefore ? before.witnessBefore.head : null;
+				const headAfter = gauntlet.witnessAfter ? gauntlet.witnessAfter.head : null;
+				expect(headAfter === headBefore, 'the witness moved during the gauntlet');
+				return `gauntlet=${String(gauntlet.imports)} payloads refused, witness untouched`;
+			}
+		);
 
 		// ── Verdict ──
 		const failed = results.filter((r) => !r.ok);

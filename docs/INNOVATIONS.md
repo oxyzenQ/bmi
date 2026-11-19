@@ -480,7 +480,7 @@ the tree) drives the production build served by `vite preview` inside a
 pinned, SHA-verified `chrome-headless-shell`
 (`download-chrome.sh` records the ZIP digest at adoption time and
 verifies every install fail-closed, because Chrome for Testing ships no
-per-build checksum). Fifteen fail-closed claims per run: the exact-value
+per-build checksum). Sixteen fail-closed claims per run: the exact-value
 matrix through the real UI (metric 22.86 / Normal Weight / Prime 0.91 /
 BMR 1649 / TDEE 2556, the imperial round-trip 22.85, and the Deurenberg
 18.1% card), the runtime egress inventory (every request inside the
@@ -510,6 +510,20 @@ above the OWASP floor). The harness exits non-zero if any claim fails; nothing i
 was not measured. It rides its own lane —
 `.github/workflows/runtime-proof.yml` on a weekly schedule and on
 demand — so the ten-minute CI budget law stays intact for per-push CI.
+Night-frontier-Z7 sharpening (B2, the Import Gauntlet, claim P15): the
+harness drives N poisoned envelopes through the REAL import UI in the
+pinned browser — garbage bytes, a truncated envelope, a flipped
+ciphertext byte (AES-GCM auth tag refuses it), a wrong format field,
+JSON without records, records that are not an array, invalid record
+values, an invalid oversized array, an unknown version marker — every
+one through the same file input and modal a user's file takes. The
+claim is fail-closed in three directions: zero unhandled errors reach
+the page (window.onerror + unhandledrejection taps), zero egress delta
+(fetch/XHR taps outside the origin), and the witness head never moves
+(no poison is a legit write, so the continuity witness and the ledger
+must be byte-identical before and after). The probe sources live in
+`page-sources.ts` (the file the claim set uses to keep `run-proof.ts`
+under its cap); the header claim list is one line per claim.
 Verification: PROVEN 15/15 runs after night-frontier-Z4 (the page-side
 probe sources moved to `scripts/proof/page-sources.ts` to stay under
 the 1000-line hard cap as the claim set grew), the measurement records

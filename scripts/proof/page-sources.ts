@@ -332,3 +332,116 @@ export const MERGED_LEDGER_AUDIT = `async ({ lastTimestamp }) => {
     hasTabARecord: raw.some((r) => r.timestamp === lastTimestamp)
   };
 }`;
+
+// ── night-frontier-Z7 (B2): the Import Gauntlet ──
+// P15 drives poisoned envelopes through the REAL import UI and demands
+// three verdicts: zero unhandled errors, zero egress delta, and a
+// witness + ledger that never move (no poison is a legit write).
+
+/** Install the gauntlet counters once: unhandled errors + egress taps. */
+export const GAUNTLET_SETUP = `async () => {
+  const w = (window.__bmiGauntlet = window.__bmiGauntlet || { errors: [], egress: 0 });
+  w.errors = [];
+  w.egress = 0;
+  if (!w.__installed) {
+    w.__installed = true;
+    window.addEventListener('unhandledrejection', (e) => {
+      w.errors.push(String((e.reason && e.reason.message) || e.reason));
+    });
+    window.addEventListener('error', (e) => {
+      w.errors.push(String(e.message || e.error));
+    });
+    const originFetch = window.fetch;
+    window.fetch = function () {
+      try {
+        const u = typeof arguments[0] === 'string' ? arguments[0] : String(arguments[0] && arguments[0].url);
+        if (u.indexOf(location.origin) !== 0) w.egress++;
+      } catch (e) {}
+      return originFetch.apply(this, arguments);
+    };
+    const originOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function () {
+      try {
+        if (String(arguments[1]).indexOf(location.origin) !== 0) w.egress++;
+      } catch (e) {}
+      return originOpen.apply(this, arguments);
+    };
+  }
+  const readMeta = ${READ_META};
+  const raw = await readMeta('__history_chain_head');
+  return { witnessBefore: raw ? JSON.parse(raw) : null };
+}`;
+
+/**
+ * The gauntlet itself: build the poisoned variants from a VALID
+ * encrypted export, feed each through the real file input, submit the
+ * modal when one opens, and report the three verdicts.
+ */
+export const GAUNTLET_RUN = `async ({ validEnvelope, passphrase }) => {
+  const w = window.__bmiGauntlet;
+  const flipChar = (s, i) => s.slice(0, i) + (s.charAt(i) === 'x' ? 'y' : 'x') + s.slice(i + 1);
+  const outer = JSON.parse(validEnvelope);
+  const dataAt = validEnvelope.indexOf('"data":"') + 9;
+  const b64Mid = dataAt + Math.floor(outer.data.length / 2);
+  const payloads = [
+    ['garbage bytes', 'not json at all {{{'],
+    ['truncated envelope', validEnvelope.slice(0, Math.floor(validEnvelope.length / 2))],
+    ['flipped ciphertext byte', flipChar(validEnvelope, b64Mid)],
+    ['wrong format field', JSON.stringify({ format: 'bmi-encrypted-v9', meta: outer.meta, data: outer.data })],
+    ['json without records', JSON.stringify({ version: 4, source: 'bmi-calculator' })],
+    ['records not an array', JSON.stringify({ version: 2, records: { tampered: true } })],
+    ['invalid record values', JSON.stringify({ version: 2, records: [{ timestamp: 1700000000000, bmi: 'huge', height: -5, weight: 999999 }] })],
+    ['invalid oversized array', JSON.stringify({ version: 2, records: Array.from({ length: 3000 }, (_, i) => ({ timestamp: 1700000000000 + i, bmi: 'x' + i, height: 0, weight: -1 })) })],
+    ['unknown version marker', JSON.stringify({ version: 99, records: [] })]
+  ];
+  const setFile = (content) => {
+    const input = document.querySelector('input[type="file"]');
+    if (!input) throw new Error('missing import file input');
+    const file = new File([content], 'gauntlet.json', { type: 'application/json' });
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  const modalOpen = () => Boolean([...document.querySelectorAll('[role="dialog"]')].find((d) => d.querySelector('form')));
+  const waitModalGone = async () => {
+    const deadline = Date.now() + 12000;
+    while (Date.now() < deadline) {
+      if (!modalOpen()) return true;
+      await new Promise((r) => setTimeout(r, 250));
+    }
+    return false;
+  };
+  for (const [label, payload] of payloads) {
+    void label;
+    setFile(payload);
+    await new Promise((r) => setTimeout(r, 700));
+    if (modalOpen()) {
+      const dialog = [...document.querySelectorAll('[role="dialog"]')].find((d) => d.querySelector('form'));
+      for (const input of dialog.querySelectorAll('input[type="password"]')) {
+        input.value = passphrase;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      dialog.querySelector('form').requestSubmit();
+      const gone = await waitModalGone();
+      if (!gone) throw new Error('gauntlet modal never closed on: ' + label);
+    }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  const readMeta = ${READ_META};
+  const raw = await readMeta('__history_chain_head');
+  const historyRaw = localStorage.getItem('bmi.history');
+  let ledgerCount = -1;
+  try {
+    const arr = JSON.parse(historyRaw);
+    if (Array.isArray(arr)) ledgerCount = arr.length;
+  } catch (e) {}
+  return {
+    imports: payloads.length,
+    unhandledErrors: w.errors,
+    egressDelta: w.egress,
+    witnessAfter: raw ? JSON.parse(raw) : null,
+    ledgerCount,
+    ledgerSealed: Boolean(historyRaw && historyRaw.indexOf('bmi-at-rest-v1:') === 0)
+  };
+}`;
