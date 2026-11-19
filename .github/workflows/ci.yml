@@ -110,7 +110,11 @@ jobs:
     # lane rebuilds engine/argon2id (toolchain pinned in
     # rust-toolchain.toml, rustup resolves it on the runner) and demands
     # fresh build == recorded digest == embedded base64. Byte-reproducible
-    # by path remapping, so any machine produces the same bytes.
+    # by path remapping, so any machine produces the same bytes. The
+    # formatting and clippy gates ride the same pinned toolchain (the
+    # zelynic per-push Rust quality shape): the engine is the one Rust
+    # seat in the tree and every push that touches anything proves the
+    # whole artifact chain, not just the digest.
     runs-on: ubuntu-26.04
     timeout-minutes: 10
 
@@ -118,5 +122,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, SHA pin
 
+      - name: Cache cargo registry and engine target tree
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0, SHA pin
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            engine/argon2id/target
+          key: ${{ runner.os }}-cargo-ci-${{ hashFiles('engine/argon2id/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-ci-
+
       - name: Verify the wasm artifact against the committed crate
         run: bash scripts/ci/wasm-provenance.sh
+
+      - name: Rust formatting gate
+        run: (cd engine/argon2id && cargo fmt --all -- --check)
+
+      - name: Rust clippy gate
+        run: (cd engine/argon2id && cargo clippy --all-targets -- -D warnings)

@@ -73,3 +73,30 @@ jobs:
 
       - name: PWA offline-shell audit
         run: bun run audit:pwa-offline
+
+  rust-engine-audit:
+    name: Rust Engine Advisory Audit
+    # The zelynic Dragon Guard audit shape for the one Rust seat in the
+    # tree (engine/argon2id): the advisory DB refreshes every run against
+    # a pinned scanner, so red means a new advisory, never a new scanner
+    # release. Observation-only on purpose (continue-on-error below, the
+    # zelynic posture): a finding is the owner's morning signal, not a
+    # blocked push - the --deny warnings flag still makes every finding
+    # exit non-zero and annotate loudly instead of scrolling past as
+    # yellow text.
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    continue-on-error: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, SHA pin
+
+      - name: Install the Rust toolchain
+        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # @stable, SHA pin
+
+      - name: Install cargo-audit (pinned 0.22.2)
+        run: cargo install cargo-audit --version 0.22.2 --locked
+
+      - name: Audit the engine lockfile
+        run: cargo audit --file engine/argon2id/Cargo.lock --deny warnings

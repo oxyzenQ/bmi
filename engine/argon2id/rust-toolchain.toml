@@ -7,3 +7,7 @@
 channel = "1.100.0"
 profile = "minimal"
 targets = ["wasm32-unknown-unknown"]
+# The quality-lane components ride the same pin: every machine that
+# resolves this toolchain (local dev, the provenance/clippy CI lane, the
+# maintenance sweep) gets the exact clippy and rustfmt the gates run.
+components = ["clippy", "rustfmt"]
