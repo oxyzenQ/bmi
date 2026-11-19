@@ -53,14 +53,12 @@ import { withLedgerLock } from './ledger-lock';
 import { isAtRestTagged } from './at-rest-state';
 import { isAtRestUnlocked } from './at-rest';
 import { getWitnessKeyFingerprint, getWitnessMac, type WitnessMac } from './witness-key';
+import { computeChainSync } from './ledger-chain';
 import { warnDev, warnDevOnce } from './warn-dev';
 import type { BmiRecord } from '$lib/types/bmi-record';
 
 /** IndexedDB meta key holding the sealed chain head (the witness). */
 export const META_LEDGER_CHAIN = '__history_chain_head';
-
-/** The seed the chain starts from; also the head of an empty ledger. */
-const GENESIS_SEED = 'bmi-stellar-ledger-v4-genesis';
 
 /**
  * The sealed witness: chain head plus the length it covers. A keyed
@@ -78,35 +76,17 @@ export interface LedgerChain {
 	kf?: string;
 }
 
-let genesisPromise: Promise<string> | null = null;
-
-/** SHA-256 of the genesis seed — computed once per realm. */
-function ledgerGenesis(): Promise<string> {
-	if (!genesisPromise) {
-		genesisPromise = sha256Hex(new TextEncoder().encode(GENESIS_SEED));
-	}
-	return genesisPromise;
-}
-
-async function sha256Hex(bytes: Uint8Array): Promise<string> {
-	const digest = await crypto.subtle.digest('SHA-256', new Uint8Array(bytes).buffer as ArrayBuffer);
-	return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
-}
-
 /**
  * Canonical serialization of one record: fixed key order, age omitted
  * when undefined. Two structurally identical records must produce the
  * same string no matter how their object keys were ordered.
+ *
+ * The chain MATH itself (genesis, links, the sync engine and its sound
+ * checkpoint cache) lives in ledger-chain.ts (night-frontier-Z6, A2);
+ * this module keeps the witness state machine and re-exports the math
+ * surface so every existing import path keeps working.
  */
-export function canonicalRecordJson(record: BmiRecord): string {
-	return JSON.stringify({
-		timestamp: record.timestamp,
-		bmi: record.bmi,
-		height: record.height,
-		weight: record.weight,
-		age: record.age
-	});
-}
+export { canonicalRecordJson } from './ledger-chain';
 
 /**
  * Compute the chain over the LOGICAL ledger: the records sorted ascending
@@ -124,23 +104,22 @@ export function canonicalRecordJson(record: BmiRecord): string {
  * installed: a caller that cannot attest must neither bless nor accuse.
  * The genesis link stays the plain seed digest in both modes — an empty
  * ledger has nothing to MAC, and the genesis is a public constant.
+ *
+ * A2: the computation is fully synchronous (the checkpoint engine) and
+ * the async signature stays for every existing caller.
  */
 export async function computeWitnessChain(
 	records: BmiRecord[],
 	mode: 'plain' | 'keyed'
 ): Promise<LedgerChain> {
 	let mac: WitnessMac | null = null;
+	let fingerprint: string | null = null;
 	if (mode === 'keyed') {
 		mac = getWitnessMac();
 		if (!mac) throw new Error('keyed witness chain requested without an attestation key');
+		fingerprint = getWitnessKeyFingerprint();
 	}
-	let link = await ledgerGenesis();
-	const ordered = [...records].sort((a, b) => a.timestamp - b.timestamp);
-	for (const record of ordered) {
-		const input = new TextEncoder().encode(`${link}:${canonicalRecordJson(record)}`);
-		link = mac ? toHex(mac(input)) : await sha256Hex(input);
-	}
-	return { head: link, length: records.length };
+	return computeChainSync(records, mode, mac, fingerprint);
 }
 
 /**
@@ -151,10 +130,6 @@ export async function computeWitnessChain(
  */
 export async function computeLedgerChain(records: BmiRecord[]): Promise<LedgerChain> {
 	return computeWitnessChain(records, 'plain');
-}
-
-function toHex(bytes: Uint8Array): string {
-	return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 /** Read the sealed witness. Returns null when none exists (unanchored). */

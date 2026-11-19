@@ -666,6 +666,30 @@ attacker's plain recomputation never matching a keyed head. The keystone
 test proves the zeroization invariant the JS path CAN prove: after the
 wipe, the surviving MAC closure computes exactly what a zero-key HMAC
 computes — a proof no dropped-reference JS object offers.
+Night-frontier-Z6 sharpening (the chain checkpoint law): the hunting
+finding under the chain was physics, not semantics — every link waited
+on one `crypto.subtle.digest` round-trip, twice per save, so a ledger at
+the LTS horizon paid thousands of awaited round-trips per legit write.
+The chain math moved to `ledger-chain.ts`: fully synchronous (noble
+SHA-256 and the keyed HMAC in a tight loop, zero async round-trips,
+byte-identical construction) with a SOUND checkpoint cache — per
+(mode, key fingerprint) the engine remembers verification digests and
+stride-stride chain links, re-verifies EVERY record's digest on every
+compute, and rechaining starts only from the proven divergence point.
+The cache can never bless records it has not re-verified: a middle
+edit, a truncation, a replay, or ANY change diverges the prefix and the
+head is recomputed from the actual records — soundness is why the cache
+deduplicates work instead of skipping it. Measured on the bench
+machine (`scripts/dev/chain-bench.ts`, interleaved rounds, byte-identity
+gated before timing, 2000 records): the plain chain 53.1 ms legacy vs
+18.7 ms sync-cold (2.8x) vs 4.6 ms warm (11.6x), appends 10x per save;
+the keyed chain's warm path runs 4.5x (3x per save), while its cold
+path honestly pays ~13% for the verification pass — the price of never
+trusting the cache blindly. Correctness never depends on the cache:
+two realms hold two caches and must agree (the two-realm battery), and
+the chain battery proves warm heads equal cold heads equal an
+independent reference across every tamper class, append sequence, and
+stride boundary.
 
 **30. The OPFS flush() Vault Tier — a second durable home with a real
 fsync (night-frontier-Z4).** `durability: 'strict'` on IndexedDB
