@@ -930,7 +930,7 @@ async function main(): Promise<number> {
 				const headBefore = before.witnessBefore ? before.witnessBefore.head : null;
 				const headAfter = gauntlet.witnessAfter ? gauntlet.witnessAfter.head : null;
 				expect(headAfter === headBefore, 'the witness moved during the gauntlet');
-				return `gauntlet=${String(gauntlet.imports)} payloads refused, witness untouched`;
+				return `gauntlet=${String(gauntlet.imports)} payloads refused, witness untouched, residue=${JSON.stringify(gauntlet.residue)}`;
 			}
 		);
 

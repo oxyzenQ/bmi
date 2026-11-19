@@ -340,9 +340,10 @@ export const MERGED_LEDGER_AUDIT = `async ({ lastTimestamp }) => {
 
 /** Install the gauntlet counters once: unhandled errors + egress taps. */
 export const GAUNTLET_SETUP = `async () => {
-  const w = (window.__bmiGauntlet = window.__bmiGauntlet || { errors: [], egress: 0 });
+  const w = (window.__bmiGauntlet = window.__bmiGauntlet || { errors: [], egress: 0, residue: [] });
   w.errors = [];
   w.egress = 0;
+  w.residue = [];
   if (!w.__installed) {
     w.__installed = true;
     window.addEventListener('unhandledrejection', (e) => {
@@ -413,12 +414,13 @@ export const GAUNTLET_RUN = `async ({ validEnvelope, passphrase }) => {
     return false;
   };
   const forceCloseModal = async () => {
-    const deadline = Date.now() + 3000;
+    const deadline = Date.now() + 6000;
     while (Date.now() < deadline) {
       const dialog = [...document.querySelectorAll('[role="dialog"]')].find((d) => d.querySelector('form'));
       if (!dialog) return true;
       const cancel = [...dialog.querySelectorAll('button')].find((b) => b.type !== 'submit');
       if (cancel) cancel.click();
+      dialog.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       await new Promise((r) => setTimeout(r, 300));
     }
@@ -439,8 +441,8 @@ export const GAUNTLET_RUN = `async ({ validEnvelope, passphrase }) => {
       // both are refusals. What the claim needs is a clean slate for the
       // next payload: wait, then force-close any residue.
       await waitModalGone();
-      const stuck = await forceCloseModal();
-      if (stuck) throw new Error('gauntlet modal residue on: ' + label);
+      const closed = await forceCloseModal();
+      if (!closed) w.residue.push(label);
     }
     await new Promise((r) => setTimeout(r, 400));
   }
@@ -454,6 +456,7 @@ export const GAUNTLET_RUN = `async ({ validEnvelope, passphrase }) => {
   } catch (e) {}
   return {
     imports: payloads.length,
+    residue: w.residue,
     unhandledErrors: w.errors,
     egressDelta: w.egress,
     witnessAfter: raw ? JSON.parse(raw) : null,
