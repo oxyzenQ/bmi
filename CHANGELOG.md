@@ -865,3 +865,11 @@ When waking the project after a dormant period, expect `bun audit` to flag advis
 _Link mapping: `[21.x.0]` sections correspond to the historic `Stellar-v21.x` tags; sections from the `v*` tag era onward match `package.json` directly. Commits referenced by short SHA can be inspected via `git show <sha>`._
 
 ## [Unreleased]
+
+### Added
+
+- **The Single-Writer Law (night-frontier-Z5).** Every serialization primitive the ledger had was per-realm — two tabs of the same app raced the same origin storage, and a stale cross-tab read-modify-write could silently drop a foreign record and freeze the continuity witness as a false accusation. Every legit ledger write (save, import commit, restore, clear) now holds the origin-wide Web Lock (`bmi-ledger-write`) as one critical section: freshness refresh, validated read, merge, mirror write, and the witness reseat/seal drain. `storage-coherence.ts` closes the stale-cache door: foreign-tab storage events drop health-key cache entries, and every locked section refreshes from the mirror first — sealed mirrors re-open into an unlocked realm's cache, locked realms keep locked-read semantics. Clear also drops the same-realm cache entry, fixing a pre-Z5 false-freeze after clear-then-save. The tamper freeze rule stays untouched (the lock is advisory; out-of-band writers still freeze), engines without the Web Locks API degrade to per-realm serialization reported honestly, and the save's signature return stays synchronous so the caller's dedupe contract is unchanged.
+
+### Fixed
+
+- **Cross-tab ledger incoherence (the Z5 race).** Two tabs saving concurrently could lose a record and leave the witness frozen as a false `violated` accusation — with no tampering anywhere. The two-realm battery proves the union survives, the witness blesses every legit write, and the freeze still fires for out-of-band writers.

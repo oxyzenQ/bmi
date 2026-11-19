@@ -57,6 +57,12 @@ gracefully with dev-only warnings — a poisoned or full store never
 throws into the UI. The whole storage surface is named and minimal
 (`bmi.history`, `bmi.goal`, `bmi.goal.start`, `bmi.unitSystem`,
 `bmi.locale`, plus the encryption verifier in IndexedDB).
+Night-frontier-Z5 sharpening: the escalator's queues were per-realm —
+two tabs raced the same origin storage with no shared mutex. The
+single-writer law (innovation 32) now holds the origin-wide ledger
+lock across every legit write, and `src/lib/utils/storage-coherence.ts`
+drops stale health-key cache entries the moment a foreign tab's
+storage event names them, so no stale pre-state can feed a merge.
 
 **2. One Guard on Every Door — the validated data chain.**
 `src/lib/utils/history-io.ts` exports the hardened `isValidRecord` /
@@ -591,6 +597,13 @@ stay visible through the stable sort; a failed seal degrades the
 witness to unanchored (never a stale false accusation); the audit
 result surfaces through the harness claims and the test batteries — a
 user-facing continuity banner is the named next step.
+Night-frontier-Z5 sharpening: the seal queue was per-realm, so two
+tabs could interleave legit writes and freeze the witness against
+honest use. Every legit write now holds the origin-wide ledger lock
+(innovation 32) through the reseat/seal drain — the lock release and
+the witness advance are one ordered step cross-tab — and the freeze
+rule stands untouched for out-of-band writers (proven by the
+two-realm tamper battery).
 
 **30. The OPFS flush() Vault Tier — a second durable home with a real
 fsync (night-frontier-Z4).** `durability: 'strict'` on IndexedDB
@@ -653,6 +666,58 @@ test-mode parameters stay CI-friendly and below the floor by design,
 excluded from every production path; prior art exists in password
 managers — the novelty here is the envelope-driven cross-device
 contract and the verifier-anchored session stability.
+
+**32. The Single-Writer Law — the origin-wide ledger lock
+(night-frontier-Z5).** The physics gap: every serialization primitive
+the ledger had — the per-key IndexedDB write queue (innovation 1), the
+witness seal queue (innovation 29) — lives inside one JavaScript realm,
+while two tabs of the same app are two realms racing on the same origin
+storage. A stale cross-tab read-modify-write could silently drop a
+foreign record (the union became the last writer's view) and leave the
+continuity witness frozen as a false accusation: the ledger lied about
+honest use, the exact failure the freeze rule exists to prevent,
+triggered by no attacker at all. The Web Locks API is the browser's
+own origin-scoped mutex; `src/lib/utils/ledger-lock.ts` holds
+`bmi-ledger-write` in exclusive mode across every legit ledger write
+critical section — save, the import commit (`commitImportedRecords`,
+delegated from history-io through a dynamic import so the dependency
+arrow stays one-way), backup restore, and clear — each section ordered
+as freshness refresh, validated read, merge, mirror write, and the
+witness reseat/seal drain, so the lock release and the witness advance
+are one ordered step cross-tab. Two doors close the stale-cache gap
+beside it (`src/lib/utils/storage-coherence.ts`): foreign-tab storage
+events drop health-key cache entries (`installForeignTabCoherence`,
+wired in the page beside the unit-system listener it never touches),
+and `refreshHealthKeysFromMirror()` is the deterministic door every
+locked section calls first — sealed mirrors re-open into an unlocked
+realm's cache; locked realms keep locked-read semantics. Clear also
+drops the same-realm cache entry, fixing a pre-Z5 false-freeze of its
+own: a cleared ledger read as stale records in the realm that cleared
+it, so the next legit save merged over a stale pre-state and froze the
+genesis witness. Threat model, stated honestly: the lock is advisory —
+an out-of-band writer bypasses it and remains exactly the business of
+the freeze rule, which the law must never weaken (proven, not assumed:
+the two-realm tamper test freezes the witness while every legit write
+holds the lock). Engines without `navigator.locks` degrade to a
+per-realm promise queue reported once per realm — pre-Z5 behavior, not
+an invention. Verification: the `ledger-lock.test.ts` battery (pinned
+name, exclusive mode, request-order serialization, reentrancy without
+deadlock, honest fallback, failure hygiene — a rejecting section
+propagates and releases), the `storage-coherence.test.ts` battery
+(foreign invalidation, presentation-key scope, null-key clear,
+sealed-stays-sealed, deterministic refresh, unsubscribe), and the
+`ledger-single-writer.test.ts` two-realm battery — two module graphs
+as two tabs over shared origin storage and one shared exclusive
+manager: the Z5 race ends with the union intact and the audit ok,
+overlapping saves serialize, the freeze still fires lock-free, and a
+cross-tab clear blesses the follow-up save instead of freezing it.
+Honest limits: the Web Locks API is Baseline widely available
+(Chrome 69+, Firefox 96+, Safari 15.4+), but it is a request, not a
+guarantee — the fallback lane is real on engines without it, and the
+lock orders legit writers only; the save's ledger write now completes
+asynchronously under the lock (the synchronous signature return keeps
+the caller's dedupe contract unchanged — the record lands one lock-wait
+later, invisible outside a contended tab).
 
 ## Retired by verdict
 

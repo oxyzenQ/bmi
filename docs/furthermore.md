@@ -168,7 +168,7 @@ All data remains client-side, managed via a storage abstraction layer (`src/lib/
 | `__schema_version`      | IndexedDB `meta` store   | Storage schema version marker for migrations                                           |
 
 > [!TIP]
-> The storage layer includes error-resilient fallbacks — `SecurityError`, `QuotaExceededError`, and JSON parse failures are caught gracefully with dev-only warnings. Cross-tab synchronization ensures state consistency when multiple tabs are open. The encryption verifier lives in the IndexedDB `meta` store (not localStorage) and is never the passphrase itself — only an authenticated ciphertext that can be tested against a candidate passphrase.
+> The storage layer includes error-resilient fallbacks — `SecurityError`, `QuotaExceededError`, and JSON parse failures are caught gracefully with dev-only warnings. Cross-tab consistency is enforced by the single-writer law (night-frontier-Z5): every legit ledger write holds the origin-wide Web Lock (`bmi-ledger-write`) as one critical section — freshness refresh, validated read, merge, mirror write, and the witness reseat/seal drain — while foreign-tab storage events drop stale health-key cache entries (`src/lib/utils/storage-coherence.ts`). The encryption verifier lives in the IndexedDB `meta` store (not localStorage) and is never the passphrase itself — only an authenticated ciphertext that can be tested against a candidate passphrase.
 
 ## Encryption System
 
