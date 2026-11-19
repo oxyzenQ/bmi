@@ -18,7 +18,13 @@ const requiredSnippets = [
 	'const gate = await verifyIntegrityGate(cache);',
 	"const gateClear = gate.status === 'unverified' || gate.poisoned.length === 0;",
 	'cache.put(APP_SHELL_URL, response.clone())',
-	'offlineFallbackResponse()'
+	'offlineFallbackResponse()',
+	// night-frontier-Z10: the bounded window — the navigation path re-seats
+	// legit writes into the manifest and re-digests ONE precache entry per
+	// navigation, round-robin, so poisoning cannot survive a bounded
+	// number of navigations (not just an update).
+	'noteShellWrite(cache, [APP_SHELL_URL, request.url])',
+	'verifyNextIntegrityEntry(cache)'
 ];
 
 const missing = requiredSnippets.filter((snippet) => !source.includes(snippet));
@@ -34,6 +40,26 @@ if (
 	!(fallbackExactIndex < fallbackStableIndex && fallbackStableIndex < fallbackOfflineIndex)
 ) {
 	missing.push('navigation fallback order: exact cache -> app shell -> offline fallback');
+}
+
+// night-frontier-Z10: the runtime gate must ride the NAVIGATION branch
+// (request.mode === 'navigate') and its waitUntil verify must be wired
+// before the branch's respondWith; the re-seat must run inside
+// cacheNavigationResponse after its cache.put calls.
+const navBranchIndex = source.indexOf("if (request.mode === 'navigate')");
+const rrVerifyIndex = source.indexOf('await verifyNextIntegrityEntry(cache);');
+const navRespondWith = source.indexOf('event.respondWith(', navBranchIndex);
+const noteIndex = source.indexOf('await noteShellWrite(cache,');
+const navPutIndex = source.indexOf('cache.put(APP_SHELL_URL, response.clone());');
+if (navBranchIndex === -1 || rrVerifyIndex === -1 || navRespondWith === -1) {
+	missing.push('round-robin re-verification wiring (night-frontier-Z10)');
+} else if (!(navBranchIndex < rrVerifyIndex && rrVerifyIndex < navRespondWith)) {
+	missing.push(
+		'round-robin re-verification must ride the navigation branch, before its respondWith'
+	);
+}
+if (noteIndex === -1 || navPutIndex === -1 || !(navPutIndex < noteIndex)) {
+	missing.push('legit-write re-seat must run after the navigation cache.put calls');
 }
 
 if (missing.length > 0) {

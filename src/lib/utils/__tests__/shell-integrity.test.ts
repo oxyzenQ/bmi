@@ -26,8 +26,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { sha256 } from '@noble/hashes/sha2.js';
 import {
 	buildIntegrityManifest,
+	noteShellWrite,
 	verifyIntegrityGate,
+	verifyNextIntegrityEntry,
 	INTEGRITY_MANIFEST_KEY,
+	_resetShellIntegrityForTesting,
 	type CacheLike
 } from '../shell-integrity';
 
@@ -68,6 +71,7 @@ const honestFetch = vi.fn(async (request: RequestInfo | URL): Promise<Response> 
 
 beforeEach(() => {
 	honestFetch.mockClear();
+	_resetShellIntegrityForTesting();
 });
 
 async function installedCache(): Promise<FakeCache> {
@@ -170,5 +174,117 @@ describe('shell integrity gate (activate time)', () => {
 		await cache.put(INTEGRITY_MANIFEST_KEY, new Response('not the manifest', { status: 200 }));
 		const verdict = await verifyIntegrityGate(cache, honestFetch);
 		expect(verdict).toEqual({ status: 'unverified' });
+	});
+});
+
+describe('round-robin re-verification (night-frontier-Z10)', () => {
+	it('one entry per navigation, round-robin, clean verdicts, no network', async () => {
+		const cache = await installedCache();
+		const seen: string[] = [];
+		for (let i = 0; i < URLS.length; i++) {
+			const verdict = await verifyNextIntegrityEntry(cache, honestFetch);
+			expect(verdict).toEqual({
+				status: 'verified',
+				url: URLS[i],
+				verdict: 'clean'
+			});
+			seen.push((verdict as { url: string }).url);
+		}
+		expect(seen).toEqual(URLS);
+		expect(honestFetch).not.toHaveBeenCalled();
+		// The cycle wraps: N more navigations cover the same N entries.
+		const secondCycle = await verifyNextIntegrityEntry(cache, honestFetch);
+		expect((secondCycle as { url: string }).url).toBe(URLS[0]);
+	});
+
+	it('poison planted mid-cycle cannot survive a bounded number of navigations', async () => {
+		const cache = await installedCache();
+		const offlineFetch = vi.fn(async () => {
+			throw new Error('network unreachable');
+		});
+		// First navigation verifies URLS[0] clean. Then the out-of-band
+		// writer poisons URLS[2] between navigations.
+		await verifyNextIntegrityEntry(cache, offlineFetch as unknown as typeof fetch);
+		await cache.put(URLS[2], new Response('poisoned between navigations', { status: 200 }));
+
+		// Navigate until the poisoned entry's turn: at most N navigations
+		// in the cycle (here: 2 more, the cursor is already past index 0).
+		let navigations = 1;
+		let verdict: { url: string; verdict: string } | null = null;
+		while (navigations <= URLS.length) {
+			const step = (await verifyNextIntegrityEntry(
+				cache,
+				offlineFetch as unknown as typeof fetch
+			)) as { url: string; verdict: string };
+			verdict = step;
+			if (step.url === URLS[2]) break;
+			navigations++;
+		}
+		expect(verdict).toEqual({ status: 'verified', url: URLS[2], verdict: 'poisoned' });
+		expect(navigations).toBeLessThanOrEqual(URLS.length);
+		// The poisoned entry can never be served from this cache again,
+		// and its manifest seat is gone — the cycle shrinks around it.
+		expect(await cache.match(URLS[2])).toBeUndefined();
+		const manifest = (await (await cache.match(INTEGRITY_MANIFEST_KEY))!.json()) as {
+			digests: Record<string, string>;
+		};
+		expect(manifest.digests[URLS[2]]).toBeUndefined();
+	});
+
+	it('a poisoned entry heals through the network with the sweep semantics', async () => {
+		const cache = await installedCache();
+		await cache.put(URLS[0], new Response('poisoned asset', { status: 200 }));
+		const verdict = (await verifyNextIntegrityEntry(cache, honestFetch)) as {
+			url: string;
+			verdict: string;
+		};
+		expect(verdict).toEqual({ status: 'verified', url: URLS[0], verdict: 'healed' });
+		const healed = await cache.match(URLS[0]);
+		expect(await healed!.text()).toBe(bodyFor(URLS[0]));
+		expect(honestFetch).toHaveBeenCalledTimes(1);
+		// The manifest carries the healed digest: the next sweep stays clean.
+		const sweep = await verifyIntegrityGate(cache, honestFetch);
+		expect(sweep).toEqual({ status: 'verified', healed: [], poisoned: [] });
+	});
+
+	it('a legit runtime write re-seats its digest — no false heal on the sweep', async () => {
+		const cache = await installedCache();
+		// The service worker itself caches a fresh navigation shell over
+		// the install-time bytes: a legit write, not an out-of-band one.
+		const freshShell = bodyFor('/') + ' :: rebuilt navigation shell';
+		await cache.put('/', new Response(freshShell, { status: 200 }));
+		await noteShellWrite(cache, ['/']);
+		const sweep = await verifyIntegrityGate(cache, honestFetch);
+		// Without the re-seat this sweep would DELETE the fresh shell and
+		// heal it from the network (churn); with it, the cache is trusted.
+		expect(sweep).toEqual({ status: 'verified', healed: [], poisoned: [] });
+		expect(honestFetch).not.toHaveBeenCalled();
+	});
+
+	it('noteShellWrite upserts a runtime-written route the manifest never saw', async () => {
+		const cache = await installedCache();
+		const routeBody = 'body of /race :: navigated shell';
+		await cache.put('/race', new Response(routeBody, { status: 200 }));
+		await noteShellWrite(cache, ['/race']);
+		const manifest = (await (await cache.match(INTEGRITY_MANIFEST_KEY))!.json()) as {
+			digests: Record<string, string>;
+		};
+		expect(manifest.digests['/race']).toBe(hex(sha256(new TextEncoder().encode(routeBody))));
+		// The adopted seat verifies clean on the full sweep too.
+		const sweep = await verifyIntegrityGate(cache, honestFetch);
+		expect(sweep).toEqual({ status: 'verified', healed: [], poisoned: [] });
+	});
+
+	it('an absent manifest keeps the honest degrades for both runtime paths', async () => {
+		const cache = new FakeCache();
+		await cache.put('/', new Response(bodyFor('/'), { status: 200 }));
+		const verdict = await verifyNextIntegrityEntry(cache, honestFetch);
+		expect(verdict).toEqual({ status: 'unverified' });
+		expect(honestFetch).not.toHaveBeenCalled();
+		// The note never arms the gate from a runtime write: a pre-Z7
+		// cache's other entries were never digested, so arming here would
+		// false-accuse them on the next sweep.
+		await noteShellWrite(cache, ['/']);
+		expect(await cache.match(INTEGRITY_MANIFEST_KEY)).toBeUndefined();
 	});
 });

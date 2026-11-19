@@ -7,7 +7,12 @@
 
 import { base, build, files, version } from '$service-worker';
 import { BMI_STELLAR_SIGNATURE } from '$lib/utils/signature';
-import { buildIntegrityManifest, verifyIntegrityGate } from '$lib/utils/shell-integrity';
+import {
+	buildIntegrityManifest,
+	noteShellWrite,
+	verifyIntegrityGate,
+	verifyNextIntegrityEntry
+} from '$lib/utils/shell-integrity';
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
@@ -61,6 +66,12 @@ async function cacheNavigationResponse(request: Request, response: Response) {
 		cache.put(request, response.clone()),
 		cache.put(APP_SHELL_URL, response.clone())
 	]);
+	// Night-frontier-Z10: the reseat law — a legit runtime write re-seats
+	// its manifest digests at the moment of the write, so a
+	// navigation-rewritten shell can never false-heal on a later sweep
+	// and the gate's invariant ("manifest matches cache after every legit
+	// write") holds across the whole offline lifetime.
+	await noteShellWrite(cache, [APP_SHELL_URL, request.url]);
 }
 
 function offlineFallbackResponse(): Response {
@@ -216,6 +227,19 @@ sw.addEventListener('fetch', (event) => {
 
 	// Navigation requests: network-first for HTML pages to avoid stale content
 	if (request.mode === 'navigate') {
+		// Night-frontier-Z10: the bounded window — one precache entry is
+		// re-digested per navigation event, round-robin, with the activate
+		// sweep's delete/heal semantics verbatim. waitUntil keeps the
+		// worker alive for the digest without delaying the response; the
+		// whole precache is re-verified every N navigations (N = manifest
+		// size), so a poisoned entry can no longer survive until the next
+		// update — it survives at most a bounded number of navigations.
+		event.waitUntil(
+			(async () => {
+				const cache = await caches.open(CACHE_NAME);
+				await verifyNextIntegrityEntry(cache);
+			})()
+		);
 		event.respondWith(
 			fetch(request)
 				.then((response) => {

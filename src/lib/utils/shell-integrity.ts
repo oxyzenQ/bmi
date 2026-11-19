@@ -33,7 +33,18 @@
  *   - Verification runs on the update path (install/activate), not on
  *     every fetch: between installs a poisoned entry could serve if it
  *     was written after the last activation. The gate's claim is
- *     exactly the brief's: poisoning cannot SURVIVE an update.
+ *     exactly the brief's: poisoning cannot SURVIVE an update. Since
+ *     night-frontier-Z10 the window itself is bounded: ONE manifest
+ *     entry is re-digested per navigation event, round-robin, with the
+ *     heal/delete semantics of the full sweep verbatim — the whole
+ *     precache is re-verified every N navigations (N = manifest size),
+ *     amortized to zero measurable cost per fetch, and the per-fetch
+ *     digest law stays intact. Legit runtime writes (the navigation
+ *     shell the SW itself caches) re-seat their manifest digests at the
+ *     moment of the write — the reseat law — so the gate's invariant is
+ *     "the manifest matches the cache after every legit write; any
+ *     other divergence is an out-of-band write" and a navigation-rewritten
+ *     shell can never false-heal on an offline sweep.
  *   - Only the precache (build + static files + the shell) is
  *     digested; the runtime cache holds network-fetched content the
  *     origin already served, and digesting it per fetch would cost the
@@ -169,4 +180,120 @@ export async function verifyIntegrityGate(
 		})
 	);
 	return { status: 'verified', healed, poisoned };
+}
+
+// ── Night-frontier-Z10: the bounded window ──
+
+/**
+ * Manifest mutations are serialized in one per-realm promise chain (the
+ * same discipline as the per-key IDB write queue): the round-robin
+ * verdict and a legit-write re-seat can never interleave a read of the
+ * manifest with the other's write, so the manifest always reflects the
+ * last ordered mutation.
+ */
+let manifestChain: Promise<unknown> = Promise.resolve();
+function withManifestLock<T>(op: () => Promise<T>): Promise<T> {
+	const run = manifestChain.then(op, op);
+	manifestChain = run.catch(() => {});
+	return run;
+}
+
+/** The round-robin cursor: one manifest entry per navigation event. */
+let rrCursor = 0;
+
+/** @internal Test-only: reset the cursor (and the lock chain) between batteries. */
+export function _resetShellIntegrityForTesting(): void {
+	rrCursor = 0;
+	manifestChain = Promise.resolve();
+}
+
+async function writeManifest(cache: CacheLike, digests: Record<string, string>): Promise<void> {
+	await cache.put(
+		INTEGRITY_MANIFEST_KEY,
+		new Response(JSON.stringify({ v: 1, digests } satisfies ShellIntegrityManifest), {
+			headers: { 'Content-Type': 'application/json' }
+		})
+	);
+}
+
+/**
+ * Re-seat the manifest digests for entries the service worker ITSELF
+ * just wrote at runtime (the navigation shell) — the reseat law: a legit
+ * write updates the manifest at the moment of the write, so the gate's
+ * invariant ("manifest matches cache after every legit write") holds
+ * and a navigation-rewritten shell can never false-heal on a later
+ * sweep. An absent manifest is a no-op: a pre-Z7 cache never arms the
+ * gate from a runtime write (its other entries were never digested, so
+ * arming here would false-accuse them later). Unreadable entries are
+ * skipped, never judged from a note — the sweeps own the verdicts.
+ */
+export function noteShellWrite(cache: CacheLike, urls: readonly string[]): Promise<void> {
+	return withManifestLock(async () => {
+		const manifest = await readManifest(cache);
+		if (!manifest) return;
+		const digests = { ...manifest.digests };
+		let changed = false;
+		for (const url of urls) {
+			const digest = await bodyDigest(cache, url);
+			if (digest === null || digests[url] === digest) continue;
+			digests[url] = digest;
+			changed = true;
+		}
+		if (changed) await writeManifest(cache, digests);
+	});
+}
+
+/**
+ * Re-digest ONE manifest entry, round-robin, with the full sweep's
+ * semantics verbatim (night-frontier-Z10): a match reads clean; a
+ * mismatch or missing entry is DELETED on the spot, re-fetched with
+ * `cache: 'reload'` when the network allows (healed entries are
+ * re-digested into the manifest), and otherwise stays deleted with its
+ * manifest seat dropped — poisoned state cannot survive a bounded
+ * number of navigations (every entry is re-verified at least once per
+ * N navigations, N = manifest size). The absent-manifest degrade is
+ * identical to the sweep: 'unverified', nothing touched. Amortized
+ * cost per navigation: one match + one SHA-256 of a single entry — the
+ * per-fetch digest law stays intact.
+ */
+export function verifyNextIntegrityEntry(
+	cache: CacheLike,
+	networkFetch: typeof fetch = fetch
+): Promise<
+	| { status: 'unverified' }
+	| { status: 'verified'; url: string; verdict: 'clean' | 'healed' | 'poisoned' }
+> {
+	return withManifestLock(async () => {
+		const manifest = await readManifest(cache);
+		if (!manifest) return { status: 'unverified' };
+		const urls = Object.keys(manifest.digests);
+		if (urls.length === 0) return { status: 'verified', url: '', verdict: 'clean' };
+		const url = urls[rrCursor % urls.length];
+		rrCursor = (rrCursor + 1) % urls.length;
+		const actual = await bodyDigest(cache, url);
+		if (actual === manifest.digests[url]) {
+			return { status: 'verified', url, verdict: 'clean' };
+		}
+		// Mismatch or missing — the full sweep's semantics, one entry wide:
+		// the entry loses its seat in this cache before anything else.
+		await cache.delete(url);
+		try {
+			const fresh = await networkFetch(url, { cache: 'reload' });
+			if (fresh && fresh.ok) {
+				await cache.put(url, fresh.clone());
+				const redigest = await bodyDigest(cache, url);
+				if (redigest !== null) {
+					await writeManifest(cache, { ...manifest.digests, [url]: redigest });
+					return { status: 'verified', url, verdict: 'healed' };
+				}
+			}
+		} catch {
+			// Offline or refused: the entry stays deleted - poisoned state
+			// does not survive, availability is re-earned from the network.
+		}
+		const digests = { ...manifest.digests };
+		delete digests[url];
+		await writeManifest(cache, digests);
+		return { status: 'verified', url, verdict: 'poisoned' };
+	});
 }
