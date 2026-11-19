@@ -93,7 +93,7 @@ import {
 	getSealedLedgerChain,
 	META_LEDGER_CHAIN
 } from '../ledger-continuity';
-import { enableEncryption, getEncryptionStatus, verifyPassphrase } from '../crypto';
+import { getEncryptionStatus, verifyPassphrase } from '../crypto';
 import { AT_REST_TAG, _resetAtRestStateForTesting, getAtRestSessionKey } from '../at-rest-state';
 import { fnv1a, dualHash } from '../legacy-hash';
 import { exportBmiHistoryCsv } from '../history-csv';

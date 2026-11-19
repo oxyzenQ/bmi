@@ -19,6 +19,13 @@ import { writeVaultSnapshotWithFlush } from './vault-opfs';
 const ctx = self as unknown as DedicatedWorkerGlobalScope;
 
 ctx.onmessage = async (event: MessageEvent<{ id: number; snapshot: string }>) => {
+	// Origin gate, mirroring the service-worker and kdf-worker convention:
+	// the inline blob worker can only be driven by its creating document,
+	// so any message whose origin disagrees with the worker's own origin
+	// is dropped unread. The snapshot string never leaves this worker
+	// except into the OPFS handle - a forged-origin message gets nothing.
+	const trustedOrigin = ctx.location.origin;
+	if (event.origin && event.origin !== trustedOrigin) return;
 	const { id, snapshot } = event.data;
 	try {
 		const result = await writeVaultSnapshotWithFlush(snapshot);

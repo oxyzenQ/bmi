@@ -93,13 +93,11 @@ import {
 	getSealedLedgerChain,
 	sealLedgerChain,
 	reseatLedgerChainAfterSave,
-	clearLedgerHistory,
-	_drainLedgerContinuityForTesting
+	clearLedgerHistory
 } from '../ledger-continuity';
 import {
 	auditLedgerContinuity,
 	saveBmiToHistory,
-	readBmiHistory,
 	_drainLedgerWritesForTesting
 } from '../bmi-history';
 import { createBackup, restoreLatestBackup } from '../backup';

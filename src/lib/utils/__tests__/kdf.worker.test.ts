@@ -17,7 +17,6 @@ import type { MockInstance } from 'vitest';
 // The worker module binds `self` at import time; in jsdom that is the
 // window. Route the worker's replies through a stub we control.
 type PostMessageImpl = (message: unknown, transfer?: unknown[]) => void;
-const realPostMessage = window.postMessage.bind(window);
 let posted: Array<Record<string, unknown>> = [];
 const postMessageImpl: PostMessageImpl = (message) => {
 	posted.push(message as Record<string, unknown>);

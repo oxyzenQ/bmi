@@ -87,7 +87,7 @@ import {
 	_setKdfLadderOverrideForTesting
 } from '../kdf-ladder';
 import { enableEncryption, encrypt, decrypt, verifyPassphrase, disableEncryption } from '../crypto';
-import { deriveKeyArgon2, randomBytes, toBase64, fromBase64 } from '../crypto-primitives';
+import { deriveKeyArgon2, randomBytes, toBase64 } from '../crypto-primitives';
 import { registerAtRestSession, sealAtRestValue, openAtRestValue } from '../at-rest';
 import {
 	_resetAtRestStateForTesting,

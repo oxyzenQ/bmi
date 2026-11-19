@@ -92,18 +92,10 @@ vi.mock('../vault-backup', async (importOriginal) => {
 	};
 });
 
-import {
-	STORAGE_KEYS,
-	initStorage,
-	storageInvalidateAll,
-	storageGet,
-	storageGetRaw,
-	_resetIdbWriteSeqForTesting
-} from '../storage';
+import { STORAGE_KEYS, initStorage, storageInvalidateAll, storageGet } from '../storage';
 import { createBackup, restoreLatestBackup } from '../backup';
 import { META_LEDGER_CHAIN } from '../ledger-continuity';
 import { sealLedgerChain, getSealedLedgerChain } from '../ledger-continuity';
-import { getAppVersionRaw } from '../app-version';
 import { dbBackupSave } from '../db';
 
 const HISTORY = STORAGE_KEYS.HISTORY;

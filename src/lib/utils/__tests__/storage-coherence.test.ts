@@ -33,6 +33,13 @@ const GOAL_START = STORAGE_KEYS.BMI_GOAL_START;
 const UNIT = STORAGE_KEYS.UNIT_SYSTEM;
 
 function dispatchForeignStorageEvent(key: string | null): void {
+	// The two-argument form is the spec's canonical constructor and the
+	// init dict IS honored at runtime (browsers + jsdom: the coherence
+	// listener reads event.key from it, and this battery proves the
+	// invalidation end-to-end). CodeQL's DOM model declares the
+	// StorageEvent constructor with fewer parameters - an analyzer-model
+	// gap, not a code bug. Suppressed by intent:
+	// codeql[js/superfluous-trailing-arguments]
 	window.dispatchEvent(new StorageEvent('storage', { key, newValue: 'foreign-write' }));
 }
 

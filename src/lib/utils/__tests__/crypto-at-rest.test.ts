@@ -115,7 +115,6 @@ const PW_OTHER = 'a completely different passphrase';
 
 const HISTORY = STORAGE_KEYS.HISTORY;
 const GOAL = STORAGE_KEYS.BMI_GOAL;
-const GOAL_START = STORAGE_KEYS.BMI_GOAL_START;
 const LOCALE = STORAGE_KEYS.LOCALE;
 
 function sampleRecords(count: number): string {
