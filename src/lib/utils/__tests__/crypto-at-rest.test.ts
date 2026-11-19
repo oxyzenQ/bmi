@@ -2,15 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // @vitest-environment node
 //
-// Node environment: jsdom's crypto.subtle is non-functional in the
-// Bun CI runners, native subtle is needed here.
-//
-// The at-rest ledger seal battery (night-frontier-Z1): round-trips,
-// session lifecycle, salt persistence, storage integration (sealed
-// layers, locked reads, purge guard, mirror ordering, fail-open),
-// unlock hooks, backup/restore, zero-change canaries. Determinism:
-// every test waits for terminal state via vi.waitFor, never racing
-// the write queue.
+// Node environment: jsdom's crypto.subtle is non-functional on the Bun
+// CI runners - native subtle is needed here. The at-rest ledger seal
+// battery (night-frontier-Z1): round-trips, session lifecycle, salt
+// persistence, storage integration (sealed layers, locked reads, purge
+// guard, mirror ordering, fail-open), unlock hooks, backup/restore,
+// zero-change canaries. Every test waits for terminal state via
+// vi.waitFor, never racing the write queue.
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -34,9 +32,7 @@ const dbState = vi.hoisted(() => ({
 vi.mock('../db', () => ({
 	isIndexedDbAvailable: () => true,
 	dbMetaGet: vi.fn(async (key: string) => dbState.meta.get(key) ?? null),
-	dbMetaSet: vi.fn(async (key: string, value: string) => {
-		dbState.meta.set(key, value);
-	}),
+	dbMetaSet: vi.fn(async (key: string, value: string) => dbState.meta.set(key, value)),
 	dbSet: vi.fn(async (key: string, value: string) => {
 		dbState.kv.set(key, value);
 	}),
