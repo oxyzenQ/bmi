@@ -20,6 +20,12 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   NODE_VERSION: 26
   VERCEL_NODE_RUNTIME: nodejs26.x
+  # Single source of truth for the Rust engine toolchain version (the
+  # zelynic Dragon Guard lineage). Kept in sync with
+  # engine/argon2id/rust-toolchain.toml and engine/argon2id/Cargo.toml
+  # rust-version by scripts/gates/check-rust-version-sync.sh - bump all
+  # three surfaces in the same change.
+  RUST_VERSION: "1.100.0"
 
 jobs:
   validate:
@@ -186,6 +192,153 @@ jobs:
           git commit -m "chore(deps): maintenance deps weekly" \
             -m "Automated weekly lockfile refresh." \
             -m "Validated before commit with read-only token."
+          git push origin "HEAD:${BASE_BRANCH}"
+
+  rust-validate:
+    name: Rust engine maintenance validate
+    # The zelynic Dragon Guard port for the one Rust seat in the tree
+    # (engine/argon2id): the weekly sweep walks every committed Cargo
+    # workspace through scripts/ci/sweep-rust-workspaces.sh, then proves
+    # the moved lane before anything may commit - formatting, clippy
+    # strict, and the wasm artifact parity gate. The parity gate is the
+    # fail-closed heart of this job: a dependency bump CAN change the
+    # built wasm bytes, and the embedded artifact
+    # (src/lib/utils/kdf-wasm-embedded.ts) rides the app bundle and the
+    # proof claims - its ONE writer is the owner's deliberate
+    # `wasm-provenance.sh --refresh` flow, never this sweep. A sweep that
+    # cannot prove artifact parity fails loudly instead of shipping.
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.changes.outputs.changed }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, SHA pin
+        with:
+          ref: ${{ env.BASE_BRANCH }}
+          persist-credentials: false
+          fetch-depth: 1
+          fetch-tags: false
+
+      - name: Install the pinned Rust toolchain
+        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # @stable, SHA pin
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          components: clippy, rustfmt
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo registry and engine target tree
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0, SHA pin
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            engine/argon2id/target
+          key: ${{ runner.os }}-cargo-maintenance-${{ hashFiles('engine/argon2id/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-maintenance-
+
+      - name: Rust version sync gate
+        run: bash scripts/gates/check-rust-version-sync.sh
+
+      - name: Sweep the Rust dependency lane
+        run: bash scripts/ci/sweep-rust-workspaces.sh
+
+      - name: Enforce dependency-only diff
+        id: changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "The rust dependency lane is already up to date"
+            exit 0
+          fi
+
+          git diff --name-only | tee /tmp/changed-files.txt
+          if grep -vE '^engine/argon2id/Cargo\.lock$' /tmp/changed-files.txt; then
+            echo "::error::Auto-update may only modify engine/argon2id/Cargo.lock"
+            exit 1
+          fi
+
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Rust formatting gate
+        if: steps.changes.outputs.changed == 'true'
+        run: (cd engine/argon2id && cargo fmt --all -- --check)
+
+      - name: Rust clippy gate
+        if: steps.changes.outputs.changed == 'true'
+        run: (cd engine/argon2id && cargo clippy --all-targets -- -D warnings)
+
+      - name: Wasm artifact parity gate
+        if: steps.changes.outputs.changed == 'true'
+        run: bash scripts/ci/wasm-provenance.sh
+
+      - name: Upload validated rust lockfile
+        if: steps.changes.outputs.changed == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2, SHA pin
+        with:
+          name: validated-rust-lock
+          path: engine/argon2id/Cargo.lock
+          if-no-files-found: error
+
+  rust-commit:
+    name: Rust engine maintenance commit
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    needs: rust-validate
+    if: needs.rust-validate.outputs.changed == 'true'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, SHA pin
+        with:
+          ref: ${{ env.BASE_BRANCH }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          fetch-tags: false
+
+      - name: Download validated rust lockfile
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2, SHA pin
+        with:
+          name: validated-rust-lock
+          path: .auto-update
+
+      - name: Commit and push changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The exact-path staging wall: the lockfile lands from the
+          # artifact at its own workspace path, and the commit may carry
+          # exactly the locks the sweep walked (scripts/ci/
+          # sweep-rust-workspaces.sh --print-locks is the same discovery
+          # law the update step swept with - one source of truth, never
+          # a glob), so no staging directory can ever ride the commit.
+          cp .auto-update/Cargo.lock engine/argon2id/Cargo.lock
+
+          if git diff --quiet; then
+            echo "Validated rust lockfile is already current"
+            exit 0
+          fi
+
+          git diff --name-only | tee /tmp/changed-files.txt
+          if grep -vE '^engine/argon2id/Cargo\.lock$' /tmp/changed-files.txt; then
+            echo "::error::Commit job may only modify engine/argon2id/Cargo.lock"
+            exit 1
+          fi
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          bash scripts/ci/sweep-rust-workspaces.sh --print-locks | xargs -r git add --
+          git commit -m "chore(deps): rust engine maintenance weekly" \
+            -m "Automated weekly Cargo.lock refresh for engine/argon2id." \
+            -m "Validated before commit: formatting, clippy strict, wasm artifact parity."
           git push origin "HEAD:${BASE_BRANCH}"
 
 concurrency:

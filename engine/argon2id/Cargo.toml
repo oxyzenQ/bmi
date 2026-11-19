@@ -4,6 +4,10 @@
 name = "bmi-stellar-argon2id"
 version = "1.0.0"
 edition = "2021"
+# The MSRV floor pins the same surface the toolchain channel pins (the
+# version-sync gate, scripts/gates/check-rust-version-sync.sh, ties all
+# three surfaces together: channel, MSRV, and the maintenance workflow).
+rust-version = "1.100.0"
 license = "AGPL-3.0-only"
 description = "The bmi-stellar Argon2id key-derivation engine compiled to WebAssembly"
 publish = false

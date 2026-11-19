@@ -240,6 +240,15 @@ else
         skip "signature assets" "b3sum not installed - install the BLAKE3 CLI so this section stops skipping"
 fi
 
+# ── [13] rust version sync ──────────────────────────────────────────────
+
+header "[13] Rust Version Sync (check-rust-version-sync.sh)"
+if bash scripts/gates/check-rust-version-sync.sh 2>&1; then
+        pass "the engine toolchain version agrees across all three surfaces"
+else
+        fail "rust version sync" "rust-toolchain.toml, Cargo.toml rust-version, and the maintenance workflow disagree above - bump all three in the same change"
+fi
+
 # ── summary ─────────────────────────────────────────────────────────────────
 
 echo ""
