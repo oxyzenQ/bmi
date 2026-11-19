@@ -25,7 +25,7 @@ env:
   # engine/argon2id/rust-toolchain.toml and engine/argon2id/Cargo.toml
   # rust-version by scripts/gates/check-rust-version-sync.sh - bump all
   # three surfaces in the same change.
-  RUST_VERSION: "1.100.0"
+  RUST_VERSION: '1.100.0'
 
 jobs:
   validate:
