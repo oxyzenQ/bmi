@@ -50,6 +50,7 @@ import {
 	SALT_LENGTH
 } from './crypto-primitives';
 import { clearAtRestSession, registerAtRestSession } from './at-rest';
+import { rotateUnlockedAtRestSession } from './ledger-rotation';
 import { isAtRestSessionUnlocked } from './at-rest-state';
 import { dbMetaGet, dbMetaSet, isIndexedDbAvailable } from './db';
 import {
@@ -409,17 +410,11 @@ export function isEncrypted(json: string): boolean {
 // ── Encryption preference persistence ──
 
 /**
- * Enable encryption and create a verifier for passphrase validation.
- *
- * Flow:
- *   1. Encrypt a known test string (VERIFIER_PLAINTEXT) with the passphrase
- *   2. Store the encrypted verifier in IndexedDB
- *   3. Later, verifyPassphrase() decrypts this stored verifier to validate
- *   4. Register the at-rest session so health values seal at rest from
- *      this session onward (registration failure never fails the enable)
- *
- * The passphrase itself is NEVER stored — only the verifier ciphertext.
- * A wrong passphrase will fail AES-GCM authentication (auth tag mismatch).
+ * Enable encryption and create a verifier for passphrase validation: encrypt the known
+ * plaintext, store the verifier in IndexedDB (it is the only stored artifact — never the
+ * passphrase), register the at-rest session so health values seal from this session onward
+ * (registration failure never fails the enable). A wrong passphrase fails AES-GCM
+ * authentication on verify.
  */
 export async function enableEncryption(passphrase: string): Promise<boolean> {
 	if (!browser || !isIndexedDbAvailable()) return false;
@@ -430,12 +425,19 @@ export async function enableEncryption(passphrase: string): Promise<boolean> {
 		await dbMetaSet(META_ENCRYPTION_VERIFIER, verifier);
 		await dbMetaSet(META_ENCRYPTION_KEY, '1');
 
-		// At-rest session: clear any stale key first so a re-enable with a
-		// new passphrase always re-derives against the new passphrase.
-		clearAtRestSession();
+		// At-rest session: a re-enable with a new passphrase re-derives. An
+		// ALREADY-UNLOCKED session (night-frontier-Z9) re-seals instead of
+		// tombstoning: the old key is still alive to verify the ledger and
+		// re-anchor under the new one — no blind window, no lockout. A
+		// rotation while locked keeps the honest tombstone route.
 		try {
-			await registerAtRestSession(passphrase);
-			await storageRefreshAtRestCache();
+			if (isAtRestSessionUnlocked()) {
+				await rotateUnlockedAtRestSession(passphrase);
+			} else {
+				clearAtRestSession();
+				await registerAtRestSession(passphrase);
+				await storageRefreshAtRestCache();
+			}
 		} catch (err) {
 			warnDev('crypto', 'enableEncryption', 'At-rest session registration failed', err);
 		}

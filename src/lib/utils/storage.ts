@@ -50,22 +50,11 @@ let _initialized = false;
 
 // ── Per-key IndexedDB write queue / serializer ──
 //
-// Problem: storageSet() is synchronous but writes to IndexedDB asynchronously.
-// Rapid same-key writes (e.g. normal write → immediate import/restore) can race:
-//   storageSet(key, "A")  →  dbSet(key, "A") starts...
-//   storageSet(key, "B")  →  dbSet(key, "B") starts...
-//   ... dbSet(key, "A") resolves last → IndexedDB has stale "A"
-//
-// Solution: Per-key promise chain that serializes IndexedDB writes.
-//   - Each key has its own queue (a Promise that resolves when the last job finished).
-//   - Each enqueued job records a sequence number.
-//   - When a job starts, it checks if its sequence is still the latest for that key.
-//     If superseded, the dbSet call is skipped entirely.
-//     If still current, dbSet runs and writes the latest value.
-//   - This guarantees the LAST queued write for a key always commits last,
-//     so IndexedDB final state matches the latest storageSet() call.
-//   - Stale failures (writes that were superseded before they could run) are
-//     silently discarded; only failures from the latest write trigger warnings.
+// storageSet() is synchronous but IndexedDB writes are async, so rapid same-key writes race
+// (write "A" then "B" can land as "A"). The fix: a per-key promise chain where every job
+// records a sequence number and a superseded job is skipped entirely — the LAST queued write
+// for a key always commits last, so IndexedDB matches the latest storageSet() call. Stale
+// failures are discarded silently; only the latest write's failures warn.
 
 /**
  * Per-key queue promise. Each entry resolves when all previously enqueued
@@ -78,18 +67,9 @@ const idbWriteSeq = new Map<string, number>();
 let _idbWriteSeqCounter = 0;
 
 /**
- * Enqueue an IndexedDB write behind any existing writes for the same key.
- *
- * Per-key serialization guarantees that even if storageSet(A) and storageSet(B)
- * are called back-to-back for the same key, the IndexedDB writes execute in order.
- * The first write for a key starts immediately; subsequent writes chain on the
- * previous write's promise so they run only after it completes.
- * Jobs whose sequence has been superseded before they start are skipped entirely,
- * so a stale value can never overwrite a newer one.
- *
- * Note: In-flight writes cannot be cancelled. If write A is already running when
- * write B arrives, A will complete normally. But B is guaranteed to run AFTER A,
- * so the final IndexedDB state is always B (the latest value).
+ * Enqueue an IndexedDB write behind any existing writes for the same key: back-to-back
+ * same-key writes execute in order, superseded jobs are skipped entirely, and in-flight
+ * writes complete normally with the latest value guaranteed to run last.
  */
 function dbSetGuarded(key: string, value: string | Promise<string>): void {
 	const seq = ++_idbWriteSeqCounter;
@@ -403,10 +383,8 @@ function readLocalStorageRaw(key: string): string | null {
 }
 
 /**
- * Read a value from cache, falling back to localStorage when cold. Sealed
- * at-rest values never surface synchronously: locked sessions read them as
- * missing; unlocked sessions have had them decrypted into the cache by
- * storageRefreshAtRestCache() at unlock time.
+ * Read a value from cache, falling back to localStorage when cold. Sealed values never surface synchronously:
+ * locked sessions read them as missing; unlocked sessions have had them decrypted into the cache at unlock time.
  */
 export function storageGet(key: string): string | null {
 	const raw = storageGetRaw(key);
@@ -435,9 +413,8 @@ export interface StorageSetOptions {
 }
 
 /**
- * Write a value to cache + localStorage (sync) and IndexedDB (async fire-and-forget).
- * Returns a Promise that resolves to true on sync success, false on sync failure.
- * The Promise also awaits the IndexedDB write for durability when await-ed.
+ * Write a value to cache + localStorage (sync) and IndexedDB (async fire-and-forget). Returns true on sync
+ * success, false on sync failure; the returned Promise also awaits the IndexedDB write when await-ed.
  */
 export function storageSet(key: string, value: string, options?: StorageSetOptions): boolean {
 	const protecting = !_restoreInProgress && shouldProtectAtRest(key);
@@ -466,9 +443,8 @@ export function storageSet(key: string, value: string, options?: StorageSetOptio
 
 	cache.set(key, value);
 
-	// Async write to IndexedDB (fire-and-forget, non-blocking).
-	// Per-key serialization ensures writes for the same key execute in order,
-	// so the final IndexedDB value always matches the latest storageSet() call.
+	// Async write to IndexedDB (fire-and-forget); per-key serialization keeps the final IndexedDB value
+	// always matching the latest storageSet() call.
 	if (browser && isIndexedDbAvailable()) {
 		if (protecting) {
 			// Seal asynchronously, then persist the envelope. The mirror
@@ -504,7 +480,7 @@ export function storageSet(key: string, value: string, options?: StorageSetOptio
 		}
 	}
 
-	// Auto-backup on history data change (skip during restore)
+	// Auto-backup on history data change (skip during restore / rotation re-seal)
 	if (key === STORAGE_KEYS.HISTORY && browser && !_restoreInProgress && !options?.skipBackup) {
 		triggerBackup('data_change');
 	}
@@ -528,6 +504,17 @@ export async function storageRefreshAtRestCache(): Promise<void> {
 			cache.set(key, plaintext);
 		}
 	}
+}
+
+/**
+ * The cache plaintext behind a possibly-sealed health key, for the unlocked-rotation re-seal
+ * (night-frontier-Z9): the rotation module captures it while the OLD session is still unlocked,
+ * before the key swap. Null when nothing usable is cached — a value the refresh could not open
+ * stays sealed-opaque under any key, honest.
+ */
+export function getAtRestCachePlaintext(key: string): string | null {
+	const value = cache.get(key);
+	return typeof value === 'string' ? value : null;
 }
 
 /**

@@ -201,6 +201,64 @@ async function tombstoneWitness(reason: string): Promise<void> {
 }
 
 /**
+ * The rotation-time verdict on the CURRENT witness (night-frontier-Z9).
+ *
+ * A passphrase rotation in an ALREADY-UNLOCKED session does not need the
+ * old seal to die blind: the old attestation key is still installed, so
+ * the ledger can be VERIFIED one last time under it and then re-anchored
+ * under the new key in the same critical section — no blind window, no
+ * lockout. The verdict applies the reseat law verbatim, mode-aware:
+ *   - no witness: consult the vault copy before blessing anything (the
+ *     Z7 tombstone-escape guard — a same-length disagreement vetoes).
+ *   - keyed witness: it must be attestable under the CURRENT (old) key —
+ *     the fingerprint must match, or the verdict is frozen (the witness
+ *     can neither bless nor accuse a recomputation it cannot run).
+ *   - either mode: the records must reproduce the sealed head exactly.
+ *     A mismatch is the freeze rule, untouched: the witness stays at the
+ *     last verified state as evidence (it will read witness-opaque under
+ *     the new key; the next save's existing rotation path handles it), a
+ *     re-anchor here would bless tampered content.
+ *
+ * Runs INSIDE the caller's ledger-lock section while the old key lives;
+ * it never mutates witness state.
+ */
+export async function witnessRotationVerdict(
+	records: BmiRecord[]
+): Promise<{ kind: 'reanchor'; mode: 'keyed' | 'plain' } | { kind: 'frozen'; reason: string }> {
+	const sealed = await getSealedLedgerChain();
+	if (sealed === null) {
+		// Unanchored: the vault copy speaks before anything is blessed (the
+		// Z7 law a rotation must not escape either).
+		const vault = await readVaultWitness();
+		if (vault && vault.length === records.length) {
+			const verdict = await recordsAgainstChain(records, vault);
+			if (verdict === false) {
+				return {
+					kind: 'frozen',
+					reason:
+						'the vault anchor disagrees at the same length — re-anchoring would bless a changed ledger'
+				};
+			}
+		}
+		return { kind: 'reanchor', mode: 'plain' };
+	}
+	if (sealed.mode === 'keyed') {
+		const kf = getWitnessKeyFingerprint();
+		if (!getWitnessMac() || kf !== sealed.kf) {
+			return { kind: 'frozen', reason: 'the old witness is not attestable in this session' };
+		}
+	}
+	const computed = await computeWitnessChain(records, sealed.mode === 'keyed' ? 'keyed' : 'plain');
+	if (computed.head === sealed.head && computed.length === sealed.length) {
+		return { kind: 'reanchor', mode: sealed.mode === 'keyed' ? 'keyed' : 'plain' };
+	}
+	return {
+		kind: 'frozen',
+		reason: 'the ledger changed outside a legit write — the witness stays frozen as evidence'
+	};
+}
+
+/**
  * The post-write witness update for a legit save: the transition is
  * blessed only when the pre-save state matches the sealed witness. On a
  * mismatch the witness stays frozen at the last verified state (the
