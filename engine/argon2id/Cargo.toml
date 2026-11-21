@@ -1,5 +1,6 @@
-# Copyright (C) 2026 rezky_nightky
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+# SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+
 [package]
 name = "bmi-stellar-argon2id"
 version = "1.0.0"
@@ -8,7 +9,11 @@ edition = "2021"
 # version-sync gate, scripts/gates/check-rust-version-sync.sh, ties all
 # three surfaces together: channel, MSRV, and the maintenance workflow).
 rust-version = "1.100.0"
-license = "AGPL-3.0-only"
+# The commercial seat rides the ISO SPDX LicenseRef- form: bare
+# "Commercial" is not a valid SPDX term and this field is machine-
+# validated as an SPDX expression (cargo-deny, the registry). The file
+# headers keep the human-readable "OR Commercial" spelling.
+license = "AGPL-3.0-only OR LicenseRef-Commercial"
 description = "The bmi-stellar Argon2id key-derivation engine compiled to WebAssembly"
 publish = false
 

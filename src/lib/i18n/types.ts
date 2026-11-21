@@ -1,5 +1,6 @@
-// Copyright (C) 2026 rezky_nightky
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+// SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+
 /**
  * i18n type definitions for BMI Stellar
  * Supports 4 locales: en (English), id (Indonesian), zh (Chinese), ja (Japanese)

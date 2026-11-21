@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+# SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+
 # Download and verify the pinned chrome-headless-shell build for the
 # runtime proof harness.
 #

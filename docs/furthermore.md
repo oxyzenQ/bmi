@@ -1,3 +1,8 @@
+<!--
+  SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+  SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+-->
+
 # BMI Stellar — Architectural Deep Dive
 
 This document is the canonical technical reference for BMI Stellar. It covers architecture decisions, internal systems, and design constraints at a depth intended for contributors, security auditors, and maintainers who need to understand _why_ the code works the way it does — not just _what_ it does.

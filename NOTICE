@@ -1,0 +1,27 @@
+bmi-stellar
+Copyright (C) 2025-2026 rezky_nightky (oxyzenQ)
+
+This software is dual-licensed: AGPL-3.0-only OR Commercial.
+See the LICENSE file in the repository root for the full text.
+A Commercial License is available for proprietary/commercial use —
+see COMMERCIAL_LICENSE.md for tiers and payment.
+
+The "BMI Stellar" name, logo, and associated branding assets are trademarks
+of rezky_nightky (oxyzenQ) and are NOT covered by the AGPL. The BMI Stellar
+logo was created under the direct, original creative direction of the owner.
+See TRADEMARK.md for usage terms.
+
+Forking policy (summary — see TRADEMARK.md and README.md for full text):
+- Contribution forks (PRs back to upstream): allowed without permission.
+  Keep the BMI Stellar name/branding unchanged.
+- Non-contribution forks (rebrand, relaunch, derivative product): require
+  owner discussion first. Must use a different name + different branding.
+
+BMI Stellar is a privacy-first local companion: every health record is
+computed and stored on the user's device, backups are encrypted with
+AES-256-GCM + Argon2id, and no analytics touch the data path. The
+release lanes — the Vercel deployment, the PWA offline shell, and the
+repository source — ship the same source of truth (see verify.sh and
+scripts/build.sh).
+
+Repository: https://github.com/oxyzenQ/bmi

@@ -1,5 +1,6 @@
-// Copyright (C) 2026 rezky_nightky
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+// SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+
 /**
  * check-signature.ts - the provenance depth-matrix gate
  * (night-signature-1; silent upgrade in night-signature-advanced-2,

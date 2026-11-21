@@ -1,5 +1,5 @@
-// Copyright (C) 2026 rezky_nightky
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+// SPDX-License-Identifier: AGPL-3.0-only OR Commercial
 /**
  * Japanese (ja) \u65e5\u672c\u8a9e\u7ffb\u8a33
  */

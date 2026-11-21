@@ -1,3 +1,8 @@
+<!--
+  SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+  SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+-->
+
 # Responsive Depth Audit — 375 x 667 Floor (iPhone SE)
 
 Date: 2026-11-04 (night-style-2). Tooling: Playwright-driven headless

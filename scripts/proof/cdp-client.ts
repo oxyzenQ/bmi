@@ -1,5 +1,6 @@
-// Copyright (C) 2026 rezky_nightky
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+// SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+
 /**
  * Zero-dependency Chrome DevTools Protocol client for the runtime proof
  * harness. Bun's native WebSocket speaks CDP directly, so the proof lane

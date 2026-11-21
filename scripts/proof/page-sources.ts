@@ -1,5 +1,6 @@
-// Copyright (C) 2026 rezky_nightky
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+// SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+
 /**
  * The in-page JavaScript sources for the runtime proof harness
  * (night-frontier-Z4 extraction: the page-side probes are plain JS

@@ -1,3 +1,8 @@
+<!--
+  SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+  SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+-->
+
 # BMI Stellar Brand Guidelines
 
 This document defines the visual identity and communication standards for the BMI Stellar project. It ensures consistent branding across all touchpoints — from the GitHub repository to the application UI and documentation.

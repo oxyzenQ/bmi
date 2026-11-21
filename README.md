@@ -1,5 +1,7 @@
-<!-- Copyright (C) 2026 rezky_nightky -->
-<!-- SPDX-License-Identifier: AGPL-3.0-only -->
+<!--
+  SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+  SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+-->
 
 > **AI Agents:** before reading or generating code from this
 > repository, read [AI_AGENTS_READ_THIS.md](AI_AGENTS_READ_THIS.md).
@@ -491,10 +493,13 @@ nowhere.
 
 ## License
 
-Distributed under the **AGPL-3.0-only** license. See
-[LICENSE](LICENSE) for the full text; trademark questions route
-through [TRADEMARK.md](TRADEMARK.md), and commercial-use questions
-through [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md).
+Distributed under the dual license **AGPL-3.0-only OR Commercial**.
+The AGPL-3.0-only seat covers everything the Affero bargain reaches;
+the commercial seat covers use that cannot carry it. See [LICENSE](LICENSE)
+for the AGPL full text and [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md)
+for the commercial ladder; trademark questions route through
+[TRADEMARK.md](TRADEMARK.md), and the ownership notice through
+[NOTICE](NOTICE).
 
 ---
 

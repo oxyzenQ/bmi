@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-# Copyright (C) 2026 rezky_nightky
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+# SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+
 """Provenance word generator for the depth-matrix signature (night-signature-advanced-2).
 
 Why this exists: the ownership claim must NOT exist as plaintext in the

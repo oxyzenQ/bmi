@@ -1,5 +1,6 @@
-<!-- Copyright (C) 2026 rezky_nightky -->
-<!-- SPDX-License-Identifier: AGPL-3.0-only -->
+<!-- SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ) -->
+<!-- SPDX-License-Identifier: AGPL-3.0-only OR Commercial -->
+
 <!-- GitHub brand mark (octicons mark-github, MIT) — lucide ships no
      brand icons, so the repo link renders its own inline SVG.
      Decorative by default: rows that use it carry their own text. -->

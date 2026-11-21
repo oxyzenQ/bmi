@@ -1,3 +1,8 @@
+<!--
+  SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+  SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+-->
+
 # Contributing to BMI Stellar
 
 Thank you for considering a contribution. This guide covers how to set up, develop, test, and submit changes that preserve BMI Stellar's core promises: correct health math, local-first privacy, smooth mobile interaction, accessible UI, and a polished dark premium identity.

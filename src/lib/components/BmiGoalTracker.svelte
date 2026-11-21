@@ -1,5 +1,6 @@
-<!-- Copyright (C) 2026 rezky_nightky -->
-<!-- SPDX-License-Identifier: AGPL-3.0-only -->
+<!-- SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ) -->
+<!-- SPDX-License-Identifier: AGPL-3.0-only OR Commercial -->
+
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { Target, Plus, Pencil, Trash2, Trophy } from 'lucide-svelte';

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+# SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+
 # Run the runtime proof harness: pin + verify the browser binary, then
 # prove the product's runtime claims against the production build.
 # Usage: scripts/proof/run-proof.sh [report-path]

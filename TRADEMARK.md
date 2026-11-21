@@ -1,3 +1,8 @@
+<!--
+  SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+  SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+-->
+
 # BMI Stellar Trademark Policy
 
 This document governs the use of the **BMI Stellar** name, logo, and associated branding assets. It supplements, but does not replace, the AGPL-3.0-only License that covers the source code.

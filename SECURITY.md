@@ -1,3 +1,8 @@
+<!--
+  SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+  SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+-->
+
 # Security Policy
 
 Security and user privacy are foundational pillars of BMI Stellar. This document defines the scope of our security commitments, how to report vulnerabilities, and the privacy/cryptographic architecture that protects user data.

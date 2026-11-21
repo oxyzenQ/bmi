@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Copyright (C) 2026 rezky_nightky
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+# SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+
 #
 # THE RUST DEPENDENCY SWEEP (night-frontier-Z6, the zelynic Dragon Guard
 # port): one script is the single source of truth for three consumers —

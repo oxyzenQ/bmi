@@ -1,3 +1,8 @@
+<!--
+  SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+  SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+-->
+
 # BMI Stellar Dormant Maintenance Guide
 
 This guide is the wake-up checklist for BMI Stellar after a quiet period of 1-5 years.

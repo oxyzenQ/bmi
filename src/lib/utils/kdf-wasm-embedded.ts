@@ -1,5 +1,6 @@
-// Copyright (C) 2026 rezky_nightky
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+// SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+
 // GENERATED FILE - do not edit by hand.
 // Source of truth: engine/argon2id (Rust crate, wasm32-unknown-unknown + simd128).
 // Rebuild and refresh: bash scripts/ci/wasm-provenance.sh --refresh

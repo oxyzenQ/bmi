@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+# SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+
 # Cosmic Dragon gatekeeper — runs the full BMI Stellar verification gate.
 # Mirrors .github/workflows/ci.yml so what passes locally passes in CI.
 #
