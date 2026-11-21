@@ -15,6 +15,7 @@ rust-version = "1.100.0"
 # headers keep the human-readable "OR Commercial" spelling.
 license = "AGPL-3.0-only OR LicenseRef-Commercial"
 description = "The bmi-stellar Argon2id key-derivation engine compiled to WebAssembly"
+authors = ["rezky_nightky (oxyzenQ) <oxyzenQ@proton.me>"]
 publish = false
 
 [lib]

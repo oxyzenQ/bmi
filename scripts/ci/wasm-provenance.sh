@@ -95,8 +95,9 @@ size_ceiling_check "the fresh artifact" "$SIZE"
 if [ "$MODE" = "refresh" ]; then
 	TMP="${EMBEDDED}.tmp"
 	{
-		echo '// Copyright (C) 2026 rezky_nightky'
-		echo '// SPDX-License-Identifier: AGPL-3.0-only'
+		echo '// SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)'
+		echo '// SPDX-License-Identifier: AGPL-3.0-only OR Commercial'
+		echo ''
 		echo '// GENERATED FILE - do not edit by hand.'
 		echo '// Source of truth: engine/argon2id (Rust crate, wasm32-unknown-unknown + simd128).'
 		echo '// Rebuild and refresh: bash scripts/ci/wasm-provenance.sh --refresh'
