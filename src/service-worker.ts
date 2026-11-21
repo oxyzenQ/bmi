@@ -126,6 +126,32 @@ function offlineFallbackResponse(): Response {
 	);
 }
 
+// The bounded navigation windows (the cold-start law): a launch must
+// never wait on the radio. The cold-start window bounds how long a
+// cache-less navigation tries the network before the offline fallback
+// answers; the refresh window bounds the background revalidation of a
+// cache-served shell. The raced fetch is discarded on timeout - its
+// eventual rejection is swallowed and no cache write can ride a late
+// answer, so a dead radio can never pin the worker or the launch.
+const NAV_COLD_START_TIMEOUT_MS = 3000;
+const NAV_REFRESH_TIMEOUT_MS = 8000;
+
+function raceNavigationFetch(request: Request, timeoutMs: number): Promise<Response | undefined> {
+	let timer: ReturnType<typeof setTimeout> | undefined;
+	const timeout = new Promise<undefined>((resolve) => {
+		timer = setTimeout(() => resolve(undefined), timeoutMs);
+	});
+	const attempt: Promise<Response | undefined> = fetch(request).catch(() => undefined);
+	return Promise.race([attempt, timeout]).finally(() => clearTimeout(timer));
+}
+
+async function refreshNavigationCache(request: Request): Promise<void> {
+	const response = await raceNavigationFetch(request, NAV_REFRESH_TIMEOUT_MS);
+	if (isUsableAppShell(response)) {
+		await cacheNavigationResponse(request, response.clone());
+	}
+}
+
 sw.addEventListener('message', (event) => {
 	const trustedOrigin = sw.location.origin;
 	if (event.origin && event.origin !== trustedOrigin) {
@@ -226,7 +252,16 @@ sw.addEventListener('fetch', (event) => {
 	// Let partial-content/media range requests pass through untouched.
 	if (request.headers.has('range')) return;
 
-	// Navigation requests: network-first for HTML pages to avoid stale content
+	// Navigation requests: cache-first with a bounded background refresh.
+	// History: this branch was network-first, and on a device whose radio
+	// cannot reach the network (no wifi, no data) the unbounded
+	// fetch(request) hung for a minute or more before the catch fell back
+	// to the cache — an installed PWA sat on its black launch screen the
+	// whole time (the Android 12 offline cold-start report). The
+	// digest-verified precache answers first now; the network only re-seats
+	// the shell for the NEXT navigation, inside the bounded windows above,
+	// and freshness stays with the SW version cycle plus the update prompt
+	// (pwa-update.ts) instead of blocking the launch on the radio.
 	if (request.mode === 'navigate') {
 		// Night-frontier-Z10: the bounded window — one precache entry is
 		// re-digested per navigation event, round-robin, with the activate
@@ -242,22 +277,30 @@ sw.addEventListener('fetch', (event) => {
 			})()
 		);
 		event.respondWith(
-			fetch(request)
-				.then((response) => {
-					void cacheNavigationResponse(request, response.clone());
-					return response;
-				})
-				.catch(() => {
-					return (async () => {
-						const cachedResponse = await caches.match(request);
-						if (isUsableAppShell(cachedResponse)) return cachedResponse;
+			(async () => {
+				const cachedResponse = await caches.match(request);
+				if (isUsableAppShell(cachedResponse)) {
+					void refreshNavigationCache(request);
+					return cachedResponse;
+				}
 
-						const appShell = await findCachedAppShell();
-						if (appShell) return appShell;
+				const appShell = await findCachedAppShell();
+				if (appShell) {
+					void refreshNavigationCache(request);
+					return appShell;
+				}
 
-						return offlineFallbackResponse();
-					})();
-				})
+				// Cold cache (cleared storage, first offline run): one bounded
+				// network attempt, then the offline fallback — never an
+				// unbounded wait on the radio.
+				const networkResponse = await raceNavigationFetch(request, NAV_COLD_START_TIMEOUT_MS);
+				if (isUsableAppShell(networkResponse)) {
+					await cacheNavigationResponse(request, networkResponse.clone());
+					return networkResponse;
+				}
+
+				return offlineFallbackResponse();
+			})()
 		);
 		return;
 	}
