@@ -12,25 +12,25 @@
  */
 
 import { render } from '@testing-library/svelte';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import EncryptionProgress from '$lib/components/encryption/EncryptionProgress.svelte';
 import { HELIX } from '$lib/utils/dna-helix';
 
 describe('EncryptionProgress surface', () => {
-	it('claims the helix seat, never the retired progress bar', async () => {
-		render(EncryptionProgress);
+        it('claims the helix seat, never the retired progress bar', async () => {
+                render(EncryptionProgress);
 
-		expect(document.querySelector('.encrypt-progress-wrap')).not.toBeNull();
-		expect(document.querySelector('.bmi-progress')).toBeNull();
+                expect(document.querySelector('.encrypt-progress-wrap')).not.toBeNull();
+                expect(document.querySelector('.bmi-progress')).toBeNull();
 
-		await vi.waitFor(
-			() => {
-				const frame = document.querySelector('.dna-helix__frame')?.textContent ?? '';
-				expect(frame).not.toBe('');
-				expect(HELIX).toContain(frame as never);
-			},
-			{ timeout: 1000, interval: 25 }
-		);
-		expect(document.querySelectorAll('.dna-helix__frame')).toHaveLength(1);
-	});
+                await vi.waitFor(
+                        () => {
+                                const frame = document.querySelector('.dna-helix__frame')?.textContent ?? '';
+                                expect(frame).not.toBe('');
+                                expect(HELIX).toContain(frame as never);
+                        },
+                        { timeout: 1000, interval: 25 }
+                );
+                expect(document.querySelectorAll('.dna-helix__frame')).toHaveLength(1);
+        });
 });
