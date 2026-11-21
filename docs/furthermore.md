@@ -516,3 +516,21 @@ Release tags must adhere to the format: `v<major>.<minor>.<patch>` (for example,
 - **Build Environment:** The project pins Bun `1.3.11` (via `package.json#packageManager`) and Node `24.x` (via `.tool-versions`) for local development. CI and release workflows build on Node 26 (`NODE_VERSION=26`, Vercel runtime `nodejs26.x`); the `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` flag only pins the runtime of the JavaScript-based Actions themselves, not the build. The `engines` field in `package.json` declares `node >=22 <27`.
 - **Security Finality:** Encrypted backups fundamentally cannot be recovered without the user's passphrase. This is by design — there is no backdoor.
 - **Dormant Maintenance:** The project follows a low-touch maintenance cadence (see [`DORMANT.md`](../DORMANT.md)). When waking it up after a quiet period, expect `bun run audit:deps` to flag advisories published against pinned transitive deps in the interim — bump `overrides` in `package.json` (never weaken crypto deps), or add a temporary reason-and-expiry entry to `scripts/audit-allowlist.json` when no fixed release exists within the pinned major, and re-run `./scripts/build.sh check-all`.
+
+<!-- BMI-DISCLAIMER -->
+<!--
+  Documentation Disclaimer — read before relying on any data point.
+
+  This document may contain stale data, hardcoded counts, or outdated
+  file paths and symbol names. Maintainers update source code but may
+  forget to sync every doc — perfect sync across every .md file is a
+  known maintenance burden with diminishing returns.
+
+  Source code (`src/**/*.ts`, `src/**/*.svelte`) is the single source
+  of truth. Always cross-check against the actual source files before
+  relying on any specific number (test count, record bound, key
+  length), file path, function name, or config key.
+
+  If you find a discrepancy, please open a PR — the doc is wrong, not
+  the source.
+-->

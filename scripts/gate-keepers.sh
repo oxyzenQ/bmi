@@ -16,7 +16,12 @@
 # everything around the code. Commit-time enforcement rides
 # .githooks/pre-commit -> scripts/gates/check-commit-gate.sh.
 #
-# Usage: scripts/gate-keepers.sh
+# Usage: scripts/gate-keepers.sh [--fix-all]
+#
+#   --fix-all  the auto-heal lane: gates that can normalize the tree
+#              (the documentation disclaimer injector) run their
+#              normalizing mode instead of their verifying mode. The
+#              plain run is a verifier - it never mutates a byte.
 
 set -uo pipefail
 
@@ -25,6 +30,18 @@ FAIL=0
 SKIP=0
 FAILED_SECTIONS=()
 SKIPPED_SECTIONS=()
+
+# --fix-all: the auto-heal lane (see the usage block above).
+FIX_ALL=false
+for arg in "$@"; do
+        case "$arg" in
+        --fix-all) FIX_ALL=true ;;
+        *)
+                echo "usage: scripts/gate-keepers.sh [--fix-all]" >&2
+                exit 2
+                ;;
+        esac
+done
 
 header() { echo ""; echo "=== $1 ==="; }
 pass() { PASS=$((PASS + 1)); echo "[OK]   $1"; }
@@ -248,6 +265,30 @@ if bash scripts/gates/check-rust-version-sync.sh 2>&1; then
         pass "the engine toolchain version agrees across all three surfaces"
 else
         fail "rust version sync" "rust-toolchain.toml, Cargo.toml rust-version, and the maintenance workflow disagree above - bump all three in the same change"
+fi
+
+# ── [14] documentation disclaimer ──────────────────────────────────────
+
+header "[14] Documentation Disclaimer (inject-disclaimer.sh)"
+# The bottom-block law (night-dragon-2S, the zejtron port): every
+# living .md carries the stale-data disclaimer as its final block -
+# PLACEMENT is the verdict, marker presence never was. A misplaced
+# block is relocated, the BMI-STELLAR legacy marker migrates to the
+# house marker, and CHANGELOG.md / docs/archive/ stay frozen.
+# --fix-all normalizes; the plain run verifies and points at the
+# one-command fix.
+if [ "${FIX_ALL}" = true ]; then
+        if bash scripts/gates/inject-disclaimer.sh; then
+                pass "documentation disclaimer (normalized)"
+        else
+                fail "documentation disclaimer (auto-fix failed)" "bash scripts/gates/inject-disclaimer.sh failed"
+        fi
+else
+        if bash scripts/gates/inject-disclaimer.sh --check; then
+                pass "every living .md carries the bottom disclaimer block"
+        else
+                fail "documentation disclaimer" "a living .md is missing or carries a misplaced block (run: bash scripts/gates/inject-disclaimer.sh)"
+        fi
 fi
 
 # ── summary ─────────────────────────────────────────────────────────────────

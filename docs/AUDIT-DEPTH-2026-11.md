@@ -79,3 +79,21 @@
 2. The seal-failure degraded-encryption indicator (surface the honest fallback to the user).
 3. The SvelteKit 3.0/3.1 major upgrade — the only real fix for the four allowlisted SvelteKit advisories (all others expire 2027-05-01 with re-review forced by the policy gate).
 4. Watch the new Sunday schedule's first firing (2026-11-22): maintenance 03:00 UTC, security-audit 03:30 UTC, plus the probe/self-heal cohort — the first scheduled data point of the recreated repository.
+
+<!-- BMI-DISCLAIMER -->
+<!--
+  Documentation Disclaimer — read before relying on any data point.
+
+  This document may contain stale data, hardcoded counts, or outdated
+  file paths and symbol names. Maintainers update source code but may
+  forget to sync every doc — perfect sync across every .md file is a
+  known maintenance burden with diminishing returns.
+
+  Source code (`src/**/*.ts`, `src/**/*.svelte`) is the single source
+  of truth. Always cross-check against the actual source files before
+  relying on any specific number (test count, record bound, key
+  length), file path, function name, or config key.
+
+  If you find a discrepancy, please open a PR — the doc is wrong, not
+  the source.
+-->

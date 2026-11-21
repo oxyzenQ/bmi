@@ -97,3 +97,21 @@ For trademark inquiries, permission requests, or clarifications, please open an 
 ---
 
 _This policy may be updated at any time. The most current version is always available in the repository root._
+
+<!-- BMI-DISCLAIMER -->
+<!--
+  Documentation Disclaimer — read before relying on any data point.
+
+  This document may contain stale data, hardcoded counts, or outdated
+  file paths and symbol names. Maintainers update source code but may
+  forget to sync every doc — perfect sync across every .md file is a
+  known maintenance burden with diminishing returns.
+
+  Source code (`src/**/*.ts`, `src/**/*.svelte`) is the single source
+  of truth. Always cross-check against the actual source files before
+  relying on any specific number (test count, record bound, key
+  length), file path, function name, or config key.
+
+  If you find a discrepancy, please open a PR — the doc is wrong, not
+  the source.
+-->
