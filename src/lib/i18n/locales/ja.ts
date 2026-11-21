@@ -1,9 +1,5 @@
 // SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
 // SPDX-License-Identifier: AGPL-3.0-only OR Commercial
-/**
- * Japanese (ja) \u65e5\u672c\u8a9e\u7ffb\u8a33
- */
-
 import type { TranslationDict } from '../types';
 
 const ja: TranslationDict = {
@@ -580,6 +576,7 @@ const ja: TranslationDict = {
 	'about.status': '\u30b9\u30c6\u30fc\u30bf\u30b9',
 	'about.license': '\u30e9\u30a4\u30bb\u30f3\u30b9',
 	'about.signature': '\u7f72\u540d',
+	'about.contact': '\u9023\u7d61\u5148',
 
 	'about.limit_title':
 		'BMI \u3067\u308f\u304b\u308b\u3053\u3068\u3001\u308f\u304b\u3089\u306a\u3044\u3053\u3068',

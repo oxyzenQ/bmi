@@ -6,7 +6,6 @@
 		"src/lib/components/BmiHistorySparkline.svelte": 768,
 		"src/lib/components/DebugPanel.svelte": 926,
 		"src/lib/i18n/locales/ja.ts": 640,
-		"src/lib/i18n/locales/zh.ts": 601,
 		"scripts/proof/run-proof.ts": 985,
 		"src/lib/utils/__tests__/history-io.test.ts": 700,
 		"src/lib/utils/history-io.ts": 751,

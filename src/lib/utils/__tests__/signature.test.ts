@@ -8,7 +8,7 @@ import {
 	AUTHORS_SEED,
 	BMI_STELLAR_SIGNATURE,
 	BMI_STELLAR_SIGNATURE_BUILDER,
-	BMI_STELLAR_SIGNATURE_YEAR,
+	BMI_STELLAR_SIGNATURE_CONTACT,
 	MANIFEST_BYTE_LEN,
 	MANIFEST_FINGERPRINT,
 	MANIFEST_SEED,
@@ -28,7 +28,7 @@ import pkg from '../../../../package.json';
 // that cannot name its expected output proves nothing. Test files are
 // never bundled into the app artifact (cosmostrix law).
 const MANIFEST_ORACLE = 'BMI Stellar — Official Build by rezky_nightky (oxyzenQ) 2026';
-const AUTHORS_ORACLE = 'rezky_nightky (oxyzenQ) 2026';
+const AUTHORS_ORACLE = 'rezky_nightky (oxyzenQ) <oxyzenQ@proton.me>';
 
 describe('the provenance depth matrix (night-signature-advanced-2)', () => {
 	it('layers materialize to the oracles', () => {
@@ -101,13 +101,14 @@ describe('the provenance depth matrix (night-signature-advanced-2)', () => {
 	it('keeps the public signature contract derived from the materialized authors', () => {
 		expect(BMI_STELLAR_SIGNATURE).toBe(AUTHORS_ORACLE);
 		expect(BMI_STELLAR_SIGNATURE_BUILDER).toBe('rezky_nightky (oxyzenQ)');
-		expect(BMI_STELLAR_SIGNATURE_YEAR).toBe('2026');
-		// The plain package author field doubles as an independent oracle.
-		expect(pkg.author).toBe(BMI_STELLAR_SIGNATURE_BUILDER);
+		expect(BMI_STELLAR_SIGNATURE_CONTACT).toBe('oxyzenQ@proton.me');
+		// The plain package author field doubles as an independent oracle:
+		// the Cargo authors shape (identity + contact) rides the manifest.
+		expect(pkg.author).toBe(BMI_STELLAR_SIGNATURE);
 	});
 
 	it('keeps the package signature field in masked parity', () => {
 		expect((pkg as { signature?: string }).signature).toBe(MASKED_AUTHORS_FIELD);
-		expect(MASKED_AUTHORS_FIELD).toMatch(/^[0-9a-f]{64}$/);
+		expect(MASKED_AUTHORS_FIELD).toMatch(/^[0-9a-f]{96}$/);
 	});
 });

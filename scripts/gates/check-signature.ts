@@ -48,7 +48,7 @@ import {
 const EXPECTED_MANIFEST_FINGERPRINT =
 	'c1c1d1adda9e7bb0666b78a7fc8907e00ec8d147483b222b463bee21320d26b3';
 const EXPECTED_AUTHORS_FINGERPRINT =
-	'f3638a55514d4d73517c375841337a8199b80c9a41bd457ee0466c0a86da4d48';
+	'118a2237bace37140d951feb29342d86ccb83ef28e9d58e0ec259dcf08171516';
 
 function fail(message: string): never {
 	console.error(`[FAIL] ${message}`);

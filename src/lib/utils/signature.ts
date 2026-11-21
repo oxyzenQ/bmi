@@ -42,9 +42,11 @@
  * # Identity binding between the layers
  *
  * The manifest carries "Official Build by <identity> <year>"; the
- * authors string starts with the same identity core. Patching one
- * layer alone breaks the binding; the Depth-matrix line flips to
- * status=tampered.
+ * authors string starts with the same identity core. Since
+ * night-remake-1 the authors claim extends the core with the proton
+ * contact (the Cargo authors shape), so the prefix binding holds with
+ * the contact riding after it. Patching one layer alone breaks the
+ * binding; the Depth-matrix line flips to status=tampered.
  *
  * # Threat model (honest limits)
  *
@@ -56,10 +58,10 @@
  * that rewrites the visible branding still ships constants it does
  * not recognize - their build keeps materializing the original owner.
  * A determined attacker who fully understands this module can
- * regenerate everything; the legal layer (AGPL-3.0-only,
- * TRADEMARK.md) is the backstop. The legitimate plaintext carriers
- * are the generator (truth source), the test oracles (never bundled),
- * and TRADEMARK.md.
+ * regenerate everything; the legal layer (the AGPL-3.0-only OR
+ * Commercial dual license, TRADEMARK.md) is the backstop. The
+ * legitimate plaintext carriers are the generator (truth source), the
+ * test oracles (never bundled), and TRADEMARK.md.
  */
 
 import { blake3 } from '@noble/hashes/blake3.js';
@@ -86,18 +88,20 @@ export const MANIFEST_FINGERPRINT =
 	'c1c1d1adda9e7bb0666b78a7fc8907e00ec8d147483b222b463bee21320d26b3'; // D2, BLAKE3-256
 
 export const AUTHORS_SEED = 0x1f4e6b8ac27d53a1n;
-export const AUTHORS_BYTE_LEN = 28;
+export const AUTHORS_BYTE_LEN = 43;
 export const MASKED_AUTHORS_WORDS = [
 	0xfa61d696dee608a9n,
 	0x3a18ca644cbd1f74n,
 	0x696ad9b99fe49f3cn,
-	0x68a2f1e849f0ad99n
+	0x39cc949206baf297n,
+	0x25dfaa10c82495b1n,
+	0x9a906dd1ae9bddd0n
 ] as const; // D1, masked
 export const AUTHORS_FINGERPRINT =
-	'f3638a55514d4d73517c375841337a8199b80c9a41bd457ee0466c0a86da4d48'; // D2, BLAKE3-256
+	'118a2237bace37140d951feb29342d86ccb83ef28e9d58e0ec259dcf08171516'; // D2, BLAKE3-256
 
 export const MASKED_AUTHORS_FIELD =
-	'fa61d696dee608a93a18ca644cbd1f74696ad9b99fe49f3c68a2f1e849f0ad99'; // machine-readable D1 field
+	'fa61d696dee608a93a18ca644cbd1f74696ad9b99fe49f3c39cc949206baf29725dfaa10c82495b19a906dd1ae9bddd0'; // machine-readable D1 field
 
 // --- Mask machinery (shared by the generator's mirror contract) ------
 
@@ -235,15 +239,41 @@ export function provenanceView(): ProvenanceView {
 	return { manifest, authors, depthLine, status };
 }
 
+// --- Masterclass -V/--version surface constants (night-ux-orion-2) ----
+
+/**
+ * The copyright year range of the owner's claim, ONE place to update:
+ * the trailing year moves when a release lands in a new calendar year
+ * (2025-2027 for a 2027 release) and freezes the day the claim changes
+ * hands - the range never loses its first year. Not identity material:
+ * a date range rides plaintext the same way the SPDX headers do.
+ */
+export const COPYRIGHT_YEAR = '2025-2026';
+
+/** The dual-license disclosure, byte-aligned with the SPDX headers. */
+export const LICENSE_LINE = 'AGPL-3.0-only OR Commercial';
+
+/** The canonical source surface, byte-aligned with the -V masterclass form. */
+export const SOURCE_LINE = 'https://github.com/oxyzenQ/bmi';
+
 // --- Public contract (kept stable across the signature generations) ---
 
 const materialized = provenanceView();
 
+/** The full authors claim as the masked layer materializes it: identity, then the proton contact in the Cargo authors shape (night-remake-1). */
 export const BMI_STELLAR_SIGNATURE: string = materialized.authors;
-export const BMI_STELLAR_SIGNATURE_BUILDER: string = materialized.authors.slice(
-	0,
-	materialized.authors.lastIndexOf(' ')
-);
-export const BMI_STELLAR_SIGNATURE_YEAR: string = materialized.authors.slice(
-	materialized.authors.lastIndexOf(' ') + 1
-);
+
+/**
+ * The identity core the manifest binds to (everything after the
+ * marker, year stripped) - the Copyright-line holder without the
+ * contact suffix. Derived through the binding contract instead of
+ * string splitting, so a shape break surfaces as the raw authors
+ * string instead of a silently wrong claim.
+ */
+export const BMI_STELLAR_SIGNATURE_BUILDER: string =
+	identityCore(materialized.manifest) ?? materialized.authors;
+
+/** The proton contact riding the angle-bracket suffix of the authors claim (night-remake-1). */
+export const BMI_STELLAR_SIGNATURE_CONTACT: string = materialized.authors.includes(' <')
+	? materialized.authors.slice(materialized.authors.lastIndexOf(' <') + 2, -1)
+	: '';

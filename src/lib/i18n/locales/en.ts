@@ -513,6 +513,7 @@ const en: TranslationDict = {
 	'about.status': 'Status',
 	'about.license': 'License',
 	'about.signature': 'Signature',
+	'about.contact': 'Contact',
 
 	'about.limit_title': 'What BMI Can and Cannot Tell You',
 	'about.limit_p1':

@@ -1,9 +1,5 @@
 // SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
 // SPDX-License-Identifier: AGPL-3.0-only OR Commercial
-/**
- * Chinese (zh) \u4e2d\u6587 \u7ffb\u8bd1
- */
-
 import type { TranslationDict } from '../types';
 
 const zh: TranslationDict = {
@@ -544,6 +540,7 @@ const zh: TranslationDict = {
 	'about.status': '\u72b6\u6001',
 	'about.license': '\u8bb8\u53ef\u8bc1',
 	'about.signature': '\u7b7e\u540d',
+	'about.contact': '\u8054\u7cfb\u65b9\u5f0f',
 
 	'about.limit_title': 'BMI \u80fd\u8bf4\u660e\u548c\u4e0d\u80fd\u8bf4\u660e\u7684',
 	'about.limit_p1':

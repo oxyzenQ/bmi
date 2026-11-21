@@ -44,8 +44,17 @@ from pathlib import Path
 
 # The provenance truths. Byte-level truth: UTF-8 (the em dash is three
 # bytes, E2 80 94, and every layer below operates on bytes, not chars).
+#
+# night-remake-1 (the contact rekey, byte-aligned with the zejtron
+# estate): the authors claim drops the trailing year and carries the
+# proton contact in the Cargo authors shape - identity, then the
+# address in angle brackets. The manifest keeps its year suffix: the
+# D0 display strips it through the identity-core contract, and the
+# binding (authors starts with the core) holds with the contact riding
+# after it. The sig surfaces render the identity and the contact as
+# separate facts; nothing else moves.
 MANIFEST = "BMI Stellar — Official Build by rezky_nightky (oxyzenQ) 2026"
-AUTHORS = "rezky_nightky (oxyzenQ) 2026"
+AUTHORS = "rezky_nightky (oxyzenQ) <oxyzenQ@proton.me>"
 
 # Per-layer seeds. Decoys with no external meaning; rotating them is a
 # supported operation (re-run this tool, paste the new block). Both must

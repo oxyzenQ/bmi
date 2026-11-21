@@ -67,12 +67,16 @@ readonly BMI_VERSION
 # -V/--version surface materializes the masked 64-bit words from
 # src/lib/utils/signature.ts through the REAL runtime decoder (bun -
 # one implementation, no shell mirror to drift) and prints the
-# Signature, Depth-matrix, and Copyright lines with a live
-# status=verified/tampered verdict. The same matrix renders in the
-# About Depth-matrix row and is enforced fail-closed by
+# masterclass report (night-ux-orion-2, the zejtron estate shape):
+# Signature, Depth-matrix, Copyright (c) year-range + identity,
+# License, Source, and Contact lines with a live
+# status=verified/tampered verdict. The identity and the contact
+# materialize from the masked layers at render time - the artifact
+# bytes hold no identity at rest. The same matrix renders in the
+# About rows and is enforced fail-closed by
 # scripts/gates/check-signature.ts (BLAKE3-pinned).
 sig_report() {
-  "$BUN_BIN" -e "const { provenanceView } = await import('${ROOT}/src/lib/utils/signature'); const v = provenanceView(); console.log('Signature: ' + v.manifest); console.log(v.depthLine); console.log('Copyright: ' + v.authors);"
+  "$BUN_BIN" -e "const { provenanceView, BMI_STELLAR_SIGNATURE_BUILDER, BMI_STELLAR_SIGNATURE_CONTACT, COPYRIGHT_YEAR, LICENSE_LINE, SOURCE_LINE } = await import('${ROOT}/src/lib/utils/signature'); const v = provenanceView(); console.log('Signature: ' + v.manifest); console.log(v.depthLine); console.log('Copyright (c) ' + COPYRIGHT_YEAR + ' ' + BMI_STELLAR_SIGNATURE_BUILDER); console.log('License: ' + LICENSE_LINE); console.log('Source: ' + SOURCE_LINE); console.log('Contact: ' + BMI_STELLAR_SIGNATURE_CONTACT);"
 }
 
 run_step() {

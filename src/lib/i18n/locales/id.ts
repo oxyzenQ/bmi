@@ -514,6 +514,7 @@ const id: TranslationDict = {
 	'about.status': 'Status',
 	'about.license': 'Lisensi',
 	'about.signature': 'Tanda tangan',
+	'about.contact': 'Kontak',
 
 	'about.limit_title': 'Apa yang Bisa dan Tidak Bisa Dijelaskan BMI',
 	'about.limit_p1':

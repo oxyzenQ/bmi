@@ -14,6 +14,7 @@
 		PackageCheck,
 		PackagePlus,
 		ShieldCheck,
+		Mail,
 		Scale,
 		HardDriveDownload,
 		BicepsFlexed,
@@ -26,7 +27,11 @@
 	import { applyPwaUpdate, checkForPwaUpdate, pwaUpdateState } from '$lib/stores/pwa-update';
 	import { t as _t, localeVersion } from '$lib/i18n';
 	import { getStellarVersionLabel, getAppVersionDisplay } from '$lib/utils/app-version';
-	import { BMI_STELLAR_SIGNATURE, provenanceView } from '$lib/utils/signature';
+	import {
+		BMI_STELLAR_SIGNATURE_BUILDER,
+		BMI_STELLAR_SIGNATURE_CONTACT,
+		provenanceView
+	} from '$lib/utils/signature';
 
 	let { gitCommitId, gitBranch }: { gitCommitId: string; gitBranch: string } = $props();
 	const appVersionTag = `v${getAppVersionDisplay()}`;
@@ -288,11 +293,15 @@
 							</p>
 							<p class="info-row">
 								<Scale class="Scale" />
-								<strong>{t('about.license')}:</strong>AGPL v3
+								<strong>{t('about.license')}:</strong>AGPL-3.0-only OR Commercial
 							</p>
 							<p class="info-row">
 								<Fingerprint class="Fingerprint" />
-								<strong>{t('about.signature')}:</strong>{BMI_STELLAR_SIGNATURE}
+								<strong>{t('about.signature')}:</strong>{BMI_STELLAR_SIGNATURE_BUILDER}
+							</p>
+							<p class="info-row">
+								<Mail class="Mail" />
+								<strong>{t('about.contact')}:</strong>{BMI_STELLAR_SIGNATURE_CONTACT}
 							</p>
 							<p class="info-row depth-row">
 								<Fingerprint class="Fingerprint" />
