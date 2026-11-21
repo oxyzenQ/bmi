@@ -71,7 +71,7 @@ graph TD
 | 13  | `nav.css`                    | Pager navigation, bottom controls, performance-tier GPU containment                                                                                                               |
 | 14  | `pager.css`                  | Pager section layout, scroll-snap container, section transitions, and pager-specific responsive overrides                                                                         |
 | 15  | `lang-switcher.css`          | Floating language switcher panel (portal-aware global styles)                                                                                                                     |
-| 16  | `animation.css`              | Skeleton loading, shooting stars, input focus glow, glass card hover sweeps, progress bars                                                                                        |
+| 16  | `animation.css`              | Skeleton loading, shooting stars, input focus glow, glass card hover sweeps, staging overlay backdrop (the loading face itself is the slot-driven DNA helix in `DnaHelix.svelte`, night-ux-orion-2) |
 | 17  | `responsive-mobile-perf.css` | Touch-device scroll/tap/rendering overrides — disables `backdrop-filter`, simplifies transitions on `(hover: none) and (pointer: coarse)`                                         |
 | 18  | `responsive-content.css`     | Final correction layer for widths, rhythm, radius, and shadow policy                                                                                                              |
 
