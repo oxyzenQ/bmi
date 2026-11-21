@@ -10,6 +10,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Released]
 
+v80.5.0
 v80.3.0
 v80.3.0-night.1
 v80.2.0
@@ -24,6 +25,16 @@ v80.0.1
 v80.0.0
 v80.0.0-night.2
 v80.0.0-night.1
+
+## [80.5.0]
+
+### Added
+
+- **The DNA helix loading face (night-ux-orion-2).** A silent large-data load (the Argon2id encrypt/decrypt behind an export, the staged restore of ten thousand records) is indistinguishable from a hang, so the app gains its one loading face: the reference estate's counter-phase braille strand table, byte for byte (`src/lib/utils/dna-helix.ts`) - two strands running the same ten-frame sweep in opposite directions, the request out and the answer back, written out as literals so the table is the pin. The pure core also carries the lazy slot clock (an operation inside the 100 ms threshold never draws, so fast paths never flash the indicator) and the wrapped frame lookup. The face (`DnaHelix.svelte`) stays thin glue on purpose: one 25 ms poll slice, one dirty text node, the rendered frame a pure function of elapsed time so a late poll repeats a frame instead of skipping one. The functional-indicator law (loading indicators always animate, even under prefers-reduced-motion - iOS enables that setting by default) holds by construction: the face is slot-driven text, not CSS animation, so no reduced-motion rule can freeze it. Zero new dependencies. The batteries pin the table's construction law (ten frames, two cells each, the strands never collide, width stable), the clock's threshold boundaries, the deterministic repeat-never-skip walk, the wrap after the tenth frame, the broken-clock silence, the face against a controlled clock (first frame exactly at the threshold, the leak-free teardown), and both real lanes' surfaces against real timers (a closed overlay mounts nothing, an open one shows only legal frames from the table, one node per seat).
+
+### Changed
+
+- **Every large-data load claims the helix seat (night-ux-orion-2, the one-loading-face law).** The staging overlay drops its static gear icon for the helix face (a frozen-looking frame is the exact hang the lane exists to prevent), the crypto modal's loading lane drops the retired indeterminate progress bar for the same face, and the form's duplicated overlay markup collapses onto the shared `StagingSpinner` component, so all the loading sites narrate through one component with one dirty node. `src/styles/animation.css` sheds the rules the retirement orphans (the `bmi-progress` bar family and the staging gear) and its spin-keyframe comment now names what actually still spins. No public API changed: `StagingSpinner` keeps its `show`/`label` props, and the page, About, and form call sites keep their shape.
 
 ## [80.3.0]
 
@@ -907,11 +918,3 @@ When waking the project after a dormant period, expect `bun audit` to flag advis
 _Link mapping: `[21.x.0]` sections correspond to the historic `Stellar-v21.x` tags; sections from the `v*` tag era onward match `package.json` directly. Commits referenced by short SHA can be inspected via `git show <sha>`._
 
 ## [Unreleased]
-
-### Added
-
-- **The DNA helix loading face (night-ux-orion-2).** A silent large-data load (the Argon2id encrypt/decrypt behind an export, the staged restore of ten thousand records) is indistinguishable from a hang, so the app gains its one loading face: the reference estate's counter-phase braille strand table, byte for byte (`src/lib/utils/dna-helix.ts`) - two strands running the same ten-frame sweep in opposite directions, the request out and the answer back, written out as literals so the table is the pin. The pure core also carries the lazy slot clock (an operation inside the 100 ms threshold never draws, so fast paths never flash the indicator) and the wrapped frame lookup. The face (`DnaHelix.svelte`) stays thin glue on purpose: one 25 ms poll slice, one dirty text node, the rendered frame a pure function of elapsed time so a late poll repeats a frame instead of skipping one. The functional-indicator law (loading indicators always animate, even under prefers-reduced-motion - iOS enables that setting by default) holds by construction: the face is slot-driven text, not CSS animation, so no reduced-motion rule can freeze it. Zero new dependencies. The batteries pin the table's construction law (ten frames, two cells each, the strands never collide, width stable), the clock's threshold boundaries, the deterministic repeat-never-skip walk, the wrap after the tenth frame, the broken-clock silence, the face against a controlled clock (first frame exactly at the threshold, the leak-free teardown), and both real lanes' surfaces against real timers (a closed overlay mounts nothing, an open one shows only legal frames from the table, one node per seat).
-
-### Changed
-
-- **Every large-data load claims the helix seat (night-ux-orion-2, the one-loading-face law).** The staging overlay drops its static gear icon for the helix face (a frozen-looking frame is the exact hang the lane exists to prevent), the crypto modal's loading lane drops the retired indeterminate progress bar for the same face, and the form's duplicated overlay markup collapses onto the shared `StagingSpinner` component, so all the loading sites narrate through one component with one dirty node. `src/styles/animation.css` sheds the rules the retirement orphans (the `bmi-progress` bar family and the staging gear) and its spin-keyframe comment now names what actually still spins. No public API changed: `StagingSpinner` keeps its `show`/`label` props, and the page, About, and form call sites keep their shape.
