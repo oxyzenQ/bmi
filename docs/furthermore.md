@@ -54,26 +54,26 @@ graph TD
     L --> M[responsive-content.css]
 ```
 
-| #   | File                         | Responsibility                                                                                                                                                                    |
-| --- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `tokens.css`                 | Fonts (`@font-face` Inter Variable + JetBrains Mono), colors, spacing, radius, timing, z-index, glassmorphism tokens, deep-void gradients, and all semantic CSS custom properties |
-| 2   | `base.css`                   | Global reset, scrollbar hiding, selection color, typography scale, utility classes                                                                                                |
-| 3   | `icons.css`                  | Lucide icon fluid sizing via `clamp()`, semantic icon colors                                                                                                                      |
-| 4   | `components.css`             | Central glassmorphism containers, button system (6 variants), hero base styles, toast/notify                                                                                      |
-| 5   | `form.css`                   | BMI form layout, input validation, pill indicators, autofill fixes, unit system toggle                                                                                            |
-| 6   | `results.css`                | BMI results card, share/action/download buttons, empty states, category badges                                                                                                    |
-| 7   | `data-cards.css`             | Stat grid, TDEE panel, radial gauge, reference table, goal tracker                                                                                                                |
-| 8   | `layout.css`                 | About section, wallpaper layout, footer, disclaimer                                                                                                                               |
-| 9   | `responsive-base.css`        | Shared responsive contracts, fluid media, container sizing, form width breakpoints, and component-specific focus contracts                                                        |
-| 10  | `responsive-width.css`       | Width breakpoints (768px, ultrawide) and surface sizing                                                                                                                           |
-| 11  | `responsive-height.css`      | Height-based compression rules (640px, 520px)                                                                                                                                     |
-| 12  | `responsive-backdrop.css`    | `@supports` feature detection for `backdrop-filter`, solid fallback backgrounds                                                                                                   |
-| 13  | `nav.css`                    | Pager navigation, bottom controls, performance-tier GPU containment                                                                                                               |
-| 14  | `pager.css`                  | Pager section layout, scroll-snap container, section transitions, and pager-specific responsive overrides                                                                         |
-| 15  | `lang-switcher.css`          | Floating language switcher panel (portal-aware global styles)                                                                                                                     |
+| #   | File                         | Responsibility                                                                                                                                                                                      |
+| --- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `tokens.css`                 | Fonts (`@font-face` Inter Variable + JetBrains Mono), colors, spacing, radius, timing, z-index, glassmorphism tokens, deep-void gradients, and all semantic CSS custom properties                   |
+| 2   | `base.css`                   | Global reset, scrollbar hiding, selection color, typography scale, utility classes                                                                                                                  |
+| 3   | `icons.css`                  | Lucide icon fluid sizing via `clamp()`, semantic icon colors                                                                                                                                        |
+| 4   | `components.css`             | Central glassmorphism containers, button system (6 variants), hero base styles, toast/notify                                                                                                        |
+| 5   | `form.css`                   | BMI form layout, input validation, pill indicators, autofill fixes, unit system toggle                                                                                                              |
+| 6   | `results.css`                | BMI results card, share/action/download buttons, empty states, category badges                                                                                                                      |
+| 7   | `data-cards.css`             | Stat grid, TDEE panel, radial gauge, reference table, goal tracker                                                                                                                                  |
+| 8   | `layout.css`                 | About section, wallpaper layout, footer, disclaimer                                                                                                                                                 |
+| 9   | `responsive-base.css`        | Shared responsive contracts, fluid media, container sizing, form width breakpoints, and component-specific focus contracts                                                                          |
+| 10  | `responsive-width.css`       | Width breakpoints (768px, ultrawide) and surface sizing                                                                                                                                             |
+| 11  | `responsive-height.css`      | Height-based compression rules (640px, 520px)                                                                                                                                                       |
+| 12  | `responsive-backdrop.css`    | `@supports` feature detection for `backdrop-filter`, solid fallback backgrounds                                                                                                                     |
+| 13  | `nav.css`                    | Pager navigation, bottom controls, performance-tier GPU containment                                                                                                                                 |
+| 14  | `pager.css`                  | Pager section layout, scroll-snap container, section transitions, and pager-specific responsive overrides                                                                                           |
+| 15  | `lang-switcher.css`          | Floating language switcher panel (portal-aware global styles)                                                                                                                                       |
 | 16  | `animation.css`              | Skeleton loading, shooting stars, input focus glow, glass card hover sweeps, staging overlay backdrop (the loading face itself is the slot-driven DNA helix in `DnaHelix.svelte`, night-ux-orion-2) |
-| 17  | `responsive-mobile-perf.css` | Touch-device scroll/tap/rendering overrides — disables `backdrop-filter`, simplifies transitions on `(hover: none) and (pointer: coarse)`                                         |
-| 18  | `responsive-content.css`     | Final correction layer for widths, rhythm, radius, and shadow policy                                                                                                              |
+| 17  | `responsive-mobile-perf.css` | Touch-device scroll/tap/rendering overrides — disables `backdrop-filter`, simplifies transitions on `(hover: none) and (pointer: coarse)`                                                           |
+| 18  | `responsive-content.css`     | Final correction layer for widths, rhythm, radius, and shadow policy                                                                                                                                |
 
 ## Accessibility Architecture
 
