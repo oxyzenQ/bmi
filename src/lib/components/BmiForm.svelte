@@ -1,7 +1,6 @@
 <!-- Copyright (C) 2026 rezky_nightky -->
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
 <script lang="ts">
-	import { Settings } from 'lucide-svelte';
 	import { exportBmiHistoryCsv } from '$lib/utils/history-csv';
 	import {
 		exportBmiHistory,
@@ -31,6 +30,7 @@
 	import OptionalMetrics from './form/OptionalMetrics.svelte';
 	import UnitSystemToggle from './form/UnitSystemToggle.svelte';
 	import EncryptionModal from './EncryptionModal.svelte';
+	import StagingSpinner from './StagingSpinner.svelte';
 	import FeedbackModal from './FeedbackModal.svelte';
 	let _rv = $derived($localeVersion);
 	// Reactive t() — reading _rv creates a dependency so template {t('key')} re-runs on locale change
@@ -575,12 +575,7 @@
 <!-- Modals: Portal to body to avoid parent transform issues -->
 {#if stagingLoading}
 	<div use:portal class="modal-portal">
-		<div class="staging-backdrop staging-visible">
-			<div class="staging-spinner-wrap">
-				<Settings class="staging-gear-icon" size={48} />
-				<span class="staging-text">{t('crypto.preparing')}</span>
-			</div>
-		</div>
+		<StagingSpinner show={stagingLoading} label={t('crypto.preparing')} />
 	</div>
 {/if}
 

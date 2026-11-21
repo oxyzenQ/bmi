@@ -401,64 +401,6 @@
 }
 
 /* ==============================
-      PROGRESS BAR
-      Determinate progress indicator for async operations
-      (export, import, encryption). Uses micro-delay tokens.
-      ============================== */
-.bmi-progress {
-	width: 100%;
-	height: 4px;
-	background: var(--w-10);
-	border-radius: 2px;
-	overflow: hidden;
-	margin: var(--space-3) 0;
-}
-
-.bmi-progress__fill {
-	height: 100%;
-	border-radius: 2px;
-	background: linear-gradient(90deg, var(--cosmic-purple), var(--aurora-glow));
-	transition: width var(--dur-normal) var(--easing-smooth);
-	position: relative;
-}
-
-/* Shimmer overlay on the progress fill */
-.bmi-progress__fill::after {
-	content: '';
-	position: absolute;
-	inset: 0;
-	background: linear-gradient(90deg, transparent 0%, var(--w-15) 50%, transparent 100%);
-	animation: progress-shimmer 1.5s ease-in-out infinite;
-}
-
-@keyframes progress-shimmer {
-	0% {
-		transform: translateX(-100%);
-	}
-	100% {
-		transform: translateX(100%);
-	}
-}
-
-/* Indeterminate variant for unknown-duration ops */
-.bmi-progress--indeterminate .bmi-progress__fill {
-	width: 40% !important;
-	animation: progress-indeterminate 1.4s ease-in-out infinite;
-}
-
-@keyframes progress-indeterminate {
-	0% {
-		transform: translateX(-100%);
-	}
-	50% {
-		transform: translateX(200%);
-	}
-	100% {
-		transform: translateX(-100%);
-	}
-}
-
-/* ==============================
       ENCRYPTION BADGE
       Visual trust indicator showing encryption status
       and algorithm details.
@@ -674,22 +616,19 @@
 	gap: 1rem;
 }
 
-.staging-gear-icon {
-	color: var(--w-50);
-	animation: spin var(--dur-spin) linear infinite;
-	filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.3));
-}
-
 .staging-text {
 	color: var(--w-70);
 	font-size: 0.9rem;
 	font-weight: 500;
 }
 
-/* Global spin keyframe — used by staging gear icon and other spinners.
-   Defined here (not scoped) so all components can reference it.
-   Loading indicators are FUNCTIONAL (not decorative), so they must
-   always animate — even when prefers-reduced-motion is enabled. */
+/* Global spin keyframe — used by the button spinner and other CSS
+   spinners. Defined here (not scoped) so all components can reference
+   it. Loading indicators are FUNCTIONAL (not decorative), so they must
+   always animate — even when prefers-reduced-motion is enabled. The
+   DNA helix face (night-ux-orion-2) needs no keyframe at all: it is
+   slot-driven text whose frames come from $lib/utils/dna-helix, so no
+   reduced-motion rule can freeze it. */
 @keyframes spin {
 	to {
 		transform: rotate(360deg);
@@ -699,12 +638,8 @@
 /* Override reduced-motion for functional loading spinners.
    iOS and many mobile browsers enable prefers-reduced-motion by default,
    which would kill all animations including loading indicators.
-   The gear spinner communicates "system is working" — it must move. */
+   The button spinner communicates "system is working" — it must move. */
 @media (prefers-reduced-motion: reduce) {
-	.staging-gear-icon {
-		animation-duration: var(--dur-spin) !important;
-		animation-iteration-count: infinite !important;
-	}
 	.btn-spinner {
 		animation-duration: var(--dur-spin-fast) !important;
 		animation-iteration-count: infinite !important;
