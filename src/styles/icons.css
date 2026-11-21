@@ -51,6 +51,7 @@
 		.GitBranch,
 		.GitCompare,
 		.Github,
+		.Mail,
 		.Scale,
 		.ShieldCheck,
 		.Fingerprint
@@ -82,6 +83,9 @@
 }
 
 .about-card .info-row .Github {
+	color: var(--cosmic-purple) !important;
+}
+.about-card .info-row .Mail {
 	color: var(--cosmic-purple) !important;
 }
 

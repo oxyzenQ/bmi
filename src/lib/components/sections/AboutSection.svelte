@@ -301,7 +301,9 @@
 							</p>
 							<p class="info-row">
 								<Mail class="Mail" />
-								<strong>{t('about.contact')}:</strong>{BMI_STELLAR_SIGNATURE_CONTACT}
+								<strong>{t('about.contact')}:</strong><span class="contact-value"
+									>{BMI_STELLAR_SIGNATURE_CONTACT}</span
+								>
 							</p>
 							<p class="info-row depth-row">
 								<Fingerprint class="Fingerprint" />

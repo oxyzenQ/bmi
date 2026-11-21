@@ -40,6 +40,12 @@
 	color: var(--cosmic-purple);
 }
 
+/* The contact value carries the brand purple like the row icons: the
+   email is the owner's identity seat in the panel, not muted metadata. */
+.app-info .info-row .contact-value {
+	color: var(--cosmic-purple);
+}
+
 .app-info .info-row.repo-row {
 	flex-wrap: wrap;
 	row-gap: 0.15rem;
