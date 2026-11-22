@@ -1,0 +1,100 @@
+# SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+# SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+
+---
+name: Stellar Guard - AXP1-ZnQ Defense Verdict
+
+# AXP1-ZnQ (night-solid-defense-1): the supply-chain defense bot of the
+# Sunday guardian anchor. It chains off the weekly dependency maintenance
+# run (10:00 WIB Sunday): by the time maintenance completes, its
+# validated lockfile refresh is committed, so this verdict audits the
+# tree the owner will actually find in the morning and classifies every
+# dangerous advisory by remediability - updatable (UPDATE-SOON, green
+# with loud warnings) versus not fixable by the automated lane
+# (CALL-OWNER, hard red). A manual dispatch runs the same verdict on
+# demand on any day.
+on:
+  workflow_run:
+    workflows:
+      - 'Stellar Guard - Dependency Maintenance'
+    types:
+      - completed
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  # One verdict per triggering run: the group rides the maintenance run
+  # id (or this run's own id on dispatch) so verdicts never queue behind
+  # each other and none is ever cancelled - a cancelled verdict is an
+  # unanswered one.
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.id || github.run_id }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  NODE_VERSION: 26
+
+jobs:
+  verdict:
+    name: AXP1-ZnQ remediation verdict
+    # Scheduled maintenance runs on the default branch; a verdict for a
+    # branch-scoped maintenance dispatch would audit a tree nobody sleeps
+    # on. Manual dispatches run anywhere on purpose (testing).
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, SHA pin
+        with:
+          # workflow_run.head_branch resolves to the latest default-branch
+          # head at run time, which carries the maintenance commit; the
+          # triggering run's head_sha would point at the PRE-refresh tree.
+          ref: ${{ github.event.workflow_run.head_branch || github.ref }}
+          persist-credentials: false
+          fetch-depth: 1
+          fetch-tags: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0, SHA pin
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Resolve Bun version
+        id: bun-version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./package.json').packageManager?.match(/^bun@(.+)$/)?.[1] || ''")"
+          if [ -z "$version" ]; then
+            echo "package.json packageManager must be bun@<version>" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0, SHA pin
+        with:
+          bun-version: ${{ steps.bun-version.outputs.version }}
+
+      - name: AXP1-ZnQ self-test (frozen clock, no network)
+        # The engine proves its verdict contract on the fixtures before
+        # the network gets a vote: a bot that cannot prove itself has no
+        # business waking the owner.
+        run: bun run audit:axp1-znq --selftest
+
+      - name: AXP1-ZnQ remediation verdict
+        # No bun install on purpose: the engine audits the lockfile and
+        # replays the remediation (bun update --lockfile-only) inside an
+        # isolated scratch tree - neither needs node_modules, verified
+        # empirically on night-solid-defense-1.
+        run: bun run audit:axp1-znq
