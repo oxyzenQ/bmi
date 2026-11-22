@@ -42,6 +42,33 @@ jobs:
           set -euo pipefail
           echo "name=${{ github.event.repository.default_branch }}" >> "$GITHUB_OUTPUT"
 
+      - name: Prove PAT_WORKFLOW is alive and push-capable
+        shell: bash
+        env:
+          PAT_WORKFLOW: ${{ secrets.PAT_WORKFLOW }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${PAT_WORKFLOW:-}" ]]; then
+            echo "::error::PAT_WORKFLOW resolves to an empty string - the secret is missing or renamed. Mint a PAT with contents:write and workflows:write and store it as the repository secret PAT_WORKFLOW."
+            exit 1
+          fi
+          code="$(curl -sS -o /tmp/pat-probe.json -w '%{http_code}' -H "Authorization: Bearer ${PAT_WORKFLOW}" "https://api.github.com/repos/${GITHUB_REPOSITORY}")"
+          echo "PAT_WORKFLOW probe against ${GITHUB_REPOSITORY}: HTTP ${code}"
+          if [[ "${code}" == "401" ]]; then
+            echo "::error::GitHub rejects PAT_WORKFLOW (HTTP 401) - the token expired or was revoked. Mint a fresh PAT (contents:write + workflows:write, this repository selected) and update the repository secret."
+            exit 1
+          fi
+          if [[ "${code}" != "200" ]]; then
+            echo "::error::PAT_WORKFLOW probe returned unexpected HTTP ${code} - check the token, its scopes, and repository selection."
+            exit 1
+          fi
+          push="$(python3 -c "import json; print(json.load(open('/tmp/pat-probe.json')).get('permissions', {}).get('push', False))")"
+          if [[ "${push}" != "True" ]]; then
+            echo "::error::PAT_WORKFLOW authenticates but cannot push to ${GITHUB_REPOSITORY} (permissions.push is false). Grant contents:write and workflows:write and select this repository for the token."
+            exit 1
+          fi
+          echo "PAT_WORKFLOW is alive and push-capable."
+
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, SHA pin
         with:
