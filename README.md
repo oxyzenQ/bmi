@@ -415,7 +415,7 @@ the display documents via `scripts/dev/version-to.sh`, the zelynic
 dev-lane entry (direct `./` execution, `patch|minor|major` bump words,
 `--dry-run`, `--commit`).
 
-Current release: `v80.5.0`.
+Current release: `v80.5.1`.
 
 The npm package is private (`private: true`): BMI Stellar ships as a
 Vercel-deployed web app and nothing is published to the npm registry.

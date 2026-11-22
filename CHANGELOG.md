@@ -10,6 +10,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Released]
 
+v80.5.1
 v80.5.0
 v80.3.0
 v80.3.0-night.1
@@ -25,6 +26,18 @@ v80.0.1
 v80.0.0
 v80.0.0-night.2
 v80.0.0-night.1
+
+## [80.5.1]
+
+### Added
+
+- **The AXP1-ZnQ supply-chain defense verdict engine (night-solid-defense-1).** The raw audit gates answer "is something dangerous in the tree?"; AXP1-ZnQ answers the question the owner actually wakes up for: "can the robot fix it, or is this mine to decide?" `scripts/gates/axp1-znq.ts` replays the exact remediation the maintenance lane runs (a maximal `bun update --lockfile-only` inside an isolated scratch tree), re-audits the refreshed scratch lock against the same advisory DB, and classifies every dangerous advisory by remediability: cleared by the replay = UPDATE-SOON (exit 0 with loud warnings - one compatible refresh away), surviving the replay = CALL-OWNER (exit 1 - no fixed release inside the pinned ranges, an override bump or major upgrade is an owner decision), absent before the replay but present after = CALL-OWNER (the arrayref regression class: the compatible refresh itself pulled a vulnerable release), stale allowlist entry or unknown severity = the same fail-closed law `audit-deps.ts` enforces. Verdicts land in the console, GitHub annotations, and the run summary. The engine proves its contract on fixtures with a frozen clock (`bun run audit:axp1-znq --selftest`, nine scenarios, no network) before the network gets a vote, and the lane (`.github/workflows/axp1-znq.yml`) chains off the weekly maintenance completion plus manual dispatch.
+
+### Changed
+
+- **The server-side actions self-heal lane is retired (the zelynic-aligned final form).** `.github/workflows/self-heal-actions.yml` (Sunday 03:00 UTC + manual dispatch, `PAT_WORKFLOW` push credential) is deleted whole: a standing Workflows-write PAT is exactly the secret the estate refuses to carry, and its expiry turned the Sunday lane into a standing red (run #52 - the preflight PAT probe proved HTTP 401 against the stored token). The one automatic seat moves where the estate already works: the pre-commit gate's `check-actions-pins.sh` advisory verdict re-reads pin freshness on every commit - silent when current (the skip), a named heal command when a pin is behind - and `scripts/ci/actions-version-sweep.sh --apply` performs the heal on demand; the healed pins commit like any other change and the push rides the committer's own credentials. No standing secret, no schedule, no server-side push. Docs synced (README, DORMANT, INNOVATIONS, furthermore, Maintenance Policy).
+
+- **The runtime-probe lane is retired, and with it the last standing push credential.** `.github/workflows/runtime-probe.yml` (Sunday 03:00 UTC + manual dispatch) probed future Node majors and pushed the prepared bump with `PAT_WORKFLOW` - the estate's last consumer of that secret. Deleted whole, it takes the credential dependency with it: every remaining automation rides `GITHUB_TOKEN` or the committer's own credentials, and proactive future-Node-major watching is the accepted price of carrying no standing secret. Runtime-behavior coverage language in the README now points at the runtime proof harness (`scripts/proof/`, sixteen fail-closed claims in a pinned browser).
 
 ## [80.5.0]
 
@@ -919,13 +932,3 @@ When waking the project after a dormant period, expect `bun audit` to flag advis
 _Link mapping: `[21.x.0]` sections correspond to the historic `Stellar-v21.x` tags; sections from the `v*` tag era onward match `package.json` directly. Commits referenced by short SHA can be inspected via `git show <sha>`._
 
 ## [Unreleased]
-
-### Added
-
-- **The AXP1-ZnQ supply-chain defense verdict engine (night-solid-defense-1).** The raw audit gates answer "is something dangerous in the tree?"; AXP1-ZnQ answers the question the owner actually wakes up for: "can the robot fix it, or is this mine to decide?" `scripts/gates/axp1-znq.ts` replays the exact remediation the maintenance lane runs (a maximal `bun update --lockfile-only` inside an isolated scratch tree), re-audits the refreshed scratch lock against the same advisory DB, and classifies every dangerous advisory by remediability: cleared by the replay = UPDATE-SOON (exit 0 with loud warnings - one compatible refresh away), surviving the replay = CALL-OWNER (exit 1 - no fixed release inside the pinned ranges, an override bump or major upgrade is an owner decision), absent before the replay but present after = CALL-OWNER (the arrayref regression class: the compatible refresh itself pulled a vulnerable release), stale allowlist entry or unknown severity = the same fail-closed law `audit-deps.ts` enforces. Verdicts land in the console, GitHub annotations, and the run summary. The engine proves its contract on fixtures with a frozen clock (`bun run audit:axp1-znq --selftest`, nine scenarios, no network) before the network gets a vote, and the lane (`.github/workflows/axp1-znq.yml`) chains off the weekly maintenance completion plus manual dispatch.
-
-### Changed
-
-- **The server-side actions self-heal lane is retired (the zelynic-aligned final form).** `.github/workflows/self-heal-actions.yml` (Sunday 03:00 UTC + manual dispatch, `PAT_WORKFLOW` push credential) is deleted whole: a standing Workflows-write PAT is exactly the secret the estate refuses to carry, and its expiry turned the Sunday lane into a standing red (run #52 - the preflight PAT probe proved HTTP 401 against the stored token). The one automatic seat moves where the estate already works: the pre-commit gate's `check-actions-pins.sh` advisory verdict re-reads pin freshness on every commit - silent when current (the skip), a named heal command when a pin is behind - and `scripts/ci/actions-version-sweep.sh --apply` performs the heal on demand; the healed pins commit like any other change and the push rides the committer's own credentials. No standing secret, no schedule, no server-side push. Docs synced (README, DORMANT, INNOVATIONS, furthermore, Maintenance Policy).
-
-- **The runtime-probe lane is retired, and with it the last standing push credential.** `.github/workflows/runtime-probe.yml` (Sunday 03:00 UTC + manual dispatch) probed future Node majors and pushed the prepared bump with `PAT_WORKFLOW` - the estate's last consumer of that secret. Deleted whole, it takes the credential dependency with it: every remaining automation rides `GITHUB_TOKEN` or the committer's own credentials, and proactive future-Node-major watching is the accepted price of carrying no standing secret. Runtime-behavior coverage language in the README now points at the runtime proof harness (`scripts/proof/`, sixteen fail-closed claims in a pinned browser).
