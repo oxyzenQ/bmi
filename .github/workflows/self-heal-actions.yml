@@ -65,13 +65,13 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -z "${PAT_WORKFLOW:-}" ]]; then
-            echo "::error::PAT_WORKFLOW resolves to an empty string - the secret is missing or renamed. Mint a PAT with contents:write and workflows:write and store it as the repository secret PAT_WORKFLOW."
+            echo "::error::PAT_WORKFLOW is empty - the secret is missing or renamed. Mint a PAT with contents:write and workflows:write and update the repository secret."
             exit 1
           fi
           code="$(curl -sS -o /tmp/pat-probe.json -w '%{http_code}' -H "Authorization: Bearer ${PAT_WORKFLOW}" "https://api.github.com/repos/${GITHUB_REPOSITORY}")"
           echo "PAT_WORKFLOW probe against ${GITHUB_REPOSITORY}: HTTP ${code}"
           if [[ "${code}" == "401" ]]; then
-            echo "::error::GitHub rejects PAT_WORKFLOW (HTTP 401) - the token expired or was revoked. Mint a fresh PAT (contents:write + workflows:write, this repository selected) and update the repository secret."
+            echo "::error::GitHub rejects PAT_WORKFLOW (HTTP 401) - the token expired or was revoked. Mint a fresh PAT with contents:write and workflows:write and update the secret."
             exit 1
           fi
           if [[ "${code}" != "200" ]]; then
@@ -80,7 +80,7 @@ jobs:
           fi
           push="$(python3 -c "import json; print(json.load(open('/tmp/pat-probe.json')).get('permissions', {}).get('push', False))")"
           if [[ "${push}" != "True" ]]; then
-            echo "::error::PAT_WORKFLOW authenticates but cannot push to ${GITHUB_REPOSITORY} (permissions.push is false). Grant contents:write and workflows:write and select this repository for the token."
+            echo "::error::PAT_WORKFLOW authenticates but cannot push (permissions.push is false). Grant contents:write and workflows:write and select this repository for the token."
             exit 1
           fi
           echo "PAT_WORKFLOW is alive and push-capable."
