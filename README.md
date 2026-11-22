@@ -160,6 +160,7 @@ bun run preview   # serve the production build locally
 | `./scripts/build.sh check-all`                   | Wholesale gate: format + 9 audits + type-check + lint + test:ci + build (the full `scripts/build.sh` chain) |
 | `./scripts/proof/run-proof.sh [report]`          | Runtime proof harness: sixteen fail-closed runtime claims against the production build in a pinned browser  |
 | `bun run audit:deps`                             | Policy-gated dependency audit (blocking + allowlist-aware)                                                  |
+| `bun run audit:axp1-znq`                         | AXP1-ZnQ verdict engine: dangerous advisories classified by remediability (UPDATE-SOON vs CALL-OWNER)       |
 | `bun run lint:fix`                               | ESLint auto-fix                                                                                             |
 | `bun run clean`                                  | Remove `.svelte-kit`, `build`, `dist`, `node_modules/.cache`                                                |
 | `bun run bmi-update-version <version>`           | Sync version across all canonical files                                                                     |
@@ -187,7 +188,7 @@ src/
 scripts/                     # build.sh gatekeeper + gates/ audits + dev/ version tools + proof/ runtime proofs (zelynic-aligned tree)
 assets/                      # Brand master plate + BLAKE3 signature digests
 docs/                        # Long-form docs (deep dive + frozen audit records)
-.github/workflows/           # CI, docs-ci, gate-keepers, release, security-audit, maintenance, self-heal, runtime-probe, codeql
+.github/workflows/           # CI, docs-ci, gate-keepers, release, security-audit, maintenance, self-heal, runtime-probe, codeql, axp1-znq
 ```
 
 ## Architecture
@@ -338,6 +339,21 @@ seriously. Found something? **Report it privately** via
 [GitHub Security Advisories](https://github.com/oxyzenQ/bmi/security/advisories/new)
 — the scope, supported versions, and crypto details live in
 [SECURITY.md](SECURITY.md).
+
+### AXP1-ZnQ, the supply-chain defense bot
+
+Every Sunday at 10:00 WIB the weekly dependency maintenance refreshes
+`bun.lock`, and right after it AXP1-ZnQ (`.github/workflows/axp1-znq.yml`)
+audits the refreshed tree and classifies every dangerous advisory by
+remediability, not just severity: an advisory a compatible refresh clears
+is an UPDATE-SOON warning the maintenance lane fixes; an advisory no
+compatible release can fix is a hard CALL-OWNER failure that needs an
+owner decision; a vulnerable release the refresh itself pulled in (the
+arrayref regression class) fails the same way. The engine replays the
+exact remediation in an isolated scratch tree instead of guessing from
+semver ranges, writes the verdict and per-advisory pointers into the run
+summary, and proves its contract on fixtures before the network gets a
+vote: `bun run audit:axp1-znq --selftest`.
 
 ## Documentation
 

@@ -18,6 +18,10 @@
 //   message so the list can never rot into a permanent silence switch.
 // - a severity mismatch between the entry and the live advisory also fails,
 //   forcing a re-review when an advisory is upgraded.
+// - the scheduled AXP1-ZnQ verdict engine (scripts/gates/axp1-znq.ts,
+//   night-solid-defense-1) classifies the same advisories one layer
+//   further, by remediability: cleared by a compatible refresh
+//   (UPDATE-SOON) or unfixable inside the pinned ranges (CALL-OWNER).
 
 import { readFileSync } from 'node:fs';
 
