@@ -11,8 +11,13 @@
 # repository executes with privileges; a SHA pin plus the release-tag
 # comment (`# v4.39.1, SHA pin`) keeps the version readable and the code
 # immutable. The heal engine is scripts/ci/actions-version-sweep.sh
-# (--dry-run to read, --apply to move the pins); this gate reads it
-# on every commit (advisory by default) and the heal runs on demand.
+# (--dry-run to read, --apply to move the pins). This gate is the
+# freshness seat: after the shape pass it runs the sweep's dry-run and
+# re-reads every pin against the live releases - advisory by default
+# (a network fact never blocks a commit; an unreachable or
+# rate-limited API yields no verdict, never a block), a WARNING that
+# names the heal command when pins are behind. Strict mode blocks on
+# it (opt-in).
 #
 # Honesty rules (never flagged): local `./...` refs, `docker://` refs,
 # and full SHAs (comment optional - the SHA itself is the lock).
@@ -89,6 +94,26 @@ if [ "$VIOLATIONS" -gt 0 ]; then
 		exit 1
 	fi
 	echo "WARNING: actions pins are not SHA-pinned (warn mode - heal with the sweep's --apply)."
+	exit 0
+fi
+
+# The freshness seat: the sweep's dry-run verdict against the live
+# releases. A failing or silent sweep reads as no verdict - the skip.
+FRESH=0
+if sweep_out="$(bash scripts/ci/actions-version-sweep.sh --dry-run 2>/dev/null)"; then
+	healed="$(printf '%s\n' "$sweep_out" | sed -n 's/^sweep verdict: \([0-9]*\) healed.*/\1/p')"
+	if [ -n "$healed" ]; then
+		FRESH="$healed"
+	fi
+fi
+if [ "$FRESH" -gt 0 ]; then
+	echo ""
+	echo "WARNING: ${FRESH} pin(s) behind the latest release - heal with:"
+	echo "  bash scripts/ci/actions-version-sweep.sh --apply"
+	if [ "$MODE" = "strict" ]; then
+		echo "FAIL: actions pins are behind their releases (strict mode - the run is blocked)."
+		exit 1
+	fi
 	exit 0
 fi
 
