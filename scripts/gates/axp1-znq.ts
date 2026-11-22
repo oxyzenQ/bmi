@@ -44,15 +44,7 @@
 // asserts the verdict plus exit code - no network. The engine proves
 // itself before the network gets a vote.
 
-import {
-	appendFileSync,
-	cpSync,
-	existsSync,
-	mkdtempSync,
-	readFileSync,
-	readdirSync,
-	rmSync
-} from 'node:fs';
+import { appendFileSync, cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
