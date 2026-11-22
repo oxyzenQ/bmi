@@ -1,0 +1,218 @@
+{
+	"$comment": "AXP1-ZnQ self-test scenarios (night-solid-defense-1). Every verdict class of scripts/gates/axp1-znq.ts replayed against a frozen clock (2026-06-01 UTC) - no network. baselineAdvisories/survivingAdvisories mirror the two bun audit --json sweeps (current tree, refreshed scratch tree); allowlist carries the entries in play. expectedVerdict plus expectedExitCode is the contract the engine must hold.",
+	"scenarios": [
+		{
+			"name": "clean tree - no advisories at all",
+			"baselineAdvisories": [],
+			"survivingAdvisories": [],
+			"allowlist": [],
+			"expectedVerdict": "CLEAN",
+			"expectedExitCode": 0
+		},
+		{
+			"name": "low severity advisory - reported, never blocks",
+			"baselineAdvisories": [
+				{
+					"name": "deepmerge",
+					"severity": "low",
+					"ghsa": "GHSA-selftest-low-01",
+					"title": "Prototype pollution in a dev-time helper",
+					"url": "https://github.com/advisories/GHSA-selftest-low-01",
+					"vulnerableVersions": "<=4.3.1"
+				}
+			],
+			"survivingAdvisories": [
+				{
+					"name": "deepmerge",
+					"severity": "low",
+					"ghsa": "GHSA-selftest-low-01",
+					"title": "Prototype pollution in a dev-time helper",
+					"url": "https://github.com/advisories/GHSA-selftest-low-01",
+					"vulnerableVersions": "<=4.3.1"
+				}
+			],
+			"allowlist": [],
+			"expectedVerdict": "CLEAN",
+			"expectedExitCode": 0
+		},
+		{
+			"name": "updatable - the remediation replay clears the advisory",
+			"baselineAdvisories": [
+				{
+					"name": "tar",
+					"severity": "high",
+					"ghsa": "GHSA-selftest-upd-01",
+					"title": "Path traversal on extraction",
+					"url": "https://github.com/advisories/GHSA-selftest-upd-01",
+					"vulnerableVersions": "<7.5.21"
+				}
+			],
+			"survivingAdvisories": [],
+			"allowlist": [],
+			"expectedVerdict": "UPDATE-SOON",
+			"expectedExitCode": 0
+		},
+		{
+			"name": "persistent - no fixed release inside the pinned ranges",
+			"baselineAdvisories": [
+				{
+					"name": "picomatch",
+					"severity": "high",
+					"ghsa": "GHSA-selftest-pst-01",
+					"title": "ReDoS via hostile extglob pattern",
+					"url": "https://github.com/advisories/GHSA-selftest-pst-01",
+					"vulnerableVersions": "<=4.0.7"
+				}
+			],
+			"survivingAdvisories": [
+				{
+					"name": "picomatch",
+					"severity": "high",
+					"ghsa": "GHSA-selftest-pst-01",
+					"title": "ReDoS via hostile extglob pattern",
+					"url": "https://github.com/advisories/GHSA-selftest-pst-01",
+					"vulnerableVersions": "<=4.0.7"
+				}
+			],
+			"allowlist": [],
+			"expectedVerdict": "CALL-OWNER",
+			"expectedExitCode": 1
+		},
+		{
+			"name": "regression - the compatible refresh itself pulled a vulnerable release",
+			"baselineAdvisories": [],
+			"survivingAdvisories": [
+				{
+					"name": "arrayref-clone",
+					"severity": "critical",
+					"ghsa": "GHSA-selftest-reg-01",
+					"title": "Build-script payload rides a semver-compatible republish",
+					"url": "https://github.com/advisories/GHSA-selftest-reg-01",
+					"vulnerableVersions": "=2.1.1"
+				}
+			],
+			"allowlist": [],
+			"expectedVerdict": "CALL-OWNER",
+			"expectedExitCode": 1
+		},
+		{
+			"name": "accepted - blocking advisory covered by a valid allowlist entry",
+			"baselineAdvisories": [
+				{
+					"name": "glob",
+					"severity": "moderate",
+					"ghsa": "GHSA-selftest-acc-01",
+					"title": "Unchecked glob pattern",
+					"url": "https://github.com/advisories/GHSA-selftest-acc-01",
+					"vulnerableVersions": "<13.1.0"
+				}
+			],
+			"survivingAdvisories": [
+				{
+					"name": "glob",
+					"severity": "moderate",
+					"ghsa": "GHSA-selftest-acc-01",
+					"title": "Unchecked glob pattern",
+					"url": "https://github.com/advisories/GHSA-selftest-acc-01",
+					"vulnerableVersions": "<13.1.0"
+				}
+			],
+			"allowlist": [
+				{
+					"id": "GHSA-selftest-acc-01",
+					"package": "glob",
+					"severity": "moderate",
+					"reason": "No fixed 13.x release exists; build-time file tracing only.",
+					"expires": "2099-01-01"
+				}
+			],
+			"expectedVerdict": "CLEAN",
+			"expectedExitCode": 0
+		},
+		{
+			"name": "escalated - allowlist entry expired, the silence switch rotted",
+			"baselineAdvisories": [
+				{
+					"name": "glob",
+					"severity": "moderate",
+					"ghsa": "GHSA-selftest-exp-01",
+					"title": "Unchecked glob pattern",
+					"url": "https://github.com/advisories/GHSA-selftest-exp-01",
+					"vulnerableVersions": "<13.1.0"
+				}
+			],
+			"survivingAdvisories": [
+				{
+					"name": "glob",
+					"severity": "moderate",
+					"ghsa": "GHSA-selftest-exp-01",
+					"title": "Unchecked glob pattern",
+					"url": "https://github.com/advisories/GHSA-selftest-exp-01",
+					"vulnerableVersions": "<13.1.0"
+				}
+			],
+			"allowlist": [
+				{
+					"id": "GHSA-selftest-exp-01",
+					"package": "glob",
+					"severity": "moderate",
+					"reason": "Deferred far past any honest review window.",
+					"expires": "2020-01-01"
+				}
+			],
+			"expectedVerdict": "CALL-OWNER",
+			"expectedExitCode": 1
+		},
+		{
+			"name": "escalated - allowlist severity mismatch forces a re-review",
+			"baselineAdvisories": [
+				{
+					"name": "minimatch",
+					"severity": "high",
+					"ghsa": "GHSA-selftest-mis-01",
+					"title": "ReDoS in brace expansion",
+					"url": "https://github.com/advisories/GHSA-selftest-mis-01",
+					"vulnerableVersions": "<11.0.1"
+				}
+			],
+			"survivingAdvisories": [
+				{
+					"name": "minimatch",
+					"severity": "high",
+					"ghsa": "GHSA-selftest-mis-01",
+					"title": "ReDoS in brace expansion",
+					"url": "https://github.com/advisories/GHSA-selftest-mis-01",
+					"vulnerableVersions": "<11.0.1"
+				}
+			],
+			"allowlist": [
+				{
+					"id": "GHSA-selftest-mis-01",
+					"package": "minimatch",
+					"severity": "moderate",
+					"reason": "Accepted at moderate but the DB upgraded the advisory.",
+					"expires": "2099-01-01"
+				}
+			],
+			"expectedVerdict": "CALL-OWNER",
+			"expectedExitCode": 1
+		},
+		{
+			"name": "escalated - unknown severity string fails closed",
+			"baselineAdvisories": [
+				{
+					"name": "phantom-pkg",
+					"severity": "apocalyptic",
+					"ghsa": "GHSA-selftest-unk-01",
+					"title": "Advisory with a severity the policy does not know",
+					"url": "https://github.com/advisories/GHSA-selftest-unk-01",
+					"vulnerableVersions": ">=0.0.0"
+				}
+			],
+			"survivingAdvisories": [],
+			"allowlist": [],
+			"expectedVerdict": "CALL-OWNER",
+			"expectedExitCode": 1
+		}
+	]
+}
