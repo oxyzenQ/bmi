@@ -11,8 +11,8 @@
 # repository executes with privileges; a SHA pin plus the release-tag
 # comment (`# v4.39.1, SHA pin`) keeps the version readable and the code
 # immutable. The heal engine is scripts/ci/actions-version-sweep.sh
-# (--dry-run to read, --apply to move the pins), the same one
-# implementation the weekly self-heal workflow drives.
+# (--dry-run to read, --apply to move the pins); this gate reads it
+# on every commit (advisory by default) and the heal runs on demand.
 #
 # Honesty rules (never flagged): local `./...` refs, `docker://` refs,
 # and full SHAs (comment optional - the SHA itself is the lock).

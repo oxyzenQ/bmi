@@ -188,7 +188,7 @@ src/
 scripts/                     # build.sh gatekeeper + gates/ audits + dev/ version tools + proof/ runtime proofs (zelynic-aligned tree)
 assets/                      # Brand master plate + BLAKE3 signature digests
 docs/                        # Long-form docs (deep dive + frozen audit records)
-.github/workflows/           # CI, docs-ci, gate-keepers, release, security-audit, maintenance, self-heal, runtime-probe, codeql, axp1-znq
+.github/workflows/           # CI, docs-ci, gate-keepers, release, security-audit, maintenance, runtime-probe, codeql, axp1-znq
 ```
 
 ## Architecture

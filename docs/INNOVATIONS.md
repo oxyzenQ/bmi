@@ -374,9 +374,13 @@ discipline sync recorded in `docs/AUDIT-INFRA-2026-11.md`.
 
 **21. The Self-Healing Supply Chain.** Every workflow `uses:` pin is
 a 40-hex SHA with a version comment, enforced strict by
-`scripts/gates/check-actions-pins.sh`. `self-heal-actions.yml` heals
-tag pins to SHAs weekly, crossing majors, fetching and rebasing
-between push attempts behind a fail-closed write guard.
+`scripts/gates/check-actions-pins.sh` — the contract's one automatic
+seat: the pre-commit gate re-reads pin freshness on every commit
+(advisory by default, a network fact never blocks a commit) and names
+the heal command when a pin is behind. The server-side weekly lane is
+retired together with its standing Workflows-write PAT; the heal is
+on demand (`scripts/ci/actions-version-sweep.sh --dry-run` to read,
+`--apply` to move), and the healed pins commit like any other change.
 `maintenance.yml` refreshes the lockfile only (`bun update
 --lockfile-only`) and pushes the result through the full quality gate —
 dependency drift can never bypass the gates. `runtime-probe.yml`

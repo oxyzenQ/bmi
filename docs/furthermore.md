@@ -477,18 +477,17 @@ The service worker (`src/service-worker.ts`) is registered as an ES module in pr
 
 GitHub workflows are located in `.github/workflows/`.
 
-| Workflow                | Purpose                                                                                                                                                         |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ci.yml`                | Executes format, audits, type-checking, linting, tests, and the final build — mirrored by `scripts/build.sh check-all`, which adds `audit:supply-chain` locally |
-| `codeql.yml`            | Performs automated GitHub CodeQL security analysis                                                                                                              |
-| `release.yml`           | Publishes GitHub Release with changelog and artifacts                                                                                                           |
-| `maintenance.yml`       | Runs the `Maintenance deps weekly` lockfile refresh and direct commit flow                                                                                      |
-| `self-heal-actions.yml` | Automatically updates minor/patch GitHub Action versions                                                                                                        |
-| `runtime-probe.yml`     | Probes Node/Bun runtime compatibility                                                                                                                           |
-| `runtime-proof.yml`     | Weekly/on-demand runtime proofs: sixteen fail-closed claims (P1–P16, exact values through seal custody) in a pinned browser                                     |
-| `security-audit.yml`    | Weekly scheduled dependency + policy audit (deps, supply-chain, loc, headers, pwa-offline)                                                                      |
-| `docs-ci.yml`           | Lints documentation files (prettier, yamllint, codespell)                                                                                                       |
-| `gate-keepers.yml`      | The wholesale non-code lane: shellcheck, yamllint, actionlint, codespell, permissions, LOC cap, action pins, version surfaces                                   |
+| Workflow             | Purpose                                                                                                                                                         |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ci.yml`             | Executes format, audits, type-checking, linting, tests, and the final build — mirrored by `scripts/build.sh check-all`, which adds `audit:supply-chain` locally |
+| `codeql.yml`         | Performs automated GitHub CodeQL security analysis                                                                                                              |
+| `release.yml`        | Publishes GitHub Release with changelog and artifacts                                                                                                           |
+| `maintenance.yml`    | Runs the `Maintenance deps weekly` lockfile refresh and direct commit flow                                                                                      |
+| `runtime-probe.yml`  | Probes Node/Bun runtime compatibility                                                                                                                           |
+| `runtime-proof.yml`  | Weekly/on-demand runtime proofs: sixteen fail-closed claims (P1–P16, exact values through seal custody) in a pinned browser                                     |
+| `security-audit.yml` | Weekly scheduled dependency + policy audit (deps, supply-chain, loc, headers, pwa-offline)                                                                      |
+| `docs-ci.yml`        | Lints documentation files (prettier, yamllint, codespell)                                                                                                       |
+| `gate-keepers.yml`   | The wholesale non-code lane: shellcheck, yamllint, actionlint, codespell, permissions, LOC cap, action pins, version surfaces                                   |
 
 ## Release Process
 
