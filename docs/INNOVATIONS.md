@@ -383,8 +383,9 @@ on demand (`scripts/ci/actions-version-sweep.sh --dry-run` to read,
 `--apply` to move), and the healed pins commit like any other change.
 `maintenance.yml` refreshes the lockfile only (`bun update
 --lockfile-only`) and pushes the result through the full quality gate —
-dependency drift can never bypass the gates. `runtime-probe.yml`
-probes future Node majors and prepares the bump as a reviewed change.
+dependency drift can never bypass the gates. The runtime-probe lane
+is retired; proactive future-Node-major watching is accepted as the
+price of carrying no standing push credential.
 `audit:deps` is fail-closed against an expiring allowlist: every entry
 carries a reason and an expiry, an expired entry fails the gate, and
 the list cannot rot into a silence switch. The network reads in the
@@ -397,7 +398,7 @@ gate tooling ride a bounded curl retry contract (3 attempts, 5s delay,
 nine workflows. `RULES.md` states the law: a CI lane that cannot
 finish inside ten minutes is a design defect, not a runner problem —
 split the lane, cache the install, or shrink the work. Scheduled
-guardians (CodeQL, maintenance, runtime probe) live under the same
+guardians (CodeQL, maintenance) live under the same
 ceiling.
 
 **23. Release Verification Without Artifacts.** `release.yml`

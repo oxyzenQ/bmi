@@ -41,11 +41,11 @@ This runs the full chain (format:check → the nine audits → check → lint �
 
 ## CI During Dormancy
 
-- Scheduled guardians run weekly on Sunday, WIB-morning anchored: dependency maintenance (Sunday 10:00 WIB — the bun lockfile and, since night-frontier-Z6, the Rust engine lockfile through the sweep's rust jobs), CodeQL (Sunday 10:00 WIB), runtime probe (Sunday 10:00 WIB), the security audit (Sunday 10:30 WIB, 30 minutes after maintenance so it audits the refreshed lockfiles — `bun.lock` and `engine/argon2id/Cargo.lock`), and the runtime proof harness (Sunday 11:00 WIB, sixteen fail-closed runtime claims in a pinned browser).
+- Scheduled guardians run weekly on Sunday, WIB-morning anchored: dependency maintenance (Sunday 10:00 WIB — the bun lockfile and, since night-frontier-Z6, the Rust engine lockfile through the sweep's rust jobs), CodeQL (Sunday 10:00 WIB), the security audit (Sunday 10:30 WIB, 30 minutes after maintenance so it audits the refreshed lockfiles — `bun.lock` and `engine/argon2id/Cargo.lock`), and the runtime proof harness (Sunday 11:00 WIB, sixteen fail-closed runtime claims in a pinned browser).
 - GitHub disables scheduled workflows after 60 days without repository activity and sends one notice. This is expected while dormant; re-enable each workflow from the Actions tab (or `gh workflow enable <name>`) as part of wake-up.
-- The runtime probe pushes with `PAT_WORKFLOW`. If that secret expires while dormant, that lane fails weekly until it is rotated in GitHub settings. The actions self-heal lane is retired: pin freshness re-reads on every commit through the pre-commit advisory gate and the sweep heals on demand, so no standing Workflows-write credential is carried for it.
+- The self-heal and runtime-probe lanes are retired, so the estate carries no standing push credential at all: pin freshness re-reads on every commit through the pre-commit advisory gate, the sweep heals on demand, and every automation commit rides the committer's own credentials.
 - The dependency maintenance workflow commits with `GITHUB_TOKEN`, so its weekly commit does not trigger CI; it validates the refreshed lockfile inside the workflow before committing.
-- Every automation commit must stay format-clean (`prettier --check .` gates CI): the on-demand pin sweep writes single-space pin comments and the runtime probe runs prettier on `.github/workflows/` before committing. Keep new automation writers inside that contract.
+- Every automation commit must stay format-clean (`prettier --check .` gates CI): the on-demand pin sweep writes single-space pin comments, and any future automation writer must run prettier on `.github/workflows/` before committing. Keep new automation writers inside that contract.
 - A failed scheduled run sends notifications on purpose (the guardian contract). Fix the cause; do not disable a lane silently.
 
 ## Data Safety Rules

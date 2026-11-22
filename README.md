@@ -188,7 +188,7 @@ src/
 scripts/                     # build.sh gatekeeper + gates/ audits + dev/ version tools + proof/ runtime proofs (zelynic-aligned tree)
 assets/                      # Brand master plate + BLAKE3 signature digests
 docs/                        # Long-form docs (deep dive + frozen audit records)
-.github/workflows/           # CI, docs-ci, gate-keepers, release, security-audit, maintenance, runtime-probe, codeql, axp1-znq
+.github/workflows/           # CI, docs-ci, gate-keepers, release, security-audit, maintenance, codeql, axp1-znq
 ```
 
 ## Architecture
@@ -389,7 +389,8 @@ every commit via the CI workflow, and locally via the gatekeeper:
 Honest context: the suites are static + jsdom-based; the
 crypto/history-io suites run in the Node environment because jsdom's
 `crypto.subtle` is non-functional. Runtime behavior on real devices is
-covered by the PWA offline-shell audit and the runtime probe workflow,
+covered by the PWA offline-shell audit and the runtime proof harness
+(`scripts/proof/` — sixteen fail-closed claims in a pinned browser),
 not by a device farm.
 
 ## Release Verification
