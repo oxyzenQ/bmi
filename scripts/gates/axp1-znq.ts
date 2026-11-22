@@ -315,6 +315,29 @@ function emitAnnotations(report: VerdictReport): void {
 	}
 }
 
+// A markdown table cell cannot carry raw backslashes, pipes, or line
+// breaks: a pre-existing backslash would turn a later pipe escape into a
+// literal pair (the incomplete-escaping class CodeQL flags), a pipe
+// splits the row, a line break ends it. Written out as a per-character
+// walk so the contract is the code: every special character is handled,
+// nothing is left half-escaped. Advisory titles and allowlist reasons
+// are registry-fed text, never trusted raw.
+function mdCell(value: string): string {
+	let cell = '';
+	for (const ch of value) {
+		if (ch === '\\') {
+			cell += '\\\\';
+		} else if (ch === '|') {
+			cell += '\\|';
+		} else if (ch === '\n' || ch === '\r') {
+			cell += ' ';
+		} else {
+			cell += ch;
+		}
+	}
+	return cell;
+}
+
 function writeStepSummary(report: VerdictReport, now: Date): void {
 	const summaryPath = process.env.GITHUB_STEP_SUMMARY;
 	if (!summaryPath) {
@@ -323,7 +346,7 @@ function writeStepSummary(report: VerdictReport, now: Date): void {
 	const rows = (list: ClassifiedAdvisory[]): string[] =>
 		list.map(
 			(c) =>
-				`| ${c.class} | ${c.advisory.name} | ${c.advisory.severity} | ${c.advisory.ghsa} | ${c.detail.replace(/\|/g, '\\|')} |`
+				`| ${mdCell(c.class)} | ${mdCell(c.advisory.name)} | ${mdCell(c.advisory.severity)} | ${mdCell(c.advisory.ghsa)} | ${mdCell(c.detail)} |`
 		);
 	const lines = [
 		'## AXP1-ZnQ solid-defense verdict',
