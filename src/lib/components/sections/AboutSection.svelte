@@ -42,7 +42,10 @@
 	// info-row strong label carries the name exactly once.
 	const depthBody = provenance.depthLine
 		.replace(/^Depth-matrix: /, '')
-		.replace('layers=d0:masked-words,d1:masked-words,d2:dual-fingerprint', 'layers=d0,d1,d2');
+		.replace(
+			'layers=d0:masked-words,d1:masked-words,d2:dual-fingerprint,d3:ed25519-publisher',
+			'layers=d0,d1,d2,d3'
+		);
 	let updateCheckingOverlay = $state(false);
 	let showInstallHelp = $state(false);
 	let showUpdateCheckNotice = $state(false);

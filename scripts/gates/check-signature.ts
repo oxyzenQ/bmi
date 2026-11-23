@@ -29,15 +29,20 @@ import {
 	AUTHORS_FINGERPRINT,
 	AUTHORS_SEED,
 	BMI_STELLAR_SIGNATURE,
+	D3_DOMAIN,
 	MANIFEST_BYTE_LEN,
 	MANIFEST_FINGERPRINT,
 	MANIFEST_SEED,
 	MASKED_AUTHORS_FIELD,
 	MASKED_AUTHORS_WORDS,
 	MASKED_MANIFEST_WORDS,
+	OWNER_PUBLIC_KEY,
+	OWNER_SIGNATURE,
 	blake3Hex,
+	ed25519Verify,
 	identityCore,
 	provenanceView,
+	signablePayload,
 	unmaskLayer
 } from '../../src/lib/utils/signature';
 
@@ -50,9 +55,27 @@ const EXPECTED_MANIFEST_FINGERPRINT =
 const EXPECTED_AUTHORS_FINGERPRINT =
 	'118a2237bace37140d951feb29342d86ccb83ef28e9d58e0ec259dcf08171516';
 
+// D3 publisher key pin: the one place outside the module that names
+// the owner's Ed25519 identity. A thief who swaps both the module
+// constants and the module's key still stops here - replacing this
+// pin means editing the gate, the loudest possible diff. The Python
+// oracle (generate-provenance-words.py --check) pins the same value
+// from its own side of the mirror.
+const EXPECTED_OWNER_PUBLIC_KEY =
+	'0aee05a0c96e92bd5bea6dff8b084849b098a597cf78820d7b160258d293345a';
+
 function fail(message: string): never {
 	console.error(`[FAIL] ${message}`);
 	process.exit(1);
+}
+
+/** Hex decode, gate-local (no imports from the module beyond its exports). */
+function hexToBytes(hex: string): Uint8Array {
+	const out = new Uint8Array(hex.length / 2);
+	for (let i = 0; i < out.length; i++) {
+		out[i] = Number.parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+	}
+	return out;
 }
 
 // 1. The runtime verdict: materialize + two-fold verify (fingerprints
@@ -94,6 +117,31 @@ if (core === null || !BMI_STELLAR_SIGNATURE.startsWith(core)) {
 	fail('identity binding broken: authors string does not start with the manifest core');
 }
 console.log('[OK]   identity binding holds (authors starts with the manifest core)');
+
+// 5. The D3 publisher layer: the module's key equals the pin, and the
+//    signature verifies over the independently recomputed payload
+//    (unmask both layers straight from the words, frame them with the
+//    domain, check). The gate never trusts the module's own verdict.
+if (OWNER_PUBLIC_KEY !== EXPECTED_OWNER_PUBLIC_KEY) {
+	fail(
+		'OWNER_PUBLIC_KEY drifted from the recorded pin (publisher key rotation without a gate edit)'
+	);
+}
+const payloadBytes = signablePayload(
+	unmaskLayer(MASKED_MANIFEST_WORDS, MANIFEST_SEED, MANIFEST_BYTE_LEN),
+	unmaskLayer(MASKED_AUTHORS_WORDS, AUTHORS_SEED, AUTHORS_BYTE_LEN)
+);
+if (OWNER_SIGNATURE === '') {
+	fail(
+		'OWNER_SIGNATURE is empty - sign the current truths (generate-provenance-words.py --signing-key) and paste the block'
+	);
+}
+if (
+	!ed25519Verify(hexToBytes(EXPECTED_OWNER_PUBLIC_KEY), payloadBytes, hexToBytes(OWNER_SIGNATURE))
+) {
+	fail('the D3 signature does not verify under the pinned key (RFC 8032, recomputed payload)');
+}
+console.log('[OK]   D3 publisher signature verifies under the pinned Ed25519 key');
 
 // 5. Machine field parity: the masked authors words concatenate to the
 //    field recorded in both manifests.
@@ -230,5 +278,5 @@ if (violations.length > 0) {
 	process.exit(1);
 }
 console.log(
-	`OK: provenance depth matrix verified (status=verified, BLAKE3-pinned, strings-invisible) and present at every recorded surface (${surfaces.length}/${surfaces.length}).`
+	`OK: provenance depth matrix verified (status=verified, BLAKE3-pinned, Ed25519-published, strings-invisible) and present at every recorded surface (${surfaces.length}/${surfaces.length}).`
 );

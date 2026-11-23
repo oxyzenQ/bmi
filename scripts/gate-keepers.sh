@@ -258,7 +258,20 @@ else
         skip "signature assets" "b3sum not installed - install the BLAKE3 CLI so this section stops skipping"
 fi
 
-# ── [13] rust version sync ──────────────────────────────────────────────
+# ── [13] provenance generator (python oracle) ────────────────────────────
+
+header "[13] Provenance Generator (generate-provenance-words.py --check)"
+if command -v python3 >/dev/null 2>&1; then
+        if python3 scripts/release/generate-provenance-words.py --check 2>&1; then
+                pass "committed provenance block matches the generator and the D3 signature verifies (RFC 8032 reference)"
+        else
+                fail "provenance generator" "the committed constants or the D3 signature drifted - regenerate and paste the block"
+        fi
+else
+        skip "provenance generator" "python3 not installed - install it so this section stops skipping"
+fi
+
+# ── [14] rust version sync ──────────────────────────────────────────────
 
 header "[13] Rust Version Sync (check-rust-version-sync.sh)"
 if bash scripts/gates/check-rust-version-sync.sh 2>&1; then
@@ -267,7 +280,7 @@ else
         fail "rust version sync" "rust-toolchain.toml, Cargo.toml rust-version, and the maintenance workflow disagree above - bump all three in the same change"
 fi
 
-# ── [14] documentation disclaimer ──────────────────────────────────────
+# ── [15] documentation disclaimer ──────────────────────────────────────
 
 header "[14] Documentation Disclaimer (inject-disclaimer.sh)"
 # The bottom-block law (night-dragon-2S, the zejtron port): every
