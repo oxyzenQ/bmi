@@ -308,18 +308,28 @@ jobs:
           # proves transport integrity, never archive contents). The
           # zip must carry package.json AND the dotfiles the verify
           # suite depends on - the exact F1 gap, now enforced at
-          # packaging time so it can never regress silently. The awk
-          # extracts the archive path column, so the match is exact:
-          # a "src/package.json" subpath can never satisfy the
-          # root-level "package.json" requirement.
+          # packaging time so it can never regress silently. Names are
+          # read in zipinfo mode (-Z1): one entry per line, no columns,
+          # no header rows. The v80.5.2-night.1 release run showed the
+          # runner's unzip/awk combination silently dropping 3 of the
+          # 6 required names out of the $4 column extraction while the
+          # byte-identical command sequence passed locally, so the
+          # gate no longer trusts column positions at all. grep -Fx
+          # makes the match literal: a "src/package.json" subpath can
+          # never satisfy the root-level "package.json" requirement.
           MISSING=0
           for required in package.json .prettierrc .prettierignore .gitignore .npmrc BRANDING.md; do
-            if ! unzip -l "bmi-stellar-source-${TAG}.zip" | awk 'NR > 3 { print $4 }' | grep -qx "$required"; then
+            if ! unzip -Z1 "bmi-stellar-source-${TAG}.zip" | grep -Fx "$required"; then
               echo "FATAL: source zip does not contain ${required}" >&2
               MISSING=1
             fi
           done
           if [ "$MISSING" -ne 0 ]; then
+            # Self-diagnosis: dump what the archive actually lists, so
+            # a recurrence names its own truth instead of a guess.
+            unzip -Z1 "bmi-stellar-source-${TAG}.zip" > /tmp/source-zip-entries.txt || true
+            echo "::error::source zip manifest gate failed - first 80 entries actually present:" >&2
+            head -80 /tmp/source-zip-entries.txt >&2
             exit 1
           fi
           sha512sum "bmi-stellar-source-${TAG}.zip" > "bmi-stellar-source-${TAG}.zip.sha512sum"
@@ -379,8 +389,10 @@ jobs:
           fi
           cd "$STAGE" && zip -qr "../bmi-stellar-build-${TAG}.zip" . && cd ..
           # Post-zip content gate: read the archive back and require
-          # the app entry point inside the actual zip file.
-          if ! unzip -l "bmi-stellar-build-${TAG}.zip" | grep -q "build/index.html"; then
+          # the app entry point inside the actual zip file. Same
+          # zipinfo-mode discipline as the source gate above: literal
+          # whole-line match on raw entry names, no column parsing.
+          if ! unzip -Z1 "bmi-stellar-build-${TAG}.zip" | grep -Fx "build/index.html"; then
             echo "FATAL: build zip does not contain build/index.html" >&2
             exit 1
           fi
