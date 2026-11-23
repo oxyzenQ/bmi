@@ -10,7 +10,12 @@ on:
       - 'v*'
 
 permissions:
+  # night-netrunner-Z1 (C3): attestations need the OIDC identity. The
+  # contents: write grant stays (release creation); the attestation
+  # flow is the only additional capability this workflow gains.
   contents: write
+  id-token: write
+  attestations: write
 
 env:
   NODE_VERSION: 26
@@ -75,6 +80,51 @@ jobs:
             echo "Tag $TAG does not match package.json v${PACKAGE_VERSION}"
             exit 1
           fi
+
+      # night-netrunner-Z1 (C3): the tag-signing contract. The depth
+      # matrix inside the artifact names the owner's Ed25519 publisher
+      # key, but the release channel itself was only as trustworthy as
+      # the account pushing the tag: a MITM on the release page (or a
+      # hijacked session) could re-cut archives and re-cut sidecars,
+      # because every digest sidecar is regenerable by whoever holds
+      # the bytes. A GPG-signed tag is the unforgeable binding: the
+      # workflow refuses to publish when the tag ref does not carry a
+      # good signature from the pinned key, so the anchor the artifact
+      # claims and the channel that ships it verify under the same
+      # discipline. Verification needs the owner's public key, which
+      # is public material by definition - carried as a repository
+      # variable (RELEASE_GPG_PUBLIC_KEY, armored) so key rotation is
+      # a settings change plus a workflow edit, both auditable.
+      - name: Verify the tag is signed by the release key
+        shell: bash
+        env:
+          TAG: ${{ steps.tag.outputs.TAG_NAME }}
+          RELEASE_GPG_PUBLIC_KEY: ${{ vars.RELEASE_GPG_PUBLIC_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${RELEASE_GPG_PUBLIC_KEY}" ]; then
+            echo "::error::RELEASE_GPG_PUBLIC_KEY repository variable is not set."
+            echo "::error::Set it to the armored public key of the release signing identity."
+            echo "::error::Until then this workflow cannot prove tag provenance and must fail closed."
+            exit 1
+          fi
+          echo "${RELEASE_GPG_PUBLIC_KEY}" | gpg --batch --import
+          KEY_FPR="$(gpg --list-keys --with-colons | awk -F: '/^fpr/{print $10; exit}')"
+          echo "verifying ${TAG} against ${KEY_FPR}"
+          # --verify on the tag ref: exits non-zero on a missing,
+          # broken, or foreign signature. The good-signature grep is
+          # the belt-and-braces form: gpg exit codes alone do not
+          # distinguish "signed by someone else" from noise on every
+          # gpg build.
+          if ! git tag -v "${TAG}" 2>&1 | tee /tmp/tag-verify.log; then
+            echo "::error::git tag -v failed for ${TAG} - the tag carries no valid signature"
+            exit 1
+          fi
+          if ! grep -q "Good signature" /tmp/tag-verify.log; then
+            echo "::error::no Good signature line for ${TAG} under the imported release key"
+            exit 1
+          fi
+          echo "tag ${TAG} carries a good signature from the pinned release key"
 
   release:
     needs: validate-tag
@@ -377,6 +427,25 @@ jobs:
             exit 1
           fi
           echo "asset inventory verified: 2 archives, 6 checksum sidecars"
+
+      # night-netrunner-Z1 (C3): the SLSA-shaped attestation lane.
+      # Checksum sidecars prove transport integrity but are regenerable
+      # by whoever holds the bytes; the GitHub attestation binds each
+      # archive to this repository and this workflow run through the
+      # OIDC identity (actions/attest-build-provenance, the first-party
+      # action, SHA-pinned like every other uses: in this tree). The
+      # attestation lives in GitHub's public transparency log
+      # (api.github.com/repos/oxyzenQ/bmi/attestations) and is
+      # verifiable offline with gh attestation verify - the MITM on the
+      # release page now has to also forge the transparency log entry.
+      - name: Attest the release archives
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3, SHA pin
+        with:
+          # The two archives are the release payload; the digest
+          # sidecars are derived material covered transitively.
+          subject-path: |
+            bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip
+            bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4, SHA pin
