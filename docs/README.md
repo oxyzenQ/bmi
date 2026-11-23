@@ -35,6 +35,7 @@ before relying on a specific number, path, or symbol name.
 | [AUDIT-PRIVACY-2026-11.md](AUDIT-PRIVACY-2026-11.md) | Frozen privacy audit record, November 2026                                  |
 | [AUDIT-INFRA-2026-11.md](AUDIT-INFRA-2026-11.md)     | The infra audit: the zelynic discipline sync (night-improve-1..8)           |
 | [AUDIT-LTS-2026-11.md](AUDIT-LTS-2026-11.md)         | Frozen LTS readiness audit, end-to-end real usage, November 2026            |
+| [AUDIT-D3-2026-11.md](AUDIT-D3-2026-11.md)           | The D3 publisher binding + release channel audit (night-netrunner-Z1)       |
 | [responsive-audit-375.md](responsive-audit-375.md)   | Frozen responsive depth audit at the 375 x 667 floor, 2026-11-04            |
 | [assets/](../assets/)                                | The brand master plate at the repository root, signed via `signature.b3sum` |
 

@@ -24,12 +24,16 @@ bun run bmi-update-version <version>    # the same manager through bun
 git add -A && git commit -m "chore: prepare for release v<major>.<minor>.<patch>"
 git push origin main
 
-# 3. Tag and push
-git tag v<major>.<minor>.<patch>
+# 3. Tag (signed) and push
+#   night-netrunner-Z1: the release lane fails closed unless the tag
+#   carries a good GPG signature from the key pinned in the
+#   RELEASE_GPG_PUBLIC_KEY repository variable. An unsigned tag never
+#   publishes.
+git tag -s v<major>.<minor>.<patch> -m "v<major>.<minor>.<patch>"
 git push origin v<major>.<minor>.<patch>
 ```
 
-The workflow validates the tag format (`v<major>.<minor>.<patch>`, with an optional pre-release suffix like `-night.1`) and exact version match, builds a static archive, generates a commit-based changelog, and publishes the GitHub Release with source + build artifacts.
+The workflow validates the tag format (`v<major>.<minor>.<patch>`, with an optional pre-release suffix like `-night.1`) and exact version match, verifies the tag's GPG signature against the pinned release key (`git tag -v`), builds a static archive, generates a commit-based changelog, records a GitHub attestation for both archives in the public transparency log, and publishes the GitHub Release with source + build artifacts.
 
 ## Artifacts
 

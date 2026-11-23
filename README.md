@@ -413,6 +413,17 @@ b3sum -c bmi-stellar-source-<TAG>.zip.b3sum
 python3 -c "import hashlib,sys; print(hashlib.shake_256(open(sys.argv[1],'rb').read()).hexdigest(64))" bmi-stellar-source-<TAG>.zip
 ```
 
+The channel itself is bound twice (night-netrunner-Z1): the release
+workflow refuses to publish a tag that is not GPG-signed by the pinned
+release key (`git tag -v <TAG>` shows the good signature), and both
+archives carry a GitHub attestation recorded in the public
+transparency log:
+
+```bash
+# prove the archive was built by this repository's release workflow
+gh attestation verify bmi-stellar-build-<TAG>.zip --repo oxyzenQ/bmi
+```
+
 The release checklist, tag rules, and rollback procedure live in
 [.github/RELEASE.md](.github/RELEASE.md).
 

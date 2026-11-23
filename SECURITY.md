@@ -101,6 +101,21 @@ BMI Stellar is engineered with a strict **Local-First, Zero-Trust** model:
 
 ## Cryptographic Details
 
+### Provenance Depth Matrix (build attribution)
+
+The build carries an ownership claim that survives rebranding attempts:
+the claim text exists only as XOR-masked 64-bit words (D0/D1) with
+BLAKE3-256 digests over the clear bytes (D2), and — since
+night-netrunner-Z1 — an Ed25519 publisher signature over the
+length-framed clear bytes (D3). The runtime verifies all three legs
+before reporting `status=verified`; the CI gates re-verify
+independently (the TypeScript gate, the Python RFC 8032 reference),
+the built artifact is scanned for plaintext leaks and D3 survival
+(`audit:artifact`), and the release channel refuses to publish a tag
+that is not GPG-signed by the pinned release key, with the archives
+additionally bound to the repository through GitHub attestations.
+This is provenance marking and tamper evidence, not DRM.
+
 ### Argon2id (Primary KDF)
 
 Used for all new encryptions. Parameters follow OWASP 2023 recommendations.

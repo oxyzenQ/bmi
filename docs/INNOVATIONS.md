@@ -464,7 +464,27 @@ to memory forensics — once materialized, the plaintext lives in
 process memory; masking kills the casual grep-and-strip path, not a
 determined reader, and stripping still requires editing the gate — a
 visible diff — with the AGPL-3.0-only license plus TRADEMARK.md making
-the legal cost real.
+the legal cost real. **D3 (night-netrunner-Z1)** closes the minted-
+matrix hole the D0-D2 stack still left open: masking hides the claim
+and BLAKE3 proves the bytes did not change, but neither proves WHO
+wrote them — a thief could re-run the committed generator over a
+stolen identity and ship a self-consistent matrix. The runtime now
+verifies an Ed25519 (RFC 8032) publisher signature over the
+length-framed clear bytes of both layers (domain
+`bmi-stellar/depth-matrix/v1`, every part u32le length-prefixed so no
+boundary reads two ways) before reporting `status=verified`; the
+verdict space gains `status=unsigned` for the known empty-signature
+rotation state. The verifier is deliberately self-contained bigint
+arithmetic in extended homogeneous coordinates (no `@noble/curves`
+dependency — the app keeps its zero-curve footprint), strict
+`s < L` canonicality, pinned by the RFC's own known-answer vectors in
+`signature.test.ts` and cross-checked from two other languages: the
+pure-Python RFC reference in the generator (`--check`) and
+`openssl pkeyutl -verify`. The private seed never enters the
+repository; the trusted public key pin lives in exactly one other
+place — `EXPECTED_OWNER_PUBLIC_KEY` in the gate — so swapping both
+the module constants and the module's key still stops at a visible
+gate diff.
 
 **25. The At-Rest Ledger Seal — health values encrypted at rest, not just
 on export (night-frontier-Z1).** Closes the documented honest limit
@@ -1083,6 +1103,47 @@ migration cost exceeds the edge. Verification: `history-io-caps.test.ts`
 (the cap refuses before integrity, the i18n mapping holds),
 `kdf-ladder.test.ts` (the caps pin + the tampered-parameter matrix),
 and the depth audit rides as `docs/AUDIT-DEPTH-2026-11.md`.
+
+**34. The Artifact Provenance Gate — the built bundle, not the tree
+(night-netrunner-Z1).** Every signature gate proved the SOURCE carries
+the depth matrix; nothing proved the same about the ARTIFACT a user
+downloads — the bundler could theoretically drop, mangle, or leak the
+constants with no gate any wiser. `scripts/gates/check-artifact-
+provenance.ts` closes that gap by scanning every text file the build
+emitted (both `build/` and `.vercel/output/static`, adapter order)
+and failing closed on four assertions: zero plaintext identity (the
+manifest text, the authors text, the handle, the contact — a thief
+running `strings(1)` over the bundle finds nothing to strip), the D3
+publisher pair survived the bundler (the exact public key and
+signature constants exist in the emitted output, so the artifact
+still verifies at runtime), the masked words are present in minified
+decimal BigInt form, and the PWA manifest signature field equals the
+masked authors hex. The first run caught its own design error — the
+D3 domain separator was probed as identity material when it is public
+protocol material, the brand-prose class — and the needle list now
+documents that boundary explicitly. Wired as `audit:artifact` after
+the build step in the CI build lane and both full `build.sh` lanes.
+
+**35. The Signed Release Channel — the tag is the anchor
+(night-netrunner-Z1).** The release lane's honest hole: every checksum
+sidecar (SHA-512, BLAKE3, SHAKE256) is regenerable by whoever holds
+the bytes, so a MITM on the release page — or a hijacked session
+re-cutting archives and sidecars together — defeated the whole digest
+contract. Two bindings close it. First, the tag-signing contract: the
+release workflow refuses to publish unless `git tag -v` shows a good
+signature from the release key pinned through the
+`RELEASE_GPG_PUBLIC_KEY` repository variable, so the artifact's
+internal D3 anchor and the channel that ships it verify under the
+same discipline (the owner signs tags with the Proton GPG identity;
+rotation is a settings change plus a workflow edit, both auditable).
+Second, the attestation lane: `actions/attest-build-provenance`
+(SHA-pinned like every `uses:` in this tree) binds both release
+archives to the repository and workflow run through the GitHub OIDC
+identity, recording the attestation in the public transparency log —
+verifiable offline with `gh attestation verify`, so forging the
+release page also means forging the transparency entry. The
+permissions block gains `id-token: write` and `attestations: write`
+for exactly this flow, nothing wider.
 
 ## The never-be charter
 
