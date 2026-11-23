@@ -93,17 +93,20 @@ jobs:
       # claims and the channel that ships it verify under the same
       # discipline. Verification needs the owner's public key, which
       # is public material by definition - carried as a repository
-      # variable (RELEASE_GPG_PUBLIC_KEY, armored) so key rotation is
-      # a settings change plus a workflow edit, both auditable.
+      # secret (the owner's placement; the secret namespace is also
+      # the natural home once the same key pair later signs artifacts)
+      # with the plain repository variable accepted as the fallback,
+      # so either tab works and rotation is a settings change plus a
+      # workflow edit, both auditable.
       - name: Verify the tag is signed by the release key
         shell: bash
         env:
           TAG: ${{ steps.tag.outputs.TAG_NAME }}
-          RELEASE_GPG_PUBLIC_KEY: ${{ vars.RELEASE_GPG_PUBLIC_KEY }}
+          RELEASE_GPG_PUBLIC_KEY: ${{ secrets.RELEASE_GPG_PUBLIC_KEY || vars.RELEASE_GPG_PUBLIC_KEY }}
         run: |
           set -euo pipefail
           if [ -z "${RELEASE_GPG_PUBLIC_KEY}" ]; then
-            echo "::error::RELEASE_GPG_PUBLIC_KEY repository variable is not set."
+            echo "::error::RELEASE_GPG_PUBLIC_KEY is not set (repository secret or variable)."
             echo "::error::Set it to the armored public key of the release signing identity."
             echo "::error::Until then this workflow cannot prove tag provenance and must fail closed."
             exit 1

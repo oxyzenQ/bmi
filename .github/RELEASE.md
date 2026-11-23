@@ -27,7 +27,8 @@ git push origin main
 # 3. Tag (signed) and push
 #   night-netrunner-Z1: the release lane fails closed unless the tag
 #   carries a good GPG signature from the key pinned in the
-#   RELEASE_GPG_PUBLIC_KEY repository variable. An unsigned tag never
+#   RELEASE_GPG_PUBLIC_KEY repository secret (a plain variable works
+#   too). An unsigned tag never
 #   publishes.
 git tag -s v<major>.<minor>.<patch> -m "v<major>.<minor>.<patch>"
 git push origin v<major>.<minor>.<patch>

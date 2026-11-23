@@ -1132,7 +1132,8 @@ re-cutting archives and sidecars together — defeated the whole digest
 contract. Two bindings close it. First, the tag-signing contract: the
 release workflow refuses to publish unless `git tag -v` shows a good
 signature from the release key pinned through the
-`RELEASE_GPG_PUBLIC_KEY` repository variable, so the artifact's
+`RELEASE_GPG_PUBLIC_KEY` repository secret (a plain variable works
+too — the key is public material), so the artifact's
 internal D3 anchor and the channel that ships it verify under the
 same discipline (the owner signs tags with the Proton GPG identity;
 rotation is a settings change plus a workflow edit, both auditable).
