@@ -334,17 +334,6 @@ function edEqual(p: EdPoint, q: EdPoint): boolean {
 	return (p.x * q.z - q.x * p.z) % ED_P === 0n && (p.y * q.z - q.y * p.z) % ED_P === 0n;
 }
 
-/** Encode a point to the 32-byte compressed form (little-endian y, x parity in the top bit). */
-function edEncode(point: EdPoint): Uint8Array {
-	const zInv = modInverse(point.z, ED_P);
-	const x = (point.x * zInv) % ED_P;
-	const y = (point.y * zInv) % ED_P;
-	const out = new Uint8Array(32);
-	for (let i = 0; i < 32; i++) out[i] = Number((y >> BigInt(8 * i)) & 0xffn);
-	if (x % 2n === 1n) out[31] |= 0x80;
-	return out;
-}
-
 /**
  * Ed25519 verification (RFC 8032 section 5.1.7), strict form: the
  * scalar s must be canonical (s < L) and both points must decompress
