@@ -118,6 +118,16 @@ jobs:
       - name: Install dependencies (frozen)
         run: bun install --frozen-lockfile
 
+      # night-netrunner-1: the release archives carry a BLAKE3 sidecar
+      # (b3sum, the zelynic mature-release digest lane). Ubuntu 26.04
+      # ships the b3sum package; the cargo install is the fallback for
+      # any runner image that drops it.
+      - name: Install b3sum (the BLAKE3 digest tool)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q b3sum || cargo install b3sum --locked
+          b3sum --version
+
       - name: Build static project
         shell: bash
         run: |
@@ -260,6 +270,19 @@ jobs:
             exit 1
           fi
           sha512sum "bmi-stellar-source-${TAG}.zip" > "bmi-stellar-source-${TAG}.zip.sha512sum"
+          # night-netrunner-1: the three-digest release contract, the
+          # zelynic mature-release lane - SHA-512 (classical) + BLAKE3
+          # (b3sum, the fast modern lane) + SHAKE256 (quantum-resistant
+          # extensible-output). One sidecar per digest per archive, so
+          # a verifier can cross-check any lane independently.
+          b3sum "bmi-stellar-source-${TAG}.zip" > "bmi-stellar-source-${TAG}.zip.b3sum"
+          # SHAKE256 via Python (cross-platform, consistent 64-byte output)
+          python3 -c "
+          import hashlib
+          data = open('bmi-stellar-source-${TAG}.zip', 'rb').read()
+          h = hashlib.shake_256(data).hexdigest(64)
+          print(f'{h}  bmi-stellar-source-${TAG}.zip')
+          " > "bmi-stellar-source-${TAG}.zip.shake256"
           rm -rf "$STAGE"
 
       - name: Create build archive
@@ -309,7 +332,51 @@ jobs:
             exit 1
           fi
           sha512sum "bmi-stellar-build-${TAG}.zip" > "bmi-stellar-build-${TAG}.zip.sha512sum"
+          # night-netrunner-1: the three-digest release contract, the
+          # zelynic mature-release lane - SHA-512 (classical) + BLAKE3
+          # (b3sum, the fast modern lane) + SHAKE256 (quantum-resistant
+          # extensible-output). One sidecar per digest per archive, so
+          # a verifier can cross-check any lane independently.
+          b3sum "bmi-stellar-build-${TAG}.zip" > "bmi-stellar-build-${TAG}.zip.b3sum"
+          # SHAKE256 via Python (cross-platform, consistent 64-byte output)
+          python3 -c "
+          import hashlib
+          data = open('bmi-stellar-build-${TAG}.zip', 'rb').read()
+          h = hashlib.shake_256(data).hexdigest(64)
+          print(f'{h}  bmi-stellar-build-${TAG}.zip')
+          " > "bmi-stellar-build-${TAG}.zip.shake256"
           rm -rf "$STAGE"
+
+      # night-netrunner-1: the asset inventory tripwire, the zelynic
+      # shape - every archive must carry all three digest sidecars
+      # (sha512sum, b3sum, shake256) before the release is created.
+      # A missing sibling is a red pipeline with the precise file
+      # named, never a silently asset-less release (fail_on_unmatched
+      # below guards the upload; this guard names the gap earlier).
+      - name: Assert release asset inventory
+        env:
+          TAG: ${{ steps.tag.outputs.TAG_NAME }}
+        run: |
+          set -euo pipefail
+          BROKEN=0
+          for kind in source build; do
+            ARCHIVE="bmi-stellar-${kind}-${TAG}.zip"
+            if [ ! -f "${ARCHIVE}" ]; then
+              echo "::error::Missing release archive ${ARCHIVE}"
+              BROKEN=1
+              continue
+            fi
+            for suffix in sha512sum b3sum shake256; do
+              if [ ! -f "${ARCHIVE}.${suffix}" ]; then
+                echo "::error::Missing checksum sibling ${ARCHIVE}.${suffix}"
+                BROKEN=1
+              fi
+            done
+          done
+          if [ "${BROKEN}" -ne 0 ]; then
+            exit 1
+          fi
+          echo "asset inventory verified: 2 archives, 6 checksum sidecars"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4, SHA pin
@@ -327,8 +394,12 @@ jobs:
           files: |
             bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip
             bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip.sha512sum
+            bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip.b3sum
+            bmi-stellar-source-${{ steps.tag.outputs.TAG_NAME }}.zip.shake256
             bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip
             bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip.sha512sum
+            bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip.b3sum
+            bmi-stellar-build-${{ steps.tag.outputs.TAG_NAME }}.zip.shake256
           # An unmatched file name fails the release instead of logging
           # the "does not match any files" warning that would publish an
           # asset-less release silently.
