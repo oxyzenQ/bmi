@@ -10,6 +10,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Released]
 
+v80.5.2
 v80.5.2-night.1
 v80.5.1
 v80.5.0
@@ -27,6 +28,29 @@ v80.0.1
 v80.0.0
 v80.0.0-night.2
 v80.0.0-night.1
+
+## [80.5.2]
+
+### Changed
+
+- **Internal research: read the zip manifest gate from raw entry names, not columns** _(ec4b3d7)_
+- **Internal research: read the release key from the repository secret with a variable fallback** _(1cde012)_
+- **** _(gpg: Signature made Mon 23 Nov 2026 08:46:59 PM WIB)_
+- **** _(gpg:                using EDDSA key 2B52187D2AB618A7591D45C9C7F8B07418899C4E)_
+- **** _(gpg: Good signature from "rezky_nightky (oxyzenQ) <oxyzenQ@proton.me>" [ultimate])_
+- **** _(gpg:                 aka "Rezky Cahya Sahputra (cosmic dragon) <130107241+oxyzenQ@users.noreply.github.com>" [ultimate])_
+- **release v80.5.2-night.1 test ci release** _(f42ee26)_
+- **Internal research: bump the attestation action pin to the current release** _(7d636a9)_
+- **Internal research: document the D3 publisher layer, the artifact gate, and the signed release channel** _(6eb9c2c)_
+- **Internal research: bind the release channel to a signed tag and OIDC attestations** _(5abdbd1)_
+- **Internal research: fix the lint failures the CI lane caught** _(ca9b107)_
+- **Internal research: gate the built bundle with an artifact-level provenance check** _(9c28752)_
+- **Internal research: bind the depth matrix to the publisher with an Ed25519 D3 layer** _(87af298)_
+- **Internal research: add D3 signing and a reference verifier to the provenance generator** _(6325e2f)_
+- **Internal research: keep the owner identity out of the client bundle** _(5e33324)_
+- **Internal research: sync release docs with the self-verifying zip and three-digest contract** _(251a500)_
+- **Internal research: add BLAKE3 and SHAKE256 release checksum sidecars** _(76a659a)_
+- **Internal research: ship a self-verifying source zip in the release pipeline** _(9a1ad28)_
 
 ## [80.5.2-night.1]
 
