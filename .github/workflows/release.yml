@@ -439,7 +439,7 @@ jobs:
       # verifiable offline with gh attestation verify - the MITM on the
       # release page now has to also forge the transparency log entry.
       - name: Attest the release archives
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3, SHA pin
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2, SHA pin
         with:
           # The two archives are the release payload; the digest
           # sidecars are derived material covered transitively.
