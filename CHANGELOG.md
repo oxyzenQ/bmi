@@ -10,6 +10,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Released]
 
+v80.5.3
 v80.5.2
 v80.5.2-night.1
 v80.5.1
@@ -28,6 +29,12 @@ v80.0.1
 v80.0.0
 v80.0.0-night.2
 v80.0.0-night.1
+
+## [80.5.3]
+
+### Changed
+
+- **normalize CHANGELOG.md whitespace to satisfy format:check (CI #695)** _(4529329)_
 
 ## [80.5.2]
 
