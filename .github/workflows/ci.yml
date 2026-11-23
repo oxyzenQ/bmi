@@ -107,6 +107,13 @@ jobs:
       - name: Build
         run: bun run build
 
+      # night-netrunner-Z1 (C1b): the built bundle, not the source
+      # tree, is what a user downloads. Zero plaintext identity, the
+      # D3 publisher pair present, the offline seats intact - the
+      # artifact-level half of the depth matrix.
+      - name: Artifact provenance check
+        run: bun run audit:artifact
+
   wasm-provenance:
     name: Rust engine provenance
     # The committed embedded artifact must be the built artifact: this

@@ -212,6 +212,7 @@ check_all() {
   run_step "lint"              "$BUN_BIN" run lint
   run_step "test:ci"           "$BUN_BIN" run test:ci
   run_step "build"             "$BUN_BIN" run build
+  run_step "audit:artifact"    "$BUN_BIN" run audit:artifact
 }
 
 quick() {
@@ -227,6 +228,7 @@ quick() {
   run_step "lint"              "$BUN_BIN" run lint
   run_step "test:fast"         "$BUN_BIN" run test:fast
   run_step "build"             "$BUN_BIN" run build
+  run_step "audit:artifact"    "$BUN_BIN" run audit:artifact
 }
 
 audit_only() {

@@ -28,6 +28,7 @@
 		"audit:pwa-offline": "bun run scripts/gates/check-pwa-offline-shell.ts",
 		"audit:branding": "bun run scripts/gates/check-branding.ts",
 		"audit:signature": "bun run scripts/gates/check-signature.ts",
+		"audit:artifact": "bun run scripts/gates/check-artifact-provenance.ts",
 		"audit:deps": "bun run scripts/gates/audit-deps.ts",
 		"audit:supply-chain": "bun run scripts/gates/check-supply-chain.ts",
 		"audit:axp1-znq": "bun run scripts/gates/axp1-znq.ts",
