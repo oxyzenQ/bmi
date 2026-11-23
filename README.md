@@ -397,12 +397,20 @@ not by a device farm.
 
 Each tagged release (`v<major>.<minor>.<patch>`, pre-releases with a
 `-<suffix>` like `v80.0.0-night.1`) ships source and build archives
-with SHA-512 sidecar checksums, and the pipeline validates the tag
-against `package.json` before anything is built:
+with a three-digest sidecar set — SHA-512 (classical), BLAKE3
+(`b3sum`, the fast modern lane) and SHAKE256 (quantum-resistant) —
+and the pipeline validates the tag against `package.json` before
+anything is built. The source archive is a self-verifying tree: it
+carries the config dotfiles (`.prettierrc`, `.prettierignore`,
+`.gitignore`, `.npmrc`, …) and the license-law documents, so
+`./verify.sh` passes inside the extracted zip without a git clone:
 
 ```bash
-# verify a downloaded archive
+# verify a downloaded archive (any digest lane)
 sha512sum -c bmi-stellar-source-<TAG>.zip.sha512sum
+b3sum -c bmi-stellar-source-<TAG>.zip.b3sum
+# SHAKE256: compare the printed 64-byte hex against the sidecar
+python3 -c "import hashlib,sys; print(hashlib.shake_256(open(sys.argv[1],'rb').read()).hexdigest(64))" bmi-stellar-source-<TAG>.zip
 ```
 
 The release checklist, tag rules, and rollback procedure live in

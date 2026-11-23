@@ -37,7 +37,21 @@ The workflow validates the tag format (`v<major>.<minor>.<patch>`, with an optio
 | ------------------------------ | ------------------------------------- |
 | `bmi-stellar-source-{tag}.zip` | Full source, rebuild from scratch     |
 | `bmi-stellar-build-{tag}.zip`  | Pre-built static output, deploy ready |
-| `*.sha512sum`                  | Integrity checksums                   |
+| `*.sha512sum`                  | Integrity checksums (SHA-512)         |
+| `*.b3sum`                      | Integrity checksums (BLAKE3)          |
+| `*.shake256`                   | Integrity checksums (SHAKE256)        |
+
+The source archive is a self-verifying tree: it ships the config
+dotfiles (`.prettierrc`, `.prettierignore`, `.gitignore`,
+`.codespellrc`, `.npmrc`, `.tool-versions`, `.yamllint`), the
+`.githooks/` tree, and the license-law documents (`BRANDING.md`,
+`DORMANT.md`, `RULES.md`, `NOTICE`, `TRADEMARK.md`), so `./verify.sh`
+passes inside the extracted zip — no git clone required. The
+packaging step hard-fails if any expected file is missing from the
+checkout, and a post-zip manifest gate reads the finished archive
+back and requires `package.json` and the verify-critical dotfiles at
+the archive root (the night-netrunner-1 fix for the v80.5.1 zip that
+failed `format:check` with 202 warnings as shipped).
 
 ## Tag Format
 

@@ -404,11 +404,20 @@ ceiling.
 **23. Release Verification Without Artifacts.** `release.yml`
 validates the tag against `package.json` before anything builds —
 the tag must match the manifest exactly (`80.0.0` -> `v80.0.0`).
-Source and build archives ship with SHA-512 sidecar checksums
-(`sha512sum -c`); pre-release suffixes are flagged pre-release and
-never marked latest. There are no binaries to sign because the npm
-package is private and BMI Stellar ships as a Vercel-deployed web app
-— the README tells that story once.
+Source and build archives ship with a three-digest sidecar set —
+SHA-512 (classical, `sha512sum -c`), BLAKE3 (`b3sum -c`, the fast
+modern lane) and SHAKE256 (quantum-resistant, 64-byte hex) — the
+zelynic mature-release checksum contract. The source archive is a
+self-verifying tree: config dotfiles and license-law documents ship
+inside it, a post-zip manifest gate reads the finished archive back
+and requires the verify-critical files at the archive root, and an
+asset inventory tripwire asserts all six checksum siblings before
+the release is created (night-netrunner-1, the fix for the v80.5.1
+zip that failed `format:check` with 202 warnings as shipped).
+Pre-release suffixes are flagged pre-release and never marked
+latest. There are no binaries to sign because the npm package is
+private and BMI Stellar ships as a Vercel-deployed web app — the
+README tells that story once.
 
 **24. The Provenance Depth Matrix — attribution that cannot silently
 disappear (night-signature-1; night-signature-advanced-2 supersedes
