@@ -4,6 +4,7 @@
 <script lang="ts">
 	import { AlertTriangle } from 'lucide-svelte';
 	import { t as _t, localeVersion } from '$lib/i18n';
+	import { BMI_STELLAR_SIGNATURE_BUILDER } from '$lib/utils/signature';
 
 	let { currentYear }: { currentYear: number } = $props();
 	let _rv = $derived($localeVersion);
@@ -32,7 +33,7 @@
 				class="github-link"
 			>
 				<span>
-					{t('info.copyright', { n: currentYear })}
+					{t('info.copyright', { n: currentYear, author: BMI_STELLAR_SIGNATURE_BUILDER })}
 				</span>
 			</a>
 		</div>

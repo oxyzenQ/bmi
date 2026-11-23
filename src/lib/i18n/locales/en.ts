@@ -541,7 +541,7 @@ const en: TranslationDict = {
 
 	'about.opensource_title': 'Open Source & Release',
 	'about.opensource_p1':
-		'BMI Stellar is an open-source project maintained by rezky_nightky (oxyzenQ) with a focus on accessibility, privacy, responsive UI, and long-term stability.',
+		'BMI Stellar is an open-source project maintained by {author} with a focus on accessibility, privacy, responsive UI, and long-term stability.',
 	'about.opensource_p2': 'This release is part of the Stellar {version} milestone.',
 
 	'about.data_model': 'Data Model',
@@ -555,7 +555,7 @@ const en: TranslationDict = {
 	// ── Info Section ──
 	'info.disclaimer':
 		'BMI is a screening tool and should not be used as a sole diagnostic method. Please consult healthcare professionals for comprehensive health assessment.',
-	'info.copyright': '© 2025-{n} rezky_nightky (oxyzenQ). All rights reserved.',
+	'info.copyright': '© 2025-{n} {author}. All rights reserved.',
 
 	// ── Backup Status ──
 

@@ -12,11 +12,13 @@ declare global {
 		// interface Platform {}
 	}
 
-	// Global constants injected by Vite at build time
+	// Global constants injected at build time (vite.config.ts defines
+	// the set; vitest.config.ts mirrors __APP_VERSION__ for the suites)
 	const __GIT_COMMIT_ID__: string;
 	const __GIT_BRANCH__: string;
 	const __BUILD_TIME__: string;
 	const __IS_VERCEL_DEPLOYMENT__: boolean;
+	const __APP_VERSION__: string;
 }
 
 export {};

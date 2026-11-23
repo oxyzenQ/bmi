@@ -251,8 +251,8 @@
 						<h3>{t('about.opensource_title')}</h3>
 					</div>
 					<div class="about-card-content">
-						<p>{@html t('about.opensource_p1')}</p>
-						<p>{@html t('about.opensource_p2', { version: appVersionTag })}</p>
+						<p>{t('about.opensource_p1', { author: BMI_STELLAR_SIGNATURE_BUILDER })}</p>
+						<p>{t('about.opensource_p2', { version: appVersionTag })}</p>
 						<div class="app-info">
 							<p class="info-row">
 								<PackageCheck class="PackageCheck" />

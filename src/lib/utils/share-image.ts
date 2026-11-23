@@ -6,6 +6,7 @@
 import { t } from '$lib/i18n';
 import { CATEGORY_COLORS, COLORS, isBmiCategory, getCategoryLabel } from './bmi-category';
 import { formatShareTimestamp } from './share';
+import { BMI_STELLAR_SIGNATURE_HANDLE } from './signature';
 
 /** Uppercase for Latin text; no-op for CJK/Korean (no case distinction). */
 function localeToUpper(text: string): string {
@@ -887,8 +888,10 @@ export async function generateBmiCard(data: BmiCardData): Promise<Blob | null> {
 	ctx.stroke();
 
 	// night-style-2: neutral grey brand line, matching the site footer's
-	// quiet tone; "curiosity" is the owner's zelynic masterclass theme name
-	const brandLine = 'curiosity - by oxyzenQ';
+	// quiet tone ("curiosity" is the owner's zelynic masterclass theme
+	// name). The handle materializes from the masked layer, so the claim
+	// never rides the bundle as a greppable literal.
+	const brandLine = `curiosity - by ${BMI_STELLAR_SIGNATURE_HANDLE}`;
 	const brandFont = fitFontSize(ctx, brandLine, 700, 21, 17, contentW);
 	ctx.font = brandFont;
 	ctx.textAlign = 'center';

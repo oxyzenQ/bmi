@@ -42,6 +42,14 @@ function pinCryptoDeps(): Plugin {
 export default defineConfig({
 	// @ts-expect-error - Vite version mismatch between vitest and project
 	plugins: [svelte({ hot: false }), pinCryptoDeps()],
+	// The same build-time constant vite.config.ts injects, so the tests
+	// read the real version through getAppVersionRaw() instead of the
+	// empty fallback (the pwa-update and backup suites depend on it).
+	define: {
+		__APP_VERSION__: JSON.stringify(
+			createRequire(path.resolve(process.cwd(), 'package.json'))('./package.json').version
+		)
+	},
 	test: {
 		environment: 'jsdom',
 		setupFiles: [path.resolve(__dirname, 'src/test-setup.ts')],

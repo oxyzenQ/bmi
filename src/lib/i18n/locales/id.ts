@@ -542,7 +542,7 @@ const id: TranslationDict = {
 
 	'about.opensource_title': 'Open Source & Rilis',
 	'about.opensource_p1':
-		'BMI Stellar adalah project open-source yang dikelola oleh rezky_nightky (oxyzenQ) dengan fokus pada aksesibilitas, privasi, UI responsif, dan stabilitas jangka panjang.',
+		'BMI Stellar adalah project open-source yang dikelola oleh {author} dengan fokus pada aksesibilitas, privasi, UI responsif, dan stabilitas jangka panjang.',
 	'about.opensource_p2': 'Rilis ini adalah bagian dari milestone Stellar {version}.',
 
 	'about.data_model': 'Model Data',
@@ -556,7 +556,7 @@ const id: TranslationDict = {
 	// ── Info Section ──
 	'info.disclaimer':
 		'BMI adalah alat skrining dan tidak boleh digunakan sebagai satu-satunya metode diagnostik. Silakan berkonsultasi dengan profesional kesehatan untuk penilaian kesehatan yang komprehensif.',
-	'info.copyright': '© 2025-{n} rezky_nightky (oxyzenQ). Semua hak dilindungi.',
+	'info.copyright': '© 2025-{n} {author}. Semua hak dilindungi.',
 
 	// ── Backup Status ──
 

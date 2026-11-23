@@ -273,6 +273,19 @@ export const BMI_STELLAR_SIGNATURE: string = materialized.authors;
 export const BMI_STELLAR_SIGNATURE_BUILDER: string =
 	identityCore(materialized.manifest) ?? materialized.authors;
 
+/**
+ * The handle riding the identity core (its parenthesised suffix) - the
+ * surface that names the owner without the full claim, such as the
+ * share-image brand line. Falls back to the core itself when the shape
+ * breaks, so a tampered layer shows its raw claim instead of an empty
+ * string.
+ */
+export const BMI_STELLAR_SIGNATURE_HANDLE: string = (() => {
+	const core = BMI_STELLAR_SIGNATURE_BUILDER;
+	const open = core.lastIndexOf('(');
+	return open !== -1 && core.endsWith(')') ? core.slice(open + 1, -1) : core;
+})();
+
 /** The proton contact riding the angle-bracket suffix of the authors claim (night-remake-1). */
 export const BMI_STELLAR_SIGNATURE_CONTACT: string = materialized.authors.includes(' <')
 	? materialized.authors.slice(materialized.authors.lastIndexOf(' <') + 2, -1)

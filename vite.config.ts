@@ -79,6 +79,13 @@ function getLocalGitInfo(): { sha: string; branch: string } {
 // Export async config function
 export default function config({ mode }: { mode: string }): UserConfig {
 	const commitInfo = getLocalGitInfo();
+	// The application version rides a build-time constant on purpose.
+	// Importing package.json for this one field inlines the whole
+	// manifest - the author, the signature field, every contact URL -
+	// into the client bundle as plaintext (night-netrunner-Z1).
+	const appVersion = createRequire(path.resolve(process.cwd(), 'package.json'))(
+		'./package.json'
+	) as { version: string };
 
 	return {
 		plugins: [
@@ -100,7 +107,8 @@ export default function config({ mode }: { mode: string }): UserConfig {
 			__GIT_COMMIT_ID__: JSON.stringify(commitInfo.sha),
 			__GIT_BRANCH__: JSON.stringify(commitInfo.branch),
 			__BUILD_TIME__: JSON.stringify(new Date().toISOString()),
-			__IS_VERCEL_DEPLOYMENT__: JSON.stringify(process.env.VERCEL === '1')
+			__IS_VERCEL_DEPLOYMENT__: JSON.stringify(process.env.VERCEL === '1'),
+			__APP_VERSION__: JSON.stringify(appVersion.version)
 		},
 		build: {
 			target: 'es2022',
