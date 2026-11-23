@@ -192,6 +192,29 @@ jobs:
           cp -r .github "$STAGE/" 2>/dev/null || true
           cp -r docs "$STAGE/" 2>/dev/null || true
           cp -r assets "$STAGE/" 2>/dev/null || true
+          # night-netrunner-1 (the F1 fix): the source zip must be a
+          # self-verifying tree, so every file the verify suite reads
+          # ships inside it - the config dotfiles first (.prettierrc,
+          # .prettierignore, .gitignore were absent, so format:check
+          # alone reported 202 style warnings on the zip as shipped),
+          # then the law and license documents the gates grep
+          # (BRANDING.md for audit:branding, .codespellrc and .yamllint
+          # for the gate-keepers lane, .npmrc for bun install itself).
+          # The list is explicit on purpose: an accidental extra file
+          # in the repo root must not leak into the release, and a
+          # forgotten must-have fails the manifest gate below instead
+          # of shipping a zip that cannot pass its own verify.sh.
+          for dotfile in \
+            .prettierrc .prettierignore .gitignore .codespellrc \
+            .npmrc .tool-versions .yamllint; do
+            if [ -f "$dotfile" ]; then
+              cp "$dotfile" "$STAGE/"
+            else
+              echo "FATAL: expected config dotfile $dotfile is missing from the checkout" >&2
+              exit 1
+            fi
+          done
+          cp -r .githooks "$STAGE/"
           cp package.json "$STAGE/"
           cp bun.lock "$STAGE/" 2>/dev/null || true
           cp svelte.config.js "$STAGE/" 2>/dev/null || true
@@ -205,9 +228,35 @@ jobs:
           cp README.md "$STAGE/" 2>/dev/null || true
           cp LICENSE "$STAGE/"
           cp SECURITY.md "$STAGE/" 2>/dev/null || true
+          # The license-law documents check-headers.ts and the branding
+          # gate read: a zip without them fails verify far past the
+          # format stage. Hard-fail on absence for the same reason as
+          # the dotfiles above - the release contract is explicit.
+          for doc in BRANDING.md DORMANT.md RULES.md NOTICE TRADEMARK.md; do
+            if [ -f "$doc" ]; then
+              cp "$doc" "$STAGE/"
+            else
+              echo "FATAL: expected document $doc is missing from the checkout" >&2
+              exit 1
+            fi
+          done
           cd "$STAGE" && zip -qr "../bmi-stellar-source-${TAG}.zip" . && cd ..
-          if ! unzip -l "bmi-stellar-source-${TAG}.zip" | grep -q "package.json"; then
-            echo "FATAL: source zip does not contain package.json" >&2
+          # Post-zip manifest gate (the v80.0.0 lesson: a checksum
+          # proves transport integrity, never archive contents). The
+          # zip must carry package.json AND the dotfiles the verify
+          # suite depends on - the exact F1 gap, now enforced at
+          # packaging time so it can never regress silently. The awk
+          # extracts the archive path column, so the match is exact:
+          # a "src/package.json" subpath can never satisfy the
+          # root-level "package.json" requirement.
+          MISSING=0
+          for required in package.json .prettierrc .prettierignore .gitignore .npmrc BRANDING.md; do
+            if ! unzip -l "bmi-stellar-source-${TAG}.zip" | awk 'NR > 3 { print $4 }' | grep -qx "$required"; then
+              echo "FATAL: source zip does not contain ${required}" >&2
+              MISSING=1
+            fi
+          done
+          if [ "$MISSING" -ne 0 ]; then
             exit 1
           fi
           sha512sum "bmi-stellar-source-${TAG}.zip" > "bmi-stellar-source-${TAG}.zip.sha512sum"
