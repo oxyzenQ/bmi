@@ -36,9 +36,9 @@ v80.0.0-night.1
 - **Internal research: read the zip manifest gate from raw entry names, not columns** _(ec4b3d7)_
 - **Internal research: read the release key from the repository secret with a variable fallback** _(1cde012)_
 - **** _(gpg: Signature made Mon 23 Nov 2026 08:46:59 PM WIB)_
-- **** _(gpg:                using EDDSA key 2B52187D2AB618A7591D45C9C7F8B07418899C4E)_
+- **** _(gpg: using EDDSA key 2B52187D2AB618A7591D45C9C7F8B07418899C4E)_
 - **** _(gpg: Good signature from "rezky_nightky (oxyzenQ) <oxyzenQ@proton.me>" [ultimate])_
-- **** _(gpg:                 aka "Rezky Cahya Sahputra (cosmic dragon) <130107241+oxyzenQ@users.noreply.github.com>" [ultimate])_
+- **** _(gpg: aka "Rezky Cahya Sahputra (cosmic dragon) <130107241+oxyzenQ@users.noreply.github.com>" [ultimate])_
 - **release v80.5.2-night.1 test ci release** _(f42ee26)_
 - **Internal research: bump the attestation action pin to the current release** _(7d636a9)_
 - **Internal research: document the D3 publisher layer, the artifact gate, and the signed release channel** _(6eb9c2c)_
