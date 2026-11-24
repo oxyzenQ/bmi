@@ -51,6 +51,7 @@ before relying on a specific number, path, or symbol name.
 | `scripts/gates/check-pwa-offline-shell.ts` | The offline app-shell contract in the service worker                             |
 | `scripts/gates/audit-deps.ts`              | Dependency advisories against the expiring allowlist                             |
 | `scripts/gates/check-version-sync.ts`      | The version triangle (package.json, DORMANT, README)                             |
+| `scripts/gates/check-proof-manifest.ts`    | The proof census guard: the for-all tier table re-read out of the tree           |
 | `scripts/gates/check-name-case.py`         | BMI Stellar / bmi-stellar name casing over every tracked file                    |
 | `scripts/gates/check-signature-assets.sh`  | BLAKE3 digests of the brand images (`assets/signature.b3sum`)                    |
 | `scripts/gates/check-actions-pins.sh`      | Every `uses:` pin is a 40-hex SHA                                                |

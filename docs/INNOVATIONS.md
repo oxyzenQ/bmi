@@ -1146,6 +1146,52 @@ release page also means forging the transparency entry. The
 permissions block gains `id-token: write` and `attestations: write`
 for exactly this flow, nothing wider.
 
+**36. The For-All Proof Tier — the named laws become machine-checked
+theorems (night-netrunner-Z2).** Every test above the sampled tier is
+honest about its shape: hand-picked edges, a few hostile corpora,
+sampled schedules. The proof tier adds the instrument above both — a
+detached `proofs/` package (the zelynic proofs shape) whose harnesses
+turn a named law into a machine-checked verdict over ALL inputs in
+its stated domain. The include law holds the proofs to the bytes the
+app runs: every harness imports the same source modules through
+relative paths — no copies, no re-implementations, so a law the
+proofs verify is a law the app bundles. Seven theorems ride the tier:
+the BMI classifier (the four-interval step function over [0, 1000],
+decided by totality plus monotonicity plus one-ulp boundary
+exactness — a monotone step function cannot change category between
+the checked walls), the display clamp (identity on the interior, the
+wall outside, the zero sentinel on non-finite input, monotone and
+idempotent), the hex encoder (every byte value and every byte pair
+against a harness-side reference decoder), the crack-time ladder
+(every integer second in [0, 20000] plus one-ulp windows at every
+high threshold), the at-rest seal decision (the full keys x custody
+truth table, the tag guard corpus, the seat and mirror-sequence
+laws), the hostile-envelope KDF gate (every integer on each axis plus
+the conjunction lattice — deciding all 8,388,608 triples of
+[1, 262144] x [1, 8] x [1, 4], because separable axis gates cannot
+interact), and the KDF ladder floor (the OWASP floor and caps for
+every tier, the clamp idempotence, the legacy posture). The census
+records the honest NOs with their reasons: symbolic execution
+(no pinned SMT executor for TypeScript — literal quantification over
+the stated finite domain is the stronger verdict at the same cost),
+loom-style interleaving (the engine is single-threaded; the promise
+chains are already driven through the real IndexedDB by
+`db-atomicity.test.ts`), and a property-fuzzing dependency (the
+seeded corpora already pin what shrinking would find). The lane is
+`.github/workflows/proofs.yml`: one invocation per harness, fail-fast
+off so a verdict is never lost to a sibling's budget, every job under
+the ten-minute ceiling — and each harness finishes in seconds. The
+absence seat, `scripts/gates/check-proof-manifest.ts`, runs no
+harness at all: it re-reads the tier table out of the tree and fails
+loudly the day a harness, a source law, or a lane seat goes missing —
+verified both ways locally, an orphan drills a named red. The
+non-finite postures are pinned, not ignored: NaN and Infinity land
+where the comparators send them, stated in the same breath as the
+upstream guard chains that keep them out. Honest limits: the domains
+are the stated finite ones, and the tier quantifies literally rather
+than symbolically — which is exactly what makes each verdict cheap
+enough to stand on every push. Run: `bun run test:proofs`.
+
 ## The never-be charter
 
 The innovation ledger above could grow forever unless something bounds
