@@ -6,8 +6,10 @@
  * Drives the production build through a real headless Chrome session and
  * proves, live, the claims the product makes about itself:
  *
- *   One line per claim; each is proven live, fail-closed:
- *   P1  exact-value matrix (metric, imperial round-trip, Deurenberg)
+ *   One line per claim; each is proven live, fail-closed (18 measured):
+ *   P1a metric: BMI 22.86, Normal Weight, Prime 0.91, BMR 1649, TDEE 2556
+ *   P1b imperial: BMI 22.85 for 30y/68.9in/154.3lb
+ *   P1c body fat: Deurenberg 18.1% for male, 30y, BMI 22.86
  *   P2  runtime egress inventory (allowlist + one update-check pair)
  *   P3  storage inventory (exactly the named keys and IDB stores)
  *   P4  offline shell contract (the real app shell, network cut)
@@ -281,7 +283,6 @@ async function main(): Promise<number> {
 		await page.evaluate(`() => { location.hash = '#calculator'; return true; }`);
 		await sleep(800); // lazy section mount
 
-		// ── P1: exact-value matrix ──
 		await prove(
 			'P1a metric: BMI 22.86, Normal Weight, Prime 0.91, BMR 1649, TDEE 2556',
 			async () => {
@@ -379,7 +380,6 @@ async function main(): Promise<number> {
 			}
 		);
 
-		// ── P3: storage inventory ──
 		await prove('P3 storage inventory: exactly the named keys and stores', async () => {
 			const inv = await page!.evaluate<{
 				lsKeys: string[];

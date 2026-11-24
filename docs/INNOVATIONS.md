@@ -535,7 +535,7 @@ now establishes the verifier (`establishLedgerVerifier`), the import
 path awaits the verifier-anchored unlock (30 s bounded budget) so the
 ledger write never races the purge guard, and the production CSP gained
 the narrow `wasm-unsafe-eval` token the KDF worker's Rust engine needs —
-all three proven live by the P7/P8/P9 claims.
+the seal side proven live by the P7/P8 claims, the wasm seat by P16.
 Night-frontier-Z6 sharpening: the session's Argon2id derivation now
 yields BOTH keys in one pass (`deriveSessionKeys`) — the AES seal key
 and the witness attestation material, an HKDF-SHA256 subkey
@@ -598,8 +598,9 @@ the page (window.onerror + unhandledrejection taps), zero egress delta
 must be byte-identical before and after). The probe sources live in
 `page-sources.ts` (the file the claim set uses to keep `run-proof.ts`
 under its cap); the header claim list is one line per claim.
-Verification: PROVEN 16/16 since night-frontier-Z8 grew the claim set
-to P16 (the seal-custody claim — one wasm engine instantiation, the v1
+Verification: PROVEN 18/18 — the P1 exact-value family split into the
+P1a/P1b/P1c trio, and night-frontier-Z8 grew the named registry to
+P16 (the seal-custody claim — one wasm engine instantiation, the v1
 envelope law, the checksum recompute; the page-side probe sources moved
 to `scripts/proof/page-sources.ts` to stay under
 the 1000-line hard cap as the claim set grew), the measurement records

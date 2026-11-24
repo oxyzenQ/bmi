@@ -158,7 +158,7 @@ bun run preview   # serve the production build locally
 | `bun run format:check`                           | Prettier check (no write)                                                                                   |
 | `bun run verify`                                 | Full local gate: format + 4 audits + check + lint + test:run + build                                        |
 | `./scripts/build.sh check-all`                   | Wholesale gate: format + 9 audits + type-check + lint + test:ci + build (the full `scripts/build.sh` chain) |
-| `./scripts/proof/run-proof.sh [report]`          | Runtime proof harness: sixteen fail-closed runtime claims against the production build in a pinned browser  |
+| `./scripts/proof/run-proof.sh [report]`          | Runtime proof harness: eighteen fail-closed runtime claims against the production build in a pinned browser |
 | `bun run audit:deps`                             | Policy-gated dependency audit (blocking + allowlist-aware)                                                  |
 | `bun run audit:axp1-znq`                         | AXP1-ZnQ verdict engine: dangerous advisories classified by remediability (UPDATE-SOON vs CALL-OWNER)       |
 | `bun run lint:fix`                               | ESLint auto-fix                                                                                             |
@@ -390,7 +390,7 @@ Honest context: the suites are static + jsdom-based; the
 crypto/history-io suites run in the Node environment because jsdom's
 `crypto.subtle` is non-functional. Runtime behavior on real devices is
 covered by the PWA offline-shell audit and the runtime proof harness
-(`scripts/proof/` — sixteen fail-closed claims in a pinned browser),
+(`scripts/proof/` — eighteen fail-closed claims in a pinned browser),
 not by a device farm.
 
 ## Release Verification
