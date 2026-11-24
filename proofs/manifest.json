@@ -1,0 +1,78 @@
+{
+	"$comment": "The proof tier table (night-netrunner-Z2). The for-all tier: every harness turns a named law into a machine-checked verdict over ALL inputs in its stated domain. Every harness imports the same source modules the app bundles, through relative paths - a law the proofs verify is a law the app runs. The lane rides .github/workflows/proofs.yml with one invocation per harness, so a verdict is never lost to a sibling's budget; every job sits under the ten-minute estate ceiling. The census records the instruments examined and rejected (the honest NOs) - a NO is standing, not archival: scripts/gates/check-proof-manifest.ts re-reads this table out of the tree on every run and fails the day a harness, a source law, or a lane seat goes missing.",
+	"tier": "for-all",
+	"lane": ".github/workflows/proofs.yml",
+	"oneInvocationPerHarness": true,
+	"harnesses": [
+		{
+			"file": "classifier-for-all.test.ts",
+			"source": "src/lib/utils/bmi-category.ts",
+			"laws": ["classifyBmi"],
+			"theorem": "the four-interval step function, for every real in [0, 1000], by totality + monotonicity + one-ulp boundary exactness"
+		},
+		{
+			"file": "clamp-display-for-all.test.ts",
+			"source": "src/lib/utils/bmi-category.ts",
+			"laws": ["clampBmiForDisplay"],
+			"theorem": "identity on the interior, wall outside, zero sentinel on non-finite input - total, monotone, idempotent"
+		},
+		{
+			"file": "bytes-hex-for-all.test.ts",
+			"source": "src/lib/utils/hex.ts",
+			"laws": ["bytesToHex"],
+			"theorem": "canonical lowercase two-chars-per-byte encoding, for every byte value and every byte pair, with a harness-side reference decoder round-trip"
+		},
+		{
+			"file": "crack-time-ladder-for-all.test.ts",
+			"source": "src/lib/utils/crack-time.ts",
+			"laws": ["formatCrackTime"],
+			"theorem": "the unit-ladder decision table for every integer second in [0, 20000] plus one-ulp boundary windows at every high threshold"
+		},
+		{
+			"file": "at-rest-decisions-for-all.test.ts",
+			"source": "src/lib/utils/at-rest-state.ts",
+			"laws": [
+				"shouldProtectAtRest",
+				"isAtRestTagged",
+				"isAtRestHealthKey",
+				"getAtRestHealthKeys",
+				"setAtRestSessionKey",
+				"clearAtRestSessionKey",
+				"isAtRestSessionUnlocked",
+				"getAtRestSessionKey",
+				"nextAtRestMirrorSeq",
+				"isLatestAtRestMirrorSeq"
+			],
+			"theorem": "the seal decision truth table over the full keys x custody-states product, the tag guard over the hostile corpus, the seat and mirror-sequence laws"
+		},
+		{
+			"file": "envelope-kdf-gate-for-all.test.ts",
+			"source": "src/lib/utils/kdf-ladder.ts",
+			"laws": ["validateEnvelopeKdfParams", "envelopeParamsToOptions", "KDF_CAPS"],
+			"theorem": "the hostile-envelope decision table for every integer on each axis plus the conjunction lattice - deciding all 8,388,608 triples of the product domain"
+		},
+		{
+			"file": "kdf-ladder-floor-for-all.test.ts",
+			"source": "src/lib/utils/kdf-ladder.ts",
+			"laws": ["resolveKdfOptionsForTier", "KDF_LADDER", "OWASP_FLOOR", "KDF_CAPS"],
+			"theorem": "the OWASP floor and caps hold for every tier in the complete ladder domain; the clamp is idempotent and fixpoint-stable; legacy envelopes still validate"
+		}
+	],
+	"census": [
+		{
+			"instrument": "smt-symbolic-execution (kani-style bounded model checking)",
+			"verdict": "REJECTED",
+			"reason": "no pinned symbolic executor exists for the TypeScript engine modules; the for-all tier instead quantifies literally over each law's full stated finite domain, which is a stronger verdict than a bounded model check at the same cost"
+		},
+		{
+			"instrument": "interleaving model checking (loom-style)",
+			"verdict": "REJECTED",
+			"reason": "the engine is single-threaded; the concurrency that exists is the storage escalator's promise chains, which the db-atomicity suite already drives through the real IndexedDB implementation - a harness re-implementation would model the protocol, not the bytes the app runs"
+		},
+		{
+			"instrument": "property-based fuzzing dependency (fast-check class)",
+			"verdict": "REJECTED",
+			"reason": "the sampled tier's coverage is delivered by the root lane's suites and the seeded corpora inside the harnesses; a new runtime dependency for shrinking buys nothing the regression discipline does not already pin"
+		}
+	]
+}

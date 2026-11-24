@@ -22,6 +22,7 @@
 		"test:fast": "vitest run --exclude='**/crypto*.test.ts' --exclude='**/history-io*.test.ts'",
 		"test:crypto": "vitest run src/lib/utils/__tests__/crypto.test.ts src/lib/utils/__tests__/crypto-at-rest.test.ts src/lib/utils/__tests__/at-rest-state.test.ts src/lib/utils/__tests__/history-io.test.ts",
 		"test:ci": "vitest run --pool=forks --maxWorkers=2",
+		"test:proofs": "vitest run --config proofs/vitest.config.ts",
 		"audit:loc": "bun run scripts/gates/check-loc.ts",
 		"audit:headers": "bun run scripts/gates/check-headers.ts",
 		"audit:version-sync": "bun run scripts/gates/check-version-sync.ts",
