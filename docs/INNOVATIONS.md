@@ -1192,6 +1192,26 @@ are the stated finite ones, and the tier quantifies literally rather
 than symbolically — which is exactly what makes each verdict cheap
 enough to stand on every push. Run: `bun run test:proofs`.
 
+The tier stops here, on purpose, and the boundary is part of the
+claim. The one protocol with real asynchronous interleaving — the
+storage escalator — is engineered to eliminate the schedule space
+rather than enumerate it: same-key IndexedDB writes run inside a
+per-key promise chain (a total order by construction), stale jobs
+self-reject on the per-key write sequence, and mirror writes carry
+the latest-wins custody token; its interleaving properties are
+pinned by `storage-write-seq.test.ts`, `db-atomicity.test.ts`, and
+`storage-coherence.test.ts` against the real IndexedDB semantics.
+No loom-for-TypeScript exists — a hand-written scheduler harness
+would model the protocol instead of the bytes the app runs — so the
+exhaustive interleaving instrument joins the census as a standing
+REJECTED verdict, examined and answered with the inventory
+(zero shared-memory parallelism, two stateless id-tagged workers)
+rather than skipped silently. That is the LTS posture: the tier's
+claims do not rot — the stated finite domains stay decided on every
+push, the invariants the sampled tier pins are the ones the
+elimination-by-construction design makes sufficient, and nothing
+about the proof story asks a future maintainer to trust prose.
+
 ## The never-be charter
 
 The innovation ledger above could grow forever unless something bounds

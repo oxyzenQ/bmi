@@ -73,6 +73,11 @@
 			"instrument": "property-based fuzzing dependency (fast-check class)",
 			"verdict": "REJECTED",
 			"reason": "the sampled tier's coverage is delivered by the root lane's suites and the seeded corpora inside the harnesses; a new runtime dependency for shrinking buys nothing the regression discipline does not already pin"
+		},
+		{
+			"instrument": "exhaustive await-interleaving model of the storage escalator (the zelynic Z17 shape)",
+			"verdict": "REJECTED",
+			"reason": "the escalator is engineered to eliminate the schedule space, not to prove it: same-key IndexedDB writes run inside a per-key promise chain (a total order by construction), stale jobs self-reject on the per-key write sequence, and mirror writes carry the latest-wins custody token; the interleaving properties are pinned where they live by the storage-write-seq, db-atomicity, and storage-coherence suites against the real IndexedDB semantics; a TypeScript interleaving harness would be a hand-written mini-scheduler - a model of the protocol rather than the bytes the app runs, the census law - and unlike the zelynic budget core the engine holds no shared-memory parallelism to model"
 		}
 	]
 }
