@@ -10,6 +10,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Released]
 
+v80.5.4
 v80.5.3
 v80.5.2
 v80.5.2-night.1
@@ -29,6 +30,20 @@ v80.0.1
 v80.0.0
 v80.0.0-night.2
 v80.0.0-night.1
+
+## [80.5.4]
+
+### Changed
+
+- **Internal research: night-depth-cleanup-1B-1 - the runtime-claim registry re-truthed** _(978adb1)_
+- **Internal research: the interleaving census verdict and the proof-tier LTS boundary** _(d11ddc5)_
+- **Internal research: night-netrunner-Z2 - the docs sync for the proof tier** _(3cbac67)_
+- **Internal research: night-netrunner-Z2 - the proof lane and the census guard** _(0a53b02)_
+- **Internal research: night-netrunner-Z2 - the for-all proof tier over the named laws** _(39087df)_
+
+### Chore
+
+- **maintenance deps weekly** _(4994235)_
 
 ## [80.5.3]
 
