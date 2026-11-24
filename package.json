@@ -32,6 +32,7 @@
 		"audit:artifact": "bun run scripts/gates/check-artifact-provenance.ts",
 		"audit:deps": "bun run scripts/gates/audit-deps.ts",
 		"audit:supply-chain": "bun run scripts/gates/check-supply-chain.ts",
+		"audit:proof-manifest": "bun run scripts/gates/check-proof-manifest.ts",
 		"audit:axp1-znq": "bun run scripts/gates/axp1-znq.ts",
 		"clean": "rm -rf .svelte-kit build dist node_modules/.cache",
 		"type-check": "svelte-check --tsconfig ./tsconfig.json",

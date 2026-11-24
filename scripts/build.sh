@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only OR Commercial
 
 # Cosmic Dragon gatekeeper — runs the full BMI Stellar verification gate.
-# Mirrors .github/workflows/ci.yml so what passes locally passes in CI.
+# Mirrors .github/workflows/ci.yml (the code lane) and re-reads the
+# proof tier table enforced by .github/workflows/proofs.yml
+# (the for-all lane) so what passes locally passes in CI.
 #
 # Usage:
 #   ./scripts/build.sh check-all       # full gate (everything CI runs)
@@ -204,6 +206,7 @@ check_all() {
   run_step "audit:loc"         "$BUN_BIN" run audit:loc
   run_step "audit:scripts-loc" bash scripts/gates/check-scripts-loc.sh
   run_step "audit:headers"     "$BUN_BIN" run audit:headers
+  run_step "audit:proof-manifest" "$BUN_BIN" run audit:proof-manifest
   run_step "audit:version-sync" "$BUN_BIN" run audit:version-sync
   run_step "audit:branding"    "$BUN_BIN" run audit:branding
   run_step "audit:signature"   "$BUN_BIN" run audit:signature
@@ -220,6 +223,7 @@ quick() {
   run_step "audit:loc"         "$BUN_BIN" run audit:loc
   run_step "audit:scripts-loc" bash scripts/gates/check-scripts-loc.sh
   run_step "audit:headers"     "$BUN_BIN" run audit:headers
+  run_step "audit:proof-manifest" "$BUN_BIN" run audit:proof-manifest
   run_step "audit:version-sync" "$BUN_BIN" run audit:version-sync
   run_step "audit:branding"    "$BUN_BIN" run audit:branding
   run_step "audit:signature"   "$BUN_BIN" run audit:signature
@@ -238,6 +242,7 @@ audit_only() {
   run_step "audit:loc"         "$BUN_BIN" run audit:loc
   run_step "audit:scripts-loc" bash scripts/gates/check-scripts-loc.sh
   run_step "audit:headers"     "$BUN_BIN" run audit:headers
+  run_step "audit:proof-manifest" "$BUN_BIN" run audit:proof-manifest
   run_step "audit:version-sync" "$BUN_BIN" run audit:version-sync
   run_step "audit:branding"    "$BUN_BIN" run audit:branding
   run_step "audit:signature"   "$BUN_BIN" run audit:signature
@@ -271,9 +276,9 @@ case "$MODE" in
 Usage: scripts/build.sh <mode>
 
 Modes:
-  check-all  Full CI gate (default). 13 steps: format + 8 audits + type-check + lint + test:ci + build.
+  check-all  Full CI gate (default). 16 steps: format + 10 audits + type-check + lint + test:ci + build + artifact provenance.
   quick      Same as check-all but uses test:fast (skips crypto/history-io slow tests).
-  audit      Only format:check + the 8 audit-* steps.
+  audit      Only format:check + the 10 audit-* steps.
   test       Only vitest test:ci.
   build      Only vite production build.
   doctor     Environment diagnostics (bun/node pins, git identity, hooks,
