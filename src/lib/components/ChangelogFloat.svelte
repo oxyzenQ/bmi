@@ -27,7 +27,13 @@
 	const versionTag = `v${changelogLatest.version}`;
 </script>
 
-<ModalShell {show} {onclose} panelMinWidth="min(520px, 92vw)" ariaLabel={t('changelog.title')}>
+<ModalShell
+	{show}
+	{onclose}
+	panelMinWidth="min(520px, 92vw)"
+	panelClass="changelog-panel"
+	ariaLabel={t('changelog.title')}
+>
 	<div class="changelog-float">
 		<div class="changelog-header">
 			<div class="changelog-icon" aria-hidden="true">
@@ -83,11 +89,20 @@
 		flex-direction: column;
 		gap: var(--space-3);
 		/* The frame owns the height: header and actions stay pinned
-                   while only the history body scrolls between them. Capping
-                   the float keeps the modal shell's own overflow from
-                   engaging, so there is exactly one scrolling region. */
-		max-height: min(calc(100dvh - 2rem), 760px);
+                   while only the history body scrolls between them. The cap
+                   subtracts the modal shell's own padding (2rem top + 2rem
+                   bottom on desktop) and its 3px frame border on each side,
+                   so the float always fits the panel's content box - the
+                   shell's overflow never engages and the float is the only
+                   scrolling surface. Adaptive: it tracks the viewport
+                   through dvh instead of a fixed bulk size. */
+		max-height: min(calc(100dvh - 6rem - 6px), 640px);
 		min-height: 0;
+	}
+	/* The float leases the shell's panel: scrolling stays inside the
+           history body, the shell itself must never gain a scrollbar. */
+	:global(.modal-shell-panel.changelog-panel) {
+		overflow: hidden;
 	}
 	.changelog-header {
 		display: flex;
@@ -96,6 +111,10 @@
 		gap: 0.5rem;
 		text-align: center;
 		flex-shrink: 0;
+		/* Frame divider: the line where the pinned header ends and
+                   the scrolling history begins. */
+		padding-bottom: var(--space-3);
+		border-bottom: 1px solid var(--w-20);
 	}
 	.changelog-icon {
 		display: flex;
@@ -194,8 +213,18 @@
 		display: flex;
 		justify-content: center;
 		flex-shrink: 0;
+		/* Frame divider: mirrors the header line so the scrollable
+                   middle is visually bounded on both edges. */
+		padding-top: var(--space-3);
+		border-top: 1px solid var(--w-20);
 	}
 	@media (max-width: 480px) {
+		.changelog-float {
+			/* Mobile: the shell panel pads 1.5rem per side and
+                           frames itself with a 3px border, so the float caps
+                           at exactly the panel's content box. */
+			max-height: calc(100dvh - 5rem - 6px);
+		}
 		.changelog-title {
 			font-size: 1.1rem;
 		}
