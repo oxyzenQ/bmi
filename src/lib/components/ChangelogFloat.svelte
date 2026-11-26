@@ -25,6 +25,30 @@
 	// old releases up to the latest bump. No network, works offline.
 	const history = changelogLatest.history;
 	const versionTag = `v${changelogLatest.version}`;
+
+	// Scroll-edge fades: the history dissolves into the well near its
+	// rounded ends instead of being cut off hard mid-line. Each fade
+	// only appears when there is more history in that direction, so at
+	// rest both edges read calm.
+	let bodyEl: HTMLDivElement | null = $state(null);
+	let showFadeTop = $state(false);
+	let showFadeBottom = $state(false);
+
+	function syncFades(): void {
+		const el = bodyEl;
+		if (!el) return;
+		showFadeTop = el.scrollTop > 1;
+		showFadeBottom = el.scrollTop + el.clientHeight < el.scrollHeight - 1;
+	}
+
+	$effect(() => {
+		// Re-measure when the modal opens and when the locale flips while
+		// it is open - both change the laid-out height of the history.
+		void _rv;
+		if (show) {
+			requestAnimationFrame(syncFades);
+		}
+	});
 </script>
 
 <ModalShell
@@ -44,32 +68,44 @@
 		</div>
 
 		{#if history.length > 0}
-			<div class="changelog-body">
-				{#each history as release, i (i)}
-					<section class="changelog-release">
-						<h3 class="changelog-release-version">v{release.version}</h3>
-						{#each release.groups as group, g (g)}
-							<div class="changelog-group">
-								{#if group.title}
-									<h4 class="changelog-group-title">{group.title}</h4>
-								{/if}
-								<ul class="changelog-entries">
-									{#each group.entries as entry, j (j)}
-										<li class="changelog-entry">
-											<span class="changelog-entry-text">{entry.text}</span>
-											{#if entry.sha}
-												<span class="changelog-entry-sha">
-													<GitCommitHorizontal size={13} aria-hidden="true" />
-													{entry.sha}
-												</span>
-											{/if}
-										</li>
-									{/each}
-								</ul>
-							</div>
-						{/each}
-					</section>
-				{/each}
+			<div class="changelog-body" bind:this={bodyEl} onscroll={syncFades}>
+				<div
+					class="changelog-fade changelog-fade-top"
+					class:visible={showFadeTop}
+					aria-hidden="true"
+				></div>
+				<div class="changelog-stack">
+					{#each history as release, i (i)}
+						<section class="changelog-release">
+							<h3 class="changelog-release-version">v{release.version}</h3>
+							{#each release.groups as group, g (g)}
+								<div class="changelog-group">
+									{#if group.title}
+										<h4 class="changelog-group-title">{group.title}</h4>
+									{/if}
+									<ul class="changelog-entries">
+										{#each group.entries as entry, j (j)}
+											<li class="changelog-entry">
+												<span class="changelog-entry-text">{entry.text}</span>
+												{#if entry.sha}
+													<span class="changelog-entry-sha">
+														<GitCommitHorizontal size={13} aria-hidden="true" />
+														{entry.sha}
+													</span>
+												{/if}
+											</li>
+										{/each}
+									</ul>
+								</div>
+							{/each}
+						</section>
+					{/each}
+				</div>
+				<div
+					class="changelog-fade changelog-fade-bottom"
+					class:visible={showFadeBottom}
+					aria-hidden="true"
+				></div>
 			</div>
 		{:else}
 			<p class="changelog-empty">{t('changelog.empty')}</p>
@@ -87,24 +123,24 @@
 	.changelog-float {
 		display: flex;
 		flex-direction: column;
-		/* One boundary per edge: the well's own rounded border is
-                   the only divider the frame gets - no extra header or
-                   action lines beside it (that read as double lines).
-                   The gap keeps the three zones breathing apart. */
+		/* One boundary language: the panel frame draws the only lines,
+		   the well is a bare surface - no header, action or well edges
+		   (nested lines read as a box inside a box). The gap keeps the
+		   three zones breathing apart. */
 		gap: var(--space-4);
 		/* The frame owns the height: header and actions stay pinned
-                   while only the history body scrolls between them. The cap
-                   subtracts the modal shell's own padding (2rem top + 2rem
-                   bottom on desktop) and its 3px frame border on each side,
-                   so the float always fits the panel's content box - the
-                   shell's overflow never engages and the float is the only
-                   scrolling surface. Adaptive: it tracks the viewport
-                   through dvh instead of a fixed bulk size. */
+		   while only the history body scrolls between them. The cap
+		   subtracts the modal shell's own padding (2rem top + 2rem
+		   bottom on desktop) and its 3px frame border on each side,
+		   so the float always fits the panel's content box - the
+		   shell's overflow never engages and the float is the only
+		   scrolling surface. Adaptive: it tracks the viewport
+		   through dvh instead of a fixed bulk size. */
 		max-height: min(calc(100dvh - 6rem - 6px), 640px);
 		min-height: 0;
 	}
 	/* The float leases the shell's panel: scrolling stays inside the
-           history body, the shell itself must never gain a scrollbar. */
+	   history body, the shell itself must never gain a scrollbar. */
 	:global(.modal-shell-panel.changelog-panel) {
 		overflow: hidden;
 	}
@@ -129,17 +165,21 @@
 		margin: 0;
 	}
 	.changelog-version {
+		/* The current release as a quiet pill: the build the reader is
+		   on, stated once, not a heading competing with the history. */
+		display: inline-flex;
+		align-items: center;
+		padding: 0.2rem 0.75rem;
 		font-family: var(--font-mono);
 		font-size: var(--text-sm);
-		color: var(--w-50);
+		color: var(--w-70);
+		background: var(--w-10);
+		border-radius: 9999px;
 		margin: 0;
 	}
 	.changelog-body {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-3);
 		/* The one scrolling region: the frame above and the action
-                   below never move, the history moves under them. */
+		   below never move, the history moves under them. */
 		flex: 1 1 auto;
 		min-height: 0;
 		overflow-y: auto;
@@ -147,15 +187,12 @@
 		-webkit-overflow-scrolling: touch;
 		scrollbar-width: thin;
 		scrollbar-color: var(--w-20) transparent;
-		/* The scroll well: the history curves into rounded left
-                   and right ends instead of ending sharp against the
-                   panel wall, and the faint fill reads the scrollable
-                   area as one bounded surface. The well border is the
-                   single divider between the pinned frame and the
-                   scrolling middle - both edges at once, one line. */
-		padding: var(--space-3);
-		background: var(--w-2);
-		border: 1px solid var(--w-10);
+		/* The scroll well: a bare rounded surface, the faint fill
+		   alone bounds the scrollable area. It draws no border - a
+		   line around the well while the panel frame already has
+		   one reads as a box inside a box. The surface is the
+		   boundary; the frame keeps its single line. */
+		background: var(--w-5);
 		border-radius: var(--radius-lg);
 	}
 	.changelog-body::-webkit-scrollbar {
@@ -167,6 +204,54 @@
 	.changelog-body::-webkit-scrollbar-thumb {
 		background: var(--w-20);
 		border-radius: 9999px;
+	}
+	.changelog-stack {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-3);
+		padding: var(--space-3);
+	}
+	/* Scroll-edge fades: pinned to the well's rounded ends, they veil
+	   the history as it passes the cut so no line of text is sliced
+	   hard mid-glyph. Zero-height sticky anchors - they take no room,
+	   ease in with a short opacity fade, and the script only lights
+	   them when there is more history in that direction. The gradient
+	   starts at the well's own composite fill (--w-5 over the black
+	   panel) so the veil and the surface blend into one plane. */
+	.changelog-fade {
+		position: sticky;
+		height: 0;
+		z-index: 1;
+		pointer-events: none;
+		opacity: 0;
+		transition: opacity 0.15s ease;
+	}
+	.changelog-fade.visible {
+		opacity: 1;
+	}
+	.changelog-fade-top {
+		top: 0;
+	}
+	.changelog-fade-top::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 20px;
+		background: linear-gradient(to bottom, color-mix(in srgb, white 5%, black), transparent);
+	}
+	.changelog-fade-bottom {
+		bottom: 0;
+	}
+	.changelog-fade-bottom::before {
+		content: '';
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: 20px;
+		background: linear-gradient(to top, color-mix(in srgb, white 5%, black), transparent);
 	}
 	.changelog-release + .changelog-release {
 		border-top: 1px solid var(--w-10);
@@ -180,10 +265,18 @@
 		margin: 0 0 0.5rem;
 	}
 	.changelog-group-title {
-		font-size: var(--text-lg);
+		/* Editorial ledger label: small caps with a wide track, the
+		   group reads as a label above its entries, not a heading
+		   competing with the release version above it. */
+		font-size: var(--text-sm);
 		font-weight: 600;
-		color: var(--w-70);
-		margin: 0 0 0.5rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--w-50);
+		margin: 0 0 0.625rem;
+	}
+	.changelog-group + .changelog-group {
+		margin-top: var(--space-3);
 	}
 	.changelog-entries {
 		list-style: none;
@@ -206,12 +299,18 @@
 		color: var(--w-95);
 	}
 	.changelog-entry-sha {
+		/* The sha as a quiet pill: the commit ref reads as metadata,
+		   not as a second line of the entry text. */
 		display: inline-flex;
 		align-items: center;
-		gap: 0.25rem;
+		align-self: flex-start;
+		gap: 0.3rem;
+		padding: 0.15rem 0.5rem;
 		font-family: var(--font-mono);
 		font-size: var(--text-sm);
 		color: var(--w-50);
+		background: var(--w-10);
+		border-radius: 9999px;
 	}
 	.changelog-empty {
 		font-size: var(--text-lg);
@@ -226,9 +325,9 @@
 	}
 	@media (max-width: 480px) {
 		.changelog-float {
-			/* Mobile: the shell panel pads 1.5rem per side and
-                           frames itself with a 3px border, so the float caps
-                           at exactly the panel's content box. */
+			/* Mobile: the shell panel pads 1.5rem per side and frames
+			   itself with a 3px border, so the float caps at exactly
+			   the panel's content box. */
 			max-height: calc(100dvh - 5rem - 6px);
 		}
 		.changelog-title {
