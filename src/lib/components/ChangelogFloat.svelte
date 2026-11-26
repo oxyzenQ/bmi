@@ -82,6 +82,12 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-3);
+		/* The frame owns the height: header and actions stay pinned
+                   while only the history body scrolls between them. Capping
+                   the float keeps the modal shell's own overflow from
+                   engaging, so there is exactly one scrolling region. */
+		max-height: min(calc(100dvh - 2rem), 760px);
+		min-height: 0;
 	}
 	.changelog-header {
 		display: flex;
@@ -89,6 +95,7 @@
 		align-items: center;
 		gap: 0.5rem;
 		text-align: center;
+		flex-shrink: 0;
 	}
 	.changelog-icon {
 		display: flex;
@@ -112,6 +119,25 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-3);
+		/* The one scrolling region: the frame above and the action
+                   below never move, the history moves under them. */
+		flex: 1 1 auto;
+		min-height: 0;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: thin;
+		padding-right: 0.35rem;
+	}
+	.changelog-body::-webkit-scrollbar {
+		width: 6px;
+	}
+	.changelog-body::-webkit-scrollbar-track {
+		background: transparent;
+	}
+	.changelog-body::-webkit-scrollbar-thumb {
+		background: var(--w-20);
+		border-radius: 3px;
 	}
 	.changelog-release + .changelog-release {
 		border-top: 1px solid var(--w-10);
@@ -167,6 +193,7 @@
 	.changelog-actions {
 		display: flex;
 		justify-content: center;
+		flex-shrink: 0;
 	}
 	@media (max-width: 480px) {
 		.changelog-title {
