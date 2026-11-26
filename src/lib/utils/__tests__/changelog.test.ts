@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only OR Commercial
 
 import { describe, expect, it } from 'vitest';
-import { extractChangelogSection } from '../changelog';
+import { extractChangelogHistory, extractChangelogSection } from '../changelog';
 
 const LEDGER = [
 	'# Changelog',
@@ -162,5 +162,95 @@ describe('extractChangelogSection', () => {
 		// No groups is no section: null, so the UI renders the honest
 		// empty state instead of a version heading over a blank body.
 		expect(extractChangelogSection(ledger, '80.5.5')).toBeNull();
+	});
+});
+
+describe('extractChangelogHistory', () => {
+	it('walks every recorded release section newest first', () => {
+		const history = extractChangelogHistory(LEDGER);
+		expect(history.map((section) => section.version)).toEqual(['80.5.4', '80.5.3']);
+		expect(history[0].groups).toHaveLength(2);
+		expect(history[0].groups[0].entries[0].text).toBe(
+			'Internal research: the runtime-claim registry re-truthed'
+		);
+	});
+
+	it('never ships the book headings or their bodies', () => {
+		const ledger = [
+			'# Changelog',
+			'## [Released]',
+			'',
+			'v80.5.4',
+			'v80.5.3',
+			'',
+			'## [80.5.4]',
+			'',
+			'### Changed',
+			'- **a real entry** _(aaaaaaa)_',
+			'',
+			'## [Unreleased]',
+			'',
+			'### Added',
+			'- **unreleased churn** _(bbbbbbb)_',
+			'- **** _(gpg: Signature made Thu 26 Nov 2026 08:12:04 PM WIB)_',
+			''
+		].join('\n');
+		const history = extractChangelogHistory(ledger);
+		expect(history).toHaveLength(1);
+		expect(history[0].version).toBe('80.5.4');
+		const flat = JSON.stringify(history);
+		expect(flat).not.toContain('unreleased churn');
+		expect(flat).not.toContain('gpg:');
+		// The bare version ledger lines are bookkeeping, not sections or
+		// entries: nothing under the Released heading becomes a record.
+		expect(flat).not.toContain('"80.5.3"');
+	});
+
+	it('drops ritual bullets and ritual-only sections across the whole history', () => {
+		const ledger = [
+			'## [80.5.6]',
+			'',
+			'### Changed',
+			'- **_(gpg: Signature made Thu 26 Nov 2026 08:12:04 PM WIB)_**',
+			'- **the newest entry** _(ccccccc)_',
+			'',
+			'## [80.5.5]',
+			'',
+			'### Changed',
+			'- **** _(gpg: Good signature from "rezky_nightky (oxyzenQ) <oxyzenQ@proton.me>" [ultimate])_',
+			''
+		].join('\n');
+		const history = extractChangelogHistory(ledger);
+		expect(history.map((section) => section.version)).toEqual(['80.5.6']);
+		expect(history[0].entries ?? history[0].groups[0].entries).toHaveLength(1);
+		const flat = JSON.stringify(history);
+		expect(flat).not.toContain('gpg:');
+		expect(flat).not.toContain('oxyzenQ');
+		expect(flat).not.toContain('noreply');
+	});
+
+	it('keeps per-section untitled groups and suffix labels honest', () => {
+		const ledger = [
+			'## [80.5.4] — Stellar-v80.5.4',
+			'- **loose bullet** _(abc1234)_',
+			'',
+			'### Changed',
+			'- **grouped bullet**',
+			''
+		].join('\n');
+		const history = extractChangelogHistory(ledger);
+		expect(history).toHaveLength(1);
+		expect(history[0].version).toBe('80.5.4');
+		expect(history[0].groups[0].title).toBe('');
+		expect(history[0].groups[0].entries[0]).toEqual({ text: 'loose bullet', sha: 'abc1234' });
+		expect(history[0].groups[1].entries[0]).toEqual({ text: 'grouped bullet', sha: null });
+	});
+
+	it('handles ledger line endings across the whole walk', () => {
+		const crlf = LEDGER.replaceAll('\n', '\r\n');
+		expect(extractChangelogHistory(crlf).map((section) => section.version)).toEqual([
+			'80.5.4',
+			'80.5.3'
+		]);
 	});
 });
