@@ -501,11 +501,15 @@ below the 600-line ratchet and left the ledger). Semantics, stated
 honestly: sealing is session-gated — the Argon2id session key derives
 from the ledger passphrase against a per-device random salt
 (`__at_rest_salt` in the IndexedDB meta store) and lives in volatile
-memory only while unlocked; registration happens in `enableEncryption()`
-and in verifier-anchored successful decrypts (`verifyPassphrase()`, and a
-bounded five-second fire-and-forget check behind every successful file
-decrypt that can never stall the caller — values written before it
-completes stay plaintext until their next write). Sealed values are
+memory only while unlocked; registration happens only through the
+explicit doors `enableEncryption()` and `unlockAtRestSessionIfVerified()`
+— `decrypt()` is pure and never registers (night-cafe-9: a decrypt-side
+registration sealed the imported ledger behind a key that dies with the
+tab, and with no cold-load unlock surface the next session read its own
+history as missing while the purge guard silently refused every new
+save). No production flow registers a session yet, so the seal stays
+dormant and the ledger stays plaintext until an unlock UI ships. Sealed
+values are
 `bmi-at-rest-v1:` + base64 JSON envelopes with a fresh 12-byte IV per
 value, AES-GCM auth tag plus a SHA-256 ciphertext checksum. The cache
 holds plaintext while unlocked; the localStorage mirror and IndexedDB
@@ -531,11 +535,20 @@ Night-frontier-Z3 sharpening: the session's start moment had been a dead
 wire — `enableEncryption()` had no caller in any UI flow, so the
 verifier never existed and the seal never activated live (real code,
 real tests, unreachable product). The first passphrase-proven import
-now establishes the verifier (`establishLedgerVerifier`), the import
-path awaits the verifier-anchored unlock (30 s bounded budget) so the
-ledger write never races the purge guard, and the production CSP gained
-the narrow `wasm-unsafe-eval` token the KDF worker's Rust engine needs —
-the seal side proven live by the P7/P8 claims, the wasm seat by P16.
+establishes the verifier (`establishLedgerVerifier`), and the production
+CSP gained the narrow `wasm-unsafe-eval` token the KDF worker's Rust
+engine needs. Night-cafe-9 correction: that sharpening let the import
+establish the verifier AND register the session, so the imported write
+sealed at rest behind a passphrase the next cold load could never
+re-present (no unlock UI exists) — the stranded ledger read as "No
+history yet" everywhere while the purge guard silently refused every new
+calculation, and clearing all data was the only escape. The verifier
+establishment is now verifier-only (the proof is recorded, the session
+is never registered, the imported write stays plaintext), and the
+honest law is pinned: a value must never be sealed on a device where no
+flow can re-present the passphrase afterward. The purge-guard law is
+proven live by the P8 claim against a device-sealed envelope, the
+establish-import plaintext law by P7, and the wasm seat by P16.
 Night-frontier-Z6 sharpening: the session's Argon2id derivation now
 yields BOTH keys in one pass (`deriveSessionKeys`) — the AES seal key
 and the witness attestation material, an HKDF-SHA256 subkey
@@ -566,15 +579,18 @@ load, before harness interactions can enlarge the LCP candidate), and
 zero main-thread long tasks during the Argon2id export derivation (the
 window opens after the strength meter's debounced zxcvbn work settles,
 so the claim measures the derive/encrypt/deliver path), plus the
-night-frontier-Z3 five: the at-rest seal live (the establish import
-through the real UI, the verifier created, the write landing sealed),
-the purge guard (a locked calculation cannot overwrite the sealed
-ledger, raw envelope byte-identical), locked-read semantics (the export
-preview reads 0 records while locked, the unlock restores
-readability), the continuity witness riding real saves with the head
-matching an independent in-page recomputation, and the witness freeze
-(a device tamper leaves the witness untouched while the recomputed
-chain diverges), plus the night-frontier-Z4 two: the OPFS vault tier
+night-cafe-9 five: the establish-import plaintext law (the establish
+import through the real UI, the verifier created, the ledger landing
+plaintext and readable — the seal never activates without a
+re-presentable passphrase), the purge guard (a locked calculation
+cannot overwrite a sealed ledger, raw envelope byte-identical, the
+envelope seeded device-side), locked-read semantics plus the honest
+recovery (the export preview reads 0 records while locked; the real
+clear-ledger UI plus a fresh import restores readability), the
+continuity witness riding real saves with the head matching an
+independent in-page recomputation, and the witness freeze (a device
+tamper leaves the witness untouched while the recomputed chain
+diverges), plus the night-frontier-Z4 two: the OPFS vault tier
 (the vault file exists in the origin's private file system, written
 through the sync-access-handle flush worker, and is byte-equivalent to
 the latest IndexedDB snapshot — the storage-inventory law moved in the
@@ -600,8 +616,9 @@ must be byte-identical before and after). The probe sources live in
 under its cap); the header claim list is one line per claim.
 Verification: PROVEN 18/18 — the P1 exact-value family split into the
 P1a/P1b/P1c trio, and night-frontier-Z8 grew the named registry to
-P16 (the seal-custody claim — one wasm engine instantiation, the v1
-envelope law, the checksum recompute; the page-side probe sources moved
+P16 (the seal-custody claim — one wasm engine instantiation and, since
+night-cafe-9, the plaintext-ledger law: no sealed envelope exists
+without an unlockable session; the page-side probe sources moved
 to `scripts/proof/page-sources.ts` to stay under
 the 1000-line hard cap as the claim set grew), the measurement records
 shipping as CI artifacts. Honest limit: the harness
