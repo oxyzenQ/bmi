@@ -100,4 +100,41 @@ describe('extractChangelogSection', () => {
 		const crlf = LEDGER.replaceAll('\n', '\r\n');
 		expect(extractChangelogSection(crlf, '80.5.4')?.groups).toHaveLength(2);
 	});
+
+	it('drops the gpg signature-ritual bullets from the shipped section', () => {
+		// The release tooling records gpg verification output as ritual
+		// bullets in the ledger. The shipped payload must never carry them:
+		// the verification lines embed the signer identity, the exact
+		// material the artifact provenance gate forbids in the bundle
+		// (CI #719 - the signer contact rode the v80.5.5 section out).
+		const ledger = [
+			'## [80.5.5]',
+			'',
+			'### Changed',
+			'- **** _(gpg: Signature made Thu 26 Nov 2026 08:12:04 PM WIB)_',
+			'- **** _(gpg:                using EDDSA key 2B52187D2AB618A7591D45C9C7F8B07418899C4E)_',
+			'- **** _(gpg: Good signature from "rezky_nightky (oxyzenQ) <oxyzenQ@proton.me>" [ultimate])_',
+			'- **engrave the ux** _(e696f63)_',
+			''
+		].join('\n');
+		const section = extractChangelogSection(ledger, '80.5.5');
+		expect(section?.groups).toHaveLength(1);
+		expect(section?.groups[0].entries).toHaveLength(1);
+		expect(section?.groups[0].entries[0]).toEqual({ text: 'engrave the ux', sha: 'e696f63' });
+		const flat = JSON.stringify(section);
+		expect(flat).not.toContain('gpg:');
+		expect(flat).not.toContain('oxyzenQ');
+	});
+
+	it('prunes a group emptied out by the ritual filter', () => {
+		const ledger = [
+			'## [80.5.5]',
+			'',
+			'### Changed',
+			'- **** _(gpg: Signature made Thu 26 Nov 2026 08:12:04 PM WIB)_',
+			''
+		].join('\n');
+		const section = extractChangelogSection(ledger, '80.5.5');
+		expect(section?.groups).toHaveLength(0);
+	});
 });

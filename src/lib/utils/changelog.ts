@@ -38,6 +38,20 @@ function parseEntry(raw: string): ChangelogEntry {
 }
 
 /**
+ * The signature-verification ritual bullets the release tooling records
+ * in the ledger (`- **** _(gpg: Signature made ...)_`): empty subjects,
+ * the verification output riding in the reference slot. They are
+ * provenance noise, not release content, and they carry the signer
+ * identity - the one material the artifact provenance gate forbids in
+ * any shipped payload (scripts/gates/check-artifact-provenance.ts,
+ * identityNeedles: CI #719 shipped the signer contact inside the
+ * version section the app bundles). The ledger keeps the ritual; every
+ * consumer of this extractor - the virtual module and the UI it feeds -
+ * ships without it.
+ */
+const GPG_RITUAL_BULLET = /^\*+ _\(gpg:/;
+
+/**
  * Extract the section the ledger records for `version` (a leading `v`
  * is accepted and dropped). Returns null when the ledger holds no such
  * section - the caller renders the honest empty state instead of
@@ -70,6 +84,7 @@ export function extractChangelogSection(
 		}
 		const bulletMatch = line.match(/^- (.+)$/);
 		if (bulletMatch) {
+			if (GPG_RITUAL_BULLET.test(bulletMatch[1])) continue;
 			if (!current) {
 				current = { title: '', entries: [] };
 				groups.push(current);
@@ -78,5 +93,9 @@ export function extractChangelogSection(
 		}
 	}
 	if (!inSection) return null;
-	return { version: wanted, groups };
+	// The filter above can empty a group out (a heading followed only by
+	// ritual bullets); the payload invariant is that a shipped group
+	// carries at least one entry, so prune the shells.
+	const filled = groups.filter((group) => group.entries.length > 0);
+	return { version: wanted, groups: filled };
 }
