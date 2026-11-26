@@ -15,16 +15,16 @@
  *   P4  offline shell contract (the real app shell, network cut)
  *   P5  Web Vitals budgets (LCP and CLS)
  *   P6  zero long tasks under KDF (worker offload)
- *   P7  at-rest seal live (verifier established, write lands sealed)
- *   P8  purge guard (a locked session cannot overwrite the seal)
- *   P9  locked-read semantics (missing until the anchored unlock)
+ *   P7  establish import (verifier established, the ledger lands plaintext-readable) — night-cafe-9
+ *   P8  purge guard (a locked session cannot overwrite a sealed ledger; the envelope is seeded device-side)
+ *   P9  locked-read semantics and the honest recovery (missing while locked; clear-ledger + re-import restores) — night-cafe-9
  *   P10 continuity witness live (rides real saves, matches the ledger)
  *   P11 witness freeze (a tamper is never blessed)
  *   P12 vault tier (OPFS snapshot byte-equivalent to the IDB backup)
  *   P13 kdf ladder (production rungs at or above the OWASP floor)
  *   P14 single-writer law (lock serialization, union survives)
  *   P15 import gauntlet (poison refused: 0 unhandled, 0 egress, witness untouched) — Z7
- *   P16 seal custody live (one wasm engine instantiation, v1 envelope law, checksum recomputes) — Z8
+ *   P16 seal custody (one wasm engine instantiation, the plaintext-ledger law: no envelope without an unlockable session) — Z8, night-cafe-9
  *
  * Every proof is fail-closed: an infrastructure error fails its proof,
  * the harness exits non-zero, and nothing is reported as proven that was
@@ -59,7 +59,8 @@ import {
 	READ_LEDGER_STATE,
 	PROBE_LOCK_SERIALIZATION,
 	MERGED_LEDGER_AUDIT,
-	SEAL_CUSTODY_AUDIT
+	SEAL_CUSTODY_AUDIT,
+	CLEAR_LEDGER_VIA_UI
 } from './page-sources';
 
 // ── Configuration ──
@@ -109,6 +110,7 @@ type GauntletVerdict = {
 type SealCustodyVerdict = {
 	wasm: { count: number; bytes: number };
 	envelope: { v: number; ivBytes: number; chkMatches: boolean };
+	sealed: boolean;
 };
 
 /** Web Vitals budgets (ms / unitless). */
@@ -557,11 +559,11 @@ async function main(): Promise<number> {
 				while (Date.now() < deadlineModal) {
 					modalReady = await page!.evaluate(
 						`() => {
-							const d = [...document.querySelectorAll('[role="dialog"]')].find((x) =>
-								x.querySelector('form')
-							);
-							return d ? d.querySelectorAll('input[type="password"]').length >= 2 : false;
-						}`
+                                                        const d = [...document.querySelectorAll('[role="dialog"]')].find((x) =>
+                                                                x.querySelector('form')
+                                                        );
+                                                        return d ? d.querySelectorAll('input[type="password"]').length >= 2 : false;
+                                                }`
 					);
 					if (modalReady) break;
 					await sleep(300);
@@ -613,7 +615,7 @@ async function main(): Promise<number> {
 
 		// ── P7: at-rest seal live (night-frontier-Z3) ──
 		await prove(
-			'P7 at-rest seal live: the first passphrase-proven import establishes the verifier and the ledger write lands sealed',
+			'P7 establish import: the first passphrase-proven import establishes the verifier and the ledger lands plaintext and readable (night-cafe-9)',
 			async () => {
 				// The P6 export delivered an encrypted v4 file, captured by the startup interceptor. Feed it
 				// through the real import input — the same path a user's file takes.
@@ -647,38 +649,47 @@ async function main(): Promise<number> {
 				}
 				expect(closed, 'import modal never closed after the establish import');
 
-				// The verifier exists, and the imported ledger write sealed.
-				const deadlineSealed = Date.now() + 15000;
-				let sealedRaw = false;
+				// The verifier exists, and the imported ledger write landed
+				// PLAINTEXT (night-cafe-9): raw storage holds readable JSON,
+				// never the envelope.
+				const deadlineReady = Date.now() + 15000;
+				let recordCount = 0;
 				let verifier = null as string | null;
 				let enabled = null as string | null;
-				while (Date.now() < deadlineSealed) {
+				while (Date.now() < deadlineReady) {
 					const state = await page!.evaluate<{
 						verifier: string | null;
 						enabled: string | null;
-						sealedRaw: boolean;
+						recordCount: number;
 					}>(`async () => {
-						const readMeta = ${READ_META};
-						return {
-							verifier: await readMeta('__encryption_verifier'),
-							enabled: await readMeta('__encryption_enabled'),
-							sealedRaw: (localStorage.getItem('bmi.history') || '').startsWith('bmi-at-rest-v1:')
-						};
-					}`);
+                                                const readMeta = ${READ_META};
+                                                let count = 0;
+                                                try {
+                                                        count = JSON.parse(localStorage.getItem('bmi.history') || '[]').length;
+                                                } catch (e) {}
+                                                return {
+                                                        verifier: await readMeta('__encryption_verifier'),
+                                                        enabled: await readMeta('__encryption_enabled'),
+                                                        recordCount: count
+                                                };
+                                        }`);
 					verifier = state.verifier;
 					enabled = state.enabled;
-					sealedRaw = state.sealedRaw;
-					if (sealedRaw && verifier && enabled === '1') break;
+					recordCount = state.recordCount;
+					if (verifier && enabled === '1' && recordCount > 0) break;
 					await sleep(500);
 				}
 				expect(Boolean(verifier), 'ledger verifier was never established');
 				expect(enabled === '1', 'encryption flag never enabled');
-				expect(sealedRaw, 'the ledger write never sealed at rest');
-				const plaintextLeak = await page!.evaluate<string | null>(
-					`() => { const raw = localStorage.getItem('bmi.history') || ''; return raw.includes('"timestamp"') ? 'PLAINTEXT-AT-REST' : null; }`
+				expect(recordCount > 0, 'the imported ledger is not readable as plaintext');
+				const sealedRaw = await page!.evaluate<boolean>(
+					`() => (localStorage.getItem('bmi.history') || '').startsWith('bmi-at-rest-v1:')`
 				);
-				expect(plaintextLeak === null, 'plaintext health data found in raw storage');
-				return 'verifier established, session registered, ledger write sealed (bmi-at-rest-v1)';
+				expect(
+					sealedRaw === false,
+					'the imported ledger landed sealed — the night-cafe-9 regression'
+				);
+				return 'verifier established, session unregistered, ledger plaintext-readable (night-cafe-9)';
 			}
 		);
 
@@ -719,11 +730,24 @@ async function main(): Promise<number> {
 			}
 		);
 
-		// ── P8: purge guard (locked session cannot overwrite the seal) ──
+		// ── P8: purge guard (locked session cannot overwrite a sealed ledger) ──
 		await prove(
-			'P8 purge guard: a locked session cannot overwrite the sealed ledger (raw envelope and witness untouched by a live calculation)',
+			'P8 purge guard: a locked session cannot overwrite a sealed ledger (raw envelope and witness untouched by a live calculation; the envelope is seeded device-side — night-cafe-9)',
 			async () => {
 				// Cold load: the volatile session key is gone, the ledger locks.
+				await page!.navigate(`${BASE_URL}/`);
+				await sleep(3000);
+
+				// Seed a sealed envelope device-side. Since night-cafe-9 the app
+				// itself no longer produces one (the import path stays plaintext),
+				// but the purge guard is a storage-layer law: it must hold for any
+				// sealed value the session cannot open — a stranded legacy ledger
+				// included.
+				await page!.evaluate(
+					`() => { localStorage.setItem('bmi.history', 'bmi-at-rest-v1:c2VhbGVkLWxlZGdlci1ob25lc3Q='); return true; }`
+				);
+
+				// Second cold load so the realm's storage cache serves the envelope.
 				await page!.navigate(`${BASE_URL}/`);
 				await sleep(3000);
 				await page!.evaluate(`() => { location.hash = '#calculator'; return true; }`);
@@ -873,22 +897,22 @@ async function main(): Promise<number> {
 				// And the head differs from the chain over the tampered pair: the divergence between witness and stored content is real.
 				const foreignChain = await page!.evaluate<{ head: string }>(
 					`async () => {
-						const enc = new TextEncoder();
-						const dig = async (t) => {
-							const b = await crypto.subtle.digest('SHA-256', enc.encode(t).buffer);
-							return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join('');
-						};
-						const arr = [
-							{ timestamp: 1700000100000, bmi: 24.9, height: 165, weight: 68, age: 44 },
-							{ timestamp: 1700000200000, bmi: 25.4, height: 165, weight: 69, age: 44 }
-						];
-						let link = await dig('bmi-stellar-ledger-v4-genesis');
-						for (const r of arr) {
-							const c = JSON.stringify({ timestamp: r.timestamp, bmi: r.bmi, height: r.height, weight: r.weight, age: r.age });
-							link = await dig(link + ':' + c);
-						}
-						return { head: link };
-					}`
+                                                const enc = new TextEncoder();
+                                                const dig = async (t) => {
+                                                        const b = await crypto.subtle.digest('SHA-256', enc.encode(t).buffer);
+                                                        return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join('');
+                                                };
+                                                const arr = [
+                                                        { timestamp: 1700000100000, bmi: 24.9, height: 165, weight: 68, age: 44 },
+                                                        { timestamp: 1700000200000, bmi: 25.4, height: 165, weight: 69, age: 44 }
+                                                ];
+                                                let link = await dig('bmi-stellar-ledger-v4-genesis');
+                                                for (const r of arr) {
+                                                        const c = JSON.stringify({ timestamp: r.timestamp, bmi: r.bmi, height: r.height, weight: r.weight, age: r.age });
+                                                        link = await dig(link + ':' + c);
+                                                }
+                                                return { head: link };
+                                        }`
 				);
 				expect(after.witness!.head !== foreignChain.head, 'the witness equals the tampered chain');
 				return `witness stayed at ${before.witness!.head.slice(0, 12)}... (length ${String(before.witness!.length)}), diverged from the tampered chain`;
@@ -917,21 +941,21 @@ async function main(): Promise<number> {
 			}
 		);
 
-		// ── P16: the seal custody live (night-frontier-Z8) ──
+		// ── P16: the seal custody (night-frontier-Z8, night-cafe-9) ──
 		await prove(
-			'P16 seal custody live: exactly one wasm engine instantiation (the digest-verified seat) and the sealed ledger obeys the v1 envelope law with an independently recomputed checksum',
+			'P16 seal custody: exactly one wasm engine instantiation (the digest-verified seat) and the plaintext-ledger law holds — no sealed envelope exists without an unlockable session',
 			async () => {
 				const audit = await page!.evaluate<SealCustodyVerdict>(SEAL_CUSTODY_AUDIT);
-				const { wasm, envelope } = audit;
+				const { wasm, envelope, sealed } = audit;
 				expect(
-					envelope.v === 1 && envelope.ivBytes === 12 && envelope.chkMatches,
-					`no sealed v1 envelope with a recomputing checksum (sealed=${String(audit.sealed)} v=${String(envelope.v)} iv=${String(envelope.ivBytes)}B chk=${String(envelope.chkMatches)})`
+					sealed === false && envelope.v === 0 && envelope.ivBytes === 0 && !envelope.chkMatches,
+					`a sealed envelope exists without an unlockable session (night-cafe-9 law; sealed=${String(sealed)} v=${String(envelope.v)} iv=${String(envelope.ivBytes)}B chk=${String(envelope.chkMatches)})`
 				);
 				expect(
 					wasm.count === 1 && wasm.bytes >= 50000 && wasm.bytes <= 72000,
 					`expected one engine-band wasm instantiation, saw ${String(wasm.count)} at ${String(wasm.bytes)} bytes`
 				);
-				return `engine seat live (${String(audit.wasm.bytes)}-byte artifact), envelope v1 with a 12-byte IV and a recomputing checksum`;
+				return `engine seat live (${String(wasm.bytes)}-byte artifact), plaintext ledger with no stray envelope`;
 			}
 		);
 

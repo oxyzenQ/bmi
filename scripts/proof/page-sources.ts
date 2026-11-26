@@ -504,3 +504,33 @@ export const GAUNTLET_RUN = `async ({ validEnvelope, passphrase }) => {
     ledgerSealed: Boolean(historyRaw && historyRaw.indexOf('bmi-at-rest-v1:') === 0)
   };
 }`;
+
+// ── night-cafe-9: the honest recovery probe ──
+
+/** Drive the real clear-ledger flow: the calculator's danger button, then
+ *  the Delete confirmation in the notify overlay. The documented recovery
+ *  for a stranded sealed ledger (night-cafe-9): clear, then re-import. */
+export const CLEAR_LEDGER_VIA_UI = `async () => {
+  const clear = [...document.querySelectorAll('button')].find(
+    (b) => (b.getAttribute('aria-label') || '') === 'Clear all data'
+  );
+  if (!clear) throw new Error('missing clear-all button');
+  clear.click();
+  const deadline = Date.now() + 10000;
+  let confirm = null;
+  while (Date.now() < deadline) {
+    confirm = [...document.querySelectorAll('.notify-btn.btn-delete')].find(
+      (b) => (b.textContent || '').trim() === 'Delete'
+    );
+    if (confirm) break;
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  if (!confirm) throw new Error('delete confirmation never appeared');
+  confirm.click();
+  const deadlineGone = Date.now() + 12000;
+  while (Date.now() < deadlineGone) {
+    if (!localStorage.getItem('bmi.history')) return true;
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  throw new Error('the ledger never cleared');
+}`;
