@@ -88,7 +88,7 @@ body::before {
 	bottom: -12px;
 	min-height: calc(100vh + 24px);
 	z-index: var(--z-base);
-	/* Negative z-index: intentional — renders behind all content */
+	/* z-base (0) sits behind all content layers (z-content is 1) */
 	background-color: var(--cosmic-deep);
 	background-image: var(--wallpaper-current);
 	background-size: cover;
@@ -97,10 +97,10 @@ body::before {
 	pointer-events: none;
 	filter: brightness(0.55);
 	/* Explicit GPU layer promotion — ensures the dimmed wallpaper
-     is cached as a single compositor texture, zero per-frame paint.
-     filter alone creates a compositing context on modern browsers,
-     but will-change + translateZ(0) guarantees layer promotion
-     even on older GPUs / Android WebViews that may not auto-promote. */
+	     is cached as a single compositor texture, zero per-frame paint.
+	     filter alone creates a compositing context on modern browsers,
+	     but will-change + translateZ(0) guarantees layer promotion
+	     even on older GPUs / Android WebViews that may not auto-promote. */
 	will-change: filter;
 	transform: translateZ(0);
 }
@@ -122,7 +122,7 @@ body::after {
 	bottom: -12px;
 	min-height: calc(100vh + 24px);
 	z-index: var(--z-base);
-	/* Negative z-index: intentional — gradient overlay behind content */
+	/* z-base (0): gradient overlay behind all content layers */
 	pointer-events: none;
 	background: linear-gradient(180deg, rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.32));
 }
@@ -173,8 +173,8 @@ pre {
 	max-width: 1200px;
 	margin-inline: auto;
 	/* center */
+	/* Flexible horizontal gutter */
 	padding-inline: clamp(1rem, 2vw, 2rem);
-	/* gutter fleksibel */
 	position: relative;
 	z-index: var(--z-content);
 }
