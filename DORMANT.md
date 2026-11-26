@@ -16,7 +16,7 @@ This guide is the wake-up checklist for BMI Stellar after a quiet period of 1-5 
 - Framework: SvelteKit 2, Svelte 5, TypeScript
 - Engine toolchain: Rust `1.100.0` pinned in `engine/argon2id/rust-toolchain.toml` (only needed to rebuild the wasm KDF artifact via `scripts/ci/wasm-provenance.sh --refresh`; the embedded artifact is verified against the crate in CI without a local Rust install)
 - Deployment target: Vercel with `@sveltejs/adapter-vercel`
-- License: AGPL-3.0-only, enforced in source headers as `AGPL-3.0-only`
+- License: AGPL-3.0-only OR Commercial, enforced in source headers as `AGPL-3.0-only OR Commercial` (the manifest spells the second seat as `LicenseRef-Commercial`)
 
 ## Wake-Up Order
 

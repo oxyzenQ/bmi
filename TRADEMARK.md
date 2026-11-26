@@ -5,9 +5,9 @@
 
 # BMI Stellar Trademark Policy
 
-This document governs the use of the **BMI Stellar** name, logo, and associated branding assets. It supplements, but does not replace, the AGPL-3.0-only License that covers the source code.
+This document governs the use of the **BMI Stellar** name, logo, and associated branding assets. It supplements, but does not replace, the AGPL-3.0-only License (the open-source seat of the dual **AGPL-3.0-only OR Commercial** license, see [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md)) that covers the source code.
 
-> **TL;DR** — You may fork, modify, and redistribute the code under the AGPL-3.0-only License, but you may **not** use the "BMI Stellar" name or branding to represent a modified or competing product without permission.
+> **TL;DR** — You may fork, modify, and redistribute the code under the AGPL-3.0-only License (or arrange a Commercial License for use beyond the AGPL bargain), but you may **not** use the "BMI Stellar" name or branding to represent a modified or competing product without permission.
 
 ---
 
