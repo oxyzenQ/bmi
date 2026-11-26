@@ -319,7 +319,12 @@
 	--btn-height: 44px;
 	--btn-padding-x: 18px;
 	--btn-font: 600 0.95rem/1 'Inter Variable', system-ui, -apple-system, sans-serif;
-	--btn-bg: linear-gradient(135deg, var(--deep-void-base) cc, #6b21a8cc);
+	/* night-cafe-7: the rest stop previously read "var(--deep-void-base) cc" —
+	   an alpha suffix cannot ride a var() reference, so the whole gradient
+	   was invalid and every primary button silently rendered without its
+	   fill. The stop now resolves through the deep-void ladder
+	   (rgba(18, 4, 32, 0.8) is exactly #120420cc). */
+	--btn-bg: linear-gradient(135deg, var(--deep-void-80), #6b21a8cc);
 	--btn-bg-hover: linear-gradient(135deg, #1a0630, #7e22ce);
 	--btn-bg-active: linear-gradient(135deg, #0d0418, #581c87);
 
@@ -407,6 +412,7 @@
 	--deep-void-50: rgba(18, 4, 32, 0.5);
 	--deep-void-55: rgba(18, 4, 32, 0.55);
 	--deep-void-65: rgba(18, 4, 32, 0.65);
+	--deep-void-80: rgba(18, 4, 32, 0.8);
 
 	/* ── COSMIC DEEP ──
        Fallback background for html element. */
