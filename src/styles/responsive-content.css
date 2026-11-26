@@ -381,7 +381,6 @@
 	.ScanHeart,
 	.FileChartColumn,
 	.BarChart3,
-	.X,
 	.Gauge {
 		width: var(--icon-card-lg) !important;
 		height: var(--icon-card-lg) !important;

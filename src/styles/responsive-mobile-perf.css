@@ -271,7 +271,11 @@
 
 	/* Page-3 hardening (gauge/details):
      stop continuous/infinite animations and interactive hover work
-     during touch scrolling. */
+     during touch scrolling. night-cafe-7: the ".goal-progress
+     .progress-fill" entry was removed — no element in the tree
+     carries the goal-progress wrapper class (the goal tracker is
+     .goal-tracker), and the bare ".progress-fill" entry above
+     already covers its fill. */
 	#gauge
 		:is(
 			.risk-indicator,
@@ -280,7 +284,6 @@
 			.progress-fill,
 			.comp-fill,
 			.range-fill,
-			.goal-progress .progress-fill,
 			.spark-point,
 			.chart-tooltip
 		) {

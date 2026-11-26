@@ -118,8 +118,7 @@
 	height: 24px !important;
 }
 
-.BarChart3,
-.X {
+.BarChart3 {
 	color: var(--cosmic-purple) !important;
 	width: clamp(40px, 8vw, 74px) !important;
 	height: clamp(40px, 8vw, 74px) !important;
