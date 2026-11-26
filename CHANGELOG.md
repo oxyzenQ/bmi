@@ -37,9 +37,9 @@ v80.0.0-night.1
 ### Changed
 
 - **** _(gpg: Signature made Thu 26 Nov 2026 08:12:04 PM WIB)_
-- **** _(gpg:                using EDDSA key 2B52187D2AB618A7591D45C9C7F8B07418899C4E)_
+- **** _(gpg: using EDDSA key 2B52187D2AB618A7591D45C9C7F8B07418899C4E)_
 - **** _(gpg: Good signature from "rezky_nightky (oxyzenQ) <oxyzenQ@proton.me>" [ultimate])_
-- **** _(gpg:                 aka "Rezky Cahya Sahputra (cosmic dragon) <130107241+oxyzenQ@users.noreply.github.com>" [ultimate])_
+- **** _(gpg: aka "Rezky Cahya Sahputra (cosmic dragon) <130107241+oxyzenQ@users.noreply.github.com>" [ultimate])_
 - **engrave the ux** _(e696f63)_
 - **Internal research: the About floating changelog window for the shipped release** _(2d6e519)_
 - **Internal research: freeze the architecture depth audit record (night-arc-gems-1)** _(1caf7af)_
