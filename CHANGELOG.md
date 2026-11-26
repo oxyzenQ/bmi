@@ -10,6 +10,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Released]
 
+v80.6.0
 v80.5.5
 v80.5.4
 v80.5.3
@@ -31,6 +32,29 @@ v80.0.1
 v80.0.0
 v80.0.0-night.2
 v80.0.0-night.1
+
+## [80.6.0]
+
+### Changed
+
+- **Internal research: the results page waits for the commit it displays** _(24cad7c)_
+- **Internal research: the CSV export answers instead of dying silently** _(f839f2a)_
+- **Internal research: record the night-cafe-8 pass in the ledger (night-cafe-8)** _(bd130d9)_
+- **Internal research: the float caps its own shell arithmetic** _(93111c3)_
+- **Internal research: the ledger backfills the tagged commits it lost** _(6f99918)_
+- **Internal research: the release splice reads the git history first** _(2eca19b)_
+- **Internal research: the floating window frame stays while the history scrolls** _(4202ff1)_
+- **Internal research: the floating window scrolls the full honest history** _(4eaeb3c)_
+- **Internal research: the ledger reader walks the whole release history** _(6e3a1d6)_
+- **Internal research: the ritual boundary hardens its paste shapes** _(d4550e6)_
+- **Internal research: the changelog boundary drops the gpg ritual bullets (CI #719)** _(4a9e841)_
+- **Internal research: the bump normalizes its own ledger output (CI #719)** _(969df04)_
+- **Internal research: the fast commit gate learns the format law (CI #719)** _(97751ae)_
+- **Internal research: normalize signed-commit whitespace in the release ledger (CI #719)** _(8f1b8ae)_
+
+### Chore
+
+- **maintenance deps weekly** _(2e77b81)_
 
 ## [80.5.5]
 
@@ -1020,20 +1044,3 @@ When waking the project after a dormant period, expect `bun audit` to flag advis
 _Link mapping: `[21.x.0]` sections correspond to the historic `Stellar-v21.x` tags; sections from the `v*` tag era onward match `package.json` directly. Commits referenced by short SHA can be inspected via `git show <sha>`._
 
 ## [Unreleased]
-
-### Fixed
-
-- **Internal research: night-cafe-7 — the invalid `--btn-bg` gradient stop repaired** _(6a2081a)_
-- **Internal research: night-cafe-7 — the double PWA update prompt silenced by the upstream convergence window** _(bb5bff0)_
-- **Internal research: night-cafe-7 — the changelog frame's duplicate divider lines removed, the well becomes the only boundary** _(2964844)_
-- **Internal research: night-cafe-8 — the invisible keyboard focus ring restored on every button** _(b82a0d8)_
-
-### Changed
-
-- **Internal research: night-cafe-7 — the dead CSS selectors removed** _(ee554e3)_
-- **Internal research: night-cafe-7 — the transition scope narrowed on interactive surfaces** _(4f28df7)_
-- **Internal research: night-cafe-7 — the base layer comment hygiene** _(bc0dc9b)_
-- **Internal research: night-cafe-7 — the changelog history scrolls inside a rounded well** _(e2a08be)_
-- **Internal research: night-cafe-8 — the changelog well redrawn as a bare borderless surface with scroll-edge fades** _(09d8d98)_
-- **Internal research: night-cafe-8 — the notification close control quieted to a ghost outline** _(b82a0d8)_
-- **Internal research: night-cafe-8 — the drop-zone transition list named explicitly instead of `all`** _(b82a0d8)_
