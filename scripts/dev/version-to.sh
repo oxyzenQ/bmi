@@ -194,9 +194,9 @@ show_usage() {
         printf '  ./scripts/dev/version-to.sh <target> --dry-run  preview every rewrite, write nothing\n'
         printf '  ./scripts/dev/version-to.sh <target> --commit   update, then stage + commit the surfaces\n'
         printf '\n'
-	printf 'Surfaces: package.json (source of truth), README.md (vX.Y.Z),\n'
-	printf 'DORMANT.md (X.Y.Z), CHANGELOG.md (Released ledger + the\n'
-	printf 'pre-filled release section).\n'
+        printf 'Surfaces: package.json (source of truth), README.md (vX.Y.Z),\n'
+        printf 'DORMANT.md (X.Y.Z), CHANGELOG.md (Released ledger + the\n'
+        printf 'pre-filled release section).\n'
 }
 
 TMP_WORK="$(mktemp)"
@@ -388,14 +388,17 @@ fi
 # 2. The "## [X.Y.Z]" release section is never an empty heading and never
 #    lands under "## [Unreleased]" (the night-log-3 fix: the bump used to
 #    file the release under Unreleased): it splices into the Released
-#    area, right after the ledger, newest first. Existing Unreleased
-#    bullets migrate into it (the Keep a Changelog release event), an
-#    empty Unreleased autofills from git history since the nearest
-#    previous reachable tag (grouped feat/fix/chore/rest into
-#    Added/Changed/Fixed/Chore bullets with short SHAs), and no reachable
-#    tag or an empty range splices an italic manual-fill note instead.
-#    The draft is editorial - the why still gets written by hand before
-#    the tag.
+#    area, right after the ledger, newest first. The git history since
+#    the nearest previous reachable tag is the record (the night-log-4
+#    fix: the v80.5.5 splice shipped seven of the thirteen tagged commits
+#    because hand-listed Unreleased bullets replaced the history) -
+#    grouped feat/fix/chore/rest into Added/Changed/Fixed/Chore bullets
+#    with short SHAs, skipping every commit a shipped section already
+#    records so the post-bump, pre-tag window never double-reports. The
+#    Unreleased bullets fill in only when no reachable tag exists or the
+#    range is empty, and no history at all splices an italic manual-fill
+#    note instead. The draft is editorial - the why still gets written
+#    by hand before the tag.
 if [ ! -f CHANGELOG.md ]; then
         warn "CHANGELOG.md - file absent, nothing to write"
 elif ! grep -q '^## \[Unreleased\]$' CHANGELOG.md; then
@@ -488,50 +491,67 @@ else
         if grep -qF "## [${NEW}]" CHANGELOG.md; then
                 same "CHANGELOG.md - ## [${NEW}] already recorded, nothing to write"
         else
-                unreleased_body | trim_blank_edges >"${TMP_WORK}.body"
-                if [ -s "${TMP_WORK}.body" ]; then
-                        SECTION_SOURCE="migrated the Unreleased bullets"
-                else
-                        SECTION_SOURCE="autofilled from git history"
-                        if BASE="$(autofill_base_tag)"; then
-                                git log --no-merges --format='%h%x09%s' "${BASE}..HEAD" >"${TMP_WORK}.raw" 2>/dev/null || :
-                                while IFS=$'\t' read -r sha subj; do
-                                        [ -n "${sha}" ] || continue
-                                        case "${subj}" in
-                                        "chore: prepare for release"*) continue ;;
-                                        feat*) sec="Added" ;;
-                                        fix*) sec="Fixed" ;;
-                                        chore*) sec="Chore" ;;
-                                        *) sec="Changed" ;;
-                                        esac
-                                        bullet="${subj}"
-                                        if printf '%s' "${subj}" | grep -qE '^[A-Za-z]+(\([^)]*\))?:[[:space:]]'; then
-                                                bullet="$(printf '%s' "${subj}" | sed -E 's/^[A-Za-z]+(\([^)]*\))?:[[:space:]]+//')"
-                                        fi
-                                        printf '%s\t- **%s** _(%s)_\n' "${sec}" "${bullet}" "${sha}"
-                                done <"${TMP_WORK}.raw" | awk -F'\t' '
-                                        { buf[$1] = buf[$1] $2 "\n"; seen[$1] = 1 }
-                                        END {
-                                                first = 1
-                                                split("Added Changed Fixed Chore", ord, " ")
-                                                for (i = 1; i <= 4; i++) {
-                                                        if (!seen[ord[i]]) continue
-                                                        if (!first) printf "\n"
-                                                        first = 0
-                                                        printf "### %s\n\n", ord[i]
-                                                        printf "%s", buf[ord[i]]
-                                                }
-                                        }
-                                ' >"${TMP_WORK}.body"
-                                rm -f "${TMP_WORK}.raw"
-                                if [ ! -s "${TMP_WORK}.body" ]; then
-                                        printf '_No commits recorded since %s - fill the section from the release diff manually._\n' "${BASE}" >"${TMP_WORK}.body"
-                                        SECTION_SOURCE="empty range since ${BASE}"
+                # The git history is the record (night-log-4, the v80.5.5
+                # lesson): the range since the previous reachable tag is
+                # complete by construction, while migrated Unreleased
+                # bullets carry only what was listed by hand - the v80.5.5
+                # splice shipped seven of the thirteen tagged commits
+                # because the migration replaced the history instead of
+                # yielding to it. History fills the section first; the
+                # Unreleased bullets fall back only when no range exists or
+                # the range is empty; and a commit whose short SHA any
+                # shipped section already records is skipped, so the
+                # post-bump, pre-tag window never double-reports in the
+                # next release's section.
+                SECTION_SOURCE="autofilled from git history"
+                if BASE="$(autofill_base_tag)"; then
+                        git log --no-merges --format='%h%x09%s' "${BASE}..HEAD" >"${TMP_WORK}.raw" 2>/dev/null || :
+                        while IFS=$'\t' read -r sha subj; do
+                                [ -n "${sha}" ] || continue
+                                if grep -qF "_(${sha})_" CHANGELOG.md; then
+                                        continue
                                 fi
+                                case "${subj}" in
+                                "chore: prepare for release"*) continue ;;
+                                feat*) sec="Added" ;;
+                                fix*) sec="Fixed" ;;
+                                chore*) sec="Chore" ;;
+                                *) sec="Changed" ;;
+                                esac
+                                bullet="${subj}"
+                                if printf '%s' "${subj}" | grep -qE '^[A-Za-z]+(\([^)]*\))?:[[:space:]]'; then
+                                        bullet="$(printf '%s' "${subj}" | sed -E 's/^[A-Za-z]+(\([^)]*\))?:[[:space:]]+//')"
+                                fi
+                                printf '%s\t- **%s** _(%s)_\n' "${sec}" "${bullet}" "${sha}"
+                        done <"${TMP_WORK}.raw" | awk -F'\t' '
+                                { buf[$1] = buf[$1] $2 "\n"; seen[$1] = 1 }
+                                END {
+                                        first = 1
+                                        split("Added Changed Fixed Chore", ord, " ")
+                                        for (i = 1; i <= 4; i++) {
+                                                if (!seen[ord[i]]) continue
+                                                if (!first) printf "\n"
+                                                first = 0
+                                                printf "### %s\n\n", ord[i]
+                                                printf "%s", buf[ord[i]]
+                                        }
+                                }
+                        ' >"${TMP_WORK}.body"
+                        rm -f "${TMP_WORK}.raw"
+                fi
+                if [ ! -s "${TMP_WORK}.body" ]; then
+                        unreleased_body | trim_blank_edges >"${TMP_WORK}.ubody"
+                        if [ -s "${TMP_WORK}.ubody" ]; then
+                                cp "${TMP_WORK}.ubody" "${TMP_WORK}.body"
+                                SECTION_SOURCE="migrated the Unreleased bullets (no git history range)"
+                        elif [ -n "${BASE:-}" ]; then
+                                printf '_No commits recorded since %s - fill the section from the release diff manually._\n' "${BASE}" >"${TMP_WORK}.body"
+                                SECTION_SOURCE="empty range since ${BASE}"
                         else
                                 printf '_No previous tag reachable from HEAD - fill the section from the release diff manually._\n' >"${TMP_WORK}.body"
                                 SECTION_SOURCE="no reachable previous tag"
                         fi
+                        rm -f "${TMP_WORK}.ubody"
                 fi
                 # Splice into the Released area (night-log-3): the release
                 # record belongs right after the ledger, newest first - never
