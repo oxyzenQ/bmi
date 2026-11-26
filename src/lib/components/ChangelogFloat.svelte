@@ -87,7 +87,11 @@
 	.changelog-float {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-3);
+		/* One boundary per edge: the well's own rounded border is
+                   the only divider the frame gets - no extra header or
+                   action lines beside it (that read as double lines).
+                   The gap keeps the three zones breathing apart. */
+		gap: var(--space-4);
 		/* The frame owns the height: header and actions stay pinned
                    while only the history body scrolls between them. The cap
                    subtracts the modal shell's own padding (2rem top + 2rem
@@ -111,10 +115,6 @@
 		gap: 0.5rem;
 		text-align: center;
 		flex-shrink: 0;
-		/* Frame divider: the line where the pinned header ends and
-                   the scrolling history begins. */
-		padding-bottom: var(--space-3);
-		border-bottom: 1px solid var(--w-20);
 	}
 	.changelog-icon {
 		display: flex;
@@ -146,10 +146,13 @@
 		overscroll-behavior: contain;
 		-webkit-overflow-scrolling: touch;
 		scrollbar-width: thin;
+		scrollbar-color: var(--w-20) transparent;
 		/* The scroll well: the history curves into rounded left
                    and right ends instead of ending sharp against the
                    panel wall, and the faint fill reads the scrollable
-                   area as one bounded surface. */
+                   area as one bounded surface. The well border is the
+                   single divider between the pinned frame and the
+                   scrolling middle - both edges at once, one line. */
 		padding: var(--space-3);
 		background: var(--w-2);
 		border: 1px solid var(--w-10);
@@ -163,7 +166,7 @@
 	}
 	.changelog-body::-webkit-scrollbar-thumb {
 		background: var(--w-20);
-		border-radius: 3px;
+		border-radius: 9999px;
 	}
 	.changelog-release + .changelog-release {
 		border-top: 1px solid var(--w-10);
@@ -220,10 +223,6 @@
 		display: flex;
 		justify-content: center;
 		flex-shrink: 0;
-		/* Frame divider: mirrors the header line so the scrollable
-                   middle is visually bounded on both edges. */
-		padding-top: var(--space-3);
-		border-top: 1px solid var(--w-20);
 	}
 	@media (max-width: 480px) {
 		.changelog-float {
