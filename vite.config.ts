@@ -114,8 +114,20 @@ export default function config({ mode }: { mode: string }): UserConfig {
 			target: 'es2022',
 			minify: 'esbuild',
 			sourcemap: false,
-			// 700 KB warning threshold catches real regressions early.
-			// Known heavy lazy chunks (acceptable):
+			rollupOptions: {
+				// The depth-strict build law: a build that prints a warning is
+				// a failed build. Every bundler warning (chunk size, plugin
+				// warning) becomes a hard error, so the verdict stays binary
+				// and the build output stays clean.
+				onwarn(warning) {
+					throw new Error(
+						`build warning treated as failure (warning = failed law): ${warning.code ?? ''} ${warning.message}`
+					);
+				}
+			},
+			// 700 KB warning threshold catches real regressions early - and
+			// through the onwarn law above, crossing it fails the build.
+			// Known heavy lazy chunks (acceptable, under the cap):
 			//   @zxcvbn-ts/language-common: ~465 KB raw / ~229 KB gzip (password dictionary)
 			// These are dynamically imported only when the encryption modal opens.
 			chunkSizeWarningLimit: 700

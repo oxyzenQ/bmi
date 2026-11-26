@@ -69,6 +69,8 @@ bun run verify
 
 > [!IMPORTANT]
 > Always run `bun run verify` before pushing. This gate runs `format:check` + four audits + `check` + `lint` + `test:run` + `build` and catches regressions that individual commands may miss.
+>
+> The build law is depth-strict: **a warning is a failure**. `bun run check` runs svelte-check with `--fail-on-warnings`, `bun run lint` runs eslint with `--max-warnings 0`, and the production build turns every bundler warning (including the 700 KB chunk cap) into a hard error. Clean output is the only passing output.
 
 ## Project Architecture
 

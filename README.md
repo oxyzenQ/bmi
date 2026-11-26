@@ -145,8 +145,8 @@ bun run preview   # serve the production build locally
 | Command                                          | Description                                                                                                  |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
 | `bun run dev`                                    | Start local dev server with HMR                                                                              |
-| `bun run check`                                  | Svelte and TypeScript diagnostics                                                                            |
-| `bun run lint`                                   | ESLint with Svelte plugin                                                                                    |
+| `bun run check`                                  | Svelte and TypeScript diagnostics (warnings fail the gate)                                                   |
+| `bun run lint`                                   | ESLint with Svelte plugin (warnings fail the gate)                                                           |
 | `bun run test`                                   | Vitest in watch mode                                                                                         |
 | `bun run test:run`                               | Single test run                                                                                              |
 | `bun run test:ci`                                | CI-friendly test run (forked, 2 workers)                                                                     |

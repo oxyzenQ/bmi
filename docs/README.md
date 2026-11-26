@@ -54,7 +54,7 @@ before relying on a specific number, path, or symbol name.
 | `scripts/gates/check-proof-manifest.ts`    | The proof census guard: the for-all tier table re-read out of the tree           |
 | `scripts/gates/check-name-case.py`         | BMI Stellar / bmi-stellar name casing over every tracked file                    |
 | `scripts/gates/check-signature-assets.sh`  | BLAKE3 digests of the brand images (`assets/signature.b3sum`)                    |
-| `scripts/gates/check-actions-pins.sh`      | Every `uses:` pin is a 40-hex SHA; `--apply` heals stale release pins           |
+| `scripts/gates/check-actions-pins.sh`      | Every `uses:` pin is a 40-hex SHA; `--apply` heals stale release pins            |
 | `scripts/gates/check-permissions.sh`       | 644 files, 755 shebang executables                                               |
 | `scripts/gates/check-commit-gate.sh`       | The fast pre-commit lane (the hook shim's engine)                                |
 | `scripts/gate-keepers.sh`                  | The wholesale non-code lane (one section per concern)                            |
