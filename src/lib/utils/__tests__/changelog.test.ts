@@ -222,7 +222,7 @@ describe('extractChangelogHistory', () => {
 		].join('\n');
 		const history = extractChangelogHistory(ledger);
 		expect(history.map((section) => section.version)).toEqual(['80.5.6']);
-		expect(history[0].entries ?? history[0].groups[0].entries).toHaveLength(1);
+		expect(history[0].groups[0].entries).toHaveLength(1);
 		const flat = JSON.stringify(history);
 		expect(flat).not.toContain('gpg:');
 		expect(flat).not.toContain('oxyzenQ');

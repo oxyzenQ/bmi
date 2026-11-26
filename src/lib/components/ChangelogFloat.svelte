@@ -20,10 +20,10 @@
 		return _t(key);
 	}
 
-	// Resolved at build time from CHANGELOG.md: only the section the
-	// ledger records for the shipped version - never Unreleased, never
-	// the latest-commit churn. No network, works offline.
-	const section = changelogLatest.section;
+	// Resolved at build time from CHANGELOG.md: every release section
+	// the ledger records, newest first - the honest history from the
+	// old releases up to the latest bump. No network, works offline.
+	const history = changelogLatest.history;
 	const versionTag = `v${changelogLatest.version}`;
 </script>
 
@@ -37,27 +37,32 @@
 			<p class="changelog-version">{versionTag}</p>
 		</div>
 
-		{#if section}
+		{#if history.length > 0}
 			<div class="changelog-body">
-				{#each section.groups as group (group.title)}
-					<div class="changelog-group">
-						{#if group.title}
-							<h3 class="changelog-group-title">{group.title}</h3>
-						{/if}
-						<ul class="changelog-entries">
-							{#each group.entries as entry, i (i)}
-								<li class="changelog-entry">
-									<span class="changelog-entry-text">{entry.text}</span>
-									{#if entry.sha}
-										<span class="changelog-entry-sha">
-											<GitCommitHorizontal size={12} aria-hidden="true" />
-											{entry.sha}
-										</span>
-									{/if}
-								</li>
-							{/each}
-						</ul>
-					</div>
+				{#each history as release, i (i)}
+					<section class="changelog-release">
+						<h3 class="changelog-release-version">v{release.version}</h3>
+						{#each release.groups as group, g (g)}
+							<div class="changelog-group">
+								{#if group.title}
+									<h4 class="changelog-group-title">{group.title}</h4>
+								{/if}
+								<ul class="changelog-entries">
+									{#each group.entries as entry, j (j)}
+										<li class="changelog-entry">
+											<span class="changelog-entry-text">{entry.text}</span>
+											{#if entry.sha}
+												<span class="changelog-entry-sha">
+													<GitCommitHorizontal size={13} aria-hidden="true" />
+													{entry.sha}
+												</span>
+											{/if}
+										</li>
+									{/each}
+								</ul>
+							</div>
+						{/each}
+					</section>
 				{/each}
 			</div>
 		{:else}
@@ -89,7 +94,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: var(--w-70);
+		color: var(--violet-300-solid);
 	}
 	.changelog-title {
 		font-size: var(--text-2xl);
@@ -108,8 +113,19 @@
 		flex-direction: column;
 		gap: var(--space-3);
 	}
+	.changelog-release + .changelog-release {
+		border-top: 1px solid var(--w-10);
+		padding-top: var(--space-3);
+	}
+	.changelog-release-version {
+		font-family: var(--font-mono);
+		font-size: var(--text-xl);
+		font-weight: 600;
+		color: var(--violet-300-solid);
+		margin: 0 0 0.5rem;
+	}
 	.changelog-group-title {
-		font-size: var(--text-base);
+		font-size: var(--text-lg);
 		font-weight: 600;
 		color: var(--w-70);
 		margin: 0 0 0.5rem;
@@ -130,20 +146,20 @@
 		border-left: 2px solid var(--w-10);
 	}
 	.changelog-entry-text {
-		font-size: var(--text-sm);
-		line-height: 1.5;
-		color: var(--w-70);
+		font-size: var(--text-lg);
+		line-height: 1.55;
+		color: var(--w-95);
 	}
 	.changelog-entry-sha {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.25rem;
 		font-family: var(--font-mono);
-		font-size: var(--text-xs);
+		font-size: var(--text-sm);
 		color: var(--w-50);
 	}
 	.changelog-empty {
-		font-size: var(--text-sm);
+		font-size: var(--text-lg);
 		color: var(--w-50);
 		text-align: center;
 		margin: 0;
@@ -155,6 +171,12 @@
 	@media (max-width: 480px) {
 		.changelog-title {
 			font-size: 1.1rem;
+		}
+		.changelog-release-version {
+			font-size: var(--text-lg);
+		}
+		.changelog-entry-text {
+			font-size: var(--text-base);
 		}
 	}
 </style>

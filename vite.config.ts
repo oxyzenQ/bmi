@@ -8,7 +8,7 @@ import { createRequire } from 'node:module';
 import { execFileSync } from 'child_process';
 import { readFileSync } from 'node:fs';
 import path from 'path';
-import { extractChangelogSection } from './src/lib/utils/changelog.ts';
+import { extractChangelogHistory } from './src/lib/utils/changelog.ts';
 
 /**
  * Pins resolution for @noble/hashes/argon2.js whose exports field
@@ -63,7 +63,7 @@ function changelogLatest(): Plugin {
 			const markdown = readFileSync(path.resolve(process.cwd(), 'CHANGELOG.md'), 'utf-8');
 			const payload = {
 				version: version.version,
-				section: extractChangelogSection(markdown, version.version)
+				history: extractChangelogHistory(markdown)
 			};
 			return `export const changelogLatest = ${JSON.stringify(payload)};`;
 		}

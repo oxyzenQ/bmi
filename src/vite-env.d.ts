@@ -7,10 +7,10 @@ declare module 'virtual:changelog-latest' {
 	import type { ChangelogSection } from '$lib/utils/changelog';
 
 	export interface ChangelogLatest {
-		/** The app version the section was resolved for at build time. */
+		/** The app version the payload was resolved for at build time. */
 		version: string;
-		/** The release section, or null when the ledger has none for it. */
-		section: ChangelogSection | null;
+		/** Every release section the ledger records, newest first. */
+		history: ChangelogSection[];
 	}
 
 	export const changelogLatest: ChangelogLatest;
