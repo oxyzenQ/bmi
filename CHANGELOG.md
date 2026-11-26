@@ -40,6 +40,12 @@ v80.0.0-night.1
 - **** _(gpg: using EDDSA key 2B52187D2AB618A7591D45C9C7F8B07418899C4E)_
 - **** _(gpg: Good signature from "rezky_nightky (oxyzenQ) <oxyzenQ@proton.me>" [ultimate])_
 - **** _(gpg: aka "Rezky Cahya Sahputra (cosmic dragon) <130107241+oxyzenQ@users.noreply.github.com>" [ultimate])_
+- **release v80.5.5 silent, no hype** _(68e0434)_
+- **Internal research: record the night-cafe-7 pass in the ledger (night-cafe-7)** _(1cacf74)_
+- **Internal research: narrow transition scope on interactive surfaces (night-cafe-7)** _(4f28df7)_
+- **Internal research: remove the dead CSS selectors (night-cafe-7)** _(ee554e3)_
+- **Internal research: repair the invalid --btn-bg gradient stop (night-cafe-7)** _(6a2081a)_
+- **Internal research: base layer comment hygiene (night-cafe-7)** _(bc0dc9b)_
 - **engrave the ux** _(e696f63)_
 - **Internal research: the About floating changelog window for the shipped release** _(2d6e519)_
 - **Internal research: freeze the architecture depth audit record (night-arc-gems-1)** _(1caf7af)_
@@ -52,6 +58,7 @@ v80.0.0-night.1
 
 ### Changed
 
+- **release v80.5.4 silent, no hype** _(52e0b62)_
 - **Internal research: night-depth-cleanup-1B-1 - the runtime-claim registry re-truthed** _(978adb1)_
 - **Internal research: the interleaving census verdict and the proof-tier LTS boundary** _(d11ddc5)_
 - **Internal research: night-netrunner-Z2 - the docs sync for the proof tier** _(3cbac67)_
@@ -66,6 +73,7 @@ v80.0.0-night.1
 
 ### Changed
 
+- **release v80.5.3 focus** _(7d6c0f5)_
 - **normalize CHANGELOG.md whitespace to satisfy format:check (CI #695)** _(4529329)_
 
 ## [80.5.2]
