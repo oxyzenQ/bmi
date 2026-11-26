@@ -12,7 +12,7 @@
 		MAX_IMPORT_SIZE,
 		type ImportFileMeta
 	} from '$lib/utils/history-io';
-	import { readBmiHistory } from '$lib/utils/bmi-history';
+	import { pendingLedgerWrite, readBmiHistory } from '$lib/utils/bmi-history';
 	import { ACTIVITY_FACTORS } from '$lib/utils/bmi-calculator';
 	import {
 		formatBmiExportDate,
@@ -208,7 +208,9 @@
 	let feedbackMessage = $state('');
 
 	async function handleExportClick() {
-		// Validated read for the export summary count (poisoned records excluded)
+		// Validated read for the export summary count (poisoned records excluded).
+		// A calculate a beat ago is still mid-commit — drain it for an honest count.
+		await pendingLedgerWrite();
 		exportRecordCount = readBmiHistory().length;
 		encryptModalMode = 'export';
 		encryptError = '';
@@ -244,7 +246,9 @@
 		);
 	}
 
-	function handleExportCsv() {
+	async function handleExportCsv() {
+		// Same drain: a calculate a beat ago must not be missing from the CSV.
+		await pendingLedgerWrite();
 		const csv = exportBmiHistoryCsv();
 		if (!csv) {
 			// A silent dead button reads as broken — say why instead.

@@ -50,6 +50,18 @@ export function _drainLedgerWritesForTesting(): Promise<void> {
 }
 
 /**
+ * Resolve when the latest ledger write has landed (immediately when
+ * nothing is pending). A save returns synchronously while its locked
+ * section is still in flight, so same-tab sync readers — snapshot best,
+ * sparkline, export counts — can read one effect behind the commit.
+ * This is the honest handle: await it (or chain on it) before re-reading
+ * history, and the staleness window closes without weakening the lock.
+ */
+export function pendingLedgerWrite(): Promise<void> {
+	return lastLedgerWrite;
+}
+
+/**
  * Single validated read path for BMI history.
  *
  * Storage contents are never trusted: every record must pass the same

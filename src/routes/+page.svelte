@@ -15,7 +15,7 @@
 	import { warnDev, warnDevOnce } from '$lib/utils/warn-dev';
 	import { PAGER, SCROLL, HAPTIC, SECTIONS } from '$lib/utils/animation-config';
 	import { isEditableTarget } from '$lib/utils/dom';
-	import { saveBmiToHistory } from '$lib/utils/bmi-history';
+	import { pendingLedgerWrite, saveBmiToHistory } from '$lib/utils/bmi-history';
 	import {
 		clampSectionIndex,
 		findSectionScroller,
@@ -760,6 +760,8 @@
 		// bmiValue / category are available for the Gauge page.
 		computeBMIFromInputs(height, weight, age);
 		resultsRunId += 1;
+		// Ledger commit is async — re-bump when it lands so snapshot/sparkline catch up.
+		void pendingLedgerWrite().then(() => (resultsRunId += 1));
 		calculating = false;
 
 		// Navigate to Gauge NOW — still in the synchronous click-handler
@@ -798,14 +800,11 @@
 		if (result.action === 'import-validate' && result.text) {
 			pendingImportText = result.text;
 			notifyType = 'warn';
-			notifyMessage = t('notify.import_confirm', {
-				n: result.recordCount ?? 0
-			});
+			notifyMessage = t('notify.import_confirm', { n: result.recordCount ?? 0 });
 			notifyButtonText = t('notify.import_keep');
 			showNotify = true;
 		} else if (result.action === 'import-success') {
-			lastSavedHistorySignature = null;
-			resultsRunId += 1;
+			markImportSuccess();
 		} else if (result.action === 'import-error') {
 			notifyType = 'error';
 			notifyMessage = result.error || t('notify.import_error');
