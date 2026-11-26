@@ -995,3 +995,13 @@ When waking the project after a dormant period, expect `bun audit` to flag advis
 _Link mapping: `[21.x.0]` sections correspond to the historic `Stellar-v21.x` tags; sections from the `v*` tag era onward match `package.json` directly. Commits referenced by short SHA can be inspected via `git show <sha>`._
 
 ## [Unreleased]
+
+### Fixed
+
+- **Internal research: night-cafe-7 — the invalid `--btn-bg` gradient stop repaired** _(6a2081a)_
+
+### Changed
+
+- **Internal research: night-cafe-7 — the dead CSS selectors removed** _(ee554e3)_
+- **Internal research: night-cafe-7 — the transition scope narrowed on interactive surfaces** _(4f28df7)_
+- **Internal research: night-cafe-7 — the base layer comment hygiene** _(bc0dc9b)_
