@@ -47,7 +47,6 @@ import {
 	READ_VITALS,
 	READ_STORAGE,
 	SW_STATE,
-	READ_META,
 	WITNESS_AUDIT,
 	IMPORT_SET_FILE,
 	GAUNTLET_SETUP,
@@ -60,7 +59,9 @@ import {
 	PROBE_LOCK_SERIALIZATION,
 	MERGED_LEDGER_AUDIT,
 	SEAL_CUSTODY_AUDIT,
-	CLEAR_LEDGER_VIA_UI
+	ESTABLISH_AUDIT,
+	CLEAR_LEDGER_VIA_UI,
+	DIALOG_DUMP
 } from './page-sources';
 
 // ── Configuration ──
@@ -107,6 +108,13 @@ type GauntletVerdict = {
 };
 
 /** The P16 verdict (night-frontier-Z8): the wasm seat presence plus the envelope law. */
+type EstablishAuditVerdict = {
+	verifier: string | null;
+	enabled: string | null;
+	recordCount: number;
+	sealedRaw: boolean;
+};
+
 type SealCustodyVerdict = {
 	wasm: { count: number; bytes: number };
 	envelope: { v: number; ivBytes: number; chkMatches: boolean };
@@ -613,23 +621,19 @@ async function main(): Promise<number> {
 			}
 		);
 
-		// ── P7: at-rest seal live (night-frontier-Z3) ──
+		// ── P7: the establish-import plaintext law (night-frontier-Z3, night-cafe-9) ──
 		await prove(
 			'P7 establish import: the first passphrase-proven import establishes the verifier and the ledger lands plaintext and readable (night-cafe-9)',
 			async () => {
-				// The P6 export delivered an encrypted v4 file, captured by the startup interceptor. Feed it
-				// through the real import input — the same path a user's file takes.
+				// The P6 export delivered an encrypted v4 file, captured by the startup interceptor; feed it through the real import input.
+				const readBlob = `() => window.__bmiProof.lastExportBlobText`;
 				const deadlineBlob = Date.now() + 8000;
+				let fileText: string | null = null;
 				while (Date.now() < deadlineBlob) {
-					const text = await page!.evaluate<string | null>(
-						`() => window.__bmiProof.lastExportBlobText`
-					);
-					if (text) break;
+					fileText = await page!.evaluate<string | null>(readBlob);
+					if (fileText) break;
 					await sleep(300);
 				}
-				const fileText = await page!.evaluate<string | null>(
-					`() => window.__bmiProof.lastExportBlobText`
-				);
 				expect(fileText !== null, 'the encrypted export blob was never captured');
 				exportFileText = fileText!;
 				const outer = JSON.parse(fileText!) as { format?: string; meta?: { version?: number } };
@@ -649,45 +653,24 @@ async function main(): Promise<number> {
 				}
 				expect(closed, 'import modal never closed after the establish import');
 
-				// The verifier exists, and the imported ledger write landed
-				// PLAINTEXT (night-cafe-9): raw storage holds readable JSON,
-				// never the envelope.
+				// The verifier exists, and the imported write landed PLAINTEXT readable
+				// (night-cafe-9): raw storage holds JSON, never the envelope.
 				const deadlineReady = Date.now() + 15000;
-				let recordCount = 0;
-				let verifier = null as string | null;
-				let enabled = null as string | null;
+				let state: EstablishAuditVerdict | null = null;
 				while (Date.now() < deadlineReady) {
-					const state = await page!.evaluate<{
-						verifier: string | null;
-						enabled: string | null;
-						recordCount: number;
-					}>(`async () => {
-                                                const readMeta = ${READ_META};
-                                                let count = 0;
-                                                try {
-                                                        count = JSON.parse(localStorage.getItem('bmi.history') || '[]').length;
-                                                } catch (e) {}
-                                                return {
-                                                        verifier: await readMeta('__encryption_verifier'),
-                                                        enabled: await readMeta('__encryption_enabled'),
-                                                        recordCount: count
-                                                };
-                                        }`);
-					verifier = state.verifier;
-					enabled = state.enabled;
-					recordCount = state.recordCount;
-					if (verifier && enabled === '1' && recordCount > 0) break;
+					state = await page!.evaluate<EstablishAuditVerdict>(ESTABLISH_AUDIT);
+					if (state.verifier && state.enabled === '1' && state.recordCount > 0) break;
 					await sleep(500);
 				}
-				expect(Boolean(verifier), 'ledger verifier was never established');
-				expect(enabled === '1', 'encryption flag never enabled');
-				expect(recordCount > 0, 'the imported ledger is not readable as plaintext');
-				const sealedRaw = await page!.evaluate<boolean>(
-					`() => (localStorage.getItem('bmi.history') || '').startsWith('bmi-at-rest-v1:')`
+				expect(state !== null && Boolean(state.verifier), 'ledger verifier was never established');
+				expect(state !== null && state.enabled === '1', 'encryption flag never enabled');
+				expect(
+					state !== null && state.recordCount > 0,
+					'the imported ledger is not readable as plaintext'
 				);
 				expect(
-					sealedRaw === false,
-					'the imported ledger landed sealed — the night-cafe-9 regression'
+					state !== null && !state.sealedRaw,
+					'the imported ledger landed sealed (night-cafe-9)'
 				);
 				return 'verifier established, session unregistered, ledger plaintext-readable (night-cafe-9)';
 			}
@@ -738,16 +721,13 @@ async function main(): Promise<number> {
 				await page!.navigate(`${BASE_URL}/`);
 				await sleep(3000);
 
-				// Seed a sealed envelope device-side. Since night-cafe-9 the app
-				// itself no longer produces one (the import path stays plaintext),
-				// but the purge guard is a storage-layer law: it must hold for any
-				// sealed value the session cannot open — a stranded legacy ledger
-				// included.
+				// Seed a sealed envelope device-side (night-cafe-9: the app no longer
+				// produces one). The purge guard is a storage-layer law: it holds for
+				// any sealed value the session cannot open.
 				await page!.evaluate(
 					`() => { localStorage.setItem('bmi.history', 'bmi-at-rest-v1:c2VhbGVkLWxlZGdlci1ob25lc3Q='); return true; }`
 				);
 
-				// Second cold load so the realm's storage cache serves the envelope.
 				await page!.navigate(`${BASE_URL}/`);
 				await sleep(3000);
 				await page!.evaluate(`() => { location.hash = '#calculator'; return true; }`);
@@ -784,9 +764,9 @@ async function main(): Promise<number> {
 			}
 		);
 
-		// ── P9: locked reads as missing; verifier-anchored unlock restores ──
+		// ── P9: locked reads as missing; the honest recovery restores ──
 		await prove(
-			'P9 locked-read semantics: sealed values read as missing (export preview 0 records) and the unlock restores readability',
+			'P9 locked-read semantics and the honest recovery: sealed values read as missing (export preview 0 records) and clear-ledger plus re-import restores readability (night-cafe-9)',
 			async () => {
 				await page!.evaluate(`() => { location.hash = '#calculator'; return true; }`);
 				await sleep(800);
@@ -796,8 +776,14 @@ async function main(): Promise<number> {
 					`a locked session must read sealed values as missing (preview saw ${String(lockedCount)})`
 				);
 
-				// Unlock through the existing flow: decrypt of the user's own file, verifier-anchored session
-				// registration. The file text rides in the harness: the P8 reload reset the page.
+				// The documented night-cafe-9 recovery: clear the ledger through the real UI, then re-import.
+				await page!.evaluate(CLEAR_LEDGER_VIA_UI);
+				await sleep(1500);
+				const cleared = await page!.evaluate<string | null>(
+					`() => localStorage.getItem('bmi.history')`
+				);
+				expect(cleared === null, 'the sealed envelope survived the clear-ledger recovery');
+				// Since night-cafe-9 the recovery write lands plaintext and readable.
 				expect(exportFileText !== null, 'the captured import file is gone');
 				await page!.evaluate(IMPORT_SET_FILE, exportFileText!);
 				await page!.evaluate(MODAL_SUBMIT, { passphrase: 'proof-harness-passphrase-1' });
@@ -811,34 +797,22 @@ async function main(): Promise<number> {
 					await sleep(400);
 				}
 				if (!closed) {
-					const dump = await page!.evaluate<string>(
-						`() => { const d = [...document.querySelectorAll('[role="dialog"]')].find((x) => x.querySelector('form')); return d ? (d.textContent || '').slice(0, 200) : 'NO DIALOG'; }`
-					);
-					throw new Error(`unlock import modal never closed; dialog: ${dump}`);
+					const dump = await page!.evaluate<string>(DIALOG_DUMP);
+					throw new Error(`recovery import modal never closed; dialog: ${dump}`);
 				}
 				await sleep(1500);
-
-				const deadlineSealed = Date.now() + 15000;
-				let sealedRaw = false;
-				while (Date.now() < deadlineSealed) {
-					sealedRaw = await page!.evaluate<boolean>(
-						`() => (localStorage.getItem('bmi.history') || '').startsWith('bmi-at-rest-v1:')`
-					);
-					if (sealedRaw) break;
-					await sleep(500);
-				}
-				expect(sealedRaw, 'the unlocked ledger never re-sealed');
 				const witnessDebug = await page!.evaluate<{
 					witness: { head: string; length: number } | null;
 					rawIsSealed: boolean;
 				}>(WITNESS_AUDIT);
+				expect(witnessDebug.rawIsSealed === false, 'the recovered ledger is sealed');
 				const unlockedCount = await page!.evaluate<string>(EXPORT_PREVIEW_COUNT);
 				// Readability restored: the preview must show exactly the records the witness covers (the count rides the file, not this claim).
 				expect(
 					String(unlockedCount).trim() === String(witnessDebug.witness?.length ?? -1),
-					`records are not readable again after the unlock (preview saw ${JSON.stringify(unlockedCount)}; witness=${JSON.stringify(witnessDebug.witness)})`
+					`records are not readable again after the recovery (preview saw ${JSON.stringify(unlockedCount)}; witness=${JSON.stringify(witnessDebug.witness)})`
 				);
-				return `locked preview 0 records, unlocked preview ${unlockedCount}, envelope re-sealed`;
+				return `locked preview 0 records, recovered preview ${unlockedCount} plaintext records`;
 			}
 		);
 

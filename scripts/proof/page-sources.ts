@@ -534,3 +534,23 @@ export const CLEAR_LEDGER_VIA_UI = `async () => {
   }
   throw new Error('the ledger never cleared');
 }`;
+
+/** night-cafe-9 (P7): the establish-import audit - the verifier, the
+ *  enabled flag, the plaintext record count, and the sealed-raw guard,
+ *  read in one page pass. */
+export const ESTABLISH_AUDIT = `async () => {
+  const readMeta = ${READ_META};
+  let count = 0;
+  try {
+    count = JSON.parse(localStorage.getItem('bmi.history') || '[]').length;
+  } catch (e) {}
+  return {
+    verifier: await readMeta('__encryption_verifier'),
+    enabled: await readMeta('__encryption_enabled'),
+    recordCount: count,
+    sealedRaw: (localStorage.getItem('bmi.history') || '').startsWith('bmi-at-rest-v1:')
+  };
+}`;
+
+/** The open-modal residue dumper shared by the import claims. */
+export const DIALOG_DUMP = `() => { const d = [...document.querySelectorAll('[role="dialog"]')].find((x) => x.querySelector('form')); return d ? (d.textContent || '').slice(0, 200) : 'NO DIALOG'; }`;

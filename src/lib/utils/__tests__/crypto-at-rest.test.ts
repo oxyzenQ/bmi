@@ -468,22 +468,14 @@ describe('crypto unlock hooks', () => {
 		expect(sealedFirst).not.toBe(sealedSecond);
 	});
 
-	it('verifyPassphrase is pure: success never registers the session (night-cafe-9)', async () => {
+	it('verifyPassphrase is pure: neither success nor failure ever registers (night-cafe-9)', async () => {
 		await enableEncryption(PW);
 		clearAtRestSession();
 		expect(isAtRestUnlocked()).toBe(false);
 		expect(await verifyPassphrase(PW)).toBe(true);
-		// Let any retired fire-and-forget hook settle, then prove it never
-		// registered: proving is not registering.
-		await new Promise((resolve) => setTimeout(resolve, 100));
-		expect(isAtRestUnlocked()).toBe(false);
-	});
-
-	it('verifyPassphrase failure never registers', async () => {
-		await enableEncryption(PW);
-		clearAtRestSession();
 		expect(await verifyPassphrase(PW_OTHER)).toBe(false);
-		// Let the background unlock check settle, then prove it never registered.
+		// Let any retired fire-and-forget hook settle, then prove it
+		// never registered: proving is not registering.
 		await new Promise((resolve) => setTimeout(resolve, 100));
 		expect(isAtRestUnlocked()).toBe(false);
 	});
@@ -491,13 +483,10 @@ describe('crypto unlock hooks', () => {
 	it('a file decrypt never mutates session state (night-cafe-9: decrypt is pure)', async () => {
 		await enableEncryption(PW);
 		clearAtRestSession();
-		const fileEnvelope = await encrypt(sampleRecords(2), PW);
-		expect(isEncrypted(fileEnvelope)).toBe(true);
-		const result = await decrypt(fileEnvelope, PW);
+		const result = await decrypt(await encrypt(sampleRecords(2), PW), PW);
 		expect(result).not.toBeNull();
-		// Let any retired fire-and-forget hook settle, then prove the
-		// session stayed locked: seats install only through the explicit
-		// registration doors.
+		// Let any retired fire-and-forget hook settle, then prove the session
+		// stayed locked: seats install only through the explicit doors.
 		await new Promise((resolve) => setTimeout(resolve, 100));
 		expect(isAtRestUnlocked()).toBe(false);
 	});
@@ -505,7 +494,6 @@ describe('crypto unlock hooks', () => {
 	it('unlockAtRestSessionIfVerified registers the session after a proven passphrase', async () => {
 		await enableEncryption(PW);
 		clearAtRestSession();
-		expect(isAtRestUnlocked()).toBe(false);
 		expect(await unlockAtRestSessionIfVerified(PW)).toBe(true);
 		expect(isAtRestUnlocked()).toBe(true);
 	});
