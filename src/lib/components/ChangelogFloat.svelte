@@ -146,7 +146,14 @@
 		overscroll-behavior: contain;
 		-webkit-overflow-scrolling: touch;
 		scrollbar-width: thin;
-		padding-right: 0.35rem;
+		/* The scroll well: the history curves into rounded left
+                   and right ends instead of ending sharp against the
+                   panel wall, and the faint fill reads the scrollable
+                   area as one bounded surface. */
+		padding: var(--space-3);
+		background: var(--w-2);
+		border: 1px solid var(--w-10);
+		border-radius: var(--radius-lg);
 	}
 	.changelog-body::-webkit-scrollbar {
 		width: 6px;
