@@ -33,7 +33,7 @@ bun install --frozen-lockfile
 ./scripts/build.sh check-all
 ```
 
-This runs the full chain (format:check → the nine audits → check → lint → test:ci → build — the exact enumeration lives in `scripts/build.sh` under `check_all`). The lighter `bun run verify` runs four of the nine audits and uses `test:run` instead of `test:ci`.
+This runs the full chain (format:check → the eleven audits → check → lint → test:ci → build — the exact enumeration lives in `scripts/build.sh` under `check_all`). The lighter `bun run verify` runs four of the eleven audits and uses `test:run` instead of `test:ci`.
 
 4. If the frozen install fails because the ecosystem moved, upgrade Bun/Node first, then make dependency changes in a dedicated maintenance commit.
 5. If `audit:deps` fails because new advisories were published against pinned transitive deps during the dormant period, bump the relevant `overrides` in `package.json` (do not weaken crypto deps). If no fixed release exists within the pinned major, add a temporary entry with a reason and an expiry to `scripts/audit-allowlist.json` instead of weakening the gate. Re-run `bun install` then `./scripts/build.sh check-all`.

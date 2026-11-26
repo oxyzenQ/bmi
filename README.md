@@ -99,7 +99,7 @@ in [docs/AUDIT-2026-11.md](docs/AUDIT-2026-11.md):
 | **Offline PWA**           | Installable, service-worker precache with a digest-integrity gate (install/activate verification plus a round-robin re-verification per navigation, night-frontier-Z10 — poisoning cannot survive a bounded number of navigations), offline app shell, Web Vitals monitoring. |
 | **Accessibility first**   | Keyboard-visible focus states, ARIA dialog/radiogroup patterns, semantic status regions, `prefers-reduced-motion` support.                                                                                                                                                    |
 | **Performance adaptive**  | Three-tier animation system (high/medium/low), strict touch intent detection, mobile-specific visual simplification.                                                                                                                                                          |
-| **Gatekeeper parity**     | `./scripts/build.sh check-all` runs the `ci.yml` chain — format, nine audits, type-check, lint, test:ci, build — one step wider than CI (`audit:supply-chain` also runs locally), so the local verdict and the CI verdict are the same verdict.                               |
+| **Gatekeeper parity**     | `./scripts/build.sh check-all` runs the `ci.yml` chain — format, eleven audits, type-check, lint, test:ci, build — two audits wider than CI (`audit:supply-chain` and `audit:proof-manifest` also run locally), so the local verdict and the CI verdict are the same verdict. |
 
 ### vs typical health calculators
 
@@ -142,29 +142,29 @@ bun run preview   # serve the production build locally
 
 ## Core Scripts
 
-| Command                                          | Description                                                                                                 |
-| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| `bun run dev`                                    | Start local dev server with HMR                                                                             |
-| `bun run check`                                  | Svelte and TypeScript diagnostics                                                                           |
-| `bun run lint`                                   | ESLint with Svelte plugin                                                                                   |
-| `bun run test`                                   | Vitest in watch mode                                                                                        |
-| `bun run test:run`                               | Single test run                                                                                             |
-| `bun run test:ci`                                | CI-friendly test run (forked, 2 workers)                                                                    |
-| `bun run test:fast`                              | Fast test run (excludes crypto/history-io)                                                                  |
-| `bun run test:crypto`                            | Run only crypto + history-io test suites                                                                    |
-| `bun run build`                                  | Production build                                                                                            |
-| `bun run preview`                                | Serve the production build locally                                                                          |
-| `bun run format`                                 | Prettier auto-format                                                                                        |
-| `bun run format:check`                           | Prettier check (no write)                                                                                   |
-| `bun run verify`                                 | Full local gate: format + 4 audits + check + lint + test:run + build                                        |
-| `./scripts/build.sh check-all`                   | Wholesale gate: format + 9 audits + type-check + lint + test:ci + build (the full `scripts/build.sh` chain) |
-| `./scripts/proof/run-proof.sh [report]`          | Runtime proof harness: eighteen fail-closed runtime claims against the production build in a pinned browser |
-| `bun run audit:deps`                             | Policy-gated dependency audit (blocking + allowlist-aware)                                                  |
-| `bun run audit:axp1-znq`                         | AXP1-ZnQ verdict engine: dangerous advisories classified by remediability (UPDATE-SOON vs CALL-OWNER)       |
-| `bun run lint:fix`                               | ESLint auto-fix                                                                                             |
-| `bun run clean`                                  | Remove `.svelte-kit`, `build`, `dist`, `node_modules/.cache`                                                |
-| `bun run bmi-update-version <version>`           | Sync version across all canonical files                                                                     |
-| `bun run bmi-update-version --dry-run <version>` | Preview a version update without writing                                                                    |
+| Command                                          | Description                                                                                                  |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `bun run dev`                                    | Start local dev server with HMR                                                                              |
+| `bun run check`                                  | Svelte and TypeScript diagnostics                                                                            |
+| `bun run lint`                                   | ESLint with Svelte plugin                                                                                    |
+| `bun run test`                                   | Vitest in watch mode                                                                                         |
+| `bun run test:run`                               | Single test run                                                                                              |
+| `bun run test:ci`                                | CI-friendly test run (forked, 2 workers)                                                                     |
+| `bun run test:fast`                              | Fast test run (excludes crypto/history-io)                                                                   |
+| `bun run test:crypto`                            | Run only crypto + history-io test suites                                                                     |
+| `bun run build`                                  | Production build                                                                                             |
+| `bun run preview`                                | Serve the production build locally                                                                           |
+| `bun run format`                                 | Prettier auto-format                                                                                         |
+| `bun run format:check`                           | Prettier check (no write)                                                                                    |
+| `bun run verify`                                 | Full local gate: format + 4 audits + check + lint + test:run + build                                         |
+| `./scripts/build.sh check-all`                   | Wholesale gate: format + 11 audits + type-check + lint + test:ci + build (the full `scripts/build.sh` chain) |
+| `./scripts/proof/run-proof.sh [report]`          | Runtime proof harness: eighteen fail-closed runtime claims against the production build in a pinned browser  |
+| `bun run audit:deps`                             | Policy-gated dependency audit (blocking + allowlist-aware)                                                   |
+| `bun run audit:axp1-znq`                         | AXP1-ZnQ verdict engine: dangerous advisories classified by remediability (UPDATE-SOON vs CALL-OWNER)        |
+| `bun run lint:fix`                               | ESLint auto-fix                                                                                              |
+| `bun run clean`                                  | Remove `.svelte-kit`, `build`, `dist`, `node_modules/.cache`                                                 |
+| `bun run bmi-update-version <version>`           | Sync version across all canonical files                                                                      |
+| `bun run bmi-update-version --dry-run <version>` | Preview a version update without writing                                                                     |
 
 ## Project Layout
 
@@ -188,7 +188,7 @@ src/
 scripts/                     # build.sh gatekeeper + gates/ audits + dev/ version tools + proof/ runtime proofs (zelynic-aligned tree)
 assets/                      # Brand master plate + BLAKE3 signature digests
 docs/                        # Long-form docs (deep dive + frozen audit records)
-.github/workflows/           # CI, proofs, docs-ci, gate-keepers, release, security-audit, maintenance, codeql, axp1-znq
+.github/workflows/           # CI, proofs, runtime-proof, docs-ci, gate-keepers, release, security-audit, maintenance, codeql, axp1-znq
 ```
 
 ## Architecture
@@ -324,10 +324,10 @@ PRs and issues are welcome. The bar is the gatekeeper:
 ./scripts/build.sh check-all
 ```
 
-This mirrors the GitHub Actions `ci.yml` workflow end-to-end (format +
-9 audits + type-check + lint + test:ci + build). `bun run verify` is
-the lighter local variant (four of the nine audits, with
-`test:run` instead of `test:ci`). Development standards live in
+This mirrors the GitHub Actions `ci.yml` workflow end-to-end and adds
+two audits on top (format + 11 audits + type-check + lint + test:ci +
+build). `bun run verify` is the lighter local variant (four of the
+eleven audits, with `test:run` instead of `test:ci`). Development standards live in
 [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md), release operations
 in [.github/RELEASE.md](.github/RELEASE.md). Contributions land with
 the DCO-style `Signed-off-by:` line on your commits (`git commit -s`).
@@ -357,7 +357,7 @@ vote: `bun run audit:axp1-znq --selftest`.
 
 ## Documentation
 
-- [CHANGELOG.md](CHANGELOG.md) — release history v21.0 → v80.3.0-night.1, the Released ledger, and the in-progress Unreleased section
+- [CHANGELOG.md](CHANGELOG.md) — release history v21.0 → v80.5.4, the Released ledger, and the in-progress Unreleased section
 - [docs/README.md](docs/README.md) — the documentation map
 - [docs/furthermore.md](docs/furthermore.md) — the architectural deep dive: CSS cascade, pager, crypto, PWA, share image (the flagship reference)
 - [docs/AUDIT-2026-08.md](docs/AUDIT-2026-08.md) — source code audit record (August 2026)
@@ -379,12 +379,12 @@ vote: `bun run audit:axp1-znq --selftest`.
 **The full vitest battery** (Vitest + Testing Library, every suite) — green on
 every commit via the CI workflow, and locally via the gatekeeper:
 
-| Lane              | What it proves                                                                                                     | One command                    |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------ |
-| Full gate         | Format + 8 audits + type-check + lint + the full test battery + production build, mirroring `ci.yml` step-for-step | `./scripts/build.sh check-all` |
-| Crypto lane       | AES-256-GCM, Argon2id, PBKDF2 legacy imports, history integrity vectors (Node env for native WebCrypto)            | `bun run test:crypto`          |
-| Fast lane         | The full suite minus the slow crypto/history-io files                                                              | `bun run test:fast`            |
-| Dependency policy | `bun audit` against the fail-closed allowlist (expired entries fail the gate)                                      | `bun run audit:deps`           |
+| Lane              | What it proves                                                                                                      | One command                    |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| Full gate         | Format + 11 audits + type-check + lint + the full test battery + production build, a superset of the `ci.yml` chain | `./scripts/build.sh check-all` |
+| Crypto lane       | AES-256-GCM, Argon2id, PBKDF2 legacy imports, history integrity vectors (Node env for native WebCrypto)             | `bun run test:crypto`          |
+| Fast lane         | The full suite minus the slow crypto/history-io files                                                               | `bun run test:fast`            |
+| Dependency policy | `bun audit` against the fail-closed allowlist (expired entries fail the gate)                                       | `bun run audit:deps`           |
 
 Honest context: the suites are static + jsdom-based; the
 crypto/history-io suites run in the Node environment because jsdom's
