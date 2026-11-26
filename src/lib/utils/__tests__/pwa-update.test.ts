@@ -20,12 +20,15 @@ import {
 	checkForPwaUpdate,
 	commitsMatch,
 	hasNewerCommit,
+	isInUpstreamConvergenceWindow,
 	isNewerUpstreamForBuild,
 	normalizeBranch,
 	normalizeCommitId,
+	noteUpdateApplied,
 	pwaUpdateState,
 	shouldUseCommitUpdateCheck,
-	shortCommitId
+	shortCommitId,
+	UPSTREAM_CONVERGENCE_WINDOW_MS
 } from '../../stores/pwa-update';
 
 const FULL_SHA = '0123456789abcdef0123456789abcdef01234567';
@@ -135,6 +138,65 @@ describe('update decision logic', () => {
 				localBranch: 'develop'
 			})
 		).toBe(false);
+	});
+});
+
+// ── upstream convergence window ──
+
+// Right after an applied update the upstream mirrors (raw.githubusercontent
+// behind a 300s CDN, api.github.com) can still serve the previous release.
+// A commit-mismatch-only signal in that window is the mirror catching up,
+// not a new release - it must not resurrect the update prompt.
+
+describe('upstream convergence window', () => {
+	const NOW = 1_000_000_000_000;
+	const WINDOW = UPSTREAM_CONVERGENCE_WINDOW_MS;
+
+	it('isInUpstreamConvergenceWindow: true only inside the window', () => {
+		expect(isInUpstreamConvergenceWindow(NOW, NOW, WINDOW)).toBe(true);
+		expect(isInUpstreamConvergenceWindow(NOW - WINDOW + 1, NOW, WINDOW)).toBe(true);
+		expect(isInUpstreamConvergenceWindow(NOW - WINDOW, NOW, WINDOW)).toBe(false);
+		expect(isInUpstreamConvergenceWindow(NOW - WINDOW - 1, NOW, WINDOW)).toBe(false);
+	});
+
+	it('isInUpstreamConvergenceWindow: unknown or skewed records sit outside', () => {
+		expect(isInUpstreamConvergenceWindow(null, NOW, WINDOW)).toBe(false);
+		expect(isInUpstreamConvergenceWindow(undefined, NOW, WINDOW)).toBe(false);
+		expect(isInUpstreamConvergenceWindow(Number.NaN, NOW, WINDOW)).toBe(false);
+		// A record dated in the future is garbage, not grace.
+		expect(isInUpstreamConvergenceWindow(NOW + 1, NOW, WINDOW)).toBe(false);
+	});
+
+	it('isNewerUpstreamForBuild: suppressed commit drift is not an update', () => {
+		expect(
+			isNewerUpstreamForBuild({
+				latestVersion: '21.8.0',
+				latestCommit: FULL_SHA,
+				localVersion: '21.8.0',
+				localCommit: OTHER_SHA,
+				localBranch: 'main',
+				suppressCommitMismatch: true
+			})
+		).toBe(false);
+	});
+
+	it('isNewerUpstreamForBuild: a strictly newer version cuts through the suppression', () => {
+		expect(
+			isNewerUpstreamForBuild({
+				latestVersion: '22.0.0',
+				latestCommit: FULL_SHA,
+				localVersion: '21.8.0',
+				localCommit: FULL_SHA,
+				localBranch: 'main',
+				suppressCommitMismatch: true
+			})
+		).toBe(true);
+	});
+
+	it('noteUpdateApplied records the moment it was given', () => {
+		localStorage.removeItem('bmi.updateAppliedAt');
+		noteUpdateApplied(1_700_000_000_000);
+		expect(localStorage.getItem('bmi.updateAppliedAt')).toBe('1700000000000');
 	});
 });
 

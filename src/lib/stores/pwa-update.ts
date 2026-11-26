@@ -46,6 +46,65 @@ export function shouldRunAutoUpdateCheck(
 	return now - lastCheckedAt >= intervalMs;
 }
 
+/**
+ * localStorage key recording when the user last applied an update
+ * (applyPwaUpdate). The record powers the upstream convergence
+ * window below.
+ */
+const UPDATE_APPLIED_AT_KEY = 'bmi.updateAppliedAt';
+
+/**
+ * Upstream convergence window after an applied update (5 minutes).
+ *
+ * Right after a release lands, the read-through mirrors in front of
+ * the upstream sources can still serve the previous release for a
+ * while - raw.githubusercontent.com sits behind a CDN with a 300s
+ * max-age and api.github.com can disagree with it for minutes. A
+ * freshly updated install compares against those mirrors and reads
+ * "local is new, upstream is old", which is the mirror catching up,
+ * not a new release. Inside this window a commit-mismatch-only
+ * signal is therefore not treated as an update; a strictly newer
+ * upstream version (a real second release) still cuts through.
+ */
+export const UPSTREAM_CONVERGENCE_WINDOW_MS = 5 * 60 * 1000;
+
+/** Record the moment an update was applied - called before the reload. */
+export function noteUpdateApplied(now: number = Date.now()): void {
+	if (!browser) return;
+	try {
+		localStorage.setItem(UPDATE_APPLIED_AT_KEY, String(now));
+	} catch {
+		// Storage unavailable: the convergence window degrades to off
+		// and commit-mismatch signals keep their old weight.
+	}
+}
+
+/**
+ * Pure window test: true while an applied update is still inside the
+ * convergence window. A record dated in the future is garbage, not grace.
+ */
+export function isInUpstreamConvergenceWindow(
+	appliedAt: number | null | undefined,
+	now: number,
+	windowMs: number = UPSTREAM_CONVERGENCE_WINDOW_MS
+): boolean {
+	if (typeof appliedAt !== 'number' || !Number.isFinite(appliedAt)) return false;
+	const age = now - appliedAt;
+	return age >= 0 && age < windowMs;
+}
+
+function readUpdateAppliedAt(): number | null {
+	if (!browser) return null;
+	try {
+		const raw = localStorage.getItem(UPDATE_APPLIED_AT_KEY);
+		if (raw === null) return null;
+		const parsed = Number(raw);
+		return Number.isFinite(parsed) ? parsed : null;
+	} catch {
+		return null;
+	}
+}
+
 interface PwaUpdateState {
 	checked: boolean;
 	checking: boolean;
@@ -153,18 +212,25 @@ export function isNewerUpstreamForBuild({
 	latestCommit,
 	localVersion,
 	localCommit,
-	localBranch
+	localBranch,
+	suppressCommitMismatch = false
 }: {
 	latestVersion: string | null;
 	latestCommit: string | null;
 	localVersion: string | null;
 	localCommit: string | null;
 	localBranch: string | null;
+	/** True while upstream mirrors may still be converging after an
+            applied update: commit-mismatch-only signals are not updates. */
+	suppressCommitMismatch?: boolean;
 }): boolean {
+	// A strictly newer upstream version is trusted even inside the
+	// convergence window - a real second release always bumps it.
 	if (latestVersion && localVersion && compareSemver(latestVersion, localVersion) > 0) {
 		return true;
 	}
 
+	if (suppressCommitMismatch) return false;
 	if (!shouldUseCommitUpdateCheck(localBranch)) return false;
 	if (commitsMatch(latestCommit, localCommit)) return false;
 	return hasNewerCommit(latestCommit, localCommit);
@@ -176,7 +242,8 @@ function isNewerUpstream(latestVersion: string | null, latestCommit: string | nu
 		latestCommit,
 		localVersion: getAppVersionRaw(),
 		localCommit: currentCommit(),
-		localBranch: currentBranch()
+		localBranch: currentBranch(),
+		suppressCommitMismatch: isInUpstreamConvergenceWindow(readUpdateAppliedAt(), Date.now())
 	});
 }
 
@@ -330,6 +397,13 @@ export async function checkForPwaUpdate(
 
 export function applyPwaUpdate(): void {
 	if (!browser) return;
+
+	// Record the apply BEFORE any reload: the page that comes back
+	// must know the shell just moved and the upstream mirrors may
+	// still serve the previous release for the convergence window.
+	// This kills the ghost prompt that re-fired seconds after the
+	// post-update reload and made the user tap Update twice.
+	noteUpdateApplied();
 
 	const waiting = registrationRef?.waiting;
 	if (waiting) {
