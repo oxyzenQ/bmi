@@ -64,7 +64,7 @@ fi
 # Advisory by design: warn mode never fails, the shape verdict prints.
 if bash scripts/gates/check-actions-pins.sh >/tmp/bmi-commit-gate-pins.log 2>&1; then
 	if grep -q "WARNING" /tmp/bmi-commit-gate-pins.log; then
-		echo "  [WARN] actions pins - heal with scripts/ci/actions-version-sweep.sh --apply"
+		echo "  [WARN] actions pins - heal with bash scripts/gates/check-actions-pins.sh --apply"
 	else
 		echo "  [OK]   actions pins (40-hex SHA everywhere)"
 	fi

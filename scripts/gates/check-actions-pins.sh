@@ -28,7 +28,12 @@
 # In warn mode a violation prints and exits 0 (a commit is never blocked
 # on a shape it can heal with one command); in strict mode it exits 1.
 #
-# Usage: scripts/gates/check-actions-pins.sh
+# --apply is the repair lane the zelynic gates share: shape check first,
+# then the sweep engine's apply lane heals every stale release pin in
+# one command. A repair command never blocks: it reports, heals, and
+# hands the rewritten workflows back for review and commit.
+#
+# Usage: scripts/gates/check-actions-pins.sh [--apply]
 
 set -euo pipefail
 
@@ -41,6 +46,16 @@ warn | strict) MODE="$health" ;;
 	echo "ACTIONS-PIN GATE: unknown mode '${BMI_ACTIONS_HEALTH}' (off|warn|strict) - running warn" >&2
 	;;
 esac
+
+APPLY=0
+if [ "$#" -gt 0 ]; then
+	if [ "$1" = "--apply" ]; then
+		APPLY=1
+	else
+		echo "ACTIONS-PIN GATE: unknown argument '$1' (supported: --apply)" >&2
+		exit 2
+	fi
+fi
 
 VIOLATIONS=0
 CHECKED=0
@@ -88,7 +103,7 @@ done
 echo ""
 echo "Checked ${CHECKED} uses: line(s) across ${#files[@]} workflow file(s): ${VIOLATIONS} violation(s)."
 
-if [ "$VIOLATIONS" -gt 0 ]; then
+if [ "$VIOLATIONS" -gt 0 ] && [ "$APPLY" -eq 0 ]; then
 	if [ "$MODE" = "strict" ]; then
 		echo "FAIL: actions pins are not SHA-pinned (strict mode - the run is blocked)."
 		exit 1
@@ -97,24 +112,56 @@ if [ "$VIOLATIONS" -gt 0 ]; then
 	exit 0
 fi
 
-# The freshness seat: the sweep's dry-run verdict against the live
-# releases. A failing or silent sweep reads as no verdict - the skip.
-FRESH=0
-if sweep_out="$(bash scripts/ci/actions-version-sweep.sh --dry-run 2>/dev/null)"; then
-	healed="$(printf '%s\n' "$sweep_out" | sed -n 's/^sweep verdict: \([0-9]*\) healed.*/\1/p')"
-	if [ -n "$healed" ]; then
-		FRESH="$healed"
-	fi
-fi
-if [ "$FRESH" -gt 0 ]; then
-	echo ""
-	echo "WARNING: ${FRESH} pin(s) behind the latest release - heal with:"
-	echo "  bash scripts/ci/actions-version-sweep.sh --apply"
-	if [ "$MODE" = "strict" ]; then
-		echo "FAIL: actions pins are behind their releases (strict mode - the run is blocked)."
+if [ "$APPLY" -eq 1 ]; then
+	# The repair lane: shape check done, now let the sweep engine heal
+	# every stale release pin. A repair command never blocks.
+	sweep_out="$(bash scripts/ci/actions-version-sweep.sh --apply 2>&1)" || {
+		printf '%s\n' "$sweep_out"
+		echo "FAIL: the sweep apply lane aborted - nothing claimed."
 		exit 1
+	}
+	printf '%s\n' "$sweep_out"
+	verdict="$(printf '%s\n' "$sweep_out" | grep '^sweep verdict:' || true)"
+	healed="$(printf '%s' "$verdict" | sed -n 's/^sweep verdict: \([0-9]*\) healed.*/\1/p')"
+	echo ""
+	if [ -n "$healed" ] && [ "$healed" -gt 0 ]; then
+		echo "healed: ${healed} pin(s) rewritten in .github/workflows/ — review and commit"
+	elif [ -n "$verdict" ]; then
+		skipped="$(printf '%s' "$verdict" | sed -n 's/^sweep verdict: [0-9]* healed, [0-9]* kept, \([0-9]*\) skipped.*/\1/p')"
+		if [ "${skipped:-0}" -eq 0 ]; then
+			echo "keep: every release pin sits at its latest release commit"
+		else
+			echo "no verdict: the release API was unreachable or rate-limited - nothing healed, nothing claimed"
+		fi
+	else
+		echo "no verdict: the sweep answered nothing - nothing healed, nothing claimed"
 	fi
 	exit 0
+fi
+
+# The freshness seat: the sweep's dry-run verdict against the live
+# releases. A failing or silent sweep reads as no verdict - the skip
+# (no network, no claim; never a block).
+if sweep_out="$(bash scripts/ci/actions-version-sweep.sh --dry-run 2>/dev/null)"; then
+	verdict="$(printf '%s\n' "$sweep_out" | grep '^sweep verdict:' || true)"
+	healed="$(printf '%s' "$verdict" | sed -n 's/^sweep verdict: \([0-9]*\) healed.*/\1/p')"
+	skipped="$(printf '%s' "$verdict" | sed -n 's/^sweep verdict: [0-9]* healed, [0-9]* kept, \([0-9]*\) skipped.*/\1/p')"
+	if [ -n "$healed" ] && [ "${skipped:-0}" -eq 0 ]; then
+		if [ "$healed" -gt 0 ]; then
+			echo "  ${verdict}"
+			echo ""
+			echo "stale pins found — heal with:"
+			echo "  bash scripts/gates/check-actions-pins.sh --apply"
+			if [ "$MODE" = "strict" ]; then
+				echo "FAIL: actions pins are behind their releases (strict mode - the run is blocked)."
+				exit 1
+			fi
+			exit 0
+		fi
+		echo "OK: every version pin is a 40-hex SHA."
+		echo "OK: freshness verdict — ${verdict}"
+		exit 0
+	fi
 fi
 
 echo "OK: every version pin is a 40-hex SHA."
