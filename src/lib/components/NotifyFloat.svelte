@@ -183,18 +183,23 @@
 	}
 
 	.notify-close {
+		/* Neutral ghost, not the danger red: this X sits on every
+                   notification - success, warn, delete - and a destructive red
+                   circle on a success panel read as a second, conflicting signal.
+                   A quiet outlined control is the one close language that works
+                   on all four panel moods. */
 		position: absolute;
 		top: 0.75rem;
 		right: 0.75rem;
-		background: var(--btn-danger-bg);
-		border: var(--btn-danger-border);
+		background: transparent;
+		border: 1px solid var(--w-20);
 		border-radius: 50%;
 		width: 36px;
 		height: 36px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: var(--stellar-white);
+		color: var(--w-50);
 		cursor: pointer;
 		transition: none;
 		-webkit-backdrop-filter: none;
@@ -205,15 +210,15 @@
 	}
 
 	.notify-close:hover {
-		background: var(--btn-danger-bg-hover);
+		background: var(--w-10);
 		color: var(--stellar-white);
-		border: var(--btn-danger-border-hover);
+		border-color: var(--w-30);
 	}
 
 	.notify-close:active {
-		background: var(--btn-danger-bg-hover);
+		background: var(--w-10);
 		color: var(--stellar-white);
-		border: var(--btn-danger-border-hover);
+		border-color: var(--w-30);
 	}
 
 	.close-icon-text {
@@ -231,7 +236,7 @@
 		font-size: 24px;
 		font-weight: 500;
 		line-height: 1;
-		color: var(--stellar-white) !important;
+		color: inherit !important;
 		pointer-events: none;
 		transform: none;
 		user-select: none;

@@ -4,12 +4,24 @@
 /* ── responsive-base.css — Base responsive rules ── */
 /* Shared accessibility, fluid media, container, typography, and form width rules. */
 
-/* Components with custom focus indicators suppress the global outline */
+/* Inputs speak focus through their violet border recolor (animation.css
+   for .form-input, PasswordFields for .encrypt-input), so the UA outline
+   there would double the signal - suppressed. Buttons have no such second
+   channel: the old blanket suppression left keyboard focus invisible on
+   every control. Keyboard focus now draws one violet ring, the brand
+   accent at full strength, offset so it never fights the button's own
+   border. Mouse focus stays calm - components.css already clears
+   :focus:not(:focus-visible), so the ring is keyboard-only. */
 .form-input:focus-visible,
-.encrypt-input:focus-visible,
-.btn:focus-visible,
-button:focus-visible {
+.encrypt-input:focus-visible {
 	outline: none;
+}
+
+.btn:focus-visible,
+button:focus-visible,
+a.button:focus-visible {
+	outline: 2px solid var(--violet-300-solid);
+	outline-offset: 2px;
 }
 
 /* ==============================

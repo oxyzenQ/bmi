@@ -82,7 +82,7 @@ graph TD
 
 ## Accessibility Architecture
 
-BMI Stellar follows a **component-owned focus pattern**: mouse focus is suppressed (`:focus:not(:focus-visible) { outline: none }`), while keyboard focus is exposed through each component's own visible indicator. Inputs, segmented controls, modal controls, icon buttons, and pager controls use local focus styles rather than a single global purple outline. This keeps keyboard navigation visible without producing inconsistent rings on floating windows or notification controls.
+BMI Stellar follows a **split focus pattern**: mouse focus is suppressed (`:focus:not(:focus-visible) { outline: none }`), while keyboard focus stays visible through two channels. Inputs speak focus by recoloring their own border to violet (`:focus` rules in `animation.css` and `PasswordFields.svelte`), so no outline doubles that signal. Every button — `.btn`, plain `button`, `a.button` — draws one shared violet keyboard ring (`:focus-visible` in `responsive-base.css`, `--violet-300-solid`, 2px with a 2px offset); the shared ring exists because the blanket suppression had left keyboard focus invisible on controls that carried no local indicator. The ring is keyboard-only by construction, so mouse clicks and touch taps keep the calm look, and it never fights the control's own border.
 
 **ARIA patterns in use:**
 

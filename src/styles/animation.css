@@ -464,7 +464,14 @@
 	border-radius: var(--container-radius);
 	padding: var(--space-5) var(--space-4);
 	text-align: center;
-	transition: all var(--dur-fast) var(--easing-smooth);
+	/* Explicit property list, not "all": the zone only ever moves its
+           border color, background and transform (hover and drag-active) -
+           naming the three keeps the browser off the every-property slow
+           path and makes any future property change opt-in. */
+	transition:
+		border-color var(--dur-fast) var(--easing-smooth),
+		background var(--dur-fast) var(--easing-smooth),
+		transform var(--dur-fast) var(--easing-smooth);
 	cursor: pointer;
 	background: transparent;
 }
