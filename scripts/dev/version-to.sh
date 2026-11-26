@@ -609,6 +609,34 @@ if [ "${DRY_RUN}" = true ]; then
 fi
 
 printf '\033[0;32mVersion updated to v%s.\033[0m\n' "${NEW}"
+
+# --- format hygiene (night-cafe-7b): the bump normalizes its own output.
+# The splice copies commit messages verbatim, and GPG-signed release
+# commits carry gpg verification lines whose column alignment rides
+# multi-space runs into the ledger. Prettier collapses those runs inside
+# markdown text, so an unnormalized ledger fails format:check on the
+# first CI run after every signed release - CI #695 before v80.5.3, then
+# CI #719 after v80.5.5. The writes above now land prettier-clean: run
+# --write, then --check fail-closed so a splice that cannot be
+# normalized stops at bump time, on the local machine, before any push.
+PRETTIER_BIN=""
+if [ -x node_modules/.bin/prettier ]; then
+        PRETTIER_BIN="node_modules/.bin/prettier"
+elif command -v prettier >/dev/null 2>&1; then
+        PRETTIER_BIN="prettier"
+fi
+if [ -z "${PRETTIER_BIN}" ]; then
+        warn "prettier unavailable - run 'bun run format' before committing"
+elif "${PRETTIER_BIN}" --write CHANGELOG.md >/dev/null 2>&1; then
+        if "${PRETTIER_BIN}" --check CHANGELOG.md >/dev/null 2>&1; then
+                ok "CHANGELOG.md - prettier clean (bump output normalized in place)"
+        else
+                die "CHANGELOG.md - still not prettier clean after --write; fix by hand before committing"
+        fi
+else
+        die "CHANGELOG.md - prettier --write failed; run 'bun run format' before committing"
+fi
+
 printf 'next: git add package.json README.md DORMANT.md CHANGELOG.md && git commit\n'
 
 # --- --commit (the zelynic auto-commit shape) ---
