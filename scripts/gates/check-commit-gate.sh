@@ -53,12 +53,17 @@ elif [ -x "$HOME/.bun/bin/bun" ]; then
 	export PATH="$HOME/.bun/bin:$PATH"
 fi
 if [ -n "$BUN_BIN" ]; then
+	# Prettier joins the fast family (CI #719): format:check is the first
+	# Build & Test step CI enforces and costs ~2s locally, so a splice or
+	# edit that drifts from the format law now fails at commit time on the
+	# contributor's machine instead of the first CI run after a push.
+	run_gate "prettier format (CI step 1)" "$BUN_BIN" run format:check
 	run_gate "loc ratchet (600/1000)" "$BUN_BIN" run audit:loc
 	run_gate "version surfaces" "$BUN_BIN" run audit:version-sync
 	run_gate "supply chain policy" "$BUN_BIN" run audit:supply-chain
 	run_gate "signature surfaces" "$BUN_BIN" run audit:signature
 else
-	echo "  [SKIP] loc ratchet + version surfaces (bun not installed)"
+	echo "  [SKIP] prettier format + loc ratchet + version surfaces (bun not installed)"
 fi
 
 # Advisory by design: warn mode never fails, the shape verdict prints.
