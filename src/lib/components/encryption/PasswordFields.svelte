@@ -200,7 +200,13 @@
 		border-radius: var(--control-radius);
 		color: var(--stellar-white);
 		cursor: pointer;
-		transition: all var(--dur-micro) ease;
+		/* night-cafe-7: scoped to the three properties :hover changes —
+		   an "all" transition would arm layout and filter properties
+		   (the blur layers) on every keystroke-adjacent repaint. */
+		transition:
+			color var(--dur-micro) ease,
+			background var(--dur-micro) ease,
+			border-color var(--dur-micro) ease;
 		z-index: var(--z-inner-control);
 		-webkit-backdrop-filter: blur(8px);
 		backdrop-filter: blur(8px);

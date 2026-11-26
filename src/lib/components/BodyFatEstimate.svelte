@@ -277,7 +277,11 @@
 		background: transparent;
 		color: var(--w-50);
 		cursor: pointer;
-		transition: all var(--dur-interactive) ease;
+		/* night-cafe-7: hover changes color, the active swap changes
+		   background + color — no other property animates. */
+		transition:
+			color var(--dur-interactive) ease,
+			background var(--dur-interactive) ease;
 		font-weight: 500;
 	}
 

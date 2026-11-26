@@ -275,7 +275,13 @@
 		border-radius: var(--radius-lg);
 		padding: 1.25rem;
 		text-align: center;
-		transition: all var(--dur-content) ease;
+		/* night-cafe-7: scoped to the properties hover and the status
+		   variant swap actually change — an "all" transition would also
+		   arm layout properties on every card. */
+		transition:
+			transform var(--dur-content) ease,
+			border-color var(--dur-content) ease,
+			background var(--dur-content) ease;
 	}
 
 	.snapshot-card:hover {
