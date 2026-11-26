@@ -90,7 +90,6 @@ import {
 	enableEncryption,
 	encrypt,
 	decrypt,
-	isEncrypted,
 	unlockAtRestSessionIfVerified,
 	verifyPassphrase
 } from '../crypto';
