@@ -365,6 +365,7 @@ vote: `bun run audit:axp1-znq --selftest`.
 - [docs/AUDIT-PRIVACY-2026-11.md](docs/AUDIT-PRIVACY-2026-11.md) — privacy audit record (November 2026)
 - [docs/AUDIT-INFRA-2026-11.md](docs/AUDIT-INFRA-2026-11.md) — infra audit: the zelynic discipline sync (November 2026)
 - [docs/AUDIT-LTS-2026-11.md](docs/AUDIT-LTS-2026-11.md) — end-to-end real-usage readiness audit (November 2026)
+- [docs/AUDIT-ARC-2026-11.md](docs/AUDIT-ARC-2026-11.md) — architecture depth audit: smoothbore hot paths, determinism, safety (November 2026)
 - [docs/responsive-audit-375.md](docs/responsive-audit-375.md) — the 375×667 responsive floor audit (November 2026)
 - [DORMANT.md](DORMANT.md) — the wake-up checklist for long quiet periods
 - [SECURITY.md](SECURITY.md) — reporting process, threat model, crypto details
