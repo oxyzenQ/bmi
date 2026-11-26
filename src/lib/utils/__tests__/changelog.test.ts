@@ -126,7 +126,32 @@ describe('extractChangelogSection', () => {
 		expect(flat).not.toContain('oxyzenQ');
 	});
 
-	it('prunes a group emptied out by the ritual filter', () => {
+	it('drops ritual bullets whatever decoration the paste carries', () => {
+		// The boundary matches the stable reference slot, not one paste
+		// shape: bold residue without the space, a bold-wrapped reference,
+		// a bare reference slot, and a widened space run all ride out too.
+		const ledger = [
+			'## [80.5.6]',
+			'',
+			'### Changed',
+			'- **_(gpg: Signature made Thu 26 Nov 2026 08:12:04 PM WIB)_**',
+			'- _**(gpg: using EDDSA key 2B52187D2AB618A7591D45C9C7F8B07418899C4E)**_',
+			'- _(gpg: Good signature from "rezky_nightky (oxyzenQ) <oxyzenQ@proton.me>" [ultimate])_',
+			'- ****    _(gpg: aka "Rezky Cahya Sahputra <130107241+oxyzenQ@users.noreply.github.com>" [ultimate])_',
+			'- **engrave the ux** _(e696f63)_',
+			''
+		].join('\n');
+		const section = extractChangelogSection(ledger, '80.5.6');
+		expect(section?.groups).toHaveLength(1);
+		expect(section?.groups[0].entries).toHaveLength(1);
+		expect(section?.groups[0].entries[0]).toEqual({ text: 'engrave the ux', sha: 'e696f63' });
+		const flat = JSON.stringify(section);
+		expect(flat).not.toContain('gpg:');
+		expect(flat).not.toContain('oxyzenQ');
+		expect(flat).not.toContain('noreply');
+	});
+
+	it('ships the honest empty state when a section dissolves to ritual bullets alone', () => {
 		const ledger = [
 			'## [80.5.5]',
 			'',
@@ -134,7 +159,8 @@ describe('extractChangelogSection', () => {
 			'- **** _(gpg: Signature made Thu 26 Nov 2026 08:12:04 PM WIB)_',
 			''
 		].join('\n');
-		const section = extractChangelogSection(ledger, '80.5.5');
-		expect(section?.groups).toHaveLength(0);
+		// No groups is no section: null, so the UI renders the honest
+		// empty state instead of a version heading over a blank body.
+		expect(extractChangelogSection(ledger, '80.5.5')).toBeNull();
 	});
 });

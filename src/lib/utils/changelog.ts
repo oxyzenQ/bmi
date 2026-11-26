@@ -48,15 +48,26 @@ function parseEntry(raw: string): ChangelogEntry {
  * version section the app bundles). The ledger keeps the ritual; every
  * consumer of this extractor - the virtual module and the UI it feeds -
  * ships without it.
+ *
+ * The shape is matched on the stable part, not on one paste: the
+ * verification output always opens with the literal `(gpg:`, and the
+ * markdown decoration in front of it is variance from the paste, not
+ * content. Any run of bold markers, italic slots, and spaces before
+ * that literal marks the bullet as ritual (`- **** _(gpg: ...)_`,
+ * `- **_(gpg: ...)_**`, `- _**(gpg: ...)**_`, a bare or widened
+ * reference slot) - the ritual output itself never starts a real
+ * release entry, so the match cannot eat a genuine one.
  */
-const GPG_RITUAL_BULLET = /^\*+ _\(gpg:/;
+const GPG_RITUAL_BULLET = /^[*_ \t]*\(gpg:/;
 
 /**
  * Extract the section the ledger records for `version` (a leading `v`
  * is accepted and dropped). Returns null when the ledger holds no such
- * section - the caller renders the honest empty state instead of
- * inventing content. The section ends at the next `## ` heading, so
- * Unreleased and other releases never bleed into it.
+ * section, and equally when the recorded section dissolves into ritual
+ * bullets alone (the filter above empties every group) - both render
+ * the honest empty state instead of inventing content or shipping a
+ * shell. The section ends at the next `## ` heading, so Unreleased and
+ * other releases never bleed into it.
  */
 export function extractChangelogSection(
 	markdown: string,
@@ -95,7 +106,10 @@ export function extractChangelogSection(
 	if (!inSection) return null;
 	// The filter above can empty a group out (a heading followed only by
 	// ritual bullets); the payload invariant is that a shipped group
-	// carries at least one entry, so prune the shells.
+	// carries at least one entry, so prune the shells. A section left
+	// with no groups at all is no section: null, so the UI renders the
+	// honest empty state instead of a version heading over a blank body.
 	const filled = groups.filter((group) => group.entries.length > 0);
+	if (filled.length === 0) return null;
 	return { version: wanted, groups: filled };
 }
