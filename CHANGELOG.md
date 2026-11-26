@@ -1024,9 +1024,16 @@ _Link mapping: `[21.x.0]` sections correspond to the historic `Stellar-v21.x` ta
 ### Fixed
 
 - **Internal research: night-cafe-7 — the invalid `--btn-bg` gradient stop repaired** _(6a2081a)_
+- **Internal research: night-cafe-7 — the double PWA update prompt silenced by the upstream convergence window** _(bb5bff0)_
+- **Internal research: night-cafe-7 — the changelog frame's duplicate divider lines removed, the well becomes the only boundary** _(2964844)_
+- **Internal research: night-cafe-8 — the invisible keyboard focus ring restored on every button** _(b82a0d8)_
 
 ### Changed
 
 - **Internal research: night-cafe-7 — the dead CSS selectors removed** _(ee554e3)_
 - **Internal research: night-cafe-7 — the transition scope narrowed on interactive surfaces** _(4f28df7)_
 - **Internal research: night-cafe-7 — the base layer comment hygiene** _(bc0dc9b)_
+- **Internal research: night-cafe-7 — the changelog history scrolls inside a rounded well** _(e2a08be)_
+- **Internal research: night-cafe-8 — the changelog well redrawn as a bare borderless surface with scroll-edge fades** _(09d8d98)_
+- **Internal research: night-cafe-8 — the notification close control quieted to a ghost outline** _(b82a0d8)_
+- **Internal research: night-cafe-8 — the drop-zone transition list named explicitly instead of `all`** _(b82a0d8)_
