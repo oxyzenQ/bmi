@@ -521,8 +521,10 @@ async function verifyIntegrity(
  * run once for both entry points (validate and import) instead of the
  * two drifted copies. A corrupted encrypted payload answers
  * corrupted_file instead of a misleading wrong_passphrase; a sound one
- * decrypts or refuses with the honest code. `decrypted` tells the
- * import path whether the at-rest unlock must actually run.
+ * decrypts or refuses with the honest code. `decrypted` reports that
+ * the payload was passphrase-decrypted (the verifier establishment
+ * rides that proof); it no longer drives an at-rest unlock
+ * (night-cafe-9).
  */
 async function importPlaintextOrFail(
 	json: string,
@@ -680,11 +682,12 @@ export async function importBmiHistory(json: string, passphrase?: string): Promi
 		return { success: false, count: 0, error: guarded.error, errorCode: guarded.errorCode };
 	}
 
-	// Z3: await the unlock (30 s budget) - the write must never race the purge guard.
-	if (guarded.decrypted && passphrase) {
-		const { unlockAtRestSessionIfVerified } = await import('./crypto');
-		await unlockAtRestSessionIfVerified(passphrase, 30_000);
-	}
+	// night-cafe-9: no at-rest unlock here. The old awaited unlock
+	// registered a session whose key dies with the tab, sealing the
+	// imported ledger behind a passphrase no cold load can re-present
+	// (no unlock UI exists). Sealed values then read as missing forever
+	// while the purge guard silently refused every new save. The import
+	// write stays plaintext and fully readable.
 
 	const result = await parseAndValidate(guarded.content);
 
@@ -705,8 +708,11 @@ export async function importBmiHistory(json: string, passphrase?: string): Promi
 	}
 
 	// Z3: the first passphrase-proven import on a device without a
-	// verifier establishes it (crypto.establishLedgerVerifier). Encrypted
-	// imports only — a plain import carries no passphrase to prove.
+	// verifier establishes it (crypto.establishLedgerVerifier) —
+	// verifier-only since night-cafe-9: the proof is recorded, the
+	// session is never registered, and the ledger stays plaintext.
+	// Encrypted imports only — a plain import carries no passphrase to
+	// prove.
 	if (passphrase) {
 		const { establishLedgerVerifier } = await import('./crypto');
 		await establishLedgerVerifier(passphrase);

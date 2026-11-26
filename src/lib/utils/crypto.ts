@@ -23,8 +23,11 @@
  * At-rest session unlock (night-frontier-Z1):
  *   - The low-level primitives live in crypto-primitives.ts (a dependency
  *     leaf shared with at-rest.ts); this module keeps the envelope stack.
- *   - enableEncryption() and verifier-anchored successful decrypts register
- *     the at-rest session key, so later writes to health keys seal at rest.
+ *   - enableEncryption() and unlockAtRestSessionIfVerified() register the
+ *     at-rest session key, so later writes to health keys seal at rest.
+ *     decrypt() is pure: it never mutates session state (night-cafe-9 —
+ *     a decrypt-side registration sealed the ledger behind a key no cold
+ *     load could re-enter, because no unlock UI exists yet).
  *   - Only a passphrase that verifies against the stored verifier can ever
  *     register — export-file passphrases that fail verification never do.
  *
@@ -297,11 +300,13 @@ export async function encrypt(
  * leaking plaintext equality fingerprints. Separate from AES-GCM
  * auth tag — provides a lightweight pre-decryption sanity check.
  *
- * At-rest unlock (night-frontier-Z1): a successful decrypt proves
- * knowledge of the passphrase. Decrypts of the verifier register the
- * at-rest session directly; file decrypts register only after the
- * passphrase verifies against the stored verifier, so only the ledger
- * passphrase can ever unlock the session.
+ * Side-effect law (night-cafe-9): decrypt() is PURE — it never mutates
+ * the at-rest session state. A successful decrypt proves knowledge of
+ * the passphrase, but proving is not registering: the session seats
+ * install only through the explicit registration doors
+ * (enableEncryption, unlockAtRestSessionIfVerified). A decrypt-side
+ * registration sealed the imported ledger behind a key that dies with
+ * the tab, and the next cold load read its own history as missing.
  */
 export async function decrypt(
 	encryptedJson: string,
@@ -367,22 +372,12 @@ export async function decrypt(
 			integrityOk = await verifyChecksumB64(payload.data, payload.meta.checksum);
 		}
 
-		// At-rest session unlock — verifier-anchored, never throws into
-		// callers, never blocks them: the unlock runs fire-and-forget behind
-		// a bounded race (unlockAtRestSessionIfVerified). The import path
-		// awaits the same check before its ledger write, so a locked
-		// device's import never races the purge guard. Values written
-		// before the background unlock completes elsewhere stay plaintext
-		// until their next write — documented in the ledger.
-		void (async () => {
-			if (plaintext === VERIFIER_PLAINTEXT) {
-				await registerAtRestSession(passphrase);
-				await storageRefreshAtRestCache();
-			} else {
-				await unlockAtRestSessionIfVerified(passphrase);
-			}
-		})();
-
+		// night-cafe-9: no side effects here. decrypt() proves knowledge of a
+		// passphrase; it must never install a session seat. The retired
+		// fire-and-forget registration sealed the imported ledger behind a
+		// key that dies with the tab, and with no unlock UI on cold load the
+		// next session read its own history as missing while the purge guard
+		// silently refused every new save.
 		return { plaintext, integrityOk };
 	} catch (err) {
 		// Differentiate AES-GCM auth tag mismatch (wrong passphrase) from other errors
@@ -456,19 +451,20 @@ export async function enableEncryption(passphrase: string): Promise<boolean> {
 
 /**
  * Establish the ledger verifier from a passphrase-proven import
- * (night-frontier-Z3).
+ * (night-frontier-Z3), WITHOUT registering the at-rest session
+ * (night-cafe-9).
  *
- * The at-rest session had no reachable start moment in the product:
- * enableEncryption() was never wired to any UI flow, so the verifier
- * never existed and the seal (innovation 25) never activated live —
- * real code, real tests, dead wire. The honest minimal fix rides the
- * one passphrase moment that already proves knowledge: a successful
- * decrypt of the user's own valid ledger file. On a device WITHOUT a
- * ledger verifier, that import establishes it and registers the
- * session, so the imported write itself seals at rest. A device WITH a
- * verifier keeps the innovation-25 guarantee unchanged: only a
- * passphrase that verifies against the stored verifier can ever
- * register, and export-file passphrases never create one.
+ * The verifier records the passphrase proof so a future unlock flow can
+ * verify against it. The session registration that used to ride this
+ * moment (and every successful decrypt since Z1) is retired: it sealed
+ * the imported ledger behind a key that dies with the tab, no cold-load
+ * unlock surface exists to re-enter it, and the sealed ledger then read
+ * as missing forever while the purge guard silently refused every new
+ * save. The honest law (night-cafe-9): a value must never be sealed on
+ * a device where no flow can re-present the passphrase afterward.
+ * Until an unlock UI ships, the imported write stays plaintext and
+ * fully readable, and the verifier stays a dormant, forward-useful
+ * record (a second import under any file passphrase never replaces it).
  *
  * Never throws into the caller — establishment failure leaves the
  * device as it was (plaintext writes, existing at-rest semantics).
@@ -477,13 +473,17 @@ export async function establishLedgerVerifier(passphrase: string): Promise<void>
 	try {
 		const status = await getEncryptionStatus();
 		if (status.hasPassphrase) return;
-		const established = await enableEncryption(passphrase);
+		// night-cafe-9: verifier-only establishment. enableEncryption() also
+		// registers the at-rest session, which would seal the imported write
+		// behind a key the next cold load can never re-enter. Record the
+		// passphrase proof, keep the ledger plaintext.
+		const verifier = await encrypt(VERIFIER_PLAINTEXT, passphrase);
+		await dbMetaSet(META_ENCRYPTION_VERIFIER, verifier);
+		await dbMetaSet(META_ENCRYPTION_KEY, '1');
 		warnDev(
 			'crypto',
 			'establishLedgerVerifier',
-			established
-				? 'First passphrase-proven import established the ledger verifier'
-				: 'Ledger verifier establishment failed (session stays locked)'
+			'First passphrase-proven import established the ledger verifier (session not registered — night-cafe-9)'
 		);
 	} catch (err) {
 		warnDev('crypto', 'establishLedgerVerifier', 'Verifier establishment check failed', err);
@@ -491,14 +491,15 @@ export async function establishLedgerVerifier(passphrase: string): Promise<void>
 }
 
 /**
- * Verifier-anchored at-rest unlock, awaited (night-frontier-Z3).
+ * Verifier-anchored at-rest unlock, the explicit registration door
+ * (night-frontier-Z3).
  *
- * decrypt() runs this fire-and-forget so a slow unlock can never stall
- * a file decrypt. The import path, however, must AWAIT it: on a locked
- * device whose history is sealed, the import write hits the purge guard
- * before the background registration lands, and the save is refused
- * (the unlock modal would deadlock on save_failed). Awaiting here makes
- * the unlock moment deterministic before the ledger write.
+ * The passphrase is proven against the stored verifier, and only a
+ * proven passphrase registers the session. Since night-cafe-9 no
+ * production flow calls this yet — decrypt() is pure and the import
+ * path never registers — the function stays the pinned, tested entry
+ * point for the future unlock surface. Its contract is unchanged:
+ * registration happens only after verification succeeds.
  *
  * Returns true when the session ended up unlocked (already unlocked, or
  * the passphrase verified against the stored verifier).

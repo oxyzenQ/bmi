@@ -91,6 +91,7 @@ import {
 	encrypt,
 	decrypt,
 	isEncrypted,
+	unlockAtRestSessionIfVerified,
 	verifyPassphrase
 } from '../crypto';
 import {
@@ -467,13 +468,15 @@ describe('crypto unlock hooks', () => {
 		expect(sealedFirst).not.toBe(sealedSecond);
 	});
 
-	it('verifyPassphrase success registers the session (verifier-anchored unlock)', async () => {
+	it('verifyPassphrase is pure: success never registers the session (night-cafe-9)', async () => {
 		await enableEncryption(PW);
 		clearAtRestSession();
 		expect(isAtRestUnlocked()).toBe(false);
 		expect(await verifyPassphrase(PW)).toBe(true);
-		// Registration rides the fire-and-forget decrypt hook — wait for it.
-		await vi.waitFor(() => expect(isAtRestUnlocked()).toBe(true));
+		// Let any retired fire-and-forget hook settle, then prove it never
+		// registered: proving is not registering.
+		await new Promise((resolve) => setTimeout(resolve, 100));
+		expect(isAtRestUnlocked()).toBe(false);
 	});
 
 	it('verifyPassphrase failure never registers', async () => {
@@ -485,16 +488,26 @@ describe('crypto unlock hooks', () => {
 		expect(isAtRestUnlocked()).toBe(false);
 	});
 
-	it('a file decrypt with the ledger passphrase unlocks the session', async () => {
+	it('a file decrypt never mutates session state (night-cafe-9: decrypt is pure)', async () => {
 		await enableEncryption(PW);
 		clearAtRestSession();
 		const fileEnvelope = await encrypt(sampleRecords(2), PW);
 		expect(isEncrypted(fileEnvelope)).toBe(true);
 		const result = await decrypt(fileEnvelope, PW);
 		expect(result).not.toBeNull();
-		// The unlock runs fire-and-forget behind a bounded race so a slow
-		// or broken IndexedDB can never stall a decrypt — wait for it.
-		await vi.waitFor(() => expect(isAtRestUnlocked()).toBe(true));
+		// Let any retired fire-and-forget hook settle, then prove the
+		// session stayed locked: seats install only through the explicit
+		// registration doors.
+		await new Promise((resolve) => setTimeout(resolve, 100));
+		expect(isAtRestUnlocked()).toBe(false);
+	});
+
+	it('unlockAtRestSessionIfVerified registers the session after a proven passphrase', async () => {
+		await enableEncryption(PW);
+		clearAtRestSession();
+		expect(isAtRestUnlocked()).toBe(false);
+		expect(await unlockAtRestSessionIfVerified(PW)).toBe(true);
+		expect(isAtRestUnlocked()).toBe(true);
 	});
 
 	it('a file decrypt with a non-ledger passphrase never unlocks', async () => {

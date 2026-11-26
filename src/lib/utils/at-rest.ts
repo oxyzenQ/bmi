@@ -7,9 +7,12 @@
  *
  * Closes the one honest limit the product documents ("local browser
  * storage is not encrypted at rest") with a design that adds no new UI
- * surface: the session unlocks through the passphrase moments that
- * already exist (enable encryption, successful decrypt flows) and every
- * later write to a health key is sealed transparently by storage.ts.
+ * surface: the session unlocks through the explicit registration doors
+ * (enable encryption, unlockAtRestSessionIfVerified) and every later
+ * write to a health key is sealed transparently by storage.ts.
+ * decrypt() is pure — proving a passphrase never registers
+ * (night-cafe-9): a seal with no cold-load door back stranded the
+ * imported ledger behind a key that died with the tab.
  *
  * Semantics, stated honestly:
  *   - Sealing is session-gated. A cold load starts locked: sealed values
@@ -103,9 +106,10 @@ async function getOrCreateSalt(): Promise<Uint8Array> {
 /**
  * Register the session key for an unlocked session.
  *
- * Callers are the verifier-anchored passphrase moments in crypto.ts:
- * enableEncryption() and a successful verifier/file decrypt that passed
- * verifyPassphrase(). Derives the Argon2id session key (offloaded to the
+ * Callers are the explicit verifier-anchored doors in crypto.ts:
+ * enableEncryption() and unlockAtRestSessionIfVerified() (which itself
+ * rides verifyPassphrase()). decrypt() is pure and never registers
+ * (night-cafe-9). Derives the Argon2id session key (offloaded to the
  * KDF worker in production) and installs it in the volatile slot.
  * Throws on derivation failure — callers decide the fallback.
  */

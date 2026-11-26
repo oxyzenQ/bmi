@@ -13,12 +13,15 @@
 //      chain edits, truncation - the HMAC covers records + chain
 //      jointly, and the recomputation cross-check is independent of it.
 //   3. Encrypted v4 round-trip through the real crypto stack, with the
-//      night-frontier-Z3 fix proven at the integration level: the FIRST
+//      night-cafe-9 law proven at the integration level: the FIRST
 //      passphrase-proven import on a device without a ledger verifier
-//      establishes it, registers the at-rest session, and the imported
-//      write seals at rest. A device WITH a verifier keeps the
-//      innovation-25 guarantee: a second import under a different file
-//      passphrase never replaces it.
+//      establishes it (verifier-only — the at-rest session is never
+//      registered), the imported write lands PLAINTEXT, and the ledger
+//      stays fully readable across a simulated cold reload where a
+//      follow-up calculation lands too. An import against a LOCKED
+//      (sealed) ledger is honestly refused without destroying the seal.
+//      A device WITH a verifier keeps the guarantee: a second import
+//      under a different file passphrase never replaces it.
 //   4. The legacy ladder (v0/v1/v2 fixtures) still imports, and a plain
 //      import never establishes anything (no passphrase to prove).
 //   5. The import is the re-anchor moment: the witness lands exactly on
@@ -88,6 +91,7 @@ import {
 	_resetIdbWriteSeqForTesting
 } from '../storage';
 import { exportBmiHistory, importBmiHistory, validateBmiImport } from '../history-io';
+import { readBmiHistory, saveBmiToHistory, _drainLedgerWritesForTesting } from '../bmi-history';
 import {
 	computeLedgerChain,
 	computeWitnessChain,
@@ -98,17 +102,21 @@ import { getEncryptionStatus, verifyPassphrase } from '../crypto';
 import { AT_REST_TAG, _resetAtRestStateForTesting, getAtRestSessionKey } from '../at-rest-state';
 import { fnv1a, dualHash } from '../legacy-hash';
 import { exportBmiHistoryCsv } from '../history-csv';
-import { _resetWitnessKeyForTesting, getWitnessKeyFingerprint } from '../witness-key';
+import { _resetWitnessKeyForTesting } from '../witness-key';
 import { _resetSealKeyForTesting } from '../seal-key';
 
 const HISTORY = STORAGE_KEYS.HISTORY;
 const PW = 'ledger-passphrase-one';
 const PW_OTHER = 'a different file passphrase';
 
+// Fresh timestamps keep the merged records inside the one-year save
+// window, so the night-cafe-9 reload regression can exercise a real
+// follow-up calculation over the imported ledger.
+const NOW = Date.now();
 const RECORDS = [
-	{ timestamp: 1_700_000_000_000, bmi: 22.5, height: 170, weight: 65, age: 30 },
-	{ timestamp: 1_700_086_400_000, bmi: 23.1, height: 170, weight: 67.5 },
-	{ timestamp: 1_700_172_800_000, bmi: 21.8, height: 170, weight: 63 }
+	{ timestamp: NOW - 7_200_000, bmi: 22.5, height: 170, weight: 65, age: 30 },
+	{ timestamp: NOW - 3_600_000, bmi: 23.1, height: 170, weight: 67.5 },
+	{ timestamp: NOW - 1_800_000, bmi: 21.8, height: 170, weight: 63 }
 ];
 
 beforeEach(() => {
@@ -203,8 +211,8 @@ describe('v4 tamper battery: every content change is rejected', () => {
 	});
 });
 
-describe('establish-on-import: the at-rest session start moment (Z3 fix)', () => {
-	it('the first passphrase-proven import establishes the verifier, registers the session, and seals the write', async () => {
+describe('establish-on-import: verifier-only, the ledger stays plaintext (night-cafe-9)', () => {
+	it('the first passphrase-proven import establishes the verifier and the ledger stays plaintext and readable', async () => {
 		await seedHistory();
 		const encrypted = await exportBmiHistory(PW);
 		expect(encrypted).not.toBeNull();
@@ -215,61 +223,113 @@ describe('establish-on-import: the at-rest session start moment (Z3 fix)', () =>
 		const result = await importBmiHistory(encrypted!, PW);
 		expect(result.success).toBe(true);
 
-		// The verifier now exists and the session registered.
+		// The verifier now exists; the session never registered.
 		expect((await getEncryptionStatus()).enabled).toBe(true);
 		expect(await verifyPassphrase(PW)).toBe(true);
+		expect(getAtRestSessionKey()).toBeNull();
 
-		// The imported history sealed at rest: raw storage holds the
-		// envelope, never the plaintext.
+		// The imported history landed PLAINTEXT: raw storage holds the
+		// readable JSON, never the envelope.
 		await vi.waitFor(
 			() => {
-				expect(lsStore.get(HISTORY)?.startsWith(AT_REST_TAG)).toBe(true);
+				const raw = lsStore.get(HISTORY) ?? '';
+				expect(raw.startsWith(AT_REST_TAG)).toBe(false);
+				expect(JSON.parse(raw)).toHaveLength(RECORDS.length);
 			},
 			{ timeout: 8000, interval: 50 }
 		);
 
-		// And the witness landed exactly on the imported records. The
-		// establish-on-import flow registered the at-rest session, so the
-		// witness seals KEYED (night-frontier-Z6): the passphrase-proven
-		// import is exactly the moment the keyed law activates.
+		// And the witness landed exactly on the imported records, in the
+		// PLAIN mode: no session, no attestation key, a portable anchor.
 		await vi.waitFor(
 			async () => {
 				const sealed = await getSealedLedgerChain();
-				const expected = await computeWitnessChain(RECORDS as never, 'keyed');
-				expect(sealed).toEqual({
-					...expected,
-					mode: 'keyed',
-					kf: getWitnessKeyFingerprint()
-				});
+				const expected = await computeWitnessChain(RECORDS as never, 'plain');
+				expect(sealed).toEqual(expected);
 			},
 			{ timeout: 8000, interval: 50 }
 		);
-	});
 
-	it('an unlock import on a LOCKED device is awaited: the write seals on the first attempt (Z3 race fix)', async () => {
-		await seedHistory();
-		const fileOne = await exportBmiHistory(PW);
-		await importBmiHistory(fileOne!, PW);
-		expect(await verifyPassphrase(PW)).toBe(true);
-
-		// Simulate the cold reload: the volatile session key is gone while
-		// the sealed history and the verifier stay on the device.
+		// The night-cafe-9 regression, end to end: the cold reload kills the
+		// volatile session, and the ledger must survive it — records readable,
+		// and a follow-up calculation lands instead of being silently refused
+		// by the purge guard.
 		_resetSealKeyForTesting(getAtRestSessionKey());
 		_resetAtRestStateForTesting();
 		_resetWitnessKeyForTesting();
 		storageInvalidateAll();
 
-		// Before the fix, the fire-and-forget registration lost the race
-		// against the import write, the purge guard refused it, and the
-		// unlock modal deadlocked on save_failed.
+		expect(readBmiHistory()).toHaveLength(RECORDS.length);
+		saveBmiToHistory({
+			bmi: 24.2,
+			heightCm: 170,
+			weightKg: 70,
+			age: '30',
+			lastSignature: null
+		});
+		await _drainLedgerWritesForTesting();
+		expect(readBmiHistory()).toHaveLength(RECORDS.length + 1);
+	});
+
+	it('an import on a device WITH a verifier stays plaintext across a cold reload', async () => {
+		await seedHistory();
+		const fileOne = await exportBmiHistory(PW);
+		await importBmiHistory(fileOne!, PW);
+		expect(await verifyPassphrase(PW)).toBe(true);
+
+		// Simulate the cold reload: the volatile session is gone while the
+		// verifier and the plaintext ledger stay on the device.
+		_resetSealKeyForTesting(getAtRestSessionKey());
+		_resetAtRestStateForTesting();
+		_resetWitnessKeyForTesting();
+		storageInvalidateAll();
+
 		const result = await importBmiHistory(fileOne!, PW);
 		expect(result.success).toBe(true);
 		await vi.waitFor(
 			() => {
-				expect(lsStore.get(HISTORY)?.startsWith(AT_REST_TAG)).toBe(true);
+				const raw = lsStore.get(HISTORY) ?? '';
+				expect(raw.startsWith(AT_REST_TAG)).toBe(false);
+				expect(JSON.parse(raw)).toHaveLength(RECORDS.length);
 			},
 			{ timeout: 8000, interval: 50 }
 		);
+		expect(getAtRestSessionKey()).toBeNull();
+	});
+
+	it('an import against a LOCKED sealed ledger is honestly refused, seal untouched (night-cafe-9)', async () => {
+		// A stranded v80.6.0 device: the ledger is a sealed envelope the
+		// session cannot open. The purge guard must refuse the import write
+		// instead of silently destroying the seal; the documented recovery is
+		// the explicit clear-ledger moment followed by a fresh import.
+		const stranded = AT_REST_TAG + 'bm9vcGFxdWVqb3VybmFs';
+		lsStore.set(HISTORY, stranded);
+
+		const payload = JSON.stringify({
+			version: 2,
+			source: 'bmi-calculator',
+			exportedAt: '2026-01-01T00:00:00.000Z',
+			records: JSON.stringify(RECORDS)
+		});
+		const digest = await crypto.subtle.digest(
+			'SHA-256',
+			new TextEncoder().encode(payload).buffer as ArrayBuffer
+		);
+		const checksum = Array.from(new Uint8Array(digest), (b) =>
+			b.toString(16).padStart(2, '0')
+		).join('');
+		const plain = JSON.stringify({
+			version: 2,
+			source: 'bmi-calculator',
+			exportedAt: '2026-01-01T00:00:00.000Z',
+			checksum,
+			records: RECORDS
+		});
+
+		const result = await importBmiHistory(plain);
+		expect(result.success).toBe(false);
+		expect(result.errorCode).toBe('save_failed');
+		expect(lsStore.get(HISTORY)).toBe(stranded);
 	});
 
 	it('a later import under a different file passphrase never replaces the verifier', async () => {
