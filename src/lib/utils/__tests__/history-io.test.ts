@@ -406,7 +406,7 @@ describe('history-io', () => {
 
 		it('returns valid CSV with headers', async () => {
 			const records = [
-				{ timestamp: 1700000000000, bmi: 22.5, height: 170, weight: 65, age: 25 },
+				{ timestamp: 1700049600000, bmi: 22.5, height: 170, weight: 65, age: 25 },
 				{ timestamp: 1700086400000, bmi: 22.1, height: 170, weight: 64.5 }
 			];
 			localStorageMock.getItem.mockReturnValue(JSON.stringify(records));
@@ -415,8 +415,8 @@ describe('history-io', () => {
 			expect(csv).not.toBeNull();
 			// All cells are quoted in CSV output
 			expect(csv).toContain('"Date","Time","BMI","Height (cm)","Weight (kg)","Age","Category"');
-			// Timestamp 1700000000000 = 2023-11-14T22:13:20Z (date from ISO, time from toTimeString)
-			expect(csv).toContain('"2023-11-14"');
+			// 1700049600000 = 2023-11-15T12:00:00Z: mid-day UTC keeps the local Date 2023-11-15 in any TZ.
+			expect(csv).toContain('"2023-11-15"');
 			expect(csv).toContain('"22.5"');
 			expect(csv).toContain('"170"');
 			expect(csv).toContain('"65"');

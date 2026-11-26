@@ -3,6 +3,7 @@
 
 <script lang="ts">
 	import { exportBmiHistoryCsv } from '$lib/utils/history-csv';
+	import { downloadBlobFile } from '$lib/utils/download';
 	import {
 		exportBmiHistory,
 		validateBmiImport,
@@ -237,29 +238,27 @@
 		await new Promise((r) => setTimeout(r, STAGING_POST_DELAY));
 		stagingLoading = false;
 
-		const blob = new Blob([json], { type: 'application/json' });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = `bmi-history-${formatBmiExportDate()}.json`;
-		document.body.appendChild(a);
-		a.click();
-		document.body.removeChild(a);
-		URL.revokeObjectURL(url);
+		downloadBlobFile(
+			new Blob([json], { type: 'application/json' }),
+			`bmi-history-${formatBmiExportDate()}.json`
+		);
 	}
 
 	function handleExportCsv() {
 		const csv = exportBmiHistoryCsv();
-		if (!csv) return;
-		const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = `bmi-history-${formatBmiExportDate()}.csv`;
-		document.body.appendChild(a);
-		a.click();
-		document.body.removeChild(a);
-		URL.revokeObjectURL(url);
+		if (!csv) {
+			// A silent dead button reads as broken — say why instead.
+			feedbackType = 'error';
+			feedbackMessage = t('sparkline.empty');
+			showFeedbackModal = true;
+			return;
+		}
+		// UTF-8 BOM: spreadsheet apps (Excel) open BOM-less CSV as ANSI and
+		// render localized category labels as mojibake.
+		downloadBlobFile(
+			new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' }),
+			`bmi-history-${formatBmiExportDate()}.csv`
+		);
 	}
 
 	function handleImportClick() {

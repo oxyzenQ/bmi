@@ -17,9 +17,17 @@ import { warnDev } from './warn-dev';
 import { isValidRecord, toRecord } from './history-io';
 import { classifyBmi, getCategoryLabel } from './bmi-category';
 
+/** Two-digit zero-pad for the local Date/Time columns. */
+function pad2(n: number): string {
+	return String(n).padStart(2, '0');
+}
+
 /**
  * Export BMI history as a CSV string suitable for spreadsheet apps.
  * Columns: Date, Time, BMI, Height (cm), Weight (kg), Age, Category
+ * Both Date and Time are LOCAL — one row reads as one moment on the
+ * user's own clock (mixing a UTC date with a local time produced rows
+ * that disagreed with each other near midnight).
  * Returns `null` if no history exists.
  */
 export function exportBmiHistoryCsv(): string | null {
@@ -39,8 +47,8 @@ export function exportBmiHistoryCsv(): string | null {
 
 		for (const r of records) {
 			const d = new Date(r.timestamp);
-			const date = d.toISOString().split('T')[0];
-			const time = d.toTimeString().split(' ')[0].slice(0, 5);
+			const date = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+			const time = `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 			const bmi = r.bmi.toFixed(1);
 			const category = getCategoryLabel(classifyBmi(r.bmi));
 
