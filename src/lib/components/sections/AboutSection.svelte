@@ -18,9 +18,11 @@
 		Scale,
 		HardDriveDownload,
 		BicepsFlexed,
-		Info
+		Info,
+		ScrollText
 	} from 'lucide-svelte';
 	import GitHubMark from '$lib/ui/GitHubMark.svelte';
+	import ChangelogFloat from '$lib/components/ChangelogFloat.svelte';
 	import NotifyFloat from '$lib/components/NotifyFloat.svelte';
 	import StagingSpinner from '$lib/components/StagingSpinner.svelte';
 	import { promptPwaInstall, pwaInstallState } from '$lib/stores/pwa-install';
@@ -48,6 +50,7 @@
 		);
 	let updateCheckingOverlay = $state(false);
 	let showInstallHelp = $state(false);
+	let showChangelog = $state(false);
 	let showUpdateCheckNotice = $state(false);
 	let updateCheckNoticeType = $state<'success' | 'error'>('success');
 	let updateCheckNoticeMessage = $state('');
@@ -313,6 +316,14 @@
 								<strong>Depth-matrix:</strong>{depthBody}
 							</p>
 						</div>
+						<!-- Release ledger: what changed in the shipped version,
+							     resolved at build time from CHANGELOG.md -->
+						<div class="pwa-install-actions">
+							<button class="pwa-install-action" onclick={() => (showChangelog = true)}>
+								<ScrollText size={18} aria-hidden="true" />
+								<span>{t('about.changelog_btn')}</span>
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -347,4 +358,5 @@
 		/>
 	{/if}
 	<StagingSpinner show={updateCheckingOverlay} label={t('pwa.update_checking')} />
+	<ChangelogFloat show={showChangelog} onclose={() => (showChangelog = false)} />
 {/key}

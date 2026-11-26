@@ -512,6 +512,9 @@ const en: TranslationDict = {
 	'about.type_apps': 'Type Apps',
 	'about.status': 'Status',
 	'about.license': 'License',
+	'about.changelog_btn': 'Release changes',
+	'changelog.title': 'What changed in this release',
+	'changelog.empty': 'No changelog entry was recorded for this version.',
 	'about.signature': 'Signature',
 	'about.contact': 'Contact',
 

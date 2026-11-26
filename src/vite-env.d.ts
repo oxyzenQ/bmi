@@ -3,6 +3,19 @@
 
 /// <reference types="vite/client" />
 
+declare module 'virtual:changelog-latest' {
+	import type { ChangelogSection } from '$lib/utils/changelog';
+
+	export interface ChangelogLatest {
+		/** The app version the section was resolved for at build time. */
+		version: string;
+		/** The release section, or null when the ledger has none for it. */
+		section: ChangelogSection | null;
+	}
+
+	export const changelogLatest: ChangelogLatest;
+}
+
 declare module '*?worker&inline' {
 	const workerConstructor: new () => Worker;
 	export default workerConstructor;

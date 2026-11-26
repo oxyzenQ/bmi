@@ -539,6 +539,9 @@ const zh: TranslationDict = {
 	'about.type_apps': '\u5e94\u7528\u7c7b\u578b',
 	'about.status': '\u72b6\u6001',
 	'about.license': '\u8bb8\u53ef\u8bc1',
+	'about.changelog_btn': '\u7248\u672c\u66f4\u65b0\u5185\u5bb9',
+	'changelog.title': '\u672c\u6b21\u7248\u672c\u7684\u66f4\u65b0\u5185\u5bb9',
+	'changelog.empty': '\u672a\u627e\u5230\u6b64\u7248\u672c\u7684\u66f4\u65b0\u8bb0\u5f55\u3002',
 	'about.signature': '\u7b7e\u540d',
 	'about.contact': '\u8054\u7cfb\u65b9\u5f0f',
 

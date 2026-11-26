@@ -5,6 +5,10 @@
 		"checkJs": true,
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
+		// The changelog virtual module (night-cafe-6) imports the parser
+		// with an explicit .ts extension because vite's native config
+		// loader rejects extensionless relative imports.
+		"allowImportingTsExtensions": true,
 		"module": "esnext",
 		"noEmit": true,
 		"resolveJsonModule": true,

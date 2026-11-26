@@ -513,6 +513,9 @@ const id: TranslationDict = {
 	'about.type_apps': 'Tipe Aplikasi',
 	'about.status': 'Status',
 	'about.license': 'Lisensi',
+	'about.changelog_btn': 'Perubahan rilis',
+	'changelog.title': 'Yang berubah di rilis ini',
+	'changelog.empty': 'Tidak ada catatan perubahan untuk versi ini.',
 	'about.signature': 'Tanda tangan',
 	'about.contact': 'Kontak',
 

@@ -6,7 +6,9 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { type UserConfig, type Plugin } from 'vite';
 import { createRequire } from 'node:module';
 import { execFileSync } from 'child_process';
+import { readFileSync } from 'node:fs';
 import path from 'path';
+import { extractChangelogSection } from './src/lib/utils/changelog.ts';
 
 /**
  * Pins resolution for @noble/hashes/argon2.js whose exports field
@@ -33,6 +35,37 @@ function pinCryptoDeps(): Plugin {
 			if (id === '@zxcvbn-ts/language-common') {
 				return req.resolve('@zxcvbn-ts/language-common/dist/index.esm.js');
 			}
+		}
+	};
+}
+
+/**
+ * Serves the Keep-a-Changelog section for the current app version as a
+ * virtual module (night-cafe-6). Every build re-reads CHANGELOG.md, so
+ * the bundled section can never go stale and no generated artifact
+ * needs syncing; the release ledger's "latest commit" churn stays out
+ * of the UI. The section is resolved at build time and shipped offline
+ * - the floating window needs no network and fetches nothing.
+ */
+function changelogLatest(): Plugin {
+	const VIRTUAL_ID = 'virtual:changelog-latest';
+	const RESOLVED_ID = '\0' + VIRTUAL_ID;
+	return {
+		name: 'changelog-latest',
+		resolveId(id) {
+			return id === VIRTUAL_ID ? RESOLVED_ID : null;
+		},
+		load(id) {
+			if (id !== RESOLVED_ID) return null;
+			const version = createRequire(path.resolve(process.cwd(), 'package.json'))(
+				'./package.json'
+			) as { version: string };
+			const markdown = readFileSync(path.resolve(process.cwd(), 'CHANGELOG.md'), 'utf-8');
+			const payload = {
+				version: version.version,
+				section: extractChangelogSection(markdown, version.version)
+			};
+			return `export const changelogLatest = ${JSON.stringify(payload)};`;
 		}
 	};
 }
@@ -90,6 +123,7 @@ export default function config({ mode }: { mode: string }): UserConfig {
 	return {
 		plugins: [
 			pinCryptoDeps(),
+			changelogLatest(),
 			sveltekit(),
 			...(mode === 'analyze'
 				? [
