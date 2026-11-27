@@ -35,6 +35,11 @@ other ai/
 # Runtime proof harness (pinned browser binary)
 scripts/proof/.chrome/
 
+# AXP1-ZnQ (Architect's eXecution Protocol 1) maintenance lane scratch:
+# the address-refresh commit note. The artifact carries it to the commit
+# job's message; it never rides a commit itself.
+.axp1/
+
 # Rust engine build output (the committed truth is the embedded module
 # plus the crate source; the wasm is rebuilt by wasm-provenance.sh)
 engine/argon2id/target/

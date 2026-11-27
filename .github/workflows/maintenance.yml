@@ -101,20 +101,38 @@ jobs:
           echo "Checking for security vulnerabilities..."
           bun audit || true
 
-      - name: Enforce dependency-only diff
+      # AXP1-ZnQ (Architect's eXecution Protocol 1), the address refresh
+      # (night-learning-into-darkness-1): the whole repos-for-ci catalog
+      # is re-probed after the dependency update - alive AND fresh (the
+      # InRelease Date header is the freshness witness, the max-age law)
+      # - and the survivors are written back in their authored order,
+      # the dead left as dated tombstones, bounded by the 100-line cap,
+      # the never-empty guard refusing to erase the owner's pool. The
+      # refresh rides AFTER the deps update by the owner's design so the
+      # one weekly commit carries both, and it never blocks the ship
+      # lane: a critical catalog state warns and names CALL THE OWNER.
+      - name: AXP1-ZnQ address refresh (repos-for-ci)
+        run: |
+          mkdir -p .axp1
+          python3 scripts/ci/axp1znq_refresh.py \
+            --root repos-for-ci \
+            --probe-path dists/resolute/InRelease \
+            --note-file .axp1/axp1-address-note.txt
+
+      - name: Enforce dependency-and-catalog diff
         id: changes
         shell: bash
         run: |
           set -euo pipefail
           if [ -z "$(git status --porcelain)" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "Dependencies are already up to date"
+            echo "Dependencies and the address catalog are already up to date"
             exit 0
           fi
 
           git diff --name-only | tee /tmp/changed-files.txt
-          if grep -vE '^bun\.lock$' /tmp/changed-files.txt; then
-            echo "::error::Auto-update may only modify bun.lock"
+          if grep -vE '^(bun\.lock|repos-for-ci/)' /tmp/changed-files.txt; then
+            echo "::error::Auto-update may only modify bun.lock and repos-for-ci/"
             exit 1
           fi
 
@@ -140,12 +158,15 @@ jobs:
         if: steps.changes.outputs.changed == 'true'
         run: bun run build
 
-      - name: Upload validated bun.lock
+      - name: Upload validated maintenance tree
         if: steps.changes.outputs.changed == 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2, SHA pin
         with:
-          name: validated-bun-lock
-          path: bun.lock
+          name: validated-maintenance-tree
+          path: |
+            bun.lock
+            repos-for-ci
+            .axp1
           if-no-files-found: error
 
   commit:
@@ -166,10 +187,10 @@ jobs:
           fetch-depth: 0
           fetch-tags: false
 
-      - name: Download validated bun.lock
+      - name: Download validated maintenance tree
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2, SHA pin
         with:
-          name: validated-bun-lock
+          name: validated-maintenance-tree
           path: .auto-update
 
       - name: Commit and push changes
@@ -177,6 +198,10 @@ jobs:
         run: |
           set -euo pipefail
           cp .auto-update/bun.lock bun.lock
+          # The AXP1-ZnQ (Architect's eXecution Protocol 1) catalog
+          # lands beside the lockfile: the one weekly commit carries
+          # deps AND addresses, the owner's single-commit contract.
+          cp .auto-update/repos-for-ci/*.txt repos-for-ci/
 
           if git diff --quiet; then
             echo "Validated lockfile is already current"
@@ -184,16 +209,31 @@ jobs:
           fi
 
           git diff --name-only | tee /tmp/changed-files.txt
-          if grep -vE '^bun\.lock$' /tmp/changed-files.txt; then
-            echo "::error::Commit job may only modify bun.lock"
+          if grep -vE '^(bun\.lock|repos-for-ci/)' /tmp/changed-files.txt; then
+            echo "::error::Commit job may only modify bun.lock and repos-for-ci/"
             exit 1
           fi
 
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add bun.lock
-          git commit -m "chore(deps): maintenance deps weekly" \
-            -m "Automated weekly lockfile refresh." \
+          git add repos-for-ci/*.txt
+          # The commit title names what actually moved (the lockfile
+          # lane, or an address-catalog-only week), and the refresher's
+          # note lands in the body the same way the sweep note does -
+          # the log keeps the address audit trail readable.
+          note_file=".auto-update/.axp1/axp1-address-note.txt"
+          title="chore(deps): maintenance deps weekly"
+          body="Automated weekly lockfile refresh."
+          if ! git diff --name-only | grep -q '^bun\.lock$'; then
+            title="chore(deps): maintenance address catalog weekly"
+            body="Automated weekly AXP1-ZnQ (Architect's eXecution Protocol 1) address refresh."
+          fi
+          if [ -f "$note_file" ]; then
+            body="${body}"$'\n'"$(cat "$note_file")"
+          fi
+          git commit -m "$title" \
+            -m "$body" \
             -m "Validated before commit with read-only token."
           git push origin "HEAD:${BASE_BRANCH}"
 
