@@ -38,6 +38,7 @@ v80.0.0-night.1
 
 ### Changed
 
+- **release v80.6.1 silent, no hype** _(525d07c)_
 - **Internal research: the family Cargo.toml follows the main version** _(d4891a3)_
 - **Internal research: the repo link meets the touch-target floor** _(1d47bb5)_
 - **Internal research: the language rows meet the touch-target floor** _(3a7a708)_
@@ -1081,6 +1082,10 @@ _Link mapping: `[21.x.0]` sections correspond to the historic `Stellar-v21.x` ta
 ### Fixed
 
 - **The maintenance commit title law (night-learning-into-darkness-1).** The first dispatched maintenance run caught the commit job reading the moved-file list with `git diff` after staging, so a lockfile week wore the address-catalog title. The verdict now reads the pre-staging capture the diff law already proves.
+
+### Fixed
+
+- **The release line backfills itself - the one-release-late gap.** The splice writes each release section before its own release commit exists, so every fresh section shipped without its release line while the older ones carried theirs (v80.6.1 read inconsistent against the healed v80.6.0 in the floating window). `scripts/dev/version-to.sh --release-line` heals the newest ledger release mechanically - the commit's subject verbatim and its short SHA, the exact autofill shape, idempotent - and every bump runs the same heal defensively; the `chore: the ledger backfills the release line` bookkeeping subject never reports itself as a bullet. The shipped v80.6.1 section carries its line again.
 
 ### Docs
 

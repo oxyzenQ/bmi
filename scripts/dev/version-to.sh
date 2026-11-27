@@ -18,6 +18,14 @@
 #   ./scripts/dev/version-to.sh patch|minor|major   # bump word from the current version
 #   ./scripts/dev/version-to.sh <target> --dry-run  # preview every rewrite, write nothing
 #   ./scripts/dev/version-to.sh <target> --commit   # update, then stage + commit the surfaces
+#   ./scripts/dev/version-to.sh --release-line      # backfill the newest release with its
+#                                                   #   own release commit line (the
+#                                                   #   one-release-late gap); run it right
+#                                                   #   after tagging, commit the heal with
+#                                                   #   "chore: the ledger backfills the
+#                                                   #   release line" - a subject the
+#                                                   #   autofill skips so the bookkeeping
+#                                                   #   never reports itself as a bullet
 #
 # Surfaces updated (the night-improve-3 contracts, unchanged from the
 # TypeScript tool this file replaces):
@@ -150,6 +158,68 @@ trim_blank_edges() {
         awk '{ l[NR] = $0 } END { n = NR; while (n > 0 && l[n] == "") n--; s = 1; while (s <= n && l[s] == "") s++; for (i = s; i <= n; i++) print l[i] }'
 }
 
+# --- the release-line backfill (the one-release-late gap, ba942cf's
+# lesson made mechanical) ---
+# The splice records the history since the previous reachable tag, so a
+# release section always lacks its own release commit: that commit is
+# born after the section was written, and its short SHA cannot be known
+# before the commit exists. The gap was patched by hand once and bit
+# again on the very next release. This heal closes it mechanically: the
+# newest ledger version's section gains the release line - the commit's
+# own subject verbatim and its short SHA, in the exact shape the splice
+# writes - as the first bullet of its first group. Idempotent: a section
+# that already records the SHA is left alone. Every failure path warns
+# and writes nothing (a shallow history, a missing release commit, a
+# section with no bullet to sit above), so a heal this tool cannot prove
+# is never a heal it pretends to have made.
+backfill_release_line() {
+        local top rel relsha relsubj
+        top="$(awk '/^## \[Released\]$/{f=1;next} f && $0 != "" { sub(/^v/, ""); print; exit }' CHANGELOG.md)"
+        if [ -z "${top}" ]; then
+                warn "release line - the ledger holds no version to heal, nothing to write"
+                return 1
+        fi
+        rel="$(git log --format='%h%x09%s' 2>/dev/null | awk -v pat="release v${top}" '
+                {
+                        i = index($0, "\t")
+                        sha = substr($0, 1, i - 1)
+                        subj = substr($0, i + 1)
+                        if (index(subj, pat) == 1) {
+                                rest = substr(subj, length(pat) + 1)
+                                if (rest == "" || substr(rest, 1, 1) == " ") { print; exit }
+                        }
+                }')"
+        if [ -z "${rel}" ]; then
+                warn "release line - no 'release v${top}' commit reachable from HEAD (shallow history?), nothing to write"
+                return 1
+        fi
+        relsha="${rel%%$'\t'*}"
+        relsubj="${rel#*$'\t'}"
+        if grep -qF "_(${relsha})_" CHANGELOG.md; then
+                same "release line - release v${top} (${relsha}) already recorded, nothing to write"
+                return 0
+        fi
+        awk -v ver="${top}" -v bullet="- **${relsubj}** _(${relsha})_" '
+                /^## \[/ { insec = ($0 == "## [" ver "]") }
+                {
+                        if (insec && !inserted && $0 ~ /^- /) { print bullet; inserted = 1 }
+                        print
+                }
+                END { exit inserted ? 0 : 3 }
+        ' CHANGELOG.md >"${TMP_WORK}.heal" || {
+                rm -f "${TMP_WORK}.heal"
+                warn "release line - section ## [${top}] holds no bullet to sit above, nothing to write"
+                return 1
+        }
+        if [ "${DRY_RUN}" = true ]; then
+                same "release line - would insert '- **${relsubj}** _(${relsha})_' above the first bullet of ## [${top}] (dry run)"
+                return 0
+        fi
+        mv "${TMP_WORK}.heal" CHANGELOG.md
+        ok "release line - '${relsubj}' (${relsha}) recorded at the top of ## [${top}]"
+        return 0
+}
+
 # Print CHANGELOG.md lines [start, end] (end empty = through EOF). An
 # inverted range prints nothing - GNU sed prints the start line of an
 # inverted range once instead, which would duplicate a heading mid-splice.
@@ -201,6 +271,7 @@ show_usage() {
         printf '  ./scripts/dev/version-to.sh patch|minor|major   bump from the current version\n'
         printf '  ./scripts/dev/version-to.sh <target> --dry-run  preview every rewrite, write nothing\n'
         printf '  ./scripts/dev/version-to.sh <target> --commit   update, then stage + commit the surfaces\n'
+        printf '  ./scripts/dev/version-to.sh --release-line      backfill the newest release with its release commit line (the one-release-late gap; honors --dry-run)\n'
         printf '\n'
         printf 'Surfaces: package.json (source of truth), every product-family\n'
         printf 'Cargo.toml + its Cargo.lock (the adaptive family law), README.md\n'
@@ -209,15 +280,17 @@ show_usage() {
 }
 
 TMP_WORK="$(mktemp)"
-trap 'rm -f "${TMP_WORK}" "${TMP_WORK}.out" "${TMP_WORK}.raw" "${TMP_WORK}.body" "${TMP_WORK}.section" "${TMP_WORK}.ledger" "${TMP_WORK}.head" "${TMP_WORK}.stack" "${TMP_WORK}.unrel" "${TMP_WORK}.piece" "${TMP_WORK}.p1" "${TMP_WORK}.p2" "${TMP_WORK}.p3"' EXIT
+trap 'rm -f "${TMP_WORK}" "${TMP_WORK}.out" "${TMP_WORK}.raw" "${TMP_WORK}.body" "${TMP_WORK}.section" "${TMP_WORK}.ledger" "${TMP_WORK}.head" "${TMP_WORK}.stack" "${TMP_WORK}.unrel" "${TMP_WORK}.piece" "${TMP_WORK}.p1" "${TMP_WORK}.p2" "${TMP_WORK}.p3" "${TMP_WORK}.heal" "${TMP_WORK}.ubody"' EXIT
 
 DRY_RUN=false
 COMMIT=false
+RELEASE_LINE_ONLY=false
 POSITIONAL=""
 for arg in "$@"; do
         case "${arg}" in
         --dry-run) DRY_RUN=true ;;
         --commit | -c) COMMIT=true ;;
+        --release-line) RELEASE_LINE_ONLY=true ;;
         -h | --help)
                 show_usage
                 exit 0
@@ -239,6 +312,16 @@ fi
 # The bare call, the zelynic no-argument shape: show the current
 # version and the usage, touch nothing.
 if [ -z "${POSITIONAL}" ]; then
+        if [ "${RELEASE_LINE_ONLY}" = true ]; then
+                # The post-release heal, the machine's own step: the tag
+                # exists, the release commit's SHA is now knowable, the
+                # section that could not record it while being written
+                # gains its line. Honors --dry-run.
+                [ -f CHANGELOG.md ] || die "CHANGELOG.md not found - run from the repository root"
+                printf '\033[0;36m  BMI Stellar - release-line backfill\033[0m\n\n'
+                backfill_release_line
+                exit $?
+        fi
         if [ "${DRY_RUN}" = true ] || [ "${COMMIT}" = true ]; then
                 die "no version target given (patch|minor|major or X.Y.Z)"
         fi
@@ -522,6 +605,12 @@ if [ ! -f CHANGELOG.md ]; then
 elif ! grep -q '^## \[Unreleased\]$' CHANGELOG.md; then
         warn "CHANGELOG.md - no ## [Unreleased] anchor found, nothing to write"
 else
+        # --- 0. the release-line backfill (the one-release-late gap) ---
+        # A bump is also the moment the previous release's line becomes
+        # knowable: heal it here when the post-release step missed it.
+        # A shallow history warns inside and lets the bump continue.
+        backfill_release_line || true
+
         # --- 1. the Released ledger ---
         if grep -qxF "v${NEW}" CHANGELOG.md; then
                 same "CHANGELOG.md ledger - v${NEW} already recorded, nothing to write"
@@ -631,6 +720,7 @@ else
                                 fi
                                 case "${subj}" in
                                 "chore: prepare for release"*) continue ;;
+                                "chore: the ledger backfills the release line"*) continue ;;
                                 feat*) sec="Added" ;;
                                 fix*) sec="Fixed" ;;
                                 chore*) sec="Chore" ;;

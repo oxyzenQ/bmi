@@ -39,6 +39,25 @@ git push origin v<major>.<minor>.<patch>
 
 The workflow validates the tag format (`v<major>.<minor>.<patch>`, with an optional pre-release suffix like `-night.1`) and exact version match, verifies the tag's GPG signature against the pinned release key (`git tag -v`), builds a static archive, generates a commit-based changelog, records a GitHub attestation for both archives in the public transparency log, and publishes the GitHub Release with source + build artifacts.
 
+### 3.5 Backfill the release line (the one-release-late gap)
+
+The splice writes the section before the release commit exists, so every
+fresh section is born without its own release line - the one-release-late
+gap (ba942cf patched it by hand once and it bit again on the very next
+release). The tool heals it mechanically now, at both moments:
+
+```bash
+# right after tagging (the machine's own step):
+./scripts/dev/version-to.sh --release-line      # or --release-line --dry-run to preview
+git add CHANGELOG.md
+git commit -m "chore: the ledger backfills the release line"
+git push origin main
+```
+
+- The heal finds the ledger's newest version, locates its `release v<ver>` commit reachable from HEAD, and inserts `- **release v<ver> ...** _(sha)_` above the first bullet of that section - the exact shape the autofill writes. Idempotent: a section that already records the SHA is left alone.
+- Every bump runs the same heal defensively before the ledger work, so a missed post-release step self-heals on the next bump.
+- The `chore: the ledger backfills the release line` subject is on the autofill's skip list - the bookkeeping never reports itself as a bullet.
+
 ## Artifacts
 
 | File                           | Contents                              |
