@@ -43,7 +43,9 @@
 	import { fade } from 'svelte/transition';
 	import { WifiOff } from 'lucide-svelte';
 	import NotifyFloat from '$lib/components/NotifyFloat.svelte';
+	import UnlockLedgerFloat from '$lib/components/UnlockLedgerFloat.svelte';
 	import { initStorage } from '$lib/utils/storage';
+	import { detectLockedSealedLedger } from '$lib/utils/at-rest-unlock';
 	import { requestStoragePersistence } from '$lib/utils/storage-persist';
 	import {
 		hydratePwaInstallState,
@@ -104,6 +106,12 @@
 		return () => document.removeEventListener('pointerdown', handlePointerDown);
 	}
 
+	// Night-cafe-10: the cold-load unlock door. Sealed health data plus
+	// a locked session is the one state the app cannot think its way out
+	// of, so the door is offered once per cold load after the storage
+	// cache is warm. Dismissal is respected for the session.
+	let showLedgerUnlock = $state(false);
+
 	// PWA state
 	let isOffline = $state(false);
 	let updateNotifyDismissed = $state(false);
@@ -126,7 +134,12 @@
 					DebugPanelComponent = mod.default;
 				});
 			}
-			void initStorage();
+			void initStorage().then(() => {
+				// Offer the door only when a sealed-and-locked ledger is real.
+				setTimeout(() => {
+					showLedgerUnlock = detectLockedSealedLedger();
+				}, 500);
+			});
 			// Eviction resistance: mark the ledger origin persistent so disk
 			// pressure cannot silently evict IndexedDB + localStorage.
 			void requestStoragePersistence();
@@ -307,6 +320,18 @@
 		}}
 		onClose={() => {
 			updateNotifyDismissed = true;
+		}}
+	/>
+{/if}
+
+{#if showLedgerUnlock}
+	<UnlockLedgerFloat
+		show={showLedgerUnlock}
+		onUnlocked={() => {
+			showLedgerUnlock = false;
+		}}
+		onDismiss={() => {
+			showLedgerUnlock = false;
 		}}
 	/>
 {/if}

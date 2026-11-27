@@ -127,6 +127,12 @@ const en: TranslationDict = {
 	'crypto.passphrase_placeholder': 'Enter passphrase',
 	'crypto.confirm_placeholder': 'Confirm passphrase',
 	'crypto.unlock_import': 'Unlock & Import',
+	'crypto.unlock_title': 'Unlock encrypted ledger',
+	'crypto.unlock_description':
+		'Your history is encrypted and this session has no key yet. Enter the ledger passphrase to restore it.',
+	'crypto.unlock_action': 'Unlock',
+	'crypto.unlock_later': 'Not now',
+	'crypto.unlock_success': 'Ledger unlocked - your encrypted history is restored.',
 	'crypto.processing': 'Processing...',
 	'crypto.preparing': 'Preparing...',
 	'crypto.error_empty': 'Passphrase is required',

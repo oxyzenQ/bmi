@@ -126,6 +126,12 @@ const id: TranslationDict = {
 	'crypto.passphrase_placeholder': 'Masukkan passphrase',
 	'crypto.confirm_placeholder': 'Konfirmasi passphrase',
 	'crypto.unlock_import': 'Buka Kunci & Impor',
+	'crypto.unlock_title': 'Buka kunci ledger terenkripsi',
+	'crypto.unlock_description':
+		'Riwayat Anda terenkripsi dan sesi ini belum punya kunci. Masukkan passphrase ledger untuk memulihkannya.',
+	'crypto.unlock_action': 'Buka Kunci',
+	'crypto.unlock_later': 'Nanti',
+	'crypto.unlock_success': 'Ledger terbuka - riwayat terenkripsi Anda dipulihkan.',
 	'crypto.processing': 'Memproses...',
 	'crypto.preparing': 'Mempersiapkan...',
 	'crypto.error_empty': 'Passphrase wajib diisi',
