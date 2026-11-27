@@ -155,7 +155,8 @@ describe('jelly controller', () => {
 			now += 16;
 			c.push(24, now, 'top');
 		}
-		const afterFlip = c.push(24, (now += 16), 'bottom');
+		const pushAt = now + 16;
+		const afterFlip = c.push(24, pushAt, 'bottom');
 		// The opposite-edge push restarts from a smaller pose, not from
 		// the full previous pull, and now reads negative (bottom edge).
 		expect(afterFlip).toBeLessThan(0);

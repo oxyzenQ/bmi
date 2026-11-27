@@ -116,7 +116,7 @@ export class JellyController {
 			// A push during release restarts a drag from the current pose.
 			this.releasing = false;
 			this.dragging = true;
-			this.excess = this.capAtDisplacement(this.d, edge);
+			this.excess = this.capAtDisplacement(this.d);
 		}
 		this.dragging = true;
 		this.edge = edge;
@@ -126,7 +126,7 @@ export class JellyController {
 	}
 
 	/** Reverse-map a signed displacement to the excess that produced it. */
-	private capAtDisplacement(d: number, edge: JellyEdge): number {
+	private capAtDisplacement(d: number): number {
 		const magnitude = Math.min(Math.abs(d), this.cap * 0.999);
 		if (magnitude <= 0) return 0;
 		// Invert d = cap * (1 - 1/(x/cap + 1)) -> x = cap * (d / (cap - d)).
