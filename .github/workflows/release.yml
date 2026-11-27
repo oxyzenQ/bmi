@@ -171,6 +171,27 @@ jobs:
       - name: Install dependencies (frozen)
         run: bun install --frozen-lockfile
 
+      - name: AXP1-ZnQ apt mirror pick (repos-for-ci)
+        run: |
+          set -euo pipefail
+          # AXP1-ZnQ (Architect's eXecution Protocol 1) resolver walks
+          # the repos-for-ci catalog and hands back the first address
+          # that actually answers (line 1 down, the lane moves on -
+          # line 5 answering is the one the lane uses). Exit 1 with no
+          # live address - a dead default is never a fallback. The
+          # repoint lands before apt-get update, so the release lane
+          # pulls its digest tool from a tested mirror, never a
+          # hardcoded default the tree prays for.
+          MIRROR="$(python3 scripts/ci/axp1znq_resolve.py \
+            --file repos-for-ci/apt-mirrors.txt \
+            --probe-path dists/resolute/InRelease \
+            --first)"
+          sudo sed -i "s|mirror+file:/etc/apt/apt-mirrors.txt|${MIRROR}/|g" \
+            /etc/apt/sources.list.d/*.sources 2>/dev/null || true
+          sudo sed -i "s|http://azure.archive.ubuntu.com/ubuntu/|${MIRROR}/|g" \
+            /etc/apt/sources.list 2>/dev/null || true
+          echo "AXP1-ZnQ picked: ${MIRROR}"
+
       # night-netrunner-1: the release archives carry a BLAKE3 sidecar
       # (b3sum, the zelynic mature-release digest lane). Ubuntu 26.04
       # ships the b3sum package; the cargo install is the fallback for
