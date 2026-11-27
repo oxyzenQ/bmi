@@ -4,6 +4,7 @@
 <script lang="ts">
 	import { PAGER, SECTIONS, SPRING } from '$lib/utils/animation-config';
 	import { pagerSpring } from '$lib/utils/pager-spring';
+	import { attachJellyScroll as jellyScroll } from '$lib/utils/jelly-scroll';
 	import type { Activity, Gender, ImportNotifyResult } from '$lib/types/bmi-form';
 	import Hero from '$lib/ui/Hero.svelte';
 	import CalculatorSection from '$lib/components/page/CalculatorSection.svelte';
@@ -95,6 +96,7 @@
 <main class="pager-view">
 	{#key activeIndex}
 		<section
+			use:jellyScroll
 			class="pager-section"
 			id={sections[activeIndex].id}
 			data-pager-scroll="true"
