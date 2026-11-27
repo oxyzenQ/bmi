@@ -29,6 +29,13 @@
 }
 
 .app-info .info-row a {
+	display: inline-flex;
+	align-items: center;
+	/* The 44px touch-target floor (mclaren-11 audit): the repo link
+           rendered 28px tall - under the minimum a thumb can reliably hit,
+           the same floor the language rows already meet. The hit box opens
+           without moving the text; the row simply breathes a little more. */
+	min-height: 44px;
 	color: var(--stellar-white);
 	text-decoration: underline;
 	text-decoration-color: rgba(140, 140, 140, 0.45);
