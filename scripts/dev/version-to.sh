@@ -53,7 +53,15 @@
 #                    there from wherever it sat
 #
 # A pre-release target (X.Y.Z-<suffix>, e.g. 80.0.0-night.1) moves the
-# same four surfaces - the suffix rides every pattern below.
+# same surfaces - the suffix rides every pattern below.
+#
+# The family law (mclaren-1): every Cargo.toml anywhere in the tree
+# whose [package] name belongs to the product family (the package.json
+# name and its hyphenated descendants) follows the main version, with
+# its committed Cargo.lock entry riding along. Discovery is dynamic -
+# a crate added tomorrow anywhere joins on its first bump - and the
+# version-sync gate polices the parity on every commit after that, so
+# the surfaces can never go stale.
 #
 # Honest probes, the zelynic NIGHT-hunt-32 rule: a missing file, a
 # missing surface, or an already-recorded version warns and writes
@@ -194,8 +202,9 @@ show_usage() {
         printf '  ./scripts/dev/version-to.sh <target> --dry-run  preview every rewrite, write nothing\n'
         printf '  ./scripts/dev/version-to.sh <target> --commit   update, then stage + commit the surfaces\n'
         printf '\n'
-        printf 'Surfaces: package.json (source of truth), README.md (vX.Y.Z),\n'
-        printf 'DORMANT.md (X.Y.Z), CHANGELOG.md (Released ledger + the\n'
+        printf 'Surfaces: package.json (source of truth), every product-family\n'
+        printf 'Cargo.toml + its Cargo.lock (the adaptive family law), README.md\n'
+        printf '(vX.Y.Z), DORMANT.md (X.Y.Z), CHANGELOG.md (Released ledger + the\n'
         printf 'pre-filled release section).\n'
 }
 
@@ -301,6 +310,115 @@ else
         CHANGED=1
         ok "package.json - version ${NEW} (source of truth)"
 fi
+
+# --- the product family Cargo.toml (the adaptive crates, mclaren-1) ---
+# Every Cargo.toml anywhere in the tree whose [package] name belongs to
+# the product family follows the main version - the zero-stale law. The
+# family is the package.json name and its hyphenated descendants
+# (bmi-stellar -> bmi-stellar-argon2id, bmi-stellar-whatever): the
+# prefix is read live, so the same script serves any project it sits in,
+# and the discovery is dynamic - find, no hardcoded list - so a crate
+# added tomorrow in any directory joins the contract on its first bump;
+# the version-sync gate (scripts/gates/check-version-sync.ts,
+# src/lib/utils/version-family.ts) polices it on every commit after
+# that. Only the [package] version moves: dependency version lines are
+# exact-pinned by the supply-chain law and never touched, and
+# rust-version stays the toolchain floor's own surface
+# (check-rust-version-sync.sh owns it).
+family_manifests() {
+        find . -name Cargo.toml -type f \
+                -not -path './node_modules/*' \
+                -not -path './.git/*' \
+                -not -path './.*/*' \
+                -not -path '*/target/*' | sort
+}
+
+# The one string field requested out of the first [package] section of
+# a manifest ("name" or "version"): dependency tables and every other
+# section never read here.
+manifest_field() {
+        awk -v field="$2" '
+                /^\[/ { inpkg = ($0 == "[package]") }
+                inpkg && !done && $0 ~ "^" field "[[:space:]]*=" {
+                        line = $0
+                        sub("^[^\"]*\"", "", line)
+                        sub("\"[[:space:]]*$", "", line)
+                        print line
+                        done = 1
+                }
+        ' "$1"
+}
+
+FAMILY_PREFIX="$(sed -nE 's/^[[:space:]]*"name"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p' package.json | head -1)"
+[ -n "${FAMILY_PREFIX}" ] || die "cannot read the package name from package.json"
+
+for manifest in $(family_manifests); do
+        CRATE="$(manifest_field "${manifest}" name)"
+        if [ -z "${CRATE}" ]; then
+                warn "${manifest} - no [package] name found, nothing to write"
+                continue
+        fi
+        case "${CRATE}" in
+        "${FAMILY_PREFIX}" | "${FAMILY_PREFIX}"-*) ;;
+        *)
+                same "${manifest} - ${CRATE} is not family, skipped"
+                continue
+                ;;
+        esac
+        CRATE_VERSION="$(manifest_field "${manifest}" version)"
+        if [ -z "${CRATE_VERSION}" ]; then
+                warn "${manifest} - ${CRATE} carries no [package] version, nothing to write"
+                continue
+        fi
+        awk -v ver="${NEW}" '
+                /^\[/ { inpkg = ($0 == "[package]") }
+                inpkg && !done && /^version[[:space:]]*=/ {
+                        sub(/"[^"]*"/, "\"" ver "\"")
+                        done = 1
+                }
+                { print }
+        ' "${manifest}" >"${TMP_WORK}"
+        if cmp -s "${manifest}" "${TMP_WORK}"; then
+                same "${manifest} - ${CRATE} already at ${NEW}"
+        elif [ "${DRY_RUN}" = true ]; then
+                CHANGED=1
+                same "${manifest} - would set ${CRATE} to ${NEW} (dry run)"
+        else
+                cp "${TMP_WORK}" "${manifest}"
+                CHANGED=1
+                ok "${manifest} - ${CRATE} version ${NEW}"
+        fi
+        # The committed lock rides its manifest: a lock saying an older
+        # version than the manifest is exactly the staleness the law
+        # removes. The exact name-line match owns the crate's own
+        # [[package]] entry; dependency entries never move.
+        LOCK_FILE="$(dirname "${manifest}")/Cargo.lock"
+        if [ ! -f "${LOCK_FILE}" ]; then
+                warn "${LOCK_FILE} - absent, cargo writes one on the next build"
+        elif ! grep -q "^name = \"${CRATE}\"$" "${LOCK_FILE}"; then
+                warn "${LOCK_FILE} - no [[package]] entry for ${CRATE}, nothing to sync"
+        else
+                awk -v crate="${CRATE}" -v ver="${NEW}" '
+                        !done && $0 == "name = \"" crate "\"" { own = 1; print; next }
+                        own && /^version[[:space:]]*=/ {
+                                sub(/"[^"]*"/, "\"" ver "\"")
+                                own = 0
+                                done = 1
+                        }
+                        { print }
+                ' "${LOCK_FILE}" >"${TMP_WORK}"
+                if cmp -s "${LOCK_FILE}" "${TMP_WORK}"; then
+                        same "${LOCK_FILE} - ${CRATE} already at ${NEW}"
+                elif [ "${DRY_RUN}" = true ]; then
+                        CHANGED=1
+                        same "${LOCK_FILE} - would set ${CRATE} to ${NEW} (dry run)"
+                else
+                        cp "${TMP_WORK}" "${LOCK_FILE}"
+                        CHANGED=1
+                        ok "${LOCK_FILE} - ${CRATE} version ${NEW}"
+                fi
+        fi
+done
 
 # --- README.md (the four display surfaces, short vX.Y) ---
 # Probed first, the NIGHT-hunt-32 rule: a surface that is absent warns
@@ -657,13 +775,18 @@ else
         die "CHANGELOG.md - prettier --write failed; run 'bun run format' before committing"
 fi
 
-printf 'next: git add package.json README.md DORMANT.md CHANGELOG.md && git commit\n'
+printf 'next: git add package.json README.md DORMANT.md CHANGELOG.md + the family Cargo.toml surfaces && git commit\n'
 
 # --- --commit (the zelynic auto-commit shape) ---
-# Stages exactly the four surfaces, refuses an unchanged tree, and
-# commits with the .github/RELEASE.md message convention. The repo's
-# pre-commit gate (scripts/gates/check-commit-gate.sh) still runs on
-# the commit - a version bump rides the same gates as everything else.
+# Stages exactly the version surfaces - the four static ones plus every
+# discovered family Cargo.toml and its sibling lock that is TRACKED and
+# carries a change - refuses an unchanged tree, and commits with the
+# .github/RELEASE.md message convention. An untracked manifest is never
+# swept in: a brand-new crate first lands through the owner's own work
+# commit, and only then rides the bump (the same anti-smuggling law the
+# four-surface staging always had). The repo's pre-commit gate
+# (scripts/gates/check-commit-gate.sh) still runs on the commit - a
+# version bump rides the same gates as everything else.
 if [ "${COMMIT}" = true ]; then
         if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
                 die "--commit refused: not inside a git work tree"
@@ -673,6 +796,14 @@ if [ "${COMMIT}" = true ]; then
                         git add "${surface}"
                 fi
         done
+        while IFS= read -r manifest; do
+                rel="${manifest#./}"
+                for surface in "${rel}" "$(dirname "${rel}")/Cargo.lock"; do
+                        if git ls-files --error-unmatch "${surface}" >/dev/null 2>&1; then
+                                git add "${surface}"
+                        fi
+                done
+        done < <(family_manifests)
         if git diff --cached --quiet; then
                 warn "nothing staged - the surfaces carry no change to commit"
                 exit 0

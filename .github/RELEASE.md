@@ -11,7 +11,10 @@
 # 1. Verify everything passes
 bun run verify
 
-# 2. Update version (syncs package.json, README.md, DORMANT.md, CHANGELOG.md)
+# 2. Update version (syncs package.json, README.md, DORMANT.md, CHANGELOG.md,
+#    plus every product-family Cargo.toml and its committed Cargo.lock -
+#    the family is the package.json name and its hyphenated descendants,
+#    discovered dynamically wherever a manifest sits in the tree)
 ./scripts/dev/version-to.sh <version>   # the zelynic-style direct entry
 bun run bmi-update-version <version>    # the same manager through bun
 #   CHANGELOG.md gets two automatic writes: the bare vX.Y.Z line in the

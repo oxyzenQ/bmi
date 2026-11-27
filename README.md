@@ -431,9 +431,14 @@ The release checklist, tag rules, and rollback procedure live in
 ## Versioning
 
 The canonical version lives in `package.json` and is synchronized into
-the display documents via `scripts/dev/version-to.sh`, the zelynic
-dev-lane entry (direct `./` execution, `patch|minor|major` bump words,
-`--dry-run`, `--commit`).
+the display documents and every product-family `Cargo.toml` (the
+engine crate and any future family crate, wherever it sits in the
+tree) via `scripts/dev/version-to.sh`, the zelynic dev-lane entry
+(direct `./` execution, `patch|minor|major` bump words, `--dry-run`,
+`--commit`). The family is the package name and its hyphenated
+descendants; discovery is dynamic, and `bun run audit:version-sync`
+polices the parity on every commit, so no version surface can go
+stale.
 
 Current release: `v80.6.0`.
 
@@ -442,8 +447,9 @@ Vercel-deployed web app and nothing is published to the npm registry.
 
 > [!IMPORTANT]
 > Always use `bun run bmi-update-version <version>` to update the
-> version. This keeps `package.json`, `README.md`, and the dormant
-> maintenance capsule synchronized. Never edit release version strings
+> version. This keeps `package.json`, `README.md`, the dormant
+> maintenance capsule, and every product-family `Cargo.toml` (manifest
+> plus committed lock) synchronized. Never edit release version strings
 > manually.
 
 Release tags follow the format `v<major>.<minor>.<patch>` (for

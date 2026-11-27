@@ -364,8 +364,9 @@ shrink, 1000 for scripts with the honest `# LOC_EXEMPT:` IOU), the
 permission law (644 files, 755 with shebang parity), the name-case law
 (`scripts/gates/check-name-case.py` over every tracked file with
 `file:line:token` output), the repo-wide emoji sweep with a
-frozen-history skip set, and the version triangle (package.json /
-DORMANT.md / README.md) synced only through
+frozen-history skip set, and the version parity law (package.json /
+DORMANT.md / README.md plus every product-family Cargo.toml and its
+lock, section 38) synced only through
 `scripts/dev/version-to.*`. The commit-time hook shim
 (`.githooks/pre-commit` -> `scripts/gates/check-commit-gate.sh`) runs
 the cheap gates fail-closed so an uncommittable tree cannot sneak
@@ -1326,6 +1327,38 @@ readable history. Proven live end to end in the pinned browser: the
 production seed seals the disk, the door appears on cold load, the
 wrong passphrase is refused, and the CSV export serves the restored
 records instead of the empty-history error.
+
+**38. The Adaptive Family Version Law (night-cafe-mclaren-1).** The
+bump manager moved four surfaces (package.json, README.md, DORMANT.md,
+CHANGELOG.md) while the engine crate sat outside the contract forever:
+`engine/argon2id/Cargo.toml` read 1.0.0 while the app crossed 80.6.0 -
+the exact staleness the zero-stale law exists to kill. The law now
+reads: every Cargo.toml anywhere in the tree whose `[package]` name
+belongs to the product family (the package.json name and its
+hyphenated descendants - `bmi-stellar` owns `bmi-stellar-argon2id`,
+`bmi-stellar-whatever`) follows the main version, with its committed
+Cargo.lock entry riding along, and only the `[package]` version moves
+(the supply-chain law's exact-pinned dependency versions and the
+toolchain gate's MSRV floor are never touched). The prefix is read
+live from the package, so the same script shape serves any project it
+sits in, and the discovery is dynamic - a walk that skips node_modules,
+dot dirs, and cargo build dirs - so a crate added tomorrow in any
+directory joins the contract on its first bump with zero edits
+anywhere. The pure core lives in `src/lib/utils/version-family.ts`
+(manifest parsing that never reads a dependency line, the hyphen
+boundary that keeps `bmi-stellarish` out, lock parity), pinned by a
+17-test battery on real fixture trees; `audit:version-sync` grew from
+the version triangle into the family parity gate (a stale manifest or
+a stale committed lock fails the tree, an honest absence stays a
+note), and `version-to.sh` writes the surfaces in self-contained bash
+with the same anti-smuggling commit law the four-surface staging
+always had: tracked-and-changed family surfaces ride the bump commit,
+an untracked brand-new crate is never swept in. Proven live: a real
+bump to `v100.0.0-dragon.1` on a scratch clone moved the engine
+manifest, the engine lock, and a future-family crate, skipped a
+non-family `cosmostrix-abc` crate untouched, left every exact-pinned
+dependency and the MSRV byte-identical, re-ran clean (idempotence),
+and the gate failed exactly when the crate was drifted back by hand.
 
 ## Reading order for a new maintainer
 
