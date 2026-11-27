@@ -142,29 +142,29 @@ bun run preview   # serve the production build locally
 
 ## Core Scripts
 
-| Command                                          | Description                                                                                                  |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| `bun run dev`                                    | Start local dev server with HMR                                                                              |
-| `bun run check`                                  | Svelte and TypeScript diagnostics (warnings fail the gate)                                                   |
-| `bun run lint`                                   | ESLint with Svelte plugin (warnings fail the gate)                                                           |
-| `bun run test`                                   | Vitest in watch mode                                                                                         |
-| `bun run test:run`                               | Single test run                                                                                              |
-| `bun run test:ci`                                | CI-friendly test run (forked, 2 workers)                                                                     |
-| `bun run test:fast`                              | Fast test run (excludes crypto/history-io)                                                                   |
-| `bun run test:crypto`                            | Run only crypto + history-io test suites                                                                     |
-| `bun run build`                                  | Production build                                                                                             |
-| `bun run preview`                                | Serve the production build locally                                                                           |
-| `bun run format`                                 | Prettier auto-format                                                                                         |
-| `bun run format:check`                           | Prettier check (no write)                                                                                    |
-| `bun run verify`                                 | Full local gate: format + 4 audits + check + lint + test:run + build                                         |
-| `./scripts/build.sh check-all`                   | Wholesale gate: format + 11 audits + type-check + lint + test:ci + build (the full `scripts/build.sh` chain) |
-| `./scripts/proof/run-proof.sh [report]`          | Runtime proof harness: eighteen fail-closed runtime claims against the production build in a pinned browser  |
-| `bun run audit:deps`                             | Policy-gated dependency audit (blocking + allowlist-aware)                                                   |
-| `bun run audit:axp1-znq`                         | AXP1-ZnQ verdict engine: dangerous advisories classified by remediability (UPDATE-SOON vs CALL-OWNER)        |
-| `bun run lint:fix`                               | ESLint auto-fix                                                                                              |
-| `bun run clean`                                  | Remove `.svelte-kit`, `build`, `dist`, `node_modules/.cache`                                                 |
-| `bun run bmi-update-version <version>`           | Sync version across all canonical files                                                                      |
-| `bun run bmi-update-version --dry-run <version>` | Preview a version update without writing                                                                     |
+| Command                                          | Description                                                                                                                              |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `bun run dev`                                    | Start local dev server with HMR                                                                                                          |
+| `bun run check`                                  | Svelte and TypeScript diagnostics (warnings fail the gate)                                                                               |
+| `bun run lint`                                   | ESLint with Svelte plugin (warnings fail the gate)                                                                                       |
+| `bun run test`                                   | Vitest in watch mode                                                                                                                     |
+| `bun run test:run`                               | Single test run                                                                                                                          |
+| `bun run test:ci`                                | CI-friendly test run (forked, 2 workers)                                                                                                 |
+| `bun run test:fast`                              | Fast test run (excludes crypto/history-io)                                                                                               |
+| `bun run test:crypto`                            | Run only crypto + history-io test suites                                                                                                 |
+| `bun run build`                                  | Production build                                                                                                                         |
+| `bun run preview`                                | Serve the production build locally                                                                                                       |
+| `bun run format`                                 | Prettier auto-format                                                                                                                     |
+| `bun run format:check`                           | Prettier check (no write)                                                                                                                |
+| `bun run verify`                                 | Full local gate: format + 4 audits + check + lint + test:run + build                                                                     |
+| `./scripts/build.sh check-all`                   | Wholesale gate: format + 11 audits + type-check + lint + test:ci + build (the full `scripts/build.sh` chain)                             |
+| `./scripts/proof/run-proof.sh [report]`          | Runtime proof harness: eighteen fail-closed runtime claims against the production build in a pinned browser                              |
+| `bun run audit:deps`                             | Policy-gated dependency audit (blocking + allowlist-aware)                                                                               |
+| `bun run audit:axp1-znq`                         | AXP1-ZnQ (Architect's eXecution Protocol 1) verdict engine: dangerous advisories classified by remediability (UPDATE-SOON vs CALL-OWNER) |
+| `bun run lint:fix`                               | ESLint auto-fix                                                                                                                          |
+| `bun run clean`                                  | Remove `.svelte-kit`, `build`, `dist`, `node_modules/.cache`                                                                             |
+| `bun run bmi-update-version <version>`           | Sync version across all canonical files                                                                                                  |
+| `bun run bmi-update-version --dry-run <version>` | Preview a version update without writing                                                                                                 |
 
 ## Project Layout
 
@@ -340,7 +340,7 @@ seriously. Found something? **Report it privately** via
 — the scope, supported versions, and crypto details live in
 [SECURITY.md](SECURITY.md).
 
-### AXP1-ZnQ, the supply-chain defense bot
+### AXP1-ZnQ (Architect's eXecution Protocol 1), the supply-chain defense bot
 
 Every Sunday at 10:00 WIB the weekly dependency maintenance refreshes
 `bun.lock`, and right after it AXP1-ZnQ (`.github/workflows/axp1-znq.yml`)
@@ -355,10 +355,20 @@ semver ranges, writes the verdict and per-advisory pointers into the run
 summary, and proves its contract on fixtures before the network gets a
 vote: `bun run audit:axp1-znq --selftest`.
 
+The protocol's second half is the address catalog (night-learning-
+into-darkness-1): the `repos-for-ci/` pool of tested mirror addresses
+the CI lanes fail over through, curated by the same Sunday maintenance
+pass. No apt lane marries a hardcoded server anymore - the resolver
+hands each lane the first address that actually answers, line 1 down
+means the lane moves on, and the Sunday refresher writes back only the
+survivors that serve a fresh index. The contract, the write law and
+the honest edges live in [docs/AXP1-ZnQ.md](docs/AXP1-ZnQ.md).
+
 ## Documentation
 
 - [CHANGELOG.md](CHANGELOG.md) — release history v21.0 → v80.5.4, the Released ledger, and the in-progress Unreleased section
 - [docs/README.md](docs/README.md) — the documentation map
+- [docs/AXP1-ZnQ.md](docs/AXP1-ZnQ.md) — the AXP1-ZnQ (Architect's eXecution Protocol 1) contract: the repos-for-ci address catalog, the failover resolver and the Sunday refresher
 - [docs/furthermore.md](docs/furthermore.md) — the architectural deep dive: CSS cascade, pager, crypto, PWA, share image (the flagship reference)
 - [docs/AUDIT-2026-08.md](docs/AUDIT-2026-08.md) — source code audit record (August 2026)
 - [docs/AUDIT-2026-11.md](docs/AUDIT-2026-11.md) — night-spark LTS depth audit record (November 2026)

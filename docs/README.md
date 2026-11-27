@@ -26,19 +26,20 @@ before relying on a specific number, path, or symbol name.
 
 ## Long-form documents (this directory)
 
-| Document                                             | Purpose                                                                                |
-| ---------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| [INNOVATIONS.md](INNOVATIONS.md)                     | The innovation ledger: every implemented mechanism in dependency order                 |
-| [furthermore.md](furthermore.md)                     | The full architectural context behind the releases                                     |
-| [AUDIT-2026-08.md](AUDIT-2026-08.md)                 | Frozen audit record, August 2026                                                       |
-| [AUDIT-2026-11.md](AUDIT-2026-11.md)                 | Frozen audit record, November 2026 (exacting honesty pass)                             |
-| [AUDIT-PRIVACY-2026-11.md](AUDIT-PRIVACY-2026-11.md) | Frozen privacy audit record, November 2026                                             |
-| [AUDIT-INFRA-2026-11.md](AUDIT-INFRA-2026-11.md)     | The infra audit: the zelynic discipline sync (night-improve-1..8)                      |
-| [AUDIT-LTS-2026-11.md](AUDIT-LTS-2026-11.md)         | Frozen LTS readiness audit, end-to-end real usage, November 2026                       |
-| [AUDIT-D3-2026-11.md](AUDIT-D3-2026-11.md)           | The D3 publisher binding + release channel audit (night-netrunner-Z1)                  |
-| [AUDIT-ARC-2026-11.md](AUDIT-ARC-2026-11.md)         | Architecture depth audit: smoothbore hot paths, determinism, safety (night-arc-gems-1) |
-| [responsive-audit-375.md](responsive-audit-375.md)   | Frozen responsive depth audit at the 375 x 667 floor, 2026-11-04                       |
-| [assets/](../assets/)                                | The brand master plate at the repository root, signed via `signature.b3sum`            |
+| Document                                             | Purpose                                                                                                                                 |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| [INNOVATIONS.md](INNOVATIONS.md)                     | The innovation ledger: every implemented mechanism in dependency order                                                                  |
+| [AXP1-ZnQ.md](AXP1-ZnQ.md)                           | The AXP1-ZnQ (Architect's eXecution Protocol 1) contract: the repos-for-ci address catalog, the failover resolver, the Sunday refresher |
+| [furthermore.md](furthermore.md)                     | The full architectural context behind the releases                                                                                      |
+| [AUDIT-2026-08.md](AUDIT-2026-08.md)                 | Frozen audit record, August 2026                                                                                                        |
+| [AUDIT-2026-11.md](AUDIT-2026-11.md)                 | Frozen audit record, November 2026 (exacting honesty pass)                                                                              |
+| [AUDIT-PRIVACY-2026-11.md](AUDIT-PRIVACY-2026-11.md) | Frozen privacy audit record, November 2026                                                                                              |
+| [AUDIT-INFRA-2026-11.md](AUDIT-INFRA-2026-11.md)     | The infra audit: the zelynic discipline sync (night-improve-1..8)                                                                       |
+| [AUDIT-LTS-2026-11.md](AUDIT-LTS-2026-11.md)         | Frozen LTS readiness audit, end-to-end real usage, November 2026                                                                        |
+| [AUDIT-D3-2026-11.md](AUDIT-D3-2026-11.md)           | The D3 publisher binding + release channel audit (night-netrunner-Z1)                                                                   |
+| [AUDIT-ARC-2026-11.md](AUDIT-ARC-2026-11.md)         | Architecture depth audit: smoothbore hot paths, determinism, safety (night-arc-gems-1)                                                  |
+| [responsive-audit-375.md](responsive-audit-375.md)   | Frozen responsive depth audit at the 375 x 667 floor, 2026-11-04                                                                        |
+| [assets/](../assets/)                                | The brand master plate at the repository root, signed via `signature.b3sum`                                                             |
 
 ## The gates (scripts/)
 
