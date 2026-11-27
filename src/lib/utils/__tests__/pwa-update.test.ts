@@ -17,6 +17,7 @@ vi.mock('$lib/utils/warn-dev', () => ({
 }));
 
 import {
+	applyPwaUpdate,
 	checkForPwaUpdate,
 	commitsMatch,
 	hasNewerCommit,
@@ -25,6 +26,7 @@ import {
 	normalizeBranch,
 	normalizeCommitId,
 	noteUpdateApplied,
+	purgeAppCaches,
 	pwaUpdateState,
 	shouldUseCommitUpdateCheck,
 	shortCommitId,
@@ -197,6 +199,88 @@ describe('upstream convergence window', () => {
 		localStorage.removeItem('bmi.updateAppliedAt');
 		noteUpdateApplied(1_700_000_000_000);
 		expect(localStorage.getItem('bmi.updateAppliedAt')).toBe('1700000000000');
+	});
+});
+
+// ── hard fresh cache purge (night-cafe-10) ──
+
+// The update tap must wipe every CacheStorage bucket before the
+// reload: a stuck or missing waiting worker can no longer pin the
+// previous release in the precache, and a failed clean still lets the
+// update proceed (degrade, never block).
+
+describe('hard fresh cache purge (night-cafe-10)', () => {
+	it('purgeAppCaches deletes every bucket and reports the count', async () => {
+		const deleted: string[] = [];
+		vi.stubGlobal('caches', {
+			keys: async () => ['cache-v1', 'runtime-v1'],
+			delete: async (key: string) => {
+				deleted.push(key);
+				return true;
+			}
+		});
+		expect(await purgeAppCaches()).toBe(2);
+		expect(deleted.sort()).toEqual(['cache-v1', 'runtime-v1']);
+	});
+
+	it('purgeAppCaches is a no-op without CacheStorage', async () => {
+		vi.stubGlobal('caches', undefined);
+		expect(await purgeAppCaches()).toBe(0);
+	});
+
+	it('applyPwaUpdate purges caches before the fallback reload', async () => {
+		const order: string[] = [];
+		vi.stubGlobal('caches', {
+			keys: async () => ['cache-v1'],
+			delete: async (key: string) => {
+				order.push(`purge:${key}`);
+				return true;
+			}
+		});
+		// jsdom pins window.location, so swap the whole property.
+		const originalLocation = window.location;
+		const reloadSpy = vi.fn();
+		Object.defineProperty(window, 'location', {
+			configurable: true,
+			writable: true,
+			value: { reload: reloadSpy }
+		});
+
+		// No waiting worker: the function must purge first, then reload.
+		await applyPwaUpdate();
+
+		Object.defineProperty(window, 'location', {
+			configurable: true,
+			writable: true,
+			value: originalLocation
+		});
+		expect(order).toEqual(['purge:cache-v1']);
+		expect(reloadSpy).toHaveBeenCalledTimes(1);
+	});
+
+	it('applyPwaUpdate still reloads when the purge fails', async () => {
+		vi.stubGlobal('caches', {
+			keys: async () => {
+				throw new Error('storage unavailable');
+			},
+			delete: async () => true
+		});
+		const originalLocation = window.location;
+		const reloadSpy = vi.fn();
+		Object.defineProperty(window, 'location', {
+			configurable: true,
+			writable: true,
+			value: { reload: reloadSpy }
+		});
+
+		await applyPwaUpdate();
+
+		Object.defineProperty(window, 'location', {
+			configurable: true,
+			writable: true,
+			value: originalLocation
+		});
+		expect(reloadSpy).toHaveBeenCalledTimes(1);
 	});
 });
 

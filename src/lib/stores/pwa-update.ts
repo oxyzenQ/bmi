@@ -395,7 +395,32 @@ export async function checkForPwaUpdate(
 	return updateCheckInFlight;
 }
 
-export function applyPwaUpdate(): void {
+/**
+ * Hard cache clean for the update path (night-cafe-10): delete every
+ * CacheStorage bucket this origin holds - precache and runtime, old
+ * and current. The reload that follows lands on a cold cache, so the
+ * shell and its hashed chunks come back from the network instead of a
+ * stale precache, and a stuck or never-installed waiting worker can no
+ * longer pin the previous release after the user taps Update. An
+ * offline tap degrades to the bounded offline shell, never a hang.
+ * Returns the number of purged buckets (0 when CacheStorage is
+ * unavailable or the purge fails - a failed clean never blocks the
+ * update itself).
+ */
+export async function purgeAppCaches(): Promise<number> {
+	if (!browser) return 0;
+	try {
+		if (typeof caches === 'undefined') return 0;
+		const keys = await caches.keys();
+		await Promise.all(keys.map((key) => caches.delete(key)));
+		return keys.length;
+	} catch (err) {
+		warnDevOnce('pwa-update', 'purgeAppCaches', 'Cache purge failed', err);
+		return 0;
+	}
+}
+
+export async function applyPwaUpdate(): Promise<void> {
 	if (!browser) return;
 
 	// Record the apply BEFORE any reload: the page that comes back
@@ -404,6 +429,10 @@ export function applyPwaUpdate(): void {
 	// This kills the ghost prompt that re-fired seconds after the
 	// post-update reload and made the user tap Update twice.
 	noteUpdateApplied();
+
+	// Hard fresh (night-cafe-10): wipe every cache bucket before the
+	// reload so no stale version survives the update tap.
+	await purgeAppCaches();
 
 	const waiting = registrationRef?.waiting;
 	if (waiting) {
