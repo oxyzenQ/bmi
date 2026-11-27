@@ -33,6 +33,7 @@ before relying on a specific number, path, or symbol name.
 | [furthermore.md](furthermore.md)                     | The full architectural context behind the releases                                                                                      |
 | [AUDIT-2026-08.md](AUDIT-2026-08.md)                 | Frozen audit record, August 2026                                                                                                        |
 | [AUDIT-2026-11.md](AUDIT-2026-11.md)                 | Frozen audit record, November 2026 (exacting honesty pass)                                                                              |
+| [AUDIT-DEPTH-2026-11.md](AUDIT-DEPTH-2026-11.md)     | Depth hardening and LTS audit: precision, determinism, infra (night-depth-hardening-5, night-zen-lts-Z)                                 |
 | [AUDIT-PRIVACY-2026-11.md](AUDIT-PRIVACY-2026-11.md) | Frozen privacy audit record, November 2026                                                                                              |
 | [AUDIT-INFRA-2026-11.md](AUDIT-INFRA-2026-11.md)     | The infra audit: the zelynic discipline sync (night-improve-1..8)                                                                       |
 | [AUDIT-LTS-2026-11.md](AUDIT-LTS-2026-11.md)         | Frozen LTS readiness audit, end-to-end real usage, November 2026                                                                        |

@@ -1360,6 +1360,42 @@ non-family `cosmostrix-abc` crate untouched, left every exact-pinned
 dependency and the MSRV byte-identical, re-ran clean (idempotence),
 and the gate failed exactly when the crate was drifted back by hand.
 
+**39. The repos-for-ci Address Catalog, the AXP1-ZnQ failover estate
+(night-learning-into-darkness-1).** The last hardcoded servers in the
+CI estate were the apt lanes' repoint targets: a lane that fell back
+to another fixed address had not removed the bottleneck, only renamed
+it. The protocol's second half is a tested address pool the bot
+curates instead of a default the tree prays for. `repos-for-ci/` at
+the repo root holds one `.txt` per address family (`apt-mirrors.txt`
+ships: 15 addresses, canonical archive first, the runner-native azure
+mirror second - the owner's trust ranking, never a latency
+leaderboard), bounded 10 to 100 active lines, one address per line,
+comments on their own lines. Two stdlib-only Python commands share one
+probe core (`scripts/ci/axp1znq_probe.py` - real GETs, TLS verified
+against the runner CA store, the index's own Date header as the
+freshness witness): the resolver (`axp1znq_resolve.py`) walks the
+catalog top to bottom and hands every CI lane the first address that
+actually answers - line 1 down, the lane moves on; exit 1 loud when
+nothing is alive, a dead default is never a fallback - and the
+refresher (`axp1znq_refresh.py`) re-probes the whole catalog every
+Sunday 10:00 WIB right after the dependency update, keeps the
+survivors that are alive AND fresh (stale fails the write), tombstones
+the dead in place with dated comments, prunes oldest-tombstone-first
+at the 100-line cap, warns below the 10-address floor, and never
+erases a pool whose probe came back empty (the never-empty guard - a
+flaky runner must not delete the owner's catalog). Both apt lanes
+(runtime proof, release) repoint the runner's sources through the
+resolver before `apt-get update`; the digest-pinned GitHub release
+downloads stay on their committed digests by the supply-chain law (one
+trusted host with pinned digests beats an untrusted mirror). The
+maintenance diff law widened to `bun.lock` + `repos-for-ci/`, the
+commit carries both with an honest per-week title, and the
+`scripts/dev/axp1znq_edge_proof.py` harness proves the stale-refusal,
+pick-despite-age, all-dead-exit-1 and fresh-survivor laws on a
+loopback InRelease. Proven live end to end: a dispatched maintenance
+run probed the pool from a real runner (15/15 alive, idempotent), the
+bot committed, and the defense verdict chained to success.
+
 ## Reading order for a new maintainer
 
 `AI_AGENTS_READ_THIS.md` -> `README.md` -> `docs/furthermore.md` ->
