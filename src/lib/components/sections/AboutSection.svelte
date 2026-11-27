@@ -228,9 +228,13 @@
 							{/if}
 
 							{#if $pwaUpdateState.updateAvailable}
-								<button class="pwa-install-action pwa-update-action" onclick={applyPwaUpdate}>
+								<button
+									class="pwa-install-action pwa-update-action"
+									onclick={applyPwaUpdate}
+									disabled={$pwaUpdateState.applying}
+								>
 									<PackagePlus size={18} aria-hidden="true" />
-									<span>{t('pwa.update_now')}</span>
+									<span>{$pwaUpdateState.applying ? t('pwa.updating') : t('pwa.update_now')}</span>
 								</button>
 							{:else}
 								<button

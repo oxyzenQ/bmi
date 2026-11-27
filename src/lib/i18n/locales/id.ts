@@ -496,6 +496,7 @@ const id: TranslationDict = {
 	'pwa.up_to_date': 'Anda sudah menggunakan versi BMI Stellar terbaru.',
 	'pwa.update_check_failed': 'Gagal mengecek update. Periksa koneksi lalu coba lagi.',
 	'pwa.update_now': 'Update sekarang',
+	'pwa.updating': 'Menerapkan update...',
 	'pwa.install_fallback':
 		'Gunakan ikon Instal di address bar browser, atau buka menu browser lalu pilih Instal aplikasi.',
 	'pwa.install_btn': 'Instal',

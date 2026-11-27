@@ -18,6 +18,7 @@ vi.mock('$lib/utils/warn-dev', () => ({
 
 import {
 	applyPwaUpdate,
+	bindPwaUpdateRegistration,
 	checkForPwaUpdate,
 	commitsMatch,
 	hasNewerCommit,
@@ -42,6 +43,7 @@ beforeEach(() => {
 		checking: false,
 		updateAvailable: false,
 		swUpdateReady: false,
+		applying: false,
 		latestVersion: null,
 		latestCommit: null,
 		lastCheckedAt: null,
@@ -207,7 +209,9 @@ describe('upstream convergence window', () => {
 // The update tap must wipe every CacheStorage bucket before the
 // reload: a stuck or missing waiting worker can no longer pin the
 // previous release in the precache, and a failed clean still lets the
-// update proceed (degrade, never block).
+// update proceed (degrade, never block). The waiting worker's own
+// build buckets are spared when it answers the version question -
+// its install-built precache must survive into the reloaded session.
 
 describe('hard fresh cache purge (night-cafe-10)', () => {
 	it('purgeAppCaches deletes every bucket and reports the count', async () => {
@@ -280,6 +284,145 @@ describe('hard fresh cache purge (night-cafe-10)', () => {
 			writable: true,
 			value: originalLocation
 		});
+		expect(reloadSpy).toHaveBeenCalledTimes(1);
+	});
+
+	it('purgeAppCaches spares the excluded buckets', async () => {
+		const deleted: string[] = [];
+		vi.stubGlobal('caches', {
+			keys: async () => ['cache-v1', 'runtime-v1', 'cache-v2'],
+			delete: async (key: string) => {
+				deleted.push(key);
+				return true;
+			}
+		});
+		expect(await purgeAppCaches(['cache-v2'])).toBe(2);
+		expect(deleted.sort()).toEqual(['cache-v1', 'runtime-v1']);
+	});
+
+	it('applyPwaUpdate raises the applying flag even when the purge fails', async () => {
+		vi.stubGlobal('caches', {
+			keys: async () => {
+				throw new Error('storage unavailable');
+			},
+			delete: async () => true
+		});
+		const originalLocation = window.location;
+		const reloadSpy = vi.fn();
+		Object.defineProperty(window, 'location', {
+			configurable: true,
+			writable: true,
+			value: { reload: reloadSpy }
+		});
+		let snapshot: { applying?: boolean } = {};
+		const unsubscribe = pwaUpdateState.subscribe((s) => (snapshot = s));
+		await applyPwaUpdate();
+		unsubscribe();
+		Object.defineProperty(window, 'location', {
+			configurable: true,
+			writable: true,
+			value: originalLocation
+		});
+		expect(snapshot.applying).toBe(true);
+		expect(reloadSpy).toHaveBeenCalledTimes(1);
+	});
+
+	it('applyPwaUpdate spares the waiting worker buckets when it answers', async () => {
+		vi.useFakeTimers();
+		const deleted: string[] = [];
+		vi.stubGlobal('caches', {
+			keys: async () => ['cache-v1', 'runtime-v1', 'cache-v2', 'runtime-v2'],
+			delete: async (key: string) => {
+				deleted.push(key);
+				return true;
+			}
+		});
+		let messageListener: ((event: { data?: { type?: string; version?: string } }) => void) | null =
+			null;
+		const swContainer = {
+			addEventListener: (_type: string, cb: (event: never) => void) => {
+				messageListener = cb as (event: { data?: { type?: string; version?: string } }) => void;
+			},
+			removeEventListener: () => {}
+		};
+		Object.defineProperty(navigator, 'serviceWorker', {
+			configurable: true,
+			value: swContainer
+		});
+		const waiting = {
+			postMessage: (data: { type?: string }) => {
+				if (data.type === 'GET_VERSION') {
+					messageListener?.({ data: { type: 'VERSION', version: 'v2' } });
+				}
+			}
+		} as unknown as ServiceWorker;
+		bindPwaUpdateRegistration({
+			waiting,
+			addEventListener: () => {}
+		} as unknown as ServiceWorkerRegistration);
+		const originalLocation = window.location;
+		const reloadSpy = vi.fn();
+		Object.defineProperty(window, 'location', {
+			configurable: true,
+			writable: true,
+			value: { reload: reloadSpy }
+		});
+		const done = applyPwaUpdate();
+		await done;
+		await vi.advanceTimersByTimeAsync(1600);
+		Object.defineProperty(window, 'location', {
+			configurable: true,
+			writable: true,
+			value: originalLocation
+		});
+		delete (navigator as unknown as { serviceWorker?: unknown }).serviceWorker;
+		vi.useRealTimers();
+		expect(deleted.sort()).toEqual(['cache-v1', 'runtime-v1']);
+		expect(reloadSpy).toHaveBeenCalledTimes(1);
+	});
+
+	it('applyPwaUpdate purges everything when the waiting worker stays silent', async () => {
+		vi.useFakeTimers();
+		const deleted: string[] = [];
+		vi.stubGlobal('caches', {
+			keys: async () => ['cache-v1', 'cache-v2'],
+			delete: async (key: string) => {
+				deleted.push(key);
+				return true;
+			}
+		});
+		const swContainer = {
+			addEventListener: () => {},
+			removeEventListener: () => {}
+		};
+		Object.defineProperty(navigator, 'serviceWorker', {
+			configurable: true,
+			value: swContainer
+		});
+		const waiting = { postMessage: () => {} } as unknown as ServiceWorker;
+		bindPwaUpdateRegistration({
+			waiting,
+			addEventListener: () => {}
+		} as unknown as ServiceWorkerRegistration);
+		const originalLocation = window.location;
+		const reloadSpy = vi.fn();
+		Object.defineProperty(window, 'location', {
+			configurable: true,
+			writable: true,
+			value: { reload: reloadSpy }
+		});
+		const done = applyPwaUpdate();
+		await vi.advanceTimersByTimeAsync(400);
+		await done;
+		await vi.advanceTimersByTimeAsync(1600);
+		Object.defineProperty(window, 'location', {
+			configurable: true,
+			writable: true,
+			value: originalLocation
+		});
+		delete (navigator as unknown as { serviceWorker?: unknown }).serviceWorker;
+		vi.useRealTimers();
+		expect(deleted.sort()).toEqual(['cache-v1', 'cache-v2']);
 		expect(reloadSpy).toHaveBeenCalledTimes(1);
 	});
 });

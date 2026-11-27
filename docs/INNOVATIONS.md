@@ -1302,10 +1302,19 @@ and a full-width action container so the release-changes trigger sits
 0px off the card center on phones (the 640px breakpoint had capped the
 flex container together with its buttons; measured 24px off-center at
 375x667 before the fix). (3) The update tap wipes every CacheStorage
-bucket before reloading (`purgeAppCaches`): a stuck or missing waiting
-worker can no longer pin the previous release in the precache, a
-failed purge degrades to a normal update, and four tests pin the
-purge-before-reload ordering. (4) The night-cafe-9 strand gets its
+bucket before reloading (`purgeAppCaches`) and asks the waiting worker
+which build it carries (`GET_VERSION`) so that worker's own buckets
+are spared - the install-built precache survives into the reloaded
+session and the app stays offline-capable after an update, while the
+activate integrity gate still re-verifies every entry the spared
+buckets hold. The apply also raises an `applying` flag that freezes
+every pager section switch (`goTo`), closing the handover window where
+a swipe would hang the next section on its skeletons - between the
+purge and the reload a lazy route chunk, font or image cannot be
+served. A failed purge degrades to a normal update, a silent worker
+degrades to the full purge, and the tests pin the purge-before-reload
+ordering, the exclusion, the freeze and both degrades. (4) The
+night-cafe-9 strand gets its
 door: `detectLockedSealedLedger()` finds sealed health data under a
 locked session and `UnlockLedgerFloat` offers the passphrase back once
 per cold load - the passphrase proves itself against the stored

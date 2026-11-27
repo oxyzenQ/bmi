@@ -110,6 +110,10 @@ interface PwaUpdateState {
 	checking: boolean;
 	updateAvailable: boolean;
 	swUpdateReady: boolean;
+	/** True while the update tap is mid-handover (purge to
+	 *  reload): the pager freezes section switching for the
+	 *  window. */
+	applying: boolean;
 	latestVersion: string | null;
 	latestCommit: string | null;
 	lastCheckedAt: number | null;
@@ -130,6 +134,7 @@ const initialState: PwaUpdateState = {
 	checking: false,
 	updateAvailable: false,
 	swUpdateReady: false,
+	applying: false,
 	latestVersion: null,
 	latestCommit: null,
 	lastCheckedAt: null,
@@ -398,26 +403,72 @@ export async function checkForPwaUpdate(
 /**
  * Hard cache clean for the update path (night-cafe-10): delete every
  * CacheStorage bucket this origin holds - precache and runtime, old
- * and current. The reload that follows lands on a cold cache, so the
- * shell and its hashed chunks come back from the network instead of a
- * stale precache, and a stuck or never-installed waiting worker can no
- * longer pin the previous release after the user taps Update. An
- * offline tap degrades to the bounded offline shell, never a hang.
- * Returns the number of purged buckets (0 when CacheStorage is
- * unavailable or the purge fails - a failed clean never blocks the
- * update itself).
+ * and current - except the buckets named in `exclude`. The reload
+ * that follows lands on a cold cache, so the shell and its hashed
+ * chunks come back from the network instead of a stale precache, and
+ * a stuck or never-installed waiting worker can no longer pin the
+ * previous release after the user taps Update. The exclusion lets
+ * the caller spare the waiting worker's own buckets (its
+ * install-built precache), keeping the post-reload session
+ * offline-capable; stale entries inside the spared buckets are
+ * still re-verified by the activate integrity gate. An offline tap
+ * degrades to the bounded offline shell, never a hang. Returns the
+ * number of purged buckets (0 when CacheStorage is unavailable or
+ * the purge fails - a failed clean never blocks the update itself).
  */
-export async function purgeAppCaches(): Promise<number> {
+export async function purgeAppCaches(exclude: readonly string[] = []): Promise<number> {
 	if (!browser) return 0;
 	try {
 		if (typeof caches === 'undefined') return 0;
+		const skip = new Set(exclude);
 		const keys = await caches.keys();
-		await Promise.all(keys.map((key) => caches.delete(key)));
-		return keys.length;
+		const doomed = keys.filter((key) => !skip.has(key));
+		await Promise.all(doomed.map((key) => caches.delete(key)));
+		return doomed.length;
 	} catch (err) {
 		warnDevOnce('pwa-update', 'purgeAppCaches', 'Cache purge failed', err);
 		return 0;
 	}
+}
+
+/**
+ * Ask the waiting worker which build it carries (GET_VERSION) and
+ * race the answer against a short timeout. The answer names the
+ * buckets the worker precached at install - the purge spares them
+ * so the session that comes back after the reload keeps a full
+ * offline shell (an install never reruns for the same worker). A
+ * silent worker - deployed builds predate the question, or the
+ * channel is unavailable - resolves null and the purge stays
+ * total: degrade, never wait.
+ */
+function requestWaitingVersion(
+	waiting: ServiceWorker,
+	timeoutMs: number = 300
+): Promise<string | null> {
+	const channel = navigator.serviceWorker;
+	if (!channel?.addEventListener) return Promise.resolve(null);
+	return new Promise((resolve) => {
+		let settled = false;
+		function finish(version: string | null): void {
+			if (settled) return;
+			settled = true;
+			channel.removeEventListener('message', onMessage);
+			clearTimeout(timer);
+			resolve(version);
+		}
+		function onMessage(event: MessageEvent): void {
+			if (event.data?.type === 'VERSION' && typeof event.data.version === 'string') {
+				finish(event.data.version);
+			}
+		}
+		const timer = setTimeout(() => finish(null), timeoutMs);
+		channel.addEventListener('message', onMessage);
+		try {
+			waiting.postMessage({ type: 'GET_VERSION' });
+		} catch {
+			finish(null);
+		}
+	});
 }
 
 export async function applyPwaUpdate(): Promise<void> {
@@ -430,11 +481,24 @@ export async function applyPwaUpdate(): Promise<void> {
 	// post-update reload and made the user tap Update twice.
 	noteUpdateApplied();
 
-	// Hard fresh (night-cafe-10): wipe every cache bucket before the
-	// reload so no stale version survives the update tap.
-	await purgeAppCaches();
+	// Freeze the session now: the flag gates every pager section
+	// switch, so no swipe can enter the handover window - between
+	// the cache purge and the reload - where a lazy route chunk, a
+	// font or an image cannot be served and the next section hangs
+	// on its skeletons until a manual hard refresh.
+	pwaUpdateState.update((state) => ({ ...state, applying: true }));
 
 	const waiting = registrationRef?.waiting;
+
+	// Hard fresh (night-cafe-10): wipe every cache bucket before the
+	// reload so no stale version survives the update tap. The
+	// waiting worker's own buckets are spared (see
+	// requestWaitingVersion); the activate integrity gate still
+	// re-verifies every entry they hold, so no stale asset can ride
+	// them into the new session.
+	const spare = waiting ? await requestWaitingVersion(waiting) : null;
+	await purgeAppCaches(spare ? [`cache-${spare}`, `runtime-${spare}`] : []);
+
 	if (waiting) {
 		/* Remove any previous controllerchange listener to prevent
                    double-reload from accumulated handlers on repeated calls. */

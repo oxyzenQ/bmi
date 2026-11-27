@@ -3,12 +3,14 @@
 <script lang="ts">
 	import { onDestroy, onMount, tick } from 'svelte';
 	import { browser } from '$app/environment';
+	import { get } from 'svelte/store';
 	import {
 		getPerformanceTier,
 		prefersReducedMotion as checkReducedMotion
 	} from '$lib/utils/animation-config';
 	import { createLazyLoader, createPairedLazyLoader } from '$lib/utils/lazy-load';
 	import { STORAGE_KEYS, storageGet, storageSet, storageInvalidate } from '$lib/utils/storage';
+	import { pwaUpdateState } from '$lib/stores/pwa-update';
 	import { clearLedgerHistory } from '$lib/utils/ledger-continuity';
 	import { installForeignTabCoherence } from '$lib/utils/storage-coherence';
 	import { calculateBmi, isBmiResult } from '$lib/utils/bmi-calculator';
@@ -270,6 +272,10 @@
 	}
 
 	function goTo(index: number, opts?: { skipHash?: boolean; skipSwitching?: boolean }) {
+		// The update handover freezes switching (pwa-update.ts): no
+		// swipe may enter the purge-to-reload window and hang on its
+		// skeletons.
+		if (browser && get(pwaUpdateState).applying) return;
 		const next = clampSectionIndex(index, sections.length);
 		if (next === activeIndex) {
 			if (!opts?.skipHash) setHash(sections[activeIndex].id);

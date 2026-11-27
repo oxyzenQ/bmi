@@ -161,6 +161,14 @@ sw.addEventListener('message', (event) => {
 	if (event.data?.type === 'SKIP_WAITING') {
 		event.waitUntil(sw.skipWaiting());
 	}
+
+	if (event.data?.type === 'GET_VERSION' && event.source) {
+		// The page asks which build this worker carries
+		// (pwa-update.ts): the answer names the buckets the update
+		// purge must spare, so the post-reload session keeps the
+		// offline precache this worker built at install.
+		(event.source as Client).postMessage({ type: 'VERSION', version });
+	}
 });
 
 async function trimCache(cacheName: string, maxEntries: number) {
