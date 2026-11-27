@@ -23,6 +23,12 @@ export const JELLY = {
 	CAP_RATIO: 0.12,
 	CAP_MIN: 48,
 	CAP_MAX: 96,
+	/** Low-tier signals: a smaller give animates fewer pixels per
+	 *  frame on the hardware that can least afford it. */
+	LOW_TIER_CORES: 4,
+	LOW_TIER_MEMORY_GB: 4,
+	CAP_MIN_LOW: 28,
+	LOW_TIER_CAP_RATIO: 0.6,
 	/** Release spring: underdamped, ~2 visible oscillations. */
 	STIFFNESS: 170,
 	DAMPING_RATIO: 0.5,
@@ -47,6 +53,31 @@ export type JellyEdge = 'top' | 'bottom';
 export function rubberBandDisplacement(excess: number, cap: number): number {
 	if (!(excess > 0) || !(cap > 0)) return 0;
 	return cap * (1 - 1 / (excess / cap + 1));
+}
+
+/**
+ * The rubber-band cap for a scroller: the viewport ratio clamped to
+ * [CAP_MIN, CAP_MAX]. A low-tier device - few cores or little
+ * memory - gets a smaller give, so the settle animates fewer
+ * pixels per frame on the hardware that can least afford it.
+ * Unknown signals (both values are optional and, where they exist
+ * at all, Chrome-only) count as high tier: degrade to the full
+ * feel, never punish a capable device.
+ */
+export function resolveJellyCap(
+	clientHeight: number,
+	cores: number | null,
+	memoryGb: number | null
+): number {
+	const base = Math.max(
+		JELLY.CAP_MIN,
+		Math.min(JELLY.CAP_MAX, Math.round(clientHeight * JELLY.CAP_RATIO))
+	);
+	const lowTier =
+		(cores !== null && cores <= JELLY.LOW_TIER_CORES) ||
+		(memoryGb !== null && memoryGb <= JELLY.LOW_TIER_MEMORY_GB);
+	if (!lowTier) return base;
+	return Math.max(JELLY.CAP_MIN_LOW, Math.round(base * JELLY.LOW_TIER_CAP_RATIO));
 }
 
 /**
@@ -199,9 +230,11 @@ export function attachJellyScroll(node: HTMLElement): { destroy: () => void } {
 		return { destroy: () => {} };
 	}
 
-	const cap = Math.max(
-		JELLY.CAP_MIN,
-		Math.min(JELLY.CAP_MAX, Math.round(node.clientHeight * JELLY.CAP_RATIO))
+	const nav = navigator as Navigator & { deviceMemory?: number };
+	const cap = resolveJellyCap(
+		node.clientHeight,
+		typeof navigator.hardwareConcurrency === 'number' ? navigator.hardwareConcurrency : null,
+		typeof nav.deviceMemory === 'number' ? nav.deviceMemory : null
 	);
 	const controller = new JellyController(cap);
 	const content = (): HTMLElement => (node.firstElementChild as HTMLElement) ?? node;

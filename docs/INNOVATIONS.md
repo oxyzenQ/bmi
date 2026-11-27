@@ -1291,11 +1291,13 @@ gap between a correct app and one that feels finished. (1) Jelly
 limits: wheel and touch pushes past a section's vertical scroll limits
 drag the content along the iOS rubber-band resistance curve and an
 underdamped spring settles it back with a visible swing (`jelly-scroll.ts`,
-a pure physics module pinned by twelve tests; the Svelte action glues
+a pure physics module pinned by tests; the Svelte action glues
 it on with passive listeners only, so native scrolling is never
 hijacked, the scrollbar stays still because the transform paints the
-content wrapper, and reduced-motion devices keep the static
-behavior). (2) The changelog well skins its leased modal panel like a
+content wrapper, reduced-motion devices keep the static behavior,
+and low-tier devices - few cores or little memory - resolve a
+smaller cap so the settle animates less give on the hardware that
+can least afford it). (2) The changelog well skins its leased modal panel like a
 spaceship instrument screen - a near-black grey gradient, a 1px bezel
 seam drawn by a ::before because base.css bans box-shadows globally,
 and a full-width action container so the release-changes trigger sits

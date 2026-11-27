@@ -11,7 +11,13 @@
 // is driven by an explicit timestamp.
 
 import { describe, it, expect } from 'vitest';
-import { JELLY, JellyController, rubberBandDisplacement, stepSpring } from '../jelly-scroll';
+import {
+	JELLY,
+	JellyController,
+	resolveJellyCap,
+	rubberBandDisplacement,
+	stepSpring
+} from '../jelly-scroll';
 
 const CAP = 60;
 const DT = 1 / 60;
@@ -170,5 +176,28 @@ describe('jelly controller', () => {
 		expect(c.active).toBe(false);
 		expect(c.frame(16)).toBe(0);
 		expect(c.displacement).toBe(0);
+	});
+});
+
+describe('resolveJellyCap (low-tier cap)', () => {
+	it('keeps the viewport-ratio cap on capable hardware', () => {
+		expect(resolveJellyCap(800, 8, 8)).toBe(96);
+		expect(resolveJellyCap(400, null, null)).toBe(48);
+	});
+
+	it('shrinks the cap for few cores', () => {
+		expect(resolveJellyCap(800, 4, 8)).toBe(58);
+	});
+
+	it('shrinks the cap for little memory', () => {
+		expect(resolveJellyCap(800, 8, 2)).toBe(58);
+	});
+
+	it('takes the smaller low-tier floor on short viewports', () => {
+		expect(resolveJellyCap(300, 2, 2)).toBe(29);
+	});
+
+	it('treats unknown signals as high tier', () => {
+		expect(resolveJellyCap(800, null, null)).toBe(96);
 	});
 });
