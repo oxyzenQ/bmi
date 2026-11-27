@@ -181,23 +181,25 @@ describe('jelly controller', () => {
 
 describe('resolveJellyCap (low-tier cap)', () => {
 	it('keeps the viewport-ratio cap on capable hardware', () => {
-		expect(resolveJellyCap(800, 8, 8)).toBe(96);
-		expect(resolveJellyCap(400, null, null)).toBe(48);
+		// night-cafe-mclaren-2: the elegance tier - 0.08 of the viewport,
+		// clamp [32, 72].
+		expect(resolveJellyCap(800, 8, 8)).toBe(64);
+		expect(resolveJellyCap(400, null, null)).toBe(32);
 	});
 
 	it('shrinks the cap for few cores', () => {
-		expect(resolveJellyCap(800, 4, 8)).toBe(58);
+		expect(resolveJellyCap(800, 4, 8)).toBe(38);
 	});
 
 	it('shrinks the cap for little memory', () => {
-		expect(resolveJellyCap(800, 8, 2)).toBe(58);
+		expect(resolveJellyCap(800, 8, 2)).toBe(38);
 	});
 
 	it('takes the smaller low-tier floor on short viewports', () => {
-		expect(resolveJellyCap(300, 2, 2)).toBe(29);
+		expect(resolveJellyCap(300, 2, 2)).toBe(20);
 	});
 
 	it('treats unknown signals as high tier', () => {
-		expect(resolveJellyCap(800, null, null)).toBe(96);
+		expect(resolveJellyCap(800, null, null)).toBe(64);
 	});
 });

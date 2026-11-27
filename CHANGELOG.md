@@ -1087,6 +1087,12 @@ _Link mapping: `[21.x.0]` sections correspond to the historic `Stellar-v21.x` ta
 
 - **The release line backfills itself - the one-release-late gap.** The splice writes each release section before its own release commit exists, so every fresh section shipped without its release line while the older ones carried theirs (v80.6.1 read inconsistent against the healed v80.6.0 in the floating window). `scripts/dev/version-to.sh --release-line` heals the newest ledger release mechanically - the commit's subject verbatim and its short SHA, the exact autofill shape, idempotent - and every bump runs the same heal defensively; the `chore: the ledger backfills the release line` bookkeeping subject never reports itself as a bullet. The shipped v80.6.1 section carries its line again.
 
+- **The floating-window scroll bleed.** Scrolling inside a floating window moved the page behind it: the backdrop is a DOM descendant of the app's scroller, so native scroll chaining carried the gesture straight through. Every floating window now locks the page behind it - the window's own well scrolls, the app's scroller stays still, and the jelly give stays inert behind the backdrop (`scroll-lock.ts`, wired once in `ModalShell`, so the changelog, unlock, feedback and notify windows all inherit the same behavior by construction).
+
+### Changed
+
+- **The calm jelly (the elegance tier).** The rubber-band give steps down a tier - 0.08 of the viewport, clamp [32, 72] px, low-tier floor 20 - the per-event absorption drops 48 to 32 px, and the release spring's damping rises 0.5 to 0.7: one gentle overshoot replaces two bouncy oscillations. Measured through the repo's own physics, the settle costs 28 frames instead of 39 and paints 54 px of travel instead of 101 - the elegance pass and the low-end scroll-smoothness fix are the same change.
+
 ### Docs
 
 - **The night-cafe-mclaren-2 depth master audit** — the McLaren pre-build audit of design, engine and architecture: the pure math estate independently recomputed from first principles (constants, BMI, WHO classifier edges, Mifflin-St Jeor BMR, the crack-time ladder, the KDF ladder against the OWASP floor and caps) with zero divergence, the engine's panic surface counted at zero, the runtime-claim and harness censuses verified live, and the stale references this pass found (the missing AUDIT-DEPTH map row, the maintenance-policy address refresh, the changelog Unreleased ledger) synced in the same pass.

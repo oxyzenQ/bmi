@@ -19,23 +19,29 @@ import { getVerticalScrollState } from './scroll-helpers';
 
 /** Tunables: the resistance curve cap and the release spring. */
 export const JELLY = {
-	/** Rubber-band cap: the pull asymptote as a ratio of the viewport. */
-	CAP_RATIO: 0.12,
-	CAP_MIN: 48,
-	CAP_MAX: 96,
+	/** Rubber-band cap: the pull asymptote as a ratio of the viewport.
+	 *  night-cafe-mclaren-2: the give steps down a tier - 0.12 -> 0.08
+	 *  of the viewport, clamp [32, 72] - and the settle damping rises
+	 *  0.5 -> 0.7: one gentle overshoot instead of two bouncy ones.
+	 *  Fewer pixels animate per frame and the spring settles ~30%
+	 *  sooner, which is the low-end scroll-smoothness fix as much as
+	 *  it is the elegance pass. */
+	CAP_RATIO: 0.08,
+	CAP_MIN: 32,
+	CAP_MAX: 72,
 	/** Low-tier signals: a smaller give animates fewer pixels per
 	 *  frame on the hardware that can least afford it. */
 	LOW_TIER_CORES: 4,
 	LOW_TIER_MEMORY_GB: 4,
-	CAP_MIN_LOW: 28,
+	CAP_MIN_LOW: 20,
 	LOW_TIER_CAP_RATIO: 0.6,
-	/** Release spring: underdamped, ~2 visible oscillations. */
+	/** Release spring: a single gentle overshoot (the calm settle). */
 	STIFFNESS: 170,
-	DAMPING_RATIO: 0.5,
+	DAMPING_RATIO: 0.7,
 	/** Wheel inactivity that converts a drag into a release (ms). */
 	WHEEL_RELEASE_IDLE_MS: 140,
 	/** Per-event overscroll absorption cap (px). */
-	MAX_EVENT_PX: 48,
+	MAX_EVENT_PX: 32,
 	/** Spring settle thresholds. */
 	SETTLE_DISPLACEMENT_PX: 0.5,
 	SETTLE_VELOCITY_PX_S: 24,
@@ -273,6 +279,9 @@ export function attachJellyScroll(node: HTMLElement): { destroy: () => void } {
 	}
 
 	function overscrollEdge(deltaY: number): JellyEdge | null {
+		// A floating window owns the gesture: the page behind it stays
+		// still - no native scroll (the scroll lock) and no elastic give.
+		if (node.dataset.scrollLocked === 'true') return null;
 		const state = getVerticalScrollState(node);
 		// A native elastic overscroll in flight owns the visual already.
 		if (node.scrollTop < -1 || node.scrollTop > state.maxY + 1) return null;

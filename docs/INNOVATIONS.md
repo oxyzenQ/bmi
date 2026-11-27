@@ -1396,6 +1396,35 @@ loopback InRelease. Proven live end to end: a dispatched maintenance
 run probed the pool from a real runner (15/15 alive, idempotent), the
 bot committed, and the defense verdict chained to success.
 
+**40. The Floating-Window Law, the Calm Jelly, and the Self-Healing
+Release Line (night-cafe-mclaren-2 follow-through).** Three craft
+passes from one owner mandate: the floating windows must behave alike,
+the jelly must read elegant, and the release ledger must not need
+hand-patching. (1) The floating-window law: while any floating window
+is open the page behind it does not move - the window's own well
+scrolls, the app's scroller stays still, and the jelly give stays
+inert behind the backdrop (`scroll-lock.ts`, a nesting-aware acquire
+and release wired once in `ModalShell`, so every dialog the shell
+carries - changelog, unlock, feedback, notify - inherits the same
+behavior by construction; the lock stamps `data-scroll-locked` on the
+scroller and the jelly surface reads it per gesture). (2) The calm
+jelly: the give steps down a tier - 0.08 of the viewport, clamp
+[32, 72] px, low-tier floor 20 - the per-event absorption drops 48
+to 32 px, and the release spring's damping rises 0.5 to 0.7, so one
+gentle overshoot replaces two bouncy oscillations. Driven through the
+repo's own physics the settle now costs 28 frames instead of 39 and
+paints 54 px of travel instead of 101 - the low-end scroll-smoothness
+fix and the elegance pass are the same change. (3) The self-healing
+release line: the splice writes each release section before its own
+release commit exists, so the newest section always read as the only
+one without a release line - ba942cf patched the gap by hand and it
+bit again on the next release. `backfill_release_line()` in the bump
+manager closes it mechanically at both moments (the post-tagging
+`--release-line` step and, defensively, every bump), inserts the
+commit's subject verbatim and short SHA in the exact autofill shape,
+is idempotent, warns without writing on every path it cannot prove,
+and the bookkeeping subject never reports itself as a bullet.
+
 ## Reading order for a new maintainer
 
 `AI_AGENTS_READ_THIS.md` -> `README.md` -> `docs/furthermore.md` ->

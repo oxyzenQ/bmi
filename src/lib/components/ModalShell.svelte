@@ -4,6 +4,7 @@
 <script lang="ts">
 	import { untrack, onDestroy } from 'svelte';
 	import type { Snippet } from 'svelte';
+	import { acquireScrollLock } from '$lib/utils/scroll-lock';
 
 	interface Props {
 		show: boolean;
@@ -52,6 +53,21 @@
 	let backdropEl: HTMLDivElement | null = $state(null);
 	let focusTrapHandler: ((e: KeyboardEvent) => void) | null = null;
 	let prevShow = $state(false);
+	let releaseScrollLock: (() => void) | null = null;
+
+	// The floating-window scroll lock (night-cafe-mclaren-2): while a
+	// window is open the page behind it does not move - the window's own
+	// well scrolls, the app's scroller stays still, the jelly give stays
+	// inert behind the backdrop. Acquired the moment the window opens,
+	// released exactly once on close or teardown.
+	$effect(() => {
+		if (show) {
+			if (!releaseScrollLock) releaseScrollLock = acquireScrollLock();
+		} else if (releaseScrollLock) {
+			releaseScrollLock();
+			releaseScrollLock = null;
+		}
+	});
 
 	function getFocusableElements(): HTMLElement[] {
 		if (!backdropEl) return [];
@@ -140,6 +156,10 @@
 	onDestroy(() => {
 		if (focusTrapHandler) {
 			document.removeEventListener('keydown', focusTrapHandler);
+		}
+		if (releaseScrollLock) {
+			releaseScrollLock();
+			releaseScrollLock = null;
 		}
 	});
 
