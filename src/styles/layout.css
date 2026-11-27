@@ -291,7 +291,10 @@
 		padding-inline: 0.25rem;
 	}
 
-	.pwa-install-actions,
+	.pwa-install-actions {
+		width: 100%;
+	}
+
 	.pwa-install-action {
 		width: min(100%, 260px);
 	}
