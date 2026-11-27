@@ -1,0 +1,28 @@
+# SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+# SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+#
+# AXP1-ZnQ (Architect's eXecution Protocol 1) - the repos-for-ci address
+# catalog (night-learning-into-darkness-1). One candidate address per
+# line, full https base (no trailing slash); '#' comments occupy their
+# own line. The CI failover resolver walks this list top to bottom and
+# uses the first address that answers (scripts/ci/axp1znq_resolve.py,
+# --probe-path dists/resolute/InRelease); the Sunday 10:00 WIB
+# maintenance pass re-probes the whole list and writes back the
+# survivors (scripts/ci/axp1znq_refresh.py), so the pool stays a tested
+# pool. Authored order = the owner's trust ranking, canonical first.
+https://archive.ubuntu.com/ubuntu
+https://azure.archive.ubuntu.com/ubuntu
+https://mirrors.edge.kernel.org/ubuntu
+https://uk.archive.ubuntu.com/ubuntu
+https://mirrors.digitalocean.com/ubuntu
+https://ubuntu.osuosl.org/ubuntu
+https://mirror.us.leaseweb.net/ubuntu
+https://mirror.yandex.ru/ubuntu
+https://mirrors.aliyun.com/ubuntu
+https://mirrors.tuna.tsinghua.edu.cn/ubuntu
+https://ftp.jaist.ac.jp/pub/Linux/ubuntu
+https://mirror.aarnet.edu.au/pub/ubuntu/archive
+https://mirror.it.ubc.ca/ubuntu
+https://ftp.fau.de/ubuntu
+https://mirrors.kernel.org/ubuntu
+# down 2026-11-27 (unreachable ([Errno 101] Network is unreachable) after 1 attempt(s)) - https://de.archive.ubuntu.com/ubuntu
