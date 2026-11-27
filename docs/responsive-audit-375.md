@@ -52,6 +52,33 @@ programmatic overflow scanner.
 Zero horizontal-overflow findings, zero out-of-bounds elements, zero
 clipped controls across every scanned step.
 
+## Night-cafe-10 deep pass: Info + language switcher
+
+Re-run: 2026-11-27 (night-cafe-10), same method, focused on the two
+approved surfaces: the Info section (`SettingsSection`) and the
+language switcher (`LanguageSwitcher`, portaled to body), both
+orientations, driven through the real UI - hash navigation, real taps,
+real locale switches through the panel's own option rows, and the
+panel's bounding box measured per state.
+
+| Surface                     | 375 x 667        | 667 x 375        | Notes                                           |
+| --------------------------- | ---------------- | ---------------- | ----------------------------------------------- |
+| Info section sweep          | clean, 2 steps   | clean, 2 steps   | no page or element overflow                     |
+| Switcher trigger            | in nav chip bar  | in nav chip bar  | h=44px both orientations                        |
+| Panel centering             | gaps L=R=58px    | gaps L=R=194px   | centered within 2px, fully inside the viewport  |
+| Panel after locale switches | centered, inside | centered, inside | en / id / zh / ja all fit; no reflow overflow   |
+| Option rows                 | 44px after fix   | 44px after fix   | was 41-42px - below the 44px touch-target floor |
+| Escape close                | closes           | closes           | panel unmounts                                  |
+
+One real finding, fixed in the same pass: the `.lang-option` rows
+rendered 41-42px tall on the floor viewport - under the 44px
+touch-target minimum the close button already met - and now carry an
+explicit `min-height: 44px`, re-measured live at exactly 44px in both
+orientations after the fix. Everything else on both surfaces was
+already clean: the panel is geometrically centered at every locale,
+no overflow crossed the 2px tolerance anywhere, and the Info section
+sweeps without a single finding.
+
 ## Scope notes
 
 - The floor is 375 x 667 by owner mandate; narrower devices are out

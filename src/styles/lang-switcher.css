@@ -162,6 +162,10 @@
 	align-items: center;
 	gap: 0.65rem;
 	width: 100%;
+	/* The 44px touch-target floor (night-cafe-10 audit): the natural
+	   row height measured 41-42px on the 375x667 floor - under the
+	   minimum a thumb can reliably hit. */
+	min-height: 44px;
 	padding: 0.6rem 0.75rem;
 	border: 1px solid transparent;
 	border-radius: var(--control-radius);
