@@ -140,9 +140,38 @@
 		min-height: 0;
 	}
 	/* The float leases the shell's panel: scrolling stays inside the
-	   history body, the shell itself must never gain a scrollbar. */
+	   history body, the shell itself must never gain a scrollbar.
+	   Night-cafe-10 spaceship monitor: a near-black grey gradient falls
+	   down the frame like a dark instrument screen, a faint top inset
+	   light reads as the bezel highlight, and a deep shadow grounds the
+	   well. The background needs !important because ModalShell strips
+	   panel backgrounds on coarse-pointer devices with its own
+	   !important; the two-class selector out-weighs it everywhere. */
 	:global(.modal-shell-panel.changelog-panel) {
 		overflow: hidden;
+		background:
+			linear-gradient(
+				168deg,
+				rgba(255, 255, 255, 0.05) 0%,
+				rgba(255, 255, 255, 0.012) 38%,
+				rgba(255, 255, 255, 0) 62%
+			),
+			linear-gradient(180deg, #16181d 0%, #0d0e11 52%, #070809 100%) !important;
+		border-color: rgba(255, 255, 255, 0.14);
+	}
+	/* The bezel light: a 1px seam across the panel's top edge. base.css
+	   bans box-shadows globally (the flat design law), so the monitor
+	   highlight is drawn by a positioned seam element instead. */
+	:global(.modal-shell-panel.changelog-panel)::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 1rem;
+		right: 1rem;
+		height: 1px;
+		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.24), transparent);
+		pointer-events: none;
+		z-index: 1;
 	}
 	.changelog-header {
 		display: flex;
