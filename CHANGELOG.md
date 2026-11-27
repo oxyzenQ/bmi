@@ -10,6 +10,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Released]
 
+v80.6.1
 v80.6.0
 v80.5.5
 v80.5.4
@@ -32,6 +33,33 @@ v80.0.1
 v80.0.0
 v80.0.0-night.2
 v80.0.0-night.1
+
+## [80.6.1]
+
+### Changed
+
+- **Internal research: the family Cargo.toml follows the main version** _(d4891a3)_
+- **Internal research: the repo link meets the touch-target floor** _(1d47bb5)_
+- **Internal research: the language rows meet the touch-target floor** _(3a7a708)_
+- **Internal research: the jelly gives low-tier devices a smaller give** _(1cdcf84)_
+- **Internal research: the update handover freezes the session and spares the fresh precache** _(1944a39)_
+- **Internal research: the ledger backfills the fresh release commit** _(ba942cf)_
+- **Internal research: night-cafe-10 sync the docs to the shipped passes** _(f9d4d48)_
+- **Internal research: night-cafe-10 open the cold-load unlock door** _(8fb24f5)_
+- **Internal research: night-cafe-10 quiet the jelly lint debts** _(2fe6412)_
+- **Internal research: night-cafe-10 add the jelly scroll to the section limits** _(6fb0d4a)_
+- **Internal research: night-cafe-10 wipe every cache bucket on the update tap** _(40e890a)_
+- **Internal research: night-cafe-10 skin the changelog panel like a spaceship monitor** _(cb62823)_
+- **Internal research: night-cafe-10 center the release-changes button on mobile** _(4c1ba6f)_
+- **Internal research: drop the unused isEncrypted import (CodeQL alert #46)** _(3b37b41)_
+- **Internal research: night-cafe-9 keep the loc ratchet and the proof harness clean** _(068cf65)_
+- **Internal research: night-cafe-9 sync the docs with the plaintext-ledger import law** _(7af2d5e)_
+- **Internal research: night-cafe-9 retarget the runtime proofs to the plaintext-ledger law** _(b657606)_
+- **Internal research: night-cafe-9 decrypt and import never register the at-rest session** _(3adca9f)_
+
+### Chore
+
+- **maintenance deps weekly** _(6936e93)_
 
 ## [80.6.0]
 

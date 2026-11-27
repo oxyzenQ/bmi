@@ -85,7 +85,7 @@ dependencies = [
 
 [[package]]
 name = "bmi-stellar-argon2id"
-version = "80.6.0"
+version = "80.6.1"
 dependencies = [
  "aes-gcm",
  "argon2",
