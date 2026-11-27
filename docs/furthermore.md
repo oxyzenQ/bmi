@@ -348,12 +348,13 @@ in-memory cache keeps plaintext for synchronous reads:
 | Integrity   | AES-GCM auth tag + SHA-256 checksum of the ciphertext        |
 | Coverage    | localStorage mirror, IndexedDB truth, and local backups      |
 
-The session unlocks through existing flows only — enabling encryption, a
-`verifyPassphrase` success, or a successful file decrypt whose passphrase
-verifies against the stored verifier (checked behind a bounded
-fire-and-forget race that can never stall a decrypt). A cold load starts
-locked: sealed values read as missing until the passphrase is presented
-again. A locked session can never destroy sealed data — `storageSet`
+The session unlocks through explicit doors only: `enableEncryption()` and
+`unlockAtRestSessionIfVerified()` — the passphrase must prove itself
+against the stored verifier; a plain `verifyPassphrase` success or a file
+decrypt never registers a session (night-cafe-9). Since night-cafe-10 a
+cold load that finds sealed health data under a locked session is offered
+the passphrase back once through the unlock door UI; dismissal leaves the
+ledger locked but never destroyed. A locked session can never destroy sealed data — `storageSet`
 refuses to overwrite a sealed value (the purge guard), `initStorage`
 treats sealed envelopes as intact rather than corrupted, backups snapshot
 raw so a locked ledger backs up sealed, and restore re-opens it once

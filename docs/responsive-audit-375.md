@@ -5,7 +5,9 @@
 
 # Responsive Depth Audit — 375 x 667 Floor (iPhone SE)
 
-Date: 2026-11-04 (night-style-2). Tooling: Playwright-driven headless
+Date: 2026-11-04 (night-style-2). Re-run: 2026-11-27 (night-cafe-10,
+changelog modal, release-changes trigger, and the unlock door added to
+the surface walk). Tooling: Playwright-driven headless
 Chromium via the repo dev server, viewport-driven, plus a DOM-wide
 programmatic overflow scanner.
 
@@ -30,19 +32,22 @@ programmatic overflow scanner.
 
 ## Results
 
-| Surface                             | 375 x 667             | 667 x 375 | Notes                                                 |
-| ----------------------------------- | --------------------- | --------- | ----------------------------------------------------- |
-| Welcome                             | clean                 | clean     | nav chip bar, hero, pills                             |
-| Calculator (form)                   | clean                 | clean     | stacked fields, unit toggle                           |
-| Gauge + goal tracker (4881 px tall) | clean, 9 steps        | clean     | densest section                                       |
-| Reference                           | clean, 3 steps        | clean     |                                                       |
-| About                               | clean, 7 steps        | clean     |                                                       |
-| Info + footer                       | clean                 | clean     | wallpaper clearly visible                             |
-| Success modal                       | fits                  | -         | full-width sheet pattern                              |
-| Language picker                     | fits, 4 rows          | -         |                                                       |
-| Secure Export modal                 | fits                  | -         | full-bleed sheet; body scrolls to Verify              |
-| Share card PNG                      | 1080 x 1080           | -         | purple-black gradient + grey footer verified          |
-| Bottom nav chips                    | horizontal scroll bar | fits      | `.pager-nav-shell` overflow-x auto (intended pattern) |
+| Surface                             | 375 x 667               | 667 x 375 | Notes                                                   |
+| ----------------------------------- | ----------------------- | --------- | ------------------------------------------------------- |
+| Welcome                             | clean                   | clean     | nav chip bar, hero, pills                               |
+| Calculator (form)                   | clean                   | clean     | stacked fields, unit toggle                             |
+| Gauge + goal tracker (4881 px tall) | clean, 9 steps          | clean     | densest section                                         |
+| Reference                           | clean, 3 steps          | clean     |                                                         |
+| About                               | clean, 7 steps          | clean     |                                                         |
+| Info + footer                       | clean                   | clean     | wallpaper clearly visible                               |
+| Success modal                       | fits                    | -         | full-width sheet pattern                                |
+| Language picker                     | fits, 4 rows            | -         |                                                         |
+| Secure Export modal                 | fits                    | -         | full-bleed sheet; body scrolls to Verify                |
+| Share card PNG                      | 1080 x 1080             | -         | purple-black gradient + grey footer verified            |
+| Bottom nav chips                    | horizontal scroll bar   | fits      | `.pager-nav-shell` overflow-x auto (intended pattern)   |
+| Changelog modal (night-cafe-10)     | fits, centered          | -         | gradient panel, bezel seam, OK button centered          |
+| Release-changes trigger             | centered (was 24px off) | fits      | 640px container cap fixed; 0px offset both orientations |
+| Unlock door (night-cafe-10)         | fits, centered          | -         | one passphrase field, wrong passphrase refused live     |
 
 Zero horizontal-overflow findings, zero out-of-bounds elements, zero
 clipped controls across every scanned step.
@@ -60,9 +65,13 @@ clipped controls across every scanned step.
 
 ## Verdict
 
-No defects found; no fixes required. The audit stands as the baseline
-for the 375 x 667 floor and should be re-run after any layout-level
-change to the pager sections or modal shells.
+Night-style-2 baseline: no defects. Night-cafe-10 re-run found one
+defect - the release-changes trigger rode a 260px-capped container and
+sat 24px off-center at 375 x 667 - fixed by keeping the width cap on
+the buttons only; the changelog modal and the unlock door now join the
+surface walk and measure centered at 0px. The audit stands as the
+baseline for the 375 x 667 floor and should be re-run after any
+layout-level change to the pager sections or modal shells.
 
 <!-- BMI-DISCLAIMER -->
 <!--

@@ -507,8 +507,9 @@ explicit doors `enableEncryption()` and `unlockAtRestSessionIfVerified()`
 registration sealed the imported ledger behind a key that dies with the
 tab, and with no cold-load unlock surface the next session read its own
 history as missing while the purge guard silently refused every new
-save). No production flow registers a session yet, so the seal stays
-dormant and the ledger stays plaintext until an unlock UI ships. Sealed
+save). The night-cafe-10 cold-load unlock door joins the explicit
+doors: a cold load that finds sealed health data under a locked session
+is offered the passphrase back once (section 37). Sealed
 values are
 `bmi-at-rest-v1:` + base64 JSON envelopes with a fresh 12-byte IV per
 value, AES-GCM auth tag plus a SHA-256 ciphertext checksum. The cache
@@ -1283,6 +1284,37 @@ The rejected ideas stay recorded so nobody re-litigates them blind:
   `6c7c8d4` and the web-facing derivatives (192-1024 px) stay in
   `static/assets/` under the retired-asset guard
   (`scripts/gates/check-branding.ts`).
+
+**37. The Jelly Limits, the Monitor Well, the Hard-Fresh Update, and
+the Unlock Door (night-cafe-10).** Four craft passes that close the
+gap between a correct app and one that feels finished. (1) Jelly
+limits: wheel and touch pushes past a section's vertical scroll limits
+drag the content along the iOS rubber-band resistance curve and an
+underdamped spring settles it back with a visible swing (`jelly-scroll.ts`,
+a pure physics module pinned by twelve tests; the Svelte action glues
+it on with passive listeners only, so native scrolling is never
+hijacked, the scrollbar stays still because the transform paints the
+content wrapper, and reduced-motion devices keep the static
+behavior). (2) The changelog well skins its leased modal panel like a
+spaceship instrument screen - a near-black grey gradient, a 1px bezel
+seam drawn by a ::before because base.css bans box-shadows globally,
+and a full-width action container so the release-changes trigger sits
+0px off the card center on phones (the 640px breakpoint had capped the
+flex container together with its buttons; measured 24px off-center at
+375x667 before the fix). (3) The update tap wipes every CacheStorage
+bucket before reloading (`purgeAppCaches`): a stuck or missing waiting
+worker can no longer pin the previous release in the precache, a
+failed purge degrades to a normal update, and four tests pin the
+purge-before-reload ordering. (4) The night-cafe-9 strand gets its
+door: `detectLockedSealedLedger()` finds sealed health data under a
+locked session and `UnlockLedgerFloat` offers the passphrase back once
+per cold load - the passphrase proves itself against the stored
+verifier through `unlockAtRestSessionIfVerified`, so a wrong one keeps
+the ledger exactly as locked as before and a proven one restores the
+readable history. Proven live end to end in the pinned browser: the
+production seed seals the disk, the door appears on cold load, the
+wrong passphrase is refused, and the CSV export serves the restored
+records instead of the empty-history error.
 
 ## Reading order for a new maintainer
 

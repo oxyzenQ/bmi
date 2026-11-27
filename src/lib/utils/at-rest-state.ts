@@ -59,7 +59,8 @@ export function getAtRestHealthKeys(): string[] {
 // Volatile by design: the seat exists only while an unlocked session is
 // active and dies with the tab. There is deliberately no persistence
 // path — a sealed ledger stays sealed on cold load until the passphrase
-// is presented again through an existing flow.
+// is presented again through an explicit door (enableEncryption, the
+// verified unlock battery, or the night-cafe-10 cold-load unlock door).
 //
 // The seat kinds (night-frontier-Z8):
 //   - engine: the material sits in an opaque keystore slot inside the
