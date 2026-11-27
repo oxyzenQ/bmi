@@ -37,6 +37,7 @@ v80.0.0-night.1
 
 ### Changed
 
+- **release v80.6.0 silent, no hype** _(ef04cb7)_
 - **Internal research: the results page waits for the commit it displays** _(24cad7c)_
 - **Internal research: the CSV export answers instead of dying silently** _(f839f2a)_
 - **Internal research: record the night-cafe-8 pass in the ledger (night-cafe-8)** _(bd130d9)_
