@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2025-2026 rezky_nightky (oxyzenQ)
+# SPDX-License-Identifier: AGPL-3.0-only OR Commercial
+
+#
+# POST-COMMIT HOOK: the release-line heal, now the machine's own step
+# (RELEASE.md 3.5, the one-release-late gap).
+#
+# A release section is spliced before its release commit exists, so the
+# section is born without its own line. The moment a commit whose
+# subject starts with "release v" lands, that section becomes healable
+# - this hook runs the heal right then and makes the bookkeeping commit
+# with the subject the autofill skips, so the ledger never depends on
+# the manual step being remembered. Every other commit exits silently.
+#
+# The heal's own commit ("chore: the ledger backfills the release
+# line") does not match the release shape, so the hook never recurses.
+# A failed or empty heal (already recorded, shallow history, no bullet
+# to sit above) leaves the tree untouched and exits 0: the manual
+# ./scripts/dev/version-to.sh --release-line stays the fallback and the
+# next bump's step-0 heal remains the safety net. Documented hazard
+# (RELEASE.md 3.5): amending the release commit after the heal moves
+# its SHA - re-run the heal by hand in that case; the command is
+# idempotent for the new SHA only.
+#
+# Deliberately extensionless, the same below-the-*.sh-radar shape the
+# pre-commit shim uses: git requires this exact file name.
+
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "${REPO_ROOT}"
+
+subject="$(git log -1 --format=%s)"
+case "${subject}" in
+release\ v[0-9]*) ;;
+*) exit 0 ;;
+esac
+
+if ! ./scripts/dev/version-to.sh --release-line; then
+        exit 0
+fi
+
+if git diff --quiet -- CHANGELOG.md; then
+        exit 0
+fi
+
+git add CHANGELOG.md
+git commit -m "chore: the ledger backfills the release line"

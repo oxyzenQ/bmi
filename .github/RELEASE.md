@@ -57,6 +57,7 @@ git push origin main
 - The heal finds the ledger's newest version, locates its `release v<ver>` commit reachable from HEAD, and inserts `- **release v<ver> ...** _(sha)_` above the first bullet of that section - the exact shape the autofill writes. Idempotent: a section that already records the SHA is left alone.
 - Every bump runs the same heal defensively before the ledger work, so a missed post-release step self-heals on the next bump.
 - The `chore: the ledger backfills the release line` subject is on the autofill's skip list - the bookkeeping never reports itself as a bullet.
+- `.githooks/post-commit` runs the same heal the moment a `release v*` commit lands - it heals the fresh section and makes the bookkeeping commit itself, so the manual block above is the fallback for a missed hook or a post-heal amend, not a duty to remember.
 
 ## Artifacts
 
