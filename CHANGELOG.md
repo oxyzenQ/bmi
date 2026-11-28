@@ -39,6 +39,7 @@ v80.0.0-night.1
 
 ### Changed
 
+- **release v80.6.2-dragon.1 learning, into the darkness** _(6cc45b2)_
 - **Internal research: the audit estate consolidates 8 records into 3 and the hadal benchmark lands corrected** _(d315db6)_
 - **Internal research: every floating window holds the page still and the jelly reads calm** _(6b45fc7)_
 - **Internal research: the release line backfills itself, killing the one-release-late gap** _(0a179a7)_
