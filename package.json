@@ -1,7 +1,7 @@
 {
 	"name": "bmi-stellar",
 	"private": true,
-	"version": "80.6.1",
+	"version": "80.6.2-dragon.1",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev --host",
@@ -62,7 +62,7 @@
 		"globals": "^17.6.0",
 		"jsdom": "29.1.1",
 		"postcss": "^8.5.15",
-		"prettier": "^3.8.3",
+		"prettier": "^3.10.1",
 		"prettier-plugin-svelte": "^3.5.2",
 		"rollup-plugin-visualizer": "^7.0.1",
 		"svelte": "5.55.9",

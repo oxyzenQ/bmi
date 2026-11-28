@@ -10,6 +10,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Released]
 
+v80.6.2-dragon.1
 v80.6.1
 v80.6.0
 v80.5.5
@@ -33,6 +34,26 @@ v80.0.1
 v80.0.0
 v80.0.0-night.2
 v80.0.0-night.1
+
+## [80.6.2-dragon.1]
+
+### Changed
+
+- **Internal research: the audit estate consolidates 8 records into 3 and the hadal benchmark lands corrected** _(d315db6)_
+- **Internal research: every floating window holds the page still and the jelly reads calm** _(6b45fc7)_
+- **Internal research: the release line backfills itself, killing the one-release-late gap** _(0a179a7)_
+- **Internal research: the night-cafe-mclaren-2 depth master audit (night-cafe-mclaren-2)** _(4d70fcb)_
+- **Internal research: sync the stale references the audit pass found (night-cafe-mclaren-2)** _(e4c847b)_
+- **Internal research: fix the maintenance commit title law (night-learning-into-darkness-1)** _(97d1b5c)_
+- **Internal research: AXP1-ZnQ protocol front door and reference sync (night-learning-into-darkness-1)** _(d5fb92d)_
+- **Internal research: AXP1-ZnQ address refresh joins the Sunday maintenance (night-learning-into-darkness-1)** _(c974c9e)_
+- **Internal research: AXP1-ZnQ resolver wired into the apt lanes (night-learning-into-darkness-1)** _(4de292f)_
+- **Internal research: AXP1-ZnQ repos-for-ci catalog seed (night-learning-into-darkness-1)** _(364d909)_
+- **Internal research: AXP1-ZnQ probe, resolver and refresher core (night-learning-into-darkness-1)** _(124dbbf)_
+
+### Chore
+
+- **maintenance address catalog weekly** _(014ed32)_
 
 ## [80.6.1]
 
@@ -1074,29 +1095,3 @@ When waking the project after a dormant period, expect `bun audit` to flag advis
 _Link mapping: `[21.x.0]` sections correspond to the historic `Stellar-v21.x` tags; sections from the `v*` tag era onward match `package.json` directly. Commits referenced by short SHA can be inspected via `git show <sha>`._
 
 ## [Unreleased]
-
-### Added
-
-- **The repos-for-ci address catalog, the AXP1-ZnQ (Architect's eXecution Protocol 1) failover estate (night-learning-into-darkness-1).** `repos-for-ci/apt-mirrors.txt` ships 15 probe-verified mirror addresses in the owner's trust ranking; the stdlib-only resolver (`scripts/ci/axp1znq_resolve.py`) hands every CI lane the first address that actually answers and the Sunday refresher (`scripts/ci/axp1znq_refresh.py`) re-probes the whole pool after the dependency update, writing back only the survivors that are alive AND fresh. Both apt lanes (runtime proof, release) repoint through the resolver; the maintenance lane commits deps AND addresses in the one weekly commit. Contract and honest edges: [docs/AXP1-ZnQ.md](docs/AXP1-ZnQ.md).
-
-### Fixed
-
-- **The maintenance commit title law (night-learning-into-darkness-1).** The first dispatched maintenance run caught the commit job reading the moved-file list with `git diff` after staging, so a lockfile week wore the address-catalog title. The verdict now reads the pre-staging capture the diff law already proves.
-
-### Fixed
-
-- **The release line backfills itself - the one-release-late gap.** The splice writes each release section before its own release commit exists, so every fresh section shipped without its release line while the older ones carried theirs (v80.6.1 read inconsistent against the healed v80.6.0 in the floating window). `scripts/dev/version-to.sh --release-line` heals the newest ledger release mechanically - the commit's subject verbatim and its short SHA, the exact autofill shape, idempotent - and every bump runs the same heal defensively; the `chore: the ledger backfills the release line` bookkeeping subject never reports itself as a bullet. The shipped v80.6.1 section carries its line again.
-
-- **The floating-window scroll bleed.** Scrolling inside a floating window moved the page behind it: the backdrop is a DOM descendant of the app's scroller, so native scroll chaining carried the gesture straight through. Every floating window now locks the page behind it - the window's own well scrolls, the app's scroller stays still, and the jelly give stays inert behind the backdrop (`scroll-lock.ts`, wired once in `ModalShell`, so the changelog, unlock, feedback and notify windows all inherit the same behavior by construction).
-
-### Changed
-
-- **The calm jelly (the elegance tier).** The rubber-band give steps down a tier - 0.08 of the viewport, clamp [32, 72] px, low-tier floor 20 - the per-event absorption drops 48 to 32 px, and the release spring's damping rises 0.5 to 0.7: one gentle overshoot replaces two bouncy oscillations. Measured through the repo's own physics, the settle costs 28 frames instead of 39 and paints 54 px of travel instead of 101 - the elegance pass and the low-end scroll-smoothness fix are the same change.
-
-### Docs
-
-- **The audit estate consolidates 8 records into 3 (night-consolidation-1).** The seven November audit records (the exacting honesty pass, the privacy audit, the infra zelynic sync, the LTS readiness audit, the depth hardening round, the D3 publisher binding audit, the architecture verdict) merge into two consolidated records — `docs/AUDIT-SEC-2026-11.md` (privacy claims, the crypto stack, the burn bounds, the D3 publisher binding, the signed release channel) and `docs/AUDIT-ENG-2026-11.md` (the honesty pass, real-usage readiness, the dormancy toolchain, the zelynic sync, the depth round, the architecture verdict) — with every fact, commit anchor, verdict and skip preserved at its original date; the frozen `docs/AUDIT-2026-08.md` stays untouched, and the originals remain retrievable verbatim from git history. The same pass normalized the working-tree permission drift (every tracked file mode-flipped 644→755, the exact class the permission gate hunts) back to the 644/755 law.
-
-- **The hadal depth benchmark lands as a document (`docs/ecosystem-depth-hadal.md`, night-consolidation-1).** The external ecosystem-depth report is run through the house audit discipline before landing: the on-tree cross-check table re-measures its claims (10/10 workflows exact, 33 jobs not independently confirmable by a static pass, the 877-test snapshot consistent with the growing 882), its CSS-fat concession is measured and refuted (the full census in the consolidated engineering audit, section 8), and its closing scale is corrected — from the Challenger Deep to the Everest summit is ≈19,784 m of climb, not the 2,086 m difference of a depth and a height; the headroom above the benchmark is longer than the entire descent.
-
-- **The night-cafe-mclaren-2 depth master audit** — the McLaren pre-build audit of design, engine and architecture: the pure math estate independently recomputed from first principles (constants, BMI, WHO classifier edges, Mifflin-St Jeor BMR, the crack-time ladder, the KDF ladder against the OWASP floor and caps) with zero divergence, the engine's panic surface counted at zero, the runtime-claim and harness censuses verified live, and the stale references this pass found (the missing AUDIT-DEPTH map row, the maintenance-policy address refresh, the changelog Unreleased ledger) synced in the same pass.
