@@ -18,8 +18,8 @@ Where a claim has an honest limit, the limit is written down in the
 same breath as the claim.
 
 Provenance: assembled night-docs-1, 2026-11-13, from the source tree
-and the frozen audit records (`docs/AUDIT-2026-11.md`,
-`docs/AUDIT-INFRA-2026-11.md`, `docs/AUDIT-LTS-2026-11.md`); audited
+and the November audit records (now consolidated as
+`docs/AUDIT-SEC-2026-11.md` and `docs/AUDIT-ENG-2026-11.md`); audited
 against the source and the test suites in night-audit-1. The source
 code (`src/**/*.ts`, `src/**/*.svelte`) is the single source of truth;
 this document describes it and can go stale — the closing disclaimer
@@ -371,7 +371,7 @@ lock, section 38) synced only through
 (`.githooks/pre-commit` -> `scripts/gates/check-commit-gate.sh`) runs
 the cheap gates fail-closed so an uncommittable tree cannot sneak
 past `git commit`. Provenance: night-improve-1..8, the zelynic
-discipline sync recorded in `docs/AUDIT-INFRA-2026-11.md`.
+discipline sync recorded in the consolidated `docs/AUDIT-ENG-2026-11.md`.
 
 **21. The Self-Healing Supply Chain.** Every workflow `uses:` pin is
 a 40-hex SHA with a version comment, enforced strict by
@@ -1122,7 +1122,8 @@ false-positives the witness on upgrade for affected ledgers — the
 migration cost exceeds the edge. Verification: `history-io-caps.test.ts`
 (the cap refuses before integrity, the i18n mapping holds),
 `kdf-ladder.test.ts` (the caps pin + the tampered-parameter matrix),
-and the depth audit rides as `docs/AUDIT-DEPTH-2026-11.md`.
+and the depth audit rides inside the consolidated
+`docs/AUDIT-ENG-2026-11.md`.
 
 **34. The Artifact Provenance Gate — the built bundle, not the tree
 (night-netrunner-Z1).** Every signature gate proved the SOURCE carries

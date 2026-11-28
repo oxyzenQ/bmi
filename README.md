@@ -80,8 +80,9 @@ tab.
 ### What makes bmi sharp
 
 Every claim below maps to a mechanism in the source — the deep dive
-lives in [docs/furthermore.md](docs/furthermore.md), the audit trail
-in [docs/AUDIT-2026-11.md](docs/AUDIT-2026-11.md):
+lives in [docs/furthermore.md](docs/furthermore.md), the consolidated
+audit trail in [docs/AUDIT-SEC-2026-11.md](docs/AUDIT-SEC-2026-11.md)
+and [docs/AUDIT-ENG-2026-11.md](docs/AUDIT-ENG-2026-11.md):
 
 | Edge                      | Detail                                                                                                                                                                                                                                                                        |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -370,12 +371,10 @@ the honest edges live in [docs/AXP1-ZnQ.md](docs/AXP1-ZnQ.md).
 - [docs/README.md](docs/README.md) — the documentation map
 - [docs/AXP1-ZnQ.md](docs/AXP1-ZnQ.md) — the AXP1-ZnQ (Architect's eXecution Protocol 1) contract: the repos-for-ci address catalog, the failover resolver and the Sunday refresher
 - [docs/furthermore.md](docs/furthermore.md) — the architectural deep dive: CSS cascade, pager, crypto, PWA, share image (the flagship reference)
-- [docs/AUDIT-2026-08.md](docs/AUDIT-2026-08.md) — source code audit record (August 2026)
-- [docs/AUDIT-2026-11.md](docs/AUDIT-2026-11.md) — night-spark LTS depth audit record (November 2026)
-- [docs/AUDIT-PRIVACY-2026-11.md](docs/AUDIT-PRIVACY-2026-11.md) — privacy audit record (November 2026)
-- [docs/AUDIT-INFRA-2026-11.md](docs/AUDIT-INFRA-2026-11.md) — infra audit: the zelynic discipline sync (November 2026)
-- [docs/AUDIT-LTS-2026-11.md](docs/AUDIT-LTS-2026-11.md) — end-to-end real-usage readiness audit (November 2026)
-- [docs/AUDIT-ARC-2026-11.md](docs/AUDIT-ARC-2026-11.md) — architecture depth audit: smoothbore hot paths, determinism, safety (November 2026)
+- [docs/AUDIT-2026-08.md](docs/AUDIT-2026-08.md) — frozen source code audit record (August 2026)
+- [docs/AUDIT-SEC-2026-11.md](docs/AUDIT-SEC-2026-11.md) — the consolidated security & provenance audit: privacy claims, crypto stack, burn bounds, D3 publisher binding, signed release channel (November 2026)
+- [docs/AUDIT-ENG-2026-11.md](docs/AUDIT-ENG-2026-11.md) — the consolidated engineering & LTS audit: honesty pass, real-usage readiness, dormancy toolchain, zelynic sync, depth hardening, architecture verdict (November 2026)
+- [docs/ecosystem-depth-hadal.md](docs/ecosystem-depth-hadal.md) — the hadal depth benchmark: the corrected, cross-checked landing of the external ecosystem-depth report
 - [docs/responsive-audit-375.md](docs/responsive-audit-375.md) — the 375×667 responsive floor audit (November 2026)
 - [DORMANT.md](DORMANT.md) — the wake-up checklist for long quiet periods
 - [SECURITY.md](SECURITY.md) — reporting process, threat model, crypto details

@@ -32,13 +32,9 @@ before relying on a specific number, path, or symbol name.
 | [AXP1-ZnQ.md](AXP1-ZnQ.md)                                     | The AXP1-ZnQ (Architect's eXecution Protocol 1) contract: the repos-for-ci address catalog, the failover resolver, the Sunday refresher |
 | [furthermore.md](furthermore.md)                               | The full architectural context behind the releases                                                                                      |
 | [AUDIT-2026-08.md](AUDIT-2026-08.md)                           | Frozen audit record, August 2026                                                                                                        |
-| [AUDIT-2026-11.md](AUDIT-2026-11.md)                           | Frozen audit record, November 2026 (exacting honesty pass)                                                                              |
-| [AUDIT-DEPTH-2026-11.md](AUDIT-DEPTH-2026-11.md)               | Depth hardening and LTS audit: precision, determinism, infra (night-depth-hardening-5, night-zen-lts-Z)                                 |
-| [AUDIT-PRIVACY-2026-11.md](AUDIT-PRIVACY-2026-11.md)           | Frozen privacy audit record, November 2026                                                                                              |
-| [AUDIT-INFRA-2026-11.md](AUDIT-INFRA-2026-11.md)               | The infra audit: the zelynic discipline sync (night-improve-1..8)                                                                       |
-| [AUDIT-LTS-2026-11.md](AUDIT-LTS-2026-11.md)                   | Frozen LTS readiness audit, end-to-end real usage, November 2026                                                                        |
-| [AUDIT-D3-2026-11.md](AUDIT-D3-2026-11.md)                     | The D3 publisher binding + release channel audit (night-netrunner-Z1)                                                                   |
-| [AUDIT-ARC-2026-11.md](AUDIT-ARC-2026-11.md)                   | Architecture depth audit: smoothbore hot paths, determinism, safety (night-arc-gems-1)                                                  |
+| [AUDIT-SEC-2026-11.md](AUDIT-SEC-2026-11.md)                   | The consolidated security & provenance audit: privacy claims, crypto stack, burn bounds, D3 publisher binding, signed release channel   |
+| [AUDIT-ENG-2026-11.md](AUDIT-ENG-2026-11.md)                   | The consolidated engineering & LTS audit: honesty pass, real-usage readiness, dormancy toolchain, zelynic sync, depth, architecture     |
+| [ecosystem-depth-hadal.md](ecosystem-depth-hadal.md)           | The hadal depth benchmark: the corrected landing of the external ecosystem report, with the on-tree cross-check and the CSS fat verdict |
 | [audit-night-cafe-mclaren-2.md](audit-night-cafe-mclaren-2.md) | The night-cafe-mclaren-2 depth master audit: the math re-proven from first principles, the engine, the chassis (2026-11-27)             |
 | [responsive-audit-375.md](responsive-audit-375.md)             | Frozen responsive depth audit at the 375 x 667 floor, 2026-11-04                                                                        |
 | [assets/](../assets/)                                          | The brand master plate at the repository root, signed via `signature.b3sum`                                                             |
