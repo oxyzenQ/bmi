@@ -1,7 +1,7 @@
 {
 	"name": "bmi-stellar",
 	"private": true,
-	"version": "80.6.2-dragon.1",
+	"version": "80.6.2",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev --host",

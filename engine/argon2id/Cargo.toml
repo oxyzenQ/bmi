@@ -3,7 +3,7 @@
 
 [package]
 name = "bmi-stellar-argon2id"
-version = "80.6.2-dragon.1"
+version = "80.6.2"
 edition = "2021"
 # The MSRV floor pins the same surface the toolchain channel pins (the
 # version-sync gate, scripts/gates/check-rust-version-sync.sh, ties all

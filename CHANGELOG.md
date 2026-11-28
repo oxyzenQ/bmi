@@ -10,6 +10,7 @@ For the full architectural context behind any release, see [`docs/furthermore.md
 
 ## [Released]
 
+v80.6.2
 v80.6.2-dragon.1
 v80.6.1
 v80.6.0
@@ -34,6 +35,24 @@ v80.0.1
 v80.0.0
 v80.0.0-night.2
 v80.0.0-night.1
+
+## [80.6.2]
+
+### Changed
+
+- **the release line lands itself: a post-commit hook heals the fresh section** _(268933f)_
+- **land the final z plate as the master logo, regen the rounded derivatives** _(5ba07ad)_
+- **** _(gpg: Signature made Sat 28 Nov 2026 02:01:45 PM WIB)_
+- **** _(gpg: using EDDSA key 2B52187D2AB618A7591D45C9C7F8B07418899C4E)_
+- **** _(gpg: aka "Rezky Cahya Sahputra (cosmic dragon) <130107241+oxyzenQ@users.noreply.github.com>" [ultimate])_
+- **add candidate final logo** _(1735ff5)_
+- **** _(gpg: Signature made Sat 28 Nov 2026 01:35:33 PM WIB)_
+- **** _(gpg: using EDDSA key 2B52187D2AB618A7591D45C9C7F8B07418899C4E)_
+- **** _(gpg: aka "Rezky Cahya Sahputra (cosmic dragon) <130107241+oxyzenQ@users.noreply.github.com>" [ultimate])_
+
+### Chore
+
+- **maintenance deps weekly** _(0b49a41)_
 
 ## [80.6.2-dragon.1]
 

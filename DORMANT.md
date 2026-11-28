@@ -10,7 +10,7 @@ This guide is the wake-up checklist for BMI Stellar after a quiet period of 1-5 
 ## Current Capsule
 
 - App: BMI Stellar
-- Version: `80.6.2-dragon.1`
+- Version: `80.6.2`
 - Runtime: Bun `1.3.11` from `package.json#packageManager`
 - Node range: `>=22 <27`
 - Framework: SvelteKit 2, Svelte 5, TypeScript

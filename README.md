@@ -449,7 +449,7 @@ descendants; discovery is dynamic, and `bun run audit:version-sync`
 polices the parity on every commit, so no version surface can go
 stale.
 
-Current release: `v80.6.2-dragon.1`.
+Current release: `v80.6.2`.
 
 The npm package is private (`private: true`): BMI Stellar ships as a
 Vercel-deployed web app and nothing is published to the npm registry.
